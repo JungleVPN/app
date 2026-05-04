@@ -6,22 +6,17 @@ import '@workspace/core/core/i18n';
 import '@/assets/globals.css';
 
 import { ApiProvider } from '@workspace/core/api';
-import { CoreEnvProvider, PaymentsApiProvider } from '@workspace/core/runtime';
+import { AppRoutesProvider, PaymentsApiProvider } from '@workspace/core/runtime';
 import { initDayjs } from '@workspace/core/utils';
 import { paymentsApi } from '@/api/payments.ts';
 import { backendClient } from '@/api/remnawave';
-import { env } from '@/config/env';
 import { ensureTelegramLaunchParams } from '@/lib/ensure-telegram-launch-params';
 import { initTma } from '@/lib/tma-sdk';
 import { router } from '@/router';
 
 initDayjs();
 
-const coreRuntimeEnv = {
-  subpageConfigUuid: env.subpageConfigUuid,
-  allowedAmounts: env.allowedAmounts,
-  allowedPeriods: env.allowedPeriods,
-  supportUrl: import.meta.env.VITE_SUPPORT_URL ?? '',
+const appRoutes = {
   subscriptionPortalPath: '/',
   paymentReturnPath: '/',
   authGateRedirectPath: '/',
@@ -48,13 +43,13 @@ void (async () => {
 
     createRoot(root).render(
       <StrictMode>
-        <CoreEnvProvider value={coreRuntimeEnv}>
+        <AppRoutesProvider value={appRoutes}>
           <PaymentsApiProvider api={paymentsApi}>
             <ApiProvider client={backendClient}>
               <RouterProvider router={router} />
             </ApiProvider>
           </PaymentsApiProvider>
-        </CoreEnvProvider>
+        </AppRoutesProvider>
       </StrictMode>,
     );
   } catch (e) {

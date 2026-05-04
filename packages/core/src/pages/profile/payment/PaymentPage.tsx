@@ -5,7 +5,8 @@ import { useRemnawaveApi } from '../../../api';
 import PaymentPageIcon from '../../../assets/icons/payment-icon.svg?url';
 import { ExtendCard, Link, SavedMethodRow } from '../../../components';
 import { useCreatePaymentSession, useDeleteSavedMethod, useUpdateUser } from '../../../hooks';
-import { useCoreEnv, usePaymentsApi } from '../../../runtime';
+import { coreEnv } from '../../../env';
+import { useAppRoutes, usePaymentsApi } from '../../../runtime';
 import {
   useAuthStoreActions,
   useAuthStoreInfo,
@@ -15,12 +16,8 @@ import {
 import { Page } from '../../../ui';
 
 export default function PaymentPage() {
-  const {
-    allowedAmounts = '',
-    allowedPeriods = 1,
-    supportUrl = '',
-    paymentReturnPath,
-  } = useCoreEnv();
+  const { allowedAmounts, allowedPeriods, supportUrl } = coreEnv;
+  const { paymentReturnPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
   const { t } = useTranslation();

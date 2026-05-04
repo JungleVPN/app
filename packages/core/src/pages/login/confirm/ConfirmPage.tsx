@@ -10,12 +10,12 @@ import {
 import { type FormEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
-import { useCoreEnv, useSupabaseClient } from '../../../runtime';
+import { useAppRoutes, useSupabaseClient } from '../../../runtime';
 import { Block } from '../../../ui';
 
 export default function ConfirmPage() {
   const supabase = useSupabaseClient();
-  const { subscriptionPortalPath } = useCoreEnv();
+  const { subscriptionPortalPath } = useAppRoutes();
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email');
   const [otp, setOtp] = useState('');

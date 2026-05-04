@@ -1,7 +1,8 @@
+/**
+ * TMA-specific env vars. Shared vars (VITE_SUBPAGE_CONFIG, VITE_ALLOWED_*,
+ * VITE_SUPPORT_URL) are read by @workspace/core/env directly — no duplication here.
+ */
 export const env = {
   remnawaveUrl: import.meta.env.VITE_REMNAWAVE_URL ?? '',
   paymentsUrl: import.meta.env.VITE_PAYMENTS_URL ?? '',
-  subpageConfigUuid: '00000000-0000-0000-0000-000000000000',
-  allowedAmounts: import.meta.env.VITE_ALLOWED_AMOUNTS ?? '',
-  allowedPeriods: Number(import.meta.env.VITE_ALLOWED_PERIODS ?? 1),
 } as const;

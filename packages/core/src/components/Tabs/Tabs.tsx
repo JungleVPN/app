@@ -3,7 +3,7 @@ import { IconPigFilled, IconWallet } from '@tabler/icons-react';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
-import { useCoreEnv } from '../../runtime';
+import { useAppRoutes } from '../../runtime';
 import css from './Tabs.module.css';
 
 type TabValue = 'subscription' | 'payments';
@@ -36,7 +36,7 @@ function getActiveTab(pathname: string, subscriptionPath: string, paymentPath: s
 }
 
 export const Navbar = () => {
-  const { profileSubscriptionPath, profilePaymentPath } = useCoreEnv();
+  const { profileSubscriptionPath, profilePaymentPath } = useAppRoutes();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();

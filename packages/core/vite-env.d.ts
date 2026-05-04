@@ -20,3 +20,14 @@ declare module '*.module.css' {
   const classes: Record<string, string>;
   export default classes;
 }
+
+interface ImportMetaEnv {
+  readonly VITE_SUBPAGE_CONFIG: string;
+  readonly VITE_ALLOWED_AMOUNTS: string;
+  readonly VITE_ALLOWED_PERIODS: string;
+  readonly VITE_SUPPORT_URL: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

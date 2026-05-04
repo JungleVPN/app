@@ -4,7 +4,8 @@ import { type SyntheticEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useRemnawaveApi } from '../../api';
-import { useCoreEnv } from '../../runtime';
+import { coreEnv } from '../../env';
+import { useAppRoutes } from '../../runtime';
 import { useAuthStoreInfo } from '../../stores';
 import { Block } from '../../ui';
 import { initUser, validateEmail } from '../../utils';
@@ -12,7 +13,8 @@ import { initUser, validateEmail } from '../../utils';
 import styles from './getSubscription.module.css';
 
 export default function GetSubscriptionPage() {
-  const { allowedAmounts = '', subscriptionPortalPath } = useCoreEnv();
+  const { allowedAmounts } = coreEnv;
+  const { subscriptionPortalPath } = useAppRoutes();
   const remnawaveApi = useRemnawaveApi();
   const navigate = useNavigate();
   const { t } = useTranslation();

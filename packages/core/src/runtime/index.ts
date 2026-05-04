@@ -1,5 +1,5 @@
-export type { CoreRuntimeEnv } from './core-env-context';
-export { CoreEnvProvider, useCoreEnv } from './core-env-context';
+export type { AppRoutes } from './app-routes-context';
+export { AppRoutesProvider, useAppRoutes } from './app-routes-context';
 export type { PaymentsApi } from './payments-api-context';
 export { PaymentsApiProvider, usePaymentsApi } from './payments-api-context';
 export type { SupabaseAuthClient } from './supabase-auth-types';

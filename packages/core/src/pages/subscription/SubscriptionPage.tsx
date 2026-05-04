@@ -3,11 +3,13 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { SubscriptionView } from '../../components';
 import { useSubscriptionData } from '../../hooks';
-import { useCoreEnv } from '../../runtime';
+import { coreEnv } from '../../env';
+import { useAppRoutes } from '../../runtime';
 import { useAuthStoreInfo } from '../../stores';
 
 export default function SubscriptionPage() {
-  const { subpageConfigUuid, subscriptionPortalPath } = useCoreEnv();
+  const { subpageConfigUuid } = coreEnv;
+  const { subscriptionPortalPath } = useAppRoutes();
   const navigate = useNavigate();
   const { shortUuid } = useParams<{ shortUuid: string }>();
 

@@ -6,22 +6,17 @@ import '@workspace/core/core/i18n';
 import '@/assets/globals.css';
 
 import { ApiProvider } from '@workspace/core/api';
-import { CoreEnvProvider, PaymentsApiProvider, SupabaseProvider } from '@workspace/core/runtime';
+import { AppRoutesProvider, PaymentsApiProvider, SupabaseProvider } from '@workspace/core/runtime';
 import { initDayjs } from '@workspace/core/utils';
 import { paymentsApi } from '@/api/payments';
 import { backendClient } from '@/api/remnawave';
-import { env } from '@/config/env';
 import { createClient } from '@/lib/supabase/client';
 import { WebAuthProvider } from '@/providers/WebAuthProvider';
 import { router } from '@/router.ts';
 
 initDayjs();
 
-const coreRuntimeEnv = {
-  subpageConfigUuid: env.subpageConfigUuid ?? '',
-  allowedAmounts: env.allowedAmounts ?? '',
-  allowedPeriods: env.allowedPeriods,
-  supportUrl: import.meta.env.VITE_SUPPORT_URL ?? '',
+const appRoutes = {
   subscriptionPortalPath: '/profile/subscription',
   paymentReturnPath: '/profile/subscription',
   authGateRedirectPath: '/login',
@@ -31,7 +26,7 @@ const coreRuntimeEnv = {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <CoreEnvProvider value={coreRuntimeEnv}>
+    <AppRoutesProvider value={appRoutes}>
       <PaymentsApiProvider api={paymentsApi}>
         <SupabaseProvider getClient={createClient}>
           <WebAuthProvider>
@@ -41,6 +36,6 @@ createRoot(document.getElementById('root')!).render(
           </WebAuthProvider>
         </SupabaseProvider>
       </PaymentsApiProvider>
-    </CoreEnvProvider>
+    </AppRoutesProvider>
   </StrictMode>,
 );

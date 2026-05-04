@@ -3,13 +3,12 @@ import { Outlet, useNavigate } from 'react-router';
 import { useRemnawaveApi } from '../api';
 import { Navbar } from '../components';
 import { useSavedMethodsData, useSubscriptionData } from '../hooks';
-import { useCoreEnv } from '../runtime';
+import { coreEnv } from '../env';
 import { useAuthStoreActions, useAuthStoreInfo } from '../stores';
 import { initUser } from '../utils';
 
 export function ProfileLayout() {
   const navigate = useNavigate();
-  const { subpageConfigUuid } = useCoreEnv();
   const remnawaveApi = useRemnawaveApi();
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
@@ -31,7 +30,7 @@ export function ProfileLayout() {
   // is known so child routes render immediately without a loading flash on
   // subsequent navigations.
 
-  useSubscriptionData(rmnUser?.shortUuid, subpageConfigUuid);
+  useSubscriptionData(rmnUser?.shortUuid, coreEnv.subpageConfigUuid);
   useSavedMethodsData(rmnUser?.uuid ?? '');
 
   return (
