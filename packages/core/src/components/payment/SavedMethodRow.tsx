@@ -2,7 +2,7 @@ import { AlertDialog, Button, Chip, Separator, Tooltip, useOverlayState } from '
 import type { SavedMethodDto } from '@workspace/types';
 import { useTranslation } from 'react-i18next';
 import BinIcon from '../../assets/icons/bin-icon.svg?react';
-import { formatSavedMethodLabel, getPaymentMethodIcon } from '../../ui/savedMethodDisplay';
+import { formatSavedMethodLabel, resolveMethodIcon } from '../../ui';
 
 export interface SavedMethodRowProps {
   method: SavedMethodDto;
@@ -24,8 +24,8 @@ export function SavedMethodRow({
     <>
       {showSeparatorAbove ? <Separator className='shrink-0' variant='secondary' /> : null}
       <div className='flex min-h-[52px] items-center gap-3 px-4 py-2.5'>
-        <span aria-hidden className='shrink-0 text-xl leading-none'>
-          {getPaymentMethodIcon(method.paymentMethodType)}
+        <span aria-hidden className='shrink-0 text-xl leading-none w-6 h-6'>
+          {resolveMethodIcon(method)}
         </span>
 
         <div className='min-w-0 flex-1'>
@@ -80,11 +80,7 @@ export function SavedMethodRow({
               <Button slot='close' variant='tertiary'>
                 {t('payment.deleteMethod.cancel')}
               </Button>
-              <Button
-                slot='close'
-                variant='danger'
-                onPress={() => onDelete?.(method.id)}
-              >
+              <Button slot='close' variant='danger' onPress={() => onDelete?.(method.id)}>
                 {t('payment.deleteMethod.confirm')}
               </Button>
             </AlertDialog.Footer>

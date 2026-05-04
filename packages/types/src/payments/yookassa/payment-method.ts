@@ -226,7 +226,9 @@ export function isBankCardPaymentMethod(pm: IPaymentMethod): pm is IPaymentMetho
  * (card, yoo_money, sberbank, tinkoff_bank, sbp). These all extend
  * `IGeneralPayMethod`, so `id`, `saved`, `title` can be safely accessed.
  */
-export function isSavablePaymentMethod(pm: IPaymentMethod): pm is IPaymentMethod & IGeneralPayMethod {
+export function isSavablePaymentMethod(
+  pm: IPaymentMethod,
+): pm is IPaymentMethod & IGeneralPayMethod {
   return (
     pm.type === PaymentMethodsEnum.bank_card ||
     pm.type === PaymentMethodsEnum.yoo_money ||
