@@ -67,11 +67,19 @@ export function createApiClient(config: ApiClientConfig) {
       });
     }
 
-    if (response.status === 204) {
+    if (response.status === 204 || response.status === 205) {
       return undefined as T;
     }
 
-    return response.json() as Promise<T>;
+    const raw = await response.json();
+    if (!raw) {
+      throw new ApiClientError({
+        status: response.status,
+        message: `Empty response body: ${method} ${path} — check REMNAWAVE_URL / service and that the route returns JSON`,
+        data: null,
+      });
+    }
+    return raw;
   }
 
   return {

@@ -18,11 +18,9 @@ export function createRemnawaveApi(client: ApiClient) {
       body: GetUserByEmailCommand.Request,
     ): Promise<GetUserByEmailCommand.Response['response'] | null> {
       try {
-        const data = await client.get<GetUserByEmailCommand.Response['response']>(
+        return await client.get<GetUserByEmailCommand.Response['response']>(
           apiRoutes.remnawave.userByEmail(body.email),
         );
-        if (data.length === 0) return null;
-        return data;
       } catch (err: unknown) {
         if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
           return null;
@@ -38,7 +36,7 @@ export function createRemnawaveApi(client: ApiClient) {
         const data = await client.get<GetUserByTelegramIdCommand.Response['response']>(
           apiRoutes.remnawave.userByTelegramId(telegramId),
         );
-        if (data.length === 0) return null;
+        if (data?.length === 0) return null;
         return data;
       } catch (err: unknown) {
         if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
@@ -50,7 +48,7 @@ export function createRemnawaveApi(client: ApiClient) {
 
     async createUser(
       params: Pick<CreateUserRequestDto, 'email' | 'telegramId'>,
-    ): Promise<CreateUserResponseDto> {
+    ): Promise<CreateUserResponseDto | null> {
       return client.post<CreateUserResponseDto>(apiRoutes.remnawave.users, {
         ...params,
         username: crypto.randomUUID().slice(0, 8),
@@ -59,7 +57,7 @@ export function createRemnawaveApi(client: ApiClient) {
 
     async getSubpageConfigByShortUuid(
       shortUuid: string,
-    ): Promise<GetSubpageConfigByShortUuidCommand.Response['response']> {
+    ): Promise<GetSubpageConfigByShortUuidCommand.Response['response'] | null> {
       return await client.get<GetSubpageConfigByShortUuidCommand.Response['response']>(
         apiRoutes.remnawave.subscriptionSubpageConfig(shortUuid),
       );
@@ -67,7 +65,7 @@ export function createRemnawaveApi(client: ApiClient) {
 
     async getSubscriptionInfoByShortUuid(
       shortUuid: string,
-    ): Promise<GetSubscriptionInfoByShortUuidCommand.Response['response']> {
+    ): Promise<GetSubscriptionInfoByShortUuidCommand.Response['response'] | null> {
       return await client.get<GetSubscriptionInfoByShortUuidCommand.Response['response']>(
         apiRoutes.remnawave.subscriptionInfoByShortUuid(shortUuid),
       );
@@ -75,13 +73,13 @@ export function createRemnawaveApi(client: ApiClient) {
 
     async getSubscriptionPageConfig(
       uuid: string,
-    ): Promise<GetSubscriptionPageConfigCommand.Response['response']> {
+    ): Promise<GetSubscriptionPageConfigCommand.Response['response'] | null> {
       return await client.get<GetSubscriptionPageConfigCommand.Response['response']>(
         apiRoutes.remnawave.subscriptionPageConfig(uuid),
       );
     },
 
-    async updateUser(body: UpdateUserCommand.Request): Promise<UpdateUserResponseDto> {
+    async updateUser(body: UpdateUserCommand.Request): Promise<UpdateUserResponseDto | null> {
       return client.patch<UpdateUserResponseDto>(apiRoutes.remnawave.users, body);
     },
   };

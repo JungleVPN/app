@@ -1,12 +1,15 @@
 import { Card, Surface } from '@heroui/react';
 import type { TSubscriptionPagePlatformKey } from '@workspace/types';
 import { useTranslation } from 'react-i18next';
-import { useIsConfigLoaded, useSubscriptionConfig } from '../../stores/subscription-config';
-import { useSubscriptionInfoStoreInfo } from '../../stores/subscription-info';
-import type { SubscriptionDataError } from '../../hooks/useSubscriptionData';
+import type { SubscriptionDataError } from '../../hooks';
+import {
+  useIsConfigLoaded,
+  useSubscriptionConfig,
+  useSubscriptionInfoStoreInfo,
+} from '../../stores';
 
 import '../../utils/initDayjs';
-import { detectOs } from '../../utils/detectOs';
+import { detectOs } from '../../utils';
 import { InstallationGuideConnector } from '../InstallationGuide';
 import { Loading } from '../Loading/Loading';
 import {

@@ -20,11 +20,11 @@ export default function GetSubscriptionPage() {
   const [error, setError] = useState<string | null>(null);
   const [hasError, setHasError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { authUser } = useAuthStoreInfo();
+  const { authUser, rmnUser } = useAuthStoreInfo();
 
   useEffect(() => {
-    if (authUser) navigate(subscriptionPortalPath);
-  }, [authUser, navigate, subscriptionPortalPath]);
+    if (authUser && rmnUser) navigate(subscriptionPortalPath);
+  }, [authUser, navigate, subscriptionPortalPath, rmnUser]);
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -45,9 +45,13 @@ export default function GetSubscriptionPage() {
 
     setIsLoading(true);
     try {
-      const data = await initUser(remnawaveApi, { email });
+      const user = await initUser(remnawaveApi, { email });
 
-      navigate(`/subscription/${data.shortUuid}`);
+      if (!user) {
+        const newUser = await remnawaveApi.createUser({ email });
+        navigate(`/subscription/${newUser?.shortUuid}`);
+      }
+      navigate(`/subscription/${user?.shortUuid}`);
     } catch {
       setError(t('getSubscription.error_failed_to_create'));
       setHasError(true);

@@ -2,7 +2,7 @@ import { Surface } from '@heroui/react';
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { SubscriptionView } from '../../components';
-import { useSubscriptionData } from '../../hooks/useSubscriptionData';
+import { useSubscriptionData } from '../../hooks';
 import { useCoreEnv } from '../../runtime';
 import { useAuthStoreInfo } from '../../stores';
 

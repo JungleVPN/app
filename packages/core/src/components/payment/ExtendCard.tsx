@@ -12,7 +12,7 @@ import { IconArrowRight, IconMail } from '@tabler/icons-react';
 import { SyntheticEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { validateEmail } from '../../utils/validators';
+import { validateEmail } from '../../utils';
 
 interface ExtendCardProps {
   /** Show email input — true for Telegram users who have no saved email. */
@@ -24,7 +24,13 @@ interface ExtendCardProps {
   onTermsOpen: () => void;
 }
 
-export function ExtendCard({ showEmailInput, isPaying, allowedAmounts, onExtend, onTermsOpen }: ExtendCardProps) {
+export function ExtendCard({
+  showEmailInput,
+  isPaying,
+  allowedAmounts,
+  onExtend,
+  onTermsOpen,
+}: ExtendCardProps) {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -76,7 +82,6 @@ export function ExtendCard({ showEmailInput, isPaying, allowedAmounts, onExtend,
                   variant='secondary'
                   onChange={(event) => {
                     setEmail(event.target.value);
-                    console.log(emailError);
                     if (emailError) setEmailError('');
                   }}
                 />

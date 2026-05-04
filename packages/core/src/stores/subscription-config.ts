@@ -52,7 +52,7 @@ export const useSubscriptionConfigStore = create<
   actions: {
     setConfig: (config: TSubscriptionPageRawConfig) => {
       const detectedLang = detectLanguage(config.locales);
-
+      console.log(detectedLang);
       set({
         config,
         currentLang: detectedLang,

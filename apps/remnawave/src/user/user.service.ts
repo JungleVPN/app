@@ -129,13 +129,10 @@ export class UserService {
   async getUserByEmail(email: string): Promise<GetUserByEmailCommand.Response['response'] | null> {
     if (!email) return null;
     try {
-      const users = await this.panelClient.request<GetUserByEmailCommand.Response['response']>({
+      return await this.panelClient.request<GetUserByEmailCommand.Response['response']>({
         method: GetUserByEmailCommand.endpointDetails.REQUEST_METHOD,
         url: GetUserByEmailCommand.url(email),
       });
-
-      if (!users || users.length === 0) return null;
-      return users;
     } catch (e: any) {
       if (e.status === 404) return null;
       throw e;

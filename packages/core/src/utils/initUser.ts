@@ -17,8 +17,7 @@ type RemnawaveApi = ReturnType<typeof createRemnawaveApi>;
 export async function initUser(
   api: RemnawaveApi,
   body: Pick<CreateUserRequestDto, 'email' | 'telegramId'>,
-): Promise<CreateUserResponseDto> {
-  console.log(body);
+): Promise<CreateUserResponseDto | null> {
   if (!body.email && body.telegramId == null) {
     throw new Error('initUser requires at least an email or a telegramId');
   }
@@ -34,7 +33,7 @@ export async function initUser(
       if (byTelegram) return byTelegram[0];
     }
 
-    return await api.createUser(body);
+    return null;
   } catch (error: unknown) {
     if (error instanceof Error) {
       const wrapped = new Error(`initUser: ${error.message}`);
