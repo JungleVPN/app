@@ -4,17 +4,21 @@
   backface-visibility: hidden;
   bottom: 16px;
   position: fixed;
-  will-change: transform;
   z-index: 1000;
   isolation: isolate;
   margin-block: 0;
   margin-inline: auto;
+  transition: transform 0.1s ease-in-out;
+}
+
+.root:active {
+  transform: scale(1.02) translateX(-50%) translateY(0);
 }
 
 .list {
   position: relative;
   border-radius: 4rem;
-  align-items: flex-start;
+  align-items: center;
   align-self: stretch;
   display: flex;
   gap: 8px;
@@ -27,6 +31,12 @@
   box-shadow:
     0 1px 2px 0 #00000014,
     0 2px 16px 1px #0000001a;
+  user-select: none;
+  cursor: grab;
+}
+
+.list:active {
+  cursor: grabbing;
 }
 
 .list:after {
@@ -39,38 +49,77 @@
   mix-blend-mode: soft-light;
   pointer-events: none;
   position: absolute;
-  z-index: 2;
+  z-index: 4;
 }
 
-.tab {
-  position: relative;
-  padding: 0.25rem 1rem;
-  font-size: 0.875rem;
-  white-space: nowrap;
-  display: flex;
-  gap: 2px;
-  opacity: 0.9;
-  cursor: pointer;
-  align-items: center;
-  flex: 1 0 0;
-  flex-direction: column;
-  justify-content: center;
-  padding-inline: 0;
-  width: 124px;
-  height: 100%;
-  will-change: transform;
-  z-index: 3;
-  padding-block: 5px;
-  font-weight: 600;
-  transition: color 100ms ease;
-  color: var(--tg-theme-text-color);
-}
-
+/* Purely positional — no background, no border, no shadow.
+   Its only job is to track x/width for the clip-path on the accent layer. */
 .indicator {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  height: 90%;
+  pointer-events: none;
+  z-index: 1;
   border-radius: 4rem;
   box-shadow: 0 1px 2px rgb(0 0 0 / 8%);
   background-color: rgb(from var(--tg-theme-accent-text-color) r g b / 10%);
   border-color: transparent;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 0 0;
+  width: 124px;
+  height: 100%;
+  padding-block: 5px;
+  padding-inline: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--tg-theme-text-color);
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  z-index: 3;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Base layer — default colour, always fully opaque so nothing bleeds through */
+.tabInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  fill: #fff;
+}
+
+/* Accent layer — accent colour, clipped to the region the indicator covers.
+   Sits on top of the base layer; full opacity ensures it completely replaces it
+   in the overlapping region with no ghosting. */
+.tabInnerActive {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--tg-theme-accent-text-color);
+  fill: var(--tg-theme-accent-text-color);
+  pointer-events: none;
+}
+
+.tabIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
 }
 
 .tabLabel {
@@ -80,16 +129,6 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 14px;
-}
-
-.tabIcon {
-  background: transparent;
-  fill: var(--tg-theme-text-color);
-}
-
-.tab[aria-selected="true"] .tabLabel,
-.tab[aria-selected="true"] .tabIcon {
-  color: var(--tg-theme-accent-text-color);
 }
 
 .tabSection {

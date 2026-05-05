@@ -37,6 +37,7 @@
     "react-router": "^7.14.1",
     "@tabler/icons-react": "^3.31.0",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.0.0",
     "dayjs": "^1.11.13",
     "ufo": "^1.6.1"
   },
