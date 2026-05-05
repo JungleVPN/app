@@ -6,7 +6,6 @@
  * When the upstream adds fields we care about, pull them in manually.
  */
 
-export * from './autopayment';
 export * from './confirmation';
 export * from './general';
 export * from './payment';

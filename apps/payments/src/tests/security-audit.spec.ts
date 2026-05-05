@@ -32,7 +32,6 @@ import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
 import { ValidatePaymentRequest } from '@payments/utils/utils';
 import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import {
-  type CreateAutopaymentDto,
   type CreateYookassaSessionDto,
   Payments,
   type PaymentWebhookNotification,
@@ -188,90 +187,6 @@ describe('Security Audit', () => {
       );
 
       expect(mockHandlePaymentSucceeded).not.toHaveBeenCalled();
-    });
-  });
-  describe('[FINDING #5] make-autopayment must reject invalid amount and selectedPeriod', () => {
-    let controller: YookassaController;
-    let mockYooKassaCreate: ReturnType<typeof vi.fn>;
-
-    beforeEach(() => {
-      vi.clearAllMocks();
-      process.env.ALLOWED_AMOUNTS = '200,600,1200';
-      process.env.ALLOWED_PERIODS = '1,3,6';
-
-      mockYooKassaCreate = vi.fn().mockResolvedValue({ id: 'pay_auto', status: 'succeeded' });
-
-      controller = new YookassaController(
-        {
-          find: vi.fn(),
-          findOneBy: vi.fn(),
-          create: vi.fn((d: unknown) => d),
-          save: vi.fn(async (v: unknown) => v),
-        } as unknown as Repository<YookassaPayment>,
-        {
-          find: vi.fn(),
-          findOneBy: vi.fn().mockResolvedValue({
-            userId: 'user-uuid-1',
-            paymentMethodId: 'pm_saved',
-            isActive: true,
-          }),
-          create: vi.fn((d: unknown) => d),
-          save: vi.fn(async (v: unknown) => v),
-        } as unknown as Repository<SavedPaymentMethod>,
-        makeYookassaService(),
-        { create: mockYooKassaCreate } as unknown as YooKassaProvider,
-        { emit: vi.fn() } as unknown as EventEmitter2,
-        makeRealValidatePaymentRequest(),
-      );
-    });
-
-    afterEach(() => {
-      delete process.env.ALLOWED_AMOUNTS;
-      delete process.env.ALLOWED_PERIODS;
-    });
-
-    it('rejects an amount that is not in the configured price table', async () => {
-      const dto: CreateAutopaymentDto = {
-        userId: 'user-uuid-1',
-        telegramId: 42,
-        amount: {
-          value: '1',
-          currency: 'RUB',
-        },
-        selectedPeriod: 1,
-      };
-
-      await expect(controller.makeAutopayment(dto)).rejects.toThrow(BadRequestException);
-      expect(mockYooKassaCreate).not.toHaveBeenCalled();
-    });
-
-    it('rejects a selectedPeriod that is not in the allowed set (e.g. 120 months)', async () => {
-      const dto: CreateAutopaymentDto = {
-        userId: 'user-uuid-1',
-        telegramId: 42,
-        amount: {
-          value: '200',
-          currency: 'RUB',
-        },
-        selectedPeriod: 120, // not an allowed tier
-      };
-
-      await expect(controller.makeAutopayment(dto)).rejects.toThrow(BadRequestException);
-    });
-
-    it('rejects a mismatched amount/period combination', async () => {
-      // 1 RUB for 12 months is not in the price table
-      const dto: CreateAutopaymentDto = {
-        userId: 'user-uuid-1',
-        telegramId: 42,
-        amount: {
-          value: '1',
-          currency: 'RUB',
-        },
-        selectedPeriod: 12,
-      };
-
-      await expect(controller.makeAutopayment(dto)).rejects.toThrow(BadRequestException);
     });
   });
   describe('[FINDING #7] Webhook validation must not be bypassed by NODE_ENV', () => {
@@ -440,7 +355,6 @@ describe('Security Audit', () => {
         makeSavedMethodRepo(),
         makeYookassaService(),
         { create: mockProviderCreate } as unknown as YooKassaProvider,
-        { emit: vi.fn() } as unknown as EventEmitter2,
         makeRealValidatePaymentRequest(),
       );
     });
@@ -525,7 +439,6 @@ describe('Security Audit', () => {
         makeSavedMethodRepo(),
         makeYookassaService(),
         { create: mockProviderCreate } as unknown as YooKassaProvider,
-        { emit: vi.fn() } as unknown as EventEmitter2,
         makeRealValidatePaymentRequest(),
       );
     });

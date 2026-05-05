@@ -6,7 +6,7 @@ import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.pro
 import type { YookassaService } from '@payments/providers/yookassa/yookassa.service';
 import { ValidatePaymentRequest } from '@payments/utils/utils';
 import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
-import { type CreateYookassaSessionDto, WebhookEventEnum } from '@workspace/types';
+import { type CreateYookassaSessionDto } from '@workspace/types';
 import type { Repository } from 'typeorm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -94,7 +94,6 @@ describe('YookassaController', () => {
       savedMethodRepo,
       YookassaService,
       yookassaProvider,
-      eventEmitter,
       validatePaymentRequest,
     );
   });
@@ -226,108 +225,6 @@ describe('YookassaController', () => {
 
       expect(mockHandleWebhook).toHaveBeenCalledWith(payload, '127.0.0.1');
       expect(result).toEqual({ ok: true });
-    });
-  });
-
-  // ─────────────────────────────────────────────────────────
-  // makeAutopayment
-  // ─────────────────────────────────────────────────────────
-  describe('makeAutopayment', () => {
-    const dto = {
-      telegramId: 123,
-      userId: 'user-1',
-      amount: { value: '500', currency: 'RUB' },
-      selectedPeriod: 1,
-      description: 'autopay',
-    };
-
-    it('throws when no active saved method exists', async () => {
-      mockSmFindOneBy.mockResolvedValue(null);
-
-      await expect(controller.makeAutopayment(dto)).rejects.toBeInstanceOf(NotFoundException);
-      expect(mockCreate).not.toHaveBeenCalled();
-    });
-
-    it('builds a payment_method_id request, persists, and does NOT emit on success', async () => {
-      mockSmFindOneBy.mockResolvedValue({
-        userId: 'user-1',
-        paymentMethodId: 'pm_1',
-        isActive: true,
-      });
-      mockCreate.mockResolvedValue({
-        id: 'pay_1',
-        status: 'succeeded',
-      });
-
-      const result = await controller.makeAutopayment(dto);
-
-      const [request] = mockCreate.mock.calls[0];
-      expect(request).toEqual(
-        expect.objectContaining({
-          amount: { value: '500', currency: 'RUB' },
-          capture: true,
-          payment_method_id: 'pm_1',
-          description: 'autopay',
-        }),
-      );
-      expect(request.confirmation).toBeUndefined();
-      expect(request.metadata).toBeUndefined();
-
-      expect(mockYkCreate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'pay_1',
-          status: 'succeeded',
-          amount: '500',
-          userId: 'user-1',
-          selectedPeriod: 1,
-          telegramId: 123,
-          description: 'autopay',
-          paidAt: new Date(),
-        }),
-      );
-      expect(mockYkSave).toHaveBeenCalled();
-      expect(mockEmit).not.toHaveBeenCalled();
-      expect(result).toEqual({
-        id: 'pay_1',
-        status: 'succeeded',
-      });
-    });
-
-    it('emits AUTOPAYMENT_FAILED when provider returns canceled', async () => {
-      mockSmFindOneBy.mockResolvedValue({
-        userId: 'user-1',
-        paymentMethodId: 'pm_1',
-        isActive: true,
-      });
-      mockCreate.mockResolvedValue({
-        id: 'pay_2',
-        status: 'canceled',
-        cancellation_details: {
-          reason: 'insufficient_funds',
-          party: 'payment_network',
-        },
-      });
-
-      const result = await controller.makeAutopayment(dto);
-
-      expect(mockYkCreate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          status: 'canceled',
-          paidAt: null,
-        }),
-      );
-      expect(mockEmit).toHaveBeenCalledWith(
-        WebhookEventEnum['payment.autopayment_failed'],
-        expect.objectContaining({
-          userId: 'user-1',
-          provider: 'yookassa',
-          reason: 'insufficient_funds',
-        }),
-      );
-      expect(result.cancellation_details).toEqual({
-        reason: 'insufficient_funds',
-        party: 'payment_network',
-      });
     });
   });
 });
