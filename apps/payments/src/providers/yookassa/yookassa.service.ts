@@ -38,29 +38,40 @@ export class YookassaService {
   ) {}
 
   async handleWebhook(payload: PaymentWebhookNotification, ip: string) {
-    // Validation runs in every environment — never gated on NODE_ENV (finding #7).
     await this.validateWebhookPayload(payload, ip);
 
-    try {
-      switch (payload.event) {
-        case WebhookEventEnum['payment.succeeded']:
-          await this.handlePaymentSucceeded(payload);
-          break;
-        case WebhookEventEnum['payment.canceled']:
-          await this.handlePaymentCanceled(payload);
-          break;
-      }
-    } catch (apiError) {
-      this.logger.error(`API verification failed for payment ${payload.object.id}`, apiError);
+    switch (payload.event) {
+      case WebhookEventEnum['payment.succeeded']:
+        await this.handlePaymentSucceeded(payload);
+        break;
+      case WebhookEventEnum['payment.canceled']:
+        await this.handlePaymentCanceled(payload);
+        break;
     }
   }
 
   async handlePaymentSucceeded(payload: PaymentWebhookNotification): Promise<void> {
     const { payment_method, id, status, captured_at } = payload.object;
 
-    const record = await this.yookassaPaymentRepo.findOneBy({ id });
+    // Single-retry lookup: autopayments can return status=succeeded synchronously
+    // from YooKassa, meaning the webhook may arrive before the initiating service
+    // has committed the DB record. A 1.5 s pause covers the write propagation gap
+    // without meaningfully delaying normal webhook delivery.
+    let record = await this.yookassaPaymentRepo.findOneBy({ id });
+    if (!record) {
+      await new Promise((resolve) => setTimeout(resolve, 1_500));
+      record = await this.yookassaPaymentRepo.findOneBy({ id });
+    }
+
     if (!record?.userId || !record?.selectedPeriod) {
-      this.logger.error(`Payment ${id}: missing userId or selectedPeriod in DB`);
+      this.logger.error(
+        `Payment ${id}: no DB record found after retry — possible orphaned payment, manual recovery needed`,
+      );
+      return;
+    }
+
+    if (record.status === 'succeeded' && record.paidAt !== null) {
+      this.logger.log(`Payment ${id} already processed — ignoring duplicate webhook`);
       return;
     }
 

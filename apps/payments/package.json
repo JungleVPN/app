@@ -22,6 +22,7 @@
     "@workspace/types": "workspace:*",
     "axios": "^1.7.0",
     "cidr-matcher": "^2.1.1",
+    "date-fns": "^3.6.0",
     "reflect-metadata": "^0.2.2",
     "stripe": "^20.0.0",
     "typeorm": "^0.3.20",

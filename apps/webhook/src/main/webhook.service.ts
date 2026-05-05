@@ -115,6 +115,7 @@ export class WebhookService {
         'x-forwarded-for': ip,
         'x-service-secret': process.env.INTER_SERVICE_SECRET,
       },
+      timeout: 15_000,
     });
   }
 }

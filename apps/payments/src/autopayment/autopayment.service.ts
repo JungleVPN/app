@@ -26,11 +26,14 @@ export class AutopaymentService {
   ) {}
 
   private get autopaymentAmount(): string {
-    return process.env.ALLOWED_AMOUNTS || '200';
+    // ALLOWED_AMOUNTS is a comma-separated list of every valid manual-payment
+    const raw = process.env.ALLOWED_AMOUNTS || '200';
+    return raw.split(',')[0].trim();
   }
 
   private get autopaymentPeriod(): number {
-    return Number(process.env.ALLOWED_PERIODS || '1');
+    const raw = process.env.ALLOWED_PERIODS || '1';
+    return Number(raw.split(',')[0].trim());
   }
 
   async init(payload: RemnawebhookPayload): Promise<void> {
@@ -153,9 +156,18 @@ export class AutopaymentService {
       selectedPeriod,
       telegramId: telegramId ?? null,
       description,
-      paidAt: payment.status === 'succeeded' ? new Date() : null,
+      paidAt: null,
     });
-    await this.yookassaPaymentRepo.save(record);
+
+    try {
+      await this.yookassaPaymentRepo.save(record);
+    } catch (dbErr: any) {
+      this.logger.error(
+        `Failed to persist autopayment record for payment ${payment.id} ` +
+          `(userId=${userId}): ${dbErr.message}. ` +
+          `The charge was created in YooKassa — subscription extension will rely on the incoming webhook.`,
+      );
+    }
 
     if (payment.status === 'canceled' && payment.cancellation_details) {
       this.eventEmitter.emit(WebhookEventEnum['payment.autopayment_failed'], {

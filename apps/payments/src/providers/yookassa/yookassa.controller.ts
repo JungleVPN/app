@@ -12,18 +12,15 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
 import { ValidatePaymentRequest } from '@payments/utils/utils';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import {
-  type CreateAutopaymentDto,
   type CreateYookassaSessionDto,
   PaymentSession,
   Payments,
   type PaymentWebhookNotification,
-  WebhookEventEnum,
 } from '@workspace/types';
 import { Repository } from 'typeorm';
 import { YooKassaProvider } from './yookassa.provider';
@@ -39,7 +36,6 @@ export class YookassaController {
     private readonly savedMethodRepo: Repository<SavedPaymentMethod>,
     private readonly yookassaService: YookassaService,
     private readonly yookassaProvider: YooKassaProvider,
-    private readonly eventEmitter: EventEmitter2,
     private readonly validatePaymentRequest: ValidatePaymentRequest,
   ) {}
 
@@ -142,71 +138,6 @@ export class YookassaController {
 
     this.logger.log(`Created Yookassa payment session ${payment.id} for user ${userId}`);
     return { id: payment.id, url: confirmationUrl };
-  }
-
-  // ── Autopayment ────────────────────────────────────────────────────
-
-  /**
-   * Trigger an autopayment using a saved payment method.
-   * Called by the bot when a subscription is about to expire (user.expires_in_24_hours).
-   *
-   * Flow:
-   * 1. Validate that the saved method exists and is active
-   * 2. Create an autopayment via YooKassa (no user confirmation needed)
-   * 3. Store the payment record
-   * 4. If failed — emit AUTOPAYMENT_FAILED so the bot can fall back to manual payment
-   */
-  @Post('make-autopayment')
-  async makeAutopayment(@Body() body: CreateAutopaymentDto): Promise<Payments.IPayment> {
-    this.validatePaymentRequest.validateAmount(body.amount.value);
-    this.validatePaymentRequest.validatePeriod(body.selectedPeriod);
-
-    const savedMethod = await this.savedMethodRepo.findOneBy({
-      userId: body.userId,
-      isActive: true,
-    });
-
-    if (!savedMethod) {
-      throw new NotFoundException(`No active saved payment method for user ${body.userId}`);
-    }
-
-    const request: Payments.CreatePaymentRequest = {
-      amount: body.amount,
-      capture: true,
-      payment_method_id: savedMethod.paymentMethodId,
-      description:
-        body.description || process.env.PAYMENT_DESCRIPTION || 'Happy to see you in the JUNGLE 🌴',
-    };
-
-    const payment = await this.yookassaProvider.create(request);
-
-    // Store the payment record regardless of outcome
-    const record = this.yookassaPaymentRepo.create({
-      id: payment.id,
-      status: payment.status,
-      amount: body.amount.value,
-      userId: body.userId,
-      selectedPeriod: body.selectedPeriod,
-      telegramId: body.telegramId,
-      description: request.description ?? null,
-      paidAt: payment.status === 'succeeded' ? new Date() : null,
-    });
-    await this.yookassaPaymentRepo.save(record);
-
-    // If the autopayment was immediately canceled, emit failure event
-    if (payment.status === 'canceled' && payment.cancellation_details) {
-      this.eventEmitter.emit(WebhookEventEnum['payment.autopayment_failed'], {
-        userId: body.userId,
-        provider: 'yookassa',
-        reason: payment.cancellation_details.reason,
-      } satisfies Payments.PaymentFailedEventPayload);
-
-      this.logger.warn(
-        `Autopayment failed for user ${body.userId}: ${payment.cancellation_details.reason}`,
-      );
-    }
-
-    return payment;
   }
 
   /** Narrow `confirmation` to the `redirect` variant and return its URL, if any. */
