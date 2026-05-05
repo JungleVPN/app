@@ -129,11 +129,6 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 14px;
-  /* Consistent antialiasing on both CPU and GPU compositing layers.
-     Subpixel AA is disabled when clip-path promotes the element to a GPU layer,
-     causing blurry text. Grayscale AA looks the same on both paths. */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 .tabSection {
