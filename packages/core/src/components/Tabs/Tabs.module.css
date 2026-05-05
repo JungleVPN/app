@@ -53,7 +53,7 @@
 }
 
 /* Purely positional — no background, no border, no shadow.
-   Its only job is to track x/width for the clip-path on the accent layer. */
+   Its only job is to track x/width for the --tab-overlap MotionValue. */
 .indicator {
   position: absolute;
   top: 4px;
@@ -81,43 +81,31 @@
   font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
-  color: var(--tg-theme-text-color);
   background: transparent;
   border: none;
   outline: none;
   cursor: pointer;
   z-index: 3;
   -webkit-tap-highlight-color: transparent;
+  /* --tab-overlap (0–1) is written by Framer Motion via a MotionValue.
+     color-mix() blends base colour → accent as the indicator slides over. */
+  color: color-mix(
+    in srgb,
+    var(--tg-theme-accent-text-color) calc(var(--tab-overlap, 0) * 100%),
+    var(--tg-theme-text-color)
+  );
+  fill: color-mix(
+    in srgb,
+    var(--tg-theme-accent-text-color) calc(var(--tab-overlap, 0) * 100%),
+    white
+  );
 }
 
-/* Base layer — default colour, always fully opaque so nothing bleeds through */
 .tabInner {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  fill: #fff;
-}
-
-/* Accent layer — accent colour, clipped to the region the indicator covers.
-   Sits on top of the base layer; full opacity ensures it completely replaces it
-   in the overlapping region with no ghosting. */
-.tabInnerActive {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  color: var(--tg-theme-accent-text-color);
-  fill: var(--tg-theme-accent-text-color);
-  pointer-events: none;
-  /* Consistent antialiasing on both CPU and GPU compositing layers.
- Subpixel AA is disabled when clip-path promotes the element to a GPU layer,
- causing blurry text. Grayscale AA looks the same on both paths. */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 .tabIcon {
@@ -134,10 +122,6 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 14px;
-}
-
-.tab[aria-selected="true"] .tabLabel {
-  color: var(--tg-theme-accent-text-color);
 }
 
 .tabSection {

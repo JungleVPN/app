@@ -1,5 +1,5 @@
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
-import { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
 import IconPig from '../../assets/icons/payment-tab-icon.svg?react';
@@ -54,46 +54,45 @@ export const Navbar = () => {
   // spring animation mid-flight.
   const lastPanEndTimeRef = useRef(0);
 
-  // Tab positions relative to the list, measured once after mount and stable thereafter.
+  // Tab positions and list width, measured once after mount and stable thereafter.
   const tabPositionsRef = useRef<Partial<Record<TabValue, { left: number; width: number }>>>({});
+  // Cached list width — avoids reading offsetWidth (layout reflow risk) inside handlePan.
+  const listWidthRef = useRef(0);
 
   const indicatorX = useMotionValue(0);
   const indicatorWidth = useMotionValue(0);
 
-  // Each tab has an accent-coloured overlay layer whose clip-path is computed
-  // from how much the indicator overlaps with it.
+  // Overlap ratio (0–1): how much of each tab the indicator currently covers.
+  // Written into --tab-overlap on the button so color-mix() in CSS blends the color.
   //
-  // inset(0 clipRight 0 clipLeft):
-  //   clipLeft  = pixels of the tab's left edge NOT under the indicator
-  //   clipRight = pixels of the tab's right edge NOT under the indicator
-  //
-  // Result: only the overlapping region shows in accent colour.
-  // `round 4rem` makes the clip follow the pill shape of the indicator.
-  // The 4px vertical inset matches the indicator's top: 4px offset so the
-  // rounded corners sit at the same position as the actual indicator pill.
-  const clipPathSubscription = useTransform(indicatorX, (x) => {
+  // IMPORTANT: subscribe only to indicatorX, read indicatorWidth.get() inside.
+  // useTransform([indicatorX, indicatorWidth], fn) would fire the callback TWICE
+  // per animation frame — once per source MotionValue — doubling DOM mutations and
+  // style-recalculation work every frame. Reading .get() inside a single-source
+  // transform fires it exactly once per frame, at the moment indicatorX changes.
+  // indicatorWidth always changes in the same frame as indicatorX (both are driven
+  // by animateIndicatorTo), so .get() always returns the current-frame value.
+  const subscriptionOverlap = useTransform(indicatorX, (x) => {
     const pos = tabPositionsRef.current.subscription;
-    if (!pos) return 'inset(0 100% 0 0 round 4rem)';
-    const iw = indicatorWidth.get();
-    const clipLeft = Math.max(0, x - pos.left);
-    const clipRight = Math.max(0, pos.left + pos.width - (x + iw));
-    if (clipLeft + clipRight >= pos.width) return 'inset(0 100% 0 0 round 4rem)';
-    return `inset(4px ${clipRight}px 4px ${clipLeft}px round 4rem)`;
+    if (!pos || pos.width === 0) return 0;
+    const w = indicatorWidth.get();
+    const start = Math.max(x, pos.left);
+    const end = Math.min(x + w, pos.left + pos.width);
+    return Math.max(0, end - start) / pos.width;
   });
 
-  const clipPathPayments = useTransform(indicatorX, (x) => {
+  const paymentsOverlap = useTransform(indicatorX, (x) => {
     const pos = tabPositionsRef.current.payments;
-    if (!pos) return 'inset(0 100% 0 0 round 4rem)';
-    const iw = indicatorWidth.get();
-    const clipLeft = Math.max(0, x - pos.left);
-    const clipRight = Math.max(0, pos.left + pos.width - (x + iw));
-    if (clipLeft + clipRight >= pos.width) return 'inset(0 100% 0 0 round 4rem)';
-    return `inset(4px ${clipRight}px 4px ${clipLeft}px round 4rem)`;
+    if (!pos || pos.width === 0) return 0;
+    const w = indicatorWidth.get();
+    const start = Math.max(x, pos.left);
+    const end = Math.min(x + w, pos.left + pos.width);
+    return Math.max(0, end - start) / pos.width;
   });
 
-  const clipPaths = useMemo(
-    () => ({ subscription: clipPathSubscription, payments: clipPathPayments }),
-    [clipPathSubscription, clipPathPayments],
+  const overlapValues = useMemo(
+    () => ({ subscription: subscriptionOverlap, payments: paymentsOverlap }),
+    [subscriptionOverlap, paymentsOverlap],
   );
 
   const tabPaths = useMemo(
@@ -110,26 +109,40 @@ export const Navbar = () => {
       {
         id: 'subscription',
         label: t('profileTabs.subscription'),
-        icon: <IconWallet className='size-9' />,
+        icon: <IconWallet className='size-8' />,
       },
       {
         id: 'payments',
         label: t('profileTabs.payment'),
-        icon: <IconPig className='size-9' />,
+        icon: <IconPig className='size-8' />,
       },
     ],
     [t],
   );
 
+  // Stable ref callbacks — avoids React calling cleanup+setup on every re-render.
+  const tabRefCallbacks = useRef({
+    subscription: (el: HTMLButtonElement | null) => {
+      if (el) tabRefs.current.set('subscription', el);
+      else tabRefs.current.delete('subscription');
+    },
+    payments: (el: HTMLButtonElement | null) => {
+      if (el) tabRefs.current.set('payments', el);
+      else tabRefs.current.delete('payments');
+    },
+  });
+
   useLayoutEffect(() => {
     activeTabRef.current = activeTab;
   }, [activeTab]);
 
-  // Only called once during the initial layout effect — never during animation.
+  // Called once on mount — the only place getBoundingClientRect is ever used.
   const measureAllTabs = useCallback(() => {
     const list = listRef.current;
     if (!list) return;
     const listRect = list.getBoundingClientRect();
+    // Cache list width so handlePan never reads offsetWidth during pointer events.
+    listWidthRef.current = listRect.width;
     for (const id of TAB_VALUES) {
       const el = tabRefs.current.get(id);
       if (!el) continue;
@@ -157,8 +170,8 @@ export const Navbar = () => {
     [indicatorX, indicatorWidth],
   );
 
-  // Measure once before first paint so clip-path transforms have data
-  // when indicatorX.set() fires, and the indicator appears in the right place immediately.
+  // Measure once before first paint so overlap transforms have data when
+  // indicatorX.set() fires, and the indicator appears in the right place immediately.
   // activeTabRef.current is used instead of activeTab so the deps are stable
   // (both callbacks have stable identity) and the effect genuinely runs once.
   useLayoutEffect(() => {
@@ -200,11 +213,11 @@ export const Navbar = () => {
 
   const handlePan = useCallback(
     (_e: MouseEvent | TouchEvent | PointerEvent, info: { delta: { x: number } }) => {
-      const list = listRef.current;
-      if (!list) return;
       const newX = indicatorX.get() + info.delta.x;
       const currentWidth = indicatorWidth.get();
-      const clamped = Math.max(0, Math.min(newX, list.offsetWidth - currentWidth));
+      // listWidthRef.current is cached from measureAllTabs — never reads offsetWidth
+      // here which would risk a synchronous layout reflow on every pointer event.
+      const clamped = Math.max(0, Math.min(newX, listWidthRef.current - currentWidth));
       indicatorX.set(clamped);
     },
     [indicatorX, indicatorWidth],
@@ -240,6 +253,18 @@ export const Navbar = () => {
     [navigate, tabPaths, animateIndicatorTo],
   );
 
+  // Stable click handlers — avoids creating new arrow functions on every render.
+  const clickHandlers = useRef({
+    subscription: () => handleTabClick('subscription'),
+    payments: () => handleTabClick('payments'),
+  });
+  useLayoutEffect(() => {
+    clickHandlers.current = {
+      subscription: () => handleTabClick('subscription'),
+      payments: () => handleTabClick('payments'),
+    };
+  }, [handleTabClick]);
+
   return (
     <div className={css.root}>
       <motion.div
@@ -259,34 +284,22 @@ export const Navbar = () => {
         />
 
         {tabs.map((tab) => (
-          <button
+          <motion.button
             key={tab.id}
-            ref={(el) => {
-              if (el) tabRefs.current.set(tab.id, el);
-              else tabRefs.current.delete(tab.id);
-            }}
+            ref={tabRefCallbacks.current[tab.id]}
             type='button'
             role='tab'
             aria-selected={tab.id === activeTab}
             className={css.tab}
-            onClick={() => handleTabClick(tab.id)}
+            // --tab-overlap drives color-mix() in CSS — no second content layer needed.
+            style={{ '--tab-overlap': overlapValues[tab.id] } as React.CSSProperties}
+            onClick={clickHandlers.current[tab.id]}
           >
-            {/* Base layer — default colour, always fully visible */}
             <span className={css.tabInner}>
               <span className={css.tabIcon}>{tab.icon}</span>
               <span className={css.tabLabel}>{tab.label}</span>
             </span>
-
-            {/* Accent layer — clipped to only the region the indicator covers */}
-            <motion.span
-              aria-hidden
-              className={css.tabInnerActive}
-              style={{ clipPath: clipPaths[tab.id] }}
-            >
-              <span className={css.tabIcon}>{tab.icon}</span>
-              <span className={css.tabLabel}>{tab.label}</span>
-            </motion.span>
-          </button>
+          </motion.button>
         ))}
       </motion.div>
     </div>
