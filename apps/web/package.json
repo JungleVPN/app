@@ -13,12 +13,11 @@
     "lint": "biome check ./src"
   },
   "dependencies": {
-    "serve": "^14.2.4",
     "@heroui/react": "^3.0.3",
     "@heroui/styles": "^3.0.3",
     "@remnawave/backend-contract": "2.6.0",
     "@remnawave/subscription-page-types": "^0.4.0",
-    "@supabase/supabase-js": "^2.100.1",
+    "@supabase/supabase-js": "^2.103.3",
     "@tabler/icons-react": "^3.31.0",
     "@workspace/core": "workspace:*",
     "@workspace/types": "workspace:*",
@@ -32,6 +31,7 @@
     "react-dom": "^19.1.1",
     "react-i18next": "^15.0.0",
     "react-router": "^7.14.1",
+    "serve": "^14.2.4",
     "ufo": "^1.6.1",
     "zustand": "^5.0.9"
   },

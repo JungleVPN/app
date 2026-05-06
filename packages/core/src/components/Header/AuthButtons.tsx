@@ -1,9 +1,11 @@
 import { Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
-import { useAuthStoreActions, useAuthStoreInfo } from '../../stores/auth';
+import { useSupabaseClient } from '../../runtime';
+import { useAuthStoreActions, useAuthStoreInfo } from '../../stores';
 
 export function AuthButtons() {
+  const supabase = useSupabaseClient();
   const { authUser, loading } = useAuthStoreInfo();
   const { setAuthUser, setRmnUser } = useAuthStoreActions();
   const navigate = useNavigate();
@@ -18,7 +20,8 @@ export function AuthButtons() {
     navigate('/login');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setAuthUser(null);
     setRmnUser(null);
     navigate('/');

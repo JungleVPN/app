@@ -19,6 +19,7 @@ export default defineConfig({
     allowedHosts: [
       'national-content-barnacle.ngrok-free.app',
       'attention-mph-again-greene.trycloudflare.com',
+      'brief-banana-says-initiatives.trycloudflare.com',
     ],
     /**
      * TMA requires HTTPS in production (served at tma.thejungle.pro).

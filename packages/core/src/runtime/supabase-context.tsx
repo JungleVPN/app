@@ -1,8 +1,7 @@
+import { SupabaseClient } from '@workspace/types';
 import { createContext, type ReactNode, useContext } from 'react';
 
-import type { SupabaseAuthClient } from './supabase-auth-types';
-
-export type SupabaseClientGetter = () => SupabaseAuthClient;
+export type SupabaseClientGetter = () => SupabaseClient;
 
 const SupabaseContext = createContext<SupabaseClientGetter | null>(null);
 
@@ -16,7 +15,7 @@ export function SupabaseProvider({
   return <SupabaseContext.Provider value={getClient}>{children}</SupabaseContext.Provider>;
 }
 
-export function useSupabaseClient(): SupabaseAuthClient {
+export function useSupabaseClient(): SupabaseClient {
   const get = useContext(SupabaseContext);
   if (!get) {
     throw new Error('SupabaseProvider is required for web login pages');
