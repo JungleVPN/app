@@ -1,21 +1,24 @@
 import { AlertDialog, Button, Card, Spinner, useOverlayState } from '@heroui/react';
+import { miniApp, openLink } from '@tma.js/sdk-react';
 import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRemnawaveApi } from '../../../api';
 import PaymentPageIcon from '../../../assets/icons/payment-icon.svg?url';
 import { ExtendCard, Link, SavedMethodRow } from '../../../components';
-import { useCreatePaymentSession, useDeleteSavedMethod, useUpdateUser } from '../../../hooks';
 import { coreEnv } from '../../../env';
+import { useCreatePaymentSession, useDeleteSavedMethod, useUpdateUser } from '../../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../../runtime';
 import {
   useAuthStoreActions,
   useAuthStoreInfo,
+  usePlatformStore,
   useSavedMethodsStoreActions,
   useSavedMethodsStoreInfo,
 } from '../../../stores';
 import { Page } from '../../../ui';
 
 export default function PaymentPage() {
+  const { platformType, clientPlatform } = usePlatformStore();
   const { allowedAmounts, allowedPeriods, supportUrl } = coreEnv;
   const { paymentReturnPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
@@ -44,6 +47,10 @@ export default function PaymentPage() {
     setSavedMethods(list);
   };
 
+  const handleNavigate = (url: string) => {
+    window.location.href = url;
+  };
+
   const handleExtend = async (email?: string) => {
     if (!rmnUser) return;
 
@@ -58,13 +65,21 @@ export default function PaymentPage() {
       save_payment_method: true,
       amount: { value: allowedAmounts, currency: 'RUB' },
       confirmation: {
-        return_url: `${window.location.origin}${paymentReturnPath}`,
+        return_url:
+          platformType === 'web' || (clientPlatform !== 'ios' && clientPlatform !== 'android')
+            ? `${window.location.origin}${paymentReturnPath}`
+            : import.meta.env.VITE_TMA_APP_URL,
         type: 'redirect',
       },
     });
 
     if (session?.url) {
-      window.location.href = session.url;
+      if (platformType === 'web' || (clientPlatform !== 'ios' && clientPlatform !== 'android')) {
+        handleNavigate(session.url);
+      } else {
+        openLink(session.url);
+        miniApp.close();
+      }
     }
   };
 

@@ -26,6 +26,7 @@ interface ImportMetaEnv {
   readonly VITE_ALLOWED_AMOUNTS: string;
   readonly VITE_ALLOWED_PERIODS: string;
   readonly VITE_SUPPORT_URL: string;
+  readonly VITE_TMA_APP_URL: string;
 }
 
 interface ImportMeta {
