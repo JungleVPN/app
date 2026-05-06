@@ -46,22 +46,18 @@ days-left-label = { $daysLeft ->
 
 main-text =
     🌴 Welcome to the <code>Jungle</code>, <b>{ $username }</b>!
-
     I’m @Ramazzaniii, the creator of <code>JungleVPN</code> 🌴
-
-
 
     Here is some info about your subscription:
 
     <blockquote>
     { $isExpired ->
     [true]🆘🆘🆘 <b>Your subscription has expired 🥲</b>
-    *[false]📅 <b>Subscription end date:</b>
+    *[false]📅End date: <b>{ $expireAt } (MSK)</b>
 
-    { $expireAt } (MSK)
+    📱Max devices: <b>{ $devicesLimit }</b>
     }
     </blockquote>
-
 
 
     My contacts:

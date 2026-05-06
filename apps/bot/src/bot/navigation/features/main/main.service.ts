@@ -29,6 +29,7 @@ export class MainMenuService extends Base {
       username: username!,
       expireAt: toDateString(user[0].expireAt),
       isExpired: isExpired ? 'true' : 'false',
+      devicesLimit: process.env.HWID_LIMIT ? parseInt(process.env.HWID_LIMIT, 10) : 5,
     });
 
     await this.render(ctx, content, menu, deleteOldMsg);

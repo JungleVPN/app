@@ -39,22 +39,18 @@ period-6 = 6 месяцев
 
 main-text =
     🌴 Добро пожаловать в <b>Jungle</b>, <b>{ $username }</b>!
-
     Я @Ramazzaniii, автор проекта <code>JungleVPN</code> 🌴
-
-
 
     Информация о подписке:
 
     <blockquote>
         { $isExpired ->
         [true]🆘🆘🆘 <b>У тебя закончилась подписка 🥲</b>
-        *[false]📅 <b>Подписка закончится:</b>
+        *[false]📅Дата окончания: <b>{ $expireAt } (MSK)</b>
 
-        { $expireAt } (МСК)
+        📱Лимит устройств: <b>{ $devicesLimit }</b>
         }
     </blockquote>
-
 
 
     My contacts:
