@@ -19,7 +19,7 @@ export default function ConfirmPage() {
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email');
   const [otp, setOtp] = useState('');
-  const [timer, setTimer] = useState(0);
+  const [timer, setTimer] = useState(60);
   const [error, setError] = useState<string | null>(null);
   const { t } = useTranslation();
   const navigate = useNavigate();

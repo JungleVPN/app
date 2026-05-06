@@ -52,6 +52,7 @@ export default function GetSubscriptionPage() {
       if (!user) {
         const newUser = await remnawaveApi.createUser({ email });
         navigate(`/subscription/${newUser?.shortUuid}`);
+        return;
       }
       navigate(`/subscription/${user?.shortUuid}`);
     } catch {

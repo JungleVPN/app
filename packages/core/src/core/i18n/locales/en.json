@@ -24,7 +24,7 @@
   "confirm": {
     "title": "Enter the code you received",
     "submit": "Login",
-    "resend_in": "Resend in {timer}s",
+    "resend_in": "Resend in {{timer}}s",
     "resend_otp": "Resend OTP",
     "hint": "You will receive an email with the code to enter",
     "error_invalid_code": "The code is incorrect. Please try again."
