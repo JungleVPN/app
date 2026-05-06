@@ -1,3 +1,4 @@
+import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -89,6 +90,7 @@ export class UserService {
       activeInternalSquads,
       trafficLimitStrategy: 'MONTH',
       status: 'ACTIVE',
+      hwidDeviceLimit: Number(process.env.HWID_LIMIT) || 5,
     };
 
     return this.panelClient.request<CreateUserResponseDto>({
