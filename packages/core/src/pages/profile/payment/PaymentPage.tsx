@@ -173,18 +173,14 @@ export default function PaymentPage() {
                   </p>
                   <p className='text-muted'>
                     {t('terms.dialog.renewalCostLead')}
-                    {supportUrl ? (
-                      <Link
-                        className='underline underline-offset-2'
-                        href={supportUrl}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                      >
-                        {t('terms.dialog.supportLink')}
-                      </Link>
-                    ) : (
-                      <span>{t('terms.dialog.supportLink')}</span>
-                    )}
+                    <Link
+                      className='underline underline-offset-2'
+                      href={supportUrl}
+                      target={platformType === 'web' ? '_blank' : '_self'}
+                      rel='noopener noreferrer'
+                    >
+                      {t('terms.dialog.supportLink')}
+                    </Link>
                   </p>
                 </div>
                 <div>
