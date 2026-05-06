@@ -37,7 +37,7 @@ export interface IPlatformActions {
 }
 
 const initialState: IPlatformState = {
-  platformType: 'web',
+  platformType: null,
   initStatus: 'idle',
   initError: null,
   clientPlatform: 'unknown',
