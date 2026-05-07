@@ -42,8 +42,8 @@ export function PlatformSelector({ options, selectedPlatformId, onSelect }: Plat
         <Select.Value />
         <Select.Indicator />
       </Select.Trigger>
-      <Select.Popover>
-        <ListBox>
+      <Select.Popover className='bg-overlay text-overlay-foreground'>
+        <ListBox className='text-overlay-foreground'>
           {options.map((opt) => (
             <ListBox.Item key={opt.value} id={opt.value} textValue={opt.label}>
               <ListBox.ItemIndicator />

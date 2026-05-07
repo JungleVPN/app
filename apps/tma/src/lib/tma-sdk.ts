@@ -11,6 +11,8 @@ import {
   viewport,
 } from '@tma.js/sdk-react';
 
+import { bindTelegramDocumentColorScheme } from './sync-telegram-document-theme';
+
 /**
  * Mount/bind must run once: React Strict Mode double-mounts components, and
  * `themeParams.bindCssVars()` / `viewport.bindCssVars()` throw if called again.
@@ -52,6 +54,9 @@ export const initTma = async (options: {
     themeParams.mount();
     miniApp.mount();
     themeParams.bindCssVars();
+    bindTelegramDocumentColorScheme();
+  } else {
+    bindTelegramDocumentColorScheme();
   }
 
   if (viewport.mount.isAvailable()) {

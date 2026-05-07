@@ -14,17 +14,25 @@
   height: 48px;
   min-width: 0;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: 3px solid rgba(255, 255, 255, 0.08);
+  background: color-mix(
+    in srgb,
+    var(--tg-theme-secondary-bg-color, rgba(128, 128, 128, 0.12)) 55%,
+    transparent
+  );
+  border: 1px solid var(--tg-theme-section-separator-color, rgba(128, 128, 128, 0.2));
+  border-left: 3px solid var(--tg-theme-section-separator-color, rgba(128, 128, 128, 0.2));
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .appButton:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-left-color: rgba(255, 255, 255, 0.25);
+  background: color-mix(
+    in srgb,
+    var(--tg-theme-secondary-bg-color, rgba(128, 128, 128, 0.18)) 70%,
+    transparent
+  );
+  border-left-color: color-mix(in srgb, var(--tg-theme-hint-color, #888) 55%, transparent);
 }
 
 .appButton:hover .bgIcon {
@@ -43,7 +51,8 @@
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
-  opacity: 0.25;
+  opacity: 0.35;
+  color: var(--tg-theme-hint-color, rgba(120, 120, 120, 0.7));
   pointer-events: none;
   transition: all 0.3s ease;
   mask-image: linear-gradient(to right, transparent 0%, black 40%, black 100%);
@@ -54,6 +63,7 @@
 .bgIcon svg path {
   width: 100%;
   height: 100%;
+  fill: currentColor;
 }
 
 .bgIconActive {
@@ -69,7 +79,8 @@
 .appName {
   position: relative;
   z-index: 1;
-  color: rgba(255, 255, 255, 0.85);
+  /* Inherit HeroUI tab colors: muted when idle, segment-foreground when selected */
+  color: inherit;
   font-size: 1rem;
   font-weight: 600;
   white-space: nowrap;

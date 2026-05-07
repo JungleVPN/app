@@ -284,7 +284,6 @@ export const Navbar = () => {
         />
 
         {tabs.map((tab, index) => {
-          console.log(index === 0);
           return (
             <motion.button
               key={tab.id}

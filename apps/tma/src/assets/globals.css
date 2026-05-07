@@ -3,51 +3,34 @@
 /* Scan shared UI so utilities used only in @workspace/core are generated (Tailwind v4 default detection is app-root scoped). */
 @source "../../../../packages/core/src";
 
+/* HeroUI tokens must apply in BOTH light and dark TG themes (see sync-telegram-document-theme). */
+:root,
+.light,
+[data-theme="light"],
 .dark,
 [data-theme="dark"] {
-  --deprecated-separator-color: rgba(61, 61, 63, 1);
-  --second-button-color: rgb(113 96 139 / 10%);
-  --text-confirm-color: #35ca5b;
-  --button-confirm-color: #35ca5b;
-  --button-main-disabled-color: #2f2f2f;
-  --text-main-disabled-color: #606060;
-  --button-destructive-color: rgb(239 91 91 / 10%);
-  --highlight-default: rgba(152, 152, 157, 0.24);
-  --quick-menu-background: rgba(0, 0, 0, 0.78);
-  --quick-menu-foreground: #ffffff;
-  --toast-background: rgba(45, 45, 45, 0.8);
-  --text-overlay: #ffffff;
-  --toast-link: #5ac8fa;
-  --tertiary-fill-background: rgba(118, 118, 128, 0.24);
-  --quaternary-fill-background: rgba(116, 116, 128, 0.18);
-  --separator-non-opaque-color: rgba(84, 84, 88, 0.65);
-  --accent-orange: #ff9f0a;
-  --segmented-control-active-background: #636366;
-  --tooltip-background: #3a3a3c;
-  --border-color: oklch(from #b1c3d5 l c h / 40%);
-  --accent-cyan: #64d2ff;
-  --dpr: 2;
-  --main-card-content-height: 192px;
-  --tabbar-height: 88px;
-  --tabbar-current-height: var(--tabbar-height);
-  --has-tabbar: 1;
-  --overscroll-top: var(--tg-theme-bg-color);
-  --overscroll-bottom: var(--tg-theme-bg-color);
-
-  /* ─── HeroUI semantic tokens → TG variables ──────────────────────────────
-     These map HeroUI's design system to Telegram's theme variables.
-     When TG updates CSS vars at runtime (via Mini App init data),
-     all HeroUI components automatically reflect the new theme. */
   --accent: var(--tg-theme-button-color);
   --accent-foreground: var(--tg-theme-button-text-color);
   --background: var(--tg-theme-bg-color);
   --foreground: var(--tg-theme-text-color);
-  --surface: var(--tg-theme-section-bg-color);
+  /* Cards use HeroUI `bg-surface`; TG section_bg often matches bg in light mode — secondary_bg reads as a real panel */
+  --surface: var(--tg-theme-secondary-bg-color);
   --surface-foreground: var(--tg-theme-text-color);
+  --surface-secondary: var(--tg-theme-section-bg-color);
+  --surface-secondary-foreground: var(--tg-theme-text-color);
+  --surface-tertiary: var(--tg-theme-section-bg-color);
+  --surface-tertiary-foreground: var(--tg-theme-text-color);
+  --overlay: var(--tg-theme-secondary-bg-color);
+  --overlay-foreground: var(--tg-theme-text-color);
   --muted: var(--tg-theme-hint-color);
   --link: var(--tg-theme-link-color);
   --focus: var(--tg-theme-button-color);
   --danger: var(--tg-theme-destructive-text-color);
+  --field-background: var(--tg-theme-secondary-bg-color);
+  --field-foreground: var(--tg-theme-text-color);
+  --field-placeholder: var(--tg-theme-hint-color);
+  --separator: var(--tg-theme-section-separator-color);
+  --border: var(--tg-theme-section-separator-color);
 }
 
 @theme inline {
@@ -78,7 +61,8 @@
 
 html,
 body {
-  background-color: oklch(0.1448 0 0);
+  background-color: var(--tg-theme-bg-color, oklch(0.1448 0 0));
+  color: var(--tg-theme-text-color, #ffffff);
   background-size: 60px 60px;
   background-attachment: fixed;
   inset: 0;
@@ -104,7 +88,7 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px oklch(0.19 0 0) inset !important;
+  -webkit-box-shadow: 0 0 0 30px var(--tg-theme-secondary-bg-color, oklch(0.19 0 0)) inset !important;
 }
 
 .app-container {
@@ -114,8 +98,12 @@ input:-webkit-autofill:active {
 }
 
 .step-card {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: color-mix(
+    in srgb,
+    var(--tg-theme-secondary-bg-color, rgba(128, 128, 128, 0.15)) 35%,
+    var(--tg-theme-bg-color, transparent)
+  ) !important;
+  border: 1px solid var(--tg-theme-section-separator-color, rgba(128, 128, 128, 0.25)) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   transition:
@@ -129,7 +117,7 @@ input:-webkit-autofill:active {
 }
 
 .logo-text-normal {
-  color: white;
+  color: var(--tg-theme-text-color, #ffffff);
 }
 
 .info-card-cyan {
