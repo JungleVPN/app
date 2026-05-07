@@ -71,15 +71,11 @@ export function createApiClient(config: ApiClientConfig) {
       return undefined as T;
     }
 
-    const raw = await response.json();
-    if (!raw) {
-      throw new ApiClientError({
-        status: response.status,
-        message: `Empty response body: ${method} ${path} — check REMNAWAVE_URL / service and that the route returns JSON`,
-        data: null,
-      });
-    }
-    return raw;
+    // Read as text first so an empty 200 body doesn't throw a JSON parse error.
+    // Some endpoints (e.g. GET by telegramId when not found) return 200 with no body.
+    const text = await response.text();
+    if (!text.trim()) return undefined as T;
+    return JSON.parse(text) as T;
   }
 
   return {

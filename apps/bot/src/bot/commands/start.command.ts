@@ -1,13 +1,13 @@
 import { BotContext, initialSession } from '@bot/bot.types';
 import { MainMenu } from '@bot/navigation/features/main/main.menu';
 import { MainMenuService } from '@bot/navigation/features/main/main.service';
-import { toDateString } from '@bot/utils/utils';
+import { isValidUsername, toDateString } from '@bot/utils/utils';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ReferralService } from '@referral/referral.service';
 import { decodeReferralCode } from '@referral/referral.utils';
 import { RemnaService } from '@remna/remna.service';
-import { Bot } from 'grammy';
+import { Bot, InlineKeyboard } from 'grammy';
 import { AnalyticsService } from '../../analytics/analytics.service';
 
 @Injectable()
@@ -63,14 +63,36 @@ export class StartCommand {
         }
       }
 
-      const rmnUser = await this.remnaService.init(
-        ctx.from.id,
-        ctx.from.language_code || this.configService.get('DEFAULT_LANGUAGE', 'ru'),
-      );
+      // Look up the user — no creation here. Account setup happens in TMA so
+      // that the email is collected upfront, preventing duplicate accounts when
+      // the same person uses both web and Telegram.
+      const users = await this.remnaService.getUserByTgId(ctx.from.id);
+      const rmnUser = users?.[0] ?? null;
 
-      ctx.session.user = initialSession().user;
-      ctx.session.userId = rmnUser.uuid;
-      await this.mainMenuService.init(ctx, this.mainMenu.menu);
+      if (!rmnUser) {
+        const username = isValidUsername(ctx.from?.username)
+          ? ctx.from?.username
+          : ctx.t('dear-friend');
+
+        // New user: direct them to TMA to complete setup.
+        const keyboard = new InlineKeyboard().webApp(
+          ctx.t('connect-button-label'),
+          process.env.TMA_APP_URL || 'https://app.thejungle.pro',
+        );
+        await ctx.reply(
+          ctx.t('setup-prompt-text', {
+            username: username!,
+          }),
+          {
+            parse_mode: 'HTML',
+            reply_markup: keyboard,
+          },
+        );
+      } else {
+        ctx.session.user = initialSession().user;
+        ctx.session.userId = rmnUser.uuid;
+        await this.mainMenuService.init(ctx, this.mainMenu.menu);
+      }
 
       if (payload?.startsWith('ad_')) {
         await this.addData(payload, ctx.from?.id || 0);

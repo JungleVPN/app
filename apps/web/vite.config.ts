@@ -18,6 +18,7 @@ export default defineConfig({
   },
   server: {
     port: 7080,
+    allowedHosts: ['web.development-env.uk'],
   },
   build: {
     outDir: 'dist',

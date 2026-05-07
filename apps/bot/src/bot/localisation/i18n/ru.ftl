@@ -1,6 +1,6 @@
 dear-friend = Дорогой друг!
 provider-description-text = Рад видеть тебя в JUNGLE 🌴
-
+open-app-button-label = Открыть приложение 📲
 connect-button-label = Подключиться 📶
 extend-button-label = Продлить ➕
 donate-button-label = Поддержать 💶
@@ -38,10 +38,9 @@ period-3 = 3 месяца
 period-6 = 6 месяцев
 
 main-text =
-    🌴 Добро пожаловать в <b>Jungle</b>, <b>{ $username }</b>!
-    Я @Ramazzaniii, автор проекта <code>JungleVPN</code> 🌴
+    🌴 Рад тебя видеть, <b>{ $username }</b>!
 
-    Информация о подписке:
+    Немного о подписке:
 
     <blockquote>
         { $isExpired ->
@@ -51,6 +50,21 @@ main-text =
         📱Лимит устройств: <b>{ $devicesLimit }</b>
         }
     </blockquote>
+
+
+    My contacts:
+    <blockquote>
+        <code>Telegram</code>: @Ramazzaniii
+        <code>Channel</code>: @In_The_Jungle
+        <code>LinkedIn</code>: <a href="https://www.linkedin.com/in/ramazan-ittiev/">Link</a>
+    </blockquote>
+
+
+setup-prompt-text =
+    🌴 Добро пожаловать в <b>Jungle</b>, <b>{ $username }</b>!
+    Я @Ramazzaniii, автор проекта <code>JungleVPN</code> 🌴
+
+    Чтобы начать, открой mini app и подключайся 🙂
 
 
     My contacts:

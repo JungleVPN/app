@@ -1,15 +1,15 @@
-import type { CreateUserRequestDto, CreateUserResponseDto } from '@workspace/types';
+import type { CreateUserRequestDto, CreateUserResponseDto, UserDto } from '@workspace/types';
 import type { createRemnawaveApi } from '../api';
 
 type RemnawaveApi = ReturnType<typeof createRemnawaveApi>;
 
 /**
- * Resolve-or-create a remnawave user for a given identity.
+ * Look up a remnawave user by one or both identity keys. Returns the first
+ * matching user, or `null` if none is found. Never creates a user.
  *
  * Lookup priority:
- *  1. By email       (if provided — web platform)
- *  2. By telegramId  (if provided — TMA platform)
- *  3. Create new user if neither lookup returns a result.
+ *  1. By email       (if provided)
+ *  2. By telegramId  (if provided and email lookup returned nothing)
  *
  * At least one of `email` or `telegramId` must be present.
  * Accepts an api client instance so it can be called from any platform.
@@ -43,3 +43,15 @@ export async function initUser(
     throw error;
   }
 }
+
+export const getIsCompleteUser = (user: UserDto | null) => {
+  return Boolean(user?.email) && Boolean(user?.telegramId);
+};
+
+export const getIsWebUser = (user: UserDto | null) => {
+  return !!user?.email && !user.telegramId;
+};
+
+export const getIsTgUser = (user: UserDto | null) => {
+  return !!user?.telegramId && !user.email;
+};

@@ -22,6 +22,7 @@ const appRoutes = {
   authGateRedirectPath: '/',
   profileSubscriptionPath: '/',
   profilePaymentPath: '/payments',
+  setupPath: '/setup',
 };
 
 const root = document.getElementById('root');

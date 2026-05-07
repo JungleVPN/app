@@ -1,15 +1,15 @@
 import { Button, Chip, Description, FieldError, Form, Input, TextField } from '@heroui/react';
 import { IconArrowRight, IconCheck, IconMail } from '@tabler/icons-react';
+import { backButton } from '@tma.js/sdk-react';
 import { type SyntheticEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useRemnawaveApi } from '../../api';
 import { coreEnv } from '../../env';
 import { useAppRoutes } from '../../runtime';
-import { useAuthStoreInfo } from '../../stores';
+import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../stores';
 import { Block } from '../../ui';
 import { initUser, validateEmail } from '../../utils';
-
 import styles from './getSubscription.module.css';
 
 export default function GetSubscriptionPage() {
@@ -22,11 +22,18 @@ export default function GetSubscriptionPage() {
   const [error, setError] = useState<string | null>(null);
   const [hasError, setHasError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { authUser, rmnUser } = useAuthStoreInfo();
+  const { authUser, rmnUser, tgUser } = useAuthStoreInfo();
+  const { setRmnUser } = useAuthStoreActions();
+  const { platformType } = usePlatformStore();
 
+  // Redirect away from the setup page if the user is already resolved —
+  // covers both the web flow (authUser + rmnUser) and the TMA flow (tgUser + rmnUser).
   useEffect(() => {
-    if (authUser && rmnUser) navigate(subscriptionPortalPath);
-  }, [authUser, navigate, subscriptionPortalPath, rmnUser]);
+    if (rmnUser && (authUser || tgUser)) navigate(subscriptionPortalPath);
+    if (platformType === 'telegram') {
+      backButton.hide();
+    }
+  }, [authUser, tgUser, rmnUser, navigate, subscriptionPortalPath, platformType]);
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -47,14 +54,35 @@ export default function GetSubscriptionPage() {
 
     setIsLoading(true);
     try {
-      const user = await initUser(remnawaveApi, { email });
+      if (tgUser) {
+        // TMA flow — look up by email, link the Telegram identity, then land on the portal.
+        //
+        // If an account exists (e.g. a web user who already signed up): attach this telegramId
+        // so future logins resolve via Telegram without asking for email again.
+        //
+        // If no account exists yet: create one with both email and telegramId so the user
+        // can access their subscription from both Telegram and the web.
+        const telegramId = Number(tgUser.id);
+        const existingUser = await initUser(remnawaveApi, { email });
 
-      if (!user) {
+        if (existingUser) {
+          const linked = await remnawaveApi.updateUser({ uuid: existingUser.uuid, telegramId });
+          setRmnUser(linked ?? null);
+        } else {
+          const newUser = await remnawaveApi.createUser({ email, telegramId });
+          setRmnUser(newUser ?? null);
+        }
+        navigate(subscriptionPortalPath);
+      } else {
+        // Web flow — look up or create by email, then navigate to the public subscription page.
+        const existingUser = await initUser(remnawaveApi, { email });
+        if (existingUser) {
+          navigate(`/subscription/${existingUser.shortUuid}`);
+          return;
+        }
         const newUser = await remnawaveApi.createUser({ email });
         navigate(`/subscription/${newUser?.shortUuid}`);
-        return;
       }
-      navigate(`/subscription/${user?.shortUuid}`);
     } catch {
       setError(t('getSubscription.error_failed_to_create'));
       setHasError(true);

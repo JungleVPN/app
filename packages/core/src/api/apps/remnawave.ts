@@ -36,7 +36,8 @@ export function createRemnawaveApi(client: ApiClient) {
         const data = await client.get<GetUserByTelegramIdCommand.Response['response']>(
           apiRoutes.remnawave.userByTelegramId(telegramId),
         );
-        if (data?.length === 0) return null;
+        // Backend returns 200 with empty body when not found — treat as null.
+        if (!data || data.length === 0) return null;
         return data;
       } catch (err: unknown) {
         if (err && typeof err === 'object' && 'status' in err && err.status === 404) {

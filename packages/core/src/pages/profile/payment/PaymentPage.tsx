@@ -54,13 +54,37 @@ export default function PaymentPage() {
   const handleExtend = async (email?: string) => {
     if (!rmnUser) return;
 
+    // The user we'll actually pay against — may be swapped to an existing web account below.
+    let activeUser = rmnUser;
+
     if (email && !rmnUser.email) {
-      const updated = await updateUser({ uuid: rmnUser.uuid, email });
-      if (updated) setRmnUser(updated);
+      // Look up whether there's already a web account with this email.
+      const byEmail = await remnawaveApi.getUserByEmail({ email });
+      const existingWebUser = byEmail?.[0];
+
+      if (existingWebUser && existingWebUser.uuid !== rmnUser.uuid) {
+        // This TMA user has a pre-existing web account. Link their Telegram ID to it
+        // and adopt it so the payment goes against the right subscription.
+        const linked = await updateUser({
+          uuid: existingWebUser.uuid,
+          telegramId: tgUser?.id != null ? Number(tgUser.id) : undefined,
+        });
+        if (linked) {
+          setRmnUser(linked);
+          activeUser = linked;
+        }
+      } else {
+        // No conflicting account — just save the email on the current TMA user.
+        const updated = await updateUser({ uuid: rmnUser.uuid, email });
+        if (updated) {
+          setRmnUser(updated);
+          activeUser = updated;
+        }
+      }
     }
 
     const session = await createSession({
-      userId: rmnUser.uuid,
+      userId: activeUser.uuid,
       selectedPeriod: allowedPeriods,
       save_payment_method: true,
       amount: { value: allowedAmounts, currency: 'RUB' },

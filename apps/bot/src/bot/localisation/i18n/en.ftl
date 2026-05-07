@@ -1,6 +1,6 @@
 dear-friend=Dear Friend
 provider-description-text = Happy to see you in the JUNGLE 🌴
-
+open-app-button-label = Open app 📲
 connect-button-label = Connect 📶
 extend-button-label = Extend ➕
 pay-button-label = Pay 💶
@@ -45,8 +45,7 @@ days-left-label = { $daysLeft ->
 
 
 main-text =
-    🌴 Welcome to the <code>Jungle</code>, <b>{ $username }</b>!
-    I’m @Ramazzaniii, the creator of <code>JungleVPN</code> 🌴
+    🌴 Great to see you, <b>{ $username }</b>!
 
     Here is some info about your subscription:
 
@@ -67,6 +66,19 @@ main-text =
         <code>LinkedIn</code>: <a href="https://www.linkedin.com/in/ramazan-ittiev/">Link</a>
     </blockquote>
 
+setup-prompt-text =
+    🌴 Welcome to the <code>Jungle</code>, <b>{ $username }</b>!
+    I’m @Ramazzaniii, the creator of <code>JungleVPN</code> 🌴
+
+    To get started, open the app and get your subscription 🙂
+
+
+    My contacts:
+    <blockquote>
+        <code>Telegram</code>: @Ramazzaniii
+        <code>Channel</code>: @In_The_Jungle
+        <code>LinkedIn</code>: <a href="https://www.linkedin.com/in/ramazan-ittiev/">Link</a>
+    </blockquote>
 
 donate-text =
     Thank you for wanting to support the project 💙
