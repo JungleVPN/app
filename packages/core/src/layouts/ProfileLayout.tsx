@@ -38,14 +38,13 @@ export function ProfileLayout() {
   // is known so child routes render immediately without a loading flash on
   // subsequent navigations.
 
-  console.log(rmnUser);
   useSubscriptionData(rmnUser?.shortUuid, coreEnv.subpageConfigUuid);
   useSavedMethodsData(rmnUser?.uuid ?? '');
 
   return (
     <>
       <Outlet />
-      <Navbar />
+      {rmnUser && <Navbar />}
     </>
   );
 }

@@ -8,7 +8,6 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 export function Header() {
   const { t } = useTranslation();
   const { platformType } = usePlatformStore();
-  console.log(platformType);
   return (
     <div className='flex items-center justify-between'>
       <div>
