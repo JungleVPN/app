@@ -152,7 +152,6 @@ export class RemnaService {
 
     if (isInvalid && user.uuid) {
       try {
-        await this.deleteUser(user.uuid);
         this.logger.log(`Removed invalid user ${user.telegramId} (${errorMessage})`);
         return true;
       } catch (e) {
