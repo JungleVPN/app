@@ -1,16 +1,12 @@
 import { Button, Disclosure, DisclosureGroup, Separator, Surface } from '@heroui/react';
 import { useState } from 'react';
-import { ThemeIconComponent } from '../../../../ThemeIcon/ThemeIcon';
-import { getColorGradient } from '../../../../../utils/colorParser';
-import { getLocalizedText } from '../../../../../utils/configParser';
-import { vibrate } from '../../../../../utils/vibrate';
+import { getLocalizedText, vibrate } from '../../../../../utils';
 import type { IBlockRendererProps } from '../rendererBlock.interface';
 
 export const AccordionBlockRenderer = ({
   blocks,
   currentLang,
   renderBlockButtons,
-  getIconFromLibrary,
 }: IBlockRendererProps) => {
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(() => new Set(['0']));
 
@@ -27,7 +23,6 @@ export const AccordionBlockRenderer = ({
       <Surface className='flex flex-col gap-0' variant='transparent'>
         {blocks.map((block, index) => {
           const id = String(index);
-          const gradientStyle = getColorGradient(block.svgIconColor);
           const isOpen = expandedKeys.has(id);
 
           return (
@@ -41,12 +36,6 @@ export const AccordionBlockRenderer = ({
                     variant={isOpen ? 'secondary' : 'ghost'}
                   >
                     <span className='flex min-w-0 flex-1 items-center gap-2'>
-                      <ThemeIconComponent
-                        getIconFromLibrary={getIconFromLibrary}
-                        gradientStyle={gradientStyle}
-                        svgIconColor={block.svgIconColor}
-                        svgIconKey={block.svgIconKey}
-                      />
                       <span
                         className='truncate text-sm font-semibold text-foreground'
                         // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>

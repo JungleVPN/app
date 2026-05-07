@@ -1,18 +1,16 @@
-import { Button, Disclosure, Surface } from '@heroui/react';
+import { Button, Disclosure } from '@heroui/react';
 import {
-  IconAlertCircle,
   IconArrowsUpDown,
   IconCalendar,
   IconCheck,
   IconUserScan,
   IconX,
 } from '@tabler/icons-react';
-import { useSubscription } from '../../stores';
 import { useState } from 'react';
+import { useTranslation } from '../../hooks';
+import { useSubscription } from '../../stores';
+import { formatDate, getExpirationTextUtil } from '../../utils';
 import { InfoBlock } from '../InfoBlock/InfoBlock';
-import { useTranslation } from '../../hooks/useTranslations';
-import { getColorGradientSolid } from '../../utils/colorParser';
-import { formatDate, getExpirationTextUtil } from '../../utils/configParser';
 
 export const SubscriptionInfoCollapsed = () => {
   const { t, currentLang, baseTranslations } = useTranslation();
@@ -20,19 +18,6 @@ export const SubscriptionInfoCollapsed = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const { user } = subscription;
-
-  const getStatusConfig = () => {
-    if (user.userStatus === 'ACTIVE' && user.daysLeft > 3) {
-      return { color: 'teal', icon: <IconCheck size={14} /> };
-    }
-    if (user.userStatus === 'ACTIVE' && user.daysLeft > 0) {
-      return { color: 'orange', icon: <IconAlertCircle size={14} /> };
-    }
-    return { color: 'red', icon: <IconX size={14} /> };
-  };
-
-  const status = getStatusConfig();
-  const gradientColor = getColorGradientSolid(status.color);
 
   return (
     <Disclosure isExpanded={isExpanded} onExpandedChange={setIsExpanded}>
@@ -43,17 +28,6 @@ export const SubscriptionInfoCollapsed = () => {
           variant='primary'
         >
           <span className='flex min-w-0 flex-1 items-center gap-2'>
-            <Surface
-              className='flex size-7 shrink-0 items-center justify-center rounded-full'
-              style={{
-                background: gradientColor.background,
-                border: gradientColor.border,
-                boxShadow: gradientColor.boxShadow,
-              }}
-              variant='transparent'
-            >
-              {status.icon}
-            </Surface>
             <span className='flex min-w-0 flex-1 flex-col items-start gap-0'>
               <span className='truncate text-sm font-semibold text-foreground'>
                 {user.username}
@@ -63,7 +37,7 @@ export const SubscriptionInfoCollapsed = () => {
               </span>
             </span>
           </span>
-          <Disclosure.Indicator className='text-muted' />
+          <Disclosure.Indicator />
         </Button>
       </Disclosure.Heading>
       <Disclosure.Content>

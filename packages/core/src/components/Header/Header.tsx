@@ -17,9 +17,8 @@ export function Header() {
             alt={t('header.logoAlt')}
             src={Logo}
             style={{
-              width: '64px',
-              height: '64px',
-              flexShrink: 0,
+              width: '52px',
+              height: '52px',
             }}
           />
         </Link>

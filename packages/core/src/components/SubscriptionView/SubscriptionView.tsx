@@ -97,7 +97,7 @@ export function SubscriptionView({
   const activeSubscription = subscription?.user?.userStatus === 'ACTIVE';
 
   return (
-    <Surface className='z-2 flex flex-col gap-8' variant='transparent'>
+    <Surface className='z-2 flex flex-col gap-4' variant='transparent'>
       {subscriptionInfoSection(activeSubscription, config.uiConfig.subscriptionInfoBlockType)}
 
       {atLeastOnePlatformApp && activeSubscription ? (

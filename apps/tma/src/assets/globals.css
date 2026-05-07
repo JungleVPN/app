@@ -124,12 +124,6 @@ input:-webkit-autofill:active {
     box-shadow 0.3s ease;
 }
 
-.step-card:hover {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border-color: rgba(34, 211, 238, 0.3) !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
-}
-
 .logo-text-highlight {
   color: oklch(0.78 0.12 195);
 }

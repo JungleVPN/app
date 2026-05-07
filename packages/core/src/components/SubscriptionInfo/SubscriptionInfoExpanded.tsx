@@ -1,18 +1,15 @@
-import { Card, Surface } from '@heroui/react';
+import { Card } from '@heroui/react';
 import {
-  IconAlertCircle,
   IconArrowsUpDown,
   IconCalendar,
   IconCheck,
   IconUserScan,
   IconX,
 } from '@tabler/icons-react';
+import { useTranslation } from '../../hooks';
 import { useSubscription } from '../../stores';
-import type { ReactNode } from 'react';
+import { formatDate, getExpirationTextUtil } from '../../utils';
 import { InfoBlock } from '../InfoBlock/InfoBlock';
-import { useTranslation } from '../../hooks/useTranslations';
-import { getColorGradientSolid } from '../../utils/colorParser';
-import { formatDate, getExpirationTextUtil } from '../../utils/configParser';
 
 export const SubscriptionInfoExpanded = () => {
   const { t, currentLang, baseTranslations } = useTranslation();
@@ -20,55 +17,11 @@ export const SubscriptionInfoExpanded = () => {
 
   const { user } = subscription;
 
-  const getStatusAndIcon = (): {
-    color: string;
-    icon: ReactNode;
-    status: string;
-  } => {
-    if (user.userStatus === 'ACTIVE' && user.daysLeft > 0) {
-      return {
-        color: 'teal',
-        icon: <IconCheck size={18} />,
-        status: t(baseTranslations.active),
-      };
-    }
-    if (
-      (user.userStatus === 'ACTIVE' && user.daysLeft === 0) ||
-      (user.daysLeft >= 0 && user.daysLeft <= 3)
-    ) {
-      return {
-        color: 'orange',
-        icon: <IconAlertCircle size={18} />,
-        status: t(baseTranslations.active),
-      };
-    }
-    return {
-      color: 'red',
-      icon: <IconX size={18} />,
-      status: t(baseTranslations.inactive),
-    };
-  };
-
-  const statusInfo = getStatusAndIcon();
-  const gradientColor = getColorGradientSolid(statusInfo.color);
-
   return (
     <Card className='z-[3] overflow-hidden border border-divider' variant='default'>
       <Card.Content className='gap-3 p-2'>
         <div className='flex items-center justify-between gap-2'>
           <div className='flex min-w-0 flex-1 items-center gap-2'>
-            <Surface
-              className='flex size-9 shrink-0 items-center justify-center rounded-full'
-              style={{
-                background: gradientColor.background,
-                border: gradientColor.border,
-                boxShadow: gradientColor.boxShadow,
-              }}
-              variant='transparent'
-            >
-              {statusInfo.icon}
-            </Surface>
-
             <div className='flex min-w-0 flex-1 flex-col gap-0.5'>
               <Card.Title className='truncate text-base'>{user.username}</Card.Title>
               <Card.Description

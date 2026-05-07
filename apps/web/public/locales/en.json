@@ -75,7 +75,7 @@
     "unknown": "Something went wrong"
   },
   "getSubscription": {
-    "enter_email": "Enter the email for your JungleVPN account",
+    "enter_email": "Email",
     "email_placeholder": "example@gmail.com",
     "email_description": "Required to manage your subscription",
     "error_empty_email": "Please enter your email address",

@@ -109,12 +109,12 @@ export const Navbar = () => {
       {
         id: 'subscription',
         label: t('profileTabs.subscription'),
-        icon: <IconWallet className='size-8' />,
+        icon: <IconWallet className='size-7' />,
       },
       {
         id: 'payments',
         label: t('profileTabs.payment'),
-        icon: <IconPig className='size-8' />,
+        icon: <IconPig className='size-7' />,
       },
     ],
     [t],

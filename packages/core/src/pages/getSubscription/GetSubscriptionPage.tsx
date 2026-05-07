@@ -100,40 +100,38 @@ export default function GetSubscriptionPage() {
   return (
     <Form className={styles.form}>
       <div className='mx-auto flex max-w-5xl flex-col gap-3'>
-        <Block>
-          <div className='flex flex-col gap-2'>
-            <p className='text-base font-medium text-foreground'>
-              {t('getSubscription.enter_email')}
-            </p>
-            <TextField isInvalid={hasError} isRequired name='email' id={'email'} type='email'>
-              <div className='relative w-full'>
-                <span className={styles.inputIcon}>
-                  <IconMail size={20} stroke={1.5} />
-                </span>
-                <Input
-                  autoComplete='email'
-                  className={styles.input}
-                  placeholder={t('getSubscription.email_placeholder')}
-                  value={email}
-                  variant='secondary'
-                  onChange={(v) => {
-                    setEmail(v.target.value);
-                    if (error) {
-                      setHasError(false);
-                      setError('');
-                    }
-                  }}
-                />
-              </div>
+        <div className='flex flex-col gap-2'>
+          <p className='text-base font-medium text-foreground ml-4'>
+            {t('getSubscription.enter_email')}
+          </p>
+          <TextField isInvalid={hasError} isRequired name='email' id={'email'} type='email'>
+            <div className='relative w-full'>
+              <span className={styles.inputIcon}>
+                <IconMail size={20} stroke={1.5} />
+              </span>
+              <Input
+                autoComplete='email'
+                className={styles.input}
+                placeholder={t('getSubscription.email_placeholder')}
+                value={email}
+                variant='secondary'
+                onChange={(v) => {
+                  setEmail(v.target.value);
+                  if (error) {
+                    setHasError(false);
+                    setError('');
+                  }
+                }}
+              />
+            </div>
 
-              {hasError ? (
-                <FieldError>{error}</FieldError>
-              ) : (
-                <Description>{t('getSubscription.email_description')}</Description>
-              )}
-            </TextField>
-          </div>
-        </Block>
+            {hasError ? (
+              <FieldError>{error}</FieldError>
+            ) : (
+              <Description className={'ml-4'}>{t('getSubscription.email_description')}</Description>
+            )}
+          </TextField>
+        </div>
 
         <Block>
           <div className={styles.orderSummary}>
