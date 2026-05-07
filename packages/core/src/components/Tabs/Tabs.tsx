@@ -283,24 +283,27 @@ export const Navbar = () => {
           style={{ x: indicatorX, width: indicatorWidth }}
         />
 
-        {tabs.map((tab) => (
-          <motion.button
-            key={tab.id}
-            ref={tabRefCallbacks.current[tab.id]}
-            type='button'
-            role='tab'
-            aria-selected={tab.id === activeTab}
-            className={css.tab}
-            // --tab-overlap drives color-mix() in CSS — no second content layer needed.
-            style={{ '--tab-overlap': overlapValues[tab.id] } as React.CSSProperties}
-            onClick={clickHandlers.current[tab.id]}
-          >
-            <span className={css.tabInner}>
-              <span className={css.tabIcon}>{tab.icon}</span>
-              <span className={css.tabLabel}>{tab.label}</span>
-            </span>
-          </motion.button>
-        ))}
+        {tabs.map((tab, index) => {
+          console.log(index === 0);
+          return (
+            <motion.button
+              key={tab.id}
+              ref={tabRefCallbacks.current[tab.id]}
+              type='button'
+              role='tab'
+              aria-selected={index === 0 || tab.id === activeTab}
+              className={css.tab}
+              // --tab-overlap drives color-mix() in CSS — no second content layer needed.
+              style={{ '--tab-overlap': overlapValues[tab.id] } as React.CSSProperties}
+              onClick={clickHandlers.current[tab.id]}
+            >
+              <span className={css.tabInner}>
+                <span className={css.tabIcon}>{tab.icon}</span>
+                <span className={css.tabLabel}>{tab.label}</span>
+              </span>
+            </motion.button>
+          );
+        })}
       </motion.div>
     </div>
   );

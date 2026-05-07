@@ -1,9 +1,9 @@
 export const apiRoutes = {
   broadcasts: {
-    collection: '/broadcasts',
-    byId: (id: number | string) => `/broadcasts/${id}`,
-    messages: (broadcastId: number | string) => `/broadcasts/${broadcastId}/messages`,
-    messagesBatch: (broadcastId: number | string) => `/broadcasts/${broadcastId}/messages/batch`,
+    collection: '/',
+    byId: (id: number | string) => `/${id}`,
+    messages: (broadcastId: number | string) => `/${broadcastId}/messages`,
+    messagesBatch: (broadcastId: number | string) => `/${broadcastId}/messages/batch`,
   },
   payments: {
     stripeCreateSession: '/stripe/create-session',
