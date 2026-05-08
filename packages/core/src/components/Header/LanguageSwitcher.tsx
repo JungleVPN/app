@@ -1,7 +1,7 @@
 import { Button, Dropdown, Label } from '@heroui/react';
 import type { TSubscriptionPageLanguageCode } from '@remnawave/subscription-page-types';
-import { useSubscriptionConfigStoreActions } from '../../stores';
 import { useTranslation } from 'react-i18next';
+import { useSubscriptionConfigStoreActions } from '../../stores';
 
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
@@ -16,7 +16,7 @@ export function LanguageSwitcher() {
 
   return (
     <Dropdown>
-      <Button className='min-w-10 uppercase' size='sm' variant='ghost'>
+      <Button className='min-w-10 uppercase' size='md' variant='secondary'>
         {code}
       </Button>
       <Dropdown.Popover>

@@ -30,6 +30,7 @@
   --field-background: var(--tg-theme-secondary-bg-color);
   --field-foreground: var(--tg-theme-text-color);
   --icon-color: var(--tg-theme-text-color);
+  --accent-color: var(--tg-theme-accent-text-color);
   --field-placeholder: var(--tg-theme-hint-color);
   --separator: var(--tg-theme-section-separator-color);
   --border: var(--tg-theme-section-separator-color);

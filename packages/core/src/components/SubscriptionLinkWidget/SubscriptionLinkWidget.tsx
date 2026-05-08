@@ -1,0 +1,105 @@
+import { AlertDialog, Button, useOverlayState } from '@heroui/react';
+import { IconCopy, IconHelpCircle, IconLink } from '@tabler/icons-react';
+import { renderSVG } from 'uqr';
+import { coreEnv } from '../../env';
+import { useClipboard, useTranslation } from '../../hooks';
+import { usePlatformStore, useSubscriptionInfoStoreInfo } from '../../stores';
+import { Link } from '../Link/Link';
+
+export const SubscriptionLinkWidget = () => {
+  const { t, baseTranslations } = useTranslation();
+  const { subscription } = useSubscriptionInfoStoreInfo();
+  const { clientPlatform } = usePlatformStore();
+  const { supportUrl } = coreEnv;
+
+  const { copy, copied } = useClipboard({ timeout: 3000 });
+  const qrState = useOverlayState();
+
+  const isDesktop = clientPlatform !== 'ios' && clientPlatform !== 'android';
+
+  if (!subscription) return null;
+
+  const accentColor =
+    getComputedStyle(document.documentElement)
+      .getPropertyValue('--tg-theme-accent-text-color')
+      .trim() || '#22d3ee';
+
+  const qrCodeSvg =
+    isDesktop && subscription.user.shortUuid
+      ? renderSVG(`https://web.thejungle.pro/subscription/${subscription.user.shortUuid}`, {
+          whiteColor: '#161B22',
+          blackColor: accentColor,
+        })
+      : null;
+
+  const handleCopy = async () => {
+    await copy(subscription.subscriptionUrl);
+  };
+
+  return (
+    <>
+      <div className='flex items-center gap-2'>
+        <Button isIconOnly size='md' variant='tertiary' onPress={qrState.open}>
+          <IconLink />
+        </Button>
+
+        {supportUrl && (
+          <Button isIconOnly size='md' variant='tertiary'>
+            <Link href={supportUrl} target='_blank' rel='noopener noreferrer'>
+              <IconHelpCircle />
+            </Link>
+          </Button>
+        )}
+      </div>
+
+      <AlertDialog.Backdrop
+        isDismissable
+        isOpen={qrState.isOpen}
+        variant='blur'
+        onOpenChange={qrState.setOpen}
+      >
+        <AlertDialog.Container size='sm'>
+          <AlertDialog.Dialog>
+            <AlertDialog.CloseTrigger />
+            <AlertDialog.Header>
+              <AlertDialog.Heading>
+                {baseTranslations ? t(baseTranslations.getLink) : ''}
+              </AlertDialog.Heading>
+            </AlertDialog.Header>
+            <AlertDialog.Body>
+              <div className='flex flex-col items-center gap-4'>
+                {qrCodeSvg && (
+                  <img
+                    src={`data:image/svg+xml;utf8,${encodeURIComponent(qrCodeSvg)}`}
+                    alt='QR code'
+                    className='w-56 h-56 rounded-xl'
+                  />
+                )}
+                {isDesktop && (
+                  <p className='text-center text-base font-semibold'>
+                    {baseTranslations ? t(baseTranslations.scanQrCode) : ''}
+                  </p>
+                )}
+                <p className='text-center text-sm text-muted'>
+                  {baseTranslations ? t(baseTranslations.scanQrCodeDescription) : ''}
+                </p>
+              </div>
+            </AlertDialog.Body>
+            <AlertDialog.Footer>
+              <Button fullWidth variant='secondary' onPress={handleCopy}>
+                <IconCopy size={16} />
+                {copied
+                  ? baseTranslations
+                    ? t(baseTranslations.linkCopied)
+                    : 'Copied'
+                  : baseTranslations
+                    ? t(baseTranslations.copyLink)
+                    : 'Copy link'}
+              </Button>
+            </AlertDialog.Footer>
+          </AlertDialog.Dialog>
+        </AlertDialog.Container>
+      </AlertDialog.Backdrop>
+    </>
+  );
+};

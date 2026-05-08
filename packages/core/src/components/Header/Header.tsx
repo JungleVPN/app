@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import Logo from '../../assets/Logo.svg';
 import { usePlatformStore } from '../../stores';
+import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
@@ -23,7 +24,8 @@ export function Header() {
         </Link>
       </div>
 
-      <div className='flex items-center justify-between'>
+      <div className='flex items-center justify-between gap-2'>
+        <SubscriptionLinkWidget />
         <LanguageSwitcher />
         {platformType === 'web' && <AuthButtons />}
       </div>
