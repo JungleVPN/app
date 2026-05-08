@@ -23,21 +23,20 @@ export const SubscriptionInfoCollapsed = () => {
     <Disclosure isExpanded={isExpanded} onExpandedChange={setIsExpanded}>
       <Disclosure.Heading>
         <Button
-          className='h-auto w-full justify-between gap-2 px-4 py-2'
+          className='h-auto w-full justify-between gap-2 px-4 py-2 bg-surface-secondary'
           slot='trigger'
-          variant='primary'
         >
           <span className='flex min-w-0 flex-1 items-center gap-2'>
             <span className='flex min-w-0 flex-1 flex-col items-start gap-0'>
               <span className='truncate text-sm font-semibold text-foreground'>
                 {user.username}
               </span>
-              <span className='truncate text-xs'>
+              <span className='truncate text-xs text-foreground'>
                 {getExpirationTextUtil(user.expiresAt, currentLang, baseTranslations)}
               </span>
             </span>
           </span>
-          <Disclosure.Indicator />
+          <Disclosure.Indicator className={'text-foreground'} />
         </Button>
       </Disclosure.Heading>
       <Disclosure.Content>

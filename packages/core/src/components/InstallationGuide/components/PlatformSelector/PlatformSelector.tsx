@@ -26,14 +26,13 @@ export function PlatformSelector({ options, selectedPlatformId, onSelect }: Plat
     <Select
       className='w-[150px]'
       value={selectedPlatformId}
-      variant='secondary'
       onChange={(value: Key | null) => {
         if (value == null) return;
         onSelect(value as TSubscriptionPagePlatformKey);
       }}
     >
       <Label className='sr-only'>{t('a11y.platform')}</Label>
-      <Select.Trigger className={'items-center'}>
+      <Select.Trigger className={'items-center bg-[var(--quaternary-fill-background)]'}>
         <span
           className='flex size-5 shrink-0 items-center justify-center mr-1'
           // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted SVG icon string

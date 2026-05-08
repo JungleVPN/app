@@ -53,7 +53,7 @@ export function ExtendCard({
   };
 
   return (
-    <Card variant='default'>
+    <Card variant='secondary'>
       <Card.Content>
         <Form className='flex flex-col gap-4'>
           {/* Order row */}

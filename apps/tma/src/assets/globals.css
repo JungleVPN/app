@@ -10,6 +10,7 @@
 .dark,
 [data-theme="dark"] {
   --accent: var(--tg-theme-button-color);
+  --quaternary-fill-background: rgba(116, 116, 128, 0.18);
   --accent-foreground: var(--tg-theme-button-text-color);
   --background: var(--tg-theme-bg-color);
   --foreground: var(--tg-theme-text-color);
@@ -33,26 +34,6 @@
   --border: var(--tg-theme-section-separator-color);
 }
 
-@theme inline {
-  /* ─── Expose TG variables as Tailwind utility classes ────────────────────
-     Usage: bg-tg-button, text-tg-text, border-tg-hint, etc.
-     These are additive — they don't override HeroUI's own @theme mappings. */
-  --color-tg-button: var(--tg-theme-button-color);
-  --color-tg-button-text: var(--tg-theme-button-text-color);
-  --color-tg-bg: var(--tg-theme-bg-color);
-  --color-tg-text: var(--tg-theme-text-color);
-  --color-tg-hint: var(--tg-theme-hint-color);
-  --color-tg-link: var(--tg-theme-link-color);
-  --color-tg-secondary-bg: var(--tg-theme-secondary-bg-color);
-  --color-tg-section-bg: var(--tg-theme-section-bg-color);
-  --color-tg-header-bg: var(--tg-theme-header-bg-color);
-  --color-tg-accent-text: var(--tg-theme-accent-text-color);
-  --color-tg-subtitle-text: var(--tg-theme-subtitle-text-color);
-  --color-tg-destructive: var(--tg-theme-destructive-text-color);
-  --color-tg-bottom-bar: var(--tg-theme-bottom-bar-bg-color);
-  --color-tg-separator: var(--tg-theme-section-separator-color);
-}
-
 .alert-dialog__dialog {
   &[data-placement="auto"] {
     margin: auto;
@@ -61,8 +42,8 @@
 
 html,
 body {
-  background-color: var(--tg-theme-bg-color, oklch(0.1448 0 0));
-  color: var(--tg-theme-text-color, #ffffff);
+  background-color: var(--tg-theme-secondary-bg-color);
+  color: var(--tg-theme-text-color);
   background-size: 60px 60px;
   background-attachment: fixed;
   inset: 0;

@@ -172,7 +172,7 @@ export default function PaymentPage() {
         onOpenChange={termsState.setOpen}
       >
         <AlertDialog.Container size='sm'>
-          <AlertDialog.Dialog>
+          <AlertDialog.Dialog className={'bg-surface-secondary'}>
             <AlertDialog.CloseTrigger />
             <AlertDialog.Header className='mb-4'>
               <AlertDialog.Heading>{t('terms.dialog.title')}</AlertDialog.Heading>

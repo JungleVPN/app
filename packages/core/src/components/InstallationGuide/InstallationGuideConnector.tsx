@@ -1,22 +1,22 @@
 import { Card, Separator } from '@heroui/react';
 import { TSubscriptionPageRawConfig } from '@remnawave/subscription-page-types';
-import { useSubscription, useSubscriptionConfig } from '../../stores';
 import type { TSubscriptionPageButtonConfig, TSubscriptionPagePlatformKey } from '@workspace/types';
 import { useCallback, useMemo, useState } from 'react';
-import { useClipboard } from '../../hooks/useClipboard';
-import { useTranslation } from '../../hooks/useTranslations';
-import { getIconFromLibrary } from '../../utils/configParser';
-import { vibrate } from '../../utils/vibrate';
+import { useClipboard, useTranslation } from '../../hooks';
+import { useSubscription, useSubscriptionConfig } from '../../stores';
+import { getIconFromLibrary, vibrate } from '../../utils';
 import { AppTabs } from './components/AppTabs/AppTabs';
 import { BlockButton } from './components/BlockButton/BlockButton';
-import { AccordionBlockRenderer } from './components/blocks/accordion/AccordionBlock';
-import { CardsBlockRenderer } from './components/blocks/cards/CardsBlock';
-import { MinimalBlockRenderer } from './components/blocks/minimal/minimalBlock';
+import {
+  AccordionBlockRenderer,
+  CardsBlockRenderer,
+  MinimalBlockRenderer,
+  TimelineBlockRenderer,
+} from './components/blocks';
 import type {
   BlockButtonVariant,
   IBlockRendererProps,
 } from './components/blocks/rendererBlock.interface';
-import { TimelineBlockRenderer } from './components/blocks/timeline/timelineBlock';
 import {
   type PlatformOption,
   PlatformSelector,
@@ -126,7 +126,7 @@ export function InstallationGuideConnector({ hasPlatformApps, platform, type }: 
   }, [type, installationBlocksProps]);
 
   return (
-    <Card className='z-3' variant='default'>
+    <Card className='z-3' variant='secondary'>
       <Card.Content className='flex flex-col gap-4'>
         <div className='flex items-center justify-between gap-2'>
           <Card.Title className='text-foreground text-lg'>

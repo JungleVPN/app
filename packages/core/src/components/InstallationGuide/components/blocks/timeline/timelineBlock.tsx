@@ -1,7 +1,6 @@
 import { Surface } from '@heroui/react';
+import { getColorGradientSolid, getLocalizedText } from '../../../../../utils';
 import { ThemeIconComponent } from '../../../../ThemeIcon/ThemeIcon';
-import { getColorGradientSolid } from '../../../../../utils/colorParser';
-import { getLocalizedText } from '../../../../../utils/configParser';
 import type { IBlockRendererProps } from '../rendererBlock.interface';
 import classes from './timelineBlock.module.css';
 

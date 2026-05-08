@@ -102,7 +102,7 @@ export function SubscriptionView({
 
       {atLeastOnePlatformApp && activeSubscription ? (
         <InstallationGuideConnector
-          type={config.uiConfig.installationGuidesBlockType}
+          type={'timeline'}
           hasPlatformApps={hasPlatformApps}
           platform={OS_TO_PLATFORM[detectOs()]}
         />
