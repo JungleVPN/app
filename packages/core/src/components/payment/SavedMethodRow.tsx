@@ -43,12 +43,12 @@ export function SavedMethodRow({
           <Tooltip delay={0} closeDelay={0}>
             <Button
               aria-label={t('a11y.deletePaymentMethod')}
-              className='shrink-0'
               isIconOnly
               isPending={isDeleting}
               size='sm'
               variant='tertiary'
               onPress={confirmState.open}
+              className={'bg-[var(--quaternary-fill-background)]'}
             >
               <BinIcon />
             </Button>

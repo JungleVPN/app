@@ -120,7 +120,7 @@ export default function PaymentPage() {
               {t('payment.methodsHeading')}
             </h2>
 
-            <Card className='w-full overflow-hidden p-0' variant='default'>
+            <Card className='w-full overflow-hidden p-0' variant='secondary'>
               <Card.Content className='flex flex-col gap-0 p-0'>
                 {isLoadingMethods ? (
                   <div className='flex min-h-[120px] items-center justify-center py-8'>

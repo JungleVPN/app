@@ -42,7 +42,22 @@
   "profileTabs": {
     "ariaLabel": "Profile sections",
     "subscription": "Subscription",
-    "payment": "Payment"
+    "payment": "Payment",
+    "devices": "Devices"
+  },
+  "devices": {
+    "pageTitle": "Devices",
+    "pageSubtitle": "Manage your connected devices",
+    "listHeading": "Connected devices",
+    "noDevices": "No devices connected yet.",
+    "unknownDevice": "Unknown device",
+    "deleteDeviceLabel": "Remove device",
+    "deleteDevice": {
+      "title": "Remove device?",
+      "body": "This session will be deleted and you will need to import your link once more.",
+      "cancel": "Cancel",
+      "confirm": "Remove"
+    }
   },
   "payment": {
     "pageTitle": "Payment",

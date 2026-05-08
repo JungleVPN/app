@@ -3,8 +3,7 @@ import type {
   TSubscriptionPageButtonConfig,
   TSubscriptionPageLocalizedText,
 } from '@workspace/types';
-import { getIconFromLibrary } from '../../../../utils/configParser';
-import { TemplateEngine } from '../../../../utils/templateEngine';
+import { getIconFromLibrary, TemplateEngine } from '../../../../utils';
 
 interface BlockButtonProps {
   button: TSubscriptionPageButtonConfig;
@@ -43,7 +42,11 @@ export function BlockButton({
   };
 
   return (
-    <Button variant={variant} onPress={handlePress}>
+    <Button
+      variant={variant}
+      onPress={handlePress}
+      className={'bg-[var(--quaternary-fill-background)]'}
+    >
       <span
         className='flex items-center [&_svg]:size-4'
         // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted SVG icon string

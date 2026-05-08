@@ -2,11 +2,13 @@ import {
   apiRoutes,
   CreateUserRequestDto,
   CreateUserResponseDto,
+  DeleteUserHwidDeviceCommand,
   GetSubpageConfigByShortUuidCommand,
   GetSubscriptionInfoByShortUuidCommand,
   GetSubscriptionPageConfigCommand,
   GetUserByEmailCommand,
   GetUserByTelegramIdCommand,
+  GetUserHwidDevicesCommand,
   UpdateUserCommand,
   UpdateUserResponseDto,
 } from '@workspace/types';
@@ -82,6 +84,30 @@ export function createRemnawaveApi(client: ApiClient) {
 
     async updateUser(body: UpdateUserCommand.Request): Promise<UpdateUserResponseDto | null> {
       return client.patch<UpdateUserResponseDto>(apiRoutes.remnawave.users, body);
+    },
+
+    async getUserDevices(
+      userUuid: string,
+    ): Promise<GetUserHwidDevicesCommand.Response['response'] | null> {
+      try {
+        return await client.get<GetUserHwidDevicesCommand.Response['response']>(
+          apiRoutes.remnawave.userDevices(userUuid),
+        );
+      } catch (err: unknown) {
+        if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
+          return null;
+        }
+        throw err;
+      }
+    },
+
+    async deleteUserDevice(
+      userUuid: string,
+      hwid: string,
+    ): Promise<DeleteUserHwidDeviceCommand.Response['response'] | null> {
+      return client.delete<DeleteUserHwidDeviceCommand.Response['response']>(
+        apiRoutes.remnawave.userDevice(userUuid, hwid),
+      );
     },
   };
 }

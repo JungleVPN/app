@@ -15,6 +15,8 @@ export interface AppRoutes {
   profileSubscriptionPath: string;
   /** Bottom-tab: payments (web: `/profile/payments`, TMA: `/payments`). */
   profilePaymentPath: string;
+  /** Bottom-tab: devices (web: `/profile/devices`, TMA: `/devices`). */
+  profileDevicesPath: string;
   /**
    * Where ProfileLayout redirects when no remnawave user is found for the
    * current identity. Web: `/` (GetSubscriptionPage is the home page).

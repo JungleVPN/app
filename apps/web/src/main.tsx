@@ -22,6 +22,7 @@ const appRoutes = {
   authGateRedirectPath: '/login',
   profileSubscriptionPath: '/profile/subscription',
   profilePaymentPath: '/profile/payments',
+  profileDevicesPath: '/profile/devices',
   setupPath: '/',
 };
 
