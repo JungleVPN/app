@@ -1,7 +1,9 @@
 export type { TRemnawaveWebhookUserEvent as RemnawebhookPayload } from '@remnawave/backend-contract';
 export {
   CreateUserCommand,
+  DeleteAllUserHwidDevicesCommand,
   DeleteUserCommand,
+  DeleteUserHwidDeviceCommand,
   EVENTS as REMNAWAVE_EVENTS,
   GetAllUsersCommand,
   GetSubpageConfigByShortUuidCommand,
@@ -10,6 +12,7 @@ export {
   GetUserByEmailCommand,
   GetUserByTelegramIdCommand,
   GetUserByUuidCommand,
+  GetUserHwidDevicesCommand,
   RevokeUserSubscriptionCommand,
   type TRemnawaveWebhookEvent,
   UpdateUserCommand,
@@ -29,7 +32,6 @@ export {
 import {
   CreateUserCommand,
   DeleteUserCommand,
-  GetUserByEmailCommand,
   GetUserByTelegramIdCommand,
   GetUserByUuidCommand,
   UpdateUserCommand,
@@ -42,7 +44,6 @@ export type UserDto = CreateUserCommand.Response['response'];
 
 // by-telegram-id and by-email return arrays of users inside `response`
 export type GetUserByTelegramIdResponseDto = GetUserByTelegramIdCommand.Response['response'];
-export type GetUserByEmailResponseDto = GetUserByEmailCommand.Response['response'];
 export type GetUserByUuidResponseDto = GetUserByUuidCommand.Response['response'];
 export type CreateUserResponseDto = CreateUserCommand.Response['response'];
 export type UpdateUserResponseDto = UpdateUserCommand.Response['response'];

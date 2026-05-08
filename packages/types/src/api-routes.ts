@@ -27,5 +27,8 @@ export const apiRoutes = {
     subscriptionSubpageConfig: (shortUuid: string) => `/subscriptions/subpage-config/${shortUuid}`,
     subscriptionInfoByShortUuid: (shortUuid: string) => `/sub/${shortUuid}/info`,
     subscriptionPageConfig: (uuid: string) => `/subscription-page-configs/${uuid}`,
+    userDevices: (userUuid: string) => `/users/${userUuid}/devices`,
+    userDevice: (userUuid: string, hwid: string) =>
+      `/users/${userUuid}/devices/${encodeURIComponent(hwid)}`,
   },
 } as const;
