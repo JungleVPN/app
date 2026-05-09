@@ -104,6 +104,7 @@ export class YookassaController {
 
     const request: Payments.CreatePaymentRequest = {
       ...paymentFields,
+      description: process.env.PAYMENT_DESCRIPTION,
       capture: true,
       confirmation: {
         type: 'redirect',
