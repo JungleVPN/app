@@ -26,16 +26,7 @@ COPY . .
 # Turbo defaults to high parallelism; several Nest/Vite/tsc processes at once
 # exhaust RAM on small VPSes (swap → build looks "stuck"). Override when needed:
 #   docker compose build --build-arg TURBO_CONCURRENCY=4
-ARG TURBO_CONCURRENCY=2
-# Turbo remote cache — get TURBO_TOKEN from vercel.com/account/tokens,
-# TURBO_TEAM is your Vercel team slug (vercel.com/<slug>).
-# Pass via: docker compose build --build-arg TURBO_TOKEN=... --build-arg TURBO_TEAM=...
-# Without these, a local .turbo cache mount is used as a fallback (speeds up
-# repeat builds on the same host even without a remote cache).
-ARG TURBO_TOKEN
-ARG TURBO_TEAM
-ENV TURBO_TOKEN=$TURBO_TOKEN \
-    TURBO_TEAM=$TURBO_TEAM
+ARG TURBO_CONCURRENCY=4
 
 # Vite bakes these into the JS bundle at build time — they must be available
 # here, not at runtime. Pass them via docker compose build args so that .env
