@@ -9,7 +9,7 @@ import { useAuthStoreInfo } from '../../stores';
 
 export default function SubscriptionPage() {
   const { subpageConfigUuid } = coreEnv;
-  const { subscriptionPortalPath } = useAppRoutes();
+  const { profileSubscriptionPath } = useAppRoutes();
   const navigate = useNavigate();
   const { shortUuid } = useParams<{ shortUuid: string }>();
 
@@ -20,8 +20,8 @@ export default function SubscriptionPage() {
   const { error } = useSubscriptionData(shortUuid ?? '', subpageConfigUuid);
 
   useEffect(() => {
-    if (authUser || tgUser) navigate(subscriptionPortalPath);
-  }, [authUser, tgUser, navigate, subscriptionPortalPath]);
+    if (authUser || tgUser) navigate(profileSubscriptionPath);
+  }, [authUser, tgUser, navigate, profileSubscriptionPath]);
 
   if (!shortUuid) {
     return null;

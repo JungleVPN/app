@@ -20,7 +20,7 @@ export function TmaProvider({ children }: { children: ReactNode }) {
   }, [launchParams.tgWebAppPlatform, setClientPlatform, setPlatformType]);
 
   useEffect(() => {
-    if (location.pathname !== '/') {
+    if (!location.pathname.includes('profile')) {
       backButton.show();
     } else {
       backButton.hide();

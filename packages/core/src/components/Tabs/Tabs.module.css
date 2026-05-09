@@ -9,7 +9,7 @@
   isolation: isolate;
   margin-block: 0;
   margin-inline: auto;
-  transition: transform 0.1s ease-in-out;
+  transition: transform 0.3s ease-in-out;
 }
 
 .root:active {

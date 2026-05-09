@@ -17,13 +17,12 @@ import { router } from '@/router';
 initDayjs();
 
 const appRoutes = {
-  subscriptionPortalPath: '/',
   paymentReturnPath: '/',
   authGateRedirectPath: '/',
-  profileSubscriptionPath: '/',
-  profilePaymentPath: '/payments',
-  profileDevicesPath: '/devices',
-  setupPath: '/setup',
+  profileSubscriptionPath: '/profile/subscription',
+  profilePaymentPath: '/profile/payments',
+  profileDevicesPath: '/profile/devices',
+  getSubscriptionPath: '/getSubscription',
 };
 
 const root = document.getElementById('root');

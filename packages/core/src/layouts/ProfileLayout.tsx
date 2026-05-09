@@ -13,12 +13,12 @@ export function ProfileLayout() {
   const remnawaveApi = useRemnawaveApi();
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
-  const { setupPath } = useAppRoutes();
+  const { getSubscriptionPath } = useAppRoutes();
 
   // Resolve the remnawave user from the available auth identity.
   //
-  // Web:  looks up by email (authUser.email); redirects to setupPath if not found.
-  // TMA:  looks up by telegramId (tgUser.id);  redirects to setupPath if not found.
+  // Web:  looks up by email (authUser.email); redirects to getSubscriptionPath if not found.
+  // TMA:  looks up by telegramId (tgUser.id);  redirects to getSubscriptionPath if not found.
   //
   // Guard: skip the API call if rmnUser is already in the store — this avoids a
   // redundant lookup when the user just came through GetSubscriptionPage, which
@@ -29,11 +29,11 @@ export function ProfileLayout() {
       initUser(remnawaveApi, { email: authUser?.email, telegramId: tgUser?.id })
         .then((user) => {
           setRmnUser(user ?? null);
-          if (!user) navigate(setupPath);
+          if (!user) navigate(getSubscriptionPath);
         })
         .catch(console.error);
     }
-  }, [authUser?.email, remnawaveApi, setRmnUser, tgUser?.id, navigate, setupPath]);
+  }, [authUser?.email, remnawaveApi, setRmnUser, tgUser?.id, navigate, getSubscriptionPath]);
   // Pre-fetch both subscription and saved payment methods as soon as rmnUser
   // is known so child routes render immediately without a loading flash on
   // subsequent navigations.

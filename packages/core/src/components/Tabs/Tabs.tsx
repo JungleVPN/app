@@ -31,13 +31,11 @@ function getActiveTab(
   paymentPath: string,
   devicesPath: string,
 ): TabValue {
-  const norm = normalizePath(pathname) || '/';
-  const pay = normalizePath(paymentPath);
-  const sub = normalizePath(subscriptionPath);
-  const dev = normalizePath(devicesPath);
-  if (norm === pay) return 'payments';
-  if (norm === dev) return 'devices';
-  if (norm === sub || (sub === '/' && norm === '/')) return 'subscription';
+  const norm = normalizePath(pathname);
+  if (norm === normalizePath(paymentPath)) return 'payments';
+  if (norm === normalizePath(devicesPath)) return 'devices';
+  if (norm === normalizePath(subscriptionPath)) return 'subscription';
+  // Fallback: match the last URL segment against known tab IDs.
   const segment = pathname.split('/').filter(Boolean).pop() as TabValue | undefined;
   return segment && TAB_VALUES.includes(segment) ? segment : 'subscription';
 }

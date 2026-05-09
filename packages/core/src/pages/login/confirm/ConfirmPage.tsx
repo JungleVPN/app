@@ -15,7 +15,7 @@ import { Block } from '../../../ui';
 
 export default function ConfirmPage() {
   const supabase = useSupabaseClient();
-  const { subscriptionPortalPath } = useAppRoutes();
+  const { profileSubscriptionPath } = useAppRoutes();
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email');
   const [otp, setOtp] = useState('');
@@ -46,7 +46,7 @@ export default function ConfirmPage() {
     if (verifyError) {
       setError(t('confirm.error_invalid_code'));
     } else {
-      navigate(subscriptionPortalPath);
+      navigate(profileSubscriptionPath);
     }
   };
 

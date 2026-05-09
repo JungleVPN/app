@@ -17,13 +17,12 @@ import { router } from '@/router.ts';
 initDayjs();
 
 const appRoutes = {
-  subscriptionPortalPath: '/profile/subscription',
   paymentReturnPath: '/profile/subscription',
   authGateRedirectPath: '/login',
   profileSubscriptionPath: '/profile/subscription',
   profilePaymentPath: '/profile/payments',
   profileDevicesPath: '/profile/devices',
-  setupPath: '/',
+  getSubscriptionPath: '/',
 };
 
 createRoot(document.getElementById('root')!).render(

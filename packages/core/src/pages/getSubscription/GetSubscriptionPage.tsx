@@ -14,7 +14,7 @@ import styles from './getSubscription.module.css';
 
 export default function GetSubscriptionPage() {
   const { allowedAmounts } = coreEnv;
-  const { subscriptionPortalPath } = useAppRoutes();
+  const { profileSubscriptionPath } = useAppRoutes();
   const remnawaveApi = useRemnawaveApi();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -29,11 +29,11 @@ export default function GetSubscriptionPage() {
   // Redirect away from the setup page if the user is already resolved —
   // covers both the web flow (authUser + rmnUser) and the TMA flow (tgUser + rmnUser).
   useEffect(() => {
-    if (rmnUser && (authUser || tgUser)) navigate(subscriptionPortalPath);
+    if (rmnUser && (authUser || tgUser)) navigate(profileSubscriptionPath);
     if (platformType === 'telegram') {
       backButton.hide();
     }
-  }, [authUser, tgUser, rmnUser, navigate, subscriptionPortalPath, platformType]);
+  }, [authUser, tgUser, rmnUser, navigate, profileSubscriptionPath, platformType]);
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -72,7 +72,7 @@ export default function GetSubscriptionPage() {
           const newUser = await remnawaveApi.createUser({ email, telegramId });
           setRmnUser(newUser ?? null);
         }
-        navigate(subscriptionPortalPath);
+        navigate(profileSubscriptionPath);
       } else {
         // Web flow — look up or create by email, then navigate to the public subscription page.
         const existingUser = await initUser(remnawaveApi, { email });
