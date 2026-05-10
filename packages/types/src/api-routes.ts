@@ -12,6 +12,8 @@ export const apiRoutes = {
       `/yookassa/saved-methods/${encodeURIComponent(userId)}`,
     yookassaSavedMethodById: (userId: string, id: string) =>
       `/yookassa/saved-methods/${encodeURIComponent(userId)}/${encodeURIComponent(id)}`,
+    telegramStarsCreateInvoice: '/telegram-stars/create-invoice',
+    telegramStarsPaymentSucceeded: '/telegram-stars/payment-succeeded',
   },
   referrals: {
     collection: '/referrals',

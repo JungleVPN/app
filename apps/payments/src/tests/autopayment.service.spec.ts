@@ -3,7 +3,7 @@ import * as process from 'node:process';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import { AutopaymentService } from '@payments/autopayment/autopayment.service';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
-import { ValidatePaymentRequest } from '@payments/utils/utils';
+import { ValidatePaymentRequest } from '@payments/utils/validators';
 import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { RemnawebhookPayload, WebhookEventEnum } from '@workspace/types';
 import type { Repository } from 'typeorm';

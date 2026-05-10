@@ -8,6 +8,7 @@ import { BroadcastEditCommand } from '@bot/commands/broadcast/broadcast-edit.com
 import { BroadcastMessageCommand } from '@bot/commands/broadcast/broadcast-message.command';
 import { StartCommand } from '@bot/commands/start.command';
 import { InlineQueryListener } from '@bot/listeners/inline-query.listener';
+import { TelegramStarsListener } from '@bot/listeners/telegram-stars.listener';
 import { LocalisationService } from '@bot/localisation/localisation.service';
 import { MenuTree } from '@bot/navigation/menu.tree';
 import { PollService } from '@bot/poll/poll.service';
@@ -30,6 +31,7 @@ export class BotService implements OnModuleInit {
     private readonly navigateToYookassaPaymentCallback: NavigateToYookassaPaymentCallback,
     private readonly localService: LocalisationService,
     private readonly inlineQueryListener: InlineQueryListener,
+    private readonly telegramStarsListener: TelegramStarsListener,
     private readonly pollService: PollService,
   ) {
     if (!this.token) {
@@ -58,6 +60,7 @@ export class BotService implements OnModuleInit {
     this.navigateProfileCallback.register(this.bot);
     this.navigateToYookassaPaymentCallback.register(this.bot);
     this.inlineQueryListener.register(this.bot);
+    this.telegramStarsListener.register(this.bot);
 
     this.bot.catch((err) => {
       const e = err.error;

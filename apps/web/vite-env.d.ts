@@ -26,7 +26,6 @@ interface ImportMetaEnv {
   readonly VITE_CUSTOM_SUB_DOMAIN: string;
   readonly VITE_TELEGRAM_BOT_TOKEN: string;
   readonly VITE_FORCE_SNOWFLAKES: string;
-  readonly VITE_TRIAL_PERIOD_IN_DAYS: string;
   readonly VITE_INTERNAL_SQUADS: string;
   readonly VITE_SUPABASE_URL: string;
   readonly VITE_SUPABASE_ANON_KEY: string;

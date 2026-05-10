@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
-import { ValidatePaymentRequest } from '@payments/utils/utils';
+import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { Payments, RemnawebhookPayload, WebhookEventEnum } from '@workspace/types';
 import { Repository } from 'typeorm';

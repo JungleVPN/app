@@ -1,7 +1,11 @@
 export type { AsyncState } from './use-async';
 export { useAsync } from './use-async';
 export { useDeleteDevice, useUserDevices } from './use-devices';
-export { useCreatePaymentSession, useDeleteSavedMethod } from './use-payment';
+export {
+  useCreatePaymentSession,
+  useCreateTelegramStarsInvoice,
+  useDeleteSavedMethod,
+} from './use-payment';
 export { useUpdateUser } from './use-user';
 export { useClipboard } from './useClipboard';
 export { useSavedMethodsData } from './useSavedMethodsData';

@@ -6,4 +6,5 @@
  * - `./autopayment` — our own DTOs for the autopayment flow.
  */
 
+export * from './telegram-stars';
 export * from './yookassa';

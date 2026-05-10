@@ -1,14 +1,18 @@
 import {
   apiRoutes,
+  type CreateTelegramStarsInvoiceDto,
   type CreateYookassaSessionDto,
   PaymentSession,
   SavedMethodDto,
+  type TelegramStarsInvoiceResponse,
 } from '@workspace/types';
 import type { ApiClient } from '../client';
 
 export function createPaymentsApi(client: ApiClient) {
   return {
-    async createYookassaSession(dto: CreateYookassaSessionDto): Promise<PaymentSession> {
+    async createYookassaSession(
+      dto: Omit<CreateYookassaSessionDto, 'amount' | 'selectedPeriod'>,
+    ): Promise<PaymentSession> {
       return client.post<PaymentSession>(apiRoutes.payments.yookassaCreateSession, dto);
     },
 
@@ -18,6 +22,15 @@ export function createPaymentsApi(client: ApiClient) {
 
     async deleteSavedMethod(userId: string, id: string): Promise<void> {
       return client.delete<void>(apiRoutes.payments.yookassaSavedMethodById(userId, id));
+    },
+
+    async createTelegramStarsInvoice(
+      dto: Omit<CreateTelegramStarsInvoiceDto, 'starsAmount' | 'selectedPeriod'>,
+    ): Promise<TelegramStarsInvoiceResponse> {
+      return client.post<TelegramStarsInvoiceResponse>(
+        apiRoutes.payments.telegramStarsCreateInvoice,
+        dto,
+      );
     },
   };
 }

@@ -29,7 +29,7 @@ import { mapEURAmountToMonthsNumber } from '@payments/providers/stripe/stripe.ut
 import { YookassaController } from '@payments/providers/yookassa/yookassa.controller';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
-import { ValidatePaymentRequest } from '@payments/utils/utils';
+import { ValidatePaymentRequest } from '@payments/utils/validators';
 import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import {
   type CreateYookassaSessionDto,

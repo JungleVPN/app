@@ -26,8 +26,18 @@ export function useCreatePaymentSession(api: PaymentsApi) {
  * Call `execute(userId, id)`, then refetch the methods list on success.
  */
 export function useDeleteSavedMethod(api: PaymentsApi) {
+  const fn = useCallback((userId: string, id: string) => api.deleteSavedMethod(userId, id), [api]);
+  return useAsync(fn);
+}
+
+/**
+ * Requests a Telegram Stars invoice link from the backend.
+ * Returns { invoiceLink } on success — open it with WebApp.openInvoice().
+ */
+export function useCreateTelegramStarsInvoice(api: PaymentsApi) {
   const fn = useCallback(
-    (userId: string, id: string) => api.deleteSavedMethod(userId, id),
+    (dto: Parameters<PaymentsApi['createTelegramStarsInvoice']>[0]) =>
+      api.createTelegramStarsInvoice(dto),
     [api],
   );
   return useAsync(fn);

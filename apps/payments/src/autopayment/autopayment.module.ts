@@ -3,7 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PaymentStatusService } from '@payments/payment-status/payment-status.service';
 import { YooKassaConnector } from '@payments/providers/yookassa/helpers/yookassa.connector';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
-import { ValidatePaymentRequest } from '@payments/utils/utils';
+import { PaymentsUtils } from '@payments/utils/utils';
+import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { AutopaymentController } from './autopayment.controller';
 import { AutopaymentService } from './autopayment.service';
@@ -18,6 +19,7 @@ import { AutopaymentService } from './autopayment.service';
     YooKassaProvider,
     PaymentStatusService,
     ValidatePaymentRequest,
+    PaymentsUtils,
   ],
 })
 export class AutopaymentModule {}

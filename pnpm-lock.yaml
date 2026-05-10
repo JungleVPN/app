@@ -193,6 +193,9 @@ importers:
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
+      grammy:
+        specifier: ^1.42.0
+        version: 1.42.0
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2

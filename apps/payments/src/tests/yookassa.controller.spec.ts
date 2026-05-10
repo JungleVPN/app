@@ -1,10 +1,9 @@
 import 'reflect-metadata';
 import { NotFoundException } from '@nestjs/common';
-import type { EventEmitter2 } from '@nestjs/event-emitter';
 import { YookassaController } from '@payments/providers/yookassa/yookassa.controller';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import type { YookassaService } from '@payments/providers/yookassa/yookassa.service';
-import { ValidatePaymentRequest } from '@payments/utils/utils';
+import { ValidatePaymentRequest } from '@payments/utils/validators';
 import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { type CreateYookassaSessionDto } from '@workspace/types';
 import type { Repository } from 'typeorm';
@@ -24,7 +23,6 @@ describe('YookassaController', () => {
   let savedMethodRepo: Repository<SavedPaymentMethod>;
   let YookassaService: YookassaService;
   let yookassaProvider: YooKassaProvider;
-  let eventEmitter: EventEmitter2;
   let validatePaymentRequest: ValidatePaymentRequest;
 
   let mockYkFind: any;
@@ -76,11 +74,6 @@ describe('YookassaController', () => {
     yookassaProvider = {
       create: mockCreate,
     } as unknown as YooKassaProvider;
-
-    mockEmit = vi.fn();
-    eventEmitter = {
-      emit: mockEmit,
-    } as unknown as EventEmitter2;
 
     mockValidateAmount = vi.fn();
     mockValidatePeriod = vi.fn();

@@ -71,6 +71,13 @@
       "body": "This card will be removed and auto-renewal will be disabled. New card will be added on next manual payment",
       "cancel": "Cancel",
       "confirm": "Remove"
+    },
+    "stars": {
+      "buttonLabel": "Pay with Stars ⭐",
+      "invoiceTitle": "{{period}}-month Subscription",
+      "invoiceDescription": "{{period}}-month JungleVPN subscription",
+      "errorFetch": "Failed to create Stars invoice. Please try again.",
+      "orDivider": "or"
     }
   },
   "a11y": {

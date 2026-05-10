@@ -1,12 +1,17 @@
 import { AlertDialog, Button, Card, Spinner, useOverlayState } from '@heroui/react';
-import { miniApp, openLink } from '@tma.js/sdk-react';
-import { Fragment } from 'react';
+import { invoice, miniApp, openLink } from '@tma.js/sdk-react';
+import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRemnawaveApi } from '../../../api';
 import PaymentPageIcon from '../../../assets/icons/payment-icon.svg?url';
 import { ExtendCard, Link, SavedMethodRow } from '../../../components';
 import { coreEnv } from '../../../env';
-import { useCreatePaymentSession, useDeleteSavedMethod, useUpdateUser } from '../../../hooks';
+import {
+  useCreatePaymentSession,
+  useCreateTelegramStarsInvoice,
+  useDeleteSavedMethod,
+  useUpdateUser,
+} from '../../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../../runtime';
 import {
   useAuthStoreActions,
@@ -19,7 +24,7 @@ import { Page } from '../../../ui';
 
 export default function PaymentPage() {
   const { platformType, clientPlatform } = usePlatformStore();
-  const { allowedAmounts, allowedPeriods, supportUrl } = coreEnv;
+  const { allowedAmounts, allowedPeriods, starsAmount, supportUrl } = coreEnv;
   const { paymentReturnPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
@@ -33,12 +38,19 @@ export default function PaymentPage() {
   const isLoadingMethods = savedMethods === null;
 
   const { isLoading: isPaying, execute: createSession } = useCreatePaymentSession(paymentsApi);
+  const { isLoading: isStarsPaying, execute: createStarsInvoice } =
+    useCreateTelegramStarsInvoice(paymentsApi);
   const { isLoading: isDeleting, execute: deleteMethod } = useDeleteSavedMethod(paymentsApi);
   const { execute: updateUser } = useUpdateUser(remnawaveApi);
   const termsState = useOverlayState();
+  const [starsError, setStarsError] = useState<string | null>(null);
 
   const hasActiveMethod = savedMethods?.some((m) => m.isActive) ?? false;
   const needsEmailInput = Boolean(tgUser) && !rmnUser?.email;
+
+  // Only show Stars button inside TMA (not on web)
+  const isTma = platformType !== 'web';
+  const starsEnabled = isTma && starsAmount > 0;
 
   const handleDelete = async (id: string) => {
     if (!rmnUser?.uuid) return;
@@ -85,9 +97,7 @@ export default function PaymentPage() {
 
     const session = await createSession({
       userId: activeUser.uuid,
-      selectedPeriod: allowedPeriods,
       save_payment_method: true,
-      amount: { value: allowedAmounts, currency: 'RUB' },
       confirmation: {
         return_url:
           platformType === 'web' || (clientPlatform !== 'ios' && clientPlatform !== 'android')
@@ -106,6 +116,47 @@ export default function PaymentPage() {
       }
     }
   };
+
+  const handleStarsPayment = async () => {
+    if (!rmnUser?.uuid) return;
+    setStarsError(null);
+
+    const result = await createStarsInvoice({
+      userId: rmnUser.uuid,
+      title: t('payment.stars.invoiceTitle', { period: allowedPeriods }),
+      description: t('payment.stars.invoiceDescription', { period: allowedPeriods }),
+    });
+
+    if (!result?.invoiceLink) {
+      setStarsError(t('payment.stars.errorFetch'));
+      return;
+    }
+
+    try {
+      // invoice.openUrl opens a t.me/$slug URL inside the Telegram payment sheet.
+      // The status callback tells us if the user paid or cancelled — the actual
+      // subscription extension happens server-side via the bot's successful_payment handler.
+      await invoice.openUrl(result.invoiceLink);
+    } catch {
+      // User dismissed the invoice or SDK not available — silently ignore.
+    }
+  };
+
+  const starsButton = starsEnabled ? (
+    <div className='flex w-full flex-col items-center gap-3'>
+      <div className='flex w-full items-center gap-3 px-1'>
+        <div className='h-px flex-1 bg-border' />
+        <span className='text-xs text-muted'>{t('payment.stars.orDivider')}</span>
+        <div className='h-px flex-1 bg-border' />
+      </div>
+
+      <Button fullWidth isDisabled={isStarsPaying} variant='secondary' onPress={handleStarsPayment}>
+        {t('payment.stars.buttonLabel')}
+      </Button>
+
+      {starsError && <p className='text-xs text-danger'>{starsError}</p>}
+    </div>
+  ) : null;
 
   return (
     <Page
@@ -154,15 +205,21 @@ export default function PaymentPage() {
               </button>
             </p>
           </div>
+
+          {starsButton}
         </>
       ) : (
-        <ExtendCard
-          allowedAmounts={allowedAmounts}
-          isPaying={isPaying}
-          showEmailInput={needsEmailInput}
-          onExtend={handleExtend}
-          onTermsOpen={termsState.open}
-        />
+        <>
+          <ExtendCard
+            allowedAmounts={allowedAmounts}
+            isPaying={isPaying}
+            showEmailInput={needsEmailInput}
+            onExtend={handleExtend}
+            onTermsOpen={termsState.open}
+          />
+
+          {starsButton}
+        </>
       )}
 
       <AlertDialog.Backdrop

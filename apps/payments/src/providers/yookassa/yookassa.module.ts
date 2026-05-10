@@ -5,7 +5,8 @@ import { YooKassaConnector } from '@payments/providers/yookassa/helpers/yookassa
 import { YookassaController } from '@payments/providers/yookassa/yookassa.controller';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
-import { ValidatePaymentRequest } from '@payments/utils/utils';
+import { PaymentsUtils } from '@payments/utils/utils';
+import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { PaymentStatusModule } from '../../payment-status/payment-status.module';
 
@@ -17,6 +18,12 @@ import { PaymentStatusModule } from '../../payment-status/payment-status.module'
   ],
   controllers: [YookassaController],
   exports: [YooKassaProvider, YookassaService],
-  providers: [YooKassaConnector, YooKassaProvider, YookassaService, ValidatePaymentRequest],
+  providers: [
+    YooKassaConnector,
+    YooKassaProvider,
+    YookassaService,
+    ValidatePaymentRequest,
+    PaymentsUtils,
+  ],
 })
 export class YookassaModule {}

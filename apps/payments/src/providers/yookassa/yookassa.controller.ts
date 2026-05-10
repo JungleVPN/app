@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
-import { ValidatePaymentRequest } from '@payments/utils/utils';
+import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import {
   type CreateYookassaSessionDto,

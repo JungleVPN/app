@@ -2,7 +2,12 @@ import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateStripeSessionDto } from '@shared/payments';
 import { createBackendClient } from '@utils/http-client';
-import { apiRoutes, CreateYookassaSessionDto, SavedMethodDto } from '@workspace/types';
+import {
+  apiRoutes,
+  CreateYookassaSessionDto,
+  SavedMethodDto,
+  TelegramStarsPaymentSucceededDto,
+} from '@workspace/types';
 import { AxiosInstance, AxiosResponse } from 'axios';
 
 /**
@@ -61,5 +66,28 @@ export class PaymentsService {
    */
   async getSavedMethods(userId: string): Promise<AxiosResponse<SavedMethodDto[]>> {
     return this.backend.get<SavedMethodDto[]>(apiRoutes.payments.yookassaSavedMethods(userId));
+  }
+
+  /**
+   * Notifies apps/payments that a Telegram Stars payment succeeded.
+   * Called by TelegramStarsListener after receiving message:successful_payment.
+   * The payments service marks the DB record as succeeded and extends the subscription.
+   */
+  async handleTelegramStarsPaymentSucceeded(dto: TelegramStarsPaymentSucceededDto): Promise<void> {
+    try {
+      const res = await this.backend.post(apiRoutes.payments.telegramStarsPaymentSucceeded, dto, {
+        headers: {
+          'x-service-secret': process.env.INTER_SERVICE_SECRET || '',
+        },
+      });
+
+      if (res.status >= 400) {
+        this.logger.error(
+          `Stars payment-succeeded call failed: ${res.status} ${JSON.stringify(res.data)}`,
+        );
+      }
+    } catch (err: any) {
+      this.logger.error(`handleTelegramStarsPaymentSucceeded failed: ${err.message}`);
+    }
   }
 }
