@@ -1,8 +1,6 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
-import { GetUserByUuidResponseDto } from '@workspace/types';
 import axios from 'axios';
-import { addMonths } from 'date-fns';
 
 /**
  * Orchestrates post-payment business logic via HTTP calls to other services.
@@ -24,93 +22,70 @@ export class PaymentStatusService {
 
   /**
    * Called after a successful payment (Stripe or Yookassa).
-   * Looks up user by email (web), telegramId (bot), or userId (uuid), in that priority order.
-   * 1. Fetches user from remnawave
-   * 2. Extends subscription via remnawave PATCH /users
-   * 3. Triggers referral reward via referrals POST /referrals/reward-after-payment
+   * Extends the user's subscription via the dedicated remnawave expiry endpoint,
+   * then triggers a referral reward if the user came from a referral.
    */
-  // ToDo remove and add update expiryData method on BE side
-  async handlePaymentSucceeded({
+  async handleUserUpdates({
     selectedPeriod,
     userId,
   }: {
     selectedPeriod: number;
     userId: string;
   }): Promise<{ success: boolean }> {
-    const user = await this.getUserByUuid(userId);
+    const user = await this.extendUserExpiry(userId, selectedPeriod);
 
     if (!user) {
       this.logger.warn(`User not found: userId=${userId}`);
       return { success: false };
     }
 
-    // If the subscription is already expired, extend from today rather than
-    // from the past expiry date.
-    const base =
-      user.expireAt && new Date(user.expireAt) > new Date() ? new Date(user.expireAt) : new Date();
-    const newExpiry = addMonths(base, selectedPeriod);
-
-    await this.updateUserExpiry(user.uuid, newExpiry);
-
     if (user.telegramId) {
       await this.triggerReferralReward(user.telegramId);
     }
 
-    this.logger.log(`Payment processed for user ${user.uuid}: +${selectedPeriod} month(s)`);
+    this.logger.log(`Payment processed for user ${userId}: +${selectedPeriod} month(s)`);
 
     return { success: true };
   }
 
-  private async getUserByUuid(uuid: string): Promise<GetUserByUuidResponseDto | null> {
-    try {
-      const { data } = await axios.get<GetUserByUuidResponseDto>(
-        `${this.remnawareBaseUrl}/users/${uuid}`,
-        {
-          headers: {
-            'x-service-secret': process.env.INTER_SERVICE_SECRET,
-          },
-        },
-      );
-      return data ?? null;
-    } catch (err: any) {
-      if (err.response?.status === 404) return null;
-      this.logger.error(`Failed to fetch user by uuid ${uuid}: ${err.message}`);
-      throw err;
-    }
-  }
-
-  private async updateUserExpiry(uuid: string, expireAt: Date): Promise<void> {
-    // Retry up to 3 times with a 2-second gap between attempts.
-    // A transient remnawave blip must not silently swallow a successful payment —
-    // if all attempts fail the error is intentionally rethrown so the caller can
-    // propagate a non-200 back to YooKassa and let it retry the webhook later.
+  // Retry up to 3 times with a 2-second gap between attempts.
+  // A transient remnawave blip must not silently swallow a successful payment —
+  // if all attempts fail the error is intentionally rethrown so the caller can
+  // propagate a non-200 back to YooKassa and let it retry the webhook later.
+  private async extendUserExpiry(
+    uuid: string,
+    months: number,
+  ): Promise<{ telegramId: number | null } | null> {
     const MAX_ATTEMPTS = 3;
     const DELAY_MS = 2_000;
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       try {
-        await axios.patch(
-          `${this.remnawareBaseUrl}/users`,
-          { uuid, expireAt: expireAt.toISOString() },
+        const { data } = await axios.patch<{ telegramId: number | null }>(
+          `${this.remnawareBaseUrl}/users/${uuid}/expiry`,
+          { months },
           {
             headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
             timeout: 10_000,
           },
         );
-        return; // success — stop retrying
+        return data;
       } catch (err: any) {
+        if (err.response?.status === 404) return null;
         if (attempt === MAX_ATTEMPTS) {
           this.logger.error(
-            `updateUserExpiry failed for ${uuid} after ${MAX_ATTEMPTS} attempts: ${err.message}`,
+            `extendUserExpiry failed for ${uuid} after ${MAX_ATTEMPTS} attempts: ${err.message}`,
           );
           throw err;
         }
         this.logger.warn(
-          `updateUserExpiry attempt ${attempt}/${MAX_ATTEMPTS} failed for ${uuid}: ${err.message} — retrying in ${DELAY_MS}ms`,
+          `extendUserExpiry attempt ${attempt}/${MAX_ATTEMPTS} failed for ${uuid}: ${err.message} — retrying in ${DELAY_MS}ms`,
         );
         await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
       }
     }
+
+    return null;
   }
 
   private async triggerReferralReward(telegramId: number): Promise<boolean> {

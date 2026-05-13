@@ -1,5 +1,5 @@
 import * as process from 'node:process';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   CreateUserCommand,
@@ -19,7 +19,7 @@ import {
   UpdateUserResponseDto,
   UserDto,
 } from '@workspace/types';
-import { addDays } from 'date-fns';
+import { addDays, addMonths } from 'date-fns';
 import { RemnaPanelClient } from '../common/remna-panel.client';
 
 @Injectable()
@@ -139,6 +139,19 @@ export class UserService {
       if (e.status === 404) return null;
       throw e;
     }
+  }
+
+  async updateExpiry(uuid: string, months: number): Promise<UpdateUserResponseDto> {
+    const user = await this.getUserByUuid(uuid);
+    if (!user) throw new NotFoundException(`User ${uuid} not found`);
+
+    const base =
+      user.expireAt && new Date(user.expireAt) > new Date() ? new Date(user.expireAt) : new Date();
+    const expireAt = addMonths(base, months);
+
+    await this.updateUser({ uuid, expireAt });
+
+    return user;
   }
 
   async revokeSubscription(uuid: string): Promise<string> {

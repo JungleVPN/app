@@ -112,7 +112,7 @@ export class TelegramStarsService implements OnModuleInit {
       paidAt: new Date(),
     });
 
-    const result = await this.paymentStatusService.handlePaymentSucceeded({
+    const result = await this.paymentStatusService.handleUserUpdates({
       selectedPeriod: record.selectedPeriod,
       userId: record.userId,
     });

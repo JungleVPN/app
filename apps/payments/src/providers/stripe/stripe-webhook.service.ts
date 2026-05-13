@@ -48,7 +48,7 @@ export class StripeWebhookService {
       return;
     }
 
-    const result = await this.paymentStatusService.handlePaymentSucceeded({
+    const result = await this.paymentStatusService.handleUserUpdates({
       selectedPeriod,
       userId: payload.userId,
     });

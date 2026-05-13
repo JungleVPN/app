@@ -10,6 +10,7 @@ import {
   Post,
 } from '@nestjs/common';
 import * as Remnawave from '@workspace/types';
+import { UpdateUserResponseDto } from '@workspace/types';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -54,6 +55,16 @@ export class UserController {
     @Param('uuid') uuid: string,
   ): Promise<Remnawave.GetUserByUuidResponseDto | null> {
     return this.userService.getUserByUuid(uuid);
+  }
+
+  @Patch(':uuid/expiry')
+  async updateExpiry(
+    @Param('uuid') uuid: string,
+    @Body() body: {
+      months: number;
+    },
+  ): Promise<UpdateUserResponseDto> {
+    return this.userService.updateExpiry(uuid, body.months);
   }
 
   @Delete(':uuid')
