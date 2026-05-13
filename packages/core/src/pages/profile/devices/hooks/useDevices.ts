@@ -1,0 +1,50 @@
+import { useOverlayState } from '@heroui/react';
+import {
+  useAuthStoreInfo,
+  useDeleteDevice,
+  useRemnawaveApi,
+  useUserDevices,
+} from '@workspace/core';
+import { useEffect, useState } from 'react';
+import { HwidDevice } from '../utils/devices.utils';
+
+export function useDevices() {
+  const remnawaveApi = useRemnawaveApi();
+  const { rmnUser } = useAuthStoreInfo();
+
+  const [devices, setDevices] = useState<HwidDevice[] | null>(null);
+  const [deviceToDelete, setDeviceToDelete] = useState<string | null>(null);
+  const confirmState = useOverlayState();
+
+  const { isLoading: isFetching, execute: fetchDevices } = useUserDevices(remnawaveApi);
+  const { isLoading: isDeleting, execute: deleteDevice } = useDeleteDevice(remnawaveApi);
+
+  useEffect(() => {
+    if (!rmnUser?.uuid) return;
+    fetchDevices(rmnUser.uuid).then((result) => {
+      setDevices(result?.devices ?? []);
+    });
+  }, [rmnUser?.uuid, fetchDevices]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleDeleteRequest = (hwid: string) => {
+    setDeviceToDelete(hwid);
+    confirmState.open();
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!rmnUser?.uuid || !deviceToDelete) return;
+    const result = await deleteDevice(rmnUser.uuid, deviceToDelete);
+    if (result) setDevices(result.devices);
+    setDeviceToDelete(null);
+  };
+
+  return {
+    devices,
+    isFetching,
+    isDeleting,
+    confirmIsOpen: confirmState.isOpen,
+    confirmSetOpen: confirmState.setOpen,
+    handleDeleteRequest,
+    handleConfirmDelete,
+  };
+}
