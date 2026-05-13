@@ -1,7 +1,8 @@
 .root {
   width: 90%;
+  max-width: 425px;
   left: 50%;
-  transform: translateX(-50%);
+  translate: -50% 0;
   backface-visibility: hidden;
   bottom: 16px;
   position: fixed;
@@ -9,11 +10,6 @@
   isolation: isolate;
   margin-block: 0;
   margin-inline: auto;
-  transition: transform 0.3s ease-in-out;
-}
-
-.root:active {
-  transform: scale(1.02) translateX(-50%) translateY(0);
 }
 
 .list {
@@ -27,13 +23,12 @@
   touch-action: none;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(30px) saturate(10);
-  background: color-mix(
-    in srgb,
-    var(--tg-theme-bottom-bar-bg-color, var(--tg-theme-secondary-bg-color)) 88%,
-    transparent
-  );
-  box-shadow: none;
+  -webkit-backdrop-filter: saturate(300%) blur(8px);
+  backdrop-filter: saturate(300%) blur(8px);
+  background: rgb(from var(--tg-theme-section-bg-color) r g b / 84%);
+  box-shadow:
+    0 1px 2px 0 #00000014,
+    0 2px 16px 1px #0000001a;
   user-select: none;
   cursor: grab;
 }

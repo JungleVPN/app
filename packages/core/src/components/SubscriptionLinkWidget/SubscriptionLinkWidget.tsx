@@ -24,13 +24,10 @@ export const SubscriptionLinkWidget = () => {
       .getPropertyValue('--tg-theme-accent-text-color')
       .trim() || '#22d3ee';
 
-  const qrCodeSvg =
-    isDesktop && subscription.user.shortUuid
-      ? renderSVG(`https://web.thejungle.pro/subscription/${subscription.user.shortUuid}`, {
-          whiteColor: '#161B22',
-          blackColor: accentColor,
-        })
-      : null;
+  const qrCodeSvg = renderSVG(subscription.subscriptionUrl, {
+    whiteColor: '#161B22',
+    blackColor: accentColor,
+  });
 
   const handleCopy = async () => {
     await copy(subscription.subscriptionUrl);

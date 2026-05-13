@@ -19,6 +19,7 @@ interface TabDef {
 const TAB_VALUES: TabValue[] = ['subscription', 'payments', 'devices'];
 
 const SPRING = { type: 'spring', stiffness: 400, damping: 35 } as const;
+const PRESS_SPRING = { type: 'spring', stiffness: 500, damping: 40 } as const;
 
 function normalizePath(p: string) {
   if (p === '/') return '/';
@@ -62,6 +63,8 @@ export const Navbar = () => {
 
   const tabPositionsRef = useRef<Partial<Record<TabValue, { left: number; width: number }>>>({});
   const listWidthRef = useRef(0);
+
+  const barScale = useMotionValue(1);
 
   const indicatorX = useMotionValue(0);
   const indicatorWidth = useMotionValue(0);
@@ -214,6 +217,14 @@ export const Navbar = () => {
     return nearest;
   }, []);
 
+  const handleBarPressIn = useCallback(() => {
+    animate(barScale, 1.02, PRESS_SPRING);
+  }, [barScale]);
+
+  const handleBarPressOut = useCallback(() => {
+    animate(barScale, 1, PRESS_SPRING);
+  }, [barScale]);
+
   const handlePanStart = useCallback(() => {
     isDraggingRef.current = true;
   }, []);
@@ -266,7 +277,13 @@ export const Navbar = () => {
   }, [handleTabClick]);
 
   return (
-    <div className={css.root}>
+    <motion.div
+      className={css.root}
+      style={{ scale: barScale }}
+      onPointerDown={handleBarPressIn}
+      onPointerUp={handleBarPressOut}
+      onPointerCancel={handleBarPressOut}
+    >
       <motion.div
         ref={listRef}
         role='tablist'
@@ -303,6 +320,6 @@ export const Navbar = () => {
           );
         })}
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
