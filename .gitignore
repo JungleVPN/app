@@ -13,4 +13,6 @@ credentials.json
 *.tsbuildinfo
 _tmp*
 AGENTS.md
-.pnpm-store
+.claude
+graphify-out
+CLAUDE.md

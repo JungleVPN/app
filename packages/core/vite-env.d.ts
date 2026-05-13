@@ -28,6 +28,8 @@ interface ImportMetaEnv {
   readonly VITE_SUPPORT_URL: string;
   readonly VITE_TMA_APP_URL: string;
   readonly VITE_STARS_AMOUNT: string;
+  readonly VITE_PAYMENTS_URL: string;
+  readonly VITE_SUCCESS_STICKER_FILE_ID: string;
 }
 
 interface ImportMeta {

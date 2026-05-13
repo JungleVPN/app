@@ -1,5 +1,15 @@
 import * as process from 'node:process';
-import { Body, Controller, Headers, HttpCode, Post, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  Param,
+  Post,
+  Redirect,
+  UnauthorizedException,
+} from '@nestjs/common';
 import type {
   CreateTelegramStarsInvoiceDto,
   TelegramStarsInvoiceResponse,
@@ -34,6 +44,18 @@ export class TelegramStarsController {
   ): Promise<{ ok: boolean }> {
     this.validateSecret(secret);
     return this.telegramStarsService.handlePaymentSucceeded(dto);
+  }
+
+  /**
+   * Proxies a Telegram sticker by file ID — resolves the CDN URL server-side
+   * (keeping the bot token out of the client) and issues a redirect.
+   */
+  @Get('sticker/:fileId')
+  @Redirect('', 302)
+  async getSticker(@Param('fileId') fileId: string): Promise<{ url: string }> {
+    const url = await this.telegramStarsService.getStickerUrl(fileId);
+    console.log(url);
+    return { url };
   }
 
   private validateSecret(secret: string): void {

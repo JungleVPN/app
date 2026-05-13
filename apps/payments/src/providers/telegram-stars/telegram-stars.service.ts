@@ -40,6 +40,14 @@ export class TelegramStarsService implements OnModuleInit {
     this.bot = new Bot(token);
   }
 
+  async getStickerUrl(fileId: string): Promise<string> {
+    const file = await this.bot.api.getFile(fileId);
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const sticker = `https://api.telegram.org/file/bot${token}/${file.file_path}`;
+    console.log(`https://telegram.org${token}/${sticker}`);
+    return `https://telegram.org${token}/${sticker}`;
+  }
+
   /**
    * Generates a Telegram Stars invoice link and persists a pending payment record.
    * The record id is embedded in the invoice payload so the bot can reference it

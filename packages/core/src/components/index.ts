@@ -11,6 +11,7 @@ export { Link } from './Link/Link';
 export { Loading } from './Loading/Loading';
 export { ExtendCard } from './payment/ExtendCard';
 export { SavedMethodRow } from './payment/SavedMethodRow';
+export { StarsPaymentSuccessDrawer } from './payment/StarsPaymentSuccessDrawer';
 export { SubscribeCta } from './SubscribeCTA/SubscribeCTA';
 export {
   SubscriptionInfoCards,

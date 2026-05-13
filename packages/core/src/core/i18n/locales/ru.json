@@ -73,10 +73,15 @@
     },
     "stars": {
       "buttonLabel": "Оплатить звёздами ⭐",
-      "invoiceTitle": "Подписку на {{period}} месяц(а)",
-      "invoiceDescription": "Подписка JungleVPN на {{period}} месяц(а)",
+      "invoiceTitle": "{{period}} месяц(а) VPN",
+      "invoiceDescription": "Покупка JungleVPN на {{period}} месяц(а)",
       "errorFetch": "Не удалось создать счёт Stars. Попробуйте ещё раз.",
-      "orDivider": "или"
+      "orDivider": "или",
+      "success": {
+        "title": "Оплата прошла успешно",
+        "description": "Ваша подписка продлена на {{period}} месяц(а).",
+        "confirm": "Отлично!"
+      }
     }
   },
   "a11y": {

@@ -4,7 +4,7 @@ import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRemnawaveApi } from '../../../api';
 import PaymentPageIcon from '../../../assets/icons/payment-icon.svg?url';
-import { ExtendCard, Link, SavedMethodRow } from '../../../components';
+import { ExtendCard, Link, SavedMethodRow, StarsPaymentSuccessDrawer } from '../../../components';
 import { coreEnv } from '../../../env';
 import {
   useCreatePaymentSession,
@@ -43,6 +43,7 @@ export default function PaymentPage() {
   const { isLoading: isDeleting, execute: deleteMethod } = useDeleteSavedMethod(paymentsApi);
   const { execute: updateUser } = useUpdateUser(remnawaveApi);
   const termsState = useOverlayState();
+  const successState = useOverlayState();
   const [starsError, setStarsError] = useState<string | null>(null);
 
   const hasActiveMethod = savedMethods?.some((m) => m.isActive) ?? false;
@@ -133,10 +134,10 @@ export default function PaymentPage() {
     }
 
     try {
-      // invoice.openUrl opens a t.me/$slug URL inside the Telegram payment sheet.
-      // The status callback tells us if the user paid or cancelled — the actual
-      // subscription extension happens server-side via the bot's successful_payment handler.
-      await invoice.openUrl(result.invoiceLink);
+      const status = await invoice.openUrl(result.invoiceLink);
+      if (status === 'paid') {
+        successState.open();
+      }
     } catch {
       // User dismissed the invoice or SDK not available — silently ignore.
     }
@@ -221,6 +222,12 @@ export default function PaymentPage() {
           {starsButton}
         </>
       )}
+
+      <StarsPaymentSuccessDrawer
+        allowedPeriods={allowedPeriods}
+        isOpen={successState.isOpen}
+        onClose={successState.close}
+      />
 
       <AlertDialog.Backdrop
         isDismissable

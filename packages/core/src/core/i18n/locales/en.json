@@ -74,10 +74,15 @@
     },
     "stars": {
       "buttonLabel": "Pay with Stars ⭐",
-      "invoiceTitle": "{{period}}-month Subscription",
-      "invoiceDescription": "{{period}}-month JungleVPN subscription",
+      "invoiceTitle": "{{period}}-month VPN",
+      "invoiceDescription": "{{period}}-month of JungleVPN",
       "errorFetch": "Failed to create Stars invoice. Please try again.",
-      "orDivider": "or"
+      "orDivider": "or",
+      "success": {
+        "title": "Payment successful",
+        "description": "Your subscription has been extended for {{period}} month(s).",
+        "confirm": "Great!"
+      }
     }
   },
   "a11y": {
