@@ -1,14 +1,23 @@
 import * as process from 'node:process';
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
+import { PaymentsUtils } from '@payments/utils/utils';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import {
+  type CreateYookassaSessionDto,
   type IGeneralPayMethod,
   type IPaymentMethod,
   isBankCardPaymentMethod,
   isSavablePaymentMethod,
+  type PaymentSession,
   Payments,
   type PaymentWebhookNotification,
   WebhookEvent,
@@ -35,7 +44,79 @@ export class YookassaService {
     private readonly savedMethodRepo: Repository<SavedPaymentMethod>,
     private readonly paymentStatusService: PaymentStatusService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly paymentsUtils: PaymentsUtils,
   ) {}
+
+  // ── Query methods ────────────────────────────────────────────────────────
+
+  getActiveSavedMethods(userId: string): Promise<SavedPaymentMethod[]> {
+    return this.savedMethodRepo.find({
+      where: { userId, isActive: true },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  listPayments(): Promise<YookassaPayment[]> {
+    return this.yookassaPaymentRepo.find({ order: { createdAt: 'DESC' } });
+  }
+
+  async getPaymentById(id: string): Promise<YookassaPayment> {
+    const payment = await this.yookassaPaymentRepo.findOneBy({ id });
+    if (!payment) throw new NotFoundException(`Yookassa payment ${id} not found`);
+    return payment;
+  }
+
+  // ── Session creation ────────────────────────────────────────────────────
+
+  async createPaymentSession(dto: CreateYookassaSessionDto): Promise<PaymentSession> {
+    const { userId, ...paymentFields } = dto;
+    const amountValue = this.paymentsUtils.getAllowedAmounts()[0];
+    const selectedPeriod = this.paymentsUtils.getAllowedPeriods()[0];
+
+    const request: Payments.CreatePaymentRequest = {
+      ...paymentFields,
+      amount: {
+        value: amountValue,
+        currency: 'RUB',
+      },
+      description: process.env.PAYMENT_DESCRIPTION,
+      capture: true,
+      confirmation: {
+        type: 'redirect',
+        return_url:
+          dto.confirmation?.type === 'redirect'
+            ? dto.confirmation.return_url
+            : process.env.RETURN_URL,
+      },
+    };
+
+    const payment = await this.yooKassaProvider.create(request);
+    const confirmationUrl = this.extractConfirmationUrl(payment);
+
+    if (!confirmationUrl) {
+      throw new InternalServerErrorException(
+        `YooKassa did not return a confirmation URL for payment ${payment.id}`,
+      );
+    }
+
+    const record = this.yookassaPaymentRepo.create({
+      id: payment.id,
+      url: confirmationUrl,
+      status: payment.status,
+      amount: request.amount.value,
+      currency: 'RUB',
+      userId,
+      selectedPeriod,
+      description: payment.description ?? null,
+      paidAt: null,
+    });
+    await this.yookassaPaymentRepo.save(record);
+
+    this.logger.log(`Created Yookassa payment session ${payment.id} for user ${userId}`);
+    return { id: payment.id, url: confirmationUrl };
+  }
+
+  // ── Webhook handling ────────────────────────────────────────────────────
 
   async handleWebhook(payload: PaymentWebhookNotification, ip: string) {
     await this.validateWebhookPayload(payload, ip);
@@ -115,6 +196,8 @@ export class YookassaService {
     }
   }
 
+  // ── Saved payment methods ───────────────────────────────────────────────
+
   async deletePaymentMethod(id: string, userId: string): Promise<void> {
     const method = await this.savedMethodRepo.findOneBy({ id, userId });
     if (!method) {
@@ -124,12 +207,12 @@ export class YookassaService {
     await this.savedMethodRepo.delete({ id, userId });
     this.logger.log(`Deleted saved payment method ${id} for user ${userId}`);
   }
+
   /**
    * Activates a new payment method for a user.
    *
    * Idempotent: if `paymentMethodId` already exists, nothing is written.
    * Deactivates any previously active methods before saving the new one.
-   * Emits `payment.method_saved` on success.
    * Errors are swallowed — this is best-effort and must not block webhook processing.
    */
   private async activatePaymentMethod({
@@ -181,37 +264,7 @@ export class YookassaService {
     }
   }
 
-  async isIPRangeValid(ip: string): Promise<boolean> {
-    const normalizedIps = this.getNormalizedIPs();
-    const matcher = new CIDRMatcher(normalizedIps);
-    const ips = ip.split(',').map((i) => i.trim());
-
-    if (!ips.some((i) => matcher.contains(i))) {
-      this.logger.warn(`Invalid YooKassa IP: ${ip}`);
-      return false;
-    }
-
-    return true;
-  }
-
-  private getNormalizedIPs(): string[] {
-    return this.validIpAddresses.map((ipAddr) => {
-      if (ipAddr.includes('/')) return ipAddr;
-      return ipAddr.includes(':') ? `${ipAddr}/128` : `${ipAddr}/32`;
-    });
-  }
-
-  isValidNotificationEvent(event: string): event is WebhookEvent {
-    return ['payment.succeeded', 'payment.canceled', 'payment.waiting_for_capture'].includes(event);
-  }
-
-  isValidWebhookPayload(payload: PaymentWebhookNotification): boolean {
-    return (
-      !!payload.object &&
-      payload.type === 'notification' &&
-      this.isValidNotificationEvent(payload.event)
-    );
-  }
+  // ── Webhook validation ──────────────────────────────────────────────────
 
   async validateWebhookPayload(payload: PaymentWebhookNotification, ip: string): Promise<void> {
     const isIPRangeValid = await this.isIPRangeValid(ip);
@@ -232,5 +285,47 @@ export class YookassaService {
         `Payment status mismatch for ${paymentId}: webhook=${webhookStatus}, API=${status}`,
       );
     }
+  }
+
+  async isIPRangeValid(ip: string): Promise<boolean> {
+    const normalizedIps = this.getNormalizedIPs();
+    const matcher = new CIDRMatcher(normalizedIps);
+    const ips = ip.split(',').map((i) => i.trim());
+
+    if (!ips.some((i) => matcher.contains(i))) {
+      this.logger.warn(`Invalid YooKassa IP: ${ip}`);
+      return false;
+    }
+
+    return true;
+  }
+
+  isValidNotificationEvent(event: string): event is WebhookEvent {
+    return ['payment.succeeded', 'payment.canceled', 'payment.waiting_for_capture'].includes(event);
+  }
+
+  isValidWebhookPayload(payload: PaymentWebhookNotification): boolean {
+    return (
+      !!payload.object &&
+      payload.type === 'notification' &&
+      this.isValidNotificationEvent(payload.event)
+    );
+  }
+
+  // ── Private helpers ─────────────────────────────────────────────────────
+
+  private extractConfirmationUrl(payment: Payments.IPayment): string | undefined {
+    const { confirmation } = payment;
+    if (confirmation && confirmation.type === 'redirect') {
+      return confirmation.confirmation_url;
+    }
+    return undefined;
+  }
+
+  private getNormalizedIPs(): string[] {
+    return this.validIpAddresses.map((ipAddr) => {
+      if (ipAddr.includes('/')) return ipAddr;
+      return ipAddr.includes(':') ? `${ipAddr}/128` : `${ipAddr}/32`;
+    });
   }
 }

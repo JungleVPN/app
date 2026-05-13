@@ -9,8 +9,8 @@ export class PaymentsUtils {
     const envValue = this.configService.get<string>('ALLOWED_AMOUNTS', '');
     return (envValue || '')
       .split(',')
-      .map((p) => Number(p.trim()))
-      .filter((n) => n > 0);
+      .map((p) => p.trim())
+      .filter((n) => Number(n) > 0);
   }
 
   getAllowedStarsAmounts() {

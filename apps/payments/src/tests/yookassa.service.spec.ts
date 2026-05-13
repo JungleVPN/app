@@ -119,6 +119,7 @@ describe('YookassaService', () => {
       savedMethodRepo,
       paymentStatusService,
       eventEmitter,
+      {} as any,
     );
   });
 
@@ -312,6 +313,7 @@ describe('YookassaService', () => {
         savedMethodRepo,
         paymentStatusService,
         eventEmitter,
+        {} as any,
       );
     });
 

@@ -16,9 +16,7 @@ export class ValidatePaymentRequest {
       throw new BadRequestException('ALLOWED_AMOUNTS is not configured');
     }
 
-    const requestedAmount = Number(value);
-
-    if (!allowedAmounts.includes(requestedAmount)) {
+    if (!allowedAmounts.includes(value)) {
       throw new BadRequestException(
         `Invalid amount: ${value}. Allowed values: ${allowedAmounts.join(', ')}`,
       );
