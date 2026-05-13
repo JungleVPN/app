@@ -1,13 +1,13 @@
 import { Surface } from '@heroui/react';
 import { getColorGradientSolid, getLocalizedText } from '../../../../../utils';
 import { ThemeIconComponent } from '../../../../ThemeIcon/ThemeIcon';
+import { BlockButtons } from '../../BlockButton/BlockButtons';
 import type { IBlockRendererProps } from '../rendererBlock.interface';
 import classes from './timelineBlock.module.css';
 
 export const TimelineBlockRenderer = ({
   blocks,
   currentLang,
-  renderBlockButtons,
   getIconFromLibrary,
 }: IBlockRendererProps) => {
   return (
@@ -49,7 +49,9 @@ export const TimelineBlockRenderer = ({
                     __html: getLocalizedText(block.description, currentLang),
                   }}
                 />
-                <div className='mt-2'>{renderBlockButtons(block.buttons, 'light')}</div>
+                <div className='mt-2'>
+                  <BlockButtons buttons={block.buttons} variant='light' />
+                </div>
               </div>
             </div>
           );

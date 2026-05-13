@@ -1,14 +1,13 @@
 import { Surface } from '@heroui/react';
+import { getColorGradient, getLocalizedText } from '../../../../../utils';
 import { ThemeIconComponent } from '../../../../ThemeIcon/ThemeIcon';
-import { getColorGradient } from '../../../../../utils/colorParser';
-import { getLocalizedText } from '../../../../../utils/configParser';
+import { BlockButtons } from '../../BlockButton/BlockButtons';
 import type { IBlockRendererProps } from '../rendererBlock.interface';
 import classes from './minimalBlock.module.css';
 
 export const MinimalBlockRenderer = ({
   blocks,
   currentLang,
-  renderBlockButtons,
   getIconFromLibrary,
 }: IBlockRendererProps) => {
   return (
@@ -39,7 +38,9 @@ export const MinimalBlockRenderer = ({
               }}
             />
             {block.buttons.length > 0 ? (
-              <div className='mt-2'>{renderBlockButtons(block.buttons, 'subtle')}</div>
+              <div className='mt-2'>
+                <BlockButtons buttons={block.buttons} variant='subtle' />
+              </div>
             ) : null}
           </Surface>
         );

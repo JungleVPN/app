@@ -1,13 +1,10 @@
 import { Button, Disclosure, DisclosureGroup, Separator, Surface } from '@heroui/react';
 import { useState } from 'react';
 import { getLocalizedText, vibrate } from '../../../../../utils';
+import { BlockButtons } from '../../BlockButton/BlockButtons';
 import type { IBlockRendererProps } from '../rendererBlock.interface';
 
-export const AccordionBlockRenderer = ({
-  blocks,
-  currentLang,
-  renderBlockButtons,
-}: IBlockRendererProps) => {
+export const AccordionBlockRenderer = ({ blocks, currentLang }: IBlockRendererProps) => {
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(() => new Set(['0']));
 
   return (
@@ -56,8 +53,8 @@ export const AccordionBlockRenderer = ({
                         __html: getLocalizedText(block.description, currentLang),
                       }}
                     />
-                    <div className='mt-2 flex flex-wrap gap-2'>
-                      {renderBlockButtons(block.buttons, 'light')}
+                    <div className='mt-2'>
+                      <BlockButtons buttons={block.buttons} variant='light' />
                     </div>
                   </Disclosure.Body>
                 </Disclosure.Content>

@@ -1,13 +1,12 @@
 import { Card } from '@heroui/react';
+import { getColorGradient, getLocalizedText } from '../../../../../utils';
 import { ThemeIconComponent } from '../../../../ThemeIcon/ThemeIcon';
-import { getColorGradient } from '../../../../../utils/colorParser';
-import { getLocalizedText } from '../../../../../utils/configParser';
+import { BlockButtons } from '../../BlockButton/BlockButtons';
 import type { IBlockRendererProps } from '../rendererBlock.interface';
 
 export const CardsBlockRenderer = ({
   blocks,
   currentLang,
-  renderBlockButtons,
   getIconFromLibrary,
 }: IBlockRendererProps) => {
   return (
@@ -44,7 +43,9 @@ export const CardsBlockRenderer = ({
                   />
                 </Card.Description>
 
-                <div className='mt-2'>{renderBlockButtons(block.buttons, 'light')}</div>
+                <div className='mt-2'>
+                  <BlockButtons buttons={block.buttons} variant='light' />
+                </div>
               </div>
             </Card.Content>
           </Card>

@@ -7,17 +7,12 @@ import {
   useSubscriptionConfig,
   useSubscriptionInfoStoreInfo,
 } from '../../stores';
-
 import '../../utils/initDayjs';
 import { detectOs } from '../../utils';
 import { InstallationGuideConnector } from '../InstallationGuide';
 import { Loading } from '../Loading/Loading';
-import {
-  SubscriptionInfoCards,
-  SubscriptionInfoCollapsed,
-  SubscriptionInfoExpanded,
-} from '../SubscriptionInfo';
 import { ErrorView } from './components/ErrorView';
+import { SubscriptionInfoSection } from './components/SubscriptionInfoSection';
 
 const OS_TO_PLATFORM: Record<string, TSubscriptionPagePlatformKey> = {
   android: 'android',
@@ -26,23 +21,6 @@ const OS_TO_PLATFORM: Record<string, TSubscriptionPagePlatformKey> = {
   macos: 'macos',
   windows: 'windows',
 };
-
-function subscriptionInfoSection(
-  activeSubscription: boolean,
-  blockType: 'cards' | 'collapsed' | 'expanded' | 'hidden',
-) {
-  const effectiveType = activeSubscription ? blockType : 'expanded';
-  switch (effectiveType) {
-    case 'cards':
-      return <SubscriptionInfoCards />;
-    case 'collapsed':
-      return <SubscriptionInfoCollapsed />;
-    case 'hidden':
-      return null;
-    case 'expanded':
-      return <SubscriptionInfoExpanded />;
-  }
-}
 
 /**
  * Pure render component — reads subscription data from the shared Zustand stores.
@@ -98,7 +76,10 @@ export function SubscriptionView({
 
   return (
     <Surface className='z-2 flex flex-col gap-4' variant='transparent'>
-      {subscriptionInfoSection(activeSubscription, config.uiConfig.subscriptionInfoBlockType)}
+      <SubscriptionInfoSection
+        activeSubscription={activeSubscription}
+        blockType={config.uiConfig.subscriptionInfoBlockType}
+      />
 
       {atLeastOnePlatformApp && activeSubscription ? (
         <InstallationGuideConnector
