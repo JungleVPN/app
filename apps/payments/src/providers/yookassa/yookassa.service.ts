@@ -184,6 +184,14 @@ export class YookassaService {
     const { id, status, cancellation_details } = payload.object;
 
     const record = await this.yookassaPaymentRepo.findOneBy({ id });
+
+    if (record?.status === 'succeeded' && record.paidAt !== null) {
+      this.logger.warn(
+        `Payment ${id} already succeeded — ignoring late canceled webhook (reason: ${cancellation_details?.reason ?? 'unknown'})`,
+      );
+      return;
+    }
+
     await this.yookassaPaymentRepo.update(id, { status, url: null });
 
     if (cancellation_details && record) {
