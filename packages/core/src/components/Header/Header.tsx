@@ -1,3 +1,4 @@
+import { useAuthStore } from '@workspace/core';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import Logo from '../../assets/Logo.svg';
@@ -8,11 +9,19 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 
 export function Header() {
   const { t } = useTranslation();
+  const { authUser } = useAuthStore();
   const { platformType } = usePlatformStore();
+  const getLink = () => {
+    if (authUser || platformType === 'telegram') {
+      return '/profile/subscription';
+    }
+
+    return '/';
+  };
   return (
     <div className='flex items-center justify-between'>
       <div>
-        <Link to='/'>
+        <Link to={getLink()}>
           <img
             alt={t('header.logoAlt')}
             src={Logo}
