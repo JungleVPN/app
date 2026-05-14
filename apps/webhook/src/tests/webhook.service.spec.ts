@@ -72,7 +72,7 @@ describe('WebhookService', () => {
       await service.forwardStripeWebhook(rawBody, 'sig_123');
 
       expect(mockAxiosPost).toHaveBeenCalledWith(
-        expect.stringContaining('/payments/stripe/webhook'),
+        expect.stringContaining('/stripe/webhook'),
         rawBody,
         expect.objectContaining({
           headers: expect.objectContaining({
@@ -89,7 +89,7 @@ describe('WebhookService', () => {
       await service.forwardYookassaWebhook(payload, '1.2.3.4');
 
       expect(mockAxiosPost).toHaveBeenCalledWith(
-        expect.stringContaining('/payments/yookassa/webhook'),
+        expect.stringContaining('/yookassa/webhook'),
         payload,
         expect.objectContaining({
           headers: expect.objectContaining({
