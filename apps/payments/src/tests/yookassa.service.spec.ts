@@ -65,7 +65,7 @@ describe('YookassaService', () => {
   let mockSmSave: any;
   let mockSmUpdate: any;
 
-  let mockHandlePaymentSucceeded: any;
+  let mockHandleUserUpdates: any;
   let mockGetPayment: any;
   let mockEmit: any;
 
@@ -103,9 +103,9 @@ describe('YookassaService', () => {
       getPayment: mockGetPayment,
     } as unknown as YooKassaProvider;
 
-    mockHandlePaymentSucceeded = vi.fn().mockResolvedValue({ success: true });
+    mockHandleUserUpdates = vi.fn().mockResolvedValue({ success: true });
     paymentStatusService = {
-      handlePaymentSucceeded: mockHandlePaymentSucceeded,
+      handleUserUpdates: mockHandleUserUpdates,
     } as unknown as PaymentStatusService;
 
     mockEmit = vi.fn();
@@ -145,7 +145,7 @@ describe('YookassaService', () => {
           paidAt: expect.any(Date),
         }),
       );
-      expect(mockHandlePaymentSucceeded).toHaveBeenCalledWith({
+      expect(mockHandleUserUpdates).toHaveBeenCalledWith({
         selectedPeriod: 1,
         userId: 'user-1',
       });
@@ -155,7 +155,7 @@ describe('YookassaService', () => {
       );
     });
 
-    it('routes payment.canceled to handlePaymentCanceled, not handlePaymentSucceeded', async () => {
+    it('routes payment.canceled to handlePaymentCanceled, not handleUserUpdates', async () => {
       // API must confirm the canceled status so the status-check passes.
       mockGetPayment.mockResolvedValue({ status: 'canceled' });
 
@@ -169,14 +169,14 @@ describe('YookassaService', () => {
 
       // status update is persisted but subscription logic is NOT triggered
       expect(mockYkUpdate).toHaveBeenCalledWith('pay_x', { status: 'canceled', url: null });
-      expect(mockHandlePaymentSucceeded).not.toHaveBeenCalled();
+      expect(mockHandleUserUpdates).not.toHaveBeenCalled();
       // no cancellation_details in payload → no event emitted
       expect(mockEmit).not.toHaveBeenCalled();
     });
 
     it('does NOT emit SUCCEEDED when paymentStatusService returns { success: false }', async () => {
       mockSmFindOneBy.mockResolvedValue(null);
-      mockHandlePaymentSucceeded.mockResolvedValue({ success: false });
+      mockHandleUserUpdates.mockResolvedValue({ success: false });
 
       await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
 

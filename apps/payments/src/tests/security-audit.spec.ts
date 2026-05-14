@@ -1,24 +1,3 @@
-/**
- * Security Audit — Payment & Subscription Logic
- * Regression-guard style (TDD / CI-compatible)
- *
- * Each test asserts the CORRECT, SECURE behavior.
- *
- *   Current state  → tests FAIL  (vulnerability exists, CI is red)
- *   After fix      → tests PASS  (vulnerability closed, CI turns green)
- *   Forever after  → tests guard against regressions
- *
- * Covered here (payments app):
- *   #1  — validateWebhookPayload must throw, not return, on validation failure
- *   #4  — PATCH payment status must be rejected without authentication
- *   #5  — make-autopayment must reject client-supplied amount / selectedPeriod
- *   #7  — Webhook validation must run in every environment, not only production
- *   #8  — handlePaymentSucceeded must be idempotent (replay must be a no-op)
- *   #9  — createSession must validate selectedPeriod against the allowed set
- *   #12 — mapEURAmountToMonthsNumber must error on unrecognised amounts
- *   #13 — createSession must validate amount against ALLOWED_AMOUNTS
- */
-
 import 'reflect-metadata';
 import * as process from 'node:process';
 
@@ -123,7 +102,7 @@ function makeSavedMethodRepo(
 describe('Security Audit', () => {
   describe('[FINDING #1] validateWebhookPayload must abort processing on any validation failure', () => {
     let service: YookassaService;
-    let mockHandlePaymentSucceeded: ReturnType<typeof vi.fn>;
+    let mockHandleUserUpdates: ReturnType<typeof vi.fn>;
     let mockGetPayment: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
@@ -131,7 +110,7 @@ describe('Security Audit', () => {
       process.env.NODE_ENV = 'production';
       process.env.YOOKASSA_PAYMENT_VALID_IP_ADDRESS = JSON.stringify(['185.71.76.0/27']);
 
-      mockHandlePaymentSucceeded = vi.fn().mockResolvedValue({ success: true });
+      mockHandleUserUpdates = vi.fn().mockResolvedValue({ success: true });
       mockGetPayment = vi.fn().mockResolvedValue({ status: 'succeeded' });
 
       service = new YookassaService(
@@ -141,7 +120,7 @@ describe('Security Audit', () => {
           update: vi.fn(),
         } as unknown as Repository<YookassaPayment>,
         makeSavedMethodRepo(null),
-        { handlePaymentSucceeded: mockHandlePaymentSucceeded } as unknown as PaymentStatusService,
+        { handleUserUpdates: mockHandleUserUpdates } as unknown as PaymentStatusService,
         { emit: vi.fn() } as unknown as EventEmitter2,
         {} as any,
       );
@@ -157,7 +136,7 @@ describe('Security Audit', () => {
         BadRequestException,
       );
 
-      expect(mockHandlePaymentSucceeded).not.toHaveBeenCalled();
+      expect(mockHandleUserUpdates).not.toHaveBeenCalled();
     });
 
     it('rejects a webhook payload whose type field is wrong', async () => {
@@ -171,7 +150,7 @@ describe('Security Audit', () => {
         BadRequestException,
       );
 
-      expect(mockHandlePaymentSucceeded).not.toHaveBeenCalled();
+      expect(mockHandleUserUpdates).not.toHaveBeenCalled();
     });
 
     it('rejects a webhook where the API-reported status does not match the claimed status', async () => {
@@ -182,19 +161,19 @@ describe('Security Audit', () => {
         BadRequestException,
       );
 
-      expect(mockHandlePaymentSucceeded).not.toHaveBeenCalled();
+      expect(mockHandleUserUpdates).not.toHaveBeenCalled();
     });
   });
   describe('[FINDING #7] Webhook validation must not be bypassed by NODE_ENV', () => {
     function buildService(nodeEnv: string): {
       service: YookassaService;
       mockIsIPRangeValid: ReturnType<typeof vi.fn>;
-      mockHandlePaymentSucceeded: ReturnType<typeof vi.fn>;
+      mockHandleUserUpdates: ReturnType<typeof vi.fn>;
     } {
       process.env.NODE_ENV = nodeEnv;
       process.env.YOOKASSA_PAYMENT_VALID_IP_ADDRESS = JSON.stringify(['185.71.76.0/27']);
 
-      const mockHandlePaymentSucceeded = vi.fn().mockResolvedValue({ success: true });
+      const mockHandleUserUpdates = vi.fn().mockResolvedValue({ success: true });
       const mockIsIPRangeValid = vi.fn().mockResolvedValue(false); // reject every IP
 
       const paymentRepo = makePaymentRepo(makeDbPayment());
@@ -202,13 +181,13 @@ describe('Security Audit', () => {
         { getPayment: vi.fn() } as unknown as YooKassaProvider,
         paymentRepo,
         makeSavedMethodRepo(null),
-        { handlePaymentSucceeded: mockHandlePaymentSucceeded } as unknown as PaymentStatusService,
+        { handleUserUpdates: mockHandleUserUpdates } as unknown as PaymentStatusService,
         { emit: vi.fn() } as unknown as EventEmitter2,
         {} as any,
       );
       (svc as any).isIPRangeValid = mockIsIPRangeValid;
 
-      return { service: svc, mockIsIPRangeValid, mockHandlePaymentSucceeded };
+      return { service: svc, mockIsIPRangeValid, mockHandleUserUpdates };
     }
 
     afterEach(() => {
@@ -216,7 +195,7 @@ describe('Security Audit', () => {
     });
 
     it('validates IP in "test" environment', async () => {
-      const { service, mockIsIPRangeValid, mockHandlePaymentSucceeded } = buildService('test');
+      const { service, mockIsIPRangeValid, mockHandleUserUpdates } = buildService('test');
 
       // Correct behavior: IP check must run regardless of NODE_ENV
       await expect(service.handleWebhook(makeSucceededPayload(), '8.8.8.8')).rejects.toThrow(
@@ -224,7 +203,7 @@ describe('Security Audit', () => {
       );
 
       expect(mockIsIPRangeValid).toHaveBeenCalled();
-      expect(mockHandlePaymentSucceeded).not.toHaveBeenCalled();
+      expect(mockHandleUserUpdates).not.toHaveBeenCalled();
     });
 
     it('validates IP in "development" environment', async () => {
@@ -249,9 +228,9 @@ describe('Security Audit', () => {
       process.env.NODE_ENV = 'test';
     });
   });
-  describe('[FINDING #8] handlePaymentSucceeded must be a no-op when payment is already succeeded', () => {
+  describe('[FINDING #8] handleUserUpdates must be a no-op when payment is already succeeded', () => {
     let service: YookassaService;
-    let mockHandlePaymentSucceeded: ReturnType<typeof vi.fn>;
+    let mockHandleUserUpdates: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
       vi.clearAllMocks();
@@ -260,14 +239,14 @@ describe('Security Audit', () => {
       // for idempotency tests that use localhost as the source IP.
       process.env.YOOKASSA_PAYMENT_VALID_IP_ADDRESS = JSON.stringify(['127.0.0.1/32']);
 
-      mockHandlePaymentSucceeded = vi.fn().mockResolvedValue({ success: true });
+      mockHandleUserUpdates = vi.fn().mockResolvedValue({ success: true });
 
       // First call: record is 'pending' → legitimate processing
-      // Second call: record is already 'succeeded' → must be skipped
+      // Second call: record is already 'succeeded' with paidAt set → must be skipped
       const mockFindOneBy = vi
         .fn()
         .mockResolvedValueOnce(makeDbPayment({ status: 'pending' }))
-        .mockResolvedValueOnce(makeDbPayment({ status: 'succeeded' }));
+        .mockResolvedValueOnce(makeDbPayment({ status: 'succeeded', paidAt: new Date() }));
 
       service = new YookassaService(
         // getPayment must confirm the payment is genuinely succeeded so validation passes
@@ -279,7 +258,7 @@ describe('Security Audit', () => {
           update: vi.fn().mockResolvedValue({ affected: 1 }),
         } as unknown as Repository<YookassaPayment>,
         makeSavedMethodRepo(null),
-        { handlePaymentSucceeded: mockHandlePaymentSucceeded } as unknown as PaymentStatusService,
+        { handleUserUpdates: mockHandleUserUpdates } as unknown as PaymentStatusService,
         { emit: vi.fn() } as unknown as EventEmitter2,
         {} as any,
       );
@@ -296,7 +275,7 @@ describe('Security Audit', () => {
       await service.handleWebhook(payload, '127.0.0.1'); // replay
 
       // Correct behavior: subscription extended exactly once
-      expect(mockHandlePaymentSucceeded).toHaveBeenCalledTimes(1);
+      expect(mockHandleUserUpdates).toHaveBeenCalledTimes(1);
     });
 
     it('returns without touching the DB on a replay of an already-succeeded payment', async () => {
@@ -304,7 +283,7 @@ describe('Security Audit', () => {
       const mockFindOneBy = vi
         .fn()
         .mockResolvedValueOnce(makeDbPayment({ status: 'pending' }))
-        .mockResolvedValueOnce(makeDbPayment({ status: 'succeeded' }));
+        .mockResolvedValueOnce(makeDbPayment({ status: 'succeeded', paidAt: new Date() }));
 
       const freshService = new YookassaService(
         {
@@ -315,7 +294,7 @@ describe('Security Audit', () => {
           update: mockYkUpdate,
         } as unknown as Repository<YookassaPayment>,
         makeSavedMethodRepo(null),
-        { handlePaymentSucceeded: mockHandlePaymentSucceeded } as unknown as PaymentStatusService,
+        { handleUserUpdates: mockHandleUserUpdates } as unknown as PaymentStatusService,
         { emit: vi.fn() } as unknown as EventEmitter2,
         {} as any,
       );

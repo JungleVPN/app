@@ -248,7 +248,7 @@ describe('AutopaymentService', () => {
           selectedPeriod: 1,
           telegramId: 42,
           description: 'Test payment',
-          paidAt: new Date(),
+          paidAt: null,
         }),
       );
       expect(mockYkSave).toHaveBeenCalled();
