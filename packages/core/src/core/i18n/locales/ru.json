@@ -64,6 +64,7 @@
     "methodsHeading": "Сохранённые способы оплаты",
     "emptyMethods": "Пока нет сохранённых способов оплаты.",
     "payButton": "Оплатить {{amount}} ₽",
+    "pricePerMonth": "{{amount}} ₽ / месяц",
     "extendButton": "Продлить",
     "deleteMethod": {
       "title": "Удалить способ оплаты?",

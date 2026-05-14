@@ -65,6 +65,7 @@
     "methodsHeading": "Saved payment methods",
     "emptyMethods": "No saved payment methods yet.",
     "payButton": "Pay {{amount}} ₽",
+    "pricePerMonth": "{{amount}} ₽ / month",
     "extendButton": "Extend",
     "deleteMethod": {
       "title": "Remove payment method?",

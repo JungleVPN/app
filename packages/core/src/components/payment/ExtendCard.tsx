@@ -61,7 +61,7 @@ export function ExtendCard({
             <p className='text-base font-semibold text-foreground'>
               {t('getSubscription.item_name')}
             </p>
-            <p className='text-xl font-bold text-accent'>{allowedAmounts} ₽</p>
+            <p className='text-xl font-bold text-accent'>{t('payment.pricePerMonth', { amount: allowedAmounts })}</p>
           </div>
 
           <div className='h-px w-full bg-white/10' />

@@ -12,6 +12,8 @@ x-app-build: &app-build
     VITE_SUPPORT_URL: ${VITE_SUPPORT_URL}
     VITE_TMA_APP_URL: ${VITE_TMA_APP_URL}
     VITE_TELEGRAM_BOT_TOKEN: ${VITE_TELEGRAM_BOT_TOKEN}
+    VITE_ALLOWED_AMOUNTS: ${VITE_ALLOWED_AMOUNTS}
+    VITE_ALLOWED_PERIODS: ${VITE_ALLOWED_PERIODS}
 
 # Reusable healthcheck for NestJS services — TCP-only so no HTTP 404s flood logs.
 # The NestJS apps have a global prefix (/remnawave, /payments, etc.) so hitting /
