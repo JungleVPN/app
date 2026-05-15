@@ -16,7 +16,7 @@ export const apiRoutes = {
     telegramStarsPaymentSucceeded: '/telegram-stars/payment-succeeded',
   },
   referrals: {
-    collection: '/referrals',
+    collection: '/',
     byInvited: (telegramId: number | string) => `/referrals/by-invited/${telegramId}`,
     rewardAfterPayment: '/referrals/reward-after-payment',
   },
