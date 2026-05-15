@@ -63,26 +63,6 @@ export class RemnaService {
     }
   }
 
-  async init(telegramId: number, language_code: string | undefined): Promise<UserDto> {
-    const user = await this.getUserByTgId(telegramId);
-    if (!user) {
-      return await this.createUser({
-        telegramId,
-        description: language_code,
-        username: telegramId.toString(),
-      });
-    } else {
-      if (user[0].description !== language_code) {
-        await this.updateUser({
-          uuid: user[0].uuid,
-          description: language_code,
-        });
-      }
-
-      return user[0];
-    }
-  }
-
   async getAllUsers(): Promise<UserDto[]> {
     return this.fetch<UserDto[]>({
       url: apiRoutes.remnawave.users,

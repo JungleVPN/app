@@ -40,36 +40,31 @@ export default function GetSubscriptionPage() {
     setError('');
     setHasError(false);
 
-    if (!email.trim()) {
-      setError(t('getSubscription.error_empty_email'));
-      setHasError(true);
-      return;
-    }
+    if (!tgUser) {
+      if (!email.trim()) {
+        setError(t('getSubscription.error_empty_email'));
+        setHasError(true);
+        return;
+      }
 
-    if (!validateEmail(email)) {
-      setError(t('getSubscription.error_invalid_email'));
-      setHasError(true);
-      return;
+      if (!validateEmail(email)) {
+        setError(t('getSubscription.error_invalid_email'));
+        setHasError(true);
+        return;
+      }
     }
 
     setIsLoading(true);
     try {
       if (tgUser) {
-        // TMA flow — look up by email, link the Telegram identity, then land on the portal.
-        //
-        // If an account exists (e.g. a web user who already signed up): attach this telegramId
-        // so future logins resolve via Telegram without asking for email again.
-        //
-        // If no account exists yet: create one with both email and telegramId so the user
-        // can access their subscription from both Telegram and the web.
+        // TMA flow — create with telegramId only. Email is collected later at payment time.
         const telegramId = Number(tgUser.id);
-        const existingUser = await initUser(remnawaveApi, { email });
+        const existingUser = await initUser(remnawaveApi, { telegramId });
 
         if (existingUser) {
-          const linked = await remnawaveApi.updateUser({ uuid: existingUser.uuid, telegramId });
-          setRmnUser(linked ?? null);
+          setRmnUser(existingUser);
         } else {
-          const newUser = await remnawaveApi.createUser({ email, telegramId });
+          const newUser = await remnawaveApi.createUser({ telegramId });
           setRmnUser(newUser ?? null);
         }
         navigate(profileSubscriptionPath);
@@ -100,38 +95,40 @@ export default function GetSubscriptionPage() {
   return (
     <Form className={styles.form}>
       <div className='mx-auto flex max-w-5xl flex-col gap-3'>
-        <div className='flex flex-col gap-2'>
-          <p className='text-base font-medium text-foreground ml-4'>
-            {t('getSubscription.enter_email')}
-          </p>
-          <TextField isInvalid={hasError} isRequired name='email' id={'email'} type='email'>
-            <div className='relative w-full'>
-              <span className={styles.inputIcon}>
-                <IconMail size={20} stroke={1.5} />
-              </span>
-              <Input
-                autoComplete='email'
-                className={styles.input}
-                placeholder={t('getSubscription.email_placeholder')}
-                value={email}
-                variant='secondary'
-                onChange={(v) => {
-                  setEmail(v.target.value);
-                  if (error) {
-                    setHasError(false);
-                    setError('');
-                  }
-                }}
-              />
-            </div>
+        {!tgUser && (
+          <div className='flex flex-col gap-2'>
+            <p className='text-base font-medium text-foreground ml-4'>
+              {t('getSubscription.enter_email')}
+            </p>
+            <TextField isInvalid={hasError} isRequired name='email' id={'email'} type='email'>
+              <div className='relative w-full'>
+                <span className={styles.inputIcon}>
+                  <IconMail size={20} stroke={1.5} />
+                </span>
+                <Input
+                  autoComplete='email'
+                  className={styles.input}
+                  placeholder={t('getSubscription.email_placeholder')}
+                  value={email}
+                  variant='secondary'
+                  onChange={(v) => {
+                    setEmail(v.target.value);
+                    if (error) {
+                      setHasError(false);
+                      setError('');
+                    }
+                  }}
+                />
+              </div>
 
-            {hasError ? (
-              <FieldError>{error}</FieldError>
-            ) : (
-              <Description className={'ml-4'}>{t('getSubscription.email_description')}</Description>
-            )}
-          </TextField>
-        </div>
+              {hasError ? (
+                <FieldError>{error}</FieldError>
+              ) : (
+                <Description className={'ml-4'}>{t('getSubscription.email_description')}</Description>
+              )}
+            </TextField>
+          </div>
+        )}
 
         <Block className={''}>
           <div className={styles.orderSummary}>
