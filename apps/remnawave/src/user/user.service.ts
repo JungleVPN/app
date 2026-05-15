@@ -40,19 +40,18 @@ export class UserService {
         total: number;
         users: UserDto[];
       }>({
-        url: `${GetAllUsersCommand.url}?page=${start}&size=${size}`,
+        url: `${GetAllUsersCommand.url}?start=${start}&size=${size}`,
         method: GetAllUsersCommand.endpointDetails.REQUEST_METHOD,
       });
 
-      allUsers.push(...users);
-
       if (users.length === 0) break;
+
+      allUsers.push(...users);
       if (allUsers.length >= total) break;
       if (users.length < size) break;
 
       start += size;
     }
-
     return allUsers;
   }
 
