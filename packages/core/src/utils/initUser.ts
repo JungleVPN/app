@@ -1,4 +1,4 @@
-import type { CreateUserRequestDto, CreateUserResponseDto, UserDto } from '@workspace/types';
+import type { CreateUserRequestDto, CreateUserResponseDto } from '@workspace/types';
 import type { createRemnawaveApi } from '../api';
 
 type RemnawaveApi = ReturnType<typeof createRemnawaveApi>;
@@ -43,15 +43,3 @@ export async function initUser(
     throw error;
   }
 }
-
-export const getIsCompleteUser = (user: UserDto | null) => {
-  return Boolean(user?.email) && Boolean(user?.telegramId);
-};
-
-export const getIsWebUser = (user: UserDto | null) => {
-  return !!user?.email && !user.telegramId;
-};
-
-export const getIsTgUser = (user: UserDto | null) => {
-  return !!user?.telegramId && !user.email;
-};
