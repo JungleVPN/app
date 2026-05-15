@@ -63,10 +63,14 @@ export default function GetSubscriptionPage() {
         // If no account exists yet: create one with both email and telegramId so the user
         // can access their subscription from both Telegram and the web.
         const telegramId = Number(tgUser.id);
-        const existingUser = await initUser(remnawaveApi, { email });
+        const existingUser = await initUser(remnawaveApi, { email, telegramId });
 
         if (existingUser) {
-          const linked = await remnawaveApi.updateUser({ uuid: existingUser.uuid, telegramId });
+          const linked = await remnawaveApi.updateUser({
+            uuid: existingUser.uuid,
+            telegramId,
+            email,
+          });
           setRmnUser(linked ?? null);
         } else {
           const newUser = await remnawaveApi.createUser({ email, telegramId });

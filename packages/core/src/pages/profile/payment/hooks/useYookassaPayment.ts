@@ -1,11 +1,7 @@
 import { miniApp, openLink } from '@tma.js/sdk-react';
 import { useRemnawaveApi } from '../../../../api';
 import { coreEnv } from '../../../../env';
-import {
-  useCreatePaymentSession,
-  useDeleteSavedMethod,
-  useUpdateUser,
-} from '../../../../hooks';
+import { useCreatePaymentSession, useDeleteSavedMethod, useUpdateUser } from '../../../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../../../runtime';
 import {
   useAuthStoreActions,
@@ -43,14 +39,14 @@ export function useYookassaPayment() {
 
     let activeUser = rmnUser;
 
-    if (email && !rmnUser.email) {
+    if (email) {
       const byEmail = await remnawaveApi.getUserByEmail({ email });
-      const existingWebUser = byEmail?.[0];
+      const existingUserWithEmail = byEmail?.[0];
 
-      if (existingWebUser && existingWebUser.uuid !== rmnUser.uuid) {
-        // TMA user has a pre-existing web account — link Telegram ID to it and adopt it.
+      if (existingUserWithEmail && existingUserWithEmail.uuid !== rmnUser.uuid) {
+        // Web account exists for this email — link Telegram ID to it and use it for payment.
         const linked = await updateUser({
-          uuid: existingWebUser.uuid,
+          uuid: existingUserWithEmail.uuid,
           telegramId: tgUser?.id != null ? Number(tgUser.id) : undefined,
         });
         if (linked) {
@@ -58,6 +54,7 @@ export function useYookassaPayment() {
           activeUser = linked;
         }
       } else {
+        // No separate web account — just save the email on the current account.
         const updated = await updateUser({ uuid: rmnUser.uuid, email });
         if (updated) {
           setRmnUser(updated);

@@ -5,9 +5,7 @@ import { createBackendClient } from '@utils/http-client';
 import {
   apiRoutes,
   CreateUserRequestDto,
-  CreateUserResponseDto,
   GetUserByTelegramIdResponseDto,
-  UpdateUserRequestDto,
   UserDto,
 } from '@workspace/types';
 import { AxiosInstance } from 'axios';
@@ -63,45 +61,10 @@ export class RemnaService {
     }
   }
 
-  async init(telegramId: number, language_code: string | undefined): Promise<UserDto> {
-    const user = await this.getUserByTgId(telegramId);
-    if (!user) {
-      return await this.createUser({
-        telegramId,
-        description: language_code,
-        username: telegramId.toString(),
-      });
-    } else {
-      if (user[0].description !== language_code) {
-        await this.updateUser({
-          uuid: user[0].uuid,
-          description: language_code,
-        });
-      }
-
-      return user[0];
-    }
-  }
-
   async getAllUsers(): Promise<UserDto[]> {
     return this.fetch<UserDto[]>({
       url: apiRoutes.remnawave.users,
       method: 'GET',
-    });
-  }
-
-  async createUser(payload: { username: string; telegramId: number; description?: string }) {
-    return this.fetch<CreateUserResponseDto>({
-      url: apiRoutes.remnawave.users,
-      body: payload,
-    });
-  }
-
-  async updateUser(body: UpdateUserRequestDto) {
-    return this.fetch<UserDto>({
-      method: 'PATCH',
-      url: apiRoutes.remnawave.users,
-      body,
     });
   }
 
@@ -121,10 +84,6 @@ export class RemnaService {
       if (e.status === 404) return null;
       throw e;
     }
-  }
-
-  async deleteUser(uuid: string) {
-    await this.fetch({ url: apiRoutes.remnawave.userByUuid(uuid), method: 'DELETE' });
   }
 
   async revokeSub(uuid: string) {
