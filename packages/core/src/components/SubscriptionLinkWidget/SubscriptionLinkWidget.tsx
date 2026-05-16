@@ -1,9 +1,10 @@
 import { AlertDialog, Button, useOverlayState } from '@heroui/react';
 import { IconCopy, IconHelpCircle, IconLink } from '@tabler/icons-react';
+import { useEffect } from 'react';
 import { renderSVG } from 'uqr';
 import { coreEnv } from '../../env';
 import { useClipboard, useTranslation } from '../../hooks';
-import { usePlatformStore, useSubscriptionInfoStoreInfo } from '../../stores';
+import { useNavbarStore, usePlatformStore, useSubscriptionInfoStoreInfo } from '../../stores';
 import { Link } from '../Link/Link';
 
 export const SubscriptionLinkWidget = () => {
@@ -11,27 +12,36 @@ export const SubscriptionLinkWidget = () => {
   const { subscription } = useSubscriptionInfoStoreInfo();
   const { clientPlatform } = usePlatformStore();
   const { supportUrl } = coreEnv;
+  const { setNavbarVisible } = useNavbarStore();
 
   const { copy, copied } = useClipboard({ timeout: 3000 });
   const qrState = useOverlayState();
 
   const isDesktop = clientPlatform !== 'ios' && clientPlatform !== 'android';
 
-  if (!subscription) return null;
-
   const accentColor =
     getComputedStyle(document.documentElement)
       .getPropertyValue('--tg-theme-accent-text-color')
       .trim() || '#22d3ee';
 
-  const qrCodeSvg = renderSVG(subscription.subscriptionUrl, {
-    whiteColor: '#161B22',
-    blackColor: accentColor,
-  });
+  const qrCodeSvg =
+    subscription &&
+    renderSVG(subscription.subscriptionUrl, {
+      whiteColor: '#161B22',
+      blackColor: accentColor,
+    });
 
   const handleCopy = async () => {
-    await copy(subscription.subscriptionUrl);
+    await copy(subscription?.subscriptionUrl || '');
   };
+
+  useEffect(() => {
+    if (qrState.isOpen) {
+      setNavbarVisible(false);
+    } else {
+      setNavbarVisible(true);
+    }
+  }, [setNavbarVisible, qrState.isOpen]);
 
   return (
     <>

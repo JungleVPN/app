@@ -18,6 +18,7 @@ export function Header() {
 
     return '/';
   };
+
   return (
     <div className='flex items-center justify-between'>
       <div>

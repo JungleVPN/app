@@ -35,12 +35,12 @@ export default function PaymentPage() {
   const { setNavbarVisible } = useNavbarStore();
 
   useEffect(() => {
-    if (successState.isOpen) {
+    if (successState.isOpen || termsState.isOpen) {
       setNavbarVisible(false);
     } else {
       setNavbarVisible(true);
     }
-  }, [setNavbarVisible, successState.isOpen]);
+  }, [setNavbarVisible, successState.isOpen, termsState.isOpen]);
 
   return (
     <Page
