@@ -150,13 +150,24 @@ subscription-text =
     <b>Вот ссылка, если у тебя уже есть приложение</b>
 
 
+expires-in-48-hours-subscription-text =
+    Твоя подписка закончится через <b>2 дня</b> 🌴
+
+    Будет работать до
+    <blockquote>{ $formattedDate }</blockquote>
+
+    Продли заранее, чтобы не терять доступ
+
+    Jungle 🌴
+
+
 expires-in-24-hours-subscription-text =
     <b>Твоя подписка закончится через <b>1 день</b> 🥲
 
     Будет работать до
     <blockquote>{ $formattedDate }</blockquote></b>
 
-    Чтобы продолжить пользоваться VPN продли подписку
+    Телеграм может быть недоступен — продли сегодня, чтобы не потерять доступ
 
     Jungle 🌴
 

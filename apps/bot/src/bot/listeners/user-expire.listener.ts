@@ -95,6 +95,8 @@ export class UserExpireListener {
     switch (event) {
       case 'user.expired':
         return 'expired-subscription-text';
+      case 'user.expires_in_48_hours':
+        return 'expires-in-48-hours-subscription-text';
       case 'user.expires_in_24_hours':
         return 'expires-in-24-hours-subscription-text';
       case 'user.expired_24_hours_ago':

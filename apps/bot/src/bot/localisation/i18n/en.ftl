@@ -180,11 +180,24 @@ user-not-connected-72 =
     Let me help you, it will take less then a minute 🙂
 
 
+expires-in-48-hours-subscription-text =
+    Your subscription expires in <b>2 days</b> 🌴
+
+    End date is
+    <blockquote>{ $formattedDate }</blockquote>
+
+    Renew now to stay connected without interruption
+
+    Jungle 🌴
+
+
 expires-in-24-hours-subscription-text =
     Your subscription expires in <b>1 day</b> 🥲
 
     End date is
     <blockquote>{ $formattedDate }</blockquote>
+
+    Last chance — renew today to avoid losing access
 
     Jungle 🌴
 
