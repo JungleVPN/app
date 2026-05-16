@@ -181,7 +181,7 @@ export class YookassaService {
   }
 
   async handlePaymentCanceled(payload: PaymentWebhookNotification): Promise<void> {
-    const { id, status, cancellation_details } = payload.object;
+    const { id, status, cancellation_details, payment_method } = payload.object;
 
     const record = await this.yookassaPaymentRepo.findOneBy({ id });
 
@@ -194,14 +194,43 @@ export class YookassaService {
 
     await this.yookassaPaymentRepo.update(id, { status, url: null });
 
-    if (cancellation_details && record) {
-      this.eventEmitter.emit(WebhookEventEnum['payment.canceled'], {
-        userId: record.userId,
-        provider: 'yookassa',
-        selectedPeriod: record?.selectedPeriod ?? 0,
-        reason: cancellation_details.reason,
-      } satisfies Payments.PaymentFailedEventPayload);
+    if (!cancellation_details || !record) return;
+
+    // Autopayment: payment_method.saved=true means this charge used a stored method.
+    // AutopaymentService already emitted payment.autopayment_failed — skip duplicate.
+    if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {
+      this.logger.log(`Payment ${id} canceled via autopayment — notification already sent by autopayment service`);
+      return;
     }
+
+    // User has an active saved method: AutopaymentService will handle the retry and
+    // will emit its own failure event if all retries are exhausted.
+    const hasSavedMethod = await this.savedMethodRepo.findOneBy({
+      userId: record.userId,
+      isActive: true,
+    });
+
+    if (hasSavedMethod) {
+      this.logger.log(`Payment ${id} canceled but user ${record.userId} has an active saved method — skipping payment.canceled notification`);
+      return;
+    }
+
+    // First payment: user has never successfully paid — no failure notification.
+    const priorSucceededCount = await this.yookassaPaymentRepo.count({
+      where: { userId: record.userId, status: 'succeeded' },
+    });
+
+    if (priorSucceededCount === 0) {
+      this.logger.log(`Payment ${id} canceled on first attempt for user ${record.userId} — skipping notification`);
+      return;
+    }
+
+    this.eventEmitter.emit(WebhookEventEnum['payment.canceled'], {
+      userId: record.userId,
+      provider: 'yookassa',
+      selectedPeriod: record.selectedPeriod ?? 0,
+      reason: cancellation_details.reason,
+    } satisfies Payments.PaymentFailedEventPayload);
   }
 
   // ── Saved payment methods ───────────────────────────────────────────────
