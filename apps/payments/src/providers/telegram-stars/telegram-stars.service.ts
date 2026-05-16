@@ -43,9 +43,7 @@ export class TelegramStarsService implements OnModuleInit {
   async getStickerUrl(fileId: string): Promise<string> {
     const file = await this.bot.api.getFile(fileId);
     const token = process.env.TELEGRAM_BOT_TOKEN;
-    const sticker = `https://api.telegram.org/file/bot${token}/${file.file_path}`;
-    console.log(`https://telegram.org${token}/${sticker}`);
-    return `https://telegram.org${token}/${sticker}`;
+    return `https://api.telegram.org/file/bot${token}/${file.file_path}`;
   }
 
   /**

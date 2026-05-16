@@ -193,6 +193,9 @@ importers:
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
       grammy:
         specifier: ^1.42.0
         version: 1.42.0
@@ -218,6 +221,9 @@ importers:
       '@nestjs/schematics':
         specifier: ^10.1.2
         version: 10.2.3(chokidar@4.0.3)(typescript@5.9.3)
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@workspace/shared-config':
         specifier: workspace:*
         version: link:../../packages/shared-config
@@ -607,6 +613,9 @@ importers:
       i18next-browser-languagedetector:
         specifier: ^8.2.0
         version: 8.2.1
+      lottie-web:
+        specifier: ^5.13.0
+        version: 5.13.0
       react:
         specifier: ^19.1.1
         version: 19.2.5

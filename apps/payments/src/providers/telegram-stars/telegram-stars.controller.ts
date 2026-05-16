@@ -7,7 +7,7 @@ import {
   HttpCode,
   Param,
   Post,
-  Redirect,
+  Res,
   UnauthorizedException,
 } from '@nestjs/common';
 import type {
@@ -15,6 +15,7 @@ import type {
   TelegramStarsInvoiceResponse,
   TelegramStarsPaymentSucceededDto,
 } from '@workspace/types';
+import type { Response } from 'express';
 import { TelegramStarsService } from './telegram-stars.service';
 
 @Controller('telegram-stars')
@@ -47,15 +48,25 @@ export class TelegramStarsController {
   }
 
   /**
-   * Proxies a Telegram sticker by file ID — resolves the CDN URL server-side
-   * (keeping the bot token out of the client) and issues a redirect.
+   * Proxies a Telegram sticker by file ID — fetches from Telegram server-side
+   * and streams the bytes back, avoiding a cross-origin redirect to api.telegram.org.
    */
   @Get('sticker/:fileId')
-  @Redirect('', 302)
-  async getSticker(@Param('fileId') fileId: string): Promise<{ url: string }> {
+  async getSticker(@Param('fileId') fileId: string, @Res() res: Response): Promise<void> {
     const url = await this.telegramStarsService.getStickerUrl(fileId);
-    console.log(url);
-    return { url };
+    const upstream = await fetch(url);
+    res.setHeader(
+      'Content-Type',
+      upstream.headers.get('content-type') ?? 'application/octet-stream',
+    );
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    const reader = upstream.body!.getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      res.write(value);
+    }
+    res.end();
   }
 
   private validateSecret(secret: string): void {

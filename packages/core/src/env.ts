@@ -13,6 +13,6 @@ export const coreEnv = {
   successStickerUrl: (() => {
     const fileId = import.meta.env.VITE_SUCCESS_STICKER_FILE_ID ?? '';
     const paymentsUrl = import.meta.env.VITE_PAYMENTS_URL ?? '';
-    return fileId && paymentsUrl ? `/telegram-stars/sticker/${fileId}` : '';
+    return fileId && paymentsUrl ? `${paymentsUrl}/telegram-stars/sticker/${fileId}` : '';
   })(),
 } as const;

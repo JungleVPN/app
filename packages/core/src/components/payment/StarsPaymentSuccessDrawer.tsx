@@ -1,6 +1,7 @@
 import { Button, Drawer } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { coreEnv } from '../../env';
+import { TgsSticker } from './TgsSticker';
 
 interface Props {
   isOpen: boolean;
@@ -25,12 +26,7 @@ export function StarsPaymentSuccessDrawer({ isOpen, allowedPeriods, onClose }: P
           <Drawer.CloseTrigger />
           <Drawer.Header className='flex flex-col items-center gap-3 pt-2'>
             {successStickerUrl && (
-              <img
-                alt=''
-                aria-hidden='true'
-                className='h-28 w-28 object-contain'
-                src={successStickerUrl}
-              />
+              <TgsSticker className='h-28 w-28' src={successStickerUrl} />
             )}
             <Drawer.Heading className='text-center'>
               {t('payment.stars.success.title')}
