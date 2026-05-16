@@ -1,12 +1,6 @@
 export type { AuthUser, IAuthActions, IAuthState } from './auth';
 export { useAuthStore, useAuthStoreActions, useAuthStoreInfo } from './auth';
-export type { ISavedMethodsActions, ISavedMethodsState } from './saved-methods';
-export {
-  useSavedMethodsStore,
-  useSavedMethodsStoreActions,
-  useSavedMethodsStoreInfo,
-} from './saved-methods';
-
+export { useNavbarStore } from './navbar';
 // app-config is referenced here for backward compatibility but the file no longer exists.
 // If AppConfig types are needed in future, add the file back.
 export type {
@@ -21,6 +15,12 @@ export {
   usePlatformStoreActions,
   usePlatformStoreInfo,
 } from './platform';
+export type { ISavedMethodsActions, ISavedMethodsState } from './saved-methods';
+export {
+  useSavedMethodsStore,
+  useSavedMethodsStoreActions,
+  useSavedMethodsStoreInfo,
+} from './saved-methods';
 export type { ISubscriptionConfigActions, ISubscriptionConfigState } from './subscription-config';
 export {
   useCurrentLang,

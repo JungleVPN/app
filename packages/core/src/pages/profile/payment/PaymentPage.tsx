@@ -1,7 +1,9 @@
 import { Page } from '@workspace/core';
 import { ExtendCard, StarsPaymentSuccessDrawer } from '@workspace/core/components';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import PaymentPageIcon from '../../../assets/icons/payment-icon.svg?url';
+import { useNavbarStore } from '../../../stores';
 import { PaymentMethodsList } from './components/PaymentMethodsList';
 import { StarsPaymentButton } from './components/StarsPaymentButton';
 import { TermsDialog } from './components/TermsDialog';
@@ -29,6 +31,16 @@ export default function PaymentPage() {
     handleExtend,
     handleStarsPayment,
   } = usePayment();
+
+  const { setNavbarVisible } = useNavbarStore();
+
+  useEffect(() => {
+    if (successState.isOpen) {
+      setNavbarVisible(false);
+    } else {
+      setNavbarVisible(true);
+    }
+  }, [setNavbarVisible, successState.isOpen]);
 
   return (
     <Page

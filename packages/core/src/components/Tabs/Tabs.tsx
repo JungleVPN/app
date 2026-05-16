@@ -6,6 +6,7 @@ import IconDevices from '../../assets/icons/device-tab-icon.svg?react';
 import IconPig from '../../assets/icons/payment-tab-icon.svg?react';
 import IconWallet from '../../assets/icons/wallet-icon.svg?react';
 import { useAppRoutes } from '../../runtime';
+import { useNavbarStore } from '../../stores';
 import css from './Tabs.module.css';
 
 type TabValue = 'subscription' | 'payments' | 'devices';
@@ -43,6 +44,7 @@ function getActiveTab(
 
 export const Navbar = () => {
   const { profileSubscriptionPath, profilePaymentPath, profileDevicesPath } = useAppRoutes();
+  const { isVisible } = useNavbarStore();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -280,6 +282,9 @@ export const Navbar = () => {
     <motion.div
       className={css.root}
       style={{ scale: barScale }}
+      initial={false}
+      animate={{ y: isVisible ? 0 : 'calc(100% + 16px)' }}
+      transition={{ type: 'spring', stiffness: 400, damping: 35 }}
       onPointerDown={handleBarPressIn}
       onPointerUp={handleBarPressOut}
       onPointerCancel={handleBarPressOut}
