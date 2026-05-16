@@ -44,7 +44,7 @@ export class MainMenu extends Base {
       //   },
       // )
       .webApp(
-        (ctx) => ctx.t('extend-button-label'),
+        (ctx) => ctx.t('pay-button-label'),
         process.env.TMA_APP_PAYMENT_URL || 'https://miniapp.thejungle.pro',
       )
       // .text(

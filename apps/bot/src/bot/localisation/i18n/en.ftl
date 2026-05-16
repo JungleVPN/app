@@ -143,9 +143,11 @@ payment-success-text =
 
     Your subscription has been extended 🙂
 
-    You can manage payments in your profile. Just click the button below!
+    <blockquote>
+    📅Valid until: <b>{ $expireAt } (MSK)</b>
+    </blockquote>
 
-    I will add ability to control notifications a bit later
+    You can manage payments in your profile. Just click the button below!
 
 subscription-text =
     📖 Setting up VPN on { $deviceLabel }:

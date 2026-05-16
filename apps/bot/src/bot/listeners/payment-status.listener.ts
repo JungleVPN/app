@@ -76,7 +76,7 @@ export class PaymentStatusListener {
           locale,
         });
       } else {
-        await this.sendYookassaSuccessMessage(user.telegramId, locale);
+        await this.sendYookassaSuccessMessage(user, locale);
       }
     }
   }
@@ -136,8 +136,10 @@ export class PaymentStatusListener {
     return CANCEL_REASON_I18N_KEY[reason as Payments.CancelReason] ?? DEFAULT_FAILURE_I18N_KEY;
   }
 
-  private async sendYookassaSuccessMessage(telegramId: number, locale: string) {
+  private async sendYookassaSuccessMessage(user: UserDto, locale: string) {
     const i18n = this.localService.i18n;
+
+    if (!user.telegramId) return;
 
     const successMenu = new InlineKeyboard()
       .webApp(
@@ -147,9 +149,14 @@ export class PaymentStatusListener {
       .row()
       .text(i18n.t(locale, 'home-button-label'), 'navigate_main');
 
-    await safeSendMessage(this.bot, telegramId, i18n.t(locale, 'payment-success-text'), {
-      reply_markup: successMenu,
-    });
+    await safeSendMessage(
+      this.bot,
+      user.telegramId,
+      i18n.t(locale, 'payment-success-text', { expireAt: toDateString(user.expireAt) }),
+      {
+        reply_markup: successMenu,
+      },
+    );
   }
 
   private async sendStripeSuccessMessage({
