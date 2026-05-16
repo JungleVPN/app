@@ -2,10 +2,16 @@ import { useOverlayState } from '@heroui/react';
 import { invoice } from '@tma.js/sdk-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useRemnawaveApi } from '../../../../api';
 import { coreEnv } from '../../../../env';
 import { useCreateTelegramStarsInvoice } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
-import { useAuthStoreInfo, usePlatformStore } from '../../../../stores';
+import {
+  useAuthStoreInfo,
+  usePlatformStore,
+  useSubscriptionInfoStore,
+  useSubscriptionInfoStoreActions,
+} from '../../../../stores';
 
 export function useTelegramStarsPayment() {
   const { t } = useTranslation();
@@ -13,6 +19,8 @@ export function useTelegramStarsPayment() {
   const { platformType } = usePlatformStore();
   const { allowedPeriods, starsAmount } = coreEnv;
   const paymentsApi = usePaymentsApi();
+  const remnawaveApi = useRemnawaveApi();
+  const { setSubscriptionInfo } = useSubscriptionInfoStoreActions();
 
   const { isLoading: isStarsPaying, execute: createStarsInvoice } =
     useCreateTelegramStarsInvoice(paymentsApi);
@@ -39,7 +47,19 @@ export function useTelegramStarsPayment() {
 
     try {
       const status = await invoice.openUrl(result.invoiceLink);
-      if (status === 'paid') successState.open();
+      if (status === 'paid') {
+        successState.open();
+        const originalExpireAt = useSubscriptionInfoStore.getState().subscription?.user.expiresAt;
+        // Poll until the backend webhook updates the expiry, up to ~5s total.
+        for (let attempt = 0; attempt < 5; attempt++) {
+          await new Promise((r) => setTimeout(r, 1000));
+          const fresh = await remnawaveApi.getSubscriptionInfoByShortUuid(rmnUser.shortUuid);
+          if (fresh) {
+            setSubscriptionInfo({ subscription: fresh });
+            if (fresh.user.expiresAt !== originalExpireAt) break;
+          }
+        }
+      }
     } catch {
       // User dismissed the invoice or SDK not available — silently ignore.
     }
