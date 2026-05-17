@@ -3,16 +3,16 @@ import { BotService } from '@bot/bot.service';
 import { BotContext } from '@bot/bot.types';
 import { LocalisationService } from '@bot/localisation/localisation.service';
 import { safeSendMessage, toDateString } from '@bot/utils/utils';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { WebHookEvent } from '@remna/remna.model';
 import { UserDto } from '@workspace/types';
-import { AxiosError } from 'axios';
 import { Bot, InlineKeyboard } from 'grammy';
 
 @Injectable()
 export class UserExpireListener {
   bot: Bot<BotContext>;
+  private readonly logger = new Logger(UserExpireListener.name);
 
   constructor(
     private readonly botService: BotService,
@@ -60,7 +60,8 @@ export class UserExpireListener {
   async handleUserExpireEvent(payload: { event: WebHookEvent; data: UserDto; timestamp: string }) {
     const telegramId = payload.data.telegramId;
     if (!telegramId) {
-      throw new AxiosError('UserNotConnectedListener: telegramId is null');
+      this.logger.warn(`Skipping expire notification: telegramId is null for event ${payload.event}`);
+      return;
     }
 
     const locale = payload.data.description || process.env.DEFAULT_LOCALE || 'ru';

@@ -116,7 +116,8 @@ export class WebhookService {
         'x-forwarded-for': ip,
         'x-service-secret': process.env.INTER_SERVICE_SECRET,
       },
-      timeout: 15_000,
+      // Must exceed worst-case payments processing: 3 retries × (10 s remnawave timeout + 2 s delay) = 36 s.
+      timeout: 40_000,
     });
   }
 }

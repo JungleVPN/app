@@ -3,18 +3,18 @@ import { BotService } from '@bot/bot.service';
 import { BotContext } from '@bot/bot.types';
 import { LocalisationService } from '@bot/localisation/localisation.service';
 import { safeSendMessage } from '@bot/utils/utils';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { WebHookEvent } from '@remna/remna.model';
 import { UserLocale } from '@shared/user.types';
 import { UserDto } from '@workspace/types';
-import { AxiosError } from 'axios';
 import { differenceInHours } from 'date-fns';
 import { Bot, InlineKeyboard } from 'grammy';
 
 @Injectable()
 export class UserNotConnectedListener {
   bot: Bot<BotContext>;
+  private readonly logger = new Logger(UserNotConnectedListener.name);
 
   constructor(
     readonly botService: BotService,
@@ -47,7 +47,8 @@ export class UserNotConnectedListener {
       );
 
     if (!payload.data.telegramId) {
-      throw new AxiosError('UserNotConnectedListener: telegramId is null');
+      this.logger.warn(`Skipping not-connected notification: telegramId is null`);
+      return;
     }
 
     if (diffHours >= Number(process.env.TREE_DAYS_IN_HOURS)) {
