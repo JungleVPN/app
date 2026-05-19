@@ -1,3 +1,4 @@
+import { IconNetwork } from '@tabler/icons-react';
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -122,7 +123,7 @@ export const Navbar = () => {
       {
         id: 'subscription',
         label: t('profileTabs.subscription'),
-        icon: <IconWallet className='size-7' />,
+        icon: <IconNetwork stroke={1.5} className='size-7' />,
       },
       {
         id: 'payments',

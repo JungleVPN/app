@@ -1,7 +1,7 @@
 import { Card, Spinner } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import DevicePageIcon from '../../../assets/icons/device-icon.svg?react';
-import { Page } from '../../../ui';
+import deviceAnimation from '../../../assets/lottie/devicesPageIcon.lottie?url';
+import { LottieIcon, Page } from '../../../ui';
 import { DeviceDeleteDialog } from './components/DeviceDeleteDialog';
 import { DeviceRow } from './components/DeviceRow';
 import { useDevices } from './hooks/useDevices';
@@ -20,7 +20,7 @@ export default function DevicesPage() {
 
   return (
     <Page
-      icon={<DevicePageIcon />}
+      icon={<LottieIcon src={deviceAnimation} />}
       title={t('devices.pageTitle')}
       subtitle={t('devices.pageSubtitle')}
     >

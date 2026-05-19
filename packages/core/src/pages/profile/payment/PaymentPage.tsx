@@ -2,8 +2,9 @@ import { Page } from '@workspace/core';
 import { ExtendCard, StarsPaymentSuccessDrawer } from '@workspace/core/components';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import PaymentPageIcon from '../../../assets/icons/payment-icon.svg?url';
+import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url';
 import { useNavbarStore } from '../../../stores';
+import { LottieIcon } from '../../../ui';
 import { PaymentMethodsList } from './components/PaymentMethodsList';
 import { StarsPaymentButton } from './components/StarsPaymentButton';
 import { TermsDialog } from './components/TermsDialog';
@@ -44,7 +45,7 @@ export default function PaymentPage() {
 
   return (
     <Page
-      icon={PaymentPageIcon}
+      icon={<LottieIcon src={paymentAnimation} />}
       title={t('payment.pageTitle')}
       subtitle={t('payment.pageSubtitle')}
     >

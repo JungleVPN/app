@@ -16,6 +16,11 @@ declare module '*.svg?react' {
   export default ReactComponent;
 }
 
+declare module '*.lottie?url' {
+  const content: string;
+  export default content;
+}
+
 declare module '*.module.css' {
   const classes: Record<string, string>;
   export default classes;
