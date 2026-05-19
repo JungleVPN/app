@@ -21,7 +21,7 @@ export function Page(props: PageProps) {
       <p className={'mt-1 text-xl'}>{title}</p>
       <p className={'text-md text-muted m-1'}>{subtitle}</p>
       <p className={'text-sm text-muted'}>{description}</p>
-      <div className={'mt-5 flex w-full flex-col py-6'}>{children}</div>
+      <div className={'mt-5 flex w-full flex-col py-2'}>{children}</div>
     </Surface>
   );
 }

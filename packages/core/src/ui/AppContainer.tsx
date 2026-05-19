@@ -18,7 +18,7 @@ export function AppContainer({ children, className }: AppContainerProps) {
   return (
     <Surface
       variant='transparent'
-      className={`w-full p-4 max-w-xl mx-auto px-6 py-6 ${className || ''}`}
+      className={`w-full max-w-xl mx-auto px-6 py-4 ${className || ''}`}
     >
       {children}
     </Surface>
