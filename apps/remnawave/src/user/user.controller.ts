@@ -50,6 +50,13 @@ export class UserController {
     return this.userService.updateUser(body);
   }
 
+  @Get('telegram-photo/:telegramId')
+  async getTelegramPhotoUrl(
+    @Param('telegramId') telegramId: string,
+  ): Promise<{ photoUrl: string | null }> {
+    return this.userService.getTelegramPhotoUrl(telegramId);
+  }
+
   @Get(':uuid')
   async getUserByUuid(
     @Param('uuid') uuid: string,

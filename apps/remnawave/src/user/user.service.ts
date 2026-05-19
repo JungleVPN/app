@@ -1,5 +1,5 @@
 import * as process from 'node:process';
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   CreateUserCommand,
@@ -20,15 +20,25 @@ import {
   UserDto,
 } from '@workspace/types';
 import { addDays, addMonths } from 'date-fns';
+import { Bot } from 'grammy';
 import { RemnaPanelClient } from '../common/remna-panel.client';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
   readonly logger = new Logger(UserService.name);
+  private bot: Bot;
+
   constructor(
     private readonly panelClient: RemnaPanelClient,
     private readonly configService: ConfigService,
   ) {}
+
+  onModuleInit() {
+    const token = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+    if (!token) throw new Error('TELEGRAM_BOT_TOKEN is required for UserService');
+    // Instantiate without starting — only bot.api.* is used
+    this.bot = new Bot(token);
+  }
 
   async getAllUsers(): Promise<UserDto[]> {
     const size = 1000;
@@ -151,6 +161,27 @@ export class UserService {
     await this.updateUser({ uuid, expireAt });
 
     return user;
+  }
+
+  async getTelegramPhotoUrl(telegramId: string): Promise<{ photoUrl: string | null }> {
+    try {
+      const { total_count, photos } = await this.bot.api.getUserProfilePhotos(Number(telegramId), {
+        limit: 1,
+      });
+
+      if (total_count === 0) return { photoUrl: null };
+
+      const sizes = photos[0];
+      const fileId = sizes[sizes.length - 1].file_id;
+
+      const file = await this.bot.api.getFile(fileId);
+      if (!file.file_path) return { photoUrl: null };
+
+      const token = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+      return { photoUrl: `https://api.telegram.org/file/bot${token}/${file.file_path}` };
+    } catch {
+      return { photoUrl: null };
+    }
   }
 
   async revokeSubscription(uuid: string): Promise<string> {

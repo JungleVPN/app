@@ -32,5 +32,6 @@ export const apiRoutes = {
     userDevices: (userUuid: string) => `/users/${userUuid}/devices`,
     userDevice: (userUuid: string, hwid: string) =>
       `/users/${userUuid}/devices/${encodeURIComponent(hwid)}`,
+    telegramPhoto: (telegramId: number | string) => `/users/telegram-photo/${telegramId}`,
   },
 } as const;

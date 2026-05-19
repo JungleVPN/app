@@ -1,6 +1,9 @@
+import { Avatar } from '@heroui/react';
 import { useAuthStore } from '@workspace/core';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { useRemnawaveApi } from '../../api';
 import Logo from '../../assets/Logo.svg';
 import { usePlatformStore } from '../../stores';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
@@ -9,8 +12,20 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 
 export function Header() {
   const { t } = useTranslation();
-  const { authUser } = useAuthStore();
+  const { authUser, tgUser } = useAuthStore();
   const { platformType } = usePlatformStore();
+  const remnawaveApi = useRemnawaveApi();
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (platformType !== 'telegram' || !tgUser?.id) return;
+
+    remnawaveApi
+      .getTelegramPhotoUrl(String(tgUser.id))
+      .then(({ photoUrl: url }) => setPhotoUrl(url))
+      .catch(() => {});
+  }, [platformType, tgUser?.id, remnawaveApi.getTelegramPhotoUrl]);
+
   const getLink = () => {
     if (authUser || platformType === 'telegram') {
       return '/profile/subscription';
@@ -23,14 +38,21 @@ export function Header() {
     <div className='flex items-center justify-between'>
       <div>
         <Link to={getLink()}>
-          <img
-            alt={t('header.logoAlt')}
-            src={Logo}
-            style={{
-              width: '52px',
-              height: '52px',
-            }}
-          />
+          {platformType === 'telegram' && photoUrl ? (
+            <Avatar size='sm' className='size-[52px]'>
+              <Avatar.Image alt={tgUser?.first_name ?? 'User'} src={photoUrl} />
+              <Avatar.Fallback>{tgUser?.first_name?.[0] ?? 'U'}</Avatar.Fallback>
+            </Avatar>
+          ) : (
+            <img
+              alt={t('header.logoAlt')}
+              src={Logo}
+              style={{
+                width: '42px',
+                height: '42px',
+              }}
+            />
+          )}
         </Link>
       </div>
 

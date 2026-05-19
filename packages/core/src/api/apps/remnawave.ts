@@ -101,6 +101,18 @@ export function createRemnawaveApi(client: ApiClient) {
       }
     },
 
+    async getTelegramPhotoUrl(
+      telegramId: string,
+    ): Promise<{ photoUrl: string | null }> {
+      try {
+        return await client.get<{ photoUrl: string | null }>(
+          apiRoutes.remnawave.telegramPhoto(telegramId),
+        );
+      } catch {
+        return { photoUrl: null };
+      }
+    },
+
     async deleteUserDevice(
       userUuid: string,
       hwid: string,
