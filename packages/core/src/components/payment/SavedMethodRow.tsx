@@ -1,7 +1,7 @@
 import { AlertDialog, Button, Chip, Separator, Tooltip, useOverlayState } from '@heroui/react';
+import { IconTrash } from '@tabler/icons-react';
 import type { SavedMethodDto } from '@workspace/types';
 import { useTranslation } from 'react-i18next';
-import BinIcon from '../../assets/icons/bin-icon.svg?react';
 import { formatSavedMethodLabel, resolveMethodIcon } from '../../ui';
 
 export interface SavedMethodRowProps {
@@ -50,7 +50,7 @@ export function SavedMethodRow({
               onPress={confirmState.open}
               className={'bg-[var(--quaternary-fill-background)]'}
             >
-              <BinIcon />
+              <IconTrash />
             </Button>
             <Tooltip.Content placement='left' showArrow>
               <Tooltip.Arrow />

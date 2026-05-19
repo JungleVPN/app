@@ -7,7 +7,7 @@ export function RootLayout() {
     <ErrorBoundary>
       <AppContainer>
         <Header />
-        <div className='pt-10 pb-16'>
+        <div className='pt-10 pb-18'>
           <Outlet />
         </div>
       </AppContainer>

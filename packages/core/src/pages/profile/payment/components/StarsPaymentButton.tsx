@@ -18,7 +18,7 @@ export function StarsPaymentButton({ isDisabled, error, onPress }: StarsPaymentB
         <div className='h-px flex-1 bg-border' />
       </div>
 
-      <Button fullWidth isDisabled={isDisabled} variant='secondary' onPress={onPress}>
+      <Button fullWidth isDisabled={isDisabled} variant='tertiary' onPress={onPress}>
         {t('payment.stars.buttonLabel')}
       </Button>
 

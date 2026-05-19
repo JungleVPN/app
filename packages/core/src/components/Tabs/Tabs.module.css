@@ -4,7 +4,7 @@
   left: 50%;
   translate: -50% 0;
   backface-visibility: hidden;
-  bottom: 16px;
+  bottom: 20px;
   position: fixed;
   z-index: 1000;
   isolation: isolate;

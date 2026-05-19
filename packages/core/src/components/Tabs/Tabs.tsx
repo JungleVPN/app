@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
 import IconDevices from '../../assets/icons/device-tab-icon.svg?react';
 import IconPig from '../../assets/icons/payment-tab-icon.svg?react';
-import IconWallet from '../../assets/icons/wallet-icon.svg?react';
 import { useAppRoutes } from '../../runtime';
 import { useNavbarStore } from '../../stores';
 import css from './Tabs.module.css';

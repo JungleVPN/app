@@ -1,6 +1,6 @@
 import { Button, Separator } from '@heroui/react';
+import { IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import BinIcon from '../../../../assets/icons/bin-icon.svg?react';
 import type { HwidDevice } from '../utils/devices.utils';
 import { extractAppName, resolveDeviceIcon } from '../utils/devices.utils';
 
@@ -23,7 +23,7 @@ export function DeviceRow({
 
   return (
     <>
-      {showSeparatorAbove && <Separator className='shrink-0' variant='secondary' />}
+      {showSeparatorAbove && <Separator className='shrink-0' variant='default' />}
       <div className='flex min-h-[52px] items-center gap-3 px-4 py-2.5'>
         <span aria-hidden className='shrink-0 text-muted'>
           <AppIcon stroke={1.25} size={24} />
@@ -39,11 +39,10 @@ export function DeviceRow({
           isIconOnly
           isPending={isDeleting}
           size='sm'
-          variant='secondary'
+          variant='tertiary'
           onPress={() => onDeleteRequest(device.hwid)}
-          className='bg-[var(--quaternary-fill-background)]'
         >
-          <BinIcon />
+          <IconTrash />
         </Button>
       </div>
     </>
