@@ -1,17 +1,12 @@
-import { IconStar } from '@tabler/icons-react';
+import { Description, Label, ListBox } from '@heroui/react';
+import { IconStar, IconWallet } from '@tabler/icons-react';
 import type { AdminPaymentDto } from '@workspace/types';
-import IconPig from '../../../assets/icons/payment-tab-icon.svg?react';
-
-interface AdminPaymentRowProps {
-  payment: AdminPaymentDto;
-  onSelect?: (payment: AdminPaymentDto) => void;
-}
 
 function ProviderIcon({ provider }: { provider: AdminPaymentDto['provider'] }) {
   if (provider === 'telegram_stars') {
-    return <IconStar className='size-5 shrink-0 text-yellow-400' stroke={1.5} />;
+    return <IconStar stroke={1.25} size={24} />;
   }
-  return <IconPig className='size-5 shrink-0' />;
+  return <IconWallet stroke={1.25} size={24} />;
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -21,36 +16,40 @@ function StatusBadge({ status }: { status: string }) {
     canceled: 'text-red-500',
     refunded: 'text-blue-400',
   };
-  const color = colorMap[status] ?? 'text-muted';
-  return <span className={`text-xs font-medium ${color}`}>{status}</span>;
+  return (
+    <span className={`text-xs font-medium ${colorMap[status] ?? 'text-muted'}`}>{status}</span>
+  );
 }
 
-export function AdminPaymentRow({ payment, onSelect }: AdminPaymentRowProps) {
+interface AdminPaymentRowProps {
+  payment: AdminPaymentDto;
+}
+
+export function AdminPaymentRow({ payment }: AdminPaymentRowProps) {
   const amountLabel =
     payment.provider === 'telegram_stars'
       ? `${payment.starsAmount ?? '?'} ⭐`
       : `${payment.amount ?? '?'} ${payment.currency ?? ''}`.trim();
 
-  return (
-    <button
-      type='button'
-      className='flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors active:bg-white/5'
-      onClick={() => onSelect?.(payment)}
-    >
-      <ProviderIcon provider={payment.provider} />
+  const subtitle = [payment.userId, payment.telegramId != null ? `tg:${payment.telegramId}` : null]
+    .filter(Boolean)
+    .join(' · ');
 
-      <div className='min-w-0 flex-1'>
-        <p className='truncate text-sm font-medium'>{payment.paymentId}</p>
-        <p className='text-muted truncate text-xs'>
-          {payment.userId}
-          {payment.telegramId != null ? ` · tg:${payment.telegramId}` : ''}
-        </p>
+  return (
+    <ListBox.Item id={payment.paymentId} textValue={payment.paymentId}>
+      <span aria-hidden className='shrink-0 text-muted'>
+        <ProviderIcon provider={payment.provider} />
+      </span>
+
+      <div className='min-w-0 flex-1 flex-col flex'>
+        <Label className='w-auto font-medium description truncate'>{payment.paymentId}</Label>
+        <Description className='truncate'>{subtitle}</Description>
       </div>
 
       <div className='flex shrink-0 flex-col items-end gap-0.5'>
         <StatusBadge status={payment.status} />
-        <span className='text-muted text-xs'>{amountLabel}</span>
+        <span className='text-xs text-muted'>{amountLabel}</span>
       </div>
-    </button>
+    </ListBox.Item>
   );
 }

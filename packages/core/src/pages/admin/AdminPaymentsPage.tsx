@@ -1,3 +1,4 @@
+import { Button, Input } from '@heroui/react';
 import { IconSearch } from '@tabler/icons-react';
 import { Page } from '../../ui';
 import { AdminPaymentsList } from './components/AdminPaymentsList';
@@ -12,40 +13,37 @@ export default function AdminPaymentsPage() {
   }
 
   return (
-    <Page title='Admin — Payments' subtitle='Search by payment ID, user ID or Telegram ID'>
+    <Page title='Admin — Payments'>
       {/* Search bar */}
-      <div className='flex w-full items-center gap-2 rounded-xl bg-white/5 px-3 py-2'>
-        <input
+      <div className='flex w-full items-center gap-2 rounded-xl py-2'>
+        <Input
           type='text'
-          className='min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-gray-500'
+          className={'w-full'}
           placeholder='paymentId / userId / telegramId'
           value={query}
+          variant='secondary'
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={onKeyDown}
           autoComplete='off'
           spellCheck={false}
         />
-        <button
+        <Button
+          isIconOnly
           type='button'
           aria-label='Search'
-          disabled={isLoading || !query.trim()}
-          className='flex shrink-0 items-center justify-center rounded-lg p-1 transition-opacity disabled:opacity-40 active:opacity-60'
+          isDisabled={isLoading || !query.trim()}
+          variant={'primary'}
           onClick={() => void handleSearch()}
         >
-          <IconSearch className='size-5' stroke={1.5} />
-        </button>
+          <IconSearch stroke={1.5} />
+        </Button>
       </div>
 
-      {/* Error */}
       {error && <p className='mt-3 text-center text-sm text-red-400'>{error}</p>}
 
-      {/* Loading */}
-      {isLoading && <p className='text-muted mt-6 text-center text-sm'>Searching…</p>}
-
-      {/* Results */}
-      {!isLoading && (
-        <AdminPaymentsList results={results} hasSearched={hasSearched} />
-      )}
+      <div className='mt-4 w-full'>
+        <AdminPaymentsList results={results} isLoading={isLoading} hasSearched={hasSearched} />
+      </div>
     </Page>
   );
 }
