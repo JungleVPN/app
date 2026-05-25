@@ -15,4 +15,6 @@ export interface CreateYookassaSessionDto
   extends Omit<Payments.CreatePaymentRequest, 'metadata' | 'capture'> {
   userId: string;
   selectedPeriod: number;
+  /** Telegram user id of the payer — stored on the DB record for admin lookups. */
+  telegramId?: number | null;
 }

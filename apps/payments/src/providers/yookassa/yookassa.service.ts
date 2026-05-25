@@ -69,7 +69,7 @@ export class YookassaService {
   // ── Session creation ────────────────────────────────────────────────────
 
   async createPaymentSession(dto: CreateYookassaSessionDto): Promise<PaymentSession> {
-    const { userId, ...paymentFields } = dto;
+    const { userId, telegramId, ...paymentFields } = dto;
     const amountValue = this.paymentsUtils.getAllowedAmounts()[0];
     const selectedPeriod = this.paymentsUtils.getAllowedPeriods()[0];
 
@@ -106,6 +106,7 @@ export class YookassaService {
       amount: request.amount.value,
       currency: 'RUB',
       userId,
+      telegramId: telegramId ?? null,
       selectedPeriod,
       description: payment.description ?? null,
       paidAt: null,
