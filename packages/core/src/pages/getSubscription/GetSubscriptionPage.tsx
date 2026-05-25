@@ -137,7 +137,7 @@ export default function GetSubscriptionPage() {
           </TextField>
         </div>
 
-        <Block className={''}>
+        <Block className={'p-4'}>
           <div className={styles.orderSummary}>
             <p className={styles.summaryTitle}>{t('getSubscription.order_summary')}</p>
 

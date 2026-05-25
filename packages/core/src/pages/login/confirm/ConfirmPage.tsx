@@ -18,7 +18,7 @@ export default function ConfirmPage() {
   return (
     <Surface className='mx-auto w-fit max-w-md pt-24' variant='transparent'>
       <Form onSubmit={(e) => void handleConfirm(e)}>
-        <Block>
+        <Block className={'p-4'}>
           <div className='flex flex-col gap-4'>
             <h1 className='text-center text-2xl font-semibold text-foreground'>
               {t('confirm.title')}

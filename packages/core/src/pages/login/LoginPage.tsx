@@ -1,9 +1,8 @@
 import { Alert, Button, Form, Input, Label, Surface, TextField } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { Block } from '../../ui';
-import { useLogin } from './useLogin';
-
 import css from './login.module.css';
+import { useLogin } from './useLogin';
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -11,7 +10,7 @@ export default function LoginPage() {
 
   return (
     <Surface className='mx-auto mt-24 max-w-sm' variant='transparent'>
-      <Block>
+      <Block className={'p-4'}>
         <h1 className={`text-center text-2xl font-semibold ${css.title}`}>{t('login.title')}</h1>
 
         <div className='mt-2 flex flex-col gap-4'>

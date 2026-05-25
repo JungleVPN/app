@@ -13,10 +13,10 @@ export function Block({
   title,
   description,
   className,
-  variant = 'default',
+  variant = 'secondary',
 }: BlockProps) {
   return (
-    <div className='flex w-full flex-col gap-2'>
+    <div className='flex w-full flex-col gap-2 rounded-[1rem]'>
       {title && (
         <h2 className='px-4 text-xs font-semibold tracking-[0.06em] text-muted uppercase'>
           {title}
