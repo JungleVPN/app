@@ -15,4 +15,14 @@ export const coreEnv = {
     const paymentsUrl = import.meta.env.VITE_PAYMENTS_URL ?? '';
     return fileId && paymentsUrl ? `${paymentsUrl}/telegram-stars/sticker/${fileId}` : '';
   })(),
+  /**
+   * Comma-separated Telegram user ids that have access to admin features.
+   * Set VITE_ADMINS=123456,789012 in the .env file.
+   */
+  admins: new Set(
+    ((import.meta.env.VITE_ADMINS ?? '') as string)
+      .split(',')
+      .map((s: string) => s.trim())
+      .filter(Boolean),
+  ),
 } as const;

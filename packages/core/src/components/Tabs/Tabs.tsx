@@ -1,15 +1,16 @@
-import { IconNetwork } from '@tabler/icons-react';
+import { IconNetwork, IconShieldSearch } from '@tabler/icons-react';
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
 import IconDevices from '../../assets/icons/device-tab-icon.svg?react';
 import IconPig from '../../assets/icons/payment-tab-icon.svg?react';
+import { coreEnv } from '../../env';
 import { useAppRoutes } from '../../runtime';
-import { useNavbarStore } from '../../stores';
+import { useAuthStoreInfo, useNavbarStore } from '../../stores';
 import css from './Tabs.module.css';
 
-type TabValue = 'subscription' | 'payments' | 'devices';
+type TabValue = 'subscription' | 'payments' | 'devices' | 'admin';
 
 interface TabDef {
   id: TabValue;
@@ -17,7 +18,7 @@ interface TabDef {
   icon: React.ReactNode;
 }
 
-const TAB_VALUES: TabValue[] = ['subscription', 'payments', 'devices'];
+const BASE_TAB_VALUES: TabValue[] = ['subscription', 'payments', 'devices'];
 
 const SPRING = { type: 'spring', stiffness: 400, damping: 35 } as const;
 const PRESS_SPRING = { type: 'spring', stiffness: 500, damping: 40 } as const;
@@ -32,27 +33,43 @@ function getActiveTab(
   subscriptionPath: string,
   paymentPath: string,
   devicesPath: string,
+  adminPath?: string,
 ): TabValue {
   const norm = normalizePath(pathname);
   if (norm === normalizePath(paymentPath)) return 'payments';
   if (norm === normalizePath(devicesPath)) return 'devices';
+  if (adminPath && norm === normalizePath(adminPath)) return 'admin';
   if (norm === normalizePath(subscriptionPath)) return 'subscription';
   // Fallback: match the last URL segment against known tab IDs.
+  const ALL_TAB_VALUES: TabValue[] = ['subscription', 'payments', 'devices', 'admin'];
   const segment = pathname.split('/').filter(Boolean).pop() as TabValue | undefined;
-  return segment && TAB_VALUES.includes(segment) ? segment : 'subscription';
+  return segment && ALL_TAB_VALUES.includes(segment) ? segment : 'subscription';
 }
 
 export const Navbar = () => {
-  const { profileSubscriptionPath, profilePaymentPath, profileDevicesPath } = useAppRoutes();
+  const { profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileAdminPath } =
+    useAppRoutes();
   const { isVisible } = useNavbarStore();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { tgUser, authUser } = useAuthStoreInfo();
+
+  const isAdmin =
+    (tgUser?.id != null && coreEnv.admins.has(String(tgUser.id))) ||
+    (authUser?.email && coreEnv.admins.has(String(authUser.email)));
+
+  const TAB_VALUES = useMemo<TabValue[]>(
+    () => (isAdmin ? [...BASE_TAB_VALUES, 'admin'] : BASE_TAB_VALUES),
+    [isAdmin],
+  );
+
   const activeTab = getActiveTab(
     pathname,
     profileSubscriptionPath,
     profilePaymentPath,
     profileDevicesPath,
+    profileAdminPath,
   );
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -98,13 +115,23 @@ export const Navbar = () => {
     return Math.max(0, end - start) / pos.width;
   });
 
+  const adminOverlap = useTransform(indicatorX, (x) => {
+    const pos = tabPositionsRef.current.admin;
+    if (!pos || pos.width === 0) return 0;
+    const w = indicatorWidth.get();
+    const start = Math.max(x, pos.left);
+    const end = Math.min(x + w, pos.left + pos.width);
+    return Math.max(0, end - start) / pos.width;
+  });
+
   const overlapValues = useMemo(
     () => ({
       subscription: subscriptionOverlap,
       payments: paymentsOverlap,
       devices: devicesOverlap,
+      admin: adminOverlap,
     }),
-    [subscriptionOverlap, paymentsOverlap, devicesOverlap],
+    [subscriptionOverlap, paymentsOverlap, devicesOverlap, adminOverlap],
   );
 
   const tabPaths = useMemo(
@@ -113,8 +140,9 @@ export const Navbar = () => {
         subscription: profileSubscriptionPath,
         payments: profilePaymentPath,
         devices: profileDevicesPath,
+        admin: profileAdminPath,
       }) satisfies Record<TabValue, string>,
-    [profileSubscriptionPath, profilePaymentPath, profileDevicesPath],
+    [profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileAdminPath],
   );
 
   const tabs = useMemo<TabDef[]>(
@@ -134,22 +162,35 @@ export const Navbar = () => {
         label: t('profileTabs.devices'),
         icon: <IconDevices className='size-7' />,
       },
+      ...(isAdmin
+        ? [
+            {
+              id: 'admin' as const,
+              label: t('profileTabs.admin', 'Admin'),
+              icon: <IconShieldSearch stroke={1.5} className='size-7' />,
+            },
+          ]
+        : []),
     ],
-    [t],
+    [t, isAdmin],
   );
 
-  const tabRefCallbacks = useRef({
-    subscription: (el: HTMLButtonElement | null) => {
+  const tabRefCallbacks = useRef<Record<TabValue, (el: HTMLButtonElement | null) => void>>({
+    subscription: (el) => {
       if (el) tabRefs.current.set('subscription', el);
       else tabRefs.current.delete('subscription');
     },
-    payments: (el: HTMLButtonElement | null) => {
+    payments: (el) => {
       if (el) tabRefs.current.set('payments', el);
       else tabRefs.current.delete('payments');
     },
-    devices: (el: HTMLButtonElement | null) => {
+    devices: (el) => {
       if (el) tabRefs.current.set('devices', el);
       else tabRefs.current.delete('devices');
+    },
+    admin: (el) => {
+      if (el) tabRefs.current.set('admin', el);
+      else tabRefs.current.delete('admin');
     },
   });
 
@@ -171,7 +212,7 @@ export const Navbar = () => {
         width: rect.width,
       };
     }
-  }, []);
+  }, [TAB_VALUES]);
 
   const animateIndicatorTo = useCallback(
     (id: TabValue, instant = false) => {
@@ -204,20 +245,23 @@ export const Navbar = () => {
     animateIndicatorTo(activeTab);
   }, [activeTab, animateIndicatorTo]);
 
-  const findNearestTab = useCallback((centerX: number): TabValue => {
-    let nearest: TabValue = TAB_VALUES[0];
-    let minDist = Number.POSITIVE_INFINITY;
-    for (const id of TAB_VALUES) {
-      const pos = tabPositionsRef.current[id];
-      if (!pos) continue;
-      const dist = Math.abs(centerX - (pos.left + pos.width / 2));
-      if (dist < minDist) {
-        minDist = dist;
-        nearest = id;
+  const findNearestTab = useCallback(
+    (centerX: number): TabValue => {
+      let nearest: TabValue = 'subscription';
+      let minDist = Number.POSITIVE_INFINITY;
+      for (const id of TAB_VALUES) {
+        const pos = tabPositionsRef.current[id];
+        if (!pos) continue;
+        const dist = Math.abs(centerX - (pos.left + pos.width / 2));
+        if (dist < minDist) {
+          minDist = dist;
+          nearest = id;
+        }
       }
-    }
-    return nearest;
-  }, []);
+      return nearest;
+    },
+    [TAB_VALUES],
+  );
 
   const handleBarPressIn = useCallback(() => {
     animate(barScale, 1.02, PRESS_SPRING);
@@ -265,16 +309,18 @@ export const Navbar = () => {
     [navigate, tabPaths, animateIndicatorTo],
   );
 
-  const clickHandlers = useRef({
+  const clickHandlers = useRef<Record<TabValue, () => void>>({
     subscription: () => handleTabClick('subscription'),
     payments: () => handleTabClick('payments'),
     devices: () => handleTabClick('devices'),
+    admin: () => handleTabClick('admin'),
   });
   useLayoutEffect(() => {
     clickHandlers.current = {
       subscription: () => handleTabClick('subscription'),
       payments: () => handleTabClick('payments'),
       devices: () => handleTabClick('devices'),
+      admin: () => handleTabClick('admin'),
     };
   }, [handleTabClick]);
 

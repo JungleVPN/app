@@ -35,6 +35,8 @@ interface ImportMetaEnv {
   readonly VITE_STARS_AMOUNT: string;
   readonly VITE_PAYMENTS_URL: string;
   readonly VITE_SUCCESS_STICKER_FILE_ID: string;
+  /** Comma-separated Telegram user ids that have admin access, e.g. "123456,789012" */
+  readonly VITE_ADMINS: string;
 }
 
 interface ImportMeta {
