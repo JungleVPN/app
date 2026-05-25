@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
 import IconDevices from '../../assets/icons/device-tab-icon.svg?react';
 import IconPig from '../../assets/icons/payment-tab-icon.svg?react';
-import { coreEnv } from '../../env';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStoreInfo, useNavbarStore } from '../../stores';
+import { isAdminUser } from '../../utils';
 import css from './Tabs.module.css';
 
 type TabValue = 'subscription' | 'payments' | 'devices' | 'admin';
@@ -55,9 +55,7 @@ export const Navbar = () => {
   const { pathname } = useLocation();
   const { tgUser, authUser } = useAuthStoreInfo();
 
-  const isAdmin =
-    (tgUser?.id != null && coreEnv.admins.has(String(tgUser.id))) ||
-    (authUser?.email && coreEnv.admins.has(String(authUser.email)));
+  const isAdmin = isAdminUser(tgUser, authUser);
 
   const TAB_VALUES = useMemo<TabValue[]>(
     () => (isAdmin ? [...BASE_TAB_VALUES, 'admin'] : BASE_TAB_VALUES),

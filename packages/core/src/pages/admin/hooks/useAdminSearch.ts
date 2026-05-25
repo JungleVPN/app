@@ -2,6 +2,7 @@ import type { AdminPaymentDto } from '@workspace/types';
 import { useCallback, useState } from 'react';
 import { usePaymentsApi } from '../../../runtime';
 import { useAuthStoreInfo } from '../../../stores';
+import { getAdminId } from '../../../utils';
 
 interface UseAdminSearchState {
   query: string;
@@ -18,7 +19,7 @@ interface UseAdminSearchActions {
 
 export function useAdminSearch(): UseAdminSearchState & UseAdminSearchActions {
   const paymentsApi = usePaymentsApi();
-  const { tgUser } = useAuthStoreInfo();
+  const { tgUser, authUser } = useAuthStoreInfo();
 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<AdminPaymentDto[]>([]);
@@ -30,9 +31,9 @@ export function useAdminSearch(): UseAdminSearchState & UseAdminSearchActions {
     const q = query.trim();
     if (!q) return;
 
-    const adminTelegramId = String(tgUser?.id ?? '');
-    if (!adminTelegramId) {
-      setError('Telegram user id not available');
+    const adminId = getAdminId(tgUser, authUser);
+    if (!adminId) {
+      setError('No user identity available');
       return;
     }
 
@@ -40,7 +41,7 @@ export function useAdminSearch(): UseAdminSearchState & UseAdminSearchActions {
     setError(null);
 
     try {
-      const data = await paymentsApi.searchPayments(q, adminTelegramId);
+      const data = await paymentsApi.searchPayments(q, adminId);
       setResults(data);
       setHasSearched(true);
     } catch (err) {
@@ -49,7 +50,7 @@ export function useAdminSearch(): UseAdminSearchState & UseAdminSearchActions {
     } finally {
       setIsLoading(false);
     }
-  }, [query, paymentsApi, tgUser?.id]);
+  }, [query, paymentsApi, tgUser, authUser]);
 
   return {
     query,

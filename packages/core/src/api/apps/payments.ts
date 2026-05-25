@@ -38,10 +38,10 @@ export function createPaymentsApi(client: ApiClient) {
      * Admin: search payments by paymentId, userId or telegramId across all providers.
      * Requires X-Admin-Telegram-Id header to be accepted by the backend.
      */
-    async searchPayments(q: string, adminTelegramId: string): Promise<AdminPaymentDto[]> {
+    async searchPayments(q: string, adminId: string): Promise<AdminPaymentDto[]> {
       return client.get<AdminPaymentDto[]>(apiRoutes.payments.adminSearchPayments, {
         params: { q },
-        headers: { 'X-Admin-Telegram-Id': adminTelegramId },
+        headers: { 'X-Admin-Id': adminId },
       });
     },
   };

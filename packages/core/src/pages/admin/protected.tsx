@@ -1,8 +1,8 @@
 import { Navigate } from 'react-router';
 import { Loading } from '../../components';
-import { coreEnv } from '../../env';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStoreInfo } from '../../stores';
+import { isAdminUser } from '../../utils';
 import AdminPaymentsPage from './AdminPaymentsPage';
 
 /**
@@ -15,11 +15,7 @@ export function ProtectedAdminPaymentsPage() {
 
   if (loading) return <Loading />;
 
-  const isAdmin =
-    (tgUser?.id != null && coreEnv.admins.has(String(tgUser.id))) ||
-    (authUser?.email && coreEnv.admins.has(String(authUser.email)));
-
-  if (!isAdmin) {
+  if (!isAdminUser(tgUser, authUser)) {
     return <Navigate to={profileSubscriptionPath} replace />;
   }
 
