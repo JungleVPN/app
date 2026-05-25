@@ -10,6 +10,7 @@ export interface AppRoutes {
   profileSubscriptionPath: string;
   profilePaymentPath: string;
   profileDevicesPath: string;
+  profileMenuPath: string;
   getSubscriptionPath: string;
 }
 

@@ -186,6 +186,20 @@ describe('YookassaService', () => {
         expect.anything(),
       );
     });
+
+    it('does NOT stamp paidAt when handleUserUpdates throws — preserves YooKassa retry path', async () => {
+      mockSmFindOneBy.mockResolvedValue(null);
+      mockHandleUserUpdates.mockRejectedValue(new Error('remnawave timeout'));
+
+      await expect(service.handleWebhook(makeSucceededPayload(), '127.0.0.1')).rejects.toThrow(
+        'remnawave timeout',
+      );
+
+      // DB must NOT be updated — paidAt remaining null lets YooKassa's retry re-enter
+      // instead of being locked out by the idempotency check forever.
+      expect(mockYkUpdate).not.toHaveBeenCalled();
+      expect(mockEmit).not.toHaveBeenCalled();
+    });
   });
 
   // ─────────────────────────────────────────────────────────
@@ -298,6 +312,87 @@ describe('YookassaService', () => {
           event: 'bogus',
         } as any),
       ).toBe(false);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────
+  // findValidPendingSession (exercised via createPaymentSession)
+  // ─────────────────────────────────────────────────────────
+  describe('findValidPendingSession', () => {
+    let mockYkFindOne: any;
+    let mockYkCreate: any;
+    let mockYkSave: any;
+    let mockProviderCreate: any;
+
+    const FRESH_CREATED_AT = new Date(Date.now() - 30 * 60 * 1_000); // 30 min ago
+    const EXPIRED_CREATED_AT = new Date(Date.now() - 61 * 60 * 1_000); // 61 min ago
+
+    const PENDING_FRESH: Partial<YookassaPayment> = {
+      id: 'pay_existing',
+      url: 'https://yookassa.ru/pay/existing',
+      status: 'pending',
+      createdAt: FRESH_CREATED_AT,
+    };
+
+    const NEW_PROVIDER_PAYMENT = {
+      id: 'pay_new',
+      status: 'pending',
+      description: null,
+      confirmation: { type: 'redirect', confirmation_url: 'https://yookassa.ru/pay/new' },
+    };
+
+    beforeEach(() => {
+      mockYkFindOne = vi.fn();
+      mockYkCreate = vi.fn((data: any) => data);
+      mockYkSave = vi.fn(async (v: any) => v);
+      mockProviderCreate = vi.fn().mockResolvedValue(NEW_PROVIDER_PAYMENT);
+
+      // Extend the repo mock that service already holds a reference to.
+      (yookassaPaymentRepo as any).findOne = mockYkFindOne;
+      (yookassaPaymentRepo as any).create = mockYkCreate;
+      (yookassaPaymentRepo as any).save = mockYkSave;
+      (yooKassaProvider as any).create = mockProviderCreate;
+
+      (service as any).paymentsUtils = {
+        getAllowedAmounts: () => ['299.00'],
+        getAllowedPeriods: () => [1],
+      };
+    });
+
+    it('returns existing session and skips API call when pending URL is within 1 hour', async () => {
+      mockYkFindOne.mockResolvedValue(PENDING_FRESH);
+
+      const result = await service.createPaymentSession({ userId: 'user-1' } as any);
+
+      expect(mockProviderCreate).not.toHaveBeenCalled();
+      expect(result).toEqual({ id: 'pay_existing', url: 'https://yookassa.ru/pay/existing' });
+    });
+
+    it('creates a new payment when pending session is older than 1 hour', async () => {
+      mockYkFindOne.mockResolvedValue({ ...PENDING_FRESH, createdAt: EXPIRED_CREATED_AT });
+
+      const result = await service.createPaymentSession({ userId: 'user-1' } as any);
+
+      expect(mockProviderCreate).toHaveBeenCalledOnce();
+      expect(result).toEqual({ id: 'pay_new', url: 'https://yookassa.ru/pay/new' });
+    });
+
+    it('creates a new payment when pending session has no URL', async () => {
+      mockYkFindOne.mockResolvedValue({ ...PENDING_FRESH, url: null });
+
+      const result = await service.createPaymentSession({ userId: 'user-1' } as any);
+
+      expect(mockProviderCreate).toHaveBeenCalledOnce();
+      expect(result).toEqual({ id: 'pay_new', url: 'https://yookassa.ru/pay/new' });
+    });
+
+    it('creates a new payment when no pending session exists', async () => {
+      mockYkFindOne.mockResolvedValue(null);
+
+      const result = await service.createPaymentSession({ userId: 'user-1' } as any);
+
+      expect(mockProviderCreate).toHaveBeenCalledOnce();
+      expect(result).toEqual({ id: 'pay_new', url: 'https://yookassa.ru/pay/new' });
     });
   });
 

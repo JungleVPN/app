@@ -43,7 +43,8 @@
     "ariaLabel": "Profile sections",
     "subscription": "Subscription",
     "payment": "Payment",
-    "devices": "Devices"
+    "devices": "Devices",
+    "menu": "Menu"
   },
   "devices": {
     "pageTitle": "Devices",
@@ -225,5 +226,10 @@
       "h": "10. Contact information",
       "i1": "For all questions, the User may contact support via the form in the bot."
     }
+  },
+  "menu": {
+    "pageTitle": "Menu",
+    "transactionHistory": "Transaction History",
+    "pageDescription": "Manage your account settings"
   }
 }

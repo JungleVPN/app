@@ -28,7 +28,7 @@ export function Header() {
 
   const getLink = () => {
     if (authUser || platformType === 'telegram') {
-      return '/profile/subscription';
+      return '/profile/menu';
     }
 
     return '/';

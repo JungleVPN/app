@@ -10,6 +10,23 @@ async function bootstrap() {
 
   app.setGlobalPrefix('bot');
 
+  app.getHttpAdapter().getInstance().set('trust proxy', true);
+
+  const corsOriginEnv = process.env.CORS_ORIGIN;
+  if (!corsOriginEnv) {
+    throw new Error('CORS_ORIGIN environment variable must be set to an explicit origin URL');
+  }
+
+  const origin = corsOriginEnv
+    .split(',')
+    .map((s) => s.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
+
+  app.enableCors({
+    origin: process.env.NODE_ENV !== 'production' ? '*' : origin,
+    credentials: true,
+  });
+
   const port = Number(process.env.BOT_PORT) || 7000;
 
   await app.listen(port, '0.0.0.0');

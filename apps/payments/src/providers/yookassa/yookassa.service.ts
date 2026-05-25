@@ -70,6 +70,13 @@ export class YookassaService {
 
   async createPaymentSession(dto: CreateYookassaSessionDto): Promise<PaymentSession> {
     const { userId, ...paymentFields } = dto;
+
+    const existingSession = await this.findValidPendingSession(userId);
+    if (existingSession) {
+      this.logger.log(`Reusing existing YooKassa session ${existingSession.id} for user ${userId}`);
+      return { id: existingSession.id, url: existingSession.url! };
+    }
+
     const amountValue = this.paymentsUtils.getAllowedAmounts()[0];
     const selectedPeriod = this.paymentsUtils.getAllowedPeriods()[0];
 
@@ -156,15 +163,18 @@ export class YookassaService {
       return;
     }
 
+    // Extend subscription BEFORE writing the idempotency stamp.
+    // If this throws, paidAt remains null so YooKassa's next retry will re-enter
+    // and try again once remnawave recovers — rather than being locked out forever.
+    const result = await this.paymentStatusService.handleUserUpdates({
+      selectedPeriod: record.selectedPeriod,
+      userId: record.userId,
+    });
+
     await this.yookassaPaymentRepo.update(id, {
       status,
       paidAt: captured_at ? new Date(captured_at) : new Date(),
       url: null,
-    });
-
-    const result = await this.paymentStatusService.handleUserUpdates({
-      selectedPeriod: record.selectedPeriod,
-      userId: record.userId,
     });
 
     if (result.success) {
@@ -350,6 +360,20 @@ export class YookassaService {
   }
 
   // ── Private helpers ─────────────────────────────────────────────────────
+
+  private async findValidPendingSession(userId: string): Promise<YookassaPayment | null> {
+    const CONFIRMATION_URL_TTL_MS = 60 * 60 * 1_000;
+
+    const pending = await this.yookassaPaymentRepo.findOne({
+      where: { userId, status: 'pending' },
+      order: { createdAt: 'DESC' },
+    });
+
+    if (!pending?.url) return null;
+
+    const ageMs = Date.now() - pending.createdAt.getTime();
+    return ageMs < CONFIRMATION_URL_TTL_MS ? pending : null;
+  }
 
   private extractConfirmationUrl(payment: Payments.IPayment): string | undefined {
     const { confirmation } = payment;

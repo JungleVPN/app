@@ -2,6 +2,7 @@ import { BotModule } from '@bot/bot.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { TelegramModule } from './telegram/telegram.module';
 import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
@@ -14,6 +15,7 @@ import { WebhookModule } from './webhook/webhook.module';
     EventEmitterModule.forRoot(),
     BotModule,
     WebhookModule,
+    TelegramModule,
   ],
 })
 export class AppModule {}

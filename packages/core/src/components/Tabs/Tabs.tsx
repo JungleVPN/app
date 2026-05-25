@@ -1,4 +1,4 @@
-import { IconNetwork } from '@tabler/icons-react';
+import { IconCategory2, IconNetwork } from '@tabler/icons-react';
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,7 @@ import { useAppRoutes } from '../../runtime';
 import { useNavbarStore } from '../../stores';
 import css from './Tabs.module.css';
 
-type TabValue = 'subscription' | 'payments' | 'devices';
+type TabValue = 'subscription' | 'payments' | 'devices' | 'menu';
 
 interface TabDef {
   id: TabValue;
@@ -17,7 +17,7 @@ interface TabDef {
   icon: React.ReactNode;
 }
 
-const TAB_VALUES: TabValue[] = ['subscription', 'payments', 'devices'];
+const TAB_VALUES: TabValue[] = ['subscription', 'payments', 'devices', 'menu'];
 
 const SPRING = { type: 'spring', stiffness: 400, damping: 35 } as const;
 const PRESS_SPRING = { type: 'spring', stiffness: 500, damping: 40 } as const;
@@ -32,10 +32,12 @@ function getActiveTab(
   subscriptionPath: string,
   paymentPath: string,
   devicesPath: string,
+  menuPath: string,
 ): TabValue {
   const norm = normalizePath(pathname);
   if (norm === normalizePath(paymentPath)) return 'payments';
   if (norm === normalizePath(devicesPath)) return 'devices';
+  if (norm === normalizePath(menuPath)) return 'menu';
   if (norm === normalizePath(subscriptionPath)) return 'subscription';
   // Fallback: match the last URL segment against known tab IDs.
   const segment = pathname.split('/').filter(Boolean).pop() as TabValue | undefined;
@@ -43,7 +45,8 @@ function getActiveTab(
 }
 
 export const Navbar = () => {
-  const { profileSubscriptionPath, profilePaymentPath, profileDevicesPath } = useAppRoutes();
+  const { profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileMenuPath } =
+    useAppRoutes();
   const { isVisible } = useNavbarStore();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -53,6 +56,7 @@ export const Navbar = () => {
     profileSubscriptionPath,
     profilePaymentPath,
     profileDevicesPath,
+    profileMenuPath,
   );
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -98,13 +102,23 @@ export const Navbar = () => {
     return Math.max(0, end - start) / pos.width;
   });
 
+  const menuOverlap = useTransform(indicatorX, (x) => {
+    const pos = tabPositionsRef.current.menu;
+    if (!pos || pos.width === 0) return 0;
+    const w = indicatorWidth.get();
+    const start = Math.max(x, pos.left);
+    const end = Math.min(x + w, pos.left + pos.width);
+    return Math.max(0, end - start) / pos.width;
+  });
+
   const overlapValues = useMemo(
     () => ({
       subscription: subscriptionOverlap,
       payments: paymentsOverlap,
       devices: devicesOverlap,
+      menu: menuOverlap,
     }),
-    [subscriptionOverlap, paymentsOverlap, devicesOverlap],
+    [subscriptionOverlap, paymentsOverlap, devicesOverlap, menuOverlap],
   );
 
   const tabPaths = useMemo(
@@ -113,8 +127,9 @@ export const Navbar = () => {
         subscription: profileSubscriptionPath,
         payments: profilePaymentPath,
         devices: profileDevicesPath,
+        menu: profileMenuPath,
       }) satisfies Record<TabValue, string>,
-    [profileSubscriptionPath, profilePaymentPath, profileDevicesPath],
+    [profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileMenuPath],
   );
 
   const tabs = useMemo<TabDef[]>(
@@ -134,6 +149,11 @@ export const Navbar = () => {
         label: t('profileTabs.devices'),
         icon: <IconDevices className='size-7' />,
       },
+      {
+        id: 'menu',
+        label: t('profileTabs.menu'),
+        icon: <IconCategory2 stroke={1.5} className='size-7' />,
+      },
     ],
     [t],
   );
@@ -150,6 +170,10 @@ export const Navbar = () => {
     devices: (el: HTMLButtonElement | null) => {
       if (el) tabRefs.current.set('devices', el);
       else tabRefs.current.delete('devices');
+    },
+    menu: (el: HTMLButtonElement | null) => {
+      if (el) tabRefs.current.set('menu', el);
+      else tabRefs.current.delete('menu');
     },
   });
 
@@ -269,12 +293,14 @@ export const Navbar = () => {
     subscription: () => handleTabClick('subscription'),
     payments: () => handleTabClick('payments'),
     devices: () => handleTabClick('devices'),
+    menu: () => handleTabClick('menu'),
   });
   useLayoutEffect(() => {
     clickHandlers.current = {
       subscription: () => handleTabClick('subscription'),
       payments: () => handleTabClick('payments'),
       devices: () => handleTabClick('devices'),
+      menu: () => handleTabClick('menu'),
     };
   }, [handleTabClick]);
 
