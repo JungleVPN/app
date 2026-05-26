@@ -3,6 +3,7 @@ import {
   ConfirmPage,
   GetSubscriptionPage,
   LoginPage,
+  ProtectedAdminPaymentDetailsPage,
   ProtectedAdminPaymentsPage,
   ProtectedDevicesPage,
   ProtectedPaymentPage,
@@ -49,6 +50,10 @@ export const router = createBrowserRouter([
           {
             path: 'admin',
             Component: ProtectedAdminPaymentsPage,
+          },
+          {
+            path: 'admin/:paymentId',
+            Component: ProtectedAdminPaymentDetailsPage,
           },
         ],
       },

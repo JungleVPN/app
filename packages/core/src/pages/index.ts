@@ -1,3 +1,4 @@
+export { ProtectedAdminPaymentDetailsPage } from './admin/protected-details';
 export { ProtectedAdminPaymentsPage } from './admin/protected';
 export { default as GetSubscriptionPage } from './getSubscription/GetSubscriptionPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';

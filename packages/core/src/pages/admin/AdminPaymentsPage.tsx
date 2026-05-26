@@ -1,5 +1,7 @@
 import { Button, Input } from '@heroui/react';
 import { IconSearch } from '@tabler/icons-react';
+import type { AdminPaymentDto } from '@workspace/types';
+import { useNavigate } from 'react-router';
 import { Page } from '../../ui';
 import { AdminPaymentsList } from './components/AdminPaymentsList';
 import { useAdminSearch } from './hooks/useAdminSearch';
@@ -7,9 +9,14 @@ import { useAdminSearch } from './hooks/useAdminSearch';
 export default function AdminPaymentsPage() {
   const { query, results, isLoading, error, hasSearched, setQuery, handleSearch } =
     useAdminSearch();
+  const navigate = useNavigate();
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') void handleSearch();
+  }
+
+  function handleSelect(payment: AdminPaymentDto) {
+    void navigate(payment.paymentId);
   }
 
   return (
@@ -42,7 +49,12 @@ export default function AdminPaymentsPage() {
       {error && <p className='mt-3 text-center text-sm text-red-400'>{error}</p>}
 
       <div className='mt-4 w-full'>
-        <AdminPaymentsList results={results} isLoading={isLoading} hasSearched={hasSearched} />
+        <AdminPaymentsList
+          results={results}
+          isLoading={isLoading}
+          hasSearched={hasSearched}
+          onSelect={handleSelect}
+        />
       </div>
     </Page>
   );
