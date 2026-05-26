@@ -327,7 +327,7 @@ export const Navbar = () => {
       className={css.root}
       style={{ scale: barScale }}
       initial={false}
-      animate={{ y: isVisible ? 0 : 'calc(100% + 16px)' }}
+      animate={{ y: isVisible ? 0 : 'calc(100% + 24px)' }}
       transition={{ type: 'spring', stiffness: 400, damping: 35 }}
       onPointerDown={handleBarPressIn}
       onPointerUp={handleBarPressOut}
