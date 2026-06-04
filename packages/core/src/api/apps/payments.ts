@@ -12,8 +12,8 @@ import type { ApiClient } from '../client';
 export function createPaymentsApi(client: ApiClient) {
   return {
     async createYookassaSession(
-      dto: Omit<CreateYookassaSessionDto, 'amount' | 'selectedPeriod'>,
-    ): Promise<PaymentSession> {
+      dto: Omit<CreateYookassaSessionDto, 'amount'>,
+    ): Promise<PaymentSession> {  // selectedPeriod is derived server-side — callers don't set it
       return client.post<PaymentSession>(apiRoutes.payments.yookassaCreateSession, dto);
     },
 

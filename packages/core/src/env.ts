@@ -15,6 +15,8 @@ export const coreEnv = {
     const paymentsUrl = import.meta.env.VITE_PAYMENTS_URL ?? '';
     return fileId && paymentsUrl ? `${paymentsUrl}/telegram-stars/sticker/${fileId}` : '';
   })(),
+  /** Display price for one extra device slot, e.g. "199 ₽". */
+  extraDevicePrice: (import.meta.env.VITE_EXTRA_DEVICE_PRICE ?? '') as string,
   /**
    * Comma-separated Telegram user ids that have access to admin features.
    * Set VITE_ADMINS=123456,789012 in the .env file.

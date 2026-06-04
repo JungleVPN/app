@@ -1,3 +1,7 @@
+import type { PaymentPurpose } from '../yookassa/session';
+
+export type { PaymentPurpose };
+
 /** Request body for POST /telegram-stars/create-invoice (TMA → payments service) */
 export interface CreateTelegramStarsInvoiceDto {
   userId: string;
@@ -8,6 +12,8 @@ export interface CreateTelegramStarsInvoiceDto {
   title: string;
   /** Human-readable description shown in the Telegram invoice */
   description: string;
+  /** What this payment is for. Defaults to 'subscription'. */
+  purpose?: PaymentPurpose;
 }
 
 /** Response from POST /telegram-stars/create-invoice */

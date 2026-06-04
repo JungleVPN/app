@@ -1,5 +1,6 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
+import type { PaymentPurpose } from '@workspace/types';
 import axios from 'axios';
 
 /**
@@ -21,18 +22,22 @@ export class PaymentStatusService {
   }
 
   /**
-   * Called after a successful payment (Stripe or Yookassa).
-   * Extends the user's subscription via the dedicated remnawave expiry endpoint,
-   * then triggers a referral reward if the user came from a referral.
+   * Called after a successful payment (Stripe, Yookassa, or Stars).
+   * Dispatches to subscription extension or extra-device bump based on purpose.
    */
   async handleUserUpdates({
     selectedPeriod,
     userId,
+    purpose = 'subscription',
   }: {
     selectedPeriod: number;
     userId: string;
+    purpose?: PaymentPurpose;
   }): Promise<{ success: boolean }> {
-    const user = await this.extendUserExpiry(userId, selectedPeriod);
+    const user =
+      purpose === 'extra_device'
+        ? await this.addExtraDevice(userId)
+        : await this.extendUserExpiry(userId, selectedPeriod);
 
     if (!user) {
       this.logger.warn(`User not found: userId=${userId}`);
@@ -43,9 +48,33 @@ export class PaymentStatusService {
       await this.triggerReferralReward(user.telegramId);
     }
 
-    this.logger.log(`Payment processed for user ${userId}: +${selectedPeriod} month(s)`);
+    this.logger.log(
+      purpose === 'extra_device'
+        ? `Payment processed for user ${userId}: +1 device slot`
+        : `Payment processed for user ${userId}: +${selectedPeriod} month(s)`,
+    );
 
     return { success: true };
+  }
+
+  private async addExtraDevice(
+    uuid: string,
+  ): Promise<{ telegramId: number | null } | null> {
+    try {
+      const { data } = await axios.patch<{ telegramId: number | null }>(
+        `${this.remnawareBaseUrl}/users/${uuid}/extra-device`,
+        {},
+        {
+          headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
+          timeout: 10_000,
+        },
+      );
+      return data;
+    } catch (err: any) {
+      if (err.response?.status === 404) return null;
+      this.logger.error(`addExtraDevice failed for ${uuid}: ${err.message}`);
+      throw err;
+    }
   }
 
   // Retry up to 3 times with a 2-second gap between attempts.

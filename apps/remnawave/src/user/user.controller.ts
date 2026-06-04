@@ -64,6 +64,11 @@ export class UserController {
     return this.userService.getUserByUuid(uuid);
   }
 
+  @Patch(':uuid/extra-device')
+  async addExtraDevice(@Param('uuid') uuid: string): Promise<UpdateUserResponseDto> {
+    return this.userService.addExtraDevice(uuid);
+  }
+
   @Patch(':uuid/expiry')
   async updateExpiry(
     @Param('uuid') uuid: string,

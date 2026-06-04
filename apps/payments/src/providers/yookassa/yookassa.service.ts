@@ -69,8 +69,11 @@ export class YookassaService {
   // ── Session creation ────────────────────────────────────────────────────
 
   async createPaymentSession(dto: CreateYookassaSessionDto): Promise<PaymentSession> {
-    const { userId, telegramId, ...paymentFields } = dto;
-    const amountValue = this.paymentsUtils.getAllowedAmounts()[0];
+    const { userId, telegramId, purpose = 'subscription', ...paymentFields } = dto;
+    const amountValue =
+      purpose === 'extra_device'
+        ? this.paymentsUtils.getExtraDevicePrice()
+        : this.paymentsUtils.getAllowedAmounts()[0];
     const selectedPeriod = this.paymentsUtils.getAllowedPeriods()[0];
 
     const request: Payments.CreatePaymentRequest = {
@@ -109,6 +112,7 @@ export class YookassaService {
       telegramId: telegramId ?? null,
       selectedPeriod,
       description: payment.description ?? null,
+      purpose,
       paidAt: null,
     });
     await this.yookassaPaymentRepo.save(record);
@@ -166,6 +170,7 @@ export class YookassaService {
     const result = await this.paymentStatusService.handleUserUpdates({
       selectedPeriod: record.selectedPeriod,
       userId: record.userId,
+      purpose: record.purpose,
     });
 
     if (result.success) {
@@ -173,6 +178,7 @@ export class YookassaService {
         userId: record.userId,
         provider: 'yookassa',
         selectedPeriod: record.selectedPeriod,
+        purpose: record.purpose,
       } satisfies Payments.PaymentSucceededEventPayload);
 
       if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {

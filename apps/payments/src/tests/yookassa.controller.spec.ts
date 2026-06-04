@@ -89,7 +89,6 @@ describe('YookassaController', () => {
     it('delegates to the service', async () => {
       const dto: CreateYookassaSessionDto = {
         userId: 'user-1',
-        selectedPeriod: 1,
         amount: { value: '100.00', currency: 'RUB' },
         description: 'test',
         save_payment_method: true,

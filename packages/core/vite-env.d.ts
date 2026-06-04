@@ -37,6 +37,8 @@ interface ImportMetaEnv {
   readonly VITE_SUCCESS_STICKER_FILE_ID: string;
   /** Comma-separated Telegram user ids that have admin access, e.g. "123456,789012" */
   readonly VITE_ADMINS: string;
+  /** Display price for one extra device slot, e.g. "199 ₽". */
+  readonly VITE_EXTRA_DEVICE_PRICE: string;
 }
 
 interface ImportMeta {

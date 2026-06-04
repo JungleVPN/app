@@ -99,6 +99,7 @@ function makeSavedMethodRepo(
   } as unknown as Repository<SavedPaymentMethod>;
 }
 
+
 describe('Security Audit', () => {
   describe('[FINDING #1] validateWebhookPayload must abort processing on any validation failure', () => {
     let service: YookassaService;

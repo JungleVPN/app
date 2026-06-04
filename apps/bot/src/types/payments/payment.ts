@@ -90,6 +90,7 @@ export namespace Payments {
     provider: 'stripe' | 'yookassa';
     invoiceUrl?: string;
     selectedPeriod?: number;
+    purpose?: 'subscription' | 'extra_device';
     metadata?: {
       expireAt?: string;
       selectedPeriod?: number;

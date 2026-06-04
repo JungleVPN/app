@@ -1,3 +1,4 @@
+import type { PaymentPurpose } from '@workspace/types';
 import { Payments } from '@workspace/types';
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 import { bigintTransformer } from '../utils/transformers';
@@ -30,6 +31,10 @@ export class YookassaPayment {
 
   @Column({ type: 'bigint', nullable: true, transformer: bigintTransformer })
   telegramId: number | null;
+
+  /** What this payment is for. Autopayment rows default to 'subscription'. */
+  @Column({ type: 'varchar', default: 'subscription' })
+  purpose: PaymentPurpose;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import deviceAnimation from '../../../assets/lottie/devicesPageIcon.lottie?url';
 import { LottieIcon, Page } from '../../../ui';
 import { DevicesList } from './components/DevicesList';
+import { ExtraDeviceBlock } from './components/ExtraDeviceBlock';
 import { useDevices } from './hooks/useDevices';
 
 export default function DevicesPage() {
@@ -10,6 +11,7 @@ export default function DevicesPage() {
     devices,
     isFetching,
     isDeleting,
+    isAtLimit,
     confirmIsOpen,
     confirmSetOpen,
     handleDeleteRequest,
@@ -22,6 +24,7 @@ export default function DevicesPage() {
       title={t('devices.pageTitle')}
       subtitle={t('devices.pageSubtitle')}
     >
+      {isAtLimit && <ExtraDeviceBlock />}
       <DevicesList
         devices={devices}
         isFetching={isFetching}

@@ -6,6 +6,9 @@ export interface PaymentSession {
   url: string;
 }
 
+/** Determines what action is taken after a successful payment. */
+export type PaymentPurpose = 'subscription' | 'extra_device';
+
 /**
  * Body for POST /payments/yookassa/create-session.
  * Extends the native YooKassa request with our own fields stored server-side;
@@ -14,7 +17,8 @@ export interface PaymentSession {
 export interface CreateYookassaSessionDto
   extends Omit<Payments.CreatePaymentRequest, 'metadata' | 'capture'> {
   userId: string;
-  selectedPeriod: number;
   /** Telegram user id of the payer — stored on the DB record for admin lookups. */
   telegramId?: number | null;
+  /** What this payment is for. Defaults to 'subscription'. */
+  purpose?: PaymentPurpose;
 }

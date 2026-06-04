@@ -150,6 +150,16 @@ export class UserService implements OnModuleInit {
     }
   }
 
+  async addExtraDevice(uuid: string): Promise<UpdateUserResponseDto> {
+    const user = await this.getUserByUuid(uuid);
+    if (!user) throw new NotFoundException(`User ${uuid} not found`);
+
+    const current = user.hwidDeviceLimit ?? Number(process.env.HWID_LIMIT) ?? 5;
+    await this.updateUser({ uuid, hwidDeviceLimit: current + 1 });
+
+    return user;
+  }
+
   async updateExpiry(uuid: string, months: number): Promise<UpdateUserResponseDto> {
     const user = await this.getUserByUuid(uuid);
     if (!user) throw new NotFoundException(`User ${uuid} not found`);

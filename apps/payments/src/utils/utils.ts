@@ -28,4 +28,13 @@ export class PaymentsUtils {
       .map((p) => Number(p.trim()))
       .filter((p) => p > 0);
   }
+
+  getExtraDevicePrice(): string {
+    return this.configService.get<string>('EXTRA_DEVICE_PRICE', this.getAllowedAmounts()[0] ?? '0');
+  }
+
+  getExtraDeviceStarsAmount(): number {
+    const val = Number(this.configService.get<string>('EXTRA_DEVICE_STARS_AMOUNT', '0'));
+    return val > 0 ? val : (this.getAllowedStarsAmounts()[0] ?? 0);
+  }
 }

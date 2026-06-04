@@ -57,6 +57,11 @@
       "body": "This session will be deleted and you will need to import your link once more.",
       "cancel": "Cancel",
       "confirm": "Remove"
+    },
+    "extraDevice": {
+      "heading": "Device limit reached",
+      "description": "You've used all your device slots. Purchase an extra slot to connect one more device.",
+      "payButton": "{{price}}"
     }
   },
   "payment": {
