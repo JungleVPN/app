@@ -1,6 +1,7 @@
 import { IconNetwork, IconShieldSearch } from '@tabler/icons-react';
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
 import IconDevices from '../../assets/icons/device-tab-icon.svg?react';
@@ -322,7 +323,7 @@ export const Navbar = () => {
     };
   }, [handleTabClick]);
 
-  return (
+  return createPortal(
     <motion.div
       className={css.root}
       style={{ scale: barScale }}
@@ -369,6 +370,7 @@ export const Navbar = () => {
           );
         })}
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 };

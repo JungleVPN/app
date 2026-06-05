@@ -28,7 +28,13 @@ interface PaymentMethodSelectorProps {
 }
 
 export function PaymentMethodSelector(props: PaymentMethodSelectorProps) {
-  const { selectedMethod, starsEnabled, onSelectionChange, onTermsOpen, isReccurring } = props;
+  const {
+    selectedMethod,
+    starsEnabled,
+    onSelectionChange,
+    onTermsOpen,
+    isReccurring = true,
+  } = props;
   const { t } = useTranslation();
 
   const methods: MethodDef[] = [
