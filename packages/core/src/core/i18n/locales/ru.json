@@ -70,7 +70,12 @@
     "emptyMethods": "Пока нет сохранённых способов оплаты.",
     "payButton": "Оплатить {{amount}} ₽",
     "pricePerMonth": "{{amount}} ₽ / месяц",
+    "starsPerMonth": "{{amount}} ⭐ / месяц",
     "extendButton": "Продлить",
+    "selectMethodHeading": "Способ оплаты",
+    "methodCard": "Карты и СБП",
+    "methodStars": "Telegram Stars",
+    "autoRenewalHint": "Означает, что способ оплаты сохраняется для автопродления",
     "deleteMethod": {
       "title": "Удалить способ оплаты?",
       "body": "Карта будет удалена и автопродление отключится. Новая карта будет добавлена при следующей оплате.",
