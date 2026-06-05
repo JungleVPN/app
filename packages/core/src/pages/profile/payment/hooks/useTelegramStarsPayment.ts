@@ -65,5 +65,5 @@ export function useTelegramStarsPayment() {
     }
   };
 
-  return { starsEnabled, starsError, isStarsPaying, successState, handleStarsPayment };
+  return { starsEnabled, starsAmount, starsError, isStarsPaying, successState, handleStarsPayment };
 }
