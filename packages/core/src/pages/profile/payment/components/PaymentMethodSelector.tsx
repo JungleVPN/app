@@ -22,12 +22,14 @@ interface PaymentMethodSelectorProps {
   selectedMethod: PaymentMethod;
   starsEnabled: boolean;
   onSelectionChange: (keys: Selection) => void;
+  onTermsOpen: () => void;
 }
 
 export function PaymentMethodSelector({
   selectedMethod,
   starsEnabled,
   onSelectionChange,
+  onTermsOpen,
 }: PaymentMethodSelectorProps) {
   const { t } = useTranslation();
 
@@ -62,9 +64,21 @@ export function PaymentMethodSelector({
     <Block
       title={t('payment.selectMethodHeading')}
       description={
-        <span className='flex items-center gap-1.5'>
-          <IconRotate size={16} />- {t('payment.autoRenewalHint')}
-        </span>
+        <>
+          <span className='flex items-center gap-1.5'>
+            <IconRotate size={16} />- {t('payment.autoRenewalHint')}
+          </span>
+          <p className='mt-3 text-start text-xs text-muted'>
+            {t('terms.paymentConsentLead')}
+            <button
+              className='cursor-pointer underline underline-offset-2'
+              type='button'
+              onClick={onTermsOpen}
+            >
+              {t('terms.paymentLinkLabel')}
+            </button>
+          </p>
+        </>
       }
     >
       <ListBox

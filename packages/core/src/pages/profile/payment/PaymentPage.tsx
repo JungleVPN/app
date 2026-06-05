@@ -70,24 +70,23 @@ export default function PaymentPage() {
           onTermsOpen={termsState.open}
         />
       ) : (
-        <>
+        <PaymentForm
+          selectedMethod={selectedMethod}
+          needsEmailInput={needsEmailInput}
+          allowedAmounts={allowedAmounts}
+          starsAmount={starsAmount}
+          isPending={isPending}
+          starsError={starsError}
+          onExtend={handleExtend}
+          onStarsPayment={handleStarsPayment}
+        >
           <PaymentMethodSelector
             selectedMethod={selectedMethod}
             starsEnabled={starsEnabled}
             onSelectionChange={handleSelectionChange}
-          />
-          <PaymentForm
-            selectedMethod={selectedMethod}
-            needsEmailInput={needsEmailInput}
-            allowedAmounts={allowedAmounts}
-            starsAmount={starsAmount}
-            isPending={isPending}
-            starsError={starsError}
-            onExtend={handleExtend}
-            onStarsPayment={handleStarsPayment}
             onTermsOpen={termsState.open}
           />
-        </>
+        </PaymentForm>
       )}
 
       <StarsPaymentSuccessDrawer

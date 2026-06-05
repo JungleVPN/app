@@ -1,7 +1,8 @@
-import { Button, Description, FieldError, Form, Input, Label, TextField } from '@heroui/react';
+import { Button, Description, FieldError, Form, Input, TextField } from '@heroui/react';
 import { IconArrowRight, IconMail } from '@tabler/icons-react';
-import { SyntheticEvent, useState } from 'react';
+import { ReactNode, SyntheticEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Block } from '../../../../ui';
 import { validateEmail } from '../../../../utils';
 import type { PaymentMethod } from './PaymentMethodSelector';
 
@@ -12,9 +13,9 @@ interface PaymentFormProps {
   starsAmount: number;
   isPending: boolean;
   starsError: string | null;
+  children?: ReactNode;
   onExtend: (email?: string) => Promise<void>;
   onStarsPayment: () => Promise<void>;
-  onTermsOpen: () => void;
 }
 
 export function PaymentForm({
@@ -24,9 +25,9 @@ export function PaymentForm({
   starsAmount,
   isPending,
   starsError,
+  children,
   onExtend,
   onStarsPayment,
-  onTermsOpen,
 }: PaymentFormProps) {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
@@ -57,39 +58,43 @@ export function PaymentForm({
   };
 
   return (
-    <Form className='mt-6 flex w-full flex-col gap-1' onSubmit={handleSubmit}>
+    <Form className='flex w-full flex-col gap-7' onSubmit={handleSubmit}>
       {showEmailInput && (
-        <TextField
-          className='w-full'
-          isInvalid={emailError.length > 0}
-          isRequired
-          name='email'
-          type='email'
-        >
-          <Label>{t('login.email_label')}</Label>
-          <div className='relative w-full'>
-            <span className='pointer-events-none absolute left-4 top-1/2 z-10 flex -translate-y-1/2 items-center text-muted'>
-              <IconMail size={20} stroke={1.5} />
-            </span>
-            <Input
-              autoComplete='email'
-              className='w-full pl-11'
-              placeholder={t('getSubscription.email_placeholder')}
-              value={email}
-              variant='secondary'
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (emailError) setEmailError('');
-              }}
-            />
-          </div>
-          {emailError.length > 0 ? (
-            <FieldError>{emailError}</FieldError>
-          ) : (
-            <Description>{t('getSubscription.email_description')}</Description>
-          )}
-        </TextField>
+        <Block className={'p-4'}>
+          <TextField
+            className='w-full'
+            variant='secondary'
+            isInvalid={emailError.length > 0}
+            isRequired
+            name='email'
+            type='email'
+          >
+            <div className='relative w-full'>
+              <span className='pointer-events-none absolute left-4 top-1/2 z-10 flex -translate-y-1/2 items-center text-muted'>
+                <IconMail size={20} stroke={1.5} />
+              </span>
+              <Input
+                autoComplete='email'
+                className='w-full pl-11'
+                placeholder={t('getSubscription.email_placeholder')}
+                value={email}
+                variant='secondary'
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (emailError) setEmailError('');
+                }}
+              />
+            </div>
+            {emailError.length > 0 ? (
+              <FieldError>{emailError}</FieldError>
+            ) : (
+              <Description>{t('getSubscription.email_description')}</Description>
+            )}
+          </TextField>
+        </Block>
       )}
+
+      {children}
 
       <Button fullWidth isPending={isPending} size='lg' type='submit'>
         {selectedMethod === 'stars'
@@ -97,18 +102,6 @@ export function PaymentForm({
           : t('payment.pricePerMonth', { amount: allowedAmounts })}
         <IconArrowRight size={20} stroke={2} />
       </Button>
-
-      <p className='mt-1 px-4 text-start text-xs text-muted'>
-        {t('terms.paymentConsentLead')}
-        <button
-          className='cursor-pointer underline underline-offset-2'
-          type='button'
-          onClick={onTermsOpen}
-        >
-          {t('terms.paymentLinkLabel')}
-        </button>
-      </p>
-
       {starsError && <p className='px-4 text-xs text-danger'>{starsError}</p>}
     </Form>
   );
