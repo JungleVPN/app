@@ -11,11 +11,9 @@ export const coreEnv = {
   supportUrl: (import.meta.env.VITE_SUPPORT_URL ?? '') as string,
   starsAmount: Number(import.meta.env.VITE_STARS_AMOUNT ?? 0),
   extraDeviceStarsAmount: Number(import.meta.env.VITE_EXTRA_DEVICE_STARS_AMOUNT ?? 0),
-  successStickerUrl: (() => {
-    const fileId = import.meta.env.VITE_SUCCESS_STICKER_FILE_ID ?? '';
-    const paymentsUrl = import.meta.env.VITE_PAYMENTS_URL ?? '';
-    return fileId && paymentsUrl ? `${paymentsUrl}/telegram-stars/sticker/${fileId}` : '';
-  })(),
+  successStickerFileId: (import.meta.env.VITE_SUCCESS_STICKER_FILE_ID ?? '') as string,
+  extraDeviceStickerFileId: (import.meta.env.VITE_EXTRA_DEVICE_STICKER_FILE_ID ?? '') as string,
+  paymentsUrl: (import.meta.env.VITE_PAYMENTS_URL ?? '') as string,
   extraDevicePrice: (import.meta.env.VITE_EXTRA_DEVICE_PRICE ?? '') as string,
   /**
    * Comma-separated Telegram user ids that have access to admin features.
@@ -28,3 +26,8 @@ export const coreEnv = {
       .filter(Boolean),
   ),
 } as const;
+
+export function getTelegramStickerUrl(fileId: string): string {
+  const { paymentsUrl } = coreEnv;
+  return fileId && paymentsUrl ? `${paymentsUrl}/telegram-stars/sticker/${fileId}` : '';
+}

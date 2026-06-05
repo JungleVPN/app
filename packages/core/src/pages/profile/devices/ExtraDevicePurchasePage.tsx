@@ -4,10 +4,10 @@ import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import deviceAnimation from '../../../assets/lottie/devicesPageIcon.lottie?url';
-import { coreEnv } from '../../../env';
+import { coreEnv, getTelegramStickerUrl } from '../../../env';
 import { useBackButton } from '../../../hooks';
 import { useNavbarStore, usePlatformStore } from '../../../stores';
-import { LottieIcon, Page } from '../../../ui';
+import { LottieIcon, Page, TgsSticker } from '../../../ui';
 import { PaymentForm } from '../payment/components/PaymentForm';
 import {
   type PaymentMethod,
@@ -58,9 +58,17 @@ export default function ExtraDevicePurchasePage() {
     await handlePay();
   };
 
+  const extraDeviceStickerUrl = getTelegramStickerUrl(coreEnv.extraDeviceStickerFileId);
+
   return (
     <Page
-      icon={<LottieIcon src={deviceAnimation} />}
+      icon={
+        extraDeviceStickerUrl ? (
+          <TgsSticker className='h-28 w-28' src={extraDeviceStickerUrl} />
+        ) : (
+          <LottieIcon src={deviceAnimation} />
+        )
+      }
       title={t('devices.extraDevicePurchase.pageTitle')}
       subtitle={t('devices.extraDevicePurchase.pageSubtitle')}
     >

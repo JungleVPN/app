@@ -41,6 +41,8 @@ interface ImportMetaEnv {
   readonly VITE_EXTRA_DEVICE_PRICE: string;
   /** Number of Telegram Stars to charge for one extra device slot. */
   readonly VITE_EXTRA_DEVICE_STARS_AMOUNT: string;
+  /** Telegram file ID for the extra device purchase page sticker. */
+  readonly VITE_EXTRA_DEVICE_STICKER_FILE_ID: string;
 }
 
 interface ImportMeta {
