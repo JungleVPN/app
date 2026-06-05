@@ -77,6 +77,7 @@ export default function PaymentPage() {
           starsAmount={starsAmount}
           isPending={isPending}
           starsError={starsError}
+          platformType={platformType}
           onExtend={handleExtend}
           onStarsPayment={handleStarsPayment}
         >
