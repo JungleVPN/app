@@ -1,12 +1,11 @@
 import { type Selection } from '@heroui/react';
-import { backButton, mainButton } from '@tma.js/sdk-react';
+import { mainButton } from '@tma.js/sdk-react';
 import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import deviceAnimation from '../../../assets/lottie/devicesPageIcon.lottie?url';
 import { coreEnv } from '../../../env';
-import { useAppRoutes } from '../../../runtime';
+import { useBackButton } from '../../../hooks';
 import { useNavbarStore, usePlatformStore } from '../../../stores';
 import { LottieIcon, Page } from '../../../ui';
 import { PaymentForm } from '../payment/components/PaymentForm';
@@ -19,12 +18,8 @@ import { useExtraDeviceStarsPayment } from './hooks/useExtraDeviceStarsPayment';
 
 export default function ExtraDevicePurchasePage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const navigateRef = useRef(navigate);
-  navigateRef.current = navigate;
   const { platformType } = usePlatformStore();
   const { setNavbarVisible } = useNavbarStore();
-  const { profileDevicesPath } = useAppRoutes();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('card');
 
   const { isPaying, handlePay } = useExtraDevicePayment();
@@ -40,16 +35,7 @@ export default function ExtraDevicePurchasePage() {
     };
   }, [setNavbarVisible]);
 
-  useEffect(() => {
-    if (platformType !== 'telegram') return;
-    const handler = () => navigateRef.current(profileDevicesPath, { replace: true });
-    backButton.show();
-    backButton.onClick(handler);
-    return () => {
-      backButton.offClick(handler);
-      backButton.hide();
-    };
-  }, [platformType, profileDevicesPath]);
+  useBackButton();
 
   const handleSelectionChange = (keys: Selection) => {
     if (keys === 'all') return;

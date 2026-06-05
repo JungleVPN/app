@@ -1,9 +1,8 @@
 import { Spinner } from '@heroui/react';
-import { backButton } from '@tma.js/sdk-react';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
-import { useNavbarStore, usePlatformStore } from '../../stores';
+import { useBackButton } from '../../hooks';
+import { useNavbarStore } from '../../stores';
 import { Block, Page } from '../../ui';
 import { DetailRow } from './components/DetailRow';
 import { useAdminPaymentDetails } from './hooks/useAdminPaymentDetails';
@@ -20,22 +19,15 @@ function formatProvider(provider: string): string {
 }
 
 export default function AdminPaymentDetailsPage() {
-  const navigate = useNavigate();
   const { payment, isLoading, error } = useAdminPaymentDetails();
   const { setNavbarVisible } = useNavbarStore();
-  const { platformType } = usePlatformStore();
 
   useEffect(() => {
     setNavbarVisible(false);
     return () => setNavbarVisible(true);
   }, [setNavbarVisible]);
 
-  useEffect(() => {
-    if (platformType !== 'telegram') return;
-    backButton.show();
-    backButton.onClick(() => navigate(-1));
-    return () => backButton.hide();
-  }, [platformType, navigate]);
+  useBackButton();
 
   return (
     <Page title='Payment Details'>

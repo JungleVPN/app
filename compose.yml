@@ -16,6 +16,7 @@ x-app-build: &app-build
     VITE_STARS_AMOUNT: ${VITE_STARS_AMOUNT}
     VITE_ALLOWED_PERIODS: ${VITE_ALLOWED_PERIODS}
     VITE_ADMINS: ${VITE_ADMINS}
+    VITE_EXTRA_DEVICE_STICKER_FILE_ID: ${VITE_EXTRA_DEVICE_STICKER_FILE_ID}
 
 # Reusable healthcheck for NestJS services — TCP-only so no HTTP 404s flood logs.
 # The NestJS apps have a global prefix (/remnawave, /payments, etc.) so hitting /

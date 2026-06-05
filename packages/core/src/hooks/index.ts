@@ -7,6 +7,7 @@ export {
   useDeleteSavedMethod,
 } from './use-payment';
 export { useUpdateUser } from './use-user';
+export { useBackButton } from './useBackButton';
 export { useClipboard } from './useClipboard';
 export { useSavedMethodsData } from './useSavedMethodsData';
 export type { SubscriptionDataError } from './useSubscriptionData';
