@@ -11,12 +11,16 @@ export default function DevicesPage() {
     devices,
     isFetching,
     isDeleting,
-    isAtLimit,
+    deviceCount,
+    deviceLimit,
     confirmIsOpen,
     confirmSetOpen,
     handleDeleteRequest,
     handleConfirmDelete,
   } = useDevices();
+
+  const titleBadge =
+    deviceCount !== null && deviceLimit !== null ? `${deviceCount} / ${deviceLimit}` : undefined;
 
   return (
     <Page
@@ -24,11 +28,12 @@ export default function DevicesPage() {
       title={t('devices.pageTitle')}
       subtitle={t('devices.pageSubtitle')}
     >
-      {isAtLimit && <ExtraDeviceBlock />}
+      <ExtraDeviceBlock />
       <DevicesList
         devices={devices}
         isFetching={isFetching}
         isDeleting={isDeleting}
+        titleBadge={titleBadge}
         confirmIsOpen={confirmIsOpen}
         confirmSetOpen={confirmSetOpen}
         onDeleteRequest={handleDeleteRequest}

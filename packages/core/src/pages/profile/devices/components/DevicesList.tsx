@@ -1,4 +1,5 @@
 import { Spinner } from '@heroui/react';
+import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Block } from '../../../../ui';
 import type { HwidDevice } from '../utils/devices.utils';
@@ -13,6 +14,7 @@ interface DevicesListProps {
   confirmSetOpen: (open: boolean) => void;
   onDeleteRequest: (hwid: string) => void;
   onConfirmDelete: () => void;
+  titleBadge?: ReactNode;
 }
 
 export function DevicesList({
@@ -23,12 +25,13 @@ export function DevicesList({
   confirmSetOpen,
   onDeleteRequest,
   onConfirmDelete,
+  titleBadge,
 }: DevicesListProps) {
   const { t } = useTranslation();
 
   return (
     <>
-      <Block title={t('devices.listHeading')} variant='secondary'>
+      <Block title={t('devices.listHeading')} titleBadge={titleBadge} variant='secondary'>
         {isFetching || devices === null ? (
           <div className='flex min-h-[120px] items-center justify-center py-8'>
             <Spinner color='accent' size='md' />

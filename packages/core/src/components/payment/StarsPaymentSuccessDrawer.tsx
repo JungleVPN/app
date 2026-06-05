@@ -6,10 +6,12 @@ import { TgsSticker } from './TgsSticker';
 interface Props {
   isOpen: boolean;
   allowedPeriods: number;
+  /** Overrides the default subscription success description when provided. */
+  description?: string;
   onClose: () => void;
 }
 
-export function StarsPaymentSuccessDrawer({ isOpen, allowedPeriods, onClose }: Props) {
+export function StarsPaymentSuccessDrawer({ isOpen, allowedPeriods, description, onClose }: Props) {
   const { t } = useTranslation();
   const { successStickerUrl } = coreEnv;
 
@@ -34,7 +36,7 @@ export function StarsPaymentSuccessDrawer({ isOpen, allowedPeriods, onClose }: P
           </Drawer.Header>
           <Drawer.Body>
             <p className='text-center text-sm text-muted'>
-              {t('payment.stars.success.description', { period: allowedPeriods })}
+              {description ?? t('payment.stars.success.description', { period: allowedPeriods })}
             </p>
           </Drawer.Body>
           <Drawer.Footer>

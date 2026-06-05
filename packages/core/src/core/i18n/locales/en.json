@@ -60,8 +60,20 @@
     },
     "extraDevice": {
       "heading": "Device limit reached",
-      "description": "You've used all your device slots. Purchase an extra slot to connect one more device.",
-      "payButton": "{{price}}"
+      "description": "You can purchase an extra slot to connect one more device.",
+      "payButton": "{{price}}",
+      "openButton": "Add extra device"
+    },
+    "extraDevicePurchase": {
+      "pageTitle": "Extra Device",
+      "pageSubtitle": "Add an additional device slot",
+      "description": "One-time payment for 1 additional device slot.",
+      "priceButton": "{{amount}} ₽ / device",
+      "starsButton": "{{amount}} ⭐ / device",
+      "starsInvoiceTitle": "Extra device slot",
+      "starsInvoiceDescription": "One-time payment for an additional device slot",
+      "starsSuccessDescription": "An extra device slot has been added to your account.",
+      "starsErrorFetch": "Failed to create Stars invoice. Please try again."
     }
   },
   "payment": {

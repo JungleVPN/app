@@ -22,7 +22,8 @@ interface PaymentMethodSelectorProps {
   selectedMethod: PaymentMethod;
   starsEnabled: boolean;
   onSelectionChange: (keys: Selection) => void;
-  onTermsOpen: () => void;
+  onTermsOpen?: () => void;
+  isReccurring?: boolean;
 }
 
 export function PaymentMethodSelector({
@@ -30,6 +31,7 @@ export function PaymentMethodSelector({
   starsEnabled,
   onSelectionChange,
   onTermsOpen,
+  isReccurring,
 }: PaymentMethodSelectorProps) {
   const { t } = useTranslation();
 
@@ -43,7 +45,9 @@ export function PaymentMethodSelector({
           <SpbIcon className='size-4' aria-hidden='true' />
         </div>
       ),
-      trailing: <IconRotate size={18} stroke={1.5} className='ml-auto shrink-0 text-muted' />,
+      trailing: isReccurring && (
+        <IconRotate size={18} stroke={1.5} className='ml-auto shrink-0 text-muted' />
+      ),
     },
     ...(starsEnabled
       ? [
@@ -60,27 +64,26 @@ export function PaymentMethodSelector({
       : []),
   ];
 
+  const description = onTermsOpen ? (
+    <>
+      <span className='flex items-center gap-1.5'>
+        <IconRotate size={16} />- {t('payment.autoRenewalHint')}
+      </span>
+      <p className='mt-3 text-start text-xs text-muted'>
+        {t('terms.paymentConsentLead')}
+        <button
+          className='cursor-pointer underline underline-offset-2'
+          type='button'
+          onClick={onTermsOpen}
+        >
+          {t('terms.paymentLinkLabel')}
+        </button>
+      </p>
+    </>
+  ) : undefined;
+
   return (
-    <Block
-      title={t('payment.selectMethodHeading')}
-      description={
-        <>
-          <span className='flex items-center gap-1.5'>
-            <IconRotate size={16} />- {t('payment.autoRenewalHint')}
-          </span>
-          <p className='mt-3 text-start text-xs text-muted'>
-            {t('terms.paymentConsentLead')}
-            <button
-              className='cursor-pointer underline underline-offset-2'
-              type='button'
-              onClick={onTermsOpen}
-            >
-              {t('terms.paymentLinkLabel')}
-            </button>
-          </p>
-        </>
-      }
-    >
+    <Block title={t('payment.selectMethodHeading')} description={description}>
       <ListBox
         className='p-2'
         aria-label={t('payment.selectMethodHeading')}

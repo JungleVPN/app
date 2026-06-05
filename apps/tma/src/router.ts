@@ -10,6 +10,7 @@ import {
   ProtectedAdminPaymentDetailsPage,
   ProtectedAdminPaymentsPage,
   ProtectedDevicesPage,
+  ProtectedExtraDevicePurchasePage,
 } from '@workspace/core/pages';
 import { createMemoryRouter } from 'react-router';
 import { TmaRootLayout } from '@/layouts/TmaRootLayout';
@@ -62,6 +63,10 @@ export const router = createMemoryRouter(
             {
               path: 'devices',
               Component: ProtectedDevicesPage,
+            },
+            {
+              path: 'devices/extra',
+              Component: ProtectedExtraDevicePurchasePage,
             },
             {
               path: 'admin',

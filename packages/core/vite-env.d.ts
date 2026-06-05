@@ -39,6 +39,8 @@ interface ImportMetaEnv {
   readonly VITE_ADMINS: string;
   /** Display price for one extra device slot, e.g. "199 ₽". */
   readonly VITE_EXTRA_DEVICE_PRICE: string;
+  /** Number of Telegram Stars to charge for one extra device slot. */
+  readonly VITE_EXTRA_DEVICE_STARS_AMOUNT: string;
 }
 
 interface ImportMeta {

@@ -43,11 +43,16 @@ export function useDevices() {
     return devices.length >= rmnUser.hwidDeviceLimit;
   }, [devices, rmnUser?.hwidDeviceLimit]);
 
+  const deviceCount = devices?.length ?? null;
+  const deviceLimit = rmnUser?.hwidDeviceLimit ?? null;
+
   return {
     devices,
     isFetching,
     isDeleting,
     isAtLimit,
+    deviceCount,
+    deviceLimit,
     confirmIsOpen: confirmState.isOpen,
     confirmSetOpen: confirmState.setOpen,
     handleDeleteRequest,

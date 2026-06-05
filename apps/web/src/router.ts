@@ -6,6 +6,7 @@ import {
   ProtectedAdminPaymentDetailsPage,
   ProtectedAdminPaymentsPage,
   ProtectedDevicesPage,
+  ProtectedExtraDevicePurchasePage,
   ProtectedPaymentPage,
   ProtectedProfileSubscriptionPage,
   SubscriptionPage,
@@ -46,6 +47,10 @@ export const router = createBrowserRouter([
           {
             path: 'devices',
             Component: ProtectedDevicesPage,
+          },
+          {
+            path: 'devices/extra',
+            Component: ProtectedExtraDevicePurchasePage,
           },
           {
             path: 'admin',

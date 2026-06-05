@@ -13,6 +13,7 @@ interface PaymentFormProps {
   needsEmailInput: boolean;
   allowedAmounts: string;
   starsAmount: number;
+  buttonLabel?: string;
   isPending: boolean;
   starsError: string | null;
   platformType: PlatformType | null;
@@ -26,6 +27,7 @@ export function PaymentForm({
   needsEmailInput,
   allowedAmounts,
   starsAmount,
+  buttonLabel,
   isPending,
   starsError,
   platformType,
@@ -42,9 +44,10 @@ export function PaymentForm({
   const isTelegram = platformType === 'telegram';
 
   const buttonText =
-    selectedMethod === 'stars'
+    buttonLabel ??
+    (selectedMethod === 'stars'
       ? t('payment.starsPerMonth', { amount: starsAmount })
-      : t('payment.pricePerMonth', { amount: allowedAmounts });
+      : t('payment.pricePerMonth', { amount: allowedAmounts }));
 
   const submitRef = useRef<() => Promise<void>>(async () => {});
   submitRef.current = async () => {
