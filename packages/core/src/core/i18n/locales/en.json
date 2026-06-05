@@ -65,8 +65,8 @@
       "openButton": "Add extra device"
     },
     "extraDevicePurchase": {
-      "pageTitle": "Extra Device",
-      "pageSubtitle": "Add an additional device slot",
+      "pageTitle": "Need more?",
+      "pageSubtitle": "Here you can buy an additional slot",
       "description": "One-time payment for 1 additional device slot.",
       "priceButton": "{{amount}} ₽ / device",
       "starsButton": "{{amount}} ⭐ / device",

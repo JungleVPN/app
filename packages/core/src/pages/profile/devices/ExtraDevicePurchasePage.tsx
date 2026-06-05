@@ -89,6 +89,7 @@ export default function ExtraDevicePurchasePage() {
           starsEnabled={starsEnabled}
           onSelectionChange={handleSelectionChange}
           isReccurring={false}
+          description={t('devices.extraDevicePurchase.description')}
         />
       </PaymentForm>
 

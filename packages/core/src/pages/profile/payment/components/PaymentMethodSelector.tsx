@@ -24,15 +24,11 @@ interface PaymentMethodSelectorProps {
   onSelectionChange: (keys: Selection) => void;
   onTermsOpen?: () => void;
   isReccurring?: boolean;
+  description?: string;
 }
 
-export function PaymentMethodSelector({
-  selectedMethod,
-  starsEnabled,
-  onSelectionChange,
-  onTermsOpen,
-  isReccurring,
-}: PaymentMethodSelectorProps) {
+export function PaymentMethodSelector(props: PaymentMethodSelectorProps) {
+  const { selectedMethod, starsEnabled, onSelectionChange, onTermsOpen, isReccurring } = props;
   const { t } = useTranslation();
 
   const methods: MethodDef[] = [
@@ -83,7 +79,7 @@ export function PaymentMethodSelector({
   ) : undefined;
 
   return (
-    <Block title={t('payment.selectMethodHeading')} description={description}>
+    <Block title={t('payment.selectMethodHeading')} description={props.description ?? description}>
       <ListBox
         className='p-2'
         aria-label={t('payment.selectMethodHeading')}
