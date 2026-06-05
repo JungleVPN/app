@@ -3,20 +3,8 @@ x-app-build: &app-build
   dockerfile: Dockerfile
   args:
     TURBO_CONCURRENCY: ${TURBO_CONCURRENCY:-2}
-    # Vite vars — baked into the JS bundle at build time, must be passed here
-    VITE_REMNAWAVE_URL: ${VITE_REMNAWAVE_URL}
-    VITE_PAYMENTS_URL: ${VITE_PAYMENTS_URL}
-    VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
-    VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
-    VITE_SUBPAGE_CONFIG: ${VITE_SUBPAGE_CONFIG}
-    VITE_SUPPORT_URL: ${VITE_SUPPORT_URL}
-    VITE_TMA_APP_URL: ${VITE_TMA_APP_URL}
-    VITE_TELEGRAM_BOT_TOKEN: ${VITE_TELEGRAM_BOT_TOKEN}
-    VITE_ALLOWED_AMOUNTS: ${VITE_ALLOWED_AMOUNTS}
-    VITE_STARS_AMOUNT: ${VITE_STARS_AMOUNT}
-    VITE_ALLOWED_PERIODS: ${VITE_ALLOWED_PERIODS}
-    VITE_ADMINS: ${VITE_ADMINS}
-    VITE_EXTRA_DEVICE_STICKER_FILE_ID: ${VITE_EXTRA_DEVICE_STICKER_FILE_ID}
+  secrets:
+    - env
 
 # Reusable healthcheck for NestJS services — TCP-only so no HTTP 404s flood logs.
 # The NestJS apps have a global prefix (/remnawave, /payments, etc.) so hitting /
@@ -241,3 +229,7 @@ volumes:
 networks:
   jungle-net:
     external: true
+
+secrets:
+  env:
+    file: .env
