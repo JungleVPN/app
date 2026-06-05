@@ -67,7 +67,6 @@ export default function PaymentPage() {
           isLoadingMethods={isLoadingMethods}
           isDeleting={isDeleting}
           onDelete={handleDelete}
-          onTermsOpen={termsState.open}
         />
       ) : (
         <PaymentForm

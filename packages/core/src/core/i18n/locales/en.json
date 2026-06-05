@@ -89,6 +89,7 @@
     "methodCard": "Cards and SBP",
     "methodStars": "Telegram Stars",
     "autoRenewalHint": "Means that payment method is saved for auto-renewal",
+    "savedMethodsDescription": "You have payment method linked that will be used for sub renewal. If you wish to pay manually just delete it.",
     "deleteMethod": {
       "title": "Remove payment method?",
       "body": "This card will be removed and auto-renewal will be disabled. New card will be added on next manual payment",

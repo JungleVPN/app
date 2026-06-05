@@ -10,7 +10,6 @@ interface PaymentMethodsListProps {
   isLoadingMethods: boolean;
   isDeleting: boolean;
   onDelete: (id: string) => void;
-  onTermsOpen: () => void;
 }
 
 export function PaymentMethodsList({
@@ -18,27 +17,13 @@ export function PaymentMethodsList({
   isLoadingMethods,
   isDeleting,
   onDelete,
-  onTermsOpen,
 }: PaymentMethodsListProps) {
   const { t } = useTranslation();
-
-  const description = (
-    <>
-      {t('terms.paymentConsentLead')}
-      <button
-        type='button'
-        className='cursor-pointer underline underline-offset-2'
-        onClick={onTermsOpen}
-      >
-        {t('terms.paymentLinkLabel')}
-      </button>
-    </>
-  );
 
   return (
     <Block
       title={t('payment.methodsHeading')}
-      description={description}
+      description={t('payment.savedMethodsDescription')}
       variant='secondary'
     >
       {isLoadingMethods ? (
