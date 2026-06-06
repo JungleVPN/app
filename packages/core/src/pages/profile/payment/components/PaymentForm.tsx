@@ -139,10 +139,8 @@ export function PaymentForm({
           </button>
         </p>
       </div>
-
-      {children}
-
       {starsError && <p className='px-4 text-xs text-danger'>{starsError}</p>}
+      {children}
     </Form>
   );
 }

@@ -22,7 +22,7 @@ export default function MenuPage() {
         ) : undefined
       }
       title={t('menu.pageTitle')}
-      description={t('menu.pageDescription')}
+      subtitle={t('menu.subtitle')}
     >
       <Block>
         <ListBox

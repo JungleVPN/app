@@ -59,7 +59,7 @@ export default function TransactionsPage() {
     </div>
   ) : activeItems.length === 0 ? (
     <p className='px-4 py-6 text-center text-sm text-muted'>
-      {isSearchMode ? 'No payments found.' : t('transactions.noTransactions')}
+      {isSearchMode ? t('transactions.noPaymentsFound') : t('transactions.noTransactions')}
     </p>
   ) : (
     <ListBox
@@ -92,7 +92,7 @@ export default function TransactionsPage() {
           <Button
             isIconOnly
             type='button'
-            aria-label='Search'
+            aria-label={t('transactions.searchAriaLabel')}
             isDisabled={searchLoading || !query.trim()}
             variant={'primary'}
             onClick={() => void handleSearch()}

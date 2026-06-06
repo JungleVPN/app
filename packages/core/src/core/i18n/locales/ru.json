@@ -257,10 +257,27 @@
   "menu": {
     "pageTitle": "Меню",
     "transactionHistory": "История транзакций",
-    "pageDescription": "Управление настройками аккаунта"
+    "subtitle": "Управление настройками аккаунта"
   },
   "transactions": {
     "pageTitle": "История транзакций",
-    "noTransactions": "Транзакций пока нет"
+    "noTransactions": "Транзакций пока нет",
+    "noPaymentsFound": "Ничего не нашлось",
+    "searchAriaLabel": "Поиск",
+    "details": {
+      "title": "Детали платежа",
+      "paymentId": "ID платежа",
+      "userId": "ID пользователя",
+      "telegramId": "Telegram ID",
+      "provider": "Провайдер",
+      "status": "Статус",
+      "amount": "Сумма",
+      "period": "Период",
+      "periodValue": "{{count}} мес.",
+      "starsValue": "{{amount}} Stars",
+      "createdAt": "Создан",
+      "paidAt": "Оплачен",
+      "copy": "Скопировать {{label}}"
+    }
   }
 }

@@ -10,7 +10,7 @@ export function ExtraDeviceBlock() {
   const { profileExtraDevicePurchasePath } = useAppRoutes();
 
   return (
-    <div className='mb-4'>
+    <div className='mb-6'>
       <Button fullWidth size='lg' onPress={() => navigate(profileExtraDevicePurchasePath)}>
         {t('devices.extraDevice.openButton')}
         <IconArrowRight size={20} stroke={2} />

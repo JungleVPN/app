@@ -258,10 +258,27 @@
   "menu": {
     "pageTitle": "Menu",
     "transactionHistory": "Transaction History",
-    "pageDescription": "Manage your account settings"
+    "subtitle": "Manage your account settings"
   },
   "transactions": {
     "pageTitle": "Transaction History",
-    "noTransactions": "No transactions yet"
+    "noTransactions": "No transactions yet",
+    "noPaymentsFound": "No payments found",
+    "searchAriaLabel": "Search",
+    "details": {
+      "title": "Payment Details",
+      "paymentId": "Payment ID",
+      "userId": "User ID",
+      "telegramId": "Telegram ID",
+      "provider": "Provider",
+      "status": "Status",
+      "amount": "Amount",
+      "period": "Period",
+      "periodValue": "{{count}} month(s)",
+      "starsValue": "{{amount}} Stars",
+      "createdAt": "Created",
+      "paidAt": "Paid At",
+      "copy": "Copy {{label}}"
+    }
   }
 }

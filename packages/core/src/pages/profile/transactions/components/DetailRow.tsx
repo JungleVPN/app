@@ -1,5 +1,6 @@
 import { Button, Separator } from '@heroui/react';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useClipboard } from '../../../../hooks';
 
 interface DetailRowProps {
@@ -11,6 +12,7 @@ interface DetailRowProps {
 }
 
 export function DetailRow({ label, value, showSeparatorAbove, copyable }: DetailRowProps) {
+  const { t } = useTranslation();
   const { copy, copied } = useClipboard({ timeout: 2000 });
 
   const displayValue = value ?? '—';
@@ -29,7 +31,7 @@ export function DetailRow({ label, value, showSeparatorAbove, copyable }: Detail
 
         {copyable && value != null && (
           <Button
-            aria-label={`Copy ${label}`}
+            aria-label={t('transactions.details.copy', { label })}
             isIconOnly
             size='sm'
             variant='tertiary'
