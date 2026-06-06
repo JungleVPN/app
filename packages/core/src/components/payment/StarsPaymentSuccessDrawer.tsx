@@ -1,7 +1,7 @@
 import { Button, Drawer } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { coreEnv, getTelegramStickerUrl } from '../../env';
-import { TgsSticker } from '../../ui/TgsSticker';
+import { TgsSticker } from '../../ui';
 
 interface Props {
   isOpen: boolean;

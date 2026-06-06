@@ -21,11 +21,11 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-interface AdminPaymentRowProps {
+interface PaymentRowProps {
   payment: AdminPaymentDto;
 }
 
-export function AdminPaymentRow({ payment }: AdminPaymentRowProps) {
+export function PaymentRow({ payment }: PaymentRowProps) {
   const amountLabel =
     payment.provider === 'telegram_stars'
       ? `${payment.starsAmount ?? '?'} ⭐`

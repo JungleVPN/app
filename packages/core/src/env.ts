@@ -5,10 +5,6 @@
  * no React context or provider required.
  */
 
-function buildStickerUrl(fileId: string, botUrl: string): string {
-  return fileId && botUrl ? `${botUrl}/telegram/sticker/${fileId}` : '';
-}
-
 export const coreEnv = {
   subpageConfigUuid: (import.meta.env.VITE_SUBPAGE_CONFIG ?? '') as string,
   allowedAmounts: (import.meta.env.VITE_ALLOWED_AMOUNTS ?? '') as string,
@@ -17,8 +13,9 @@ export const coreEnv = {
   starsAmount: Number(import.meta.env.VITE_STARS_AMOUNT ?? 0),
   extraDeviceStarsAmount: Number(import.meta.env.VITE_EXTRA_DEVICE_STARS_AMOUNT ?? 0),
   successStickerFileId: (import.meta.env.VITE_SUCCESS_STICKER_FILE_ID ?? '') as string,
-  menuStickerUrl: (import.meta.env.VITE_MENU_STICKER_FILE_ID ?? '') as string,
+  menuStickerFileId: (import.meta.env.VITE_MENU_STICKER_FILE_ID ?? '') as string,
   extraDeviceStickerFileId: (import.meta.env.VITE_EXTRA_DEVICE_STICKER_FILE_ID ?? '') as string,
+  botUrl: (import.meta.env.VITE_BOT_URL ?? '') as string,
   paymentsUrl: (import.meta.env.VITE_PAYMENTS_URL ?? '') as string,
   extraDevicePrice: (import.meta.env.VITE_EXTRA_DEVICE_PRICE ?? '') as string,
   /**
@@ -34,6 +31,6 @@ export const coreEnv = {
 } as const;
 
 export function getTelegramStickerUrl(fileId: string): string {
-  const { paymentsUrl } = coreEnv;
-  return fileId && paymentsUrl ? `${paymentsUrl}/telegram-stars/sticker/${fileId}` : '';
+  const { botUrl } = coreEnv;
+  return fileId && botUrl ? `${botUrl}/telegram/sticker/${fileId}` : '';
 }

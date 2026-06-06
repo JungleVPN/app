@@ -1,6 +1,6 @@
 import { Button, Separator } from '@heroui/react';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
-import { useClipboard } from '../../../hooks';
+import { useClipboard } from '../../../../hooks';
 
 interface DetailRowProps {
   label: string;

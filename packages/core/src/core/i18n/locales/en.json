@@ -259,5 +259,9 @@
     "pageTitle": "Menu",
     "transactionHistory": "Transaction History",
     "pageDescription": "Manage your account settings"
+  },
+  "transactions": {
+    "pageTitle": "Transaction History",
+    "noTransactions": "No transactions yet"
   }
 }

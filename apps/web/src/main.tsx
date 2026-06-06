@@ -23,7 +23,7 @@ const appRoutes = {
   profilePaymentPath: '/profile/payments',
   profileDevicesPath: '/profile/devices',
   profileExtraDevicePurchasePath: '/profile/devices/extra',
-  profileAdminPath: '/profile/admin',
+  profileTransactionsPath: '/profile/transactions',
   profileMenuPath: '/profile/menu',
   getSubscriptionPath: '/',
 };

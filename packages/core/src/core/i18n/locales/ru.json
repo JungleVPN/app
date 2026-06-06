@@ -258,5 +258,9 @@
     "pageTitle": "Меню",
     "transactionHistory": "История транзакций",
     "pageDescription": "Управление настройками аккаунта"
+  },
+  "transactions": {
+    "pageTitle": "История транзакций",
+    "noTransactions": "Транзакций пока нет"
   }
 }

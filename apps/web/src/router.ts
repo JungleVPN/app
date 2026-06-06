@@ -3,13 +3,13 @@ import {
   ConfirmPage,
   GetSubscriptionPage,
   LoginPage,
-  ProtectedAdminPaymentDetailsPage,
-  ProtectedAdminPaymentsPage,
   ProtectedDevicesPage,
   ProtectedMenuPage,
   ProtectedExtraDevicePurchasePage,
   ProtectedPaymentPage,
   ProtectedProfileSubscriptionPage,
+  ProtectedTransactionDetailsPage,
+  ProtectedTransactionsPage,
   SubscriptionPage,
   TermsPage,
 } from '@workspace/core/pages';
@@ -54,12 +54,12 @@ export const router = createBrowserRouter([
             Component: ProtectedExtraDevicePurchasePage,
           },
           {
-            path: 'admin',
-            Component: ProtectedAdminPaymentsPage,
+            path: 'transactions',
+            Component: ProtectedTransactionsPage,
           },
           {
-            path: 'admin/:paymentId',
-            Component: ProtectedAdminPaymentDetailsPage,
+            path: 'transactions/:paymentId',
+            Component: ProtectedTransactionDetailsPage,
           },
           {
             path: 'menu',

@@ -15,7 +15,7 @@ import { usePlatformStore } from '../stores';
  *
  * Default behaviour strips the last path segment:
  *   /profile/devices/extra  →  /profile/devices
- *   /profile/admin/123      →  /profile/admin
+ *   /profile/transactions/123  →  /profile/transactions
  *
  * This is reliable regardless of memory-router history depth, deep-links,
  * or how many times the user has switched tabs.

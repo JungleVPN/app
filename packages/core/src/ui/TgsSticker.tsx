@@ -34,7 +34,7 @@ export function TgsSticker({ src, className }: Props) {
       });
     }
 
-    load().catch(() => {});
+    load().catch((err) => console.error('[TgsSticker] failed to load', src, err));
 
     return () => {
       cancelled = true;

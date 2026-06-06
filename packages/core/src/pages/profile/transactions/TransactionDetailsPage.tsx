@@ -1,11 +1,11 @@
 import { Spinner } from '@heroui/react';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
-import { useBackButton } from '../../hooks';
-import { useNavbarStore } from '../../stores';
-import { Block, Page } from '../../ui';
+import { useBackButton } from '../../../hooks';
+import { useNavbarStore } from '../../../stores';
+import { Block, Page } from '../../../ui';
 import { DetailRow } from './components/DetailRow';
-import { useAdminPaymentDetails } from './hooks/useAdminPaymentDetails';
+import { useTransactionDetails } from './hooks/useTransactionDetails';
 
 function formatDate(date: Date | string | null | undefined): string {
   if (!date) return '—';
@@ -18,8 +18,8 @@ function formatProvider(provider: string): string {
   return provider;
 }
 
-export default function AdminPaymentDetailsPage() {
-  const { payment, isLoading, error } = useAdminPaymentDetails();
+export default function TransactionDetailsPage() {
+  const { payment, isLoading, error } = useTransactionDetails();
   const { setNavbarVisible } = useNavbarStore();
 
   useEffect(() => {

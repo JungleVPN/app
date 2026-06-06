@@ -7,11 +7,11 @@ import {
   TermsPage,
 } from '@workspace/core';
 import {
-  ProtectedAdminPaymentDetailsPage,
-  ProtectedAdminPaymentsPage,
   ProtectedMenuPage,
   ProtectedDevicesPage,
   ProtectedExtraDevicePurchasePage,
+  ProtectedTransactionDetailsPage,
+  ProtectedTransactionsPage,
 } from '@workspace/core/pages';
 import { createMemoryRouter } from 'react-router';
 import { TmaRootLayout } from '@/layouts/TmaRootLayout';
@@ -70,12 +70,12 @@ export const router = createMemoryRouter(
               Component: ProtectedExtraDevicePurchasePage,
             },
             {
-              path: 'admin',
-              Component: ProtectedAdminPaymentsPage,
+              path: 'transactions',
+              Component: ProtectedTransactionsPage,
             },
             {
-              path: 'admin/:paymentId',
-              Component: ProtectedAdminPaymentDetailsPage,
+              path: 'transactions/:paymentId',
+              Component: ProtectedTransactionDetailsPage,
             },
             {
               path: 'menu',

@@ -1,4 +1,4 @@
-import { IconCategory2, IconNetwork, IconShieldSearch } from '@tabler/icons-react';
+import { IconCategory2, IconNetwork } from '@tabler/icons-react';
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
@@ -7,12 +7,10 @@ import { useLocation, useNavigate } from 'react-router';
 import IconDevices from '../../assets/icons/device-tab-icon.svg?react';
 import IconPig from '../../assets/icons/payment-tab-icon.svg?react';
 import { useAppRoutes } from '../../runtime';
-import { useAuthStoreInfo, useNavbarStore } from '../../stores';
-import { isAdminUser } from '../../utils';
+import { useNavbarStore } from '../../stores';
 import css from './Tabs.module.css';
 
 type TabValue = 'subscription' | 'payments' | 'devices' | 'menu';
-type TabValue = 'subscription' | 'payments' | 'devices' | 'admin';
 
 interface TabDef {
   id: TabValue;
@@ -35,7 +33,6 @@ function getActiveTab(
   subscriptionPath: string,
   paymentPath: string,
   devicesPath: string,
-  adminPath?: string,
   menuPath: string,
 ): TabValue {
   const norm = normalizePath(pathname);
@@ -45,27 +42,24 @@ function getActiveTab(
   };
   if (matches(paymentPath)) return 'payments';
   if (matches(devicesPath)) return 'devices';
-  if (adminPath && matches(adminPath)) return 'admin';
   if (matches(subscriptionPath)) return 'subscription';
   if (matches(menuPath)) return 'menu';
   return 'subscription';
 }
 
 export const Navbar = () => {
-  const { profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileMenuPath, profileAdminPath } =
-    useAppRoutes();
+  const {
+    profileSubscriptionPath,
+    profilePaymentPath,
+    profileDevicesPath,
+    profileMenuPath,
+  } = useAppRoutes();
   const { isVisible } = useNavbarStore();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { tgUser, authUser } = useAuthStoreInfo();
 
-  const isAdmin = isAdminUser(tgUser, authUser);
-
-  const TAB_VALUES = useMemo<TabValue[]>(
-    () => (isAdmin ? [...BASE_TAB_VALUES, 'admin'] : BASE_TAB_VALUES),
-    [isAdmin],
-  );
+  const TAB_VALUES = BASE_TAB_VALUES;
 
   const activeTab = getActiveTab(
     pathname,
@@ -73,7 +67,6 @@ export const Navbar = () => {
     profilePaymentPath,
     profileDevicesPath,
     profileMenuPath,
-    profileAdminPath,
   );
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -119,15 +112,6 @@ export const Navbar = () => {
     return Math.max(0, end - start) / pos.width;
   });
 
-  const adminOverlap = useTransform(indicatorX, (x) => {
-    const pos = tabPositionsRef.current.admin;
-    if (!pos || pos.width === 0) return 0;
-    const w = indicatorWidth.get();
-    const start = Math.max(x, pos.left);
-    const end = Math.min(x + w, pos.left + pos.width);
-    return Math.max(0, end - start) / pos.width;
-  });
-
   const menuOverlap = useTransform(indicatorX, (x) => {
     const pos = tabPositionsRef.current.menu;
     if (!pos || pos.width === 0) return 0;
@@ -142,10 +126,9 @@ export const Navbar = () => {
       subscription: subscriptionOverlap,
       payments: paymentsOverlap,
       devices: devicesOverlap,
-      admin: adminOverlap,
       menu: menuOverlap,
     }),
-    [subscriptionOverlap, paymentsOverlap, devicesOverlap, adminOverlap, menuOverlap],
+    [subscriptionOverlap, paymentsOverlap, devicesOverlap, menuOverlap],
   );
 
   const tabPaths = useMemo(
@@ -154,10 +137,14 @@ export const Navbar = () => {
         subscription: profileSubscriptionPath,
         payments: profilePaymentPath,
         devices: profileDevicesPath,
-        admin: profileAdminPath,
         menu: profileMenuPath,
       }) satisfies Record<TabValue, string>,
-    [profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileAdminPath, profileMenuPath],
+    [
+      profileSubscriptionPath,
+      profilePaymentPath,
+      profileDevicesPath,
+      profileMenuPath,
+    ],
   );
 
   const tabs = useMemo<TabDef[]>(
@@ -182,17 +169,8 @@ export const Navbar = () => {
         label: t('profileTabs.menu'),
         icon: <IconCategory2 stroke={1.5} className='size-7' />,
       },
-      ...(isAdmin
-        ? [
-            {
-              id: 'admin' as const,
-              label: t('profileTabs.admin', 'Admin'),
-              icon: <IconShieldSearch stroke={1.5} className='size-7' />,
-            },
-          ]
-        : [])
     ],
-    [t, isAdmin],
+    [t],
   );
 
   const tabRefCallbacks = useRef<Record<TabValue, (el: HTMLButtonElement | null) => void>>({
@@ -207,10 +185,6 @@ export const Navbar = () => {
     devices: (el) => {
       if (el) tabRefs.current.set('devices', el);
       else tabRefs.current.delete('devices');
-    },
-    admin: (el) => {
-      if (el) tabRefs.current.set('admin', el);
-      else tabRefs.current.delete('admin');
     },
     menu: (el: HTMLButtonElement | null) => {
       if (el) tabRefs.current.set('menu', el);
@@ -337,7 +311,6 @@ export const Navbar = () => {
     subscription: () => handleTabClick('subscription'),
     payments: () => handleTabClick('payments'),
     devices: () => handleTabClick('devices'),
-    admin: () => handleTabClick('admin'),
     menu: () => handleTabClick('menu'),
   });
   useLayoutEffect(() => {
@@ -345,7 +318,6 @@ export const Navbar = () => {
       subscription: () => handleTabClick('subscription'),
       payments: () => handleTabClick('payments'),
       devices: () => handleTabClick('devices'),
-      admin: () => handleTabClick('admin'),
       menu: () => handleTabClick('menu'),
     };
   }, [handleTabClick]);

@@ -12,7 +12,7 @@ export interface AppRoutes {
   profileDevicesPath: string;
   profileMenuPath: string;
   profileExtraDevicePurchasePath: string;
-  profileAdminPath: string;
+  profileTransactionsPath: string;
   getSubscriptionPath: string;
 }
 

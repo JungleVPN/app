@@ -1,18 +1,24 @@
 import { Label, ListBox } from '@heroui/react';
 import { IconChevronRight, IconCreditCardPay } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { TgsSticker } from '../../../components/payment/TgsSticker';
-import { coreEnv } from '../../../env';
-import { Block, Page } from '../../../ui';
+import { useNavigate } from 'react-router';
+import { coreEnv, getTelegramStickerUrl } from '../../../env';
+import { useAppRoutes } from '../../../runtime';
+import { Block, Page, TgsSticker } from '../../../ui';
 
 export default function MenuPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { profileTransactionsPath } = useAppRoutes();
 
   return (
     <Page
       icon={
-        coreEnv.menuStickerUrl ? (
-          <TgsSticker src={coreEnv.menuStickerUrl} className='mx-auto h-28 w-28' />
+        coreEnv.menuStickerFileId ? (
+          <TgsSticker
+            src={getTelegramStickerUrl(coreEnv.menuStickerFileId)}
+            className='mx-auto h-28 w-28'
+          />
         ) : undefined
       }
       title={t('menu.pageTitle')}
@@ -23,6 +29,9 @@ export default function MenuPage() {
           aria-label={t('menu.pageTitle')}
           selectionMode='none'
           className='w-full bg-default p-0'
+          onAction={(key) => {
+            if (key === 'transaction-history') void navigate(profileTransactionsPath);
+          }}
         >
           <ListBox.Item
             id='transaction-history'

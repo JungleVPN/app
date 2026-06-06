@@ -1,5 +1,5 @@
-export { ProtectedAdminPaymentDetailsPage } from './admin/protected-details';
-export { ProtectedAdminPaymentsPage } from './admin/protected';
+export { ProtectedTransactionDetailsPage } from './profile/transactions/protected-details';
+export { ProtectedTransactionsPage } from './profile/transactions/protected';
 export { default as GetSubscriptionPage } from './getSubscription/GetSubscriptionPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';
 export { default as LoginPage } from './login/LoginPage';
