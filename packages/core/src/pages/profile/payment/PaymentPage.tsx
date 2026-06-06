@@ -1,13 +1,14 @@
+import { type Selection } from '@heroui/react';
 import { Page } from '@workspace/core';
-import { ExtendCard, StarsPaymentSuccessDrawer } from '@workspace/core/components';
-import { useEffect } from 'react';
+import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url';
 import { useNavbarStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
+import { PaymentForm } from './components/PaymentForm';
+import { type PaymentMethod, PaymentMethodSelector } from './components/PaymentMethodSelector';
 import { PaymentMethodsList } from './components/PaymentMethodsList';
-import { StarsPaymentButton } from './components/StarsPaymentButton';
-import { TermsDialog } from './components/TermsDialog';
 import { usePayment } from './hooks/usePayment';
 
 export default function PaymentPage() {
@@ -16,17 +17,16 @@ export default function PaymentPage() {
     savedMethods,
     allowedAmounts,
     allowedPeriods,
-    supportUrl,
     platformType,
     hasActiveMethod,
     needsEmailInput,
     isLoadingMethods,
+    isDeleting,
     starsEnabled,
+    starsAmount,
     starsError,
     isPaying,
     isStarsPaying,
-    isDeleting,
-    termsState,
     successState,
     handleDelete,
     handleExtend,
@@ -34,14 +34,19 @@ export default function PaymentPage() {
   } = usePayment();
 
   const { setNavbarVisible } = useNavbarStore();
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('card');
 
   useEffect(() => {
-    if (successState.isOpen || termsState.isOpen) {
-      setNavbarVisible(false);
-    } else {
-      setNavbarVisible(true);
-    }
-  }, [setNavbarVisible, successState.isOpen, termsState.isOpen]);
+    setNavbarVisible(!successState.isOpen);
+  }, [setNavbarVisible, successState.isOpen]);
+
+  const isPending = selectedMethod === 'stars' ? isStarsPaying : isPaying;
+
+  const handleSelectionChange = (keys: Selection) => {
+    if (keys === 'all') return;
+    const key = Array.from(keys)[0] as PaymentMethod | undefined;
+    if (key) setSelectedMethod(key);
+  };
 
   return (
     <Page
@@ -55,25 +60,25 @@ export default function PaymentPage() {
           isLoadingMethods={isLoadingMethods}
           isDeleting={isDeleting}
           onDelete={handleDelete}
-          onTermsOpen={termsState.open}
         />
       ) : (
-        <>
-          <ExtendCard
-            allowedAmounts={allowedAmounts}
-            isPaying={isPaying}
-            showEmailInput={needsEmailInput}
-            onExtend={handleExtend}
-            onTermsOpen={termsState.open}
+        <PaymentForm
+          selectedMethod={selectedMethod}
+          needsEmailInput={needsEmailInput}
+          allowedAmounts={allowedAmounts}
+          starsAmount={starsAmount}
+          isPending={isPending}
+          starsError={starsError}
+          platformType={platformType}
+          onExtend={handleExtend}
+          onStarsPayment={handleStarsPayment}
+        >
+          <PaymentMethodSelector
+            selectedMethod={selectedMethod}
+            starsEnabled={starsEnabled}
+            onSelectionChange={handleSelectionChange}
           />
-          {starsEnabled && (
-            <StarsPaymentButton
-              isDisabled={isStarsPaying}
-              error={starsError}
-              onPress={handleStarsPayment}
-            />
-          )}
-        </>
+        </PaymentForm>
       )}
 
       <StarsPaymentSuccessDrawer
@@ -82,13 +87,6 @@ export default function PaymentPage() {
         onClose={successState.close}
       />
 
-      <TermsDialog
-        isOpen={termsState.isOpen}
-        supportUrl={supportUrl}
-        platformType={platformType}
-        onOpenChange={termsState.setOpen}
-        onTermsLinkClick={() => termsState.setOpen(false)}
-      />
     </Page>
   );
 }

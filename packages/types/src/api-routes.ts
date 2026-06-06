@@ -14,6 +14,7 @@ export const apiRoutes = {
       `/yookassa/saved-methods/${encodeURIComponent(userId)}/${encodeURIComponent(id)}`,
     telegramStarsCreateInvoice: '/telegram-stars/create-invoice',
     telegramStarsPaymentSucceeded: '/telegram-stars/payment-succeeded',
+    adminSearchPayments: '/admin/payments/search',
   },
   referrals: {
     collection: '/',
@@ -33,5 +34,6 @@ export const apiRoutes = {
     userDevice: (userUuid: string, hwid: string) =>
       `/users/${userUuid}/devices/${encodeURIComponent(hwid)}`,
     telegramPhoto: (telegramId: number | string) => `/users/telegram-photo/${telegramId}`,
+    userExtraDevice: (uuid: string) => `/users/${uuid}/extra-device`,
   },
 } as const;

@@ -75,6 +75,8 @@ export class PaymentStatusListener {
           expireAt: user.expireAt,
           locale,
         });
+      } else if (payload.purpose === 'extra_device') {
+        await this.sendExtraDeviceSuccessMessage(user.telegramId, locale);
       } else {
         await this.sendYookassaSuccessMessage(user, locale);
       }
@@ -134,6 +136,25 @@ export class PaymentStatusListener {
   private resolveFailureI18nKey(reason?: Payments.CancelReason | string): string {
     if (!reason) return DEFAULT_FAILURE_I18N_KEY;
     return CANCEL_REASON_I18N_KEY[reason as Payments.CancelReason] ?? DEFAULT_FAILURE_I18N_KEY;
+  }
+
+  private async sendExtraDeviceSuccessMessage(telegramId: number, locale: string) {
+    const i18n = this.localService.i18n;
+
+    const menu = new InlineKeyboard()
+      .webApp(
+        i18n.t(locale, 'profile-button-label'),
+        process.env.TMA_APP_URL || 'https://app.thejungle.pro',
+      )
+      .row()
+      .text(i18n.t(locale, 'home-button-label'), 'navigate_main');
+
+    await safeSendMessage(
+      this.bot,
+      telegramId,
+      i18n.t(locale, 'extra-device-success-text'),
+      { reply_markup: menu },
+    );
   }
 
   private async sendYookassaSuccessMessage(user: UserDto, locale: string) {

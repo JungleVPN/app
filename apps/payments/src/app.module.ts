@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AdminModule } from '@payments/admin/admin.module';
 import { AutopaymentModule } from '@payments/autopayment/autopayment.module';
 import { BotNotificationModule } from '@payments/notifications/bot-notification.module';
 import { StripeModule } from '@payments/providers/stripe/stripe.module';
@@ -18,6 +19,7 @@ import { dataSourceOptions } from '@workspace/database';
     }),
     EventEmitterModule.forRoot(),
     TypeOrmModule.forRoot(dataSourceOptions),
+    AdminModule,
     StripeModule,
     TelegramStarsModule,
     YookassaModule,

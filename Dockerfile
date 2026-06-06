@@ -28,38 +28,17 @@ COPY . .
 #   docker compose build --build-arg TURBO_CONCURRENCY=4
 ARG TURBO_CONCURRENCY=4
 
-# Vite bakes these into the JS bundle at build time — they must be available
-# here, not at runtime. Pass them via docker compose build args so that .env
-# never needs to be copied into the image.
-ARG VITE_REMNAWAVE_URL
-ARG VITE_PAYMENTS_URL
-ARG VITE_SUPABASE_URL
-ARG VITE_SUPABASE_ANON_KEY
-ARG VITE_SUBPAGE_CONFIG
-ARG VITE_ALLOWED_AMOUNTS
-ARG VITE_ALLOWED_PERIODS
-ARG VITE_SUPPORT_URL
-ARG VITE_TMA_APP_URL
-ARG VITE_TELEGRAM_BOT_TOKEN
-ENV VITE_REMNAWAVE_URL=$VITE_REMNAWAVE_URL \
-    VITE_PAYMENTS_URL=$VITE_PAYMENTS_URL \
-    VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
-    VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY \
-    VITE_SUBPAGE_CONFIG=$VITE_SUBPAGE_CONFIG \
-    VITE_ALLOWED_AMOUNTS=$VITE_ALLOWED_AMOUNTS \
-    VITE_ALLOWED_PERIODS=$VITE_ALLOWED_PERIODS \
-    VITE_SUPPORT_URL=$VITE_SUPPORT_URL \
-    VITE_TMA_APP_URL=$VITE_TMA_APP_URL \
-    VITE_TELEGRAM_BOT_TOKEN=$VITE_TELEGRAM_BOT_TOKEN
-
 # Build all packages except Vite apps first (Turbo runs many Nest builds in parallel).
 # .turbo cache mount speeds up repeat builds on the same host when no remote cache is set.
 RUN --mount=type=cache,id=turbo-cache,target=/app/.turbo \
     pnpm turbo build --concurrency=${TURBO_CONCURRENCY} --filter='!@jungle/web' --filter='!@jungle/tma'
 # Vite apps: skip full-project `tsc -b` here — heavy on small VPS RAM; Vite already compiles TS.
 # Run `pnpm --filter @jungle/web typecheck` / `@jungle/tma typecheck` in CI. No sourcemaps in image build.
-RUN WEB_BUILD_SOURCEMAP=false pnpm --filter @jungle/web run build:docker
-RUN WEB_BUILD_SOURCEMAP=false pnpm --filter @jungle/tma run build:docker
+# .env is mounted as a BuildKit secret — never written to any image layer.
+RUN --mount=type=secret,id=env,target=/app/.env \
+    WEB_BUILD_SOURCEMAP=false pnpm --filter @jungle/web run build:docker
+RUN --mount=type=secret,id=env,target=/app/.env \
+    WEB_BUILD_SOURCEMAP=false pnpm --filter @jungle/tma run build:docker
 
 # ── Production dependencies only ─────────────────────────────────────
 # Prune devDependencies in-place from the build output instead of running

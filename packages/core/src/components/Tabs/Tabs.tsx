@@ -1,15 +1,18 @@
-import { IconCategory2, IconNetwork } from '@tabler/icons-react';
+import { IconCategory2, IconNetwork, IconShieldSearch } from '@tabler/icons-react';
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
 import IconDevices from '../../assets/icons/device-tab-icon.svg?react';
 import IconPig from '../../assets/icons/payment-tab-icon.svg?react';
 import { useAppRoutes } from '../../runtime';
-import { useNavbarStore } from '../../stores';
+import { useAuthStoreInfo, useNavbarStore } from '../../stores';
+import { isAdminUser } from '../../utils';
 import css from './Tabs.module.css';
 
 type TabValue = 'subscription' | 'payments' | 'devices' | 'menu';
+type TabValue = 'subscription' | 'payments' | 'devices' | 'admin';
 
 interface TabDef {
   id: TabValue;
@@ -17,7 +20,7 @@ interface TabDef {
   icon: React.ReactNode;
 }
 
-const TAB_VALUES: TabValue[] = ['subscription', 'payments', 'devices', 'menu'];
+const BASE_TAB_VALUES: TabValue[] = ['subscription', 'payments', 'devices', 'menu'];
 
 const SPRING = { type: 'spring', stiffness: 400, damping: 35 } as const;
 const PRESS_SPRING = { type: 'spring', stiffness: 500, damping: 40 } as const;
@@ -32,31 +35,45 @@ function getActiveTab(
   subscriptionPath: string,
   paymentPath: string,
   devicesPath: string,
+  adminPath?: string,
   menuPath: string,
 ): TabValue {
   const norm = normalizePath(pathname);
-  if (norm === normalizePath(paymentPath)) return 'payments';
-  if (norm === normalizePath(devicesPath)) return 'devices';
-  if (norm === normalizePath(menuPath)) return 'menu';
-  if (norm === normalizePath(subscriptionPath)) return 'subscription';
-  // Fallback: match the last URL segment against known tab IDs.
-  const segment = pathname.split('/').filter(Boolean).pop() as TabValue | undefined;
-  return segment && TAB_VALUES.includes(segment) ? segment : 'subscription';
+  const matches = (base: string) => {
+    const b = normalizePath(base);
+    return norm === b || norm.startsWith(b + '/');
+  };
+  if (matches(paymentPath)) return 'payments';
+  if (matches(devicesPath)) return 'devices';
+  if (adminPath && matches(adminPath)) return 'admin';
+  if (matches(subscriptionPath)) return 'subscription';
+  if (matches(menuPath)) return 'menu';
+  return 'subscription';
 }
 
 export const Navbar = () => {
-  const { profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileMenuPath } =
+  const { profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileMenuPath, profileAdminPath } =
     useAppRoutes();
   const { isVisible } = useNavbarStore();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { tgUser, authUser } = useAuthStoreInfo();
+
+  const isAdmin = isAdminUser(tgUser, authUser);
+
+  const TAB_VALUES = useMemo<TabValue[]>(
+    () => (isAdmin ? [...BASE_TAB_VALUES, 'admin'] : BASE_TAB_VALUES),
+    [isAdmin],
+  );
+
   const activeTab = getActiveTab(
     pathname,
     profileSubscriptionPath,
     profilePaymentPath,
     profileDevicesPath,
     profileMenuPath,
+    profileAdminPath,
   );
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -102,6 +119,15 @@ export const Navbar = () => {
     return Math.max(0, end - start) / pos.width;
   });
 
+  const adminOverlap = useTransform(indicatorX, (x) => {
+    const pos = tabPositionsRef.current.admin;
+    if (!pos || pos.width === 0) return 0;
+    const w = indicatorWidth.get();
+    const start = Math.max(x, pos.left);
+    const end = Math.min(x + w, pos.left + pos.width);
+    return Math.max(0, end - start) / pos.width;
+  });
+
   const menuOverlap = useTransform(indicatorX, (x) => {
     const pos = tabPositionsRef.current.menu;
     if (!pos || pos.width === 0) return 0;
@@ -116,9 +142,10 @@ export const Navbar = () => {
       subscription: subscriptionOverlap,
       payments: paymentsOverlap,
       devices: devicesOverlap,
+      admin: adminOverlap,
       menu: menuOverlap,
     }),
-    [subscriptionOverlap, paymentsOverlap, devicesOverlap, menuOverlap],
+    [subscriptionOverlap, paymentsOverlap, devicesOverlap, adminOverlap, menuOverlap],
   );
 
   const tabPaths = useMemo(
@@ -127,9 +154,10 @@ export const Navbar = () => {
         subscription: profileSubscriptionPath,
         payments: profilePaymentPath,
         devices: profileDevicesPath,
+        admin: profileAdminPath,
         menu: profileMenuPath,
       }) satisfies Record<TabValue, string>,
-    [profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileMenuPath],
+    [profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileAdminPath, profileMenuPath],
   );
 
   const tabs = useMemo<TabDef[]>(
@@ -154,22 +182,35 @@ export const Navbar = () => {
         label: t('profileTabs.menu'),
         icon: <IconCategory2 stroke={1.5} className='size-7' />,
       },
+      ...(isAdmin
+        ? [
+            {
+              id: 'admin' as const,
+              label: t('profileTabs.admin', 'Admin'),
+              icon: <IconShieldSearch stroke={1.5} className='size-7' />,
+            },
+          ]
+        : [])
     ],
-    [t],
+    [t, isAdmin],
   );
 
-  const tabRefCallbacks = useRef({
-    subscription: (el: HTMLButtonElement | null) => {
+  const tabRefCallbacks = useRef<Record<TabValue, (el: HTMLButtonElement | null) => void>>({
+    subscription: (el) => {
       if (el) tabRefs.current.set('subscription', el);
       else tabRefs.current.delete('subscription');
     },
-    payments: (el: HTMLButtonElement | null) => {
+    payments: (el) => {
       if (el) tabRefs.current.set('payments', el);
       else tabRefs.current.delete('payments');
     },
-    devices: (el: HTMLButtonElement | null) => {
+    devices: (el) => {
       if (el) tabRefs.current.set('devices', el);
       else tabRefs.current.delete('devices');
+    },
+    admin: (el) => {
+      if (el) tabRefs.current.set('admin', el);
+      else tabRefs.current.delete('admin');
     },
     menu: (el: HTMLButtonElement | null) => {
       if (el) tabRefs.current.set('menu', el);
@@ -195,7 +236,7 @@ export const Navbar = () => {
         width: rect.width,
       };
     }
-  }, []);
+  }, [TAB_VALUES]);
 
   const animateIndicatorTo = useCallback(
     (id: TabValue, instant = false) => {
@@ -228,20 +269,23 @@ export const Navbar = () => {
     animateIndicatorTo(activeTab);
   }, [activeTab, animateIndicatorTo]);
 
-  const findNearestTab = useCallback((centerX: number): TabValue => {
-    let nearest: TabValue = TAB_VALUES[0];
-    let minDist = Number.POSITIVE_INFINITY;
-    for (const id of TAB_VALUES) {
-      const pos = tabPositionsRef.current[id];
-      if (!pos) continue;
-      const dist = Math.abs(centerX - (pos.left + pos.width / 2));
-      if (dist < minDist) {
-        minDist = dist;
-        nearest = id;
+  const findNearestTab = useCallback(
+    (centerX: number): TabValue => {
+      let nearest: TabValue = 'subscription';
+      let minDist = Number.POSITIVE_INFINITY;
+      for (const id of TAB_VALUES) {
+        const pos = tabPositionsRef.current[id];
+        if (!pos) continue;
+        const dist = Math.abs(centerX - (pos.left + pos.width / 2));
+        if (dist < minDist) {
+          minDist = dist;
+          nearest = id;
+        }
       }
-    }
-    return nearest;
-  }, []);
+      return nearest;
+    },
+    [TAB_VALUES],
+  );
 
   const handleBarPressIn = useCallback(() => {
     animate(barScale, 1.02, PRESS_SPRING);
@@ -289,10 +333,11 @@ export const Navbar = () => {
     [navigate, tabPaths, animateIndicatorTo],
   );
 
-  const clickHandlers = useRef({
+  const clickHandlers = useRef<Record<TabValue, () => void>>({
     subscription: () => handleTabClick('subscription'),
     payments: () => handleTabClick('payments'),
     devices: () => handleTabClick('devices'),
+    admin: () => handleTabClick('admin'),
     menu: () => handleTabClick('menu'),
   });
   useLayoutEffect(() => {
@@ -300,16 +345,17 @@ export const Navbar = () => {
       subscription: () => handleTabClick('subscription'),
       payments: () => handleTabClick('payments'),
       devices: () => handleTabClick('devices'),
+      admin: () => handleTabClick('admin'),
       menu: () => handleTabClick('menu'),
     };
   }, [handleTabClick]);
 
-  return (
+  return createPortal(
     <motion.div
       className={css.root}
       style={{ scale: barScale }}
       initial={false}
-      animate={{ y: isVisible ? 0 : 'calc(100% + 16px)' }}
+      animate={{ y: isVisible ? 0 : 'calc(100% + 24px)' }}
       transition={{ type: 'spring', stiffness: 400, damping: 35 }}
       onPointerDown={handleBarPressIn}
       onPointerUp={handleBarPressOut}
@@ -351,6 +397,7 @@ export const Navbar = () => {
           );
         })}
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 };

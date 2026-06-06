@@ -65,6 +65,7 @@ export function useYookassaPayment() {
 
     const session = await createSession({
       userId: activeUser.uuid,
+      telegramId: tgUser?.id != null ? Number(tgUser.id) : null,
       save_payment_method: true,
       confirmation: {
         return_url: isNativeApp

@@ -5,7 +5,7 @@ import {
   useRemnawaveApi,
   useUserDevices,
 } from '@workspace/core';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { HwidDevice } from '../utils/devices.utils';
 
 export function useDevices() {
@@ -38,10 +38,21 @@ export function useDevices() {
     setDeviceToDelete(null);
   };
 
+  const isAtLimit = useMemo(() => {
+    if (devices === null || rmnUser?.hwidDeviceLimit == null) return false;
+    return devices.length >= rmnUser.hwidDeviceLimit;
+  }, [devices, rmnUser?.hwidDeviceLimit]);
+
+  const deviceCount = devices?.length ?? null;
+  const deviceLimit = rmnUser?.hwidDeviceLimit ?? null;
+
   return {
     devices,
     isFetching,
     isDeleting,
+    isAtLimit,
+    deviceCount,
+    deviceLimit,
     confirmIsOpen: confirmState.isOpen,
     confirmSetOpen: confirmState.setOpen,
     handleDeleteRequest,

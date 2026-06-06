@@ -1,3 +1,4 @@
+import type { PaymentPurpose } from '@workspace/types';
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('telegram_stars_payments')
@@ -20,6 +21,10 @@ export class TelegramStarsPayment {
   /** Telegram's charge id — required for refunds via refundStarPayment() */
   @Column({ type: 'varchar', nullable: true })
   telegramPaymentChargeId: string | null;
+
+  /** What this payment is for. */
+  @Column({ type: 'varchar', default: 'subscription' })
+  purpose: PaymentPurpose;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

@@ -3,7 +3,6 @@ import { BotContext } from '@bot/bot.types';
 import { PaymentMsgService } from '@bot/navigation/features/payment/payment.service';
 import { Base } from '@bot/navigation/menu.base';
 import { Injectable } from '@nestjs/common';
-import { CurrencyService } from '@payments/currency-service/currency.service';
 import { PaymentsService } from '@payments/payments.service';
 import { RemnaService } from '@remna/remna.service';
 import { PaymentProvider, PaymentSession } from '@shared/payments';
@@ -15,7 +14,6 @@ export class PaymentMethodMsgService extends Base {
     readonly remnaService: RemnaService,
     readonly paymentsService: PaymentsService,
     readonly paymentMsgService: PaymentMsgService,
-    readonly currencyService: CurrencyService,
   ) {
     super();
   }
@@ -31,7 +29,6 @@ export class PaymentMethodMsgService extends Base {
 
     const paymentSession = await this.createSessionForProvider(provider, {
       userId: user[0].uuid,
-      selectedPeriod: Number(process.env.ALLOWED_PERIODS),
       save_payment_method: true,
       amount: { value: process.env.ALLOWED_AMOUNTS || '250', currency: 'RUB' },
       description: process.env.PAYMENT_DESCRIPTION || ' subscription',
@@ -52,7 +49,6 @@ export class PaymentMethodMsgService extends Base {
   ): Promise<PaymentSession> {
     const metadata = {
       description: params.description,
-      selectedPeriod: params.selectedPeriod,
     };
 
     switch (provider) {

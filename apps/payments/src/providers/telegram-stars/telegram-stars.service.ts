@@ -46,16 +46,20 @@ export class TelegramStarsService implements OnModuleInit {
    * when the successful_payment update arrives.
    */
   async createInvoice(dto: CreateTelegramStarsInvoiceDto): Promise<TelegramStarsInvoiceResponse> {
-    const { userId, title, description } = dto;
+    const { userId, title, description, purpose = 'subscription' } = dto;
     const allowedPeriods = this.paymentsUtils.getAllowedPeriods();
-    const allowedStarsAmounts = this.paymentsUtils.getAllowedStarsAmounts();
+    const starsAmount =
+      purpose === 'extra_device'
+        ? this.paymentsUtils.getExtraDeviceStarsAmount()
+        : this.paymentsUtils.getAllowedStarsAmounts()[0];
 
     const record = this.starsPaymentRepo.create({
       userId,
       selectedPeriod: allowedPeriods[0],
-      starsAmount: allowedStarsAmounts[0],
+      starsAmount,
       status: 'pending',
       telegramPaymentChargeId: null,
+      purpose,
       paidAt: null,
     });
     const saved = await this.starsPaymentRepo.save(record);
@@ -71,7 +75,7 @@ export class TelegramStarsService implements OnModuleInit {
       payload,
       '', // provider_token must be empty string for Telegram Stars (XTR)
       'XTR',
-      [{ label: title, amount: allowedStarsAmounts[0] }],
+      [{ label: title, amount: starsAmount }],
     );
 
     this.logger.log(`Created Stars invoice for userId=${userId}, recordId=${saved.id}`);
@@ -80,8 +84,8 @@ export class TelegramStarsService implements OnModuleInit {
 
   /**
    * Called by apps/bot after receiving message:successful_payment.
-   * Marks the DB record as succeeded, then delegates subscription extension
-   * to PaymentStatusService (same flow as YooKassa / Stripe).
+   * Marks the DB record as succeeded, then delegates to PaymentStatusService
+   * which dispatches based on purpose.
    */
   async handlePaymentSucceeded(dto: TelegramStarsPaymentSucceededDto): Promise<{ ok: boolean }> {
     const { paymentRecordId, telegramPaymentChargeId } = dto;
@@ -107,6 +111,7 @@ export class TelegramStarsService implements OnModuleInit {
     const result = await this.paymentStatusService.handleUserUpdates({
       selectedPeriod: record.selectedPeriod,
       userId: record.userId,
+      purpose: record.purpose,
     });
 
     if (!result.success) {

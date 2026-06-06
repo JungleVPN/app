@@ -1,17 +1,19 @@
 import { Button, Drawer } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import { coreEnv } from '../../env';
-import { TgsSticker } from './TgsSticker';
+import { coreEnv, getTelegramStickerUrl } from '../../env';
+import { TgsSticker } from '../../ui/TgsSticker';
 
 interface Props {
   isOpen: boolean;
   allowedPeriods: number;
+  /** Overrides the default subscription success description when provided. */
+  description?: string;
   onClose: () => void;
 }
 
-export function StarsPaymentSuccessDrawer({ isOpen, allowedPeriods, onClose }: Props) {
+export function StarsPaymentSuccessDrawer({ isOpen, allowedPeriods, description, onClose }: Props) {
   const { t } = useTranslation();
-  const { successStickerUrl } = coreEnv;
+  const successStickerUrl = getTelegramStickerUrl(coreEnv.successStickerFileId);
 
   return (
     <Drawer.Backdrop
@@ -25,16 +27,14 @@ export function StarsPaymentSuccessDrawer({ isOpen, allowedPeriods, onClose }: P
           <Drawer.Handle />
           <Drawer.CloseTrigger />
           <Drawer.Header className='flex flex-col items-center gap-3 pt-2'>
-            {successStickerUrl && (
-              <TgsSticker className='h-28 w-28' src={successStickerUrl} />
-            )}
+            {successStickerUrl && <TgsSticker className='h-28 w-28' src={successStickerUrl} />}
             <Drawer.Heading className='text-center'>
               {t('payment.stars.success.title')}
             </Drawer.Heading>
           </Drawer.Header>
           <Drawer.Body>
             <p className='text-center text-sm text-muted'>
-              {t('payment.stars.success.description', { period: allowedPeriods })}
+              {description ?? t('payment.stars.success.description', { period: allowedPeriods })}
             </p>
           </Drawer.Body>
           <Drawer.Footer>

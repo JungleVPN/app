@@ -4,8 +4,9 @@ import { useRemnawaveApi } from '../api';
 import { Navbar } from '../components';
 import { coreEnv } from '../env';
 import { useSavedMethodsData, useSubscriptionData } from '../hooks';
+import { TermsDialog } from '../pages/profile/payment/components/TermsDialog';
 import { useAppRoutes } from '../runtime';
-import { useAuthStore, useAuthStoreActions, useAuthStoreInfo } from '../stores';
+import { useAuthStore, useAuthStoreActions, useAuthStoreInfo, useNavbarStore, useTermsStore } from '../stores';
 import { initUser } from '../utils';
 
 export function ProfileLayout() {
@@ -14,6 +15,12 @@ export function ProfileLayout() {
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { getSubscriptionPath } = useAppRoutes();
+  const { setNavbarVisible } = useNavbarStore();
+  const { isOpen: isTermsOpen } = useTermsStore();
+
+  useEffect(() => {
+    setNavbarVisible(!isTermsOpen);
+  }, [isTermsOpen, setNavbarVisible]);
 
   // Resolve the remnawave user from the available auth identity.
   //
@@ -45,6 +52,7 @@ export function ProfileLayout() {
     <>
       <Outlet />
       {rmnUser && <Navbar />}
+      <TermsDialog />
     </>
   );
 }

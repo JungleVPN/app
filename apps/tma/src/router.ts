@@ -6,7 +6,13 @@ import {
   SubscriptionPage,
   TermsPage,
 } from '@workspace/core';
-import { ProtectedDevicesPage, ProtectedMenuPage } from '@workspace/core/pages';
+import {
+  ProtectedAdminPaymentDetailsPage,
+  ProtectedAdminPaymentsPage,
+  ProtectedMenuPage,
+  ProtectedDevicesPage,
+  ProtectedExtraDevicePurchasePage,
+} from '@workspace/core/pages';
 import { createMemoryRouter } from 'react-router';
 import { TmaRootLayout } from '@/layouts/TmaRootLayout';
 
@@ -58,6 +64,18 @@ export const router = createMemoryRouter(
             {
               path: 'devices',
               Component: ProtectedDevicesPage,
+            },
+            {
+              path: 'devices/extra',
+              Component: ProtectedExtraDevicePurchasePage,
+            },
+            {
+              path: 'admin',
+              Component: ProtectedAdminPaymentsPage,
+            },
+            {
+              path: 'admin/:paymentId',
+              Component: ProtectedAdminPaymentDetailsPage,
             },
             {
               path: 'menu',

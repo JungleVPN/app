@@ -15,12 +15,25 @@ export const coreEnv = {
   allowedPeriods: Number(import.meta.env.VITE_ALLOWED_PERIODS ?? 1),
   supportUrl: (import.meta.env.VITE_SUPPORT_URL ?? '') as string,
   starsAmount: Number(import.meta.env.VITE_STARS_AMOUNT ?? 0),
-  successStickerUrl: buildStickerUrl(
-    import.meta.env.VITE_SUCCESS_STICKER_FILE_ID ?? '',
-    import.meta.env.VITE_BOT_URL ?? '',
-  ),
-  menuStickerUrl: buildStickerUrl(
-    import.meta.env.VITE_MENU_STICKER_FILE_ID ?? '',
-    import.meta.env.VITE_BOT_URL ?? '',
+  extraDeviceStarsAmount: Number(import.meta.env.VITE_EXTRA_DEVICE_STARS_AMOUNT ?? 0),
+  successStickerFileId: (import.meta.env.VITE_SUCCESS_STICKER_FILE_ID ?? '') as string,
+  menuStickerUrl: (import.meta.env.VITE_MENU_STICKER_FILE_ID ?? '') as string,
+  extraDeviceStickerFileId: (import.meta.env.VITE_EXTRA_DEVICE_STICKER_FILE_ID ?? '') as string,
+  paymentsUrl: (import.meta.env.VITE_PAYMENTS_URL ?? '') as string,
+  extraDevicePrice: (import.meta.env.VITE_EXTRA_DEVICE_PRICE ?? '') as string,
+  /**
+   * Comma-separated Telegram user ids that have access to admin features.
+   * Set VITE_ADMINS=123456,789012 in the .env file.
+   */
+  admins: new Set(
+    ((import.meta.env.VITE_ADMINS ?? '') as string)
+      .split(',')
+      .map((s: string) => s.trim())
+      .filter(Boolean),
   ),
 } as const;
+
+export function getTelegramStickerUrl(fileId: string): string {
+  const { paymentsUrl } = coreEnv;
+  return fileId && paymentsUrl ? `${paymentsUrl}/telegram-stars/sticker/${fileId}` : '';
+}

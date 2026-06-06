@@ -1,0 +1,103 @@
+import { type Selection } from '@heroui/react';
+import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import deviceAnimation from '../../../assets/lottie/devicesPageIcon.lottie?url';
+import { coreEnv, getTelegramStickerUrl } from '../../../env';
+import { useBackButton } from '../../../hooks';
+import { useNavbarStore, usePlatformStore } from '../../../stores';
+import { LottieIcon, Page, TgsSticker } from '../../../ui';
+import { PaymentForm } from '../payment/components/PaymentForm';
+import {
+  type PaymentMethod,
+  PaymentMethodSelector,
+} from '../payment/components/PaymentMethodSelector';
+import { useExtraDevicePayment } from './hooks/useExtraDevicePayment';
+import { useExtraDeviceStarsPayment } from './hooks/useExtraDeviceStarsPayment';
+
+export default function ExtraDevicePurchasePage() {
+  const { t } = useTranslation();
+  const { platformType } = usePlatformStore();
+  const { setNavbarVisible } = useNavbarStore();
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('card');
+
+  const { isPaying, handlePay } = useExtraDevicePayment();
+  const { starsEnabled, starsAmount, starsError, isStarsPaying, successState, handleStarsPayment } =
+    useExtraDeviceStarsPayment();
+
+  const isPending = selectedMethod === 'stars' ? isStarsPaying : isPaying;
+
+  useEffect(() => {
+    setNavbarVisible(false);
+    return () => {
+      setNavbarVisible(true);
+    };
+  }, [setNavbarVisible]);
+
+  useBackButton();
+
+  const handleSelectionChange = (keys: Selection) => {
+    if (keys === 'all') return;
+    const key = Array.from(keys)[0] as PaymentMethod | undefined;
+    if (key) setSelectedMethod(key);
+  };
+
+  const handleSuccessClose = () => {
+    successState.close();
+    setNavbarVisible(true);
+  };
+
+  const buttonLabel =
+    selectedMethod === 'stars'
+      ? t('devices.extraDevicePurchase.starsButton', { amount: starsAmount })
+      : t('devices.extraDevicePurchase.priceButton', { amount: coreEnv.extraDevicePrice });
+
+  const handleExtend = async () => {
+    await handlePay();
+  };
+
+  const extraDeviceStickerUrl = getTelegramStickerUrl(coreEnv.extraDeviceStickerFileId);
+
+  return (
+    <Page
+      icon={
+        extraDeviceStickerUrl ? (
+          <TgsSticker className='h-28 w-28' src={extraDeviceStickerUrl} />
+        ) : (
+          <LottieIcon src={deviceAnimation} />
+        )
+      }
+      title={t('devices.extraDevicePurchase.pageTitle')}
+      subtitle={t('devices.extraDevicePurchase.pageSubtitle')}
+    >
+      <PaymentForm
+        selectedMethod={selectedMethod}
+        needsEmailInput={false}
+        allowedAmounts=''
+        starsAmount={starsAmount}
+        buttonLabel={buttonLabel}
+        isPending={isPending}
+        starsError={starsError}
+        platformType={platformType}
+        onExtend={handleExtend}
+        onStarsPayment={handleStarsPayment}
+      >
+        <PaymentMethodSelector
+          selectedMethod={selectedMethod}
+          starsEnabled={starsEnabled}
+          onSelectionChange={handleSelectionChange}
+          isReccurring={false}
+          description={t('devices.extraDevicePurchase.description')}
+        />
+      </PaymentForm>
+
+      <StarsPaymentSuccessDrawer
+        allowedPeriods={0}
+        description={t('devices.extraDevicePurchase.starsSuccessDescription')}
+        isOpen={successState.isOpen}
+        onClose={handleSuccessClose}
+      />
+
+    </Page>
+  );
+}

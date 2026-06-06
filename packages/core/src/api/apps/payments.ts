@@ -1,5 +1,6 @@
 import {
   apiRoutes,
+  type AdminPaymentDto,
   type CreateTelegramStarsInvoiceDto,
   type CreateYookassaSessionDto,
   PaymentSession,
@@ -11,8 +12,8 @@ import type { ApiClient } from '../client';
 export function createPaymentsApi(client: ApiClient) {
   return {
     async createYookassaSession(
-      dto: Omit<CreateYookassaSessionDto, 'amount' | 'selectedPeriod'>,
-    ): Promise<PaymentSession> {
+      dto: Omit<CreateYookassaSessionDto, 'amount'>,
+    ): Promise<PaymentSession> {  // selectedPeriod is derived server-side — callers don't set it
       return client.post<PaymentSession>(apiRoutes.payments.yookassaCreateSession, dto);
     },
 
@@ -31,6 +32,17 @@ export function createPaymentsApi(client: ApiClient) {
         apiRoutes.payments.telegramStarsCreateInvoice,
         dto,
       );
+    },
+
+    /**
+     * Admin: search payments by paymentId, userId or telegramId across all providers.
+     * Requires X-Admin-Telegram-Id header to be accepted by the backend.
+     */
+    async searchPayments(q: string, adminId: string): Promise<AdminPaymentDto[]> {
+      return client.get<AdminPaymentDto[]>(apiRoutes.payments.adminSearchPayments, {
+        params: { q },
+        headers: { 'X-Admin-Id': adminId },
+      });
     },
   };
 }

@@ -22,6 +22,8 @@ const appRoutes = {
   profileSubscriptionPath: '/profile/subscription',
   profilePaymentPath: '/profile/payments',
   profileDevicesPath: '/profile/devices',
+  profileExtraDevicePurchasePath: '/profile/devices/extra',
+  profileAdminPath: '/profile/admin',
   profileMenuPath: '/profile/menu',
   getSubscriptionPath: '/getSubscription',
 };

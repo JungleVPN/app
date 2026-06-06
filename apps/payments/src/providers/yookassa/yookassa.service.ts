@@ -69,15 +69,11 @@ export class YookassaService {
   // ── Session creation ────────────────────────────────────────────────────
 
   async createPaymentSession(dto: CreateYookassaSessionDto): Promise<PaymentSession> {
-    const { userId, ...paymentFields } = dto;
-
-    const existingSession = await this.findValidPendingSession(userId);
-    if (existingSession) {
-      this.logger.log(`Reusing existing YooKassa session ${existingSession.id} for user ${userId}`);
-      return { id: existingSession.id, url: existingSession.url! };
-    }
-
-    const amountValue = this.paymentsUtils.getAllowedAmounts()[0];
+    const { userId, telegramId, purpose = 'subscription', ...paymentFields } = dto;
+    const amountValue =
+      purpose === 'extra_device'
+        ? this.paymentsUtils.getExtraDevicePrice()
+        : this.paymentsUtils.getAllowedAmounts()[0];
     const selectedPeriod = this.paymentsUtils.getAllowedPeriods()[0];
 
     const request: Payments.CreatePaymentRequest = {
@@ -113,8 +109,10 @@ export class YookassaService {
       amount: request.amount.value,
       currency: 'RUB',
       userId,
+      telegramId: telegramId ?? null,
       selectedPeriod,
       description: payment.description ?? null,
+      purpose,
       paidAt: null,
     });
     await this.yookassaPaymentRepo.save(record);
@@ -182,6 +180,7 @@ export class YookassaService {
         userId: record.userId,
         provider: 'yookassa',
         selectedPeriod: record.selectedPeriod,
+        purpose: record.purpose,
       } satisfies Payments.PaymentSucceededEventPayload);
 
       if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {
@@ -360,20 +359,6 @@ export class YookassaService {
   }
 
   // ── Private helpers ─────────────────────────────────────────────────────
-
-  private async findValidPendingSession(userId: string): Promise<YookassaPayment | null> {
-    const CONFIRMATION_URL_TTL_MS = 60 * 60 * 1_000;
-
-    const pending = await this.yookassaPaymentRepo.findOne({
-      where: { userId, status: 'pending' },
-      order: { createdAt: 'DESC' },
-    });
-
-    if (!pending?.url) return null;
-
-    const ageMs = Date.now() - pending.createdAt.getTime();
-    return ageMs < CONFIRMATION_URL_TTL_MS ? pending : null;
-  }
 
   private extractConfirmationUrl(payment: Payments.IPayment): string | undefined {
     const { confirmation } = payment;
