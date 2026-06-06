@@ -3,7 +3,7 @@ import { IconArrowRight, IconMail } from '@tabler/icons-react';
 import { mainButton } from '@tma.js/sdk-react';
 import { ReactNode, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PlatformType, useNavbarStore } from '../../../../stores';
+import { PlatformType, useNavbarStore, useTermsStore } from '../../../../stores';
 import { Block } from '../../../../ui';
 import { validateEmail } from '../../../../utils';
 import type { PaymentMethod } from './PaymentMethodSelector';
@@ -20,7 +20,6 @@ interface PaymentFormProps {
   children?: ReactNode;
   onExtend: (email?: string) => Promise<void>;
   onStarsPayment: () => Promise<void>;
-  onTermsOpen?: () => void;
 }
 
 export function PaymentForm({
@@ -34,15 +33,14 @@ export function PaymentForm({
   children,
   onExtend,
   onStarsPayment,
-  onTermsOpen,
 }: PaymentFormProps) {
   const { t } = useTranslation();
   const { setNavbarVisible } = useNavbarStore();
+  const { open: openTerms } = useTermsStore();
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const submitRef = useRef<() => Promise<void>>(async () => {});
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-
   const showEmailInput = needsEmailInput;
 
   const buttonText =
@@ -135,7 +133,7 @@ export function PaymentForm({
           <button
             className='cursor-pointer underline underline-offset-2'
             type='button'
-            onClick={onTermsOpen}
+            onClick={openTerms}
           >
             {t('terms.paymentLinkLabel')}
           </button>

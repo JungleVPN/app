@@ -9,7 +9,6 @@ export { InstallationGuideConnector } from './InstallationGuide';
 export { LanguagePicker } from './LanguagePicker/LanguagePicker';
 export { Link } from './Link/Link';
 export { Loading } from './Loading/Loading';
-export { ExtendCard } from './payment/ExtendCard';
 export { SavedMethodRow } from './payment/SavedMethodRow';
 export { StarsPaymentSuccessDrawer } from './payment/StarsPaymentSuccessDrawer';
 export { SubscribeCta } from './SubscribeCTA/SubscribeCTA';

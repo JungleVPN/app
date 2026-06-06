@@ -9,7 +9,6 @@ import { LottieIcon } from '../../../ui';
 import { PaymentForm } from './components/PaymentForm';
 import { type PaymentMethod, PaymentMethodSelector } from './components/PaymentMethodSelector';
 import { PaymentMethodsList } from './components/PaymentMethodsList';
-import { TermsDialog } from './components/TermsDialog';
 import { usePayment } from './hooks/usePayment';
 
 export default function PaymentPage() {
@@ -18,7 +17,6 @@ export default function PaymentPage() {
     savedMethods,
     allowedAmounts,
     allowedPeriods,
-    supportUrl,
     platformType,
     hasActiveMethod,
     needsEmailInput,
@@ -29,7 +27,6 @@ export default function PaymentPage() {
     starsError,
     isPaying,
     isStarsPaying,
-    termsState,
     successState,
     handleDelete,
     handleExtend,
@@ -40,12 +37,8 @@ export default function PaymentPage() {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('card');
 
   useEffect(() => {
-    if (successState.isOpen || termsState.isOpen) {
-      setNavbarVisible(false);
-    } else {
-      setNavbarVisible(true);
-    }
-  }, [setNavbarVisible, successState.isOpen, termsState.isOpen]);
+    setNavbarVisible(!successState.isOpen);
+  }, [setNavbarVisible, successState.isOpen]);
 
   const isPending = selectedMethod === 'stars' ? isStarsPaying : isPaying;
 
@@ -79,7 +72,6 @@ export default function PaymentPage() {
           platformType={platformType}
           onExtend={handleExtend}
           onStarsPayment={handleStarsPayment}
-          onTermsOpen={termsState.open}
         >
           <PaymentMethodSelector
             selectedMethod={selectedMethod}
@@ -95,13 +87,6 @@ export default function PaymentPage() {
         onClose={successState.close}
       />
 
-      <TermsDialog
-        isOpen={termsState.isOpen}
-        platformType={platformType}
-        supportUrl={supportUrl}
-        onOpenChange={termsState.setOpen}
-        onTermsLinkClick={() => termsState.setOpen(false)}
-      />
     </Page>
   );
 }

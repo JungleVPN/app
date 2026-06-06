@@ -1,27 +1,16 @@
 import { AlertDialog, Button } from '@heroui/react';
-import { PlatformType } from '@workspace/core';
 import { useTranslation } from 'react-i18next';
 import { Link } from '../../../../components';
+import { coreEnv } from '../../../../env';
+import { usePlatformStore, useTermsStore } from '../../../../stores';
 
-interface TermsDialogProps {
-  isOpen: boolean;
-  supportUrl: string;
-  platformType: PlatformType | null;
-  onOpenChange: (open: boolean) => void;
-  onTermsLinkClick: () => void;
-}
-
-export function TermsDialog({
-  isOpen,
-  supportUrl,
-  platformType,
-  onOpenChange,
-  onTermsLinkClick,
-}: TermsDialogProps) {
+export function TermsDialog() {
   const { t } = useTranslation();
+  const { platformType } = usePlatformStore();
+  const { isOpen, setOpen, close } = useTermsStore();
 
   return (
-    <AlertDialog.Backdrop isDismissable isOpen={isOpen} variant='blur' onOpenChange={onOpenChange}>
+    <AlertDialog.Backdrop isDismissable isOpen={isOpen} variant='blur' onOpenChange={setOpen}>
       <AlertDialog.Container size='sm'>
         <AlertDialog.Dialog className='bg-surface-secondary'>
           <AlertDialog.CloseTrigger />
@@ -50,7 +39,7 @@ export function TermsDialog({
                   {t('terms.dialog.renewalCostLead')}
                   <Link
                     className='underline underline-offset-2'
-                    href={supportUrl}
+                    href={coreEnv.supportUrl}
                     target={platformType === 'web' ? '_blank' : '_self'}
                     rel='noopener noreferrer'
                   >
@@ -67,7 +56,7 @@ export function TermsDialog({
                   <Link
                     className='underline underline-offset-2'
                     href='/terms'
-                    onClick={onTermsLinkClick}
+                    onClick={close}
                   >
                     {t('terms.dialog.termsOfServiceLink')}
                   </Link>

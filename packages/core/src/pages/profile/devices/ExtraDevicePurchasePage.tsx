@@ -1,5 +1,4 @@
 import { type Selection } from '@heroui/react';
-import { mainButton } from '@tma.js/sdk-react';
 import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -54,7 +53,6 @@ export default function ExtraDevicePurchasePage() {
       : t('devices.extraDevicePurchase.priceButton', { amount: coreEnv.extraDevicePrice });
 
   const handleExtend = async () => {
-    mainButton.hide();
     await handlePay();
   };
 
@@ -99,6 +97,7 @@ export default function ExtraDevicePurchasePage() {
         isOpen={successState.isOpen}
         onClose={handleSuccessClose}
       />
+
     </Page>
   );
 }

@@ -10,7 +10,7 @@ export default function TermsPage() {
   const { t } = useTranslation();
 
   return (
-    <Surface className='flex min-w-[320px] flex-col gap-3 rounded-3xl p-6' variant='default'>
+    <Surface className='flex min-w-[320px] flex-col gap-3 rounded-3xl p-6' variant='secondary'>
       <h1 className='mb-5 text-lg font-semibold tracking-tight'>{t('terms.pageTitle')}</h1>
 
       <section aria-labelledby='terms-s1' className='flex flex-col gap-2'>

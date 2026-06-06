@@ -1,4 +1,3 @@
-import { useOverlayState } from '@heroui/react';
 import { coreEnv } from '../../../../env';
 import { useAuthStoreInfo, usePlatformStore, useSavedMethodsStoreInfo } from '../../../../stores';
 import { useTelegramStarsPayment } from './useTelegramStarsPayment';
@@ -9,7 +8,6 @@ export function usePayment() {
   const { platformType } = usePlatformStore();
   const { allowedPeriods, supportUrl } = coreEnv;
   const savedMethods = useSavedMethodsStoreInfo();
-  const termsState = useOverlayState();
 
   const hasActiveMethod = savedMethods?.some((m) => m.isActive) ?? false;
   const needsEmailInput = Boolean(tgUser) && !rmnUser?.email;
@@ -26,7 +24,6 @@ export function usePayment() {
     hasActiveMethod,
     needsEmailInput,
     isLoadingMethods,
-    termsState,
     ...yookassa,
     ...stars,
   };

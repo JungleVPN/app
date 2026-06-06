@@ -3,8 +3,8 @@ import { SavedMethodRow } from '@workspace/core/components';
 import type { SavedMethodDto } from '@workspace/types';
 import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useTermsStore } from '../../../../stores';
 import { Block } from '../../../../ui';
-import { usePayment } from '../hooks/usePayment';
 
 interface PaymentMethodsListProps {
   savedMethods: SavedMethodDto[] | null;
@@ -20,7 +20,7 @@ export function PaymentMethodsList({
   onDelete,
 }: PaymentMethodsListProps) {
   const { t } = useTranslation();
-  const { termsState } = usePayment();
+  const { open: openTerms } = useTermsStore();
 
   const description = (
     <>
@@ -30,7 +30,7 @@ export function PaymentMethodsList({
         <button
           className='cursor-pointer underline underline-offset-2'
           type='button'
-          onClick={termsState.open}
+          onClick={openTerms}
         >
           {t('terms.paymentLinkLabel')}
         </button>

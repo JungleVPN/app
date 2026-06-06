@@ -1,6 +1,7 @@
 export type { AuthUser, IAuthActions, IAuthState } from './auth';
 export { useAuthStore, useAuthStoreActions, useAuthStoreInfo } from './auth';
 export { useNavbarStore } from './navbar';
+export { useTermsStore } from './terms';
 // app-config is referenced here for backward compatibility but the file no longer exists.
 // If AppConfig types are needed in future, add the file back.
 export type {
