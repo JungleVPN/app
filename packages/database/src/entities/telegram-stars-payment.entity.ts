@@ -1,5 +1,12 @@
 import type { PaymentPurpose } from '@workspace/types';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { bigintTransformer } from '../utils/transformers';
 
 @Entity('telegram_stars_payments')
 export class TelegramStarsPayment {
@@ -8,6 +15,9 @@ export class TelegramStarsPayment {
 
   @Column({ nullable: false })
   userId: string;
+
+  @Column({ type: 'bigint', nullable: true, transformer: bigintTransformer })
+  telegramId: number | null;
 
   @Column({ type: 'int', nullable: false })
   starsAmount: number;

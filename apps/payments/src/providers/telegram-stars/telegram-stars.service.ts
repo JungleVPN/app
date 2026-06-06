@@ -46,17 +46,18 @@ export class TelegramStarsService implements OnModuleInit {
    * when the successful_payment update arrives.
    */
   async createInvoice(dto: CreateTelegramStarsInvoiceDto): Promise<TelegramStarsInvoiceResponse> {
-    const { userId, title, description, purpose = 'subscription' } = dto;
+    const { userId, title, telegramId, description, purpose = 'subscription' } = dto;
     const allowedPeriods = this.paymentsUtils.getAllowedPeriods();
     const starsAmount =
       purpose === 'extra_device'
         ? this.paymentsUtils.getExtraDeviceStarsAmount()
         : this.paymentsUtils.getAllowedStarsAmounts()[0];
-
+    console.log(telegramId);
     const record = this.starsPaymentRepo.create({
       userId,
       selectedPeriod: allowedPeriods[0],
       starsAmount,
+      telegramId,
       status: 'pending',
       telegramPaymentChargeId: null,
       purpose,

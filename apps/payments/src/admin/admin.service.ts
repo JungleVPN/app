@@ -60,19 +60,23 @@ export class AdminService {
   }
 
   private async searchStars(q: string): Promise<AdminPaymentDto[]> {
-    // Stars payments only have id (uuid) and userId (varchar).
-    // Cast the uuid column to text so PostgreSQL accepts a plain varchar parameter.
-    const rows = await this.starsRepo
+    const qb = this.starsRepo
       .createQueryBuilder('p')
-      .where('CAST(p.id AS text) = :q OR p.userId = :q', { q })
-      .orderBy('p.createdAt', 'DESC')
-      .getMany();
+      .where('CAST(p.id AS text) = :q OR p.userId = :q', { q });
+
+    const numericQ = Number(q);
+    if (!isNaN(numericQ) && Number.isInteger(numericQ)) {
+      qb.orWhere('p.telegramId = :numQ', { numQ: numericQ });
+    }
+
+    const rows = await qb.orderBy('p.createdAt', 'DESC').getMany();
 
     return rows.map(
       (p): AdminPaymentDto => ({
         paymentId: p.id,
         provider: 'telegram_stars',
         userId: p.userId,
+        telegramId: p.telegramId,
         status: p.status,
         starsAmount: p.starsAmount,
         selectedPeriod: p.selectedPeriod,

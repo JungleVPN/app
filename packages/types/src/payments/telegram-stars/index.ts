@@ -1,10 +1,11 @@
-import type { PaymentPurpose } from '../yookassa/session';
+import type { PaymentPurpose } from '../yookassa';
 
 export type { PaymentPurpose };
 
 /** Request body for POST /telegram-stars/create-invoice (TMA → payments service) */
 export interface CreateTelegramStarsInvoiceDto {
   userId: string;
+  telegramId?: number | null;
   selectedPeriod: number;
   /** Number of Telegram Stars to charge */
   starsAmount: number;

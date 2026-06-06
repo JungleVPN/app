@@ -7,7 +7,6 @@ export interface AdminPaymentDto {
   paymentId: string;
   provider: AdminPaymentProvider;
   userId: string;
-  /** Present only for YooKassa payments that stored the Telegram id at session creation */
   telegramId?: number | null;
   status: string;
   /** Fiat amount (YooKassa only) */

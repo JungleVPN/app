@@ -28,6 +28,7 @@ export function useExtraDeviceStarsPayment() {
 
     const result = await createStarsInvoice({
       userId: rmnUser.uuid,
+      telegramId: rmnUser.telegramId,
       title: t('devices.extraDevicePurchase.starsInvoiceTitle'),
       description: t('devices.extraDevicePurchase.starsInvoiceDescription'),
       purpose: 'extra_device',

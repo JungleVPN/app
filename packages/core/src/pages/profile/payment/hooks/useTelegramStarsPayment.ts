@@ -36,6 +36,7 @@ export function useTelegramStarsPayment() {
 
     const result = await createStarsInvoice({
       userId: rmnUser.uuid,
+      telegramId: rmnUser.telegramId,
       title: t('payment.stars.invoiceTitle', { period: allowedPeriods }),
       description: t('payment.stars.invoiceDescription', { period: allowedPeriods }),
     });
