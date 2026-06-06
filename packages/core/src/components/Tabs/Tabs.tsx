@@ -37,14 +37,15 @@ function getActiveTab(
   adminPath?: string,
 ): TabValue {
   const norm = normalizePath(pathname);
-  if (norm === normalizePath(paymentPath)) return 'payments';
-  if (norm === normalizePath(devicesPath)) return 'devices';
-  if (adminPath && norm === normalizePath(adminPath)) return 'admin';
-  if (norm === normalizePath(subscriptionPath)) return 'subscription';
-  // Fallback: match the last URL segment against known tab IDs.
-  const ALL_TAB_VALUES: TabValue[] = ['subscription', 'payments', 'devices', 'admin'];
-  const segment = pathname.split('/').filter(Boolean).pop() as TabValue | undefined;
-  return segment && ALL_TAB_VALUES.includes(segment) ? segment : 'subscription';
+  const matches = (base: string) => {
+    const b = normalizePath(base);
+    return norm === b || norm.startsWith(b + '/');
+  };
+  if (matches(paymentPath)) return 'payments';
+  if (matches(devicesPath)) return 'devices';
+  if (adminPath && matches(adminPath)) return 'admin';
+  if (matches(subscriptionPath)) return 'subscription';
+  return 'subscription';
 }
 
 export const Navbar = () => {

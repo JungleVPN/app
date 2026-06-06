@@ -1,5 +1,7 @@
 import { Surface } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { useBackButton } from '../../hooks';
 
 const olClass =
   'list-decimal list-outside space-y-2 pl-5 text-sm leading-relaxed text-muted marker:text-muted';
@@ -8,6 +10,8 @@ const ulClass =
 
 export default function TermsPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  useBackButton(() => navigate(-1));
 
   return (
     <Surface className='flex min-w-[320px] flex-col gap-3 rounded-3xl p-6' variant='secondary'>
@@ -116,16 +120,6 @@ export default function TermsPage() {
         </h2>
         <ol className={olClass}>
           <li>{t('terms.s7.i1')}</li>
-          <li>{t('terms.s7.i2')}</li>
-          <li>
-            {t('terms.s7.i3_lead')}
-            <ul className={`${ulClass} mt-2`}>
-              <li>{t('terms.s7.i3_u1')}</li>
-              <li>{t('terms.s7.i3_u2')}</li>
-            </ul>
-          </li>
-          <li>{t('terms.s7.i4')}</li>
-          <li>{t('terms.s7.i5')}</li>
           <li>{t('terms.s7.i6')}</li>
         </ol>
       </section>
@@ -171,6 +165,22 @@ export default function TermsPage() {
         </h2>
         <ol className={olClass}>
           <li>{t('terms.s11.i1')}</li>
+        </ol>
+      </section>
+
+      <section aria-labelledby='terms-s12' className='flex flex-col gap-2'>
+        <h2 className='text-sm font-medium text-foreground' id='terms-s12'>
+          {t('terms.s12.h')}
+        </h2>
+        <ol className={olClass}>
+          <li>{t('terms.s12.i1')}</li>
+          <li>{t('terms.s12.i2')}</li>
+          <li>{t('terms.s12.i3')}</li>
+          <li>{t('terms.s12.i4')}</li>
+          <li>{t('terms.s12.i5')}</li>
+          <li>{t('terms.s12.i6')}</li>
+          <li>{t('terms.s12.i7')}</li>
+          <li>{t('terms.s12.i8')}</li>
         </ol>
       </section>
 
