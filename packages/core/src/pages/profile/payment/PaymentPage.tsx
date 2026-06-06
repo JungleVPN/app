@@ -79,12 +79,12 @@ export default function PaymentPage() {
           platformType={platformType}
           onExtend={handleExtend}
           onStarsPayment={handleStarsPayment}
+          onTermsOpen={termsState.open}
         >
           <PaymentMethodSelector
             selectedMethod={selectedMethod}
             starsEnabled={starsEnabled}
             onSelectionChange={handleSelectionChange}
-            onTermsOpen={termsState.open}
           />
         </PaymentForm>
       )}

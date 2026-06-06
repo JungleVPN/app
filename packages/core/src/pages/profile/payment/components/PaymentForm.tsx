@@ -20,6 +20,7 @@ interface PaymentFormProps {
   children?: ReactNode;
   onExtend: (email?: string) => Promise<void>;
   onStarsPayment: () => Promise<void>;
+  onTermsOpen?: () => void;
 }
 
 export function PaymentForm({
@@ -30,18 +31,19 @@ export function PaymentForm({
   buttonLabel,
   isPending,
   starsError,
-  platformType,
   children,
   onExtend,
   onStarsPayment,
+  onTermsOpen,
 }: PaymentFormProps) {
   const { t } = useTranslation();
   const { setNavbarVisible } = useNavbarStore();
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
+  const submitRef = useRef<() => Promise<void>>(async () => {});
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
 
   const showEmailInput = needsEmailInput;
-  const isTelegram = platformType === 'telegram';
 
   const buttonText =
     buttonLabel ??
@@ -49,7 +51,13 @@ export function PaymentForm({
       ? t('payment.starsPerMonth', { amount: starsAmount })
       : t('payment.pricePerMonth', { amount: allowedAmounts }));
 
-  const submitRef = useRef<() => Promise<void>>(async () => {});
+  useEffect(() => {
+    return window.scrollTo({
+      top: buttonRef.current?.getBoundingClientRect().top,
+      behavior: 'smooth',
+    });
+  }, []);
+
   submitRef.current = async () => {
     if (showEmailInput) {
       if (!email.trim()) {
@@ -72,38 +80,6 @@ export function PaymentForm({
     e.preventDefault();
     await submitRef.current();
   };
-
-  useEffect(() => {
-    if (!isTelegram) return;
-    mainButton.mount();
-    mainButton.show();
-    mainButton.enableShineEffect();
-    return () => {
-      mainButton.hide();
-      mainButton.unmount();
-    };
-  }, [isTelegram]);
-
-  useEffect(() => {
-    if (!isTelegram) return;
-    mainButton.setText(buttonText);
-  }, [isTelegram, buttonText]);
-
-  useEffect(() => {
-    if (!isTelegram) return;
-    if (isPending) {
-      mainButton.showLoader();
-      mainButton.disable();
-    } else {
-      mainButton.hideLoader();
-      mainButton.enable();
-    }
-  }, [isTelegram, isPending]);
-
-  useEffect(() => {
-    if (!isTelegram) return;
-    return mainButton.onClick(() => submitRef.current());
-  }, [isTelegram]);
 
   return (
     <Form className='flex w-full flex-col gap-7' onSubmit={handleSubmit}>
@@ -149,14 +125,24 @@ export function PaymentForm({
         </Block>
       )}
 
-      {children}
-
-      {!isTelegram && (
-        <Button fullWidth isPending={isPending} size='lg' type='submit'>
+      <div>
+        <Button fullWidth isPending={isPending} size='lg' type='submit' ref={buttonRef}>
           {buttonText}
           <IconArrowRight size={20} stroke={2} />
         </Button>
-      )}
+        <p className='pl-4 mt-1 text-start text-xs text-muted'>
+          {t('terms.paymentConsentLead')}
+          <button
+            className='cursor-pointer underline underline-offset-2'
+            type='button'
+            onClick={onTermsOpen}
+          >
+            {t('terms.paymentLinkLabel')}
+          </button>
+        </p>
+      </div>
+
+      {children}
 
       {starsError && <p className='px-4 text-xs text-danger'>{starsError}</p>}
     </Form>

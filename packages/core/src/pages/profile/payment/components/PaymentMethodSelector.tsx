@@ -22,19 +22,12 @@ interface PaymentMethodSelectorProps {
   selectedMethod: PaymentMethod;
   starsEnabled: boolean;
   onSelectionChange: (keys: Selection) => void;
-  onTermsOpen?: () => void;
   isReccurring?: boolean;
   description?: string;
 }
 
 export function PaymentMethodSelector(props: PaymentMethodSelectorProps) {
-  const {
-    selectedMethod,
-    starsEnabled,
-    onSelectionChange,
-    onTermsOpen,
-    isReccurring = true,
-  } = props;
+  const { selectedMethod, starsEnabled, onSelectionChange, isReccurring = true } = props;
   const { t } = useTranslation();
 
   const methods: MethodDef[] = [
@@ -66,23 +59,11 @@ export function PaymentMethodSelector(props: PaymentMethodSelectorProps) {
       : []),
   ];
 
-  const description = onTermsOpen ? (
-    <>
-      <span className='flex items-center gap-1.5'>
-        <IconRotate size={16} />- {t('payment.autoRenewalHint')}
-      </span>
-      <p className='mt-3 text-start text-xs text-muted'>
-        {t('terms.paymentConsentLead')}
-        <button
-          className='cursor-pointer underline underline-offset-2'
-          type='button'
-          onClick={onTermsOpen}
-        >
-          {t('terms.paymentLinkLabel')}
-        </button>
-      </p>
-    </>
-  ) : undefined;
+  const description = (
+    <span className='flex items-center gap-1.5'>
+      <IconRotate size={16} />- {t('payment.autoRenewalHint')}
+    </span>
+  );
 
   return (
     <Block title={t('payment.selectMethodHeading')} description={props.description ?? description}>
