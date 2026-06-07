@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
+import { getConfiguredAmounts } from '@payments/utils/amount';
 import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { Payments, RemnawebhookPayload, WebhookEventEnum } from '@workspace/types';
@@ -26,9 +27,8 @@ export class AutopaymentService {
   ) {}
 
   private get autopaymentAmount(): string {
-    // ALLOWED_AMOUNTS is a comma-separated list of every valid manual-payment
-    const raw = process.env.ALLOWED_AMOUNTS || '200';
-    return raw.split(',')[0].trim();
+    // First configured RUB price is the canonical subscription amount.
+    return getConfiguredAmounts('RUB')[0] ?? '200';
   }
 
   private get autopaymentPeriod(): number {

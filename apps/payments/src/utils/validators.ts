@@ -13,7 +13,7 @@ export class ValidatePaymentRequest {
     const allowedAmounts = this.paymentsUtils.getAllowedAmounts();
 
     if (allowedAmounts.length === 0) {
-      throw new BadRequestException('ALLOWED_AMOUNTS is not configured');
+      throw new BadRequestException('YOOKASSA_AMOUNT is not configured');
     }
 
     if (!allowedAmounts.includes(value)) {

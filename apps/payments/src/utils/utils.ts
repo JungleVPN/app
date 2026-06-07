@@ -1,16 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { getConfiguredAmounts } from './amount';
 
 @Injectable()
 export class PaymentsUtils {
   constructor(readonly configService: ConfigService) {}
 
   getAllowedAmounts() {
-    const envValue = this.configService.get<string>('ALLOWED_AMOUNTS', '');
-    return (envValue || '')
-      .split(',')
-      .map((p) => p.trim())
-      .filter((n) => Number(n) > 0);
+    return getConfiguredAmounts('RUB');
   }
 
   getAllowedStarsAmounts() {

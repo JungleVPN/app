@@ -55,7 +55,7 @@ describe('AutopaymentService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    process.env.ALLOWED_AMOUNTS = '200';
+    process.env.YOOKASSA_AMOUNT = '200';
     process.env.ALLOWED_PERIODS = '1';
     process.env.BOT_URL = 'http://bot:7080';
     process.env.BOT_NOTIFY_SECRET = 'secret';
