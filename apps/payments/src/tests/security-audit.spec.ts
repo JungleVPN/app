@@ -494,12 +494,11 @@ describe('Security Audit', () => {
 
   describe('[FINDING #12] mapEURAmountToMonthsNumber must throw on unrecognised amounts', () => {
     beforeEach(() => {
-      process.env.PRICE_EUR_MONTH_1 = '5';
-      process.env.PRICE_EUR_MONTH_3 = '12';
-      process.env.PRICE_EUR_MONTH_6 = '20';
+      process.env.STRIPE_AMOUNT = '5';
+      process.env.ALLOWED_PERIODS = '1';
     });
 
-    it('throws for an amount not matching any configured tier', () => {
+    it('throws for an amount not matching the configured price', () => {
       // Correct behavior: unknown amount must surface as an error, not silently return 1
       expect(() => mapEURAmountToMonthsNumber('99900')).toThrow();
     });
@@ -508,20 +507,18 @@ describe('Security Audit', () => {
       expect(() => mapEURAmountToMonthsNumber('0')).toThrow();
     });
 
-    it('throws when env vars are not configured (all empty)', () => {
-      process.env.PRICE_EUR_MONTH_1 = '';
-      process.env.PRICE_EUR_MONTH_3 = '';
-      process.env.PRICE_EUR_MONTH_6 = '';
+    it('throws when the price is not configured (empty)', () => {
+      process.env.STRIPE_AMOUNT = '';
 
       expect(() => mapEURAmountToMonthsNumber('500')).toThrow();
     });
 
-    it.each([
-      ['500', 1], // 500 EUR cents = 5 EUR → matches PRICE_EUR_MONTH_1 = '5'
-      ['1200', 3], // 1200 EUR cents = 12 EUR → matches PRICE_EUR_MONTH_3 = '12'
-      ['2000', 6], // 2000 EUR cents = 20 EUR → matches PRICE_EUR_MONTH_6 = '20'
-    ])('returns correct months for known tier: %s cents → %d month(s)', (amount, expected) => {
-      expect(mapEURAmountToMonthsNumber(amount)).toBe(expected);
+    it('returns ALLOWED_PERIODS months for the configured price', () => {
+      // 500 EUR cents = 5 EUR → matches STRIPE_AMOUNT = '5'
+      expect(mapEURAmountToMonthsNumber('500')).toBe(1);
+
+      process.env.ALLOWED_PERIODS = '3';
+      expect(mapEURAmountToMonthsNumber('500')).toBe(3);
     });
   });
 });

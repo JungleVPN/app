@@ -10,35 +10,26 @@ export function mapToCorrectAmount(amountInCents: number): number {
 }
 
 /**
- * Maps a EUR amount string (in cents) to the corresponding subscription
- * period in months.  Uses environment variables for price tiers.
+ * Maps a paid Stripe EUR amount (in cents) to the subscription period in months.
  *
- * Finding #12 fix: throws instead of returning a silent default when the
- * amount does not match any configured tier.  Callers must handle the error
+ * Single-price model: there is exactly one configured price (`STRIPE_AMOUNT`,
+ * in EUR) granting `ALLOWED_PERIODS` months — mirroring the YooKassa flow.
+ *
+ * Finding #12 fix: throws instead of returning a silent default when the paid
+ * amount does not match the configured price.  Callers must handle the error
  * and must never silently grant an unrecognised amount.
  */
 export function mapEURAmountToMonthsNumber(amount: string): number {
   const amountInEur = (Number(amount) / 100).toString();
+  const expectedAmount = process.env.STRIPE_AMOUNT;
 
-  const tiers: Array<{ envVar: string; months: number }> = [
-    { envVar: 'PRICE_EUR_MONTH_1', months: 1 },
-    { envVar: 'PRICE_EUR_MONTH_3', months: 3 },
-    { envVar: 'PRICE_EUR_MONTH_6', months: 6 },
-  ];
-
-  for (const { envVar, months } of tiers) {
-    const price = process.env[envVar];
-    if (price && amountInEur === price) {
-      return months;
-    }
+  if (expectedAmount && amountInEur === expectedAmount) {
+    return Number(process.env.ALLOWED_PERIODS ?? 1);
   }
 
   throw new Error(
     `Unrecognized Stripe amount: ${amount} cents (${amountInEur} EUR). ` +
-      `No matching subscription tier found. ` +
-      `Configured tiers: PRICE_EUR_MONTH_1=${process.env.PRICE_EUR_MONTH_1}, ` +
-      `PRICE_EUR_MONTH_3=${process.env.PRICE_EUR_MONTH_3}, ` +
-      `PRICE_EUR_MONTH_6=${process.env.PRICE_EUR_MONTH_6}`,
+      `Expected ${expectedAmount} EUR (STRIPE_AMOUNT).`,
   );
 }
 

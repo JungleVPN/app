@@ -8,6 +8,7 @@
 export const coreEnv = {
   subpageConfigUuid: (import.meta.env.VITE_SUBPAGE_CONFIG ?? '') as string,
   allowedAmounts: (import.meta.env.VITE_ALLOWED_AMOUNTS ?? '') as string,
+  stripeAmount: (import.meta.env.VITE_STRIPE_AMOUNT ?? '') as string,
   allowedPeriods: Number(import.meta.env.VITE_ALLOWED_PERIODS ?? 1),
   supportUrl: (import.meta.env.VITE_SUPPORT_URL ?? '') as string,
   starsAmount: Number(import.meta.env.VITE_STARS_AMOUNT ?? 0),

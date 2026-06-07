@@ -24,7 +24,7 @@ export class StripeProvider {
   }
 
   async createPayment(dto: CreateStripePaymentDto) {
-    const priceId = this.getPriceId(dto.payment.amount);
+    const priceId = this.getPriceId();
     const customerId = await this.getCustomerId(dto.userId);
 
     if (customerId) {
@@ -50,8 +50,8 @@ export class StripeProvider {
           },
         ],
         mode: 'subscription',
-        success_url: process.env.RETURN_URL || 'https://t.me/your_bot_username',
-        cancel_url: process.env.RETURN_URL || 'https://t.me/your_bot_username',
+        success_url: process.env.BOT_RETURN_URL || 'https://t.me/your_bot_username',
+        cancel_url: process.env.BOT_RETURN_URL || 'https://t.me/your_bot_username',
         phone_number_collection: {
           enabled: false,
         },
@@ -68,7 +68,7 @@ export class StripeProvider {
     try {
       const session = await this.stripe.billingPortal.sessions.create({
         customer,
-        return_url: process.env.RETURN_URL || 'https://t.me/your_bot_username',
+        return_url: process.env.BOT_RETURN_URL || 'https://t.me/your_bot_username',
         configuration: process.env.STRIPE_CUSTOMER_PORTAL_CONFIG || '',
       });
 
@@ -128,25 +128,10 @@ export class StripeProvider {
     }
   }
 
-  private getPriceId(amount: number | string): string {
-    let priceId = '';
-    switch (amount) {
-      case `${process.env.PRICE_EUR_MONTH_1}`:
-        priceId = process.env.STRIPE_PRICE_ID_MONTH_1 || '';
-        break;
-      case `${process.env.PRICE_EUR_MONTH_3}`:
-        priceId = process.env.STRIPE_PRICE_ID_MONTH_3 || '';
-        break;
-      case `${process.env.PRICE_EUR_MONTH_6}`:
-        priceId = process.env.STRIPE_PRICE_ID_MONTH_6 || '';
-        break;
-      default:
-        this.logger.error(`Unknown amount: ${amount}`);
-        throw new Error('Invalid payment amount');
-    }
-
+  private getPriceId(): string {
+    const priceId = process.env.STRIPE_PRICE_ID || '';
     if (!priceId) {
-      this.logger.error(`Price ID not found for amount: ${amount}`);
+      this.logger.error('STRIPE_PRICE_ID is not configured');
       throw new Error('Price configuration missing');
     }
     return priceId;

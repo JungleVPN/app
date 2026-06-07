@@ -1,5 +1,6 @@
 import { coreEnv } from '../../../../env';
 import { useAuthStoreInfo, usePlatformStore, useSavedMethodsStoreInfo } from '../../../../stores';
+import { useStripePayment } from './useStripePayment';
 import { useTelegramStarsPayment } from './useTelegramStarsPayment';
 import { useYookassaPayment } from './useYookassaPayment';
 
@@ -14,6 +15,7 @@ export function usePayment() {
   const isLoadingMethods = savedMethods === null;
 
   const yookassa = useYookassaPayment();
+  const stripe = useStripePayment();
   const stars = useTelegramStarsPayment();
 
   return {
@@ -25,6 +27,7 @@ export function usePayment() {
     needsEmailInput,
     isLoadingMethods,
     ...yookassa,
+    ...stripe,
     ...stars,
   };
 }

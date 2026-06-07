@@ -22,6 +22,18 @@ export function useCreatePaymentSession(api: PaymentsApi) {
 }
 
 /**
+ * Creates a new Stripe checkout/portal session.
+ * On success `execute` returns a `PaymentSession` with a redirect `url`.
+ */
+export function useCreateStripeSession(api: PaymentsApi) {
+  const fn = useCallback(
+    (dto: Parameters<PaymentsApi['createStripeSession']>[0]) => api.createStripeSession(dto),
+    [api],
+  );
+  return useAsync(fn);
+}
+
+/**
  * Deletes a saved payment method by id.
  * Call `execute(userId, id)`, then refetch the methods list on success.
  */

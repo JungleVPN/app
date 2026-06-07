@@ -1,40 +1,37 @@
 import { miniApp, openLink } from '@tma.js/sdk-react';
 import { useRemnawaveApi } from '../../../../api';
 import { coreEnv } from '../../../../env';
-import { useCreatePaymentSession, useDeleteSavedMethod, useUpdateUser } from '../../../../hooks';
-import { useAppRoutes, usePaymentsApi } from '../../../../runtime';
+import { useCreateStripeSession, useUpdateUser } from '../../../../hooks';
+import { usePaymentsApi } from '../../../../runtime';
 import {
   useAuthStoreActions,
   useAuthStoreInfo,
   usePlatformStore,
-  useSavedMethodsStoreActions,
 } from '../../../../stores';
 
-export function useYookassaPayment() {
+/**
+ * Stripe checkout flow for the web/TMA payment page.
+ *
+ * Creates a Stripe session via the existing backend provider (EUR pricing) and
+ * redirects the user to the returned Stripe Checkout / Billing Portal URL.
+ * Subscription extension is handled by the existing Stripe webhook.
+ */
+export function useStripePayment() {
   const { rmnUser, tgUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
-  const { setSavedMethods } = useSavedMethodsStoreActions();
   const { platformType, clientPlatform } = usePlatformStore();
-  const { paymentReturnPath } = useAppRoutes();
-  const { allowedAmounts } = coreEnv;
+  const { stripeAmount } = coreEnv;
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
 
-  const { isLoading: isPaying, execute: createSession } = useCreatePaymentSession(paymentsApi);
-  const { isLoading: isDeleting, execute: deleteMethod } = useDeleteSavedMethod(paymentsApi);
+  const { isLoading: isStripePaying, execute: createStripeSession } =
+    useCreateStripeSession(paymentsApi);
   const { execute: updateUser } = useUpdateUser(remnawaveApi);
 
   const isNativeApp =
     platformType !== 'web' && (clientPlatform === 'ios' || clientPlatform === 'android');
 
-  const handleDelete = async (id: string) => {
-    if (!rmnUser?.uuid) return;
-    await deleteMethod(rmnUser.uuid, id);
-    const list = await paymentsApi.getSavedMethods(rmnUser.uuid);
-    setSavedMethods(list);
-  };
-
-  const handleYookassaPayment = async (email?: string) => {
+  const handleStripePayment = async (email?: string) => {
     if (!rmnUser) return;
 
     let activeUser = rmnUser;
@@ -63,15 +60,16 @@ export function useYookassaPayment() {
       }
     }
 
-    const session = await createSession({
+    const payerEmail = email ?? activeUser.email ?? undefined;
+    if (!payerEmail) return;
+
+    const session = await createStripeSession({
       userId: activeUser.uuid,
-      telegramId: tgUser?.id != null ? Number(tgUser.id) : null,
-      save_payment_method: true,
-      confirmation: {
-        return_url: isNativeApp
-          ? import.meta.env.VITE_TMA_APP_URL
-          : `${window.location.origin}${paymentReturnPath}`,
-        type: 'redirect',
+      payment: { amount: stripeAmount, currency: 'EUR' },
+      metadata: {
+        email: payerEmail,
+        userId: activeUser.uuid,
+        ...(tgUser?.id != null ? { telegramId: String(tgUser.id) } : {}),
       },
     });
 
@@ -85,5 +83,5 @@ export function useYookassaPayment() {
     }
   };
 
-  return { allowedAmounts, isPaying, isDeleting, handleDelete, handleYookassaPayment };
+  return { stripeAmount, isStripePaying, handleStripePayment };
 }

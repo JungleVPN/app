@@ -12,13 +12,15 @@ interface PaymentFormProps {
   selectedMethod: PaymentMethod;
   needsEmailInput: boolean;
   allowedAmounts: string;
+  stripeAmount: string;
   starsAmount: number;
   buttonLabel?: string;
   isPending: boolean;
   starsError: string | null;
   platformType: PlatformType | null;
   children?: ReactNode;
-  onExtend: (email?: string) => Promise<void>;
+  onYookassaPayment: (email?: string) => Promise<void>;
+  onStripePayment?: (email?: string) => Promise<void>;
   onStarsPayment: () => Promise<void>;
 }
 
@@ -26,12 +28,14 @@ export function PaymentForm({
   selectedMethod,
   needsEmailInput,
   allowedAmounts,
+  stripeAmount,
   starsAmount,
   buttonLabel,
   isPending,
   starsError,
   children,
-  onExtend,
+  onYookassaPayment,
+  onStripePayment,
   onStarsPayment,
 }: PaymentFormProps) {
   const { t } = useTranslation();
@@ -43,11 +47,12 @@ export function PaymentForm({
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const showEmailInput = needsEmailInput;
 
-  const buttonText =
-    buttonLabel ??
-    (selectedMethod === 'stars'
-      ? t('payment.starsPerMonth', { amount: starsAmount })
-      : t('payment.pricePerMonth', { amount: allowedAmounts }));
+  const labelByMethod: Record<PaymentMethod, string> = {
+    yookassa: t('payment.pricePerMonth', { amount: allowedAmounts }),
+    stripe: t('payment.stripePerMonth', { amount: stripeAmount }),
+    stars: t('payment.starsPerMonth', { amount: starsAmount }),
+  };
+  const buttonText = buttonLabel ?? labelByMethod[selectedMethod];
 
   useEffect(() => {
     return window.scrollTo({
@@ -67,11 +72,18 @@ export function PaymentForm({
         return;
       }
     }
-    if (selectedMethod === 'stars') {
-      await onStarsPayment();
-      return;
+    const emailArg = showEmailInput ? email : undefined;
+    switch (selectedMethod) {
+      case 'stars':
+        await onStarsPayment();
+        return;
+      case 'stripe':
+        await onStripePayment?.(emailArg);
+        return;
+      case 'yookassa':
+        await onYookassaPayment(emailArg);
+        return;
     }
-    await onExtend(showEmailInput ? email : undefined);
   };
 
   const handleSubmit = async (e: SyntheticEvent) => {

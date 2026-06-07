@@ -19,7 +19,7 @@ export default function ExtraDevicePurchasePage() {
   const { t } = useTranslation();
   const { platformType } = usePlatformStore();
   const { setNavbarVisible } = useNavbarStore();
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('card');
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('yookassa');
 
   const { isPaying, handlePay } = useExtraDevicePayment();
   const { starsEnabled, starsAmount, starsError, isStarsPaying, successState, handleStarsPayment } =
@@ -74,12 +74,13 @@ export default function ExtraDevicePurchasePage() {
         selectedMethod={selectedMethod}
         needsEmailInput={false}
         allowedAmounts=''
+        stripeAmount=''
         starsAmount={starsAmount}
         buttonLabel={buttonLabel}
         isPending={isPending}
         starsError={starsError}
         platformType={platformType}
-        onExtend={handleExtend}
+        onYookassaPayment={handleExtend}
         onStarsPayment={handleStarsPayment}
       >
         <PaymentMethodSelector

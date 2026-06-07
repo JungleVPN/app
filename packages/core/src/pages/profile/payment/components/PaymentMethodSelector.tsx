@@ -1,5 +1,6 @@
 import { Label, ListBox, type Selection } from '@heroui/react';
-import { IconRotate } from '@tabler/icons-react';
+import { IconCreditCard, IconRotate } from '@tabler/icons-react';
+import type { PaymentMethod } from '@workspace/types';
 import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import MirIcon from '../../../../assets/icons/mir-icon.svg?react';
@@ -7,7 +8,7 @@ import SpbIcon from '../../../../assets/icons/spb-icon.svg?react';
 import StarIcon from '../../../../assets/icons/telegram-star-icon.svg?react';
 import { Block } from '../../../../ui';
 
-export type PaymentMethod = 'card' | 'stars';
+export type { PaymentMethod };
 
 interface MethodDef {
   id: PaymentMethod;
@@ -32,12 +33,24 @@ export function PaymentMethodSelector(props: PaymentMethodSelectorProps) {
 
   const methods: MethodDef[] = [
     {
-      id: 'card',
-      label: t('payment.methodCard'),
+      id: 'yookassa',
+      label: t('payment.methodYookassa'),
       icons: (
         <div className='flex shrink-0 items-center gap-2'>
           <MirIcon className='size-6' aria-hidden='true' />
           <SpbIcon className='size-4' aria-hidden='true' />
+        </div>
+      ),
+      trailing: isReccurring && (
+        <IconRotate size={18} stroke={1.5} className='ml-auto shrink-0 text-muted' />
+      ),
+    },
+    {
+      id: 'stripe',
+      label: t('payment.methodStripe'),
+      icons: (
+        <div className='flex shrink-0 items-center gap-2'>
+          <IconCreditCard className='size-5 text-muted' aria-hidden='true' />
         </div>
       ),
       trailing: isReccurring && (

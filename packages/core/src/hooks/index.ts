@@ -3,6 +3,7 @@ export { useAsync } from './use-async';
 export { useDeleteDevice, useUserDevices } from './use-devices';
 export {
   useCreatePaymentSession,
+  useCreateStripeSession,
   useCreateTelegramStarsInvoice,
   useDeleteSavedMethod,
 } from './use-payment';

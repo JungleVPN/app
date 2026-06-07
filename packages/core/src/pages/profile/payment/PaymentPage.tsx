@@ -1,13 +1,14 @@
 import { type Selection } from '@heroui/react';
 import { Page } from '@workspace/core';
 import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
+import type { PaymentMethod } from '@workspace/types';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url';
 import { useNavbarStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
 import { PaymentForm } from './components/PaymentForm';
-import { type PaymentMethod, PaymentMethodSelector } from './components/PaymentMethodSelector';
+import { PaymentMethodSelector } from './components/PaymentMethodSelector';
 import { PaymentMethodsList } from './components/PaymentMethodsList';
 import { usePayment } from './hooks/usePayment';
 
@@ -22,25 +23,33 @@ export default function PaymentPage() {
     needsEmailInput,
     isLoadingMethods,
     isDeleting,
+    stripeAmount,
     starsEnabled,
     starsAmount,
     starsError,
     isPaying,
+    isStripePaying,
     isStarsPaying,
     successState,
     handleDelete,
-    handleExtend,
+    handleYookassaPayment,
+    handleStripePayment,
     handleStarsPayment,
   } = usePayment();
 
   const { setNavbarVisible } = useNavbarStore();
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('card');
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('yookassa');
 
   useEffect(() => {
     setNavbarVisible(!successState.isOpen);
   }, [setNavbarVisible, successState.isOpen]);
 
-  const isPending = selectedMethod === 'stars' ? isStarsPaying : isPaying;
+  const isPendingByMethod: Record<PaymentMethod, boolean> = {
+    yookassa: isPaying,
+    stripe: isStripePaying,
+    stars: isStarsPaying,
+  };
+  const isPending = isPendingByMethod[selectedMethod];
 
   const handleSelectionChange = (keys: Selection) => {
     if (keys === 'all') return;
@@ -66,11 +75,13 @@ export default function PaymentPage() {
           selectedMethod={selectedMethod}
           needsEmailInput={needsEmailInput}
           allowedAmounts={allowedAmounts}
+          stripeAmount={stripeAmount}
           starsAmount={starsAmount}
           isPending={isPending}
           starsError={starsError}
           platformType={platformType}
-          onExtend={handleExtend}
+          onYookassaPayment={handleYookassaPayment}
+          onStripePayment={handleStripePayment}
           onStarsPayment={handleStarsPayment}
         >
           <PaymentMethodSelector
@@ -86,7 +97,6 @@ export default function PaymentPage() {
         isOpen={successState.isOpen}
         onClose={successState.close}
       />
-
     </Page>
   );
 }

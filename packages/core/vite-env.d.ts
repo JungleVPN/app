@@ -45,6 +45,7 @@ interface ImportMetaEnv {
   /** Telegram file ID for the extra device purchase page sticker. */
   readonly VITE_EXTRA_DEVICE_STICKER_FILE_ID: string;
   readonly VITE_MENU_STICKER_FILE_ID: string;
+  readonly VITE_STRIPE_AMOUNT: string;
 }
 
 interface ImportMeta {
