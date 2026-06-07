@@ -5,7 +5,7 @@ import { StripePayment } from '@workspace/database';
 import type { StripeSubscriptionStatusDto } from '@workspace/types';
 import Stripe from 'stripe';
 import { Repository } from 'typeorm';
-import type { CheckoutSession, CreateStripePaymentDto } from './stripe.types';
+import type { BillingPortalSession, CheckoutSession, CreateStripePaymentDto } from './stripe.types';
 import { StripeWebhookService } from './stripe-webhook.service';
 
 @Injectable()
@@ -36,7 +36,7 @@ export class StripeProvider {
       return this.createCheckoutSession(priceId, customerId);
     }
 
-    const newCustomer = await this.getOrCreateCustomer(dto, null);
+    const newCustomer = await this.createCustomer(dto);
     return this.createCheckoutSession(priceId, newCustomer);
   }
 
@@ -63,9 +63,7 @@ export class StripeProvider {
     }
   }
 
-  async createPortalSession(
-    customer: string,
-  ): Promise<Stripe.Response<Stripe.BillingPortal.Session>> {
+  async createPortalSession(customer: string): Promise<BillingPortalSession> {
     try {
       const session = await this.stripe.billingPortal.sessions.create({
         customer,
@@ -92,13 +90,7 @@ export class StripeProvider {
     return await this.stripe.customers.retrieve(customerId);
   }
 
-  private async getOrCreateCustomer(
-    dto: CreateStripePaymentDto,
-    customer: string | null,
-  ): Promise<string> {
-    if (customer) {
-      return customer;
-    }
+  private async createCustomer(dto: CreateStripePaymentDto): Promise<string> {
     // Always stamp the remnawave userId (uuid) onto the customer so the webhook
     // can resolve the user without relying on email/telegramId.
     const newCustomer = await this.stripe.customers.create({

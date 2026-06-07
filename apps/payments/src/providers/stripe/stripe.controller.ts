@@ -1,5 +1,6 @@
 import type { RawBodyRequest } from '@nestjs/common';
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -14,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StripePayment } from '@workspace/database';
+import type Stripe from 'stripe';
 import { Repository } from 'typeorm';
 import { StripeProvider } from './stripe.provider';
 import type { CreateStripePaymentDto, Session } from './stripe.types';
@@ -104,20 +106,27 @@ export class StripeController {
     const rawBody = req.rawBody;
     if (!rawBody) {
       this.logger.error('Missing raw body for Stripe webhook');
-      return { received: false };
+      throw new BadRequestException('Missing raw body');
     }
 
+    // Verify the signature first. A bad signature is not retryable, so reject
+    // it with a 400 — Stripe won't redeliver and we don't touch business logic.
+    let event: Stripe.Event;
     try {
-      const event = this.stripeProvider.stripe.webhooks.constructEvent(
+      event = this.stripeProvider.stripe.webhooks.constructEvent(
         rawBody,
         signature,
         process.env.STRIPE_WEBHOOK_SECRET || '',
       );
-      await this.stripeProvider.handleWebhook(event);
-      return { received: true };
     } catch (err) {
-      this.logger.error('Stripe webhook verification failed', err);
-      return { received: false };
+      this.logger.error('Stripe webhook signature verification failed', err);
+      throw new BadRequestException('Invalid Stripe signature');
     }
+
+    // Let processing errors propagate (→ 5xx). Stripe retries non-2xx
+    // deliveries, which is exactly the recovery path the handlers rely on
+    // (e.g. a transient remnawave outage during a renewal).
+    await this.stripeProvider.handleWebhook(event);
+    return { received: true };
   }
 }

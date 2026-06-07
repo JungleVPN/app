@@ -20,8 +20,8 @@ export interface CreateStripePaymentDto {
   readonly metadata: WebStripeMetadata;
 }
 
-export type BillingPortalSession = Promise<Stripe.Response<Stripe.BillingPortal.Session>>;
-export type CheckoutSession = Promise<Stripe.Response<Stripe.Checkout.Session>>;
+export type BillingPortalSession = Stripe.Response<Stripe.BillingPortal.Session>;
+export type CheckoutSession = Stripe.Response<Stripe.Checkout.Session>;
 export type Session = BillingPortalSession | CheckoutSession;
 
 export interface StripeInvoicePayload {

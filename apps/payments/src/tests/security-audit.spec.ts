@@ -7,7 +7,6 @@ import { PaymentStatusService } from '@payments/payment-status/payment-status.se
 import { mapEURAmountToMonthsNumber } from '@payments/providers/stripe/stripe.utils';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
-import { ValidatePaymentRequest } from '@payments/utils/validators';
 import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { Payments, type PaymentWebhookNotification } from '@workspace/types';
 import type { Repository } from 'typeorm';
@@ -51,29 +50,6 @@ const makeDbPayment = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-/** Real validator backed by a ConfigService that reads from process.env.
- *  Use when the test needs the actual BadRequestException to be thrown for
- *  invalid input. ALLOWED_AMOUNTS and ALLOWED_PERIODS must be set in the
- *  surrounding beforeEach / afterEach. */
-function makeRealValidatePaymentRequest(): ValidatePaymentRequest {
-  const configService = {
-    get: (key: string, defaultValue?: string): string => process.env[key] ?? defaultValue ?? '',
-  };
-  return new ValidatePaymentRequest(configService as any);
-}
-
-function makeYookassaService(overrides: Partial<YookassaService> = {}): YookassaService {
-  return {
-    handleWebhook: vi.fn(),
-    deletePaymentMethod: vi.fn(),
-    isIPRangeValid: vi.fn().mockResolvedValue(false),
-    isValidNotificationEvent: vi.fn().mockReturnValue(true),
-    isValidWebhookPayload: vi.fn().mockReturnValue(false),
-    validateWebhookPayload: vi.fn().mockResolvedValue(undefined),
-    ...overrides,
-  } as unknown as YookassaService;
-}
-
 function makePaymentRepo(
   record: Record<string, unknown> | null = null,
 ): Repository<YookassaPayment> {
@@ -98,7 +74,6 @@ function makeSavedMethodRepo(
     delete: vi.fn().mockResolvedValue({ affected: 1 }),
   } as unknown as Repository<SavedPaymentMethod>;
 }
-
 
 describe('Security Audit', () => {
   describe('[FINDING #1] validateWebhookPayload must abort processing on any validation failure', () => {

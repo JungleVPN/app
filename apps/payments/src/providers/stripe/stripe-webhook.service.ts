@@ -148,27 +148,24 @@ export class StripeWebhookService {
   }
 
   // ── Persistence (upsert by invoice id) ───────────────────────────────────
+  // save() inserts when the primary key is new and updates when it already
+  // exists, so the invoice row is created on first delivery and refreshed on
+  // any later one without a separate existence check.
   private async persistInvoice(payload: StripeInvoicePayload, status: string): Promise<void> {
-    const fields = {
-      status,
-      paidAt: payload.paidAt,
-      amount: payload.amount,
-      currency: 'EUR',
-      userId: payload.userId,
-      customer: payload.stripeCustomerId,
-      stripeSubscriptionId: payload.stripeSubscriptionId,
-      invoiceUrl: payload.invoiceUrl,
-      url: null,
-    };
-
-    const existing = await this.stripePaymentRepo.findOneBy({ id: payload.id });
-    if (existing) {
-      await this.stripePaymentRepo.update(payload.id, fields);
-    } else {
-      await this.stripePaymentRepo.save(
-        this.stripePaymentRepo.create({ id: payload.id, ...fields }),
-      );
-    }
+    await this.stripePaymentRepo.save(
+      this.stripePaymentRepo.create({
+        id: payload.id,
+        status,
+        paidAt: payload.paidAt,
+        amount: payload.amount,
+        currency: 'EUR',
+        userId: payload.userId,
+        customer: payload.stripeCustomerId,
+        stripeSubscriptionId: payload.stripeSubscriptionId,
+        invoiceUrl: payload.invoiceUrl,
+        url: null,
+      }),
+    );
   }
 
   private async buildInvoicePayload(
