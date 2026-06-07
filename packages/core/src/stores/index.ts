@@ -21,6 +21,7 @@ export {
   useSavedMethodsStore,
   useSavedMethodsStoreActions,
   useSavedMethodsStoreInfo,
+  useStripeSubscriptionInfo,
 } from './saved-methods';
 export type { ISubscriptionConfigActions, ISubscriptionConfigState } from './subscription-config';
 export {

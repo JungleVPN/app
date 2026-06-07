@@ -1,5 +1,10 @@
 import { coreEnv } from '../../../../env';
-import { useAuthStoreInfo, usePlatformStore, useSavedMethodsStoreInfo } from '../../../../stores';
+import {
+  useAuthStoreInfo,
+  usePlatformStore,
+  useSavedMethodsStoreInfo,
+  useStripeSubscriptionInfo,
+} from '../../../../stores';
 import { useStripePayment } from './useStripePayment';
 import { useTelegramStarsPayment } from './useTelegramStarsPayment';
 import { useYookassaPayment } from './useYookassaPayment';
@@ -9,10 +14,12 @@ export function usePayment() {
   const { platformType } = usePlatformStore();
   const { allowedPeriods, supportUrl } = coreEnv;
   const savedMethods = useSavedMethodsStoreInfo();
+  const stripeSubscription = useStripeSubscriptionInfo();
 
   const hasActiveMethod = savedMethods?.some((m) => m.isActive) ?? false;
   const needsEmailInput = Boolean(tgUser) && !rmnUser?.email;
   const isLoadingMethods = savedMethods === null;
+  const isLoading = savedMethods === null || stripeSubscription === null;
 
   const yookassa = useYookassaPayment();
   const stripe = useStripePayment();
@@ -26,6 +33,7 @@ export function usePayment() {
     hasActiveMethod,
     needsEmailInput,
     isLoadingMethods,
+    isLoading,
     ...yookassa,
     ...stripe,
     ...stars,

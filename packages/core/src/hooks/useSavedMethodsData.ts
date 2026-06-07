@@ -3,35 +3,53 @@ import { usePaymentsApi } from '../runtime';
 import { useSavedMethodsStore } from '../stores';
 
 /**
- * Module-level set tracks in-flight requests so multiple hook instances
+ * Module-level sets track in-flight requests so multiple hook instances
  * (e.g. ProfileLayout + PaymentPage) never fire duplicate requests for
  * the same user.
  */
-const pendingUserIds = new Set<string>();
+const pendingMethodUserIds = new Set<string>();
+const pendingSubscriptionUserIds = new Set<string>();
 
 /**
- * Pre-fetches saved payment methods for the given userId and writes them into
- * the shared saved-methods store.
+ * Pre-fetches the user's saved payment methods AND active-Stripe-subscription
+ * status, writing both into the shared saved-methods store.
  *
- * All store reads and writes are done via `useSavedMethodsStore.getState()`
- * inside the effect — NOT as reactive deps — so the effect never re-runs
- * because of store updates and cannot produce an update-depth loop.
+ * Called once on page init (ProfileLayout). Each value is fetched only while it
+ * is still `null` in the store, so navigating between Profile and Payment pages
+ * never re-triggers these requests — components read the cached store values.
+ *
+ * All store reads/writes go through `useSavedMethodsStore.getState()` inside the
+ * effect (never reactive deps), so store updates can't re-run the effect or
+ * cause an update-depth loop.
  */
 export function useSavedMethodsData(userId: string): void {
   const paymentsApi = usePaymentsApi();
 
   useEffect(() => {
     if (!userId) return;
-    // All store access is via getState() — never reactive deps.
-    if (useSavedMethodsStore.getState().savedMethods !== null) return;
-    if (pendingUserIds.has(userId)) return;
+    const { savedMethods, stripeSubscription } = useSavedMethodsStore.getState();
 
-    pendingUserIds.add(userId);
+    if (savedMethods === null && !pendingMethodUserIds.has(userId)) {
+      pendingMethodUserIds.add(userId);
+      paymentsApi
+        .getSavedMethods(userId)
+        .then((methods) => useSavedMethodsStore.getState().actions.setSavedMethods(methods))
+        .catch((err) => console.error('Failed to pre-fetch saved methods:', err))
+        .finally(() => pendingMethodUserIds.delete(userId));
+    }
 
-    paymentsApi
-      .getSavedMethods(userId)
-      .then((methods) => useSavedMethodsStore.getState().actions.setSavedMethods(methods))
-      .catch((err) => console.error('Failed to pre-fetch saved methods:', err))
-      .finally(() => pendingUserIds.delete(userId));
+    if (stripeSubscription === null && !pendingSubscriptionUserIds.has(userId)) {
+      pendingSubscriptionUserIds.add(userId);
+      paymentsApi
+        .getStripeSubscription(userId)
+        .then((status) => useSavedMethodsStore.getState().actions.setStripeSubscription(status))
+        .catch((err) => {
+          console.error('Failed to pre-fetch Stripe subscription:', err);
+          useSavedMethodsStore
+            .getState()
+            .actions.setStripeSubscription({ active: false, portalUrl: null });
+        })
+        .finally(() => pendingSubscriptionUserIds.delete(userId));
+    }
   }, [userId, paymentsApi]);
 }

@@ -1,4 +1,4 @@
-import { type Selection } from '@heroui/react';
+import { type Selection, Spinner } from '@heroui/react';
 import { Page } from '@workspace/core';
 import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
 import type { PaymentMethod } from '@workspace/types';
@@ -23,6 +23,7 @@ export default function PaymentPage() {
     hasActiveMethod,
     needsEmailInput,
     isLoadingMethods,
+    isLoading,
     isDeleting,
     stripeAmount,
     starsEnabled,
@@ -66,7 +67,11 @@ export default function PaymentPage() {
       title={t('payment.pageTitle')}
       subtitle={t('payment.pageSubtitle')}
     >
-      {stripeSubscription?.active ? (
+      {isLoading ? (
+        <div className='flex justify-center p-8'>
+          <Spinner color='accent' size='lg' />
+        </div>
+      ) : stripeSubscription?.active ? (
         <StripeSubscriptionBlock
           portalUrl={stripeSubscription.portalUrl}
           onManage={handleOpenStripePortal}
