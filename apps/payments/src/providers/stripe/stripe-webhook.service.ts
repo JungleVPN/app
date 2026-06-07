@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { StripePayment } from '@workspace/database';
+import { SavedPaymentMethod, StripePayment } from '@workspace/database';
 import { Payments, WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
 import { Repository } from 'typeorm';
@@ -26,6 +26,8 @@ export class StripeWebhookService {
     private readonly eventEmitter: EventEmitter2,
     @InjectRepository(StripePayment)
     private readonly stripePaymentRepo: Repository<StripePayment>,
+    @InjectRepository(SavedPaymentMethod)
+    private readonly savedMethodRepo: Repository<SavedPaymentMethod>,
   ) {}
 
   async handleWebhook(event: Stripe.Event) {
@@ -98,6 +100,10 @@ export class StripeWebhookService {
 
     await this.persistInvoice(payload, 'paid');
 
+    // Mirror YooKassa: a successful charge against an active subscription is a
+    // reusable payment method, so it must surface in saved_payment_methods.
+    await this.activatePaymentMethod(payload);
+
     if (result.success) {
       this.eventEmitter.emit(WebhookEventEnum['payment.succeeded'], {
         userId: payload.userId,
@@ -144,6 +150,63 @@ export class StripeWebhookService {
     );
     if (result.affected) {
       this.logger.log(`Stripe subscription ${subscription.id} canceled — rows marked`);
+    }
+
+    // Keep saved_payment_methods consistent: a deleted subscription is no longer
+    // an active method. Scoped to provider='stripe' so YooKassa rows are untouched.
+    await this.savedMethodRepo.update(
+      { provider: 'stripe', paymentMethodId: subscription.id },
+      { isActive: false },
+    );
+  }
+
+  // ── Saved payment methods ────────────────────────────────────────────────
+  // Stripe drives its own renewals, so the saved method exists for parity with
+  // YooKassa (display + "has active method" checks), keyed by subscription id.
+  //
+  // Idempotent: if a row for this subscription already exists, nothing is
+  // written. Deactivates any previously active Stripe method for the user first.
+  // Errors are swallowed — best-effort, must not block webhook processing.
+  private async activatePaymentMethod(payload: StripeInvoicePayload): Promise<void> {
+    const { userId, stripeSubscriptionId } = payload;
+    if (!userId || !stripeSubscriptionId) return;
+
+    try {
+      const existing = await this.savedMethodRepo.findOneBy({
+        paymentMethodId: stripeSubscriptionId,
+      });
+      if (existing) {
+        if (!existing.isActive) {
+          await this.savedMethodRepo.update({ id: existing.id }, { isActive: true });
+        }
+        return;
+      }
+
+      await this.savedMethodRepo.update(
+        { userId, provider: 'stripe', isActive: true },
+        { isActive: false },
+      );
+
+      const method = this.savedMethodRepo.create({
+        userId,
+        provider: 'stripe',
+        paymentMethodId: stripeSubscriptionId,
+        paymentMethodType: 'stripe',
+        title: null,
+        card: null,
+        isActive: true,
+      });
+
+      await this.savedMethodRepo.save(method);
+
+      this.logger.log(
+        `Activated Stripe payment method (sub ${stripeSubscriptionId}) for user ${userId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to activate Stripe saved method for user ${userId} (sub ${stripeSubscriptionId})`,
+        error,
+      );
     }
   }
 

@@ -10,7 +10,10 @@ import type { PaymentStatusService } from '../payment-status/payment-status.serv
 import { StripeProvider } from '../providers/stripe/stripe.provider';
 import { StripeWebhookService } from '../providers/stripe/stripe-webhook.service';
 
-vi.mock('@workspace/database', () => ({ StripePayment: class {} }));
+vi.mock('@workspace/database', () => ({
+  StripePayment: class {},
+  SavedPaymentMethod: class {},
+}));
 
 const CUSTOMER = {
   id: 'cus_1',
@@ -62,6 +65,12 @@ describe('StripeWebhookService', () => {
   let mockEmit: any;
   let mockRetrieveCustomer: any;
 
+  let savedMethodRepo: Repository<any>;
+  let mockSavedFindOneBy: any;
+  let mockSavedUpdate: any;
+  let mockSavedSave: any;
+  let mockSavedCreate: any;
+
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.STRIPE_AMOUNT = '2';
@@ -91,7 +100,24 @@ describe('StripeWebhookService', () => {
     mockEmit = vi.fn();
     eventEmitter = { emit: mockEmit } as unknown as EventEmitter2;
 
-    service = new StripeWebhookService(stripeProvider, paymentStatusService, eventEmitter, repo);
+    mockSavedFindOneBy = vi.fn().mockResolvedValue(null);
+    mockSavedUpdate = vi.fn().mockResolvedValue({ affected: 0 });
+    mockSavedSave = vi.fn(async (v: any) => v);
+    mockSavedCreate = vi.fn((data: any) => data);
+    savedMethodRepo = {
+      findOneBy: mockSavedFindOneBy,
+      update: mockSavedUpdate,
+      save: mockSavedSave,
+      create: mockSavedCreate,
+    } as unknown as Repository<any>;
+
+    service = new StripeWebhookService(
+      stripeProvider,
+      paymentStatusService,
+      eventEmitter,
+      repo,
+      savedMethodRepo,
+    );
   });
 
   afterEach(() => {
@@ -146,6 +172,50 @@ describe('StripeWebhookService', () => {
 
       expect(mockSave).toHaveBeenCalled(); // still persisted
       expect(mockEmit).not.toHaveBeenCalled();
+    });
+
+    it('persists a Stripe saved payment method keyed by subscription id', async () => {
+      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+      // Deactivates any prior active Stripe method for the user, scoped to provider.
+      expect(mockSavedUpdate).toHaveBeenCalledWith(
+        { userId: 'user-1', provider: 'stripe', isActive: true },
+        { isActive: false },
+      );
+      expect(mockSavedSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-1',
+          provider: 'stripe',
+          paymentMethodId: 'sub_1',
+          paymentMethodType: 'stripe',
+          isActive: true,
+        }),
+      );
+    });
+
+    it('does not duplicate a saved method that already exists (idempotency)', async () => {
+      mockSavedFindOneBy.mockResolvedValue({ id: 'm1', paymentMethodId: 'sub_1', isActive: true });
+
+      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+      expect(mockSavedSave).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('customer.subscription.deleted', () => {
+    const makeSubDeletedEvent = (): Stripe.Event =>
+      ({
+        type: 'customer.subscription.deleted',
+        data: { object: { id: 'sub_1' } },
+      }) as unknown as Stripe.Event;
+
+    it('deactivates the matching Stripe saved method', async () => {
+      await service.handleWebhook(makeSubDeletedEvent());
+
+      expect(mockSavedUpdate).toHaveBeenCalledWith(
+        { provider: 'stripe', paymentMethodId: 'sub_1' },
+        { isActive: false },
+      );
     });
   });
 
