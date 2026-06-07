@@ -1,5 +1,5 @@
 /** Payment provider identifier */
-export type AdminPaymentProvider = 'yookassa' | 'telegram_stars';
+export type AdminPaymentProvider = 'yookassa' | 'telegram_stars' | 'stripe';
 
 /** Unified payment record returned by the admin search endpoint */
 export interface AdminPaymentDto {

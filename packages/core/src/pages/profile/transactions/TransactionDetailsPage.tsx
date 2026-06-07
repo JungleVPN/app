@@ -17,6 +17,7 @@ function formatDate(date: Date | string | null | undefined): string {
 function formatProvider(provider: string): string {
   if (provider === 'telegram_stars') return 'Telegram Stars';
   if (provider === 'yookassa') return 'YooKassa';
+  if (provider === 'stripe') return 'Stripe';
   return provider;
 }
 
