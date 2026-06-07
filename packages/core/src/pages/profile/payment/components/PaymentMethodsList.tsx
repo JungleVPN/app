@@ -9,8 +9,8 @@ import { Block } from '../../../../ui';
 interface PaymentMethodsListProps {
   savedMethods: SavedMethodDto[] | null;
   isLoadingMethods: boolean;
-  isDeleting: boolean;
-  onDelete: (id: string) => void;
+  isDeleting?: boolean;
+  onDelete?: (id: string) => void;
 }
 
 export function PaymentMethodsList({

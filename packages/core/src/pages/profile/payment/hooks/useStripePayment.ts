@@ -1,15 +1,10 @@
 import { openLink } from '@tma.js/sdk-react';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useRemnawaveApi } from '../../../../api';
 import { coreEnv } from '../../../../env';
 import { useCreateStripeSession, useUpdateUser } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
-import {
-  useAuthStoreActions,
-  useAuthStoreInfo,
-  usePlatformStore,
-  useStripeSubscriptionInfo,
-} from '../../../../stores';
+import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../../../stores';
 
 /**
  * Stripe checkout flow for the web/TMA payment page.
@@ -44,11 +39,21 @@ export function useStripePayment() {
     [isNativeApp],
   );
 
-  const stripeSubscription = useStripeSubscriptionInfo();
+  const [isOpeningStripePortal, setIsOpeningStripePortal] = useState(false);
 
-  const handleOpenStripePortal = useCallback(() => {
-    if (stripeSubscription?.portalUrl) redirectTo(stripeSubscription.portalUrl);
-  }, [stripeSubscription, redirectTo]);
+  // Mint a fresh Billing Portal URL on demand (an explicit user action), so we
+  // never have to cache a portal URL that can expire.
+  const handleOpenStripePortal = useCallback(async () => {
+    const uuid = rmnUser?.uuid;
+    if (!uuid) return;
+    setIsOpeningStripePortal(true);
+    try {
+      const status = await paymentsApi.getStripeSubscription(uuid);
+      if (status.portalUrl) redirectTo(status.portalUrl);
+    } finally {
+      setIsOpeningStripePortal(false);
+    }
+  }, [rmnUser?.uuid, paymentsApi, redirectTo]);
 
   const handleStripePayment = async (email?: string) => {
     if (!rmnUser) return;
@@ -100,7 +105,7 @@ export function useStripePayment() {
     stripeAmount,
     isStripePaying,
     handleStripePayment,
-    stripeSubscription,
     handleOpenStripePortal,
+    isOpeningStripePortal,
   };
 }

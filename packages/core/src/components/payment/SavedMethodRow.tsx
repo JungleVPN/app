@@ -20,6 +20,9 @@ export function SavedMethodRow({
   const { t } = useTranslation();
   const confirmState = useOverlayState();
 
+  // Stripe subscriptions are managed via the Billing Portal, not deleted inline.
+  const canDelete = Boolean(onDelete) && method.provider !== 'stripe';
+
   return (
     <>
       {showSeparatorAbove ? <Separator className='shrink-0' variant='secondary' /> : null}
@@ -39,7 +42,7 @@ export function SavedMethodRow({
           ) : null}
         </div>
 
-        {onDelete ? (
+        {canDelete ? (
           <Tooltip delay={0} closeDelay={0}>
             <Button
               aria-label={t('a11y.deletePaymentMethod')}

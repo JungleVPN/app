@@ -1,4 +1,4 @@
-import { type Selection, Spinner } from '@heroui/react';
+import { Button, type Selection, Spinner } from '@heroui/react';
 import { Page } from '@workspace/core';
 import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
 import type { PaymentMethod } from '@workspace/types';
@@ -10,7 +10,6 @@ import { LottieIcon } from '../../../ui';
 import { PaymentForm } from './components/PaymentForm';
 import { PaymentMethodSelector } from './components/PaymentMethodSelector';
 import { PaymentMethodsList } from './components/PaymentMethodsList';
-import { StripeSubscriptionBlock } from './components/StripeSubscriptionBlock';
 import { usePayment } from './hooks/usePayment';
 
 export default function PaymentPage() {
@@ -21,6 +20,7 @@ export default function PaymentPage() {
     allowedPeriods,
     platformType,
     hasActiveMethod,
+    hasStripeSubscription,
     needsEmailInput,
     isLoadingMethods,
     isLoading,
@@ -37,8 +37,8 @@ export default function PaymentPage() {
     handleYookassaPayment,
     handleStripePayment,
     handleStarsPayment,
-    stripeSubscription,
     handleOpenStripePortal,
+    isOpeningStripePortal,
   } = usePayment();
 
   const { setNavbarVisible } = useNavbarStore();
@@ -71,18 +71,31 @@ export default function PaymentPage() {
         <div className='flex justify-center p-8'>
           <Spinner color='accent' size='lg' />
         </div>
-      ) : stripeSubscription?.active ? (
-        <StripeSubscriptionBlock
-          portalUrl={stripeSubscription.portalUrl}
-          onManage={handleOpenStripePortal}
-        />
       ) : hasActiveMethod ? (
-        <PaymentMethodsList
-          savedMethods={savedMethods}
-          isLoadingMethods={isLoadingMethods}
-          isDeleting={isDeleting}
-          onDelete={handleDelete}
-        />
+        <div className='flex flex-col gap-3'>
+          {hasStripeSubscription ? (
+            <Button
+              fullWidth
+              size='lg'
+              isDisabled={isOpeningStripePortal}
+              isPending={isOpeningStripePortal}
+              onPress={handleOpenStripePortal}
+            >
+              {({ isPending }) => (
+                <>
+                  {isPending ? <Spinner color='current' size='sm' /> : null}
+                  {t('payment.stripeManageButton')}
+                </>
+              )}
+            </Button>
+          ) : null}
+          <PaymentMethodsList
+            savedMethods={savedMethods}
+            isLoadingMethods={isLoadingMethods}
+            isDeleting={isDeleting}
+            onDelete={handleDelete}
+          />
+        </div>
       ) : (
         <PaymentForm
           selectedMethod={selectedMethod}

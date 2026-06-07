@@ -1,25 +1,30 @@
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { coreEnv } from '../../../../env';
-import {
-  useAuthStoreInfo,
-  usePlatformStore,
-  useSavedMethodsStoreInfo,
-  useStripeSubscriptionInfo,
-} from '../../../../stores';
+import { useAuthStoreInfo, usePlatformStore, useSavedMethodsStoreInfo } from '../../../../stores';
 import { useStripePayment } from './useStripePayment';
 import { useTelegramStarsPayment } from './useTelegramStarsPayment';
 import { useYookassaPayment } from './useYookassaPayment';
 
 export function usePayment() {
+  const { t } = useTranslation();
   const { tgUser, rmnUser } = useAuthStoreInfo();
   const { platformType } = usePlatformStore();
   const { allowedPeriods, supportUrl } = coreEnv;
-  const savedMethods = useSavedMethodsStoreInfo();
-  const stripeSubscription = useStripeSubscriptionInfo();
+  const rawMethods = useSavedMethodsStoreInfo();
+
+  const savedMethods = useMemo(
+    () =>
+      rawMethods?.map((m) =>
+        m.provider === 'stripe' ? { ...m, title: m.title ?? t('payment.methodStripe') } : m,
+      ) ?? null,
+    [rawMethods, t],
+  );
 
   const hasActiveMethod = savedMethods?.some((m) => m.isActive) ?? false;
+  const hasStripeSubscription = savedMethods?.some((m) => m.provider === 'stripe') ?? false;
   const needsEmailInput = Boolean(tgUser) && !rmnUser?.email;
-  const isLoadingMethods = savedMethods === null;
-  const isLoading = savedMethods === null || stripeSubscription === null;
+  const isLoading = savedMethods === null;
 
   const yookassa = useYookassaPayment();
   const stripe = useStripePayment();
@@ -31,8 +36,9 @@ export function usePayment() {
     supportUrl,
     platformType,
     hasActiveMethod,
+    hasStripeSubscription,
     needsEmailInput,
-    isLoadingMethods,
+    isLoadingMethods: isLoading,
     isLoading,
     ...yookassa,
     ...stripe,
