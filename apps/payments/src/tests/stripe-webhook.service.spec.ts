@@ -1,0 +1,184 @@
+import 'reflect-metadata';
+import * as process from 'node:process';
+import type { EventEmitter2 } from '@nestjs/event-emitter';
+import type { StripePayment } from '@workspace/database';
+import { WebhookEventEnum } from '@workspace/types';
+import type Stripe from 'stripe';
+import type { Repository } from 'typeorm';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { PaymentStatusService } from '../payment-status/payment-status.service';
+import { StripeProvider } from '../providers/stripe/stripe.provider';
+import { StripeWebhookService } from '../providers/stripe/stripe-webhook.service';
+
+vi.mock('@workspace/database', () => ({ StripePayment: class {} }));
+
+const CUSTOMER = {
+  id: 'cus_1',
+  deleted: false,
+  metadata: { userId: 'user-1', email: 'a@b.c' },
+} as unknown as Stripe.Customer;
+
+const makeInvoiceEvent = (
+  type: 'invoice.payment_succeeded' | 'invoice.payment_failed',
+  overrides: Partial<any> = {},
+): Stripe.Event =>
+  ({
+    type,
+    data: {
+      object: {
+        id: 'in_1',
+        customer: 'cus_1',
+        amount_paid: 200,
+        amount_due: 200,
+        status: type === 'invoice.payment_succeeded' ? 'paid' : 'open',
+        hosted_invoice_url: 'https://stripe.test/invoice/in_1',
+        billing_reason: 'subscription_cycle',
+        parent: { subscription_details: { subscription: 'sub_1' } },
+        ...overrides,
+      },
+    },
+  }) as unknown as Stripe.Event;
+
+const makeCheckoutEvent = (overrides: Partial<any> = {}): Stripe.Event =>
+  ({
+    type: 'checkout.session.completed',
+    data: {
+      object: { id: 'cs_1', customer: 'cus_1', subscription: 'sub_1', ...overrides },
+    },
+  }) as unknown as Stripe.Event;
+
+describe('StripeWebhookService', () => {
+  let service: StripeWebhookService;
+  let stripeProvider: StripeProvider;
+  let paymentStatusService: PaymentStatusService;
+  let eventEmitter: EventEmitter2;
+  let repo: Repository<StripePayment>;
+
+  let mockFindOneBy: any;
+  let mockUpdate: any;
+  let mockSave: any;
+  let mockCreate: any;
+  let mockHandleUserUpdates: any;
+  let mockEmit: any;
+  let mockRetrieveCustomer: any;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.STRIPE_AMOUNT = '2';
+    process.env.ALLOWED_PERIODS = '1';
+
+    mockFindOneBy = vi.fn().mockResolvedValue(null);
+    mockUpdate = vi.fn().mockResolvedValue({ affected: 1 });
+    mockSave = vi.fn(async (v: any) => v);
+    mockCreate = vi.fn((data: any) => data);
+    repo = {
+      findOneBy: mockFindOneBy,
+      update: mockUpdate,
+      save: mockSave,
+      create: mockCreate,
+    } as unknown as Repository<StripePayment>;
+
+    mockRetrieveCustomer = vi.fn().mockResolvedValue(CUSTOMER);
+    stripeProvider = {
+      retrieveCustomer: mockRetrieveCustomer,
+    } as unknown as StripeProvider;
+
+    mockHandleUserUpdates = vi.fn().mockResolvedValue({ success: true });
+    paymentStatusService = {
+      handleUserUpdates: mockHandleUserUpdates,
+    } as unknown as PaymentStatusService;
+
+    mockEmit = vi.fn();
+    eventEmitter = { emit: mockEmit } as unknown as EventEmitter2;
+
+    service = new StripeWebhookService(stripeProvider, paymentStatusService, eventEmitter, repo);
+  });
+
+  afterEach(() => {
+    delete process.env.STRIPE_AMOUNT;
+    delete process.env.ALLOWED_PERIODS;
+  });
+
+  describe('invoice.payment_succeeded', () => {
+    it('extends subscription, persists the invoice paid, and emits payment.succeeded', async () => {
+      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+      expect(mockHandleUserUpdates).toHaveBeenCalledWith({ selectedPeriod: 1, userId: 'user-1' });
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'in_1', status: 'paid', userId: 'user-1' }),
+      );
+      expect(mockEmit).toHaveBeenCalledWith(
+        WebhookEventEnum['payment.succeeded'],
+        expect.objectContaining({ userId: 'user-1', provider: 'stripe', selectedPeriod: 1 }),
+      );
+    });
+
+    it('ignores a duplicate webhook for an already-paid invoice (idempotency)', async () => {
+      mockFindOneBy.mockResolvedValue({ id: 'in_1', status: 'paid', paidAt: new Date() });
+
+      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+      expect(mockHandleUserUpdates).not.toHaveBeenCalled();
+      expect(mockEmit).not.toHaveBeenCalled();
+      expect(mockSave).not.toHaveBeenCalled();
+    });
+
+    it('skips when the customer has no remnawave userId metadata', async () => {
+      mockRetrieveCustomer.mockResolvedValue({ ...CUSTOMER, metadata: { email: 'a@b.c' } });
+
+      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+      expect(mockHandleUserUpdates).not.toHaveBeenCalled();
+      expect(mockEmit).not.toHaveBeenCalled();
+    });
+
+    it('throws on an unrecognised paid amount (security finding #12)', async () => {
+      await expect(
+        service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded', { amount_paid: 99900 })),
+      ).rejects.toThrow();
+      expect(mockHandleUserUpdates).not.toHaveBeenCalled();
+    });
+
+    it('does not emit success when the subscription extension fails', async () => {
+      mockHandleUserUpdates.mockResolvedValue({ success: false });
+
+      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+      expect(mockSave).toHaveBeenCalled(); // still persisted
+      expect(mockEmit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('invoice.payment_failed', () => {
+    it('persists failure and emits payment.canceled on a renewal failure', async () => {
+      await service.handleWebhook(
+        makeInvoiceEvent('invoice.payment_failed', { billing_reason: 'subscription_cycle' }),
+      );
+
+      expect(mockSave).toHaveBeenCalledWith(expect.objectContaining({ id: 'in_1', status: 'failed' }));
+      expect(mockEmit).toHaveBeenCalledWith(
+        WebhookEventEnum['payment.canceled'],
+        expect.objectContaining({ userId: 'user-1', provider: 'stripe', reason: 'general_decline' }),
+      );
+    });
+
+    it('does not notify on an initial-checkout failure', async () => {
+      await service.handleWebhook(
+        makeInvoiceEvent('invoice.payment_failed', { billing_reason: 'subscription_create' }),
+      );
+
+      expect(mockEmit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('checkout.session.completed', () => {
+    it('links the subscription/customer onto the pending session row', async () => {
+      await service.handleWebhook(makeCheckoutEvent());
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'cs_1' },
+        expect.objectContaining({ stripeSubscriptionId: 'sub_1', customer: 'cus_1' }),
+      );
+    });
+  });
+});

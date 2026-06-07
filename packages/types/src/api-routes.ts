@@ -7,6 +7,7 @@ export const apiRoutes = {
   },
   payments: {
     stripeCreateSession: '/stripe/create-session',
+    stripeSubscription: (userId: string) => `/stripe/subscription/${encodeURIComponent(userId)}`,
     yookassaCreateSession: '/yookassa/create-session',
     yookassaSavedMethods: (userId: string) =>
       `/yookassa/saved-methods/${encodeURIComponent(userId)}`,

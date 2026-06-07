@@ -6,6 +6,7 @@ import {
   type CreateYookassaSessionDto,
   PaymentSession,
   SavedMethodDto,
+  type StripeSubscriptionStatusDto,
   type TelegramStarsInvoiceResponse,
 } from '@workspace/types';
 import type { ApiClient } from '../client';
@@ -20,6 +21,10 @@ export function createPaymentsApi(client: ApiClient) {
 
     async createStripeSession(dto: CreateStripeSessionDto): Promise<PaymentSession> {
       return client.post<PaymentSession>(apiRoutes.payments.stripeCreateSession, dto);
+    },
+
+    async getStripeSubscription(userId: string): Promise<StripeSubscriptionStatusDto> {
+      return client.get<StripeSubscriptionStatusDto>(apiRoutes.payments.stripeSubscription(userId));
     },
 
     async getSavedMethods(userId: string): Promise<SavedMethodDto[]> {

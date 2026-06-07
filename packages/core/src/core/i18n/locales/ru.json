@@ -90,6 +90,10 @@
     "methodYookassa": "Карты и СБП",
     "methodStripe": "Международные карты",
     "methodStars": "Telegram Stars",
+    "stripeSubscriptionHeading": "Подписка Stripe",
+    "stripeSubscriptionDescription": "Подписка продлевается автоматически. Управляй тарифом, способом оплаты или отмени подписку в любой момент в биллинг-портале.",
+    "stripeSubscriptionActive": "Активна",
+    "stripeManageButton": "Управление подпиской",
     "autoRenewalHint": "Означает, что способ оплаты сохраняется для автопродления",
     "savedMethodsDescription": "У тебя привязан способ оплаты для автоплатежа. Если хочешь оплатить вручную просто удали его",
     "deleteMethod": {

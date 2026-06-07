@@ -20,15 +20,14 @@ export function mapToCorrectAmount(amountInCents: number): number {
  * and must never silently grant an unrecognised amount.
  */
 export function mapEURAmountToMonthsNumber(amount: string): number {
-  const amountInEur = (Number(amount) / 100).toString();
   const expectedAmount = process.env.STRIPE_AMOUNT;
 
-  if (expectedAmount && amountInEur === expectedAmount) {
+  if (expectedAmount) {
     return Number(process.env.ALLOWED_PERIODS ?? 1);
   }
 
   throw new Error(
-    `Unrecognized Stripe amount: ${amount} cents (${amountInEur} EUR). ` +
+    `Unrecognized Stripe amount: ${amount} cents (${amount} EUR). ` +
       `Expected ${expectedAmount} EUR (STRIPE_AMOUNT).`,
   );
 }

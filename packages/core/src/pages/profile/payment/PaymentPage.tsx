@@ -10,6 +10,7 @@ import { LottieIcon } from '../../../ui';
 import { PaymentForm } from './components/PaymentForm';
 import { PaymentMethodSelector } from './components/PaymentMethodSelector';
 import { PaymentMethodsList } from './components/PaymentMethodsList';
+import { StripeSubscriptionBlock } from './components/StripeSubscriptionBlock';
 import { usePayment } from './hooks/usePayment';
 
 export default function PaymentPage() {
@@ -35,6 +36,8 @@ export default function PaymentPage() {
     handleYookassaPayment,
     handleStripePayment,
     handleStarsPayment,
+    stripeSubscription,
+    handleOpenStripePortal,
   } = usePayment();
 
   const { setNavbarVisible } = useNavbarStore();
@@ -63,7 +66,12 @@ export default function PaymentPage() {
       title={t('payment.pageTitle')}
       subtitle={t('payment.pageSubtitle')}
     >
-      {hasActiveMethod ? (
+      {stripeSubscription?.active ? (
+        <StripeSubscriptionBlock
+          portalUrl={stripeSubscription.portalUrl}
+          onManage={handleOpenStripePortal}
+        />
+      ) : hasActiveMethod ? (
         <PaymentMethodsList
           savedMethods={savedMethods}
           isLoadingMethods={isLoadingMethods}

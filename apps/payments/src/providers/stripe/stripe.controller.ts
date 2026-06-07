@@ -34,6 +34,12 @@ export class StripeController {
     return this.stripePaymentRepo.find({ order: { createdAt: 'DESC' } });
   }
 
+  /** Active-subscription status + Billing Portal URL for a user */
+  @Get('subscription/:userId')
+  async getSubscriptionStatus(@Param('userId') userId: string) {
+    return this.stripeProvider.getSubscriptionStatus(userId);
+  }
+
   /** Get a single Stripe payment by id */
   @Get(':id')
   async getById(@Param('id') id: string) {

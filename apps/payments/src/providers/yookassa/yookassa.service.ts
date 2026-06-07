@@ -70,6 +70,15 @@ export class YookassaService {
 
   async createPaymentSession(dto: CreateYookassaSessionDto): Promise<PaymentSession> {
     const { userId, telegramId, purpose = 'subscription', ...paymentFields } = dto;
+
+    const existingSession = await this.findValidPendingSession(userId);
+    if (existingSession) {
+      this.logger.log(
+        `Reusing pending Yookassa payment session ${existingSession.id} for user ${userId}`,
+      );
+      return existingSession;
+    }
+
     const amountValue =
       purpose === 'extra_device'
         ? this.paymentsUtils.getExtraDevicePrice()
@@ -119,6 +128,29 @@ export class YookassaService {
 
     this.logger.log(`Created Yookassa payment session ${payment.id} for user ${userId}`);
     return { id: payment.id, url: confirmationUrl };
+  }
+
+  /**
+   * Returns an existing reusable pending session for the user, or null.
+   *
+   * A session is reusable only if it is still `pending`, has a confirmation URL,
+   * and was created within the last hour (YooKassa confirmation URLs expire).
+   * This dedups rapid re-clicks so we don't create a fresh provider payment on
+   * every call.
+   */
+  private async findValidPendingSession(userId: string): Promise<PaymentSession | null> {
+    const existing = await this.yookassaPaymentRepo.findOne({
+      where: { userId, status: 'pending' },
+      order: { createdAt: 'DESC' },
+    });
+
+    if (!existing?.url) return null;
+
+    const ONE_HOUR_MS = 60 * 60 * 1_000;
+    const isFresh = Date.now() - new Date(existing.createdAt).getTime() < ONE_HOUR_MS;
+    if (!isFresh) return null;
+
+    return { id: existing.id, url: existing.url };
   }
 
   // ── Webhook handling ────────────────────────────────────────────────────

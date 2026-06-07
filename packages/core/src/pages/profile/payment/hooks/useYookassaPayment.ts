@@ -1,4 +1,4 @@
-import { miniApp, openLink } from '@tma.js/sdk-react';
+import { openLink } from '@tma.js/sdk-react';
 import { useRemnawaveApi } from '../../../../api';
 import { coreEnv } from '../../../../env';
 import { useCreatePaymentSession, useDeleteSavedMethod, useUpdateUser } from '../../../../hooks';
@@ -79,7 +79,6 @@ export function useYookassaPayment() {
 
     if (isNativeApp) {
       openLink(session.url);
-      miniApp.close();
     } else {
       window.location.href = session.url;
     }

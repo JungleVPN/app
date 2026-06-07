@@ -17,3 +17,13 @@ export interface CreateStripeSessionDto {
     [key: string]: string;
   };
 }
+
+/**
+ * Response from GET /payments/stripe/subscription/:userId.
+ * Reports whether the user has an active (or trialing) Stripe subscription and,
+ * if so, a freshly-minted Billing Portal URL for self-service management.
+ */
+export interface StripeSubscriptionStatusDto {
+  active: boolean;
+  portalUrl: string | null;
+}

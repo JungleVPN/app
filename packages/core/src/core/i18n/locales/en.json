@@ -91,6 +91,10 @@
     "methodYookassa": "Cards and SBP",
     "methodStripe": "International cards",
     "methodStars": "Telegram Stars",
+    "stripeSubscriptionHeading": "Stripe subscription",
+    "stripeSubscriptionDescription": "Your subscription renews automatically. Manage your plan, payment method, or cancel anytime in the billing portal.",
+    "stripeSubscriptionActive": "Active",
+    "stripeManageButton": "Manage subscription",
     "autoRenewalHint": "Means that payment method is saved for auto-renewal",
     "savedMethodsDescription": "You have payment method linked that will be used for sub renewal. If you wish to pay manually just delete it.",
     "deleteMethod": {

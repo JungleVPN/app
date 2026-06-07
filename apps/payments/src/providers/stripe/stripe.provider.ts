@@ -2,6 +2,7 @@ import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StripePayment } from '@workspace/database';
+import type { StripeSubscriptionStatusDto } from '@workspace/types';
 import Stripe from 'stripe';
 import { Repository } from 'typeorm';
 import type { CheckoutSession, CreateStripePaymentDto } from './stripe.types';
@@ -50,8 +51,8 @@ export class StripeProvider {
           },
         ],
         mode: 'subscription',
-        success_url: process.env.BOT_RETURN_URL || 'https://t.me/your_bot_username',
-        cancel_url: process.env.BOT_RETURN_URL || 'https://t.me/your_bot_username',
+        success_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
+        cancel_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
         phone_number_collection: {
           enabled: false,
         },
@@ -68,7 +69,7 @@ export class StripeProvider {
     try {
       const session = await this.stripe.billingPortal.sessions.create({
         customer,
-        return_url: process.env.BOT_RETURN_URL || 'https://t.me/your_bot_username',
+        return_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
         configuration: process.env.STRIPE_CUSTOMER_PORTAL_CONFIG || '',
       });
 
@@ -98,11 +99,33 @@ export class StripeProvider {
     if (customer) {
       return customer;
     }
+    // Always stamp the remnawave userId (uuid) onto the customer so the webhook
+    // can resolve the user without relying on email/telegramId.
     const newCustomer = await this.stripe.customers.create({
       email: dto.metadata.email,
-      metadata: { ...dto.metadata },
+      metadata: { ...dto.metadata, userId: dto.userId },
     });
     return newCustomer.id;
+  }
+
+  /**
+   * Reports whether `userId` has an active/trialing Stripe subscription and,
+   * if so, returns a fresh Billing Portal URL for self-service management.
+   */
+  async getSubscriptionStatus(userId: string): Promise<StripeSubscriptionStatusDto> {
+    const customerId = await this.getCustomerId(userId);
+    if (!customerId) return { active: false, portalUrl: null };
+
+    const active = await this.hasActiveSubscription(customerId);
+    if (!active) return { active: false, portalUrl: null };
+
+    try {
+      const portal = await this.createPortalSession(customerId);
+      return { active: true, portalUrl: portal.url };
+    } catch (error) {
+      this.logger.error(`Failed to create portal session for customer ${customerId}`, error);
+      return { active: true, portalUrl: null };
+    }
   }
 
   async getCustomerId(userId: string): Promise<string | null> {

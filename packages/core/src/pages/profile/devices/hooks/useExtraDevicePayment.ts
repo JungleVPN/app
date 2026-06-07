@@ -1,4 +1,4 @@
-import { miniApp, openLink } from '@tma.js/sdk-react';
+import { openLink } from '@tma.js/sdk-react';
 import { useCreatePaymentSession } from '../../../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreInfo, usePlatformStore } from '../../../../stores';
@@ -34,7 +34,6 @@ export function useExtraDevicePayment() {
 
     if (isNativeApp) {
       openLink(session.url);
-      miniApp.close();
     } else {
       window.location.href = session.url;
     }

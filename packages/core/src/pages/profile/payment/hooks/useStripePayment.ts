@@ -1,13 +1,11 @@
-import { miniApp, openLink } from '@tma.js/sdk-react';
+import { openLink } from '@tma.js/sdk-react';
+import type { StripeSubscriptionStatusDto } from '@workspace/types';
+import { useCallback, useEffect, useState } from 'react';
 import { useRemnawaveApi } from '../../../../api';
 import { coreEnv } from '../../../../env';
 import { useCreateStripeSession, useUpdateUser } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
-import {
-  useAuthStoreActions,
-  useAuthStoreInfo,
-  usePlatformStore,
-} from '../../../../stores';
+import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../../../stores';
 
 /**
  * Stripe checkout flow for the web/TMA payment page.
@@ -30,6 +28,44 @@ export function useStripePayment() {
 
   const isNativeApp =
     platformType !== 'web' && (clientPlatform === 'ios' || clientPlatform === 'android');
+
+  const redirectTo = useCallback(
+    (url: string) => {
+      if (isNativeApp) {
+        openLink(url);
+      } else {
+        window.location.href = url;
+      }
+    },
+    [isNativeApp],
+  );
+
+  const [stripeSubscription, setStripeSubscription] = useState<StripeSubscriptionStatusDto | null>(
+    null,
+  );
+
+  // Load Stripe subscription status so the page can surface a "manage
+  // subscription" block + Billing Portal button for active subscribers.
+  useEffect(() => {
+    const uuid = rmnUser?.uuid;
+    if (!uuid) return;
+    let cancelled = false;
+    paymentsApi
+      .getStripeSubscription(uuid)
+      .then((status) => {
+        if (!cancelled) setStripeSubscription(status);
+      })
+      .catch(() => {
+        if (!cancelled) setStripeSubscription({ active: false, portalUrl: null });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [rmnUser?.uuid, paymentsApi]);
+
+  const handleOpenStripePortal = useCallback(() => {
+    if (stripeSubscription?.portalUrl) redirectTo(stripeSubscription.portalUrl);
+  }, [stripeSubscription, redirectTo]);
 
   const handleStripePayment = async (email?: string) => {
     if (!rmnUser) return;
@@ -74,14 +110,14 @@ export function useStripePayment() {
     });
 
     if (!session?.url) return;
-
-    if (isNativeApp) {
-      openLink(session.url);
-      miniApp.close();
-    } else {
-      window.location.href = session.url;
-    }
+    redirectTo(session.url);
   };
 
-  return { stripeAmount, isStripePaying, handleStripePayment };
+  return {
+    stripeAmount,
+    isStripePaying,
+    handleStripePayment,
+    stripeSubscription,
+    handleOpenStripePortal,
+  };
 }
