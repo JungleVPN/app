@@ -75,7 +75,7 @@ export class UserExpireListener {
     keyboard.row();
     keyboard.url(
       this.localService.i18n.t(locale, 'support-button-label'),
-      process.env.SUPPORT_URL || 'https://t.me/JungleVPN_support',
+      process.env.PUBLIC_SUPPORT_URL || 'https://t.me/JungleVPN_support',
     );
     keyboard.text(this.localService.i18n.t(locale, 'home-button-label'), 'navigate_main');
 

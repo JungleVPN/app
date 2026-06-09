@@ -29,11 +29,11 @@ export class WebhookService {
   ) {}
 
   private get paymentsBaseUrl(): string {
-    return this.configService.get<string>('PAYMENTS_URL', 'http://localhost:3001');
+    return this.configService.get<string>('PUBLIC_PAYMENTS_URL', 'http://localhost:3001');
   }
 
   private get botBaseUrl(): string {
-    return this.configService.get<string>('BOT_URL', 'http://localhost:7080');
+    return this.configService.get<string>('PUBLIC_BOT_URL', 'http://localhost:7080');
   }
 
   /**

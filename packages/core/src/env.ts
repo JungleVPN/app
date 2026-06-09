@@ -1,32 +1,35 @@
 /**
  * Shared env vars read directly from Vite's import.meta.env.
  * Both apps point `envDir` at the monorepo root in their vite.config.ts,
- * so these VITE_* values are available to all packages at bundle time —
+ * so these PUBLIC_* values are available to all packages at bundle time —
  * no React context or provider required.
  */
 
 export const coreEnv = {
-  subpageConfigUuid: (import.meta.env.VITE_SUBPAGE_CONFIG ?? '') as string,
-  allowedAmounts: (import.meta.env.VITE_ALLOWED_AMOUNTS ?? '') as string,
-  stripeAmount: (import.meta.env.VITE_STRIPE_AMOUNT ?? '') as string,
-  allowedPeriods: Number(import.meta.env.VITE_ALLOWED_PERIODS ?? 1),
-  supportUrl: (import.meta.env.VITE_SUPPORT_URL ?? '') as string,
-  starsAmount: Number(import.meta.env.VITE_STARS_AMOUNT ?? 0),
-  successStickerFileId: (import.meta.env.VITE_SUCCESS_STICKER_FILE_ID ?? '') as string,
-  menuStickerFileId: (import.meta.env.VITE_MENU_STICKER_FILE_ID ?? '') as string,
-  extraDeviceStickerFileId: (import.meta.env.VITE_EXTRA_DEVICE_STICKER_FILE_ID ?? '') as string,
-  botUrl: (import.meta.env.VITE_BOT_URL ?? '') as string,
-  paymentsUrl: (import.meta.env.VITE_PAYMENTS_URL ?? '') as string,
+  subpageConfigUuid: (import.meta.env.PUBLIC_SUBPAGE_CONFIG ?? '') as string,
 
-  extraDevicePriceRUB: Number(import.meta.env.VITE_EXTRA_DEVICE_PRICE_RUB ?? ''),
-  extraDevicePriceEUR: Number(import.meta.env.VITE_EXTRA_DEVICE_PRICE_EUR ?? ''),
-  extraDevicePriceStars: Number(import.meta.env.VITE_EXTRA_DEVICE_PRICE_STARS ?? ''),
-  /**
-   * Comma-separated Telegram user ids that have access to admin features.
-   * Set VITE_ADMINS=123456,789012 in the .env file.
-   */
+  allowedAmountStars: Number(import.meta.env.PUBLIC_ALLOWED_AMOUNT_STARS ?? 0),
+  allowedAmountRub: (import.meta.env.PUBLIC_ALLOWED_AMOUNT_RUB ?? '') as string,
+  allowedAmountStripe: (import.meta.env.PUBLIC_ALLOWED_AMOUNT_EUR ?? '') as string,
+  allowedPeriod: Number(import.meta.env.PUBLIC_ALLOWED_PERIOD ?? 1),
+
+  successStickerFileId: (import.meta.env.PUBLIC_SUCCESS_STICKER_FILE_ID ?? '') as string,
+  menuStickerFileId: (import.meta.env.PUBLIC_MENU_STICKER_FILE_ID ?? '') as string,
+  extraDeviceStickerFileId: (import.meta.env.PUBLIC_EXTRA_DEVICE_STICKER_FILE_ID ?? '') as string,
+
+  supportUrl: (import.meta.env.PUBLIC_SUPPORT_URL ?? '') as string,
+  botUrl: (import.meta.env.PUBLIC_BOT_URL ?? '') as string,
+  paymentsUrl: (import.meta.env.PUBLIC_PAYMENTS_URL ?? '') as string,
+  remnawaveUrl: (import.meta.env.PUBLIC_REMNAWAVE_URL ?? '') as string,
+  supabaseUrl: (import.meta.env.PUBLIC_SUPABASE_URL ?? '') as string,
+  supabaseAnonKey: (import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '') as string,
+
+  extraDevicePriceRUB: Number(import.meta.env.PUBLIC_EXTRA_DEVICE_PRICE_RUB ?? ''),
+  extraDevicePriceEUR: Number(import.meta.env.PUBLIC_EXTRA_DEVICE_PRICE_EUR ?? ''),
+  extraDevicePriceStars: Number(import.meta.env.PUBLIC_EXTRA_DEVICE_PRICE_STARS ?? ''),
+
   admins: new Set(
-    ((import.meta.env.VITE_ADMINS ?? '') as string)
+    ((import.meta.env.PUBLIC_ADMINS ?? '') as string)
       .split(',')
       .map((s: string) => s.trim())
       .filter(Boolean),

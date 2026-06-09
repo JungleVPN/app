@@ -44,7 +44,7 @@ export class SupportMenu extends Base {
       .row()
       .url(
         (ctx) => ctx.t('support-button-label'),
-        process.env.SUPPORT_URL || 'https://t.me/JungleVPN_support_bot',
+        process.env.PUBLIC_SUPPORT_URL || 'https://t.me/JungleVPN_support_bot',
       )
       .row()
       .text(

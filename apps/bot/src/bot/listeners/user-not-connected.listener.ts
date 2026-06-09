@@ -43,7 +43,7 @@ export class UserNotConnectedListener {
       .row()
       .url(
         this.localService.i18n.t(locale, 'support-button-label'),
-        process.env.SUPPORT_URL || 'https://t.me/JungleVPN_support_bot',
+        process.env.PUBLIC_SUPPORT_URL || 'https://t.me/JungleVPN_support_bot',
       );
 
     if (!payload.data.telegramId) {

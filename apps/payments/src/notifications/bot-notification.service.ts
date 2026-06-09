@@ -21,7 +21,7 @@ export class BotNotificationService {
   private readonly logger = new Logger(BotNotificationService.name);
 
   private get botBaseUrl(): string {
-    return process.env.BOT_URL || 'http://localhost:7080';
+    return process.env.PUBLIC_BOT_URL || 'http://localhost:7080';
   }
 
   private get botNotifySecret(): string {
@@ -29,7 +29,7 @@ export class BotNotificationService {
   }
 
   private get remnawareBaseUrl(): string {
-    return process.env.REMNAWAVE_URL || 'http://localhost:3002';
+    return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002';
   }
 
   private async getUserByUuid(uuid: string): Promise<GetUserByUuidResponseDto> {

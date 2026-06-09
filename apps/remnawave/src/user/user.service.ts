@@ -34,7 +34,7 @@ export class UserService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    const token = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+    const token = this.configService.get<string>('PUBLIC_TELEGRAM_BOT_TOKEN');
     if (!token) throw new Error('TELEGRAM_BOT_TOKEN is required for UserService');
     // Instantiate without starting — only bot.api.* is used
     this.bot = new Bot(token);
@@ -187,7 +187,7 @@ export class UserService implements OnModuleInit {
       const file = await this.bot.api.getFile(fileId);
       if (!file.file_path) return { photoUrl: null };
 
-      const token = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+      const token = this.configService.get<string>('PUBLIC_TELEGRAM_BOT_TOKEN');
       return { photoUrl: `https://api.telegram.org/file/bot${token}/${file.file_path}` };
     } catch {
       return { photoUrl: null };

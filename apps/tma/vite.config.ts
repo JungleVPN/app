@@ -6,6 +6,7 @@ import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
   envDir: path.resolve(__dirname, '../../'),
+  envPrefix: ['VITE_', 'PUBLIC_'],
   /** Required for `*.svg?react` imports from `@workspace/core` (e.g. payment row icons). */
   plugins: [tailwindcss(), react(), svgr()],
   resolve: {

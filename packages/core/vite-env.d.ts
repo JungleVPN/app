@@ -27,22 +27,7 @@ declare module '*.module.css' {
 }
 
 interface ImportMetaEnv {
-  readonly VITE_SUBPAGE_CONFIG: string;
-  readonly VITE_ALLOWED_AMOUNTS: string;
-  readonly VITE_ALLOWED_PERIODS: string;
-  readonly VITE_SUPPORT_URL: string;
-  readonly VITE_TMA_APP_URL: string;
-  readonly VITE_STARS_AMOUNT: string;
-  readonly VITE_PAYMENTS_URL: string;
-  readonly VITE_BOT_URL: string;
-  readonly VITE_SUCCESS_STICKER_FILE_ID: string;
-  readonly VITE_ADMINS: string;
-  readonly VITE_EXTRA_DEVICE_PRICE_RUB: string;
-  readonly VITE_EXTRA_DEVICE_PRICE_EUR: string;
-  readonly VITE_EXTRA_DEVICE_PRICE_STARS: string;
-  readonly VITE_EXTRA_DEVICE_STICKER_FILE_ID: string;
-  readonly VITE_MENU_STICKER_FILE_ID: string;
-  readonly VITE_STRIPE_AMOUNT: string;
+  readonly [key: string]: string | undefined;
 }
 
 interface ImportMeta {

@@ -1,6 +1,6 @@
 import { createApiClient } from '@workspace/core/api';
 import { useAuthStore } from '@workspace/core/stores';
-import { env } from '@/config/env';
+import { coreEnv as env } from '@workspace/core/env';
 
 /**
  * API client pointing to the NestJS remnawave backend.

@@ -11,6 +11,9 @@ async function bootstrap() {
     throw new Error('CORS_ORIGIN environment variable must be set to an explicit origin URL');
   }
 
+  // main.ts — after app is created
+  app.getHttpAdapter().get('/', (_req, res) => res.status(200).send());
+
   const origin = corsOriginEnv
     .split(',')
     .map((s) => s.trim().replace(/\/+$/, ''))

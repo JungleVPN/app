@@ -22,7 +22,7 @@ export class PaymentMethodMsgService extends Base {
     const tgUser = this.validateUser(ctx.from);
     const user = await this.remnaService.getUserByTgId(tgUser.id);
 
-    if (!user || !process.env.ALLOWED_PERIODS) {
+    if (!user || !process.env.PUBLIC_ALLOWED_PERIOD) {
       await ctx.reply(ctx.t('error-generic-restart'));
       return;
     }
@@ -30,7 +30,7 @@ export class PaymentMethodMsgService extends Base {
     const paymentSession = await this.createSessionForProvider(provider, {
       userId: user[0].uuid,
       save_payment_method: true,
-      amount: { value: process.env.ALLOWED_AMOUNTS || '250', currency: 'RUB' },
+      amount: { value: process.env.PUBLIC_ALLOWED_AMOUNT_RUB || '250', currency: 'RUB' },
       description: process.env.PAYMENT_DESCRIPTION || ' subscription',
       confirmation: {
         return_url: process.env.BOT_RETURN_URL,

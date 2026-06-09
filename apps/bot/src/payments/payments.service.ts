@@ -19,7 +19,7 @@ export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
 
   private backend: AxiosInstance = createBackendClient(
-    process.env.PAYMENTS_URL || 'http://localhost:3001',
+    process.env.PUBLIC_PAYMENTS_URL || 'http://localhost:3001',
   );
 
   async createStripeSession(dto: CreateStripeSessionDto) {

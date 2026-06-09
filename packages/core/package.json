@@ -16,7 +16,8 @@
     "./core/i18n": "./src/core/i18n/index.ts",
     "./pages": "./src/pages/index.ts",
     "./runtime": "./src/runtime/index.ts",
-    "./ui": "./src/ui/index.ts"
+    "./ui": "./src/ui/index.ts",
+    "./env": "./src/env.ts"
   },
   "scripts": {
     "lint": "biome lint ./src",

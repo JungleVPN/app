@@ -30,8 +30,8 @@ export class PaymentMsgService extends Base {
     // );
 
     const content = ctx.t('payment-text', {
-      amount: process.env.ALLOWED_AMOUNTS || '250',
-      period: ctx.t(`period-${process.env.ALLOWED_PERIODS}`),
+      amount: process.env.PUBLIC_ALLOWED_AMOUNT_RUB || '250',
+      period: ctx.t(`period-${process.env.PUBLIC_ALLOWED_PERIOD}`),
       currency: '₽',
       link: process.env.TERMS_URL || 'https://thejungle.pro/app/terms',
     });

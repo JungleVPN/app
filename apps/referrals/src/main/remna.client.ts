@@ -21,7 +21,7 @@ export class RemnaClient {
   private readonly logger = new Logger(RemnaClient.name);
 
   private get baseUrl(): string {
-    return process.env.REMNAWAVE_URL || 'http://localhost:3002';
+    return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002';
   }
 
   async getUserByTgId(telegramId: number): Promise<RemnaUser | null> {

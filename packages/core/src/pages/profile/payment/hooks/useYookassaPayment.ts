@@ -69,7 +69,7 @@ export function useYookassaPayment() {
       save_payment_method: true,
       confirmation: {
         return_url: isNativeApp
-          ? import.meta.env.VITE_TMA_APP_URL
+          ? import.meta.env.PUBLIC_TMA_APP_URL
           : `${window.location.origin}${paymentReturnPath}`,
         type: 'redirect',
       },

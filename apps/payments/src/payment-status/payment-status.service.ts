@@ -14,7 +14,7 @@ export class PaymentStatusService {
   private readonly logger = new Logger(PaymentStatusService.name);
 
   private get remnawareBaseUrl(): string {
-    return process.env.REMNAWAVE_URL || 'http://localhost:3002';
+    return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002';
   }
 
   private get referralsBaseUrl(): string {

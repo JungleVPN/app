@@ -20,7 +20,7 @@ export class AdminGuard implements CanActivate {
   private readonly logger = new Logger(AdminGuard.name);
 
   private readonly adminIds: Set<string> = (() => {
-    const raw = process.env.ADMINS ?? '';
+    const raw = process.env.PUBLIC_ADMINS ?? '';
     const ids = raw
       .split(',')
       .map((s) => s.trim())

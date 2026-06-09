@@ -14,7 +14,7 @@ export type Currency = 'RUB' | 'EUR';
 /** The env var holding the configured price(s) for each currency. */
 const PRICE_ENV: Record<Currency, string> = {
   RUB: 'YOOKASSA_AMOUNT', // YooKassa — comma-separated list, first entry is canonical
-  EUR: 'STRIPE_AMOUNT', // Stripe — single price
+  EUR: 'PUBLIC_ALLOWED_AMOUNT_EUR', // Stripe — single price
 };
 
 /** Configured prices for a currency, in major units (e.g. EUR, RUB), as strings. */
@@ -45,5 +45,5 @@ export function amountToMonths(amount: number, currency: Currency): number {
     );
   }
 
-  return Number(process.env.ALLOWED_PERIODS ?? 1);
+  return Number(process.env.PUBLIC_ALLOWED_PERIOD ?? 1);
 }

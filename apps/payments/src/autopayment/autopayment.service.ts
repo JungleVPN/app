@@ -32,7 +32,7 @@ export class AutopaymentService {
   }
 
   private get autopaymentPeriod(): number {
-    const raw = process.env.ALLOWED_PERIODS || '1';
+    const raw = process.env.PUBLIC_ALLOWED_PERIOD || '1';
     return Number(raw.split(',')[0].trim());
   }
 
