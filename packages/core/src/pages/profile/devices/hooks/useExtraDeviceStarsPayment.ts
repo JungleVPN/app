@@ -11,7 +11,7 @@ export function useExtraDeviceStarsPayment() {
   const { t } = useTranslation();
   const { rmnUser } = useAuthStoreInfo();
   const { platformType } = usePlatformStore();
-  const { extraDeviceStarsAmount } = coreEnv;
+  const { extraDevicePriceStars } = coreEnv;
   const paymentsApi = usePaymentsApi();
 
   const { isLoading: isStarsPaying, execute: createStarsInvoice } =
@@ -20,7 +20,7 @@ export function useExtraDeviceStarsPayment() {
   const [starsError, setStarsError] = useState<string | null>(null);
 
   const isTma = platformType !== 'web';
-  const starsEnabled = isTma && extraDeviceStarsAmount > 0;
+  const starsEnabled = isTma && extraDevicePriceStars > 0;
 
   const handleStarsPayment = async () => {
     if (!rmnUser?.uuid) return;
@@ -51,7 +51,6 @@ export function useExtraDeviceStarsPayment() {
 
   return {
     starsEnabled,
-    starsAmount: extraDeviceStarsAmount,
     starsError,
     isStarsPaying,
     successState,

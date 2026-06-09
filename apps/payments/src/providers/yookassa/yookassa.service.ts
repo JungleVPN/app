@@ -81,7 +81,7 @@ export class YookassaService {
 
     const amountValue =
       purpose === 'extra_device'
-        ? this.paymentsUtils.getExtraDevicePrice()
+        ? this.paymentsUtils.getExtraDevicePriceRUB()
         : this.paymentsUtils.getAllowedAmounts()[0];
     const selectedPeriod = this.paymentsUtils.getAllowedPeriods()[0];
 
@@ -240,7 +240,9 @@ export class YookassaService {
     // Autopayment: payment_method.saved=true means this charge used a stored method.
     // AutopaymentService already emitted payment.autopayment_failed — skip duplicate.
     if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {
-      this.logger.log(`Payment ${id} canceled via autopayment — notification already sent by autopayment service`);
+      this.logger.log(
+        `Payment ${id} canceled via autopayment — notification already sent by autopayment service`,
+      );
       return;
     }
 
@@ -252,7 +254,9 @@ export class YookassaService {
     });
 
     if (hasSavedMethod) {
-      this.logger.log(`Payment ${id} canceled but user ${record.userId} has an active saved method — skipping payment.canceled notification`);
+      this.logger.log(
+        `Payment ${id} canceled but user ${record.userId} has an active saved method — skipping payment.canceled notification`,
+      );
       return;
     }
 
@@ -262,7 +266,9 @@ export class YookassaService {
     });
 
     if (priorSucceededCount === 0) {
-      this.logger.log(`Payment ${id} canceled on first attempt for user ${record.userId} — skipping notification`);
+      this.logger.log(
+        `Payment ${id} canceled on first attempt for user ${record.userId} — skipping notification`,
+      );
       return;
     }
 

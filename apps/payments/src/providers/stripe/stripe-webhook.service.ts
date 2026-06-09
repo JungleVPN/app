@@ -49,14 +49,16 @@ export class StripeWebhookService {
     }
   }
 
-  // ── checkout.session.completed ───────────────────────────────────────────
-  // Links the subscription/customer back onto the pending row created at
-  // session creation (StripePayment.id === checkout session id).
   private async handleCheckoutCompleted(event: Stripe.Event) {
     const session = event.data.object as Stripe.Checkout.Session;
-    const subscriptionId = subscriptionToId(session.subscription ?? undefined);
     const customer = customerToId(session.customer);
 
+    if (session.mode === 'payment' && session.metadata?.purpose === 'extra_device') {
+      await this.handleExtraDeviceCheckoutCompleted(session, customer);
+      return;
+    }
+
+    const subscriptionId = subscriptionToId(session.subscription ?? undefined);
     const result = await this.stripePaymentRepo.update(
       { id: session.id },
       { status: 'completed', stripeSubscriptionId: subscriptionId, customer, url: null },
@@ -64,6 +66,45 @@ export class StripeWebhookService {
 
     if (result.affected) {
       this.logger.log(`Checkout completed for session ${session.id} (sub ${subscriptionId})`);
+    }
+  }
+
+  private async handleExtraDeviceCheckoutCompleted(
+    session: Stripe.Checkout.Session,
+    customer: string | null,
+  ) {
+    const userId = session.metadata?.userId;
+
+    if (!userId) {
+      this.logger.warn(`Extra-device checkout ${session.id}: no userId in metadata — skipping`);
+      return;
+    }
+
+    const existing = await this.stripePaymentRepo.findOneBy({ id: session.id });
+    if (existing?.status === 'paid' && existing.paidAt !== null) {
+      this.logger.log(`Extra-device checkout ${session.id} already processed — ignoring duplicate`);
+      return;
+    }
+
+    const result = await this.paymentStatusService.handleUserUpdates({
+      selectedPeriod: 0,
+      userId,
+      purpose: 'extra_device',
+    });
+
+    await this.stripePaymentRepo.update(
+      { id: session.id },
+      { status: 'paid', customer: customer ?? undefined, paidAt: new Date(), url: null },
+    );
+
+    if (result.success) {
+      this.logger.log(`Extra device granted for user ${userId} via session ${session.id}`);
+      this.eventEmitter.emit(WebhookEventEnum['payment.succeeded'], {
+        userId,
+        provider: 'stripe',
+        selectedPeriod: 0,
+        purpose: 'extra_device',
+      } satisfies Payments.PaymentSucceededEventPayload);
     }
   }
 

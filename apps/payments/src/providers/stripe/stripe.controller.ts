@@ -86,6 +86,7 @@ export class StripeController {
         amount: +dto.payment.amount,
         currency: dto.payment.currency,
         userId: dto.userId,
+        purpose: dto.purchaseType ?? 'subscription',
         paidAt: null,
         stripeSubscriptionId: null,
         invoiceUrl: null,

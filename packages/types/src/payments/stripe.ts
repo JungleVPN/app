@@ -1,3 +1,7 @@
+import type { PaymentPurpose } from './yookassa';
+
+export type { PaymentPurpose };
+
 /**
  * Stripe create-session request — POST /payments/stripe/create-session.
  *
@@ -8,6 +12,8 @@
  */
 export interface CreateStripeSessionDto {
   userId: string;
+  /** Defaults to 'subscription'. Use 'extra_device' for one-time device-slot purchases. */
+  purchaseType?: PaymentPurpose;
   payment: {
     amount: number | string;
     currency: 'EUR';

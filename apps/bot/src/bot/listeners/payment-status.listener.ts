@@ -66,20 +66,20 @@ export class PaymentStatusListener {
     const { user, payload } = body;
     const locale = user.description || process.env.DEFAULT_LOCALE || 'en';
 
-    if (user.telegramId) {
-      if (payload.provider === 'stripe') {
-        await this.sendStripeSuccessMessage({
-          telegramId: user.telegramId,
-          invoiceUrl: payload.invoiceUrl,
-          subscriptionUrl: user.subscriptionUrl,
-          expireAt: user.expireAt,
-          locale,
-        });
-      } else if (payload.purpose === 'extra_device') {
-        await this.sendExtraDeviceSuccessMessage(user.telegramId, locale);
-      } else {
-        await this.sendYookassaSuccessMessage(user, locale);
-      }
+    if (!user.telegramId) return;
+
+    if (payload.purpose === 'extra_device') {
+      await this.sendExtraDeviceSuccessMessage(user.telegramId, locale);
+    } else if (payload.provider === 'stripe') {
+      await this.sendStripeSuccessMessage({
+        telegramId: user.telegramId,
+        invoiceUrl: payload.invoiceUrl,
+        subscriptionUrl: user.subscriptionUrl,
+        expireAt: user.expireAt,
+        locale,
+      });
+    } else {
+      await this.sendYookassaSuccessMessage(user, locale);
     }
   }
 
@@ -149,12 +149,9 @@ export class PaymentStatusListener {
       .row()
       .text(i18n.t(locale, 'home-button-label'), 'navigate_main');
 
-    await safeSendMessage(
-      this.bot,
-      telegramId,
-      i18n.t(locale, 'extra-device-success-text'),
-      { reply_markup: menu },
-    );
+    await safeSendMessage(this.bot, telegramId, i18n.t(locale, 'extra-device-success-text'), {
+      reply_markup: menu,
+    });
   }
 
   private async sendYookassaSuccessMessage(user: UserDto, locale: string) {

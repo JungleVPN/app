@@ -150,11 +150,10 @@ payment-success-text =
     You can manage payments in your profile. Just click the button below!
 
 extra-device-success-text =
-    ✅ Payment successful! Thank you for your support!
-
     One additional device slot has been added to your account 🙂
 
     You can connect a new device by importing your subscription link.
+
 
 subscription-text =
     📖 Setting up VPN on { $deviceLabel }:

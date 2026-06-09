@@ -25,37 +25,41 @@ export class StripeProvider {
   }
 
   async createPayment(dto: CreateStripePaymentDto) {
-    const priceId = this.getPriceId();
+    const purchaseType = dto.purchaseType ?? 'subscription';
+    const priceId = this.getPriceId(purchaseType);
     const customerId = await this.getCustomerId(dto.userId);
 
     if (customerId) {
-      const hasActiveSubscription = await this.hasActiveSubscription(customerId);
-      if (hasActiveSubscription) {
-        return this.createPortalSession(customerId);
+      // Only redirect to billing portal for subscription renewals, never for extra-device.
+      if (purchaseType === 'subscription') {
+        const hasActiveSubscription = await this.hasActiveSubscription(customerId);
+        if (hasActiveSubscription) {
+          return this.createPortalSession(customerId);
+        }
       }
-      return this.createCheckoutSession(priceId, customerId);
+      return this.createCheckoutSession(priceId, customerId, purchaseType, dto.userId);
     }
 
     const newCustomer = await this.createCustomer(dto);
-    return this.createCheckoutSession(priceId, newCustomer);
+    return this.createCheckoutSession(priceId, newCustomer, purchaseType, dto.userId);
   }
 
-  private async createCheckoutSession(priceId: string, customer: string): Promise<CheckoutSession> {
+  private async createCheckoutSession(
+    priceId: string,
+    customer: string,
+    purchaseType: 'subscription' | 'extra_device',
+    userId: string,
+  ): Promise<CheckoutSession> {
+    const isExtraDevice = purchaseType === 'extra_device';
     try {
       return await this.stripe.checkout.sessions.create({
         customer,
-        line_items: [
-          {
-            price: priceId,
-            quantity: 1,
-          },
-        ],
-        mode: 'subscription',
+        line_items: [{ price: priceId, quantity: 1 }],
+        mode: isExtraDevice ? 'payment' : 'subscription',
+        metadata: { purpose: purchaseType, userId },
         success_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
         cancel_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
-        phone_number_collection: {
-          enabled: false,
-        },
+        phone_number_collection: { enabled: false },
       });
     } catch (error) {
       this.logger.error('Error creating Stripe session', error);
@@ -143,11 +147,18 @@ export class StripeProvider {
     }
   }
 
-  private getPriceId(): string {
-    const priceId = process.env.STRIPE_PRICE_ID || '';
+  private getPriceId(purchaseType: 'subscription' | 'extra_device' = 'subscription'): string {
+    if (purchaseType === 'extra_device') {
+      const priceId = process.env.STRIPE_EXTRA_DEVICE_PRICE_ID || '';
+      if (!priceId) {
+        this.logger.error('STRIPE_EXTRA_DEVICE_PRICE_ID is not configured');
+        throw new Error('Extra device price configuration missing');
+      }
+      return priceId;
+    }
+    const priceId = process.env.STRIPE_SUBSCRIPTION_PRICE_ID || '';
     if (!priceId) {
-      this.logger.error('STRIPE_PRICE_ID is not configured');
-      throw new Error('Price configuration missing');
+      throw new Error('Subscription price configuration missing');
     }
     return priceId;
   }

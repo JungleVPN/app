@@ -1,19 +1,16 @@
 import { Button, Description, FieldError, Form, Input, TextField } from '@heroui/react';
 import { IconArrowRight, IconMail } from '@tabler/icons-react';
 import { mainButton } from '@tma.js/sdk-react';
+import type { PaymentMethod } from '@workspace/types';
 import { ReactNode, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PlatformType, useNavbarStore, useTermsStore } from '../../../../stores';
 import { Block } from '../../../../ui';
 import { validateEmail } from '../../../../utils';
-import type { PaymentMethod } from './PaymentMethodSelector';
 
 interface PaymentFormProps {
   selectedMethod: PaymentMethod;
   needsEmailInput: boolean;
-  allowedAmounts: string;
-  stripeAmount: string;
-  starsAmount: number;
   buttonLabel?: string;
   isPending: boolean;
   starsError: string | null;
@@ -27,9 +24,6 @@ interface PaymentFormProps {
 export function PaymentForm({
   selectedMethod,
   needsEmailInput,
-  allowedAmounts,
-  stripeAmount,
-  starsAmount,
   buttonLabel,
   isPending,
   starsError,
@@ -46,13 +40,6 @@ export function PaymentForm({
   const submitRef = useRef<() => Promise<void>>(async () => {});
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const showEmailInput = needsEmailInput;
-
-  const labelByMethod: Record<PaymentMethod, string> = {
-    yookassa: t('payment.pricePerMonth', { amount: allowedAmounts }),
-    stripe: t('payment.stripePerMonth', { amount: stripeAmount }),
-    stars: t('payment.starsPerMonth', { amount: starsAmount }),
-  };
-  const buttonText = buttonLabel ?? labelByMethod[selectedMethod];
 
   useEffect(() => {
     return window.scrollTo({
@@ -137,7 +124,7 @@ export function PaymentForm({
 
       <div>
         <Button fullWidth isPending={isPending} size='lg' type='submit' ref={buttonRef}>
-          {buttonText}
+          {buttonLabel}
           <IconArrowRight size={20} stroke={2} />
         </Button>
         <p className='pl-4 mt-1 text-start text-xs text-muted'>

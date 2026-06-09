@@ -12,13 +12,15 @@ export const coreEnv = {
   allowedPeriods: Number(import.meta.env.VITE_ALLOWED_PERIODS ?? 1),
   supportUrl: (import.meta.env.VITE_SUPPORT_URL ?? '') as string,
   starsAmount: Number(import.meta.env.VITE_STARS_AMOUNT ?? 0),
-  extraDeviceStarsAmount: Number(import.meta.env.VITE_EXTRA_DEVICE_STARS_AMOUNT ?? 0),
   successStickerFileId: (import.meta.env.VITE_SUCCESS_STICKER_FILE_ID ?? '') as string,
   menuStickerFileId: (import.meta.env.VITE_MENU_STICKER_FILE_ID ?? '') as string,
   extraDeviceStickerFileId: (import.meta.env.VITE_EXTRA_DEVICE_STICKER_FILE_ID ?? '') as string,
   botUrl: (import.meta.env.VITE_BOT_URL ?? '') as string,
   paymentsUrl: (import.meta.env.VITE_PAYMENTS_URL ?? '') as string,
-  extraDevicePrice: (import.meta.env.VITE_EXTRA_DEVICE_PRICE ?? '') as string,
+
+  extraDevicePriceRUB: Number(import.meta.env.VITE_EXTRA_DEVICE_PRICE_RUB ?? ''),
+  extraDevicePriceEUR: Number(import.meta.env.VITE_EXTRA_DEVICE_PRICE_EUR ?? ''),
+  extraDevicePriceStars: Number(import.meta.env.VITE_EXTRA_DEVICE_PRICE_STARS ?? ''),
   /**
    * Comma-separated Telegram user ids that have access to admin features.
    * Set VITE_ADMINS=123456,789012 in the .env file.

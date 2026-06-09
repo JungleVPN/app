@@ -26,12 +26,15 @@ export class PaymentsUtils {
       .filter((p) => p > 0);
   }
 
-  getExtraDevicePrice(): string {
-    return this.configService.get<string>('EXTRA_DEVICE_PRICE', this.getAllowedAmounts()[0] ?? '0');
+  getExtraDevicePriceRUB(): string {
+    return this.configService.get<string>(
+      'EXTRA_DEVICE_PRICE_RUB',
+      this.getAllowedAmounts()[0] ?? '0',
+    );
   }
 
   getExtraDeviceStarsAmount(): number {
-    const val = Number(this.configService.get<string>('EXTRA_DEVICE_STARS_AMOUNT', '0'));
+    const val = Number(this.configService.get<string>('EXTRA_DEVICE_PRICE_STARS', '0'));
     return val > 0 ? val : (this.getAllowedStarsAmounts()[0] ?? 0);
   }
 }

@@ -1,6 +1,6 @@
 import { type Selection } from '@heroui/react';
 import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import deviceAnimation from '../../../assets/lottie/devicesPageIcon.lottie?url';
 import { coreEnv, getTelegramStickerUrl } from '../../../env';
@@ -14,6 +14,7 @@ import {
 } from '../payment/components/PaymentMethodSelector';
 import { useExtraDevicePayment } from './hooks/useExtraDevicePayment';
 import { useExtraDeviceStarsPayment } from './hooks/useExtraDeviceStarsPayment';
+import { useExtraDeviceStripePayment } from './hooks/useExtraDeviceStripePayment';
 
 export default function ExtraDevicePurchasePage() {
   const { t } = useTranslation();
@@ -22,10 +23,16 @@ export default function ExtraDevicePurchasePage() {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('yookassa');
 
   const { isPaying, handlePay } = useExtraDevicePayment();
-  const { starsEnabled, starsAmount, starsError, isStarsPaying, successState, handleStarsPayment } =
+  const { starsEnabled, starsError, isStarsPaying, successState, handleStarsPayment } =
     useExtraDeviceStarsPayment();
+  const { isStripePaying, handleStripePayment } = useExtraDeviceStripePayment();
 
-  const isPending = selectedMethod === 'stars' ? isStarsPaying : isPaying;
+  const isPending =
+    selectedMethod === 'stars'
+      ? isStarsPaying
+      : selectedMethod === 'stripe'
+        ? isStripePaying
+        : isPaying;
 
   useEffect(() => {
     setNavbarVisible(false);
@@ -47,10 +54,24 @@ export default function ExtraDevicePurchasePage() {
     setNavbarVisible(true);
   };
 
-  const buttonLabel =
-    selectedMethod === 'stars'
-      ? t('devices.extraDevicePurchase.starsButton', { amount: starsAmount })
-      : t('devices.extraDevicePurchase.priceButton', { amount: coreEnv.extraDevicePrice });
+  const getButtonLabel = useCallback(() => {
+    switch (selectedMethod) {
+      case 'yookassa':
+        return t('devices.extraDevicePurchase.priceRubButton', {
+          amount: coreEnv.extraDevicePriceRUB,
+        });
+      case 'stripe':
+        return t('devices.extraDevicePurchase.priceEurButton', {
+          amount: coreEnv.extraDevicePriceEUR,
+        });
+      case 'stars':
+        return t('devices.extraDevicePurchase.priceStarsButton', {
+          amount: coreEnv.extraDevicePriceStars,
+        });
+    }
+  }, [selectedMethod, t]);
+
+  const buttonLabel = getButtonLabel();
 
   const handleExtend = async () => {
     await handlePay();
@@ -73,14 +94,12 @@ export default function ExtraDevicePurchasePage() {
       <PaymentForm
         selectedMethod={selectedMethod}
         needsEmailInput={false}
-        allowedAmounts=''
-        stripeAmount=''
-        starsAmount={starsAmount}
         buttonLabel={buttonLabel}
         isPending={isPending}
         starsError={starsError}
         platformType={platformType}
         onYookassaPayment={handleExtend}
+        onStripePayment={handleStripePayment}
         onStarsPayment={handleStarsPayment}
       >
         <PaymentMethodSelector
@@ -98,7 +117,6 @@ export default function ExtraDevicePurchasePage() {
         isOpen={successState.isOpen}
         onClose={handleSuccessClose}
       />
-
     </Page>
   );
 }

@@ -36,13 +36,10 @@ interface ImportMetaEnv {
   readonly VITE_PAYMENTS_URL: string;
   readonly VITE_BOT_URL: string;
   readonly VITE_SUCCESS_STICKER_FILE_ID: string;
-  /** Comma-separated Telegram user ids that have admin access, e.g. "123456,789012" */
   readonly VITE_ADMINS: string;
-  /** Display price for one extra device slot, e.g. "199 ₽". */
-  readonly VITE_EXTRA_DEVICE_PRICE: string;
-  /** Number of Telegram Stars to charge for one extra device slot. */
-  readonly VITE_EXTRA_DEVICE_STARS_AMOUNT: string;
-  /** Telegram file ID for the extra device purchase page sticker. */
+  readonly VITE_EXTRA_DEVICE_PRICE_RUB: string;
+  readonly VITE_EXTRA_DEVICE_PRICE_EUR: string;
+  readonly VITE_EXTRA_DEVICE_PRICE_STARS: string;
   readonly VITE_EXTRA_DEVICE_STICKER_FILE_ID: string;
   readonly VITE_MENU_STICKER_FILE_ID: string;
   readonly VITE_STRIPE_AMOUNT: string;

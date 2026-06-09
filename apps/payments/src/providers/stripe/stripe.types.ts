@@ -1,4 +1,5 @@
 import type Stripe from 'stripe';
+import type { PaymentPurpose } from '@workspace/types';
 
 /**
  * Metadata attached to a Stripe payment session.
@@ -12,6 +13,8 @@ export interface WebStripeMetadata {
 
 export interface CreateStripePaymentDto {
   readonly userId: string;
+  /** Defaults to 'subscription'. Use 'extra_device' for one-time device-slot purchases. */
+  readonly purchaseType?: PaymentPurpose;
   readonly payment: {
     readonly amount: number | string;
     readonly currency: 'EUR';
