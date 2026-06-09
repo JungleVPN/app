@@ -13,7 +13,7 @@ export type Currency = 'RUB' | 'EUR';
 
 /** The env var holding the configured price(s) for each currency. */
 const PRICE_ENV: Record<Currency, string> = {
-  RUB: 'YOOKASSA_AMOUNT', // YooKassa — comma-separated list, first entry is canonical
+  RUB: 'PUBLIC_ALLOWED_AMOUNT_RUB', // YooKassa — comma-separated list, first entry is canonical
   EUR: 'PUBLIC_ALLOWED_AMOUNT_EUR', // Stripe — single price
 };
 

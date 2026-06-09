@@ -10,15 +10,15 @@ export class ValidatePaymentRequest {
       throw new BadRequestException('Amount is required');
     }
 
-    const allowedAmounts = this.paymentsUtils.getAllowedAmounts();
+    const allowedAmount = this.paymentsUtils.getAllowedAmounts();
 
-    if (allowedAmounts.length === 0) {
+    if (allowedAmount.length === 0) {
       throw new BadRequestException('YOOKASSA_AMOUNT is not configured');
     }
 
-    if (!allowedAmounts.includes(value)) {
+    if (!allowedAmount.includes(value)) {
       throw new BadRequestException(
-        `Invalid amount: ${value}. Allowed values: ${allowedAmounts.join(', ')}`,
+        `Invalid amount: ${value}. Allowed values: ${allowedAmount.join(', ')}`,
       );
     }
   }

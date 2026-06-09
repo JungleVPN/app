@@ -2,9 +2,10 @@ import { Button, type Selection, Spinner } from '@heroui/react';
 import { Page } from '@workspace/core';
 import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
 import type { PaymentMethod } from '@workspace/types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url';
+import { coreEnv } from '../../../env';
 import { useNavbarStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
 import { PaymentForm } from './components/PaymentForm';
@@ -16,8 +17,7 @@ export default function PaymentPage() {
   const { t } = useTranslation();
   const {
     savedMethods,
-    allowedAmounts,
-    allowedPeriods,
+    allowedPeriod,
     platformType,
     hasActiveMethod,
     hasStripeSubscription,
@@ -25,9 +25,7 @@ export default function PaymentPage() {
     isLoadingMethods,
     isLoading,
     isDeleting,
-    stripeAmount,
     starsEnabled,
-    starsAmount,
     starsError,
     isPaying,
     isStripePaying,
@@ -47,6 +45,19 @@ export default function PaymentPage() {
   useEffect(() => {
     setNavbarVisible(!successState.isOpen);
   }, [setNavbarVisible, successState.isOpen]);
+
+  const getButtonLabel = useCallback(() => {
+    switch (selectedMethod) {
+      case 'yookassa':
+        return t('payment.priceRubButton', { amount: coreEnv.allowedAmountRub });
+      case 'stripe':
+        return t('payment.priceEurButton', { amount: coreEnv.allowedAmountStripe });
+      case 'stars':
+        return t('payment.priceStarsButton', { amount: coreEnv.allowedAmountStars });
+    }
+  }, [selectedMethod, t]);
+
+  const buttonLabel = getButtonLabel();
 
   const isPendingByMethod: Record<PaymentMethod, boolean> = {
     yookassa: isPaying,
@@ -100,9 +111,7 @@ export default function PaymentPage() {
         <PaymentForm
           selectedMethod={selectedMethod}
           needsEmailInput={needsEmailInput}
-          allowedAmounts={allowedAmounts}
-          stripeAmount={stripeAmount}
-          starsAmount={starsAmount}
+          buttonLabel={buttonLabel}
           isPending={isPending}
           starsError={starsError}
           platformType={platformType}
@@ -119,7 +128,7 @@ export default function PaymentPage() {
       )}
 
       <StarsPaymentSuccessDrawer
-        allowedPeriods={allowedPeriods}
+        allowedPeriods={allowedPeriod}
         isOpen={successState.isOpen}
         onClose={successState.close}
       />

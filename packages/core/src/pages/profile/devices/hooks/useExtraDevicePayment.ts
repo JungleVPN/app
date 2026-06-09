@@ -1,4 +1,5 @@
 import { openLink } from '@tma.js/sdk-react';
+import { coreEnv } from '../../../../env';
 import { useCreatePaymentSession } from '../../../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreInfo, usePlatformStore } from '../../../../stores';
@@ -24,7 +25,7 @@ export function useExtraDevicePayment() {
       save_payment_method: false,
       confirmation: {
         return_url: isNativeApp
-          ? import.meta.env.PUBLIC_TMA_APP_URL
+          ? coreEnv.tmaAppUrl
           : `${window.location.origin}${paymentReturnPath}`,
         type: 'redirect',
       },

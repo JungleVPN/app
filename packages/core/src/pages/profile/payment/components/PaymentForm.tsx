@@ -11,7 +11,7 @@ import { validateEmail } from '../../../../utils';
 interface PaymentFormProps {
   selectedMethod: PaymentMethod;
   needsEmailInput: boolean;
-  buttonLabel?: string;
+  buttonLabel: string;
   isPending: boolean;
   starsError: string | null;
   platformType: PlatformType | null;

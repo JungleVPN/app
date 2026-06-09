@@ -24,7 +24,7 @@ export function useExtraDeviceStripePayment() {
     const session = await createStripeSession({
       userId: rmnUser.uuid,
       purchaseType: 'extra_device',
-      payment: { amount: coreEnv.extraDevicePrice, currency: 'EUR' },
+      payment: { amount: coreEnv.extraDevicePriceEUR, currency: 'EUR' },
       metadata: {
         email: payerEmail,
         userId: rmnUser.uuid,

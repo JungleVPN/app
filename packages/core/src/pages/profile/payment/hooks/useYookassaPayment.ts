@@ -16,7 +16,6 @@ export function useYookassaPayment() {
   const { setSavedMethods } = useSavedMethodsStoreActions();
   const { platformType, clientPlatform } = usePlatformStore();
   const { paymentReturnPath } = useAppRoutes();
-  const { allowedAmounts } = coreEnv;
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
 
@@ -69,7 +68,7 @@ export function useYookassaPayment() {
       save_payment_method: true,
       confirmation: {
         return_url: isNativeApp
-          ? import.meta.env.PUBLIC_TMA_APP_URL
+          ? coreEnv.tmaAppUrl
           : `${window.location.origin}${paymentReturnPath}`,
         type: 'redirect',
       },
@@ -84,5 +83,5 @@ export function useYookassaPayment() {
     }
   };
 
-  return { allowedAmounts, isPaying, isDeleting, handleDelete, handleYookassaPayment };
+  return { isPaying, isDeleting, handleDelete, handleYookassaPayment };
 }

@@ -17,7 +17,7 @@ export function useStripePayment() {
   const { rmnUser, tgUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { platformType, clientPlatform } = usePlatformStore();
-  const { stripeAmount } = coreEnv;
+  const { allowedAmountStripe } = coreEnv;
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
 
@@ -89,7 +89,7 @@ export function useStripePayment() {
 
     const session = await createStripeSession({
       userId: activeUser.uuid,
-      payment: { amount: stripeAmount, currency: 'EUR' },
+      payment: { amount: allowedAmountStripe, currency: 'EUR' },
       metadata: {
         email: payerEmail,
         userId: activeUser.uuid,
@@ -102,7 +102,6 @@ export function useStripePayment() {
   };
 
   return {
-    stripeAmount,
     isStripePaying,
     handleStripePayment,
     handleOpenStripePortal,

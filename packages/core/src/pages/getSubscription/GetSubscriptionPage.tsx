@@ -5,7 +5,6 @@ import { type SyntheticEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useRemnawaveApi } from '../../api';
-import { coreEnv } from '../../env';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../stores';
 import { Block } from '../../ui';
@@ -13,7 +12,6 @@ import { initUser, validateEmail } from '../../utils';
 import styles from './getSubscription.module.css';
 
 export default function GetSubscriptionPage() {
-  const { allowedAmounts } = coreEnv;
   const { profileSubscriptionPath } = useAppRoutes();
   const remnawaveApi = useRemnawaveApi();
   const navigate = useNavigate();
@@ -152,7 +150,6 @@ export default function GetSubscriptionPage() {
               </div>
               <div className={styles.priceColumn}>
                 <p className={styles.currentPrice}>0 ₽</p>
-                <p className={styles.oldPrice}>{allowedAmounts} ₽</p>
               </div>
             </div>
 

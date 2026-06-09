@@ -17,7 +17,7 @@ export function useTelegramStarsPayment() {
   const { t } = useTranslation();
   const { rmnUser } = useAuthStoreInfo();
   const { platformType } = usePlatformStore();
-  const { allowedPeriods, starsAmount } = coreEnv;
+  const { allowedPeriod, extraDevicePriceStars } = coreEnv;
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
   const { setSubscriptionInfo } = useSubscriptionInfoStoreActions();
@@ -28,7 +28,7 @@ export function useTelegramStarsPayment() {
   const [starsError, setStarsError] = useState<string | null>(null);
 
   const isTma = platformType !== 'web';
-  const starsEnabled = isTma && starsAmount > 0;
+  const starsEnabled = isTma && extraDevicePriceStars > 0;
 
   const handleStarsPayment = async () => {
     if (!rmnUser?.uuid) return;
@@ -37,8 +37,8 @@ export function useTelegramStarsPayment() {
     const result = await createStarsInvoice({
       userId: rmnUser.uuid,
       telegramId: rmnUser.telegramId,
-      title: t('payment.stars.invoiceTitle', { period: allowedPeriods }),
-      description: t('payment.stars.invoiceDescription', { period: allowedPeriods }),
+      title: t('payment.stars.invoiceTitle', { period: allowedPeriod }),
+      description: t('payment.stars.invoiceDescription', { period: allowedPeriod }),
     });
 
     if (!result?.invoiceLink) {
@@ -66,5 +66,12 @@ export function useTelegramStarsPayment() {
     }
   };
 
-  return { starsEnabled, starsAmount, starsError, isStarsPaying, successState, handleStarsPayment };
+  return {
+    starsEnabled,
+    extraDevicePriceStars,
+    starsError,
+    isStarsPaying,
+    successState,
+    handleStarsPayment,
+  };
 }

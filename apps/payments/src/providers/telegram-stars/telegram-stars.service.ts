@@ -52,7 +52,7 @@ export class TelegramStarsService implements OnModuleInit {
       purpose === 'extra_device'
         ? this.paymentsUtils.getExtraDeviceStarsAmount()
         : this.paymentsUtils.getAllowedStarsAmounts()[0];
-    console.log(telegramId);
+
     const record = this.starsPaymentRepo.create({
       userId,
       selectedPeriod: allowedPeriods[0],
