@@ -8,7 +8,7 @@ import { useRemnawaveApi } from '../../api';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../stores';
 import { Block } from '../../ui';
-import { getAttribution, initUser, validateEmail } from '../../utils';
+import { analytics, getAttribution, initUser, validateEmail } from '../../utils';
 import styles from './getSubscription.module.css';
 
 export default function GetSubscriptionPage() {
@@ -32,6 +32,14 @@ export default function GetSubscriptionPage() {
       backButton.hide();
     }
   }, [authUser, tgUser, rmnUser, navigate, profileSubscriptionPath, platformType]);
+
+  // Fire once when an unauthenticated visitor lands on this page.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    if (!rmnUser) {
+      analytics.initialPageViewed(platformType === 'telegram' ? 'telegram' : 'web');
+    }
+  }, []);
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -70,21 +78,32 @@ export default function GetSubscriptionPage() {
             email,
           });
           setRmnUser(linked ?? null);
+          analytics.login('telegram');
         } else {
           const attribution = getAttribution();
-          const newUser = await remnawaveApi.createUser({ email, telegramId, attribution: attribution ?? undefined });
+          const newUser = await remnawaveApi.createUser({
+            email,
+            telegramId,
+            attribution: attribution ?? undefined,
+          });
           setRmnUser(newUser ?? null);
+          analytics.signUp('telegram');
         }
         navigate(profileSubscriptionPath);
       } else {
         // Web flow — look up or create by email, then navigate to the public subscription page.
         const existingUser = await initUser(remnawaveApi, { email });
         if (existingUser) {
+          analytics.login('web');
           navigate(`/subscription/${existingUser.shortUuid}`);
           return;
         }
         const attribution = getAttribution();
-        const newUser = await remnawaveApi.createUser({ email, attribution: attribution ?? undefined });
+        const newUser = await remnawaveApi.createUser({
+          email,
+          attribution: attribution ?? undefined,
+        });
+        analytics.signUp('web');
         navigate(`/subscription/${newUser?.shortUuid}`);
       }
     } catch {

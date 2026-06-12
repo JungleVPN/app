@@ -6,6 +6,7 @@ import { coreEnv } from '../../../../env';
 import { useCreateTelegramStarsInvoice } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreInfo, usePlatformStore } from '../../../../stores';
+import { analytics } from '../../../../utils';
 
 export function useExtraDeviceStarsPayment() {
   const { t } = useTranslation();
@@ -40,8 +41,10 @@ export function useExtraDeviceStarsPayment() {
     }
 
     try {
+      analytics.beginCheckout('stars');
       const status = await invoice.openUrl(result.invoiceLink);
       if (status === 'paid') {
+        analytics.extraDevicePurchased('stars');
         successState.open();
       }
     } catch {

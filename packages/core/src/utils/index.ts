@@ -20,5 +20,6 @@ export { TemplateEngine } from './templateEngine';
 export { validateEmail } from './validators';
 export type { AttributionPayload } from './attribution';
 export { captureAttribution, clearAttribution, getAttribution } from './attribution';
+export { analytics } from './analytics';
 export type { PresetName } from './vibrate';
 export { canVibrate, VibrationPresets, vibrate, vibrateStop } from './vibrate';

@@ -5,6 +5,7 @@ import { coreEnv } from '../../../../env';
 import { useCreateStripeSession, useUpdateUser } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../../../stores';
+import { analytics } from '../../../../utils';
 
 /**
  * Stripe checkout flow for the web/TMA payment page.
@@ -98,6 +99,7 @@ export function useStripePayment() {
     });
 
     if (!session?.url) return;
+    analytics.beginCheckout('stripe');
     redirectTo(session.url);
   };
 
