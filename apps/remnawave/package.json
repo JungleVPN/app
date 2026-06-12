@@ -17,12 +17,15 @@
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/typeorm": "11.0.0",
+    "@workspace/database": "workspace:*",
     "@workspace/types": "workspace:*",
     "axios": "^1.7.0",
-    "grammy": "^1.42.0",
     "date-fns": "^3.6.0",
+    "grammy": "^1.42.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.20"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",

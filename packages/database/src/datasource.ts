@@ -8,6 +8,7 @@ import { Referral } from './entities/referral.entity';
 import { SavedPaymentMethod } from './entities/saved-payment-method.entity';
 import { StripePayment } from './entities/stripe-payment.entity';
 import { TelegramStarsPayment } from './entities/telegram-stars-payment.entity';
+import { UserAttribution } from './entities/user-attribution.entity';
 import { YookassaPayment } from './entities/yookassa-payment.entity';
 
 config({ path: path.resolve(process.cwd(), '.env.development') });
@@ -32,6 +33,7 @@ export const dataSourceOptions: DataSourceOptions = {
     YookassaPayment,
     Broadcast,
     BroadcastMessage,
+    UserAttribution,
   ],
   migrations: [migrationsDir],
   migrationsRun: false,

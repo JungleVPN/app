@@ -18,5 +18,7 @@ export type { Storage } from './storage';
 export { createStorage } from './storage';
 export { TemplateEngine } from './templateEngine';
 export { validateEmail } from './validators';
+export type { AttributionPayload } from './attribution';
+export { captureAttribution, clearAttribution, getAttribution } from './attribution';
 export type { PresetName } from './vibrate';
 export { canVibrate, VibrationPresets, vibrate, vibrateStop } from './vibrate';

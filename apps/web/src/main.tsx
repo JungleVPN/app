@@ -7,7 +7,7 @@ import '@/assets/globals.css';
 
 import { ApiProvider } from '@workspace/core/api';
 import { AppRoutesProvider, PaymentsApiProvider, SupabaseProvider } from '@workspace/core/runtime';
-import { initDayjs } from '@workspace/core/utils';
+import { captureAttribution, initDayjs } from '@workspace/core/utils';
 import { paymentsApi } from '@/api/payments';
 import { backendClient } from '@/api/remnawave';
 import { createClient } from '@/lib/supabase/client';
@@ -15,6 +15,7 @@ import { WebAuthProvider } from '@/providers/WebAuthProvider';
 import { router } from '@/router.ts';
 
 initDayjs();
+captureAttribution({ platform: 'web' });
 
 const appRoutes = {
   paymentReturnPath: '/profile/subscription',

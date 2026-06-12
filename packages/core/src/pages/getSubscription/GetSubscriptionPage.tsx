@@ -8,7 +8,7 @@ import { useRemnawaveApi } from '../../api';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../stores';
 import { Block } from '../../ui';
-import { initUser, validateEmail } from '../../utils';
+import { getAttribution, initUser, validateEmail } from '../../utils';
 import styles from './getSubscription.module.css';
 
 export default function GetSubscriptionPage() {
@@ -71,7 +71,8 @@ export default function GetSubscriptionPage() {
           });
           setRmnUser(linked ?? null);
         } else {
-          const newUser = await remnawaveApi.createUser({ email, telegramId });
+          const attribution = getAttribution();
+          const newUser = await remnawaveApi.createUser({ email, telegramId, attribution: attribution ?? undefined });
           setRmnUser(newUser ?? null);
         }
         navigate(profileSubscriptionPath);
@@ -82,7 +83,8 @@ export default function GetSubscriptionPage() {
           navigate(`/subscription/${existingUser.shortUuid}`);
           return;
         }
-        const newUser = await remnawaveApi.createUser({ email });
+        const attribution = getAttribution();
+        const newUser = await remnawaveApi.createUser({ email, attribution: attribution ?? undefined });
         navigate(`/subscription/${newUser?.shortUuid}`);
       }
     } catch {

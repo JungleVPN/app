@@ -12,6 +12,7 @@ import {
   UpdateUserCommand,
   UpdateUserResponseDto,
 } from '@workspace/types';
+import type { AttributionPayload } from '@workspace/types';
 import type { ApiClient } from '../client';
 
 export function createRemnawaveApi(client: ApiClient) {
@@ -50,7 +51,9 @@ export function createRemnawaveApi(client: ApiClient) {
     },
 
     async createUser(
-      params: Pick<CreateUserRequestDto, 'email' | 'telegramId'>,
+      params: Pick<CreateUserRequestDto, 'email' | 'telegramId'> & {
+        attribution?: AttributionPayload;
+      },
     ): Promise<CreateUserResponseDto | null> {
       return client.post<CreateUserResponseDto>(apiRoutes.remnawave.users, {
         ...params,
@@ -101,9 +104,7 @@ export function createRemnawaveApi(client: ApiClient) {
       }
     },
 
-    async getTelegramPhotoUrl(
-      telegramId: string,
-    ): Promise<{ photoUrl: string | null }> {
+    async getTelegramPhotoUrl(telegramId: string): Promise<{ photoUrl: string | null }> {
       try {
         return await client.get<{ photoUrl: string | null }>(
           apiRoutes.remnawave.telegramPhoto(telegramId),

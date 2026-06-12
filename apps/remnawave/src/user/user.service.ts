@@ -1,5 +1,6 @@
 import * as process from 'node:process';
 import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import {
   CreateUserCommand,
@@ -21,6 +22,9 @@ import {
 } from '@workspace/types';
 import { addDays, addMonths } from 'date-fns';
 import { Bot } from 'grammy';
+import { Repository } from 'typeorm';
+import { UserAttribution } from '@workspace/database';
+import { AttributionPayload } from '@workspace/types';
 import { RemnaPanelClient } from '../common/remna-panel.client';
 
 @Injectable()
@@ -31,6 +35,8 @@ export class UserService implements OnModuleInit {
   constructor(
     private readonly panelClient: RemnaPanelClient,
     private readonly configService: ConfigService,
+    @InjectRepository(UserAttribution)
+    private readonly attributionRepo: Repository<UserAttribution>,
   ) {}
 
   onModuleInit() {
@@ -84,7 +90,9 @@ export class UserService implements OnModuleInit {
   }
 
   async createUser(
-    payload: Pick<CreateUserRequestDto, 'telegramId' | 'email' | 'description'>,
+    payload: Pick<CreateUserRequestDto, 'telegramId' | 'email' | 'description'> & {
+      attribution?: AttributionPayload;
+    },
   ): Promise<CreateUserResponseDto> {
     const trialDays = Number(this.configService.get('TRIAL_PERIOD_IN_DAYS', '3'));
     const activeInternalSquads = JSON.parse(
@@ -92,8 +100,10 @@ export class UserService implements OnModuleInit {
     );
     const expireAt = addDays(new Date(), trialDays);
 
+    const { attribution, ...rest } = payload;
+
     const body: CreateUserRequestDto = {
-      ...payload,
+      ...rest,
       username: crypto.randomUUID().slice(0, 10),
       expireAt,
       activeInternalSquads,
@@ -102,11 +112,28 @@ export class UserService implements OnModuleInit {
       hwidDeviceLimit: Number(process.env.HWID_LIMIT) || 5,
     };
 
-    return this.panelClient.request<CreateUserResponseDto>({
+    const user = await this.panelClient.request<CreateUserResponseDto>({
       url: CreateUserCommand.url,
       method: CreateUserCommand.endpointDetails.REQUEST_METHOD,
       body,
     });
+
+    if (attribution) {
+      await this.attributionRepo.save({
+        userId: user.uuid,
+        platform: attribution.platform,
+        source: attribution.source ?? null,
+        medium: attribution.medium ?? null,
+        campaign: attribution.campaign ?? null,
+        adset: attribution.adset ?? null,
+        ad: attribution.ad ?? null,
+        clickId: attribution.clickId ?? null,
+        adCode: attribution.adCode ?? null,
+        raw: attribution,
+      });
+    }
+
+    return user;
   }
 
   async updateUser(body: UpdateUserRequestDto): Promise<UpdateUserResponseDto> {

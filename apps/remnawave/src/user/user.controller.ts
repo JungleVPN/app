@@ -10,7 +10,7 @@ import {
   Post,
 } from '@nestjs/common';
 import * as Remnawave from '@workspace/types';
-import { UpdateUserResponseDto } from '@workspace/types';
+import { AttributionPayload, UpdateUserResponseDto } from '@workspace/types';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -38,7 +38,9 @@ export class UserController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createUser(
-    @Body() body: Pick<Remnawave.CreateUserRequestDto, 'telegramId' | 'email' | 'description'>,
+    @Body() body: Pick<Remnawave.CreateUserRequestDto, 'telegramId' | 'email' | 'description'> & {
+      attribution?: AttributionPayload;
+    },
   ): Promise<Remnawave.CreateUserResponseDto> {
     return this.userService.createUser(body);
   }
