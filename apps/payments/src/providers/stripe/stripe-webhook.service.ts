@@ -122,8 +122,13 @@ export class StripeWebhookService {
     // Idempotency: each invoice (initial + every renewal) has a unique id and
     // gets its own DB row. If we already stamped it paid, this is a duplicate
     // webhook (Stripe retries) — ignore so we never extend the subscription twice.
-    const existing = await this.stripePaymentRepo.findOneBy({ id: invoice.id });
-    if (existing?.status === 'paid' && existing.paidAt !== null) {
+    let record = await this.stripePaymentRepo.findOneBy({ id: invoice.id });
+    if (!record) {
+      await new Promise((resolve) => setTimeout(resolve, 1_500));
+      record = await this.stripePaymentRepo.findOneBy({ id: invoice.id });
+    }
+
+    if (record?.status === 'paid' && record.paidAt !== null) {
       this.logger.log(`Stripe invoice ${invoice.id} already processed — ignoring duplicate`);
       return;
     }
@@ -137,6 +142,7 @@ export class StripeWebhookService {
     const result = await this.paymentStatusService.handleUserUpdates({
       selectedPeriod,
       userId: payload.userId,
+      purpose: record?.purpose,
     });
 
     await this.persistInvoice(payload, 'paid');

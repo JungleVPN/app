@@ -1,3 +1,4 @@
+import type { PaymentPurpose } from '@workspace/types';
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('stripe_payments')
@@ -29,8 +30,8 @@ export class StripePayment {
   @Column({ type: 'varchar', nullable: true })
   invoiceUrl: string | null;
 
-  @Column({ type: 'varchar', nullable: true, default: 'subscription' })
-  purpose: string | null;
+  @Column({ type: 'varchar', default: 'subscription' })
+  purpose: PaymentPurpose;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

@@ -199,6 +199,7 @@ export class YookassaService {
     const result = await this.paymentStatusService.handleUserUpdates({
       selectedPeriod: record.selectedPeriod,
       userId: record.userId,
+      purpose: record.purpose,
     });
 
     await this.yookassaPaymentRepo.update(id, {
