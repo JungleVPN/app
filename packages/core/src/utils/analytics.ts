@@ -1,4 +1,5 @@
 function track(event: string, params?: Record<string, unknown>) {
+  if (import.meta.env.PUBLIC_GA_ENABLED === 'false') return;
   if (typeof window === 'undefined') return;
   const g = (window as unknown as { gtag?: (...a: unknown[]) => void }).gtag;
   if (typeof g !== 'function') return;
