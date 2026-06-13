@@ -25,6 +25,7 @@ export default function TermsPage() {
           <li>{t('terms.s1.i1')}</li>
           <li>{t('terms.s1.i2')}</li>
           <li>{t('terms.s1.i3')}</li>
+          <li>{t('terms.s1.i4')}</li>
         </ol>
       </section>
 
@@ -82,6 +83,19 @@ export default function TermsPage() {
           <li>{t('terms.s4.i1')}</li>
           <li>{t('terms.s4.i2')}</li>
           <li>{t('terms.s4.i3')}</li>
+          <li>
+            {t('terms.s4.i4_lead')}
+            <ul className={`${ulClass} mt-2`}>
+              <li>{t('terms.s4.i4_u1')}</li>
+              <li>{t('terms.s4.i4_u2')}</li>
+              <li>{t('terms.s4.i4_u3')}</li>
+              <li>{t('terms.s4.i4_u4')}</li>
+              <li>{t('terms.s4.i4_u5')}</li>
+              <li>{t('terms.s4.i4_u6')}</li>
+              <li>{t('terms.s4.i4_u7')}</li>
+            </ul>
+          </li>
+          <li>{t('terms.s4.i5')}</li>
         </ol>
       </section>
 
@@ -145,6 +159,21 @@ export default function TermsPage() {
         <ol className={olClass}>
           <li>{t('terms.s9.i1')}</li>
           <li>{t('terms.s9.i2')}</li>
+          <li>{t('terms.s9.i3')}</li>
+          <li>{t('terms.s9.i4')}</li>
+          <li>
+            {t('terms.s9.i5_lead')}
+            <ul className={`${ulClass} mt-2`}>
+              <li>{t('terms.s9.i5_u1')}</li>
+              <li>{t('terms.s9.i5_u2')}</li>
+              <li>{t('terms.s9.i5_u3')}</li>
+              <li>{t('terms.s9.i5_u4')}</li>
+              <li>{t('terms.s9.i5_u5')}</li>
+              <li>{t('terms.s9.i5_u6')}</li>
+            </ul>
+          </li>
+          <li>{t('terms.s9.i6')}</li>
+          <li>{t('terms.s9.i7')}</li>
         </ol>
       </section>
 
@@ -181,6 +210,48 @@ export default function TermsPage() {
           <li>{t('terms.s12.i6')}</li>
           <li>{t('terms.s12.i7')}</li>
           <li>{t('terms.s12.i8')}</li>
+        </ol>
+      </section>
+
+      <section aria-labelledby='terms-s13' className='flex flex-col gap-2'>
+        <h2 className='text-sm font-medium text-foreground' id='terms-s13'>
+          {t('terms.s13.h')}
+        </h2>
+        <ol className={olClass}>
+          <li>{t('terms.s13.i1')}</li>
+          <li>{t('terms.s13.i2')}</li>
+          <li>{t('terms.s13.i3')}</li>
+          <li>{t('terms.s13.i4')}</li>
+        </ol>
+      </section>
+
+      <section aria-labelledby='terms-s14' className='flex flex-col gap-2'>
+        <h2 className='text-sm font-medium text-foreground' id='terms-s14'>
+          {t('terms.s14.h')}
+        </h2>
+        <ol className={olClass}>
+          <li>{t('terms.s14.i1')}</li>
+          <li>{t('terms.s14.i2')}</li>
+          <li>
+            {t('terms.s14.i3_lead')}
+            <ul className={`${ulClass} mt-2`}>
+              <li>{t('terms.s14.i3_u1')}</li>
+              <li>{t('terms.s14.i3_u2')}</li>
+              <li>{t('terms.s14.i3_u3')}</li>
+            </ul>
+          </li>
+          <li>{t('terms.s14.i4')}</li>
+        </ol>
+      </section>
+
+      <section aria-labelledby='terms-s15' className='flex flex-col gap-2'>
+        <h2 className='text-sm font-medium text-foreground' id='terms-s15'>
+          {t('terms.s15.h')}
+        </h2>
+        <ol className={olClass}>
+          <li>{t('terms.s15.i1')}</li>
+          <li>{t('terms.s15.i2')}</li>
+          <li>{t('terms.s15.i3')}</li>
         </ol>
       </section>
 

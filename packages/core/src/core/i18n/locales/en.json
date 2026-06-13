@@ -174,7 +174,8 @@
       "h": "1. General provisions",
       "i1": "This User Agreement (the \"Agreement\") governs the use of the online service (the \"Service\") provided by the Administration.",
       "i2": "By using the Service, including launching the bot, registering, paying for services, or accessing materials, the User confirms that they have fully read this Agreement and accept it in its entirety.",
-      "i3": "If the User does not agree to the terms of the Agreement, they must stop using the Service."
+      "i3": "If the User does not agree to the terms of the Agreement, they must stop using the Service.",
+      "i4": "The Service is intended for individuals aged 18 or older. By using the Service, you confirm that you meet this age requirement."
     },
     "s2": {
       "h": "2. Nature of services and digital goods",
@@ -204,7 +205,16 @@
       "h": "4. Lawful use",
       "i1": "The Service is not intended to encourage, organize, or facilitate unlawful activity.",
       "i2": "The User undertakes to use the Service only in compliance with applicable law and third-party rules.",
-      "i3": "Responsibility for the lawful use of the Service’s materials and services rests entirely with the User."
+      "i3": "Responsibility for the lawful use of the Service’s materials and services rests entirely with the User.",
+      "i4_lead": "The following uses of the Service are strictly prohibited:",
+      "i4_u1": "circumventing government-mandated content restrictions or internet censorship in jurisdictions where such circumvention is illegal;",
+      "i4_u2": "accessing, transmitting, or distributing illegal content, including but not limited to child sexual abuse material, content promoting terrorism, or material that infringes third-party rights;",
+      "i4_u3": "unauthorized access to computer systems, networks, or data;",
+      "i4_u4": "distribution of malware, viruses, or other malicious code;",
+      "i4_u5": "sending unsolicited bulk communications (spam);",
+      "i4_u6": "reselling or redistributing the Service without prior written authorization from the Administration;",
+      "i4_u7": "any other activity that violates applicable laws or regulations in the User's jurisdiction.",
+      "i5": "The Administration reserves the right to immediately terminate access without refund upon detection of any prohibited use."
     },
     "s5": {
       "h": "5. Intellectual property",
@@ -227,7 +237,7 @@
       "i6": "The User confirms that they will not initiate a payment reversal (chargeback) through payment systems without first contacting the Service’s support."
     },
     "s8": {
-      "h": "7. Automatic debits",
+      "h": "8. Automatic debits",
       "u1": "When subscribing to JungleVPN, you agree to pay the applicable fees and any taxes based on your location.",
       "u2": "Subscription prices may change. We will notify you in advance of any price increase.",
       "u3": "JungleVPN subscriptions renew automatically at the end of each subscription period until you cancel. Your payment method will be charged 24 hours before the subscription end date.",
@@ -236,22 +246,33 @@
       "u6": "JungleVPN subscriptions are paid through third-party payment providers."
     },
     "s9": {
-      "h": "8. Privacy",
-      "i1": "The Administration may collect the minimum technical data necessary for the Service to operate.",
-      "i2": "The Administration takes reasonable measures to protect data but does not guarantee absolute security of transmitted information."
+      "h": "9. Privacy & Data Protection",
+      "i1": "The Administration collects and processes limited personal data necessary for the operation of the Service, including: email address, Telegram user ID, payment transaction identifiers, IP address, and technical device/connection data.",
+      "i2": "Data is processed on the following legal bases under EU Regulation 2016/679 (GDPR): (a) performance of a contract — to provide the Service you subscribed to; (b) legal obligation — to comply with applicable law; (c) legitimate interests — to prevent fraud and ensure network security.",
+      "i3": "The following third-party processors may receive your data in connection with service delivery: Stripe, Inc. (payment processing); Telegram Messenger Inc. (bot platform); analytics and infrastructure providers as necessary. Each processor is bound by data processing agreements.",
+      "i4": "Personal data is retained for the duration of your account and for up to 3 years thereafter for legal and accounting purposes, unless a longer retention period is required by law.",
+      "i5_lead": "Under GDPR and applicable EU law, you have the right to:",
+      "i5_u1": "access your personal data and obtain a copy (Art. 15 GDPR);",
+      "i5_u2": "rectify inaccurate or incomplete data (Art. 16 GDPR);",
+      "i5_u3": "request erasure of your data where no legal basis for retention exists (Art. 17 GDPR);",
+      "i5_u4": "receive your data in a portable format (Art. 20 GDPR);",
+      "i5_u5": "object to processing based on legitimate interests (Art. 21 GDPR);",
+      "i5_u6": "withdraw consent at any time where processing is consent-based (Art. 7 GDPR).",
+      "i6": "To exercise any of these rights, contact support via the bot. We will respond within 30 days as required by law.",
+      "i7": "You have the right to lodge a complaint with the Portuguese data protection supervisory authority (CNPD — Comissão Nacional de Proteção de Dados, www.cnpd.pt) or with the supervisory authority of your EU country of residence."
     },
     "s10": {
-      "h": "9. Changes to the terms",
+      "h": "10. Changes to the terms",
       "i1": "The Administration may amend this Agreement.",
       "i2": "The current version of the Agreement is published in the Service.",
       "i3": "Continued use of the Service means the User agrees to the updated terms."
     },
     "s11": {
-      "h": "10. Contact information",
+      "h": "11. Contact information",
       "i1": "For all questions, the User may contact support via the form in the bot."
     },
     "s12": {
-      "h": "11. Money-Back Guarantee",
+      "h": "12. Money-Back Guarantee",
       "i1": "Your satisfaction with JungleVPN is our top priority. If you are not completely happy with our paid Services, we offer a 30-day money-back guarantee. You can request a refund within 30 days of your initial purchase, and we will fully refund your payment.",
       "i2": "Before requesting a refund, we encourage you to contact our support team at t.me/JungleVPN_support_bot so we can try to resolve any issues you may be experiencing.",
       "i3": "For monthly subscriptions, the 30-day refund window applies only to the initial purchase. Once a monthly subscription renews, it is no longer eligible for a refund under our money-back guarantee.",
@@ -260,6 +281,29 @@
       "i6": "JungleVPN reserves the right to withhold a refund if we determine that you have violated our Terms of Service. We also reserve the right to verify your account information before processing a refund, which may result in a short delay.",
       "i7": "Any taxes or fees charged on your JungleVPN purchase are determined by your location and applicable tax laws. Refund amounts will be exclusive of any taxes JungleVPN is required to collect.",
       "i8": "Deleting your account does not automatically qualify you for a refund. If you delete your account, you will lose access to JungleVPN, but you will not receive a refund for any unused portion of your subscription period."
+    },
+    "s13": {
+      "h": "13. Governing Law & Jurisdiction",
+      "i1": "This Agreement is governed by and construed in accordance with the laws of Portugal and, where applicable, European Union law.",
+      "i2": "Any dispute arising out of or in connection with this Agreement shall be subject to the exclusive jurisdiction of the competent courts of Portugal.",
+      "i3": "If you are a consumer resident in the European Union, you retain the benefit of any mandatory consumer protection provisions of the law of your country of residence that cannot be excluded by contract.",
+      "i4": "The European Commission provides an online dispute resolution platform for consumers: https://ec.europa.eu/consumers/odr"
+    },
+    "s14": {
+      "h": "14. Geographic Restrictions & VPN Legality",
+      "i1": "The Service provides VPN (Virtual Private Network) technology. Laws governing VPN use vary significantly by country and jurisdiction.",
+      "i2": "It is the User's sole responsibility to verify that using a VPN service is permitted under the laws of their country of residence and any country from which they access the Service, and to comply with all applicable local laws and regulations.",
+      "i3_lead": "The Service may be unavailable, blocked, or restricted in certain jurisdictions, including but not limited to:",
+      "i3_u1": "countries where VPN use is prohibited or subject to licensing requirements;",
+      "i3_u2": "countries or territories subject to international sanctions;",
+      "i3_u3": "regions where the Administration has determined that operating the Service creates unacceptable legal or compliance risk.",
+      "i4": "The Administration does not encourage or facilitate the circumvention of lawful government content restrictions. The User bears full and sole responsibility for any violation of local law resulting from their use of the Service."
+    },
+    "s15": {
+      "h": "15. Sanctions & Export Controls",
+      "i1": "The Service is not available to individuals or entities located in, or ordinarily resident in, countries or territories subject to comprehensive international sanctions, including those maintained by the European Union, the United Nations, and the Portuguese Republic.",
+      "i2": "By using the Service, you represent and warrant that you are not located in, under the control of, or a national or resident of any sanctioned country or territory, and that you are not listed on any applicable sanctions or restricted-party list.",
+      "i3": "The Administration reserves the right to immediately terminate access without refund if it determines that a User is in violation of this section."
     }
   },
   "menu": {
