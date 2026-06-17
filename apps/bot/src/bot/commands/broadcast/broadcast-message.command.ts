@@ -35,11 +35,12 @@ export class BroadcastMessageCommand extends BroadcastBase {
 
     if (!textToSend) return;
 
-    const validUsers = await this.getValidUsers();
+    const audience = this.parseAudience(rawText);
+    const validUsers = await this.getValidUsers(audience);
 
     const broadcast = await this.broadcastsService.create(textToSend);
 
-    await ctx.reply('Starting broadcast...');
+    await ctx.reply(`Starting broadcast to ${audience} users (${validUsers.length})...`);
     await this.sendBroadcastToUsers(bot, validUsers, textToSend, broadcast, imageFileId);
 
     const errorMessagesText = this.mapErrorMessages(this.errorMessages);

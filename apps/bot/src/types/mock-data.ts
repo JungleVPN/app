@@ -52,8 +52,8 @@ export const mockBroadcastUserDto: UserDto[] = [
   {
     ...mockUserDto,
     uuid: '504dbd6c-09e6-4fea-9a73-92974ef6185f',
-    username: '7683608743',
-    telegramId: 7683608743,
+    username: 'KOT',
+    telegramId: 249609787,
     userTraffic: {
       ...mockUserDto.userTraffic,
       firstConnectedAt: null,
@@ -65,9 +65,18 @@ export const mockBroadcastUserDto: UserDto[] = [
     username: '5986698166',
     telegramId: 5986698166,
     email: '7683608743',
+    status: 'EXPIRED',
     userTraffic: {
       ...mockUserDto.userTraffic,
       firstConnectedAt: new Date('2026-02-09T18:48:30.150Z'),
     },
+  },
+  {
+    ...mockUserDto,
+    uuid: 'f0d2c3b4-1a2b-3c4d-5e6f-708192a3b4c5',
+    username: '6123456789',
+    telegramId: 6123456789,
+    status: 'EXPIRED',
+    expireAt: new Date('2026-01-01T00:00:00.000Z'),
   },
 ];

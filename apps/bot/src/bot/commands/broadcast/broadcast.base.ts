@@ -3,6 +3,12 @@ import { BotContext } from '@bot/bot.types';
 import { PROD } from '@bot/utils/constants';
 import { convertEntitiesToHtml } from '@bot/utils/utils';
 import {
+  BroadcastAudience,
+  DEFAULT_AUDIENCE,
+  filterUsersByAudience,
+  parseAudience,
+} from '@broadcasts/broadcast-audience';
+import {
   BroadcastDto,
   BroadcastMessageDto,
   BroadcastsService,
@@ -88,11 +94,25 @@ export abstract class BroadcastBase {
     return { broadcast, messages };
   }
 
-  protected async getValidUsers(): Promise<UserDto[]> {
+  protected async getValidUsers(
+    audience: BroadcastAudience = DEFAULT_AUDIENCE,
+  ): Promise<UserDto[]> {
     const isProd = process.env.NODE_ENV === PROD;
     const users = isProd ? await this.remnaService.getAllUsers() : mockBroadcastUserDto;
 
-    return users.filter((u) => u.telegramId && !this.isAdmin(u.telegramId));
+    const eligible = users.filter((u) => u.telegramId && !this.isAdmin(u.telegramId));
+
+    return filterUsersByAudience(eligible, audience);
+  }
+
+  /**
+   * Extract the target audience from a broadcast command, e.g. `/message expired`.
+   * Defaults to "all" when no segment is provided.
+   */
+  protected parseAudience(message: string | undefined): BroadcastAudience {
+    const token = message?.split('\n')[0].trim().split(/\s+/)[1];
+
+    return parseAudience(token);
   }
 
   protected mapErrorMessages(errorMessages?: string[]): string | null {

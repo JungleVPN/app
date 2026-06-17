@@ -8,6 +8,7 @@
     "start": "node dist/main.js",
     "start:prod": "node dist/main.js",
     "lint": "biome lint ./src",
+    "test": "vitest run",
     "clean": "rm -rf dist && rm -rf tsconfig.tsbuildinfo"
   },
   "dependencies": {
