@@ -42,9 +42,21 @@ export class AddPromos1782000000000 implements MigrationInterface {
       `ALTER TABLE "yookassa_payments"
         ADD COLUMN IF NOT EXISTS "promoCode" character varying`,
     );
+    await queryRunner.query(
+      `ALTER TABLE "stripe_payments"
+        ADD COLUMN IF NOT EXISTS "promoCode" character varying`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "telegram_stars_payments"
+        ADD COLUMN IF NOT EXISTS "promoCode" character varying`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "telegram_stars_payments" DROP COLUMN IF EXISTS "promoCode"`,
+    );
+    await queryRunner.query(`ALTER TABLE "stripe_payments" DROP COLUMN IF EXISTS "promoCode"`);
     await queryRunner.query(`ALTER TABLE "yookassa_payments" DROP COLUMN IF EXISTS "promoCode"`);
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_promo_redemptions_code_user"`);
     await queryRunner.query(`DROP TABLE IF EXISTS "promo_redemptions"`);

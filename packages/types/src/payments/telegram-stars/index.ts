@@ -15,6 +15,10 @@ export interface CreateTelegramStarsInvoiceDto {
   description: string;
   /** What this payment is for. Defaults to 'subscription'. */
   purpose?: PaymentPurpose;
+  /** Optional promo code entered by the user; validated server-side. */
+  promoCode?: string | null;
+  /** Subscription status from remnawave, when known — used to validate the promo. */
+  userStatus?: string;
 }
 
 /** Response from POST /telegram-stars/create-invoice */

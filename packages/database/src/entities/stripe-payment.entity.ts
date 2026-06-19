@@ -33,6 +33,10 @@ export class StripePayment {
   @Column({ type: 'varchar', default: 'subscription' })
   purpose: PaymentPurpose;
 
+  /** Promo code applied at checkout, if any. Carried via Stripe subscription metadata. */
+  @Column({ type: 'varchar', nullable: true })
+  promoCode: string | null;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 

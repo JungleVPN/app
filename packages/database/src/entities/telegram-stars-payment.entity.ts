@@ -36,6 +36,10 @@ export class TelegramStarsPayment {
   @Column({ type: 'varchar', default: 'subscription' })
   purpose: PaymentPurpose;
 
+  /** Promo code applied at invoice creation, if any. */
+  @Column({ type: 'varchar', nullable: true })
+  promoCode: string | null;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 

@@ -21,6 +21,10 @@ export interface CreateStripePaymentDto {
   };
   /** Required for web: must contain at least { email }. */
   readonly metadata: WebStripeMetadata;
+  /** Optional promo code entered by the user; validated server-side. */
+  readonly promoCode?: string | null;
+  /** Subscription status from remnawave, when known — used to validate the promo. */
+  readonly userStatus?: string;
 }
 
 export type BillingPortalSession = Stripe.Response<Stripe.BillingPortal.Session>;

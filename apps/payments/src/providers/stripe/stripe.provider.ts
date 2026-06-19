@@ -3,8 +3,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StripePayment } from '@workspace/database';
 import type { StripeSubscriptionStatusDto } from '@workspace/types';
+import { BadRequestException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { Repository } from 'typeorm';
+import { PromoInvalidError, PromoService } from '../../promo/promo.service';
 import type { BillingPortalSession, CheckoutSession, CreateStripePaymentDto } from './stripe.types';
 import { StripeWebhookService } from './stripe-webhook.service';
 
@@ -16,6 +18,7 @@ export class StripeProvider {
   constructor(
     readonly stripeWebhookService: StripeWebhookService,
     @InjectRepository(StripePayment) private repository: Repository<StripePayment>,
+    private readonly promoService: PromoService,
   ) {
     this.stripe = new Stripe(process.env.STRIPE_API_KEY || '');
   }
@@ -29,6 +32,16 @@ export class StripeProvider {
     const priceId = this.getPriceId(purchaseType);
     const customerId = await this.getCustomerId(dto.userId);
 
+    // Validate any promo up front so the user gets immediate feedback. Only
+    // subscription payments carry promos; the binding check is at fulfillment.
+    const promoCode =
+      purchaseType === 'subscription' && dto.promoCode
+        ? await this.validatePromoOrThrow(dto.promoCode, {
+            userId: dto.userId,
+            userStatus: dto.userStatus,
+          })
+        : null;
+
     if (customerId) {
       // Only redirect to billing portal for subscription renewals, never for extra-device.
       if (purchaseType === 'subscription') {
@@ -37,11 +50,27 @@ export class StripeProvider {
           return this.createPortalSession(customerId);
         }
       }
-      return this.createCheckoutSession(priceId, customerId, purchaseType, dto.userId);
+      return this.createCheckoutSession(priceId, customerId, purchaseType, dto.userId, promoCode);
     }
 
     const newCustomer = await this.createCustomer(dto);
-    return this.createCheckoutSession(priceId, newCustomer, purchaseType, dto.userId);
+    return this.createCheckoutSession(priceId, newCustomer, purchaseType, dto.userId, promoCode);
+  }
+
+  /** Validate a promo code at checkout; returns the normalized code or throws 400. */
+  private async validatePromoOrThrow(
+    code: string,
+    ctx: { userId: string; userStatus?: string },
+  ): Promise<string> {
+    try {
+      await this.promoService.resolve(code, ctx);
+      return code.trim().toUpperCase();
+    } catch (err) {
+      if (err instanceof PromoInvalidError) {
+        throw new BadRequestException(err.message);
+      }
+      throw err;
+    }
   }
 
   private async createCheckoutSession(
@@ -49,6 +78,7 @@ export class StripeProvider {
     customer: string,
     purchaseType: 'subscription' | 'extra_device',
     userId: string,
+    promoCode: string | null = null,
   ): Promise<CheckoutSession> {
     const isExtraDevice = purchaseType === 'extra_device';
     try {
@@ -57,6 +87,11 @@ export class StripeProvider {
         line_items: [{ price: priceId, quantity: 1 }],
         mode: isExtraDevice ? 'payment' : 'subscription',
         metadata: { purpose: purchaseType, userId },
+        // Stamp the promo onto the subscription so it reaches every invoice's
+        // `subscription_details.metadata` — the carrier read at fulfillment.
+        ...(promoCode && !isExtraDevice
+          ? { subscription_data: { metadata: { promoCode } } }
+          : {}),
         success_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
         cancel_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
         phone_number_collection: { enabled: false },

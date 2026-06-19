@@ -136,6 +136,13 @@ export class StripeWebhookService {
     // Strict amount → period validation (security finding #12) on the success path.
     const selectedPeriod = mapEURAmountToMonthsNumber(invoice.amount_paid.toString());
 
+    // Promo rides on the subscription metadata set at checkout, so it reaches
+    // every invoice. The per-user cap ensures only the first invoice grants the
+    // bonus; renewals re-read the code but redeem nothing.
+    const promoCode =
+      (invoice as { subscription_details?: { metadata?: Record<string, string> } })
+        .subscription_details?.metadata?.promoCode ?? null;
+
     // Extend BEFORE writing the idempotency stamp: if remnawave is down this
     // throws, the row stays un-stamped, and Stripe's retry re-enters and tries
     // again — rather than locking the user out of a paid renewal.
@@ -143,6 +150,7 @@ export class StripeWebhookService {
       selectedPeriod,
       userId: payload.userId,
       purpose: record?.purpose,
+      promo: { code: promoCode, provider: 'stripe', paymentId: invoice.id },
     });
 
     await this.persistInvoice(payload, 'paid');

@@ -1,5 +1,5 @@
 import * as process from 'node:process';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaymentsUtils } from '@payments/utils/utils';
 import { TelegramStarsPayment } from '@workspace/database';
@@ -11,6 +11,7 @@ import type {
 import { Bot } from 'grammy';
 import { Repository } from 'typeorm';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
+import { PromoInvalidError, PromoService } from '../../promo/promo.service';
 
 /**
  * Telegram Stars payment provider.
@@ -29,6 +30,7 @@ export class TelegramStarsService implements OnModuleInit {
     private readonly starsPaymentRepo: Repository<TelegramStarsPayment>,
     private readonly paymentStatusService: PaymentStatusService,
     private readonly paymentsUtils: PaymentsUtils,
+    private readonly promoService: PromoService,
   ) {}
 
   onModuleInit() {
@@ -53,6 +55,17 @@ export class TelegramStarsService implements OnModuleInit {
         ? this.paymentsUtils.getExtraDeviceStarsAmount()
         : this.paymentsUtils.getAllowedStarsAmounts()[0];
 
+    // Validate any promo up front so the user gets immediate feedback. Only
+    // subscription payments carry promos; the binding check is at fulfillment.
+    const validatedPromoCode =
+      purpose === 'subscription' && dto.promoCode
+        ? await this.validatePromoOrThrow(dto.promoCode, {
+            userId,
+            userStatus: dto.userStatus,
+            selectedPeriod: allowedPeriods[0],
+          })
+        : null;
+
     const record = this.starsPaymentRepo.create({
       userId,
       selectedPeriod: allowedPeriods[0],
@@ -61,6 +74,7 @@ export class TelegramStarsService implements OnModuleInit {
       status: 'pending',
       telegramPaymentChargeId: null,
       purpose,
+      promoCode: validatedPromoCode,
       paidAt: null,
     });
     const saved = await this.starsPaymentRepo.save(record);
@@ -81,6 +95,22 @@ export class TelegramStarsService implements OnModuleInit {
 
     this.logger.log(`Created Stars invoice for userId=${userId}, recordId=${saved.id}`);
     return { invoiceLink };
+  }
+
+  /** Validate a promo code at checkout; returns the normalized code or throws 400. */
+  private async validatePromoOrThrow(
+    code: string,
+    ctx: { userId: string; userStatus?: string; selectedPeriod: number },
+  ): Promise<string> {
+    try {
+      await this.promoService.resolve(code, ctx);
+      return code.trim().toUpperCase();
+    } catch (err) {
+      if (err instanceof PromoInvalidError) {
+        throw new BadRequestException(err.message);
+      }
+      throw err;
+    }
   }
 
   /**
@@ -113,6 +143,7 @@ export class TelegramStarsService implements OnModuleInit {
       selectedPeriod: record.selectedPeriod,
       userId: record.userId,
       purpose: record.purpose,
+      promo: { code: record.promoCode, provider: 'stars', paymentId: record.id },
     });
 
     if (!result.success) {
