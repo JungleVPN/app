@@ -136,12 +136,26 @@ export class StripeWebhookService {
     // Strict amount → period validation (security finding #12) on the success path.
     const selectedPeriod = mapEURAmountToMonthsNumber(invoice.amount_paid.toString());
 
-    // Promo rides on the subscription metadata set at checkout, so it reaches
-    // every invoice. The per-user cap ensures only the first invoice grants the
-    // bonus; renewals re-read the code but redeem nothing.
-    const promoCode =
-      (invoice as { subscription_details?: { metadata?: Record<string, string> } })
-        .subscription_details?.metadata?.promoCode ?? null;
+    // Promo rides on the subscription's metadata (set via `subscription_data` at
+    // checkout), so it reaches every invoice. Resolve it from the subscription
+    // itself — the invoice's own snapshot of subscription metadata isn't reliably
+    // populated in the webhook payload. The per-user cap ensures only the first
+    // invoice grants the bonus; renewals re-read the code but redeem nothing.
+    const subscriptionId = subscriptionToId(invoice.parent?.subscription_details?.subscription);
+    let promoCode =
+      (invoice.parent?.subscription_details?.metadata as Record<string, string> | undefined)
+        ?.promoCode ?? null;
+    if (!promoCode && subscriptionId) {
+      try {
+        const subscription =
+          await this.stripeProvider.stripe.subscriptions.retrieve(subscriptionId);
+        promoCode = subscription.metadata?.promoCode ?? null;
+      } catch (err) {
+        this.logger.warn(
+          `Promo lookup: could not retrieve subscription ${subscriptionId} for invoice ${invoice.id}: ${err}`,
+        );
+      }
+    }
 
     // Extend BEFORE writing the idempotency stamp: if remnawave is down this
     // throws, the row stays un-stamped, and Stripe's retry re-enters and tries

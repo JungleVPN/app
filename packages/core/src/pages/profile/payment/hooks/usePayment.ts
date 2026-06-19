@@ -10,7 +10,7 @@ export function usePayment() {
   const { t } = useTranslation();
   const { tgUser, rmnUser } = useAuthStoreInfo();
   const { platformType } = usePlatformStore();
-  const { supportUrl, allowedPeriod } = coreEnv;
+  const { supportUrl } = coreEnv;
   const rawMethods = useSavedMethodsStoreInfo();
 
   const savedMethods = useMemo(
@@ -32,7 +32,6 @@ export function usePayment() {
 
   return {
     savedMethods,
-    allowedPeriod,
     supportUrl,
     platformType,
     hasActiveMethod,

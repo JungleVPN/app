@@ -1,6 +1,15 @@
-import { Button, Description, FieldError, Form, Input, TextField } from '@heroui/react';
+import {
+  Button,
+  Description,
+  FieldError,
+  Form,
+  Input,
+  TextField,
+  useOverlayState,
+} from '@heroui/react';
 import { IconArrowRight, IconMail } from '@tabler/icons-react';
 import { mainButton } from '@tma.js/sdk-react';
+import { PromoDrawer } from '@workspace/core/components';
 import type { PaymentMethod } from '@workspace/types';
 import { ReactNode, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,10 +24,11 @@ interface PaymentFormProps {
   isPending: boolean;
   starsError: string | null;
   platformType: PlatformType | null;
+  enablePromo?: boolean;
   children?: ReactNode;
-  onYookassaPayment: (email?: string) => Promise<void>;
-  onStripePayment?: (email?: string) => Promise<void>;
-  onStarsPayment: () => Promise<void>;
+  onYookassaPayment: (email?: string, promoCode?: string) => Promise<void>;
+  onStripePayment?: (email?: string, promoCode?: string) => Promise<void>;
+  onStarsPayment: (promoCode?: string) => Promise<void>;
 }
 
 export function PaymentForm({
@@ -27,6 +37,7 @@ export function PaymentForm({
   buttonLabel,
   isPending,
   starsError,
+  enablePromo = true,
   children,
   onYookassaPayment,
   onStripePayment,
@@ -40,6 +51,12 @@ export function PaymentForm({
   const submitRef = useRef<() => Promise<void>>(async () => {});
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const showEmailInput = needsEmailInput;
+  const promoDrawer = useOverlayState();
+
+  useEffect(() => {
+    if (!enablePromo) return;
+    setNavbarVisible(!promoDrawer.isOpen);
+  }, [enablePromo, setNavbarVisible, promoDrawer.isOpen]);
 
   useEffect(() => {
     return window.scrollTo({
@@ -48,6 +65,28 @@ export function PaymentForm({
     });
   }, []);
 
+  // Single source of payment logic, reused by both the direct-pay path and the
+  // drawer's continue button. `promoCode` is '' when paying without one —
+  // behaviour is then identical to the previous direct-pay flow.
+  const runPayment = async (promoCode: string) => {
+    const emailArg = showEmailInput ? email : undefined;
+    const codeArg = promoCode || undefined;
+    switch (selectedMethod) {
+      case 'stars':
+        await onStarsPayment(codeArg);
+        break;
+      case 'stripe':
+        await onStripePayment?.(emailArg, codeArg);
+        break;
+      case 'yookassa':
+        await onYookassaPayment(emailArg, codeArg);
+        break;
+    }
+    promoDrawer.close();
+  };
+
+  // Pay button: validate email up front. When promos are enabled, open the promo
+  // drawer; otherwise (e.g. extra-device) pay straight away as before.
   submitRef.current = async () => {
     if (showEmailInput) {
       if (!email.trim()) {
@@ -59,18 +98,11 @@ export function PaymentForm({
         return;
       }
     }
-    const emailArg = showEmailInput ? email : undefined;
-    switch (selectedMethod) {
-      case 'stars':
-        await onStarsPayment();
-        return;
-      case 'stripe':
-        await onStripePayment?.(emailArg);
-        return;
-      case 'yookassa':
-        await onYookassaPayment(emailArg);
-        return;
+    if (enablePromo) {
+      promoDrawer.open();
+      return;
     }
+    await runPayment('');
   };
 
   const handleSubmit = async (e: SyntheticEvent) => {
@@ -140,6 +172,15 @@ export function PaymentForm({
       </div>
       {starsError && <p className='px-4 text-xs text-danger'>{starsError}</p>}
       {children}
+
+      {enablePromo && (
+        <PromoDrawer
+          isOpen={promoDrawer.isOpen}
+          isPending={isPending}
+          onClose={promoDrawer.close}
+          onContinue={runPayment}
+        />
+      )}
     </Form>
   );
 }

@@ -66,6 +66,7 @@ describe('StripeWebhookService', () => {
   let mockHandleUserUpdates: any;
   let mockEmit: any;
   let mockRetrieveCustomer: any;
+  let mockRetrieveSubscription: any;
 
   let savedMethodRepo: Repository<any>;
   let mockSavedFindOneBy: any;
@@ -75,8 +76,8 @@ describe('StripeWebhookService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.STRIPE_AMOUNT = '2';
-    process.env.ALLOWED_PERIODS = '1';
+    process.env.PUBLIC_ALLOWED_AMOUNT_EUR = '2';
+    process.env.PUBLIC_ALLOWED_PERIOD = '1';
 
     mockFindOneBy = vi.fn().mockResolvedValue(null);
     mockUpdate = vi.fn().mockResolvedValue({ affected: 1 });
@@ -90,8 +91,10 @@ describe('StripeWebhookService', () => {
     } as unknown as Repository<StripePayment>;
 
     mockRetrieveCustomer = vi.fn().mockResolvedValue(CUSTOMER);
+    mockRetrieveSubscription = vi.fn().mockResolvedValue({ id: 'sub_1', metadata: {} });
     stripeProvider = {
       retrieveCustomer: mockRetrieveCustomer,
+      stripe: { subscriptions: { retrieve: mockRetrieveSubscription } },
     } as unknown as StripeProvider;
 
     mockHandleUserUpdates = vi.fn().mockResolvedValue({ success: true });
@@ -123,21 +126,42 @@ describe('StripeWebhookService', () => {
   });
 
   afterEach(() => {
-    delete process.env.STRIPE_AMOUNT;
-    delete process.env.ALLOWED_PERIODS;
+    delete process.env.PUBLIC_ALLOWED_AMOUNT_EUR;
+    delete process.env.PUBLIC_ALLOWED_PERIOD;
   });
 
   describe('invoice.payment_succeeded', () => {
     it('extends subscription, persists the invoice paid, and emits payment.succeeded', async () => {
       await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
 
-      expect(mockHandleUserUpdates).toHaveBeenCalledWith({ selectedPeriod: 1, userId: 'user-1' });
+      expect(mockHandleUserUpdates).toHaveBeenCalledWith(
+        expect.objectContaining({
+          selectedPeriod: 1,
+          userId: 'user-1',
+          promo: { code: null, provider: 'stripe', paymentId: 'in_1' },
+        }),
+      );
       expect(mockSave).toHaveBeenCalledWith(
         expect.objectContaining({ id: 'in_1', status: 'paid', userId: 'user-1' }),
       );
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.succeeded'],
         expect.objectContaining({ userId: 'user-1', provider: 'stripe', selectedPeriod: 1 }),
+      );
+    });
+
+    it('passes the promo code from the subscription metadata to fulfillment', async () => {
+      // Promo lives on the subscription (set via subscription_data at checkout),
+      // not on the invoice's own snapshot — must be resolved by retrieving it.
+      mockRetrieveSubscription.mockResolvedValue({ id: 'sub_1', metadata: { promoCode: 'FREE2' } });
+
+      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+      expect(mockRetrieveSubscription).toHaveBeenCalledWith('sub_1');
+      expect(mockHandleUserUpdates).toHaveBeenCalledWith(
+        expect.objectContaining({
+          promo: { code: 'FREE2', provider: 'stripe', paymentId: 'in_1' },
+        }),
       );
     });
 

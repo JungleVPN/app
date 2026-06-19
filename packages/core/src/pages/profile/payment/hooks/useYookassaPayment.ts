@@ -34,7 +34,7 @@ export function useYookassaPayment() {
     setSavedMethods(list);
   };
 
-  const handleYookassaPayment = async (email?: string) => {
+  const handleYookassaPayment = async (email?: string, promoCode?: string) => {
     if (!rmnUser) return;
 
     let activeUser = rmnUser;
@@ -67,6 +67,8 @@ export function useYookassaPayment() {
       userId: activeUser.uuid,
       telegramId: tgUser?.id != null ? Number(tgUser.id) : null,
       save_payment_method: true,
+      promoCode: promoCode || null,
+      userStatus: activeUser.status,
       confirmation: {
         return_url: isNativeApp
           ? coreEnv.tmaAppUrl

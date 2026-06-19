@@ -31,7 +31,7 @@ export function useTelegramStarsPayment() {
   const isTma = platformType !== 'web';
   const starsEnabled = isTma && extraDevicePriceStars > 0;
 
-  const handleStarsPayment = async () => {
+  const handleStarsPayment = async (promoCode?: string) => {
     if (!rmnUser?.uuid) return;
     setStarsError(null);
 
@@ -40,6 +40,8 @@ export function useTelegramStarsPayment() {
       telegramId: rmnUser.telegramId,
       title: t('payment.stars.invoiceTitle', { period: allowedPeriod }),
       description: t('payment.stars.invoiceDescription', { period: allowedPeriod }),
+      promoCode: promoCode || null,
+      userStatus: rmnUser.status,
     });
 
     if (!result?.invoiceLink) {

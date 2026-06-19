@@ -98,6 +98,7 @@ export default function ExtraDevicePurchasePage() {
         isPending={isPending}
         starsError={starsError}
         platformType={platformType}
+        enablePromo={false}
         onYookassaPayment={handleExtend}
         onStripePayment={handleStripePayment}
         onStarsPayment={handleStarsPayment}

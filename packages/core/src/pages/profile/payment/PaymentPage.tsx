@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url';
 import { coreEnv } from '../../../env';
-import { useNavbarStore } from '../../../stores';
+import { useAuthStoreInfo, useNavbarStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
 import { PaymentForm } from './components/PaymentForm';
 import { PaymentMethodSelector } from './components/PaymentMethodSelector';
@@ -17,7 +17,6 @@ export default function PaymentPage() {
   const { t } = useTranslation();
   const {
     savedMethods,
-    allowedPeriod,
     platformType,
     hasActiveMethod,
     hasStripeSubscription,
@@ -38,7 +37,7 @@ export default function PaymentPage() {
     handleOpenStripePortal,
     isOpeningStripePortal,
   } = usePayment();
-
+  const { rmnUser } = useAuthStoreInfo();
   const { setNavbarVisible } = useNavbarStore();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('yookassa');
 
@@ -128,7 +127,7 @@ export default function PaymentPage() {
       )}
 
       <StarsPaymentSuccessDrawer
-        allowedPeriods={allowedPeriod}
+        expireAt={rmnUser?.expireAt}
         isOpen={successState.isOpen}
         onClose={successState.close}
       />

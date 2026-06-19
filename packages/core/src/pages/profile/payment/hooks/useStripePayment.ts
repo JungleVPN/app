@@ -56,7 +56,7 @@ export function useStripePayment() {
     }
   }, [rmnUser?.uuid, paymentsApi, redirectTo]);
 
-  const handleStripePayment = async (email?: string) => {
+  const handleStripePayment = async (email?: string, promoCode?: string) => {
     if (!rmnUser) return;
 
     let activeUser = rmnUser;
@@ -91,6 +91,8 @@ export function useStripePayment() {
     const session = await createStripeSession({
       userId: activeUser.uuid,
       payment: { amount: allowedAmountStripe, currency: 'EUR' },
+      promoCode: promoCode || null,
+      userStatus: activeUser.status,
       metadata: {
         email: payerEmail,
         userId: activeUser.uuid,

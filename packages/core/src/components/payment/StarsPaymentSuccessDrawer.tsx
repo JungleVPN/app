@@ -2,16 +2,16 @@ import { Button, Drawer } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { TgsSticker } from '../../ui';
+import { toDateString } from '../../utils/date';
 
 interface Props {
   isOpen: boolean;
-  allowedPeriods: number;
-  /** Overrides the default subscription success description when provided. */
+  expireAt: Date | undefined;
   description?: string;
   onClose: () => void;
 }
 
-export function StarsPaymentSuccessDrawer({ isOpen, allowedPeriods, description, onClose }: Props) {
+export function StarsPaymentSuccessDrawer({ isOpen, expireAt, description, onClose }: Props) {
   const { t } = useTranslation();
   const successStickerUrl = getTelegramStickerUrl(coreEnv.successStickerFileId);
 
@@ -34,7 +34,9 @@ export function StarsPaymentSuccessDrawer({ isOpen, allowedPeriods, description,
           </Drawer.Header>
           <Drawer.Body>
             <p className='text-center text-sm text-muted'>
-              {description ?? t('payment.stars.success.description', { period: allowedPeriods })}
+              {description &&
+                expireAt &&
+                t('payment.stars.success.description', { expireAt: toDateString(expireAt) })}
             </p>
           </Drawer.Body>
           <Drawer.Footer>

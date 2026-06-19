@@ -112,9 +112,15 @@
       "orDivider": "or",
       "success": {
         "title": "Payment successful",
-        "description": "Your subscription has been extended for {{period}} month(s).",
+        "description": "Your subscription has been extended. New expire date is {{expireAt}}",
         "confirm": "Great!"
       }
+    },
+    "promo": {
+      "title": "Have a promo code?",
+      "subtitle": "Enter your promo code to unlock a bonus, or continue without one.",
+      "placeholder": "Promo code",
+      "continue": "Continue to payment"
     }
   },
   "a11y": {

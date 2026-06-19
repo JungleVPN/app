@@ -22,6 +22,10 @@ export interface CreateStripeSessionDto {
     email: string;
     [key: string]: string;
   };
+  /** Optional promo code entered by the user; validated server-side. */
+  promoCode?: string | null;
+  /** Subscription status from remnawave, when known — used to validate the promo. */
+  userStatus?: string;
 }
 
 /**
