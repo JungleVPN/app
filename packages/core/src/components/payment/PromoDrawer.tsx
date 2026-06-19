@@ -23,12 +23,17 @@ export function PromoDrawer({ isOpen, isPending, onClose, onContinue }: Props) {
   const [promoCode, setPromoCode] = useState('');
   const promoStickerUrl = getTelegramStickerUrl(coreEnv.menuStickerFileId);
 
+  const handleClose = () => {
+    setPromoCode('');
+    onClose();
+  };
+
   return (
     <Drawer.Backdrop
       isDismissable
       isOpen={isOpen}
       variant='blur'
-      onOpenChange={(open) => !open && onClose()}
+      onOpenChange={(open) => !open && handleClose()}
     >
       <Drawer.Content placement='bottom'>
         <Drawer.Dialog>
@@ -52,11 +57,7 @@ export function PromoDrawer({ isOpen, isPending, onClose, onContinue }: Props) {
             </TextField>
           </Drawer.Body>
           <Drawer.Footer>
-            <Button
-              fullWidth
-              isPending={isPending}
-              onPress={() => onContinue(promoCode.trim())}
-            >
+            <Button fullWidth isPending={isPending} onPress={() => onContinue(promoCode.trim())}>
               {t('payment.promo.continue')}
             </Button>
           </Drawer.Footer>

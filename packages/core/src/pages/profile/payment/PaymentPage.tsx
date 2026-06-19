@@ -36,6 +36,7 @@ export default function PaymentPage() {
     handleStarsPayment,
     handleOpenStripePortal,
     isOpeningStripePortal,
+    validatePromo,
   } = usePayment();
   const { rmnUser } = useAuthStoreInfo();
   const { setNavbarVisible } = useNavbarStore();
@@ -117,6 +118,7 @@ export default function PaymentPage() {
           onYookassaPayment={handleYookassaPayment}
           onStripePayment={handleStripePayment}
           onStarsPayment={handleStarsPayment}
+          onValidatePromo={validatePromo}
         >
           <PaymentMethodSelector
             selectedMethod={selectedMethod}

@@ -68,7 +68,7 @@ describe('StripeProvider promo wiring', () => {
 
   it('rejects an invalid promo with 400 before creating a session', async () => {
     const { provider, sessionsCreate } = makeProvider(async () => {
-      throw new PromoInvalidError('nope');
+      throw new PromoInvalidError('nope', 'invalid');
     });
     await expect(
       provider.createPayment({ ...dto, promoCode: 'BAD' }),

@@ -1,6 +1,6 @@
 import { ScrollShadow, Surface } from '@heroui/react';
 import { Outlet } from 'react-router';
-import { ErrorBoundary, Header } from '../components';
+import { AppAlert, ErrorBoundary, Header } from '../components';
 import { usePlatformStore } from '../stores';
 
 export function RootLayout() {
@@ -10,6 +10,7 @@ export function RootLayout() {
 
   return (
     <ErrorBoundary>
+      <AppAlert />
       <Surface
         variant='transparent'
         className='mx-auto flex h-dvh w-full max-w-xl flex-col px-6'

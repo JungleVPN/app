@@ -38,11 +38,26 @@ export interface ValidatePromoDto {
   selectedPeriod?: number;
 }
 
+/**
+ * Stable, machine-readable reason a promo code was rejected. The frontend maps
+ * each code to a localized message — the human strings live there, not here, so
+ * validation logic and presentation stay in their own layers.
+ */
+export type PromoErrorCode =
+  | 'invalid'
+  | 'not_active_yet'
+  | 'expired'
+  | 'not_eligible'
+  | 'limit_reached'
+  | 'already_used';
+
 /** Response from POST /promo/validate. */
 export interface ValidatePromoResponse {
   valid: boolean;
-  /** Human-readable reason when `valid` is false. */
+  /** Human-readable reason when `valid` is false (server default, English). */
   reason?: string;
+  /** Stable code for localized client messaging when `valid` is false. */
+  code?: PromoErrorCode;
   /** The effect that would be applied when `valid` is true. */
   effect?: PromoEffect;
 }

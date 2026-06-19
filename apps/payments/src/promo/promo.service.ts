@@ -4,6 +4,7 @@ import { Promo, PromoRedemption } from '@workspace/database';
 import type {
   PromoContext,
   PromoEffect,
+  PromoErrorCode,
   PromoProvider,
   ValidatePromoDto,
   ValidatePromoResponse,
@@ -11,8 +12,15 @@ import type {
 import { DataSource, Repository } from 'typeorm';
 import { bonusMonthsFromEffect } from './promo.applier';
 
-/** Thrown by `resolve` when a code cannot be used; `reason` is user-facing. */
-export class PromoInvalidError extends Error {}
+/** Thrown by `resolve` when a code cannot be used; `code` localizes on the client. */
+export class PromoInvalidError extends Error {
+  constructor(
+    message: string,
+    readonly code: PromoErrorCode,
+  ) {
+    super(message);
+  }
+}
 
 @Injectable()
 export class PromoService {
@@ -42,25 +50,28 @@ export class PromoService {
     const promo = await this.promoRepo.findOneBy({ code: normalized });
 
     if (!promo?.active) {
-      throw new PromoInvalidError('This promo code is not valid.');
+      throw new PromoInvalidError('This promo code is not valid.', 'invalid');
     }
 
     const now = new Date();
     if (promo.startsAt && now < promo.startsAt) {
-      throw new PromoInvalidError('This promo code is not active yet.');
+      throw new PromoInvalidError('This promo code is not active yet.', 'not_active_yet');
     }
     if (promo.endsAt && now > promo.endsAt) {
-      throw new PromoInvalidError('This promo code has expired.');
+      throw new PromoInvalidError('This promo code has expired.', 'expired');
     }
 
     if (promo.eligibility === 'expired_only' && ctx.userStatus !== 'EXPIRED') {
-      throw new PromoInvalidError('This promo code is only for expired subscriptions.');
+      throw new PromoInvalidError(
+        'This promo code is only for expired subscriptions.',
+        'not_eligible',
+      );
     }
 
     if (promo.maxRedemptions !== null) {
       const total = await this.redemptionRepo.countBy({ promoCode: normalized });
       if (total >= promo.maxRedemptions) {
-        throw new PromoInvalidError('This promo code has reached its limit.');
+        throw new PromoInvalidError('This promo code has reached its limit.', 'limit_reached');
       }
     }
 
@@ -69,7 +80,7 @@ export class PromoService {
       userId: ctx.userId,
     });
     if (usedByUser >= promo.perUserLimit) {
-      throw new PromoInvalidError('You have already used this promo code.');
+      throw new PromoInvalidError('You have already used this promo code.', 'already_used');
     }
 
     return promo.effect;
@@ -86,7 +97,7 @@ export class PromoService {
       return { valid: true, effect };
     } catch (err) {
       if (err instanceof PromoInvalidError) {
-        return { valid: false, reason: err.message };
+        return { valid: false, reason: err.message, code: err.code };
       }
       throw err;
     }

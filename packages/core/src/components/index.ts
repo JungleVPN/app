@@ -1,3 +1,4 @@
+export { AppAlert } from './AppAlert';
 export { AuthGuard } from './AuthGuard/AuthGuard';
 export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorConnection } from './ErrorConnection/ErrorConnection';

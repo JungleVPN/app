@@ -8,6 +8,8 @@ import {
   SavedMethodDto,
   type StripeSubscriptionStatusDto,
   type TelegramStarsInvoiceResponse,
+  type ValidatePromoDto,
+  type ValidatePromoResponse,
 } from '@workspace/types';
 import type { ApiClient } from '../client';
 
@@ -42,6 +44,10 @@ export function createPaymentsApi(client: ApiClient) {
         apiRoutes.payments.telegramStarsCreateInvoice,
         dto,
       );
+    },
+
+    async validatePromo(dto: ValidatePromoDto): Promise<ValidatePromoResponse> {
+      return client.post<ValidatePromoResponse>(apiRoutes.payments.promoValidate, dto);
     },
 
     async searchPayments(q: string): Promise<AdminPaymentDto[]> {

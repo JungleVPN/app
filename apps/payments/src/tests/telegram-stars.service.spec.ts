@@ -73,7 +73,7 @@ describe('TelegramStarsService.createInvoice (promo)', () => {
 
   it('rejects an invalid promo with 400', async () => {
     const { service } = makeService(async () => {
-      throw new PromoInvalidError('nope');
+      throw new PromoInvalidError('nope', 'invalid');
     });
     await expect(
       service.createInvoice({ ...baseInvoiceDto, promoCode: 'BAD' }),

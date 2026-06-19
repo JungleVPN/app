@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { coreEnv } from '../../../../env';
 import { useAuthStoreInfo, usePlatformStore, useSavedMethodsStoreInfo } from '../../../../stores';
+import { usePromoValidation } from './usePromoValidation';
 import { useStripePayment } from './useStripePayment';
 import { useTelegramStarsPayment } from './useTelegramStarsPayment';
 import { useYookassaPayment } from './useYookassaPayment';
@@ -29,6 +30,7 @@ export function usePayment() {
   const yookassa = useYookassaPayment();
   const stripe = useStripePayment();
   const stars = useTelegramStarsPayment();
+  const { validatePromo } = usePromoValidation();
 
   return {
     savedMethods,
@@ -39,6 +41,7 @@ export function usePayment() {
     needsEmailInput,
     isLoadingMethods: isLoading,
     isLoading,
+    validatePromo,
     ...yookassa,
     ...stripe,
     ...stars,

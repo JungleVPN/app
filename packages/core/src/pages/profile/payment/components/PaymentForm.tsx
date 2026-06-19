@@ -29,6 +29,7 @@ interface PaymentFormProps {
   onYookassaPayment: (email?: string, promoCode?: string) => Promise<void>;
   onStripePayment?: (email?: string, promoCode?: string) => Promise<void>;
   onStarsPayment: (promoCode?: string) => Promise<void>;
+  onValidatePromo?: (promoCode: string) => Promise<boolean>;
 }
 
 export function PaymentForm({
@@ -42,6 +43,7 @@ export function PaymentForm({
   onYookassaPayment,
   onStripePayment,
   onStarsPayment,
+  onValidatePromo,
 }: PaymentFormProps) {
   const { t } = useTranslation();
   const { setNavbarVisible } = useNavbarStore();
@@ -58,16 +60,6 @@ export function PaymentForm({
     setNavbarVisible(!promoDrawer.isOpen);
   }, [enablePromo, setNavbarVisible, promoDrawer.isOpen]);
 
-  useEffect(() => {
-    return window.scrollTo({
-      top: buttonRef.current?.getBoundingClientRect().top,
-      behavior: 'smooth',
-    });
-  }, []);
-
-  // Single source of payment logic, reused by both the direct-pay path and the
-  // drawer's continue button. `promoCode` is '' when paying without one —
-  // behaviour is then identical to the previous direct-pay flow.
   const runPayment = async (promoCode: string) => {
     const emailArg = showEmailInput ? email : undefined;
     const codeArg = promoCode || undefined;
@@ -85,8 +77,14 @@ export function PaymentForm({
     promoDrawer.close();
   };
 
-  // Pay button: validate email up front. When promos are enabled, open the promo
-  // drawer; otherwise (e.g. extra-device) pay straight away as before.
+  const handlePromoContinue = async (promoCode: string) => {
+    if (promoCode && onValidatePromo) {
+      const valid = await onValidatePromo(promoCode);
+      if (!valid) return;
+    }
+    await runPayment(promoCode);
+  };
+
   submitRef.current = async () => {
     if (showEmailInput) {
       if (!email.trim()) {
@@ -178,7 +176,7 @@ export function PaymentForm({
           isOpen={promoDrawer.isOpen}
           isPending={isPending}
           onClose={promoDrawer.close}
-          onContinue={runPayment}
+          onContinue={handlePromoContinue}
         />
       )}
     </Form>
