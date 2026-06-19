@@ -25,6 +25,7 @@ import {
 } from '@workspace/types';
 import { Repository } from 'typeorm';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
+import { PromoInvalidError, PromoService } from '../../promo/promo.service';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const CIDRMatcher = require('cidr-matcher');
@@ -45,6 +46,7 @@ export class YookassaService {
     private readonly paymentStatusService: PaymentStatusService,
     private readonly eventEmitter: EventEmitter2,
     private readonly paymentsUtils: PaymentsUtils,
+    private readonly promoService: PromoService,
   ) {}
 
   // ── Query methods ────────────────────────────────────────────────────────
@@ -69,7 +71,14 @@ export class YookassaService {
   // ── Session creation ────────────────────────────────────────────────────
 
   async createPaymentSession(dto: CreateYookassaSessionDto): Promise<PaymentSession> {
-    const { userId, telegramId, purpose = 'subscription', ...paymentFields } = dto;
+    const {
+      userId,
+      telegramId,
+      purpose = 'subscription',
+      promoCode,
+      userStatus,
+      ...paymentFields
+    } = dto;
 
     const existingSession = await this.findValidPendingSession(userId);
     if (existingSession) {
@@ -84,6 +93,13 @@ export class YookassaService {
         ? this.paymentsUtils.getExtraDevicePriceRUB()
         : this.paymentsUtils.getAllowedAmounts()[0];
     const selectedPeriod = this.paymentsUtils.getAllowedPeriods()[0];
+
+    // Validate any promo up front so the user gets immediate feedback. Only
+    // subscription payments carry promos; the binding check is at fulfillment.
+    const validatedPromoCode =
+      purpose === 'subscription' && promoCode
+        ? await this.validatePromoOrThrow(promoCode, { userId, userStatus, selectedPeriod })
+        : null;
 
     const request: Payments.CreatePaymentRequest = {
       ...paymentFields,
@@ -122,12 +138,29 @@ export class YookassaService {
       selectedPeriod,
       description: payment.description ?? null,
       purpose,
+      promoCode: validatedPromoCode,
       paidAt: null,
     });
     await this.yookassaPaymentRepo.save(record);
 
     this.logger.log(`Created Yookassa payment session ${payment.id} for user ${userId}`);
     return { id: payment.id, url: confirmationUrl };
+  }
+
+  /** Validate a promo code at checkout; returns the normalized code or throws 400. */
+  private async validatePromoOrThrow(
+    code: string,
+    ctx: { userId: string; userStatus?: string; selectedPeriod: number },
+  ): Promise<string> {
+    try {
+      await this.promoService.resolve(code, ctx);
+      return code.trim().toUpperCase();
+    } catch (err) {
+      if (err instanceof PromoInvalidError) {
+        throw new BadRequestException(err.message);
+      }
+      throw err;
+    }
   }
 
   /**
@@ -200,6 +233,7 @@ export class YookassaService {
       selectedPeriod: record.selectedPeriod,
       userId: record.userId,
       purpose: record.purpose,
+      promo: { code: record.promoCode, provider: 'yookassa', paymentId: record.id },
     });
 
     await this.yookassaPaymentRepo.update(id, {

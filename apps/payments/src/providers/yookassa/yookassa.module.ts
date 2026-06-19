@@ -9,11 +9,13 @@ import { PaymentsUtils } from '@payments/utils/utils';
 import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { PaymentStatusModule } from '../../payment-status/payment-status.module';
+import { PromoModule } from '../../promo/promo.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([YookassaPayment, SavedPaymentMethod]),
     PaymentStatusModule,
+    PromoModule,
     BotNotificationModule,
   ],
   controllers: [YookassaController],

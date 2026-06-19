@@ -7,6 +7,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@workspace/database', () => ({
   YookassaPayment: class {},
   SavedPaymentMethod: class {},
+  Promo: class {},
+  PromoRedemption: class {},
 }));
 
 describe('YookassaController', () => {

@@ -1,6 +1,7 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
-import type { PaymentPurpose } from '@workspace/types';
+import { PromoService } from '@payments/promo/promo.service';
+import type { PaymentPurpose, PromoProvider } from '@workspace/types';
 import axios from 'axios';
 
 /**
@@ -12,6 +13,8 @@ import axios from 'axios';
 @Injectable()
 export class PaymentStatusService {
   private readonly logger = new Logger(PaymentStatusService.name);
+
+  constructor(private readonly promoService: PromoService) {}
 
   private get remnawareBaseUrl(): string {
     return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002';
@@ -29,15 +32,28 @@ export class PaymentStatusService {
     selectedPeriod,
     userId,
     purpose = 'subscription',
+    promo,
   }: {
     selectedPeriod: number;
     userId: string;
     purpose?: PaymentPurpose;
+    /** Set for subscription payments that may carry a promo code. */
+    promo?: { code: string | null; provider: PromoProvider; paymentId: string };
   }): Promise<{ success: boolean }> {
+    // Promo codes only extend subscriptions — never device slots.
+    const months =
+      purpose === 'extra_device' || !promo
+        ? selectedPeriod
+        : await this.promoService.applyToMonths(promo.code, selectedPeriod, {
+            userId,
+            provider: promo.provider,
+            paymentId: promo.paymentId,
+          });
+
     const user =
       purpose === 'extra_device'
         ? await this.addExtraDevice(userId)
-        : await this.extendUserExpiry(userId, selectedPeriod);
+        : await this.extendUserExpiry(userId, months);
 
     if (!user) {
       this.logger.warn(`User not found: userId=${userId}`);
@@ -51,7 +67,7 @@ export class PaymentStatusService {
     this.logger.log(
       purpose === 'extra_device'
         ? `Payment processed for user ${userId}: +1 device slot`
-        : `Payment processed for user ${userId}: +${selectedPeriod} month(s)`,
+        : `Payment processed for user ${userId}: +${months} month(s)`,
     );
 
     return { success: true };

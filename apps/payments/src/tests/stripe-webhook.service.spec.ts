@@ -13,6 +13,8 @@ import { StripeWebhookService } from '../providers/stripe/stripe-webhook.service
 vi.mock('@workspace/database', () => ({
   StripePayment: class {},
   SavedPaymentMethod: class {},
+  Promo: class {},
+  PromoRedemption: class {},
 }));
 
 const CUSTOMER = {

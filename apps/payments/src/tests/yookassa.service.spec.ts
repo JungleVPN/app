@@ -13,6 +13,8 @@ vi.mock('@workspace/database', () => {
   return {
     YookassaPayment: class {},
     SavedPaymentMethod: class {},
+    Promo: class {},
+    PromoRedemption: class {},
   };
 });
 
@@ -120,6 +122,7 @@ describe('YookassaService', () => {
       paymentStatusService,
       eventEmitter,
       {} as any,
+      {} as any,
     );
   });
 
@@ -145,10 +148,13 @@ describe('YookassaService', () => {
           paidAt: expect.any(Date),
         }),
       );
-      expect(mockHandleUserUpdates).toHaveBeenCalledWith({
-        selectedPeriod: 1,
-        userId: 'user-1',
-      });
+      expect(mockHandleUserUpdates).toHaveBeenCalledWith(
+        expect.objectContaining({
+          selectedPeriod: 1,
+          userId: 'user-1',
+          promo: expect.objectContaining({ provider: 'yookassa' }),
+        }),
+      );
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.succeeded'],
         expect.objectContaining({ userId: 'user-1', provider: 'yookassa', selectedPeriod: 1 }),
@@ -408,6 +414,7 @@ describe('YookassaService', () => {
         savedMethodRepo,
         paymentStatusService,
         eventEmitter,
+        {} as any,
         {} as any,
       );
     });

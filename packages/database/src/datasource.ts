@@ -4,6 +4,8 @@ import { config } from 'dotenv';
 import { DataSource, type DataSourceOptions } from 'typeorm';
 import { Broadcast } from './entities/broadcast.entity';
 import { BroadcastMessage } from './entities/broadcast-message.entity';
+import { Promo } from './entities/promo.entity';
+import { PromoRedemption } from './entities/promo-redemption.entity';
 import { Referral } from './entities/referral.entity';
 import { SavedPaymentMethod } from './entities/saved-payment-method.entity';
 import { StripePayment } from './entities/stripe-payment.entity';
@@ -26,6 +28,8 @@ export const dataSourceOptions: DataSourceOptions = {
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
   entities: [
+    Promo,
+    PromoRedemption,
     Referral,
     SavedPaymentMethod,
     StripePayment,

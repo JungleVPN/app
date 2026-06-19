@@ -36,6 +36,14 @@ export class YookassaPayment {
   @Column({ type: 'varchar', default: 'subscription' })
   purpose: PaymentPurpose;
 
+  /**
+   * Promo code applied at checkout, if any. The carrier between the create and
+   * fulfillment phases — the promo's effect is resolved from the `promos` table
+   * at fulfillment, keeping promotion details out of the payment row.
+   */
+  @Column({ type: 'varchar', nullable: true })
+  promoCode: string | null;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 

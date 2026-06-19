@@ -21,4 +21,8 @@ export interface CreateYookassaSessionDto
   telegramId?: number | null;
   /** What this payment is for. Defaults to 'subscription'. */
   purpose?: PaymentPurpose;
+  /** Optional promo code entered by the user; validated server-side. */
+  promoCode?: string | null;
+  /** Subscription status from remnawave, when known — used to validate the promo. */
+  userStatus?: string;
 }

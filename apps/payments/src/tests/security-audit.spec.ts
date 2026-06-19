@@ -16,6 +16,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@workspace/database', () => ({
   YookassaPayment: class {},
   SavedPaymentMethod: class {},
+  Promo: class {},
+  PromoRedemption: class {},
 }));
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -99,6 +101,7 @@ describe('Security Audit', () => {
         { handleUserUpdates: mockHandleUserUpdates } as unknown as PaymentStatusService,
         { emit: vi.fn() } as unknown as EventEmitter2,
         {} as any,
+        {} as any,
       );
     });
 
@@ -159,6 +162,7 @@ describe('Security Audit', () => {
         makeSavedMethodRepo(null),
         { handleUserUpdates: mockHandleUserUpdates } as unknown as PaymentStatusService,
         { emit: vi.fn() } as unknown as EventEmitter2,
+        {} as any,
         {} as any,
       );
       (svc as any).isIPRangeValid = mockIsIPRangeValid;
@@ -237,6 +241,7 @@ describe('Security Audit', () => {
         { handleUserUpdates: mockHandleUserUpdates } as unknown as PaymentStatusService,
         { emit: vi.fn() } as unknown as EventEmitter2,
         {} as any,
+        {} as any,
       );
     });
 
@@ -272,6 +277,7 @@ describe('Security Audit', () => {
         makeSavedMethodRepo(null),
         { handleUserUpdates: mockHandleUserUpdates } as unknown as PaymentStatusService,
         { emit: vi.fn() } as unknown as EventEmitter2,
+        {} as any,
         {} as any,
       );
 

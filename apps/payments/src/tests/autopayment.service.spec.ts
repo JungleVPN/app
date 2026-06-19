@@ -12,6 +12,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@workspace/database', () => ({
   SavedPaymentMethod: class {},
   YookassaPayment: class {},
+  Promo: class {},
+  PromoRedemption: class {},
 }));
 
 const mockAxiosPost = vi.fn();
