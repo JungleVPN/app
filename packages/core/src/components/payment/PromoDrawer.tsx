@@ -21,7 +21,7 @@ interface Props {
 export function PromoDrawer({ isOpen, isPending, onClose, onContinue }: Props) {
   const { t } = useTranslation();
   const [promoCode, setPromoCode] = useState('');
-  const promoStickerUrl = getTelegramStickerUrl(coreEnv.menuStickerFileId);
+  const promoStickerUrl = getTelegramStickerUrl(coreEnv.promoCodeStickerFileId);
 
   const handleClose = () => {
     setPromoCode('');

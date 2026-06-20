@@ -6,7 +6,7 @@ import { toDateString } from '../../utils/date';
 
 interface Props {
   isOpen: boolean;
-  expireAt: Date | undefined;
+  expireAt?: Date | undefined;
   description?: string;
   onClose: () => void;
 }
@@ -34,9 +34,9 @@ export function StarsPaymentSuccessDrawer({ isOpen, expireAt, description, onClo
           </Drawer.Header>
           <Drawer.Body>
             <p className='text-center text-sm text-muted'>
-              {description &&
-                expireAt &&
-                t('payment.stars.success.description', { expireAt: toDateString(expireAt) })}
+              {description ||
+                (expireAt &&
+                  t('payment.stars.success.description', { expireAt: toDateString(expireAt) }))}
             </p>
           </Drawer.Body>
           <Drawer.Footer>
