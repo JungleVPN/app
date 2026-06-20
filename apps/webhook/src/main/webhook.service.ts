@@ -9,13 +9,13 @@ import axios from 'axios';
 /** Events that should be forwarded to the payments service for autopayment processing. */
 const PAYMENT_FORWARDED_EVENTS = new Set<TRemnawaveWebhookEvent['event']>([
   REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRES_IN_24_HOURS,
+  REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRES_IN_48_HOURS,
 ]);
 
 /** Events that should be forwarded directly to the bot for user notifications. */
 const BOT_FORWARDED_EVENTS = new Set<TRemnawaveWebhookEvent['event']>([
   REMNAWAVE_EVENTS.USER.EXPIRED,
   REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRED_24_HOURS_AGO,
-  REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRES_IN_48_HOURS,
   REMNAWAVE_EVENTS.USER.NOT_CONNECTED,
 ]);
 

@@ -23,10 +23,10 @@ vi.mock('axios', () => ({
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
-const makePayload = (telegramId?: number | null) =>
+const makePayload = (telegramId?: number | null, event = 'user.expires_in_24_hours') =>
   ({
     scope: 'user',
-    event: 'user.expires_in_24_hours',
+    event,
     data: {
       uuid: 'user-1',
       username: 'test',
@@ -288,6 +288,44 @@ describe('AutopaymentService', () => {
           reason: 'no_active_method',
         }),
       );
+    });
+  });
+
+  // ── checkAndNotifyExpiry48h ────────────────────────────────────────
+
+  describe('checkAndNotifyExpiry48h', () => {
+    const payload48h = makePayload(42, 'user.expires_in_48_hours');
+
+    it('forwards event to bot when user has no saved method', async () => {
+      mockSmFindOneBy.mockResolvedValue(null);
+      mockAxiosPost.mockResolvedValue({ status: 200 });
+
+      await service.checkAndNotifyExpiry48h(payload48h);
+
+      expect(mockSmFindOneBy).toHaveBeenCalledWith({ userId: 'user-1', isActive: true });
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        expect.stringContaining('/notify/user-event'),
+        payload48h,
+        expect.objectContaining({
+          headers: expect.objectContaining({ 'x-bot-secret': expect.any(String) }),
+        }),
+      );
+    });
+
+    it('skips bot notification when user has an active saved method', async () => {
+      mockSmFindOneBy.mockResolvedValue({ userId: 'user-1', paymentMethodId: 'pm_1', isActive: true });
+
+      await service.checkAndNotifyExpiry48h(payload48h);
+
+      expect(mockSmFindOneBy).toHaveBeenCalledWith({ userId: 'user-1', isActive: true });
+      expect(mockAxiosPost).not.toHaveBeenCalled();
+    });
+
+    it('logs error and does not throw when bot call fails', async () => {
+      mockSmFindOneBy.mockResolvedValue(null);
+      mockAxiosPost.mockRejectedValue(new Error('network error'));
+
+      await expect(service.checkAndNotifyExpiry48h(payload48h)).resolves.not.toThrow();
     });
   });
 });

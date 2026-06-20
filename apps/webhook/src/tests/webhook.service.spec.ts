@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { REMNAWAVE_EVENTS } from '@workspace/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WebhookService } from '../main/webhook.service';
 
@@ -79,6 +80,56 @@ describe('WebhookService', () => {
             'stripe-signature': 'sig_123',
           }),
         }),
+      );
+    });
+  });
+
+  describe('processRemnaEvent', () => {
+    it('forwards 48h expiry event to payments, not bot', async () => {
+      const payload = {
+        event: REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRES_IN_48_HOURS,
+        data: { uuid: 'user-1', telegramId: 42 },
+      } as any;
+
+      await service.processRemnaEvent(payload);
+
+      expect(mockAxiosPost).toHaveBeenCalledTimes(1);
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        expect.stringContaining('/remnawave-event'),
+        payload,
+        expect.any(Object),
+      );
+    });
+
+    it('forwards 24h expiry event to payments only', async () => {
+      const payload = {
+        event: REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRES_IN_24_HOURS,
+        data: { uuid: 'user-1', telegramId: 42 },
+      } as any;
+
+      await service.processRemnaEvent(payload);
+
+      expect(mockAxiosPost).toHaveBeenCalledTimes(1);
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        expect.stringContaining('/remnawave-event'),
+        payload,
+        expect.any(Object),
+      );
+    });
+
+    it('forwards expired event to bot only', async () => {
+      const payload = {
+        event: REMNAWAVE_EVENTS.USER.EXPIRED,
+        data: { uuid: 'user-1', telegramId: 42 },
+      } as any;
+
+      await service.processRemnaEvent(payload);
+
+      expect(mockAxiosPost).toHaveBeenCalledTimes(1);
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        expect.stringContaining('/notify/user-event'),
+        payload,
+        expect.any(Object),
       );
     });
   });

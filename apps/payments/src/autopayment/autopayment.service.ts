@@ -7,6 +7,7 @@ import { getConfiguredAmounts } from '@payments/utils/amount';
 import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { Payments, RemnawebhookPayload, WebhookEventEnum } from '@workspace/types';
+import axios from 'axios';
 import { Repository } from 'typeorm';
 
 const MAX_RETRIES = 3;
@@ -25,6 +26,14 @@ export class AutopaymentService {
     private readonly eventEmitter: EventEmitter2,
     private readonly validatePaymentRequest: ValidatePaymentRequest,
   ) {}
+
+  private get botBaseUrl(): string {
+    return process.env.PUBLIC_BOT_URL ?? 'http://localhost:7080';
+  }
+
+  private get botNotifySecret(): string {
+    return process.env.BOT_NOTIFY_SECRET ?? '';
+  }
 
   private get autopaymentAmount(): string {
     // First configured RUB price is the canonical subscription amount.
@@ -68,6 +77,28 @@ export class AutopaymentService {
       paymentMethodId: savedMethod.paymentMethodId,
       telegramId,
     });
+  }
+
+  async checkAndNotifyExpiry48h(payload: RemnawebhookPayload): Promise<void> {
+    const userId = payload.data.uuid;
+
+    const savedMethod = await this.savedMethodRepo.findOneBy({ userId, isActive: true });
+
+    if (savedMethod) {
+      this.logger.log(`User ${userId} has active autopayment — skipping 48h expiry notification`);
+      return;
+    }
+
+    try {
+      await axios.post(`${this.botBaseUrl}/notify/user-event`, payload, {
+        headers: { 'x-bot-secret': this.botNotifySecret },
+        timeout: 10_000,
+      });
+    } catch (err: any) {
+      this.logger.error(
+        `Failed to forward 48h expiry event to bot for user ${userId}: ${err.message}`,
+      );
+    }
   }
 
   private async attemptAutopaymentWithRetries({

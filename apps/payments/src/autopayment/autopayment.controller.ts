@@ -3,6 +3,7 @@ import type { RemnawebhookPayload } from '@workspace/types';
 import { REMNAWAVE_EVENTS } from '@workspace/types';
 
 const EXPIRES_IN_24H = REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRES_IN_24_HOURS;
+const EXPIRES_IN_48H = REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRES_IN_48_HOURS;
 
 import { AutopaymentService } from './autopayment.service';
 
@@ -26,6 +27,11 @@ export class AutopaymentController {
         // Fire-and-forget: retries happen internally, don't block the webhook response
         this.autopaymentService.init(payload).catch((err) => {
           this.logger.error(`Unhandled error in autopayment flow: ${err.message}`);
+        });
+        break;
+      case EXPIRES_IN_48H:
+        this.autopaymentService.checkAndNotifyExpiry48h(payload).catch((err) => {
+          this.logger.error(`Unhandled error in 48h expiry check: ${err.message}`);
         });
         break;
       default:
