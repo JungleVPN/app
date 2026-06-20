@@ -185,70 +185,80 @@ export async function safeEditMessageCaption(
   }
 }
 
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 /**
- * Converts Telegram message entities to HTML markup
- * Supports: bold, italic, underline, strikethrough, code, pre, text_link, blockquote, expandable_blockquote
+ * Converts Telegram message entities to HTML markup.
+ * Supports: bold, italic, underline, strikethrough, code, pre, text_link, blockquote, expandable_blockquote, spoiler
  */
 export function convertEntitiesToHtml(text: string, entities?: MessageEntity[]): string {
-  if (!entities || entities.length === 0) return text;
+  if (!entities || entities.length === 0) return escapeHtml(text);
 
-  // Sort entities by offset in reverse order to avoid offset shifts
-  const sortedEntities = [...entities].sort((a, b) => b.offset - a.offset);
+  // Sort entities by ascending offset; skip overlapping ones
+  const sortedEntities = [...entities].sort((a, b) => a.offset - b.offset);
 
-  let result = text;
+  let result = '';
+  let pos = 0;
 
   for (const entity of sortedEntities) {
     const start = entity.offset;
     const end = entity.offset + entity.length;
-    const entityText = text.substring(start, end);
 
-    let replacement = entityText;
+    if (start < pos) continue; // skip overlapping entity
+
+    result += escapeHtml(text.substring(pos, start));
+
+    const entityText = escapeHtml(text.substring(start, end));
 
     switch (entity.type) {
       case 'bold':
-        replacement = `<b>${entityText}</b>`;
+        result += `<b>${entityText}</b>`;
         break;
       case 'italic':
-        replacement = `<i>${entityText}</i>`;
+        result += `<i>${entityText}</i>`;
         break;
       case 'underline':
-        replacement = `<u>${entityText}</u>`;
+        result += `<u>${entityText}</u>`;
         break;
       case 'strikethrough':
-        replacement = `<s>${entityText}</s>`;
+        result += `<s>${entityText}</s>`;
         break;
       case 'code':
-        replacement = `<code>${entityText}</code>`;
+        result += `<code>${entityText}</code>`;
         break;
       case 'pre':
         if ('language' in entity && entity.language) {
-          replacement = `<pre><code class="language-${entity.language}">${entityText}</code></pre>`;
+          result += `<pre><code class="language-${entity.language}">${entityText}</code></pre>`;
         } else {
-          replacement = `<pre>${entityText}</pre>`;
+          result += `<pre>${entityText}</pre>`;
         }
         break;
       case 'text_link':
         if ('url' in entity) {
-          replacement = `<a href="${entity.url}">${entityText}</a>`;
+          result += `<a href="${entity.url}">${entityText}</a>`;
+        } else {
+          result += entityText;
         }
         break;
       case 'blockquote':
-        replacement = `<blockquote>${entityText}</blockquote>`;
+        result += `<blockquote>${entityText}</blockquote>`;
         break;
       case 'expandable_blockquote':
-        replacement = `<blockquote expandable>${entityText}</blockquote>`;
+        result += `<blockquote expandable>${entityText}</blockquote>`;
         break;
       case 'spoiler':
-        replacement = `<tg-spoiler>${entityText}</tg-spoiler>`;
+        result += `<tg-spoiler>${entityText}</tg-spoiler>`;
         break;
-      // Add more entity types as needed
       default:
-        // Keep original text for unsupported types
-        replacement = entityText;
+        result += entityText;
     }
 
-    result = result.substring(0, start) + replacement + result.substring(end);
+    pos = end;
   }
+
+  result += escapeHtml(text.substring(pos));
 
   return result;
 }

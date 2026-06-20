@@ -113,7 +113,6 @@ export default function ExtraDevicePurchasePage() {
       </PaymentForm>
 
       <StarsPaymentSuccessDrawer
-        allowedPeriods={0}
         description={t('devices.extraDevicePurchase.starsSuccessDescription')}
         isOpen={successState.isOpen}
         onClose={handleSuccessClose}
