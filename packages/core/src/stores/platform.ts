@@ -11,6 +11,8 @@ export interface IPlatformState {
    */
   platformType: PlatformType | null;
 
+  isMobileTma: boolean;
+
   /**
    * Tracks the initialisation lifecycle.
    *  idle         → before init starts
@@ -30,6 +32,7 @@ export interface IPlatformState {
 export interface IPlatformActions {
   actions: {
     setPlatformType: (type: PlatformType) => void;
+    setIsMobileTma: (value: boolean) => void;
     setInitStatus: (status: InitStatus) => void;
     setInitError: (error: string) => void;
     setClientPlatform: (platform: string) => void;
@@ -38,6 +41,7 @@ export interface IPlatformActions {
 
 const initialState: IPlatformState = {
   platformType: null,
+  isMobileTma: true,
   initStatus: 'idle',
   initError: null,
   clientPlatform: 'unknown',
@@ -47,6 +51,7 @@ export const usePlatformStore = create<IPlatformActions & IPlatformState>()((set
   ...initialState,
   actions: {
     setPlatformType: (platformType) => set({ platformType }),
+    setIsMobileTma: (isMobileTma) => set({ isMobileTma }),
     setInitStatus: (initStatus) => set({ initStatus }),
     setInitError: (initError) => set({ initError }),
     setClientPlatform: (clientPlatform) => set({ clientPlatform }),

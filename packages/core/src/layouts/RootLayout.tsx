@@ -1,12 +1,22 @@
 import { ScrollShadow, Surface } from '@heroui/react';
+import { useEffect } from 'react';
 import { Outlet } from 'react-router';
 import { AppAlert, ErrorBoundary, Header } from '../components';
 import { usePlatformStore } from '../stores';
 
 export function RootLayout() {
-  const { platformType, clientPlatform } = usePlatformStore();
-  const isMobileTma =
-    platformType === 'telegram' && (clientPlatform === 'ios' || clientPlatform === 'android');
+  const {
+    platformType,
+    clientPlatform,
+    isMobileTma,
+    actions: { setIsMobileTma },
+  } = usePlatformStore();
+
+  useEffect(() => {
+    setIsMobileTma(
+      platformType === 'telegram' && (clientPlatform === 'ios' || clientPlatform === 'android'),
+    );
+  }, [clientPlatform, platformType, setIsMobileTma]);
 
   return (
     <ErrorBoundary>

@@ -36,7 +36,7 @@ export function PromoDrawer({ isOpen, isPending, onClose, onContinue }: Props) {
       onOpenChange={(open) => !open && handleClose()}
     >
       <Drawer.Content placement='bottom'>
-        <Drawer.Dialog>
+        <Drawer.Dialog style={{ maxWidth: '425px', margin: '0 auto' }}>
           <Drawer.Handle />
           <Drawer.CloseTrigger />
           <Drawer.Header className='flex flex-col items-center gap-3 pt-2'>

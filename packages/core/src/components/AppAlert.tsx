@@ -2,18 +2,20 @@ import { Alert, Surface } from '@heroui/react';
 import { motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { useAlertStore } from '../stores';
+import { useAlertStore, usePlatformStore } from '../stores';
 
 export function AppAlert() {
   const { t } = useTranslation();
   const alert = useAlertStore((s) => s.alert);
 
+  const { isMobileTma } = usePlatformStore();
+
   return createPortal(
     <motion.div
-      className='fixed top-4 left-1/2 w-[90%] max-w-[425px] -translate-x-1/2'
+      className={`fixed ${isMobileTma ? 'top-[7rem]' : 'top-4'} left-1/2 w-[90%] max-w-[425px] -translate-x-1/2`}
       style={{ zIndex: 9999 }}
       initial={false}
-      animate={{ y: alert ? 0 : 'calc(-100% - 16px)' }}
+      animate={{ y: alert ? 0 : 'calc(-100% - 10rem)' }}
       transition={{ type: 'spring', stiffness: 400, damping: 35 }}
     >
       <Surface variant='tertiary' className='rounded-3xl'>
