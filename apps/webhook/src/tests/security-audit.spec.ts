@@ -69,37 +69,7 @@ describe('Security Audit', () => {
       expect(service.forwardYookassaWebhook).toHaveBeenCalledWith(payload, '203.0.113.99');
     });
   });
-  describe('[FINDING #3] WebhookController — internal routes must have an authentication guard', () => {
-    /**
-     * The controller has two categories of routes:
-     *
-     *   Internal  — called by services within the Docker network that can
-     *               carry the x-service-secret header. Must be protected by
-     *               InterServiceGuard.
-     *
-     *   External  — called directly by third-party providers (YooKassa, Stripe)
-     *               that have no knowledge of the internal secret. Must NOT
-     *               have InterServiceGuard; they rely on their own auth
-     *               mechanisms (CIDR allowlist, Stripe signature, etc.).
-     *
-     * Only the internal handleRemnaEvents route is checked here.
-     */
-    // it('handleRemnaEvents must be guarded by RemnaSignatureGuard', () => {
-    //   // NestJS @UseGuards on a method stores metadata on descriptor.value (the
-    //   // function itself), not on (prototype, propertyKey).
-    //   const guards: unknown[] =
-    //     Reflect.getMetadata('__guards__', WebhookController.prototype.handleRemnaEvents) ?? [];
-    //
-    //   expect(guards).toContain(RemnaSignatureGuard);
-    // });
-  });
   describe('[FINDING #7] RemnaSignatureGuard — HMAC signature must be validated in all environments', () => {
-    /**
-     * Signature validation lives in RemnaSignatureGuard, not the service.
-     * The guard runs before the handler in every environment — there is no
-     * NODE_ENV gate.
-     */
-
     const makeGuard = (secret: string) => new RemnaSignatureGuard({ get: () => secret } as any);
 
     const makeContext = (signature: string, body: unknown) =>

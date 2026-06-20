@@ -475,8 +475,13 @@ describe('Security Audit', () => {
 
   describe('[FINDING #12] mapEURAmountToMonthsNumber must throw on unrecognised amounts', () => {
     beforeEach(() => {
-      process.env.STRIPE_AMOUNT = '5';
-      process.env.ALLOWED_PERIODS = '1';
+      process.env.PUBLIC_ALLOWED_AMOUNT_EUR = '5';
+      process.env.PUBLIC_ALLOWED_PERIOD = '1';
+    });
+
+    afterEach(() => {
+      delete process.env.PUBLIC_ALLOWED_AMOUNT_EUR;
+      delete process.env.PUBLIC_ALLOWED_PERIOD;
     });
 
     it('throws for an amount not matching the configured price', () => {
@@ -489,16 +494,16 @@ describe('Security Audit', () => {
     });
 
     it('throws when the price is not configured (empty)', () => {
-      process.env.STRIPE_AMOUNT = '';
+      process.env.PUBLIC_ALLOWED_AMOUNT_EUR = '';
 
       expect(() => mapEURAmountToMonthsNumber('500')).toThrow();
     });
 
-    it('returns ALLOWED_PERIODS months for the configured price', () => {
-      // 500 EUR cents = 5 EUR → matches STRIPE_AMOUNT = '5'
+    it('returns PUBLIC_ALLOWED_PERIOD months for the configured price', () => {
+      // 500 EUR cents = 5 EUR → matches PUBLIC_ALLOWED_AMOUNT_EUR = '5'
       expect(mapEURAmountToMonthsNumber('500')).toBe(1);
 
-      process.env.ALLOWED_PERIODS = '3';
+      process.env.PUBLIC_ALLOWED_PERIOD = '3';
       expect(mapEURAmountToMonthsNumber('500')).toBe(3);
     });
   });
