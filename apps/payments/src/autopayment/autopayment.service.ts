@@ -56,10 +56,20 @@ export class AutopaymentService {
 
     const savedMethod = await this.savedMethodRepo.findOneBy({
       userId,
+      provider: 'yookassa',
       isActive: true,
     });
 
     if (!savedMethod) {
+      const hasOtherMethod = await this.savedMethodRepo.findOneBy({ userId, isActive: true });
+
+      if (hasOtherMethod) {
+        this.logger.log(
+          `User ${userId} has ${hasOtherMethod.provider} saved method — skipping autopayment`,
+        );
+        return;
+      }
+
       this.logger.warn(
         `No active saved payment method for user ${telegramId} — notifying bot for manual payment`,
       );
