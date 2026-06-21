@@ -222,11 +222,6 @@ export class AutopaymentService {
     }
 
     if (payment.status === 'canceled' && payment.cancellation_details) {
-      this.eventEmitter.emit(WebhookEventEnum['payment.autopayment_failed'], {
-        userId,
-        provider: 'yookassa',
-        reason: payment.cancellation_details.reason,
-      } satisfies Payments.PaymentFailedEventPayload);
       throw new Error(`Autopayment failed: ${payment.cancellation_details.reason}`);
     }
 
