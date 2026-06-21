@@ -2,6 +2,7 @@ import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EmailNotificationService } from '@payments/notifications/email-notification.service';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { getConfiguredAmounts } from '@payments/utils/amount';
 import { ValidatePaymentRequest } from '@payments/utils/validators';
@@ -25,6 +26,7 @@ export class AutopaymentService {
     private readonly yookassaProvider: YooKassaProvider,
     private readonly eventEmitter: EventEmitter2,
     private readonly validatePaymentRequest: ValidatePaymentRequest,
+    private readonly emailNotificationService: EmailNotificationService,
   ) {}
 
   private get botBaseUrl(): string {
@@ -79,6 +81,10 @@ export class AutopaymentService {
         provider: 'yookassa',
         reason: 'no_active_method',
       } satisfies Payments.PaymentFailedEventPayload);
+
+      this.emailNotificationService.notifyExpiry(payload.data, 24).catch((err: unknown) => {
+        this.logger.error(`Unhandled error in 24h expiry email: ${err}`);
+      });
       return;
     }
 
@@ -99,16 +105,21 @@ export class AutopaymentService {
       return;
     }
 
-    try {
-      await axios.post(`${this.botBaseUrl}/notify/user-event`, payload, {
-        headers: { 'x-bot-secret': this.botNotifySecret },
-        timeout: 10_000,
-      });
-    } catch (err: any) {
-      this.logger.error(
-        `Failed to forward 48h expiry event to bot for user ${userId}: ${err.message}`,
-      );
-    }
+    await Promise.allSettled([
+      axios
+        .post(`${this.botBaseUrl}/notify/user-event`, payload, {
+          headers: { 'x-bot-secret': this.botNotifySecret },
+          timeout: 10_000,
+        })
+        .catch((err: any) => {
+          this.logger.error(
+            `Failed to forward 48h expiry event to bot for user ${userId}: ${err.message}`,
+          );
+        }),
+      this.emailNotificationService.notifyExpiry(payload.data, 48).catch((err: unknown) => {
+        this.logger.error(`Unhandled error in 48h expiry email for user ${userId}: ${err}`);
+      }),
+    ]);
   }
 
   private async attemptAutopaymentWithRetries({

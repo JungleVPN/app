@@ -7,12 +7,14 @@ import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider
 import { PaymentsUtils } from '@payments/utils/utils';
 import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { Promo, PromoRedemption, SavedPaymentMethod, YookassaPayment } from '@workspace/database';
+import { EmailNotificationModule } from '@payments/notifications/email-notification.module';
 import { AutopaymentController } from './autopayment.controller';
 import { AutopaymentService } from './autopayment.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([SavedPaymentMethod, YookassaPayment, Promo, PromoRedemption]),
+    EmailNotificationModule,
   ],
   controllers: [AutopaymentController],
   exports: [AutopaymentService],
