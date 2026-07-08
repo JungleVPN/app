@@ -50,11 +50,25 @@ export class StripeProvider {
           return this.createPortalSession(customerId);
         }
       }
-      return this.createCheckoutSession(priceId, customerId, purchaseType, dto.userId, promoCode);
+      return this.createCheckoutSession(
+        priceId,
+        customerId,
+        purchaseType,
+        dto.userId,
+        promoCode,
+        dto.toltReferralId,
+      );
     }
 
     const newCustomer = await this.createCustomer(dto);
-    return this.createCheckoutSession(priceId, newCustomer, purchaseType, dto.userId, promoCode);
+    return this.createCheckoutSession(
+      priceId,
+      newCustomer,
+      purchaseType,
+      dto.userId,
+      promoCode,
+      dto.toltReferralId,
+    );
   }
 
   /** Validate a promo code at checkout; returns the normalized code or throws 400. */
@@ -79,18 +93,28 @@ export class StripeProvider {
     purchaseType: 'subscription' | 'extra_device',
     userId: string,
     promoCode: string | null = null,
+    toltReferralId?: string | null,
   ): Promise<CheckoutSession> {
     const isExtraDevice = purchaseType === 'extra_device';
+    const subscriptionMetadata = {
+      ...(promoCode ? { promoCode } : {}),
+      ...(toltReferralId ? { tolt_referral: toltReferralId } : {}),
+    };
     try {
       return await this.stripe.checkout.sessions.create({
         customer,
         line_items: [{ price: priceId, quantity: 1 }],
         mode: isExtraDevice ? 'payment' : 'subscription',
-        metadata: { purpose: purchaseType, userId },
-        // Stamp the promo onto the subscription so it reaches every invoice's
-        // `subscription_details.metadata` — the carrier read at fulfillment.
-        ...(promoCode && !isExtraDevice
-          ? { subscription_data: { metadata: { promoCode } } }
+        metadata: {
+          purpose: purchaseType,
+          userId,
+          ...(toltReferralId ? { tolt_referral: toltReferralId } : {}),
+        },
+        // Stamp the promo/Tolt referral onto the subscription so they reach every
+        // invoice's `subscription_details.metadata` — the carrier read at fulfillment
+        // (and what Tolt reads to attribute recurring revenue).
+        ...(!isExtraDevice && Object.keys(subscriptionMetadata).length > 0
+          ? { subscription_data: { metadata: subscriptionMetadata } }
           : {}),
         success_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
         cancel_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',

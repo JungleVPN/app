@@ -93,6 +93,7 @@ export function useStripePayment() {
       payment: { amount: allowedAmountStripe, currency: 'EUR' },
       promoCode: promoCode || null,
       userStatus: activeUser.status,
+      toltReferralId: window.tolt_referral ?? null,
       metadata: {
         email: payerEmail,
         userId: activeUser.uuid,

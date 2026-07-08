@@ -15,3 +15,8 @@ declare module '*.svg?url' {
   const content: string;
   export default content;
 }
+
+interface Window {
+  /** Set by the Tolt tracking script (`cdn.tolt.io/tolt.js`) once a referral is attributed. */
+  tolt_referral?: string;
+}

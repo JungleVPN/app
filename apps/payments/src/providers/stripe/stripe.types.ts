@@ -25,6 +25,8 @@ export interface CreateStripePaymentDto {
   readonly promoCode?: string | null;
   /** Subscription status from remnawave, when known — used to validate the promo. */
   readonly userStatus?: string;
+  /** Tolt affiliate referral id (`window.tolt_referral`), when the visitor came via a referral link. */
+  readonly toltReferralId?: string | null;
 }
 
 export type BillingPortalSession = Stripe.Response<Stripe.BillingPortal.Session>;

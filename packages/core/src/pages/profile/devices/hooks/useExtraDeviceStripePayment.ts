@@ -25,6 +25,7 @@ export function useExtraDeviceStripePayment() {
       userId: rmnUser.uuid,
       purchaseType: 'extra_device',
       payment: { amount: coreEnv.extraDevicePriceEUR, currency: 'EUR' },
+      toltReferralId: window.tolt_referral ?? null,
       metadata: {
         email: payerEmail,
         userId: rmnUser.uuid,
