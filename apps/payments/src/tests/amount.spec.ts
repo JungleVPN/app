@@ -3,20 +3,20 @@ import { amountToMonths, getConfiguredAmounts, isAllowedAmount } from '../utils/
 
 describe('provider-agnostic amount config', () => {
   beforeEach(() => {
-    process.env.YOOKASSA_AMOUNT = '299.00,599.00';
-    process.env.STRIPE_AMOUNT = '2';
-    process.env.ALLOWED_PERIODS = '1';
+    process.env.PUBLIC_ALLOWED_AMOUNT_RUB = '299.00,599.00';
+    process.env.PUBLIC_ALLOWED_AMOUNT_EUR = '2';
+    process.env.PUBLIC_ALLOWED_PERIOD = '1';
   });
 
   afterEach(() => {
-    delete process.env.YOOKASSA_AMOUNT;
-    delete process.env.STRIPE_AMOUNT;
-    delete process.env.ALLOWED_PERIODS;
+    delete process.env.PUBLIC_ALLOWED_AMOUNT_RUB;
+    delete process.env.PUBLIC_ALLOWED_AMOUNT_EUR;
+    delete process.env.PUBLIC_ALLOWED_PERIOD;
   });
 
   describe('getConfiguredAmounts', () => {
     it('parses the RUB list and drops blanks / non-positive entries', () => {
-      process.env.YOOKASSA_AMOUNT = '299.00, ,0,599.00';
+      process.env.PUBLIC_ALLOWED_AMOUNT_RUB = '299.00, ,0,599.00';
       expect(getConfiguredAmounts('RUB')).toEqual(['299.00', '599.00']);
     });
 
@@ -25,7 +25,7 @@ describe('provider-agnostic amount config', () => {
     });
 
     it('returns an empty list when unset', () => {
-      delete process.env.STRIPE_AMOUNT;
+      delete process.env.PUBLIC_ALLOWED_AMOUNT_EUR;
       expect(getConfiguredAmounts('EUR')).toEqual([]);
     });
   });
@@ -44,9 +44,9 @@ describe('provider-agnostic amount config', () => {
   });
 
   describe('amountToMonths', () => {
-    it('returns ALLOWED_PERIODS months for a configured price', () => {
+    it('returns PUBLIC_ALLOWED_PERIOD months for a configured price', () => {
       expect(amountToMonths(2, 'EUR')).toBe(1);
-      process.env.ALLOWED_PERIODS = '3';
+      process.env.PUBLIC_ALLOWED_PERIOD = '3';
       expect(amountToMonths(299, 'RUB')).toBe(3);
     });
 
@@ -56,7 +56,7 @@ describe('provider-agnostic amount config', () => {
     });
 
     it('rejects every amount when the price is unconfigured (fail-safe)', () => {
-      delete process.env.STRIPE_AMOUNT;
+      delete process.env.PUBLIC_ALLOWED_AMOUNT_EUR;
       expect(() => amountToMonths(2, 'EUR')).toThrow();
     });
   });
