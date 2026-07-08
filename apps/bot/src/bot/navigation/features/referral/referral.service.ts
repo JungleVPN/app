@@ -21,8 +21,7 @@ export class ReferralMenuService extends Base {
     const locale = user?.[0].description || process.env.DEFAULT_LOCALE || 'ru';
 
     const content = this.localService.i18n.t(locale, 'referral-page-text', {
-      inviterStartBonusInDays: process.env.INVITER_START_BONUS_IN_DAYS || '0',
-      inviterPaidBonusInDays: process.env.INVITER_PAID_BONUS_IN_DAYS || '0',
+      referralBonusInDays: process.env.REFERRAL_BONUS_IN_DAYS || '30',
     });
 
     await this.render(ctx, content, menu, deleteOldMsg);

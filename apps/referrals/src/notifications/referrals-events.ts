@@ -3,6 +3,8 @@ export const REFERRALS_EVENTS = {
 } as const;
 
 export interface ReferralRewardedEvent {
+  userId: string;
   telegramId: number | null;
-  isNewUser: boolean;
+  /** Which side of the referral this reward was granted to. */
+  role: 'inviter' | 'invited';
 }

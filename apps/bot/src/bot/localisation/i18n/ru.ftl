@@ -442,7 +442,15 @@ invitation-text =
 user-rewarded-text =
     Спасибо, что зовешь друзей в <code>JUNGLE</code> 🌴
 
-    Добавил { $inviterPaidBonusInDays } дней в подписку ♥️
+    Твой друг только что оплатил подписку, и я добавил { $referralBonusInDays } дней в твою ♥️
+
+    <b>Теперь твоя подписка закончится <blockquote>{ $formattedDate }</blockquote></b>
+
+
+referred-user-rewarded-text =
+    Добро пожаловать в <code>JUNGLE</code> 🌴
+
+    Спасибо, что оплатил первую подписку — добавил { $referralBonusInDays } бонусных дней ♥️
 
     <b>Теперь твоя подписка закончится <blockquote>{ $formattedDate }</blockquote></b>
 
@@ -450,11 +458,9 @@ user-rewarded-text =
 referral-page-text =
     Зови своих друзей в <code>JUNGLE</code> и получай доп дни в подписку 😃
 
-    За каждого приглашенного пользователя получаешь <blockquote>+{ $inviterStartBonusInDays } день</blockquote>
+    Когда твой друг оплатит первую подписку, вы оба получите <blockquote>+{ $referralBonusInDays } дней</blockquote>
 
-    А если твой друг оплатит, то получишь целых <blockquote>+{ $inviterPaidBonusInDays } дней</blockquote>
-
-    Хорошо звучит, даже? 🫠
+    Приглашай больше друзей и плати меньше 🫠
 
 
 referral-new-user-text =

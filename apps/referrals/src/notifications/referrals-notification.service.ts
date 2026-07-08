@@ -50,7 +50,9 @@ export class ReferralsNotificationService {
         timeout: 5_000,
       });
 
-      this.logger.log(`Bot notified: user-rewarded for telegramId=${event.telegramId}`);
+      this.logger.log(
+        `Bot notified userId=${event.userId} telegramId=${event.telegramId ?? 'null'}, reason=user-rewarded`,
+      );
     } catch (err: any) {
       this.logger.warn(
         `Failed to notify bot about user-rewarded for telegramId=${event.telegramId}: ${err.message}`,

@@ -65,13 +65,11 @@ function makeService(referralRepo: Repository<Referral>, remnaClient: RemnaClien
 describe('ReferralService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.INVITER_START_BONUS_IN_DAYS = '1';
-    process.env.INVITER_PAID_BONUS_IN_DAYS = '7';
+    process.env.REFERRAL_BONUS_IN_DAYS = '30';
   });
 
   afterEach(() => {
-    delete process.env.INVITER_START_BONUS_IN_DAYS;
-    delete process.env.INVITER_PAID_BONUS_IN_DAYS;
+    delete process.env.REFERRAL_BONUS_IN_DAYS;
   });
 
   describe('handleNewUser', () => {
@@ -100,16 +98,13 @@ describe('ReferralService', () => {
       expect(typeof created.invitedId).toBe('string');
     });
 
-    it('rewards the inviter immediately via their remnawave uuid', async () => {
+    it('does not reward the inviter at signup — reward only happens after the friend pays', async () => {
       const remnaClient = makeRemnaClient();
       const service = makeService(makeReferralRepo(null), remnaClient);
 
       await service.handleNewUser(INVITER_UUID, INVITED_UUID);
 
-      expect(remnaClient.getUserByUuid).toHaveBeenCalledWith(INVITER_UUID);
-      expect(remnaClient.updateUser).toHaveBeenCalledWith(
-        expect.objectContaining({ uuid: INVITER_UUID }),
-      );
+      expect(remnaClient.updateUser).not.toHaveBeenCalled();
     });
 
     it('fails when the inviter uuid does not resolve to a remnawave user', async () => {
@@ -137,7 +132,7 @@ describe('ReferralService', () => {
   });
 
   describe('handleInviterRewardAfterPayment', () => {
-    it('looks up the referral directly by the invited userId — no remna lookup needed to resolve it', async () => {
+    it('rewards both the invited user and the inviter with the same bonus once the friend pays', async () => {
       const referralRepo = makeReferralRepo(makeReferral({ status: 'TRIAL' }));
       const remnaClient = makeRemnaClient();
       const service = makeService(referralRepo, remnaClient);
@@ -146,8 +141,15 @@ describe('ReferralService', () => {
 
       expect(result.rewarded).toBe(true);
       expect(referralRepo.findOne).toHaveBeenCalledWith({ where: { invitedId: INVITED_UUID } });
-      // The inviter must be resolved via getUserByUuid, not a telegramId-based lookup.
+      // Both sides are resolved and extended via their remnawave uuid.
       expect(remnaClient.getUserByUuid).toHaveBeenCalledWith(INVITER_UUID);
+      expect(remnaClient.getUserByUuid).toHaveBeenCalledWith(INVITED_UUID);
+      expect(remnaClient.updateUser).toHaveBeenCalledWith(
+        expect.objectContaining({ uuid: INVITER_UUID }),
+      );
+      expect(remnaClient.updateUser).toHaveBeenCalledWith(
+        expect.objectContaining({ uuid: INVITED_UUID }),
+      );
     });
 
     it('does not reward twice once the referral is COMPLETED', async () => {

@@ -451,7 +451,15 @@ invitation-text =
 user-rewarded-text =
     Thanks for inviting friends to <code>JUNGLE</code> 🌴
 
-    I’ve added { $inviterPaidBonusInDays } days to your subscription ♥️
+    Your friend just paid for their subscription, so I’ve added { $referralBonusInDays } days to yours ♥️
+
+    <b>Your subscription will now expire on <blockquote>{ $formattedDate }</blockquote></b>
+
+
+referred-user-rewarded-text =
+    Welcome to <code>JUNGLE</code> 🌴
+
+    Thanks for paying for your first subscription — I’ve added { $referralBonusInDays } bonus days to it ♥️
 
     <b>Your subscription will now expire on <blockquote>{ $formattedDate }</blockquote></b>
 
@@ -459,9 +467,7 @@ user-rewarded-text =
 referral-page-text =
     Invite your friends to <code>JUNGLE</code> and get extra subscription days 😃
 
-    For every invited user, you get <blockquote>+{ $inviterStartBonusInDays } day</blockquote>
-
-    And if your friend makes a payment, you’ll get <blockquote>+{ $inviterPaidBonusInDays } days</blockquote>
+    When your friend pays for their first subscription, you both get <blockquote>+{ $referralBonusInDays } days</blockquote>
 
     Sounds good, right? 🫠
 

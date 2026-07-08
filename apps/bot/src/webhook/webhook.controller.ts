@@ -86,7 +86,7 @@ export class NotificationController {
     @Body()
     payload: {
       telegramId: number;
-      isNewUser: boolean;
+      role: 'inviter' | 'invited';
     },
   ) {
     this.validateSecret(secret);

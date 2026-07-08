@@ -154,7 +154,7 @@ describe('Security Audit', () => {
 
     beforeEach(() => {
       vi.clearAllMocks();
-      process.env.INVITER_PAID_BONUS_IN_DAYS = '7';
+      process.env.REFERRAL_BONUS_IN_DAYS = '30';
 
       referralRepo = makeReferralRepo(makeReferral({ status: 'TRIAL' }));
       remnaClient = makeRemnaClient();
@@ -162,7 +162,7 @@ describe('Security Audit', () => {
     });
 
     afterEach(() => {
-      delete process.env.INVITER_PAID_BONUS_IN_DAYS;
+      delete process.env.REFERRAL_BONUS_IN_DAYS;
     });
 
     it('rewards the inviter only when a confirmed payment record is found', async () => {
@@ -175,9 +175,9 @@ describe('Security Audit', () => {
 
       const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
 
-      // CORRECT: confirmed payment present → reward is granted
+      // CORRECT: confirmed payment present → reward is granted to both sides
       expect(result.rewarded).toBe(true);
-      expect(mockRemnaUpdateUser).toHaveBeenCalledTimes(1);
+      expect(mockRemnaUpdateUser).toHaveBeenCalledTimes(2);
     });
 
     // ── Control — already-completed guard must always hold ─────────────────────
@@ -238,7 +238,8 @@ describe('Security Audit', () => {
       // CORRECT: exactly one of the two concurrent calls must succeed
       const successCount = [r1.rewarded, r2.rewarded].filter(Boolean).length;
       expect(successCount).toBe(1);
-      expect(mockUpdateUser).toHaveBeenCalledTimes(1);
+      // One successful call rewards both the invited user and the inviter.
+      expect(mockUpdateUser).toHaveBeenCalledTimes(2);
     });
 
     it('sequential calls are idempotent: the second call is always a no-op once COMPLETED', async () => {
@@ -269,7 +270,8 @@ describe('Security Audit', () => {
       expect(r1.rewarded).toBe(true);
       expect(r2.rewarded).toBe(false);
       expect(r2.reason).toBe('already_completed');
-      expect(mockUpdateUser).toHaveBeenCalledTimes(1);
+      // One successful call rewards both the invited user and the inviter.
+      expect(mockUpdateUser).toHaveBeenCalledTimes(2);
     });
 
     it('does not leave the referral in TRIAL when updateUser throws mid-flight', async () => {
@@ -307,13 +309,14 @@ describe('Security Audit', () => {
       const result2 = await service.handleInviterRewardAfterPayment(INVITED_UUID);
       expect(result2.rewarded).toBe(true);
 
-      // CORRECT: across both attempts, updateUser must have been called exactly
-      // once successfully.  mock.results type 'throw' = synchronous throw;
+      // CORRECT: the failed first attempt only reaches the invited user's update
+      // (throws before rewarding the inviter). The retry succeeds and rewards
+      // both sides exactly once.  mock.results type 'throw' = synchronous throw;
       // type 'return' = synchronous return (resolved promise counts here).
       const successfulUpdates = (
         remnaClient.updateUser as ReturnType<typeof vi.fn>
       ).mock.results.filter((r) => r.type === 'return').length;
-      expect(successfulUpdates).toBe(1);
+      expect(successfulUpdates).toBe(2);
     });
   });
 });

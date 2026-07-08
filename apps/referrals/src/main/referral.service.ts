@@ -81,15 +81,13 @@ export class ReferralService {
 
     await this.createReferralRecord(inviterId, invitedId);
 
-    const bonusDays = Number(process.env.INVITER_START_BONUS_IN_DAYS || '1');
-    await this.rewardUser(inviterId, bonusDays, true);
-
     return { success: true, reason: 'new_user' };
   }
 
   /**
-   * Rewards the inviter after the invited user makes their first payment.
-   * Sets referral status to COMPLETED to prevent duplicate rewards.
+   * Rewards both sides of the referral once the invited user's first paid
+   * (non-trial) subscription starts. Sets referral status to COMPLETED to
+   * prevent duplicate rewards on subsequent renewal payments.
    *
    * Guards:
    *  - in-flight set prevents double execution for the same invitedId within
@@ -124,8 +122,9 @@ export class ReferralService {
         return { rewarded: false, reason: 'already_completed' };
       }
 
-      const bonusDays = Number(process.env.INVITER_PAID_BONUS_IN_DAYS || '7');
-      await this.rewardUser(referral.inviterId, bonusDays, false);
+      const bonusDays = Number(process.env.REFERRAL_BONUS_IN_DAYS || '30');
+      await this.rewardUser(invitedId, bonusDays, 'invited');
+      await this.rewardUser(referral.inviterId, bonusDays, 'inviter');
 
       referral.status = 'COMPLETED';
       await this.referralRepository.save(referral);
@@ -142,8 +141,12 @@ export class ReferralService {
     await this.referralRepository.delete({ invitedId });
   }
 
-  private async rewardUser(inviterId: string, days: number, isNewUser: boolean): Promise<void> {
-    const user = await this.remnaClient.getUserByUuid(inviterId);
+  private async rewardUser(
+    userId: string,
+    days: number,
+    role: 'inviter' | 'invited',
+  ): Promise<void> {
+    const user = await this.remnaClient.getUserByUuid(userId);
     if (!user) return;
 
     const newExpireAt = add(new Date(user.expireAt), { days });
@@ -154,11 +157,12 @@ export class ReferralService {
     });
 
     const payload: ReferralRewardedEvent = {
+      userId: user.uuid,
       telegramId: user.telegramId,
-      isNewUser,
+      role,
     };
 
     this.eventEmitter.emit('user.rewarded', payload);
-    this.logger.log(`Rewarded inviter ${inviterId} with ${days} day(s)`);
+    this.logger.log(`Rewarded ${role} ${userId} with ${days} day(s)`);
   }
 }

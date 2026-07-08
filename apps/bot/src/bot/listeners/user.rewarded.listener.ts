@@ -21,18 +21,17 @@ export class UserRewardedListener {
   }
 
   @OnEvent('user.rewarded')
-  async handleUserRewardedListener(payload: { telegramId: number; isNewUser: boolean }) {
-    const { telegramId, isNewUser } = payload;
-    // Only notify inviter when the invited user pays, not on initial subscription activation
-    if (isNewUser) return;
+  async handleUserRewardedListener(payload: { telegramId: number; role: 'inviter' | 'invited' }) {
+    const { telegramId, role } = payload;
 
     const user = await this.remnaService.getUserByTgId(telegramId);
     const expireAt = user?.[0].expireAt;
     const locale = user?.[0].description || process.env.DEFAULT_LOCALE || 'ru';
     const formattedDate = toDateString(expireAt!);
 
-    const content = this.localService.i18n.t(locale, 'user-rewarded-text', {
-      inviterPaidBonusInDays: process.env.INVITER_PAID_BONUS_IN_DAYS || '7',
+    const textKey = role === 'inviter' ? 'user-rewarded-text' : 'referred-user-rewarded-text';
+    const content = this.localService.i18n.t(locale, textKey, {
+      referralBonusInDays: process.env.REFERRAL_BONUS_IN_DAYS || '30',
       formattedDate,
     });
 
