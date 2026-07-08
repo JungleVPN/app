@@ -420,7 +420,12 @@ export class YookassaService {
   }
 
   isValidNotificationEvent(event: string): event is WebhookEvent {
-    return ['payment.succeeded', 'payment.canceled', 'payment.waiting_for_capture'].includes(event);
+    return [
+      'payment.succeeded',
+      'payment.canceled',
+      'payment.waiting_for_capture',
+      'refund.succeeded',
+    ].includes(event);
   }
 
   isValidWebhookPayload(payload: PaymentWebhookNotification): boolean {
