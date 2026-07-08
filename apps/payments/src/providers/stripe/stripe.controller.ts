@@ -12,11 +12,14 @@ import {
   Patch,
   Post,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StripePayment } from '@workspace/database';
 import type Stripe from 'stripe';
 import { Repository } from 'typeorm';
+import { AdminGuard } from '../../admin/admin.guard';
+import { InterServiceGuard } from '../../guards/inter-service.guard';
 import { StripeProvider } from './stripe.provider';
 import type { CreateStripePaymentDto, Session } from './stripe.types';
 
@@ -50,8 +53,9 @@ export class StripeController {
     return payment;
   }
 
-  /** Update a Stripe payment status (and optional fields) */
+  /** Update a Stripe payment status (and optional fields) — admin only, never called by the webhook/checkout flow */
   @Patch(':id')
+  @UseGuards(AdminGuard)
   async updateStatus(
     @Param('id') id: string,
     @Body() body: { status?: string; paidAt?: string | null },
@@ -98,9 +102,14 @@ export class StripeController {
     return session;
   }
 
-  /** Stripe webhook endpoint — raw body required for signature verification */
+  /**
+   * Stripe webhook endpoint — raw body required for signature verification.
+   * Only apps/webhook is a legitimate caller, so it's also gated behind the
+   * inter-service secret in addition to the Stripe signature check below.
+   */
   @Post('webhook')
   @HttpCode(200)
+  @UseGuards(InterServiceGuard)
   async webhook(
     @Req() req: RawBodyRequest<Record<string, unknown>>,
     @Headers('stripe-signature') signature: string,

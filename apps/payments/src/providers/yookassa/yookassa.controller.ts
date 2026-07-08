@@ -7,6 +7,7 @@ import {
   Ip,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
 import {
@@ -14,14 +15,20 @@ import {
   type PaymentSession,
   type PaymentWebhookNotification,
 } from '@workspace/types';
+import { InterServiceGuard } from '../../guards/inter-service.guard';
 
 @Controller('yookassa')
 export class YookassaController {
   constructor(private readonly yookassaService: YookassaService) {}
 
-  /** Yookassa webhook endpoint — IP validated inside the service */
+  /**
+   * Yookassa webhook endpoint — IP validated inside the service.
+   * Only apps/webhook is a legitimate caller, so it's also gated behind the
+   * inter-service secret in addition to the IP allowlist check below.
+   */
   @Post('webhook')
   @HttpCode(200)
+  @UseGuards(InterServiceGuard)
   async webhook(@Body() payload: PaymentWebhookNotification, @Ip() ip: string) {
     await this.yookassaService.handleWebhook(payload, ip);
     return { ok: true };
