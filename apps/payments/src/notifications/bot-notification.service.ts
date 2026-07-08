@@ -2,6 +2,7 @@ import * as process from 'node:process';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import {
+  apiRoutes,
   GetUserByUuidResponseDto,
   Payments,
   WebhookEvent,
@@ -21,7 +22,7 @@ export class BotNotificationService {
   private readonly logger = new Logger(BotNotificationService.name);
 
   private get botBaseUrl(): string {
-    return process.env.PUBLIC_BOT_URL || 'http://localhost:7080';
+    return process.env.PUBLIC_BOT_URL || 'http://localhost:7080/bot';
   }
 
   private get botNotifySecret(): string {
@@ -29,7 +30,7 @@ export class BotNotificationService {
   }
 
   private get remnawareBaseUrl(): string {
-    return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002';
+    return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002/remnawave';
   }
 
   private async getUserByUuid(uuid: string): Promise<GetUserByUuidResponseDto> {
@@ -39,7 +40,7 @@ export class BotNotificationService {
 
     try {
       const { data } = await axios.get<GetUserByUuidResponseDto | null>(
-        `${this.remnawareBaseUrl}/users/${uuid}`,
+        `${this.remnawareBaseUrl}${apiRoutes.remnawave.userByUuid(uuid)}`,
         {
           headers: {
             'x-service-secret': process.env.INTER_SERVICE_SECRET,
@@ -108,7 +109,7 @@ export class BotNotificationService {
 
     try {
       await axios.post(
-        `${this.botBaseUrl}/notify/payment`,
+        `${this.botBaseUrl}${apiRoutes.bot.notifyPayment}`,
         {
           eventType,
           payload,

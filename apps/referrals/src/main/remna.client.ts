@@ -1,5 +1,6 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
+import { apiRoutes } from '@workspace/types';
 import axios from 'axios';
 
 /** Minimal user shape returned by the remnawave service. */
@@ -27,7 +28,7 @@ export class RemnaClient {
   async getUserByTgId(telegramId: number): Promise<RemnaUser | null> {
     try {
       const { data } = await axios.get<RemnaUser[]>(
-        `${this.baseUrl}/users/by-telegram-id/${telegramId}`,
+        `${this.baseUrl}${apiRoutes.remnawave.userByTelegramId(telegramId)}`,
         {
           headers: {
             'x-service-secret': process.env.INTER_SERVICE_SECRET,
@@ -49,11 +50,15 @@ export class RemnaClient {
     expireAt?: Date | string;
     [key: string]: unknown;
   }): Promise<RemnaUser> {
-    const { data } = await axios.patch<RemnaUser>(`${this.baseUrl}/users`, payload, {
-      headers: {
-        'x-service-secret': process.env.INTER_SERVICE_SECRET,
+    const { data } = await axios.patch<RemnaUser>(
+      `${this.baseUrl}${apiRoutes.remnawave.users}`,
+      payload,
+      {
+        headers: {
+          'x-service-secret': process.env.INTER_SERVICE_SECRET,
+        },
       },
-    });
+    );
     return data;
   }
 }

@@ -1,6 +1,7 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { apiRoutes } from '@workspace/types';
 import axios from 'axios';
 import { REFERRALS_EVENTS, type ReferralRewardedEvent } from './referrals-events';
 
@@ -16,7 +17,7 @@ export class ReferralsNotificationService {
   private readonly logger = new Logger(ReferralsNotificationService.name);
 
   private get botBaseUrl(): string {
-    return process.env.PUBLIC_BOT_URL || 'http://localhost:7080';
+    return process.env.PUBLIC_BOT_URL || 'http://localhost:7080/bot';
   }
 
   private get botNotifySecret(): string {
@@ -41,7 +42,7 @@ export class ReferralsNotificationService {
     }
 
     try {
-      await axios.post(`${this.botBaseUrl}/notify/user-rewarded`, event, {
+      await axios.post(`${this.botBaseUrl}${apiRoutes.bot.notifyUserRewarded}`, event, {
         headers: {
           'Content-Type': 'application/json',
           'x-bot-secret': this.botNotifySecret,

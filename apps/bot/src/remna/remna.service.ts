@@ -15,7 +15,7 @@ export class RemnaService {
   private readonly logger = new Logger(RemnaService.name);
 
   private backend: AxiosInstance = createBackendClient(
-    process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002',
+    process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002/remnawave',
   );
 
   private async fetch<Data>({

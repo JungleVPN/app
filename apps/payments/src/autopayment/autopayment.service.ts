@@ -7,7 +7,7 @@ import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider
 import { getConfiguredAmounts } from '@payments/utils/amount';
 import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
-import { Payments, RemnawebhookPayload, WebhookEventEnum } from '@workspace/types';
+import { apiRoutes, Payments, RemnawebhookPayload, WebhookEventEnum } from '@workspace/types';
 import axios from 'axios';
 import { Repository } from 'typeorm';
 
@@ -30,7 +30,7 @@ export class AutopaymentService {
   ) {}
 
   private get botBaseUrl(): string {
-    return process.env.PUBLIC_BOT_URL ?? 'http://localhost:7080';
+    return process.env.PUBLIC_BOT_URL ?? 'http://localhost:7080/bot';
   }
 
   private get botNotifySecret(): string {
@@ -107,7 +107,7 @@ export class AutopaymentService {
 
     await Promise.allSettled([
       axios
-        .post(`${this.botBaseUrl}/notify/user-event`, payload, {
+        .post(`${this.botBaseUrl}${apiRoutes.bot.notifyUserEvent}`, payload, {
           headers: { 'x-bot-secret': this.botNotifySecret },
           timeout: 10_000,
         })

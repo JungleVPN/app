@@ -3,7 +3,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import type { PaymentWebhookNotification, TRemnawaveWebhookEvent } from '@workspace/types';
-import { REMNAWAVE_EVENTS } from '@workspace/types';
+import { apiRoutes, REMNAWAVE_EVENTS } from '@workspace/types';
 import axios from 'axios';
 
 /** Events that should be forwarded to the payments service for autopayment processing. */
@@ -29,11 +29,11 @@ export class WebhookService {
   ) {}
 
   private get paymentsBaseUrl(): string {
-    return this.configService.get<string>('PUBLIC_PAYMENTS_URL', 'http://localhost:3001');
+    return this.configService.get<string>('PUBLIC_PAYMENTS_URL', 'http://localhost:3001/payments');
   }
 
   private get botBaseUrl(): string {
-    return this.configService.get<string>('PUBLIC_BOT_URL', 'http://localhost:7080');
+    return this.configService.get<string>('PUBLIC_BOT_URL', 'http://localhost:7080/bot');
   }
 
   /**
@@ -53,7 +53,7 @@ export class WebhookService {
 
   private async forwardRemnaEventToPayments(payload: TRemnawaveWebhookEvent): Promise<void> {
     try {
-      await axios.post(`${this.paymentsBaseUrl}/remnawave-event`, payload, {
+      await axios.post(`${this.paymentsBaseUrl}${apiRoutes.payments.remnawaveEvent}`, payload, {
         timeout: 10_000,
       });
     } catch (error: any) {
@@ -63,7 +63,7 @@ export class WebhookService {
 
   private async forwardRemnaEventToBot(payload: TRemnawaveWebhookEvent): Promise<void> {
     try {
-      await axios.post(`${this.botBaseUrl}/notify/user-event`, payload, {
+      await axios.post(`${this.botBaseUrl}${apiRoutes.bot.notifyUserEvent}`, payload, {
         headers: {
           'x-bot-secret': this.configService.get<string>('BOT_NOTIFY_SECRET', ''),
         },
@@ -95,7 +95,7 @@ export class WebhookService {
 
   async forwardStripeWebhook(rawBody: Buffer, signature: string): Promise<void> {
     try {
-      await axios.post(`${this.paymentsBaseUrl}/stripe/webhook`, rawBody, {
+      await axios.post(`${this.paymentsBaseUrl}${apiRoutes.payments.stripeWebhook}`, rawBody, {
         headers: {
           'content-type': 'application/json',
           'stripe-signature': signature,
@@ -111,7 +111,7 @@ export class WebhookService {
   }
 
   async forwardYookassaWebhook(payload: PaymentWebhookNotification, ip: string): Promise<void> {
-    await axios.post(`${this.paymentsBaseUrl}/yookassa/webhook`, payload, {
+    await axios.post(`${this.paymentsBaseUrl}${apiRoutes.payments.yookassaWebhook}`, payload, {
       headers: {
         'x-forwarded-for': ip,
         'x-service-secret': process.env.INTER_SERVICE_SECRET,

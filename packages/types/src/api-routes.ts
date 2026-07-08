@@ -1,4 +1,10 @@
 export const apiRoutes = {
+  bot: {
+    notifyPayment: '/notify/payment',
+    notifyUserEvent: '/notify/user-event',
+    notifyUserRewarded: '/notify/user-rewarded',
+    telegramSticker: (fileId: string) => `/telegram/sticker/${fileId}`,
+  },
   broadcasts: {
     collection: '/',
     byId: (id: number | string) => `/${id}`,
@@ -8,7 +14,9 @@ export const apiRoutes = {
   payments: {
     stripeCreateSession: '/stripe/create-session',
     stripeSubscription: (userId: string) => `/stripe/subscription/${encodeURIComponent(userId)}`,
+    stripeWebhook: '/stripe/webhook',
     yookassaCreateSession: '/yookassa/create-session',
+    yookassaWebhook: '/yookassa/webhook',
     yookassaSavedMethods: (userId: string) =>
       `/yookassa/saved-methods/${encodeURIComponent(userId)}`,
     yookassaSavedMethodById: (userId: string, id: string) =>
@@ -17,11 +25,12 @@ export const apiRoutes = {
     telegramStarsPaymentSucceeded: '/telegram-stars/payment-succeeded',
     promoValidate: '/promo/validate',
     searchPayments: '/search',
+    remnawaveEvent: '/remnawave-event',
   },
   referrals: {
     collection: '/',
-    byInvited: (telegramId: number | string) => `/referrals/by-invited/${telegramId}`,
-    rewardAfterPayment: '/referrals/reward-after-payment',
+    byInvited: (telegramId: number | string) => `/by-invited/${telegramId}`,
+    rewardAfterPayment: '/reward-after-payment',
   },
   remnawave: {
     users: '/users',
@@ -37,5 +46,6 @@ export const apiRoutes = {
       `/users/${userUuid}/devices/${encodeURIComponent(hwid)}`,
     telegramPhoto: (telegramId: number | string) => `/users/telegram-photo/${telegramId}`,
     userExtraDevice: (uuid: string) => `/users/${uuid}/extra-device`,
+    userExpiry: (uuid: string) => `/users/${uuid}/expiry`,
   },
 } as const;

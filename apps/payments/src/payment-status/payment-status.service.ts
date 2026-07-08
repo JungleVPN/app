@@ -1,7 +1,7 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { PromoService } from '@payments/promo/promo.service';
-import type { PaymentPurpose, PromoProvider } from '@workspace/types';
+import { apiRoutes, PaymentPurpose, PromoProvider } from '@workspace/types';
 import axios from 'axios';
 
 /**
@@ -17,11 +17,11 @@ export class PaymentStatusService {
   constructor(private readonly promoService: PromoService) {}
 
   private get remnawareBaseUrl(): string {
-    return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002';
+    return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002/remnawave';
   }
 
   private get referralsBaseUrl(): string {
-    return process.env.REFERRALS_URL || 'http://localhost:3004';
+    return process.env.PUBLIC_REFERRALS_URL || 'http://localhost:3004/referrals';
   }
 
   /**
@@ -73,12 +73,10 @@ export class PaymentStatusService {
     return { success: true };
   }
 
-  private async addExtraDevice(
-    uuid: string,
-  ): Promise<{ telegramId: number | null } | null> {
+  private async addExtraDevice(uuid: string): Promise<{ telegramId: number | null } | null> {
     try {
       const { data } = await axios.patch<{ telegramId: number | null }>(
-        `${this.remnawareBaseUrl}/users/${uuid}/extra-device`,
+        `${this.remnawareBaseUrl}${apiRoutes.remnawave.userExtraDevice(uuid)}`,
         {},
         {
           headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
@@ -107,7 +105,7 @@ export class PaymentStatusService {
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       try {
         const { data } = await axios.patch<{ telegramId: number | null }>(
-          `${this.remnawareBaseUrl}/users/${uuid}/expiry`,
+          `${this.remnawareBaseUrl}${apiRoutes.remnawave.userExpiry(uuid)}`,
           { months },
           {
             headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
@@ -136,7 +134,7 @@ export class PaymentStatusService {
   private async triggerReferralReward(telegramId: number): Promise<boolean> {
     try {
       const { data } = await axios.post<{ rewarded: boolean }>(
-        `${this.referralsBaseUrl}/reward-after-payment`,
+        `${this.referralsBaseUrl}${apiRoutes.referrals.rewardAfterPayment}`,
         { invitedTelegramId: telegramId },
         {
           headers: {

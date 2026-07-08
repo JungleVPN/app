@@ -4,6 +4,7 @@
  * so these PUBLIC_* values are available to all packages at bundle time —
  * no React context or provider required.
  */
+import { apiRoutes } from '@workspace/types';
 
 export const coreEnv = {
   subpageConfigUuid: (import.meta.env.PUBLIC_SUBPAGE_CONFIG ?? '') as string,
@@ -40,5 +41,5 @@ export const coreEnv = {
 
 export function getTelegramStickerUrl(fileId: string): string {
   const { botUrl } = coreEnv;
-  return fileId && botUrl ? `${botUrl}/telegram/sticker/${fileId}` : '';
+  return fileId && botUrl ? `${botUrl}${apiRoutes.bot.telegramSticker(fileId)}` : '';
 }
