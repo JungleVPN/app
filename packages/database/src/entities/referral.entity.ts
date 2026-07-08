@@ -1,22 +1,23 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { bigintTransformer } from '../utils/transformers';
 
-type ReferralStatus = 'FIRST_REWARD' | 'COMPLETED';
+type ReferralStatus = 'TRIAL' | 'COMPLETED';
 
 @Entity('referrals')
 export class Referral {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'bigint', unique: false, transformer: bigintTransformer })
-  inviterId: number;
+  /** Remnawave userId (uuid) of the inviter. */
+  @Column({ type: 'varchar', unique: false })
+  inviterId: string;
 
-  @Column({ type: 'bigint', unique: true, transformer: bigintTransformer })
-  invitedId: number;
+  /** Remnawave userId (uuid) of the invited user. */
+  @Column({ type: 'varchar', unique: true })
+  invitedId: string;
 
   @Column({
     type: 'varchar',
-    default: 'FIRST_REWARD',
+    default: 'TRIAL',
   })
   status: ReferralStatus;
 

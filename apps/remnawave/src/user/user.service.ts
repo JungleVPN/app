@@ -24,7 +24,8 @@ import { addDays, addMonths } from 'date-fns';
 import { Bot } from 'grammy';
 import { Repository } from 'typeorm';
 import { UserAttribution } from '@workspace/database';
-import { AttributionPayload } from '@workspace/types';
+import { apiRoutes, AttributionPayload } from '@workspace/types';
+import axios from 'axios';
 import { RemnaPanelClient } from '../common/remna-panel.client';
 
 @Injectable()
@@ -89,9 +90,15 @@ export class UserService implements OnModuleInit {
     }
   }
 
+  private get referralsBaseUrl(): string {
+    return process.env.PUBLIC_REFERRALS_URL || 'http://localhost:3004/referrals';
+  }
+
   async createUser(
     payload: Pick<CreateUserRequestDto, 'telegramId' | 'email' | 'description'> & {
       attribution?: AttributionPayload;
+      /** Remnawave userId (uuid) of the inviter, decoded from a /start ref_xxx code. */
+      inviterId?: string;
     },
   ): Promise<CreateUserResponseDto> {
     const trialDays = Number(this.configService.get('TRIAL_PERIOD_IN_DAYS', '3'));
@@ -100,7 +107,7 @@ export class UserService implements OnModuleInit {
     );
     const expireAt = addDays(new Date(), trialDays);
 
-    const { attribution, ...rest } = payload;
+    const { attribution, inviterId, ...rest } = payload;
 
     const body: CreateUserRequestDto = {
       ...rest,
@@ -133,7 +140,27 @@ export class UserService implements OnModuleInit {
       });
     }
 
+    if (inviterId) {
+      await this.notifyReferral(inviterId, user.uuid);
+    }
+
     return user;
+  }
+
+  /**
+   * Records the referral once the invited user's account actually exists.
+   * Best-effort: a referrals-service outage must not fail account creation.
+   */
+  private async notifyReferral(inviterId: string, invitedId: string): Promise<void> {
+    try {
+      await axios.post(
+        `${this.referralsBaseUrl}${apiRoutes.referrals.collection}`,
+        { inviterId, invitedId },
+        { headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET } },
+      );
+    } catch (err: any) {
+      this.logger.warn(`Failed to notify referrals service for invited=${invitedId}: ${err.message}`);
+    }
   }
 
   async updateUser(body: UpdateUserRequestDto): Promise<UpdateUserResponseDto> {

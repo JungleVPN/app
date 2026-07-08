@@ -7,15 +7,10 @@ import { generateReferralCode } from './referral.utils';
 
 export interface ReferralRecord {
   id: string;
-  inviterId: number;
-  invitedId: number;
-  status: 'FIRST_REWARD' | 'COMPLETED';
+  inviterId: string;
+  invitedId: string;
+  status: 'TRIAL' | 'COMPLETED';
   createdAt: string;
-}
-
-export interface HandleNewUserResult {
-  success: boolean;
-  reason?: string;
 }
 
 export interface RewardAfterPaymentResult {
@@ -31,33 +26,9 @@ export class ReferralService {
     process.env.PUBLIC_REFERRALS_URL || 'http://localhost:3004/referrals',
   );
 
-  async handleNewUser(
-    inviterId: number,
-    invitedTelegramId: number,
-    locale?: string,
-  ): Promise<HandleNewUserResult> {
+  async getReferralRecord(invitedId: string): Promise<ReferralRecord | null> {
     try {
-      const res = await this.backend.post(apiRoutes.referrals.collection, {
-        inviterId,
-        invitedTelegramId,
-        locale,
-      });
-
-      if (res.status >= 400) {
-        this.logger.warn(`handleNewUser failed: ${res.status} ${JSON.stringify(res.data)}`);
-        return { success: false, reason: res.data?.message || 'unknown_error' };
-      }
-
-      return res.data;
-    } catch (e: any) {
-      this.logger.error(`handleNewUser error: ${e.message}`);
-      return { success: false, reason: 'request_failed' };
-    }
-  }
-
-  async getReferralRecord(invitedTelegramId: number): Promise<ReferralRecord | null> {
-    try {
-      const res = await this.backend.get(apiRoutes.referrals.byInvited(invitedTelegramId));
+      const res = await this.backend.get(apiRoutes.referrals.byInvited(invitedId));
 
       if (res.status === 404) return null;
 
@@ -73,12 +44,10 @@ export class ReferralService {
     }
   }
 
-  async handleInviterRewardAfterPayment(
-    invitedTelegramId: number,
-  ): Promise<RewardAfterPaymentResult> {
+  async handleInviterRewardAfterPayment(invitedId: string): Promise<RewardAfterPaymentResult> {
     try {
       const res = await this.backend.post(apiRoutes.referrals.rewardAfterPayment, {
-        invitedTelegramId,
+        invitedId,
       });
 
       if (res.status >= 400) {
@@ -93,9 +62,9 @@ export class ReferralService {
     }
   }
 
-  async deleteUser(invitedTelegramId: number): Promise<void> {
+  async deleteUser(invitedId: string): Promise<void> {
     try {
-      const res = await this.backend.delete(apiRoutes.referrals.byInvited(invitedTelegramId));
+      const res = await this.backend.delete(apiRoutes.referrals.byInvited(invitedId));
 
       if (res.status >= 400) {
         this.logger.warn(`deleteUser failed: ${res.status}`);
@@ -105,8 +74,8 @@ export class ReferralService {
     }
   }
 
-  getUserReferralLink(telegramId: number): string {
-    const code = generateReferralCode(telegramId);
+  getUserReferralLink(userId: string): string {
+    const code = generateReferralCode(userId);
     return `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=ref_${code}`;
   }
 }

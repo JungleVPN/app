@@ -1,3 +1,4 @@
+import type { AttributionPayload } from '@workspace/types';
 import {
   apiRoutes,
   CreateUserRequestDto,
@@ -12,7 +13,6 @@ import {
   UpdateUserCommand,
   UpdateUserResponseDto,
 } from '@workspace/types';
-import type { AttributionPayload } from '@workspace/types';
 import type { ApiClient } from '../client';
 
 export function createRemnawaveApi(client: ApiClient) {
@@ -53,6 +53,8 @@ export function createRemnawaveApi(client: ApiClient) {
     async createUser(
       params: Pick<CreateUserRequestDto, 'email' | 'telegramId'> & {
         attribution?: AttributionPayload;
+        /** Remnawave userId (uuid) of the inviter, read from the ?ref= URL param. */
+        inviterId?: string;
       },
     ): Promise<CreateUserResponseDto | null> {
       return client.post<CreateUserResponseDto>(apiRoutes.remnawave.users, {

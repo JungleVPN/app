@@ -4,7 +4,6 @@ import { MainMenuService } from '@bot/navigation/features/main/main.service';
 import { isValidUsername, toDateString } from '@bot/utils/utils';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ReferralService } from '@referral/referral.service';
 import { decodeReferralCode } from '@referral/referral.utils';
 import { RemnaService } from '@remna/remna.service';
 import { Bot, InlineKeyboard } from 'grammy';
@@ -15,7 +14,6 @@ export class StartCommand {
   constructor(
     readonly mainMenu: MainMenu,
     readonly mainMenuService: MainMenuService,
-    readonly referralService: ReferralService,
     readonly analyticsService: AnalyticsService,
     readonly remnaService: RemnaService,
     readonly configService: ConfigService,
@@ -28,40 +26,14 @@ export class StartCommand {
 
       const payload = ctx.match;
 
-      if (payload?.startsWith('ref_')) {
-        const code = payload.replace('ref_', '');
-        const inviterId = decodeReferralCode(code);
-
-        if (inviterId && ctx.from?.id) {
-          const result = await this.referralService.handleNewUser(
-            inviterId,
-            ctx.from.id,
-            ctx.from.language_code,
-          );
-
-          if (!result.success) {
-            if (result.reason === 'self_referral') {
-              await ctx.reply(ctx.t('referral-own-user-link-text'));
-              return;
-            }
-            if (result.reason === 'referral_completed') {
-              await ctx.reply(ctx.t('referral-completed-text'));
-            }
-            if (result.reason === 'user_exists') {
-              await ctx.reply(ctx.t('referral-existing-user-text'));
-            }
-            if (result.reason === 'user_is_invited') {
-              await ctx.reply(ctx.t('referral-another-inviter-text'));
-            }
-          } else if (result.reason === 'new_user') {
-            await ctx.reply(
-              ctx.t('referral-new-user-text', {
-                invitedStartBonusInDays: process.env.INVITER_START_BONUS_IN_DAYS || '1',
-              }),
-            );
-          }
-        }
-      }
+      // Referral records key by remnawave userId (uuid), which the invited person
+      // doesn't have yet at this point — account creation happens in TMA. Decode
+      // the inviter's uuid here and forward it through the webApp URL; the
+      // referral row is created once the TMA signup call actually creates the
+      // invited user's account (see UserService.createUser).
+      const inviterId = payload?.startsWith('ref_')
+        ? decodeReferralCode(payload.replace('ref_', ''))
+        : null;
 
       // Look up the user — no creation here. Account setup happens in TMA so
       // that the email is collected upfront, preventing duplicate accounts when
@@ -74,11 +46,11 @@ export class StartCommand {
           ? ctx.from?.username
           : ctx.t('dear-friend');
 
+        const tmaAppUrl = process.env.TMA_APP_URL || 'https://app.thejungle.pro';
+        const tmaUrl = inviterId ? `${tmaAppUrl}?ref=${inviterId}` : tmaAppUrl;
+
         // New user: direct them to TMA to complete setup.
-        const keyboard = new InlineKeyboard().webApp(
-          ctx.t('connect-button-label'),
-          process.env.TMA_APP_URL || 'https://app.thejungle.pro',
-        );
+        const keyboard = new InlineKeyboard().webApp(ctx.t('connect-button-label'), tmaUrl);
         await ctx.reply(
           ctx.t('setup-prompt-text', {
             username: username!,

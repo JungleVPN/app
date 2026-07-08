@@ -25,10 +25,10 @@ export class RemnaClient {
     return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002';
   }
 
-  async getUserByTgId(telegramId: number): Promise<RemnaUser | null> {
+  async getUserByUuid(uuid: string): Promise<RemnaUser | null> {
     try {
-      const { data } = await axios.get<RemnaUser[]>(
-        `${this.baseUrl}${apiRoutes.remnawave.userByTelegramId(telegramId)}`,
+      const { data } = await axios.get<RemnaUser>(
+        `${this.baseUrl}${apiRoutes.remnawave.userByUuid(uuid)}`,
         {
           headers: {
             'x-service-secret': process.env.INTER_SERVICE_SECRET,
@@ -36,11 +36,10 @@ export class RemnaClient {
         },
       );
 
-      const user = Array.isArray(data) ? data[0] : data;
-      return user ?? null;
+      return data ?? null;
     } catch (err: any) {
       if (err.response?.status === 404) return null;
-      this.logger.error(`Failed to get user ${telegramId}: ${err.message}`);
+      this.logger.error(`Failed to get user ${uuid}: ${err.message}`);
       throw err;
     }
   }

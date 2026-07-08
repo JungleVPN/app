@@ -40,6 +40,8 @@ export class UserController {
   async createUser(
     @Body() body: Pick<Remnawave.CreateUserRequestDto, 'telegramId' | 'email' | 'description'> & {
       attribution?: AttributionPayload;
+      /** Remnawave userId (uuid) of the inviter, decoded from a /start ref_xxx code. */
+      inviterId?: string;
     },
   ): Promise<Remnawave.CreateUserResponseDto> {
     return this.userService.createUser(body);

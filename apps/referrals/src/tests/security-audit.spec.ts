@@ -36,22 +36,25 @@ vi.mock('axios', () => ({
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+const INVITER_UUID = 'uuid-inviter-100';
+const INVITED_UUID = 'uuid-invited-200';
+
 const makeReferral = (overrides: Partial<Referral> = {}): Referral =>
   ({
     id: 'ref-1',
-    inviterId: 100,
-    invitedId: 200,
-    status: 'FIRST_REWARD',
+    inviterId: INVITER_UUID,
+    invitedId: INVITED_UUID,
+    status: 'TRIAL',
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
   }) as Referral;
 
-const makeRemnaUser = (telegramId: number) => ({
-  uuid: `uuid-${telegramId}`,
-  telegramId,
+const makeRemnaUser = (uuid: string) => ({
+  uuid,
+  telegramId: 200,
   expireAt: new Date(Date.now() + 86_400_000).toISOString(),
-  subscriptionUrl: `https://vpn/sub/${telegramId}`,
+  subscriptionUrl: `https://vpn/sub/${uuid}`,
   description: null,
 });
 
@@ -64,11 +67,10 @@ function makeReferralRepo(findOneResult: Referral | null = null): Repository<Ref
   } as unknown as Repository<Referral>;
 }
 
-function makeRemnaClient(telegramId = 200): RemnaClient {
+function makeRemnaClient(uuid = INVITED_UUID): RemnaClient {
   return {
-    getUserByTgId: vi.fn().mockResolvedValue(makeRemnaUser(telegramId)),
+    getUserByUuid: vi.fn().mockResolvedValue(makeRemnaUser(uuid)),
     updateUser: vi.fn().mockResolvedValue({}),
-    createUser: vi.fn().mockResolvedValue({}),
   } as unknown as RemnaClient;
 }
 
@@ -133,10 +135,10 @@ describe('Security Audit', () => {
   describe('[FINDING #6] ReferralService — must verify a confirmed payment before rewarding', () => {
     /**
      * The vulnerability: handleInviterRewardAfterPayment() grants a 7-day
-     * subscription extension based solely on the referral status (FIRST_REWARD).
+     * subscription extension based solely on the referral status (TRIAL).
      * It never checks whether an actual payment record exists for the invited
      * user.  An attacker who can reach the endpoint can trigger reward extensions
-     * for every referral in FIRST_REWARD status with no payment having occurred.
+     * for every referral in TRIAL status with no payment having occurred.
      *
      * Expected fix: inject a payment repository (or payment-service client) into
      * ReferralService and verify the payment record before issuing any reward.
@@ -154,8 +156,8 @@ describe('Security Audit', () => {
       vi.clearAllMocks();
       process.env.INVITER_PAID_BONUS_IN_DAYS = '7';
 
-      referralRepo = makeReferralRepo(makeReferral({ status: 'FIRST_REWARD' }));
-      remnaClient = makeRemnaClient(200);
+      referralRepo = makeReferralRepo(makeReferral({ status: 'TRIAL' }));
+      remnaClient = makeRemnaClient();
       mockRemnaUpdateUser = remnaClient.updateUser as ReturnType<typeof vi.fn>;
     });
 
@@ -164,14 +166,14 @@ describe('Security Audit', () => {
     });
 
     it('rewards the inviter only when a confirmed payment record is found', async () => {
-      const confirmedPayment = { id: 'pay-1', status: 'succeeded', telegramId: 200 };
+      const confirmedPayment = { id: 'pay-1', status: 'succeeded', telegramId: 200 };  // unused stub for future paymentRepo wiring
       const paymentRepo = { findOne: vi.fn().mockResolvedValue(confirmedPayment) };
 
       const service = new ReferralService(referralRepo, remnaClient, {
         emit: vi.fn(),
       } as unknown as EventEmitter2);
 
-      const result = await service.handleInviterRewardAfterPayment(200);
+      const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
 
       // CORRECT: confirmed payment present → reward is granted
       expect(result.rewarded).toBe(true);
@@ -188,7 +190,7 @@ describe('Security Audit', () => {
         emit: vi.fn(),
       } as unknown as EventEmitter2);
 
-      const result = await service.handleInviterRewardAfterPayment(200);
+      const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
 
       expect(result.rewarded).toBe(false);
       expect(result.reason).toBe('already_completed');
@@ -199,7 +201,7 @@ describe('Security Audit', () => {
     /**
      * The vulnerability: handleInviterRewardAfterPayment() performs a
      * non-transactional sequence:
-     *   1. findOne referral → read FIRST_REWARD
+     *   1. findOne referral → read TRIAL
      *   2. extend inviter subscription via remnaClient.updateUser
      *   3. set status = COMPLETED and save
      *
@@ -217,11 +219,11 @@ describe('Security Audit', () => {
      */
 
     it('issues the inviter reward exactly once under two concurrent calls for the same invitedId', async () => {
-      // Both concurrent calls read the same FIRST_REWARD referral because the
+      // Both concurrent calls read the same TRIAL referral because the
       // mock always returns the same value (no lock simulation yet).
       // After fix: SELECT FOR UPDATE ensures only one call wins the lock.
-      const referralRepo = makeReferralRepo(makeReferral({ status: 'FIRST_REWARD' }));
-      const remnaClient = makeRemnaClient(200);
+      const referralRepo = makeReferralRepo(makeReferral({ status: 'TRIAL' }));
+      const remnaClient = makeRemnaClient();
       const mockUpdateUser = remnaClient.updateUser as ReturnType<typeof vi.fn>;
 
       const service = new ReferralService(referralRepo, remnaClient, {
@@ -229,8 +231,8 @@ describe('Security Audit', () => {
       } as unknown as EventEmitter2);
 
       const [r1, r2] = await Promise.all([
-        service.handleInviterRewardAfterPayment(200),
-        service.handleInviterRewardAfterPayment(200),
+        service.handleInviterRewardAfterPayment(INVITED_UUID),
+        service.handleInviterRewardAfterPayment(INVITED_UUID),
       ]);
 
       // CORRECT: exactly one of the two concurrent calls must succeed
@@ -242,26 +244,26 @@ describe('Security Audit', () => {
     it('sequential calls are idempotent: the second call is always a no-op once COMPLETED', async () => {
       // Simulates a sequential replay (not concurrent) — this must pass on both
       // current and fixed code and acts as a control / sanity check.
-      let statusInDb = 'FIRST_REWARD';
+      let statusInDb = 'TRIAL';
 
-      const referralRepo = makeReferralRepo(makeReferral({ status: 'FIRST_REWARD' }));
+      const referralRepo = makeReferralRepo(makeReferral({ status: 'TRIAL' }));
       (referralRepo.findOne as ReturnType<typeof vi.fn>).mockImplementation(async () =>
-        makeReferral({ status: statusInDb as 'FIRST_REWARD' | 'COMPLETED' }),
+        makeReferral({ status: statusInDb as 'TRIAL' | 'COMPLETED' }),
       );
       (referralRepo.save as ReturnType<typeof vi.fn>).mockImplementation(async (v: any) => {
         statusInDb = v.status; // persist status change in memory
         return v;
       });
 
-      const remnaClient = makeRemnaClient(200);
+      const remnaClient = makeRemnaClient();
       const mockUpdateUser = remnaClient.updateUser as ReturnType<typeof vi.fn>;
 
       const service = new ReferralService(referralRepo, remnaClient, {
         emit: vi.fn(),
       } as unknown as EventEmitter2);
 
-      const r1 = await service.handleInviterRewardAfterPayment(200);
-      const r2 = await service.handleInviterRewardAfterPayment(200); // replay
+      const r1 = await service.handleInviterRewardAfterPayment(INVITED_UUID);
+      const r2 = await service.handleInviterRewardAfterPayment(INVITED_UUID); // replay
 
       // First call succeeds, second is a no-op
       expect(r1.rewarded).toBe(true);
@@ -270,14 +272,14 @@ describe('Security Audit', () => {
       expect(mockUpdateUser).toHaveBeenCalledTimes(1);
     });
 
-    it('does not leave the referral in FIRST_REWARD when updateUser throws mid-flight', async () => {
+    it('does not leave the referral in TRIAL when updateUser throws mid-flight', async () => {
       // Without a transaction: if updateUser throws after the status check but
-      // before save, the referral stays FIRST_REWARD forever — the reward can be
+      // before save, the referral stays TRIAL forever — the reward can be
       // retried indefinitely from the outside.
       // The inFlight set ensures the failed call releases its lock so a legitimate
       // retry can proceed.
-      const referralRepo = makeReferralRepo(makeReferral({ status: 'FIRST_REWARD' }));
-      const remnaClient = makeRemnaClient(200);
+      const referralRepo = makeReferralRepo(makeReferral({ status: 'TRIAL' }));
+      const remnaClient = makeRemnaClient();
 
       // updateUser throws SYNCHRONOUSLY on the first call (mockImplementationOnce
       // with a throw produces mock.results[0].type === 'throw', which lets the
@@ -293,16 +295,16 @@ describe('Security Audit', () => {
       } as unknown as EventEmitter2);
 
       // First call fails mid-flight — should throw
-      await expect(service.handleInviterRewardAfterPayment(200)).rejects.toThrow();
+      await expect(service.handleInviterRewardAfterPayment(INVITED_UUID)).rejects.toThrow();
 
       // After fix: the failed call released the inFlight lock, so referral is
-      // still FIRST_REWARD.  Simulate the rolled-back state:
+      // still TRIAL.  Simulate the rolled-back state:
       (referralRepo.findOne as ReturnType<typeof vi.fn>).mockResolvedValue(
-        makeReferral({ status: 'FIRST_REWARD' }),
+        makeReferral({ status: 'TRIAL' }),
       );
 
       // A legitimate retry by the payments service succeeds exactly once
-      const result2 = await service.handleInviterRewardAfterPayment(200);
+      const result2 = await service.handleInviterRewardAfterPayment(INVITED_UUID);
       expect(result2.rewarded).toBe(true);
 
       // CORRECT: across both attempts, updateUser must have been called exactly

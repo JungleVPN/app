@@ -1,12 +1,15 @@
-export function generateReferralCode(userId: number): string {
-  return Buffer.from(userId.toString()).toString('base64url');
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Encodes a remnawave userId (uuid) into an opaque code for the /start ref_xxx deep link. */
+export function generateReferralCode(userId: string): string {
+  return Buffer.from(userId).toString('base64url');
 }
 
-export function decodeReferralCode(code: string): number | null {
+/** Decodes a /start ref_xxx code back into a remnawave userId (uuid), or null if malformed. */
+export function decodeReferralCode(code: string): string | null {
   try {
     const decoded = Buffer.from(code, 'base64url').toString('utf-8');
-    const userId = Number(decoded);
-    return Number.isNaN(userId) ? null : userId;
+    return UUID_PATTERN.test(decoded) ? decoded : null;
   } catch {
     return null;
   }

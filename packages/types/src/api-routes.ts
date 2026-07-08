@@ -29,7 +29,7 @@ export const apiRoutes = {
   },
   referrals: {
     collection: '/',
-    byInvited: (telegramId: number | string) => `/by-invited/${telegramId}`,
+    byInvited: (userId: string) => `/by-invited/${encodeURIComponent(userId)}`,
     rewardAfterPayment: '/reward-after-payment',
   },
   remnawave: {

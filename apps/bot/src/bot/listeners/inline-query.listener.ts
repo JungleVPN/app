@@ -24,9 +24,18 @@ export class InlineQueryListener {
 
   register(bot: Bot<BotContext>) {
     bot.on('inline_query', async (ctx) => {
-      const link = this.referralService.getUserReferralLink(ctx.from.id);
-      const user = await this.remnaService.getUserByTgId(ctx.from.id);
-      const locale = user?.[0].description || process.env.DEFAULT_LOCALE || 'ru';
+      const users = await this.remnaService.getUserByTgId(ctx.from.id);
+      const rmnUser = users?.[0] ?? null;
+
+      // Referral links are keyed by the remnawave userId (uuid) now, so only a
+      // registered user can share one.
+      if (!rmnUser) {
+        await ctx.answerInlineQuery([]);
+        return;
+      }
+
+      const link = this.referralService.getUserReferralLink(rmnUser.uuid);
+      const locale = rmnUser.description || process.env.DEFAULT_LOCALE || 'ru';
 
       const keyboard = new InlineKeyboard().url(
         this.localService.i18n.t(locale, 'connect-button-label'),

@@ -81,10 +81,12 @@ export default function GetSubscriptionPage() {
           analytics.login('telegram');
         } else {
           const attribution = getAttribution();
+          const inviterId = new URLSearchParams(window.location.search).get('ref') ?? undefined;
           const newUser = await remnawaveApi.createUser({
             email,
             telegramId,
             attribution: attribution ?? undefined,
+            inviterId,
           });
           setRmnUser(newUser ?? null);
           analytics.signUp('telegram');

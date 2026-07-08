@@ -60,9 +60,7 @@ export class PaymentStatusService {
       return { success: false };
     }
 
-    if (user.telegramId) {
-      await this.triggerReferralReward(user.telegramId);
-    }
+    await this.triggerReferralReward(userId);
 
     this.logger.log(
       purpose === 'extra_device'
@@ -131,11 +129,11 @@ export class PaymentStatusService {
     return null;
   }
 
-  private async triggerReferralReward(telegramId: number): Promise<boolean> {
+  private async triggerReferralReward(userId: string): Promise<boolean> {
     try {
       const { data } = await axios.post<{ rewarded: boolean }>(
         `${this.referralsBaseUrl}${apiRoutes.referrals.rewardAfterPayment}`,
-        { invitedTelegramId: telegramId },
+        { invitedId: userId },
         {
           headers: {
             'x-service-secret': process.env.INTER_SERVICE_SECRET,
@@ -144,7 +142,7 @@ export class PaymentStatusService {
       );
       return data.rewarded;
     } catch (err: any) {
-      this.logger.warn(`Referral reward failed for ${telegramId}: ${err.message}`);
+      this.logger.warn(`Referral reward failed for ${userId}: ${err.message}`);
       return false;
     }
   }
