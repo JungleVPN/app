@@ -322,6 +322,7 @@
   "menu": {
     "pageTitle": "Меню",
     "transactionHistory": "История транзакций",
+    "referrals": "Рефералы",
     "subtitle": "Управление настройками аккаунта"
   },
   "transactions": {

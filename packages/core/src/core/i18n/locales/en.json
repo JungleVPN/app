@@ -323,6 +323,7 @@
   "menu": {
     "pageTitle": "Menu",
     "transactionHistory": "Transaction History",
+    "referrals": "Referrals",
     "subtitle": "Manage your account settings"
   },
   "transactions": {

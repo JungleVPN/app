@@ -8,6 +8,7 @@ import {
   ProtectedMenuPage,
   ProtectedPaymentPage,
   ProtectedProfileSubscriptionPage,
+  ProtectedReferralsPage,
   ProtectedTransactionDetailsPage,
   ProtectedTransactionsPage,
   SubscriptionPage,
@@ -64,6 +65,10 @@ export const router = createBrowserRouter([
           {
             path: 'menu',
             Component: ProtectedMenuPage,
+          },
+          {
+            path: 'referrals',
+            Component: ProtectedReferralsPage,
           },
         ],
       },

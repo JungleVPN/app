@@ -38,7 +38,7 @@ function getActiveTab(
   const norm = normalizePath(pathname);
   const matches = (base: string) => {
     const b = normalizePath(base);
-    return norm === b || norm.startsWith(b + '/');
+    return norm === b || norm.startsWith(`${b}/`);
   };
   if (matches(paymentPath)) return 'payments';
   if (matches(devicesPath)) return 'devices';
@@ -48,12 +48,8 @@ function getActiveTab(
 }
 
 export const Navbar = () => {
-  const {
-    profileSubscriptionPath,
-    profilePaymentPath,
-    profileDevicesPath,
-    profileMenuPath,
-  } = useAppRoutes();
+  const { profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileMenuPath } =
+    useAppRoutes();
   const { isVisible } = useNavbarStore();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -139,12 +135,7 @@ export const Navbar = () => {
         devices: profileDevicesPath,
         menu: profileMenuPath,
       }) satisfies Record<TabValue, string>,
-    [
-      profileSubscriptionPath,
-      profilePaymentPath,
-      profileDevicesPath,
-      profileMenuPath,
-    ],
+    [profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileMenuPath],
   );
 
   const tabs = useMemo<TabDef[]>(
@@ -210,7 +201,7 @@ export const Navbar = () => {
         width: rect.width,
       };
     }
-  }, [TAB_VALUES]);
+  }, []);
 
   const animateIndicatorTo = useCallback(
     (id: TabValue, instant = false) => {
@@ -243,23 +234,20 @@ export const Navbar = () => {
     animateIndicatorTo(activeTab);
   }, [activeTab, animateIndicatorTo]);
 
-  const findNearestTab = useCallback(
-    (centerX: number): TabValue => {
-      let nearest: TabValue = 'subscription';
-      let minDist = Number.POSITIVE_INFINITY;
-      for (const id of TAB_VALUES) {
-        const pos = tabPositionsRef.current[id];
-        if (!pos) continue;
-        const dist = Math.abs(centerX - (pos.left + pos.width / 2));
-        if (dist < minDist) {
-          minDist = dist;
-          nearest = id;
-        }
+  const findNearestTab = useCallback((centerX: number): TabValue => {
+    let nearest: TabValue = 'subscription';
+    let minDist = Number.POSITIVE_INFINITY;
+    for (const id of TAB_VALUES) {
+      const pos = tabPositionsRef.current[id];
+      if (!pos) continue;
+      const dist = Math.abs(centerX - (pos.left + pos.width / 2));
+      if (dist < minDist) {
+        minDist = dist;
+        nearest = id;
       }
-      return nearest;
-    },
-    [TAB_VALUES],
-  );
+    }
+    return nearest;
+  }, []);
 
   const handleBarPressIn = useCallback(() => {
     animate(barScale, 1.02, PRESS_SPRING);
