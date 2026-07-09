@@ -13,6 +13,7 @@ export { Loading } from './Loading/Loading';
 export { PromoDrawer } from './payment/PromoDrawer';
 export { SavedMethodRow } from './payment/SavedMethodRow';
 export { StarsPaymentSuccessDrawer } from './payment/StarsPaymentSuccessDrawer';
+export { Step } from './Step/Step';
 export { SubscribeCta } from './SubscribeCTA/SubscribeCTA';
 export {
   SubscriptionInfoCards,

@@ -326,6 +326,26 @@
     "referrals": "Referrals",
     "subtitle": "Manage your account settings"
   },
+  "referrals": {
+    "pageTitle": "Referrals",
+    "step1": {
+      "title": "Share your referral link with a friend",
+      "copy": "Copy",
+      "copied": "Copied"
+    },
+    "step2": {
+      "title": "Your friend subscribes to JungleVPN",
+      "description": "New users only."
+    },
+    "step3": {
+      "title": "Your friend gets 30 days of subscription",
+      "description": "Credited immediately after they pay for a subscription."
+    },
+    "step4": {
+      "title": "You get 30 days of subscription",
+      "description": "Credited immediately after your friend pays for a subscription."
+    }
+  },
   "transactions": {
     "pageTitle": "Transaction History",
     "noTransactions": "No transactions yet",

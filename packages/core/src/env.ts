@@ -18,6 +18,7 @@ export const coreEnv = {
   menuStickerFileId: (import.meta.env.PUBLIC_MENU_STICKER_FILE_ID ?? '') as string,
   extraDeviceStickerFileId: (import.meta.env.PUBLIC_EXTRA_DEVICE_STICKER_FILE_ID ?? '') as string,
   promoCodeStickerFileId: (import.meta.env.PUBLIC_PROMO_CODE_STICKER_FILE_ID ?? '') as string,
+  referralsStickerFileId: (import.meta.env.PUBLIC_REFERRALS_STICKER_FILE_ID ?? '') as string,
 
   tmaAppUrl: (import.meta.env.TMA_APP_URL ?? '') as string,
   supportUrl: (import.meta.env.PUBLIC_SUPPORT_URL ?? '') as string,
