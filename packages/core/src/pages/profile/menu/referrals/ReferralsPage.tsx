@@ -6,16 +6,15 @@ import { useNavigate } from 'react-router';
 import { Step } from '../../../../components';
 import { coreEnv, getTelegramStickerUrl } from '../../../../env';
 import { useBackButton, useClipboard } from '../../../../hooks';
-import { useNavbarStore } from '../../../../stores';
+import { useAuthStoreInfo, useNavbarStore } from '../../../../stores';
 import { Page, TgsSticker } from '../../../../ui';
-
-const REFERRAL_LINK_PLACEHOLDER = 'https://jvpn.app/ref/PLACEHOLDER';
 
 export default function ReferralsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { copy, copied } = useClipboard();
   const { setNavbarVisible } = useNavbarStore();
+  const { rmnUser } = useAuthStoreInfo();
 
   useBackButton(() => navigate(-1));
 
@@ -27,6 +26,7 @@ export default function ReferralsPage() {
   }, [setNavbarVisible]);
 
   const stickerUrl = getTelegramStickerUrl(coreEnv.referralsStickerFileId);
+  const referralLink = `${coreEnv.webAppUrl}/?ref=${rmnUser?.uuid}`;
 
   return (
     <Page
@@ -36,12 +36,13 @@ export default function ReferralsPage() {
       <div className='flex w-full flex-col gap-3'>
         <Step step={1} title={t('referrals.step1.title')}>
           <div className='flex items-center gap-2 rounded-xl bg-default-100 py-2'>
-            <p className='flex-1 truncate text-sm text-muted'>{REFERRAL_LINK_PLACEHOLDER}</p>
+            <p className='flex-1 truncate text-sm text-muted'>{referralLink}</p>
           </div>
           <Button
             size='sm'
             variant='secondary'
-            onPress={() => void copy(REFERRAL_LINK_PLACEHOLDER)}
+            isDisabled={!referralLink}
+            onPress={() => void copy(referralLink)}
           >
             {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
             {copied ? t('referrals.step1.copied') : t('referrals.step1.copy')}

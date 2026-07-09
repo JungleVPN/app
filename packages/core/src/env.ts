@@ -21,6 +21,7 @@ export const coreEnv = {
   referralsStickerFileId: (import.meta.env.PUBLIC_REFERRALS_STICKER_FILE_ID ?? '') as string,
 
   tmaAppUrl: (import.meta.env.TMA_APP_URL ?? '') as string,
+  webAppUrl: (import.meta.env.PUBLIC_WEB_APP_URL ?? 'https://web.thejungle.pro') as string,
   supportUrl: (import.meta.env.PUBLIC_SUPPORT_URL ?? '') as string,
   botUrl: (import.meta.env.PUBLIC_BOT_URL ?? '') as string,
   paymentsUrl: (import.meta.env.PUBLIC_PAYMENTS_URL ?? '') as string,
