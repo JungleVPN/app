@@ -2,6 +2,7 @@ dear-friend=Dear Friend
 provider-description-text = Happy to see you in the JUNGLE 🌴
 open-app-button-label = Open app 📲
 connect-button-label = Connect 📶
+menu-app-button-label = Profile 🌴
 connect-instruction-text = Tap the button below to open the app and connect 📶
 extend-button-label = Extend ➕
 pay-button-label = Pay 💶

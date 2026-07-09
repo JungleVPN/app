@@ -4,6 +4,7 @@ import { ReferralMenu } from '@bot/navigation/features/referral/referral.menu';
 import { ReferralMenuService } from '@bot/navigation/features/referral/referral.service';
 import { SupportMenu } from '@bot/navigation/features/support/support.menu';
 import { Base } from '@bot/navigation/menu.base';
+import { withReferral } from '@bot/utils/utils';
 import { hears } from '@grammyjs/i18n';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Bot, InlineKeyboard } from 'grammy';
@@ -22,20 +23,18 @@ export class MainKeyboardCallback extends Base {
   register(bot: Bot<BotContext>) {
     bot.filter(hears('connect-button-label'), async (ctx) => {
       const tmaAppUrl = process.env.TMA_APP_URL || 'https://miniapp.thejungle.pro';
-      const connectUrl = ctx.session.referralInviterId
-        ? `${tmaAppUrl}?ref=${ctx.session.referralInviterId}`
-        : tmaAppUrl;
-
+      const connectUrl = withReferral(ctx, tmaAppUrl);
       await ctx.reply(ctx.t('connect-instruction-text'), {
         reply_markup: new InlineKeyboard().webApp(ctx.t('connect-button-label'), connectUrl),
       });
     });
 
     bot.filter(hears('pay-button-label'), async (ctx) => {
+      const tmaPaymentUrl = process.env.TMA_APP_PAYMENT_URL || 'https://miniapp.thejungle.pro';
       await ctx.reply(ctx.t('pay-instruction-text'), {
         reply_markup: new InlineKeyboard().webApp(
           ctx.t('pay-button-label'),
-          process.env.TMA_APP_PAYMENT_URL || 'https://miniapp.thejungle.pro',
+          withReferral(ctx, tmaPaymentUrl),
         ),
       });
     });

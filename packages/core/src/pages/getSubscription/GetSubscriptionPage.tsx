@@ -8,7 +8,7 @@ import { useRemnawaveApi } from '../../api';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../stores';
 import { Block } from '../../ui';
-import { analytics, getAttribution, initUser, validateEmail } from '../../utils';
+import { analytics, getAttribution, getReferral, initUser, validateEmail } from '../../utils';
 import styles from './getSubscription.module.css';
 
 export default function GetSubscriptionPage() {
@@ -81,7 +81,7 @@ export default function GetSubscriptionPage() {
           analytics.login('telegram');
         } else {
           const attribution = getAttribution();
-          const inviterId = new URLSearchParams(window.location.search).get('ref') ?? undefined;
+          const inviterId = getReferral() ?? undefined;
           const newUser = await remnawaveApi.createUser({
             email,
             telegramId,
@@ -101,9 +101,11 @@ export default function GetSubscriptionPage() {
           return;
         }
         const attribution = getAttribution();
+        const inviterId = getReferral() ?? undefined;
         const newUser = await remnawaveApi.createUser({
           email,
           attribution: attribution ?? undefined,
+          inviterId,
         });
         analytics.signUp('web');
         navigate(`/subscription/${newUser?.shortUuid}`);

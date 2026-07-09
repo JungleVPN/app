@@ -1,9 +1,9 @@
+import * as process from 'node:process';
 import { BotContext, initialSession } from '@bot/bot.types';
 import { MainMenu } from '@bot/navigation/features/main/main.menu';
 import { MainMenuService } from '@bot/navigation/features/main/main.service';
-import { isValidUsername, toDateString } from '@bot/utils/utils';
+import { isValidUsername, toDateString, withReferral } from '@bot/utils/utils';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { decodeReferralCode } from '@referral/referral.utils';
 import { RemnaService } from '@remna/remna.service';
 import { Bot } from 'grammy';
@@ -16,7 +16,6 @@ export class StartCommand {
     readonly mainMenuService: MainMenuService,
     readonly analyticsService: AnalyticsService,
     readonly remnaService: RemnaService,
-    readonly configService: ConfigService,
   ) {}
 
   register(bot: Bot<BotContext>) {
@@ -26,18 +25,10 @@ export class StartCommand {
 
       const payload = ctx.match;
 
-      // Referral records key by remnawave userId (uuid), which the invited person
-      // doesn't have yet at this point — account creation happens in TMA. Decode
-      // the inviter's uuid here and forward it through the webApp URL; the
-      // referral row is created once the TMA signup call actually creates the
-      // invited user's account (see UserService.createUser).
       const inviterId = payload?.startsWith('ref_')
         ? decodeReferralCode(payload.replace('ref_', ''))
         : null;
 
-      // Look up the user — no creation here. Account setup happens in TMA so
-      // that the email is collected upfront, preventing duplicate accounts when
-      // the same person uses both web and Telegram.
       const users = await this.remnaService.getUserByTgId(ctx.from.id);
       const rmnUser = users?.[0] ?? null;
 
@@ -48,10 +39,20 @@ export class StartCommand {
 
         if (inviterId) {
           ctx.session.referralInviterId = inviterId;
+
+          // BotFather's menu button is static and has no ref param. Override it
+          // per-chat so this user's menu button opens the TMA with their inviterId.
+          const tmaAppUrl = process.env.TMA_APP_URL || 'https://miniapp.thejungle.pro';
+          await ctx.api.setChatMenuButton({
+            chat_id: ctx.from.id,
+            menu_button: {
+              type: 'web_app',
+              text: ctx.t('connect-button-label'),
+              web_app: { url: withReferral(ctx, tmaAppUrl) },
+            },
+          });
         }
 
-        // New user: direct them to TMA to complete setup, and attach the
-        // persistent menu right away so it's in place from the first message.
         await ctx.reply(
           ctx.t('setup-prompt-text', {
             username: username!,
@@ -64,6 +65,15 @@ export class StartCommand {
       } else {
         ctx.session.user = initialSession().user;
         ctx.session.userId = rmnUser.uuid;
+        const tmaAppUrl = process.env.TMA_APP_URL || 'https://miniapp.thejungle.pro';
+        await ctx.api.setChatMenuButton({
+          chat_id: ctx.from.id,
+          menu_button: {
+            type: 'web_app',
+            text: ctx.t('connect-button-label'),
+            web_app: { url: tmaAppUrl },
+          },
+        });
         await this.mainMenuService.init(ctx, this.mainMenu);
       }
 

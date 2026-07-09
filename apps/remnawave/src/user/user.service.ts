@@ -1,8 +1,11 @@
 import * as process from 'node:process';
 import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserAttribution } from '@workspace/database';
 import {
+  AttributionPayload,
+  apiRoutes,
   CreateUserCommand,
   CreateUserRequestDto,
   CreateUserResponseDto,
@@ -20,12 +23,10 @@ import {
   UpdateUserResponseDto,
   UserDto,
 } from '@workspace/types';
+import axios from 'axios';
 import { addDays, addMonths } from 'date-fns';
 import { Bot } from 'grammy';
 import { Repository } from 'typeorm';
-import { UserAttribution } from '@workspace/database';
-import { apiRoutes, AttributionPayload } from '@workspace/types';
-import axios from 'axios';
 import { RemnaPanelClient } from '../common/remna-panel.client';
 
 @Injectable()
@@ -159,7 +160,9 @@ export class UserService implements OnModuleInit {
         { headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET } },
       );
     } catch (err: any) {
-      this.logger.warn(`Failed to notify referrals service for invited=${invitedId}: ${err.message}`);
+      this.logger.warn(
+        `Failed to notify referrals service for invited=${invitedId}: ${err.message}`,
+      );
     }
   }
 

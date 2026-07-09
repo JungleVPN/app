@@ -7,7 +7,7 @@ import '@/assets/globals.css';
 
 import { ApiProvider } from '@workspace/core/api';
 import { AppRoutesProvider, PaymentsApiProvider } from '@workspace/core/runtime';
-import { captureAttribution, initDayjs } from '@workspace/core/utils';
+import { captureAttribution, captureReferral, initDayjs } from '@workspace/core/utils';
 import { paymentsApi } from '@/api/payments.ts';
 import { backendClient } from '@/api/remnawave';
 import { ensureTelegramLaunchParams } from '@/lib/ensure-telegram-launch-params';
@@ -39,6 +39,7 @@ void (async () => {
     const { tgWebAppPlatform: platform } = launchParams;
     const debug = (launchParams.tgWebAppStartParam || '').includes('debug') || import.meta.env.DEV;
     captureAttribution({ platform: 'telegram', startParam: launchParams.tgWebAppStartParam || undefined });
+    captureReferral();
 
     await initTma({
       debug,

@@ -4,6 +4,7 @@ import { MainMenu } from '@bot/navigation/features/main/main.menu';
 import { MainMenuService } from '@bot/navigation/features/main/main.service';
 import { RevokeSubMenuService } from '@bot/navigation/features/subscription/revokeSub.service';
 import { Base } from '@bot/navigation/menu.base';
+import { withReferral } from '@bot/utils/utils';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InlineKeyboard } from 'grammy';
 
@@ -32,7 +33,7 @@ export class SupportMenu extends Base {
               ctx.t('revoked-sub-text'),
               keyboard.webApp(
                 ctx.t('connect-button-label'),
-                process.env.TMA_APP_URL || 'https://miniapp.thejungle.pro',
+                withReferral(ctx, process.env.TMA_APP_URL || 'https://miniapp.thejungle.pro'),
               ),
             );
           },

@@ -2,6 +2,7 @@ dear-friend = Дорогой друг!
 provider-description-text = Рад видеть тебя в JUNGLE 🌴
 open-app-button-label = Открыть приложение 📲
 connect-button-label = Подключиться 📶
+menu-app-button-label = Личный кабинет 🌴
 connect-instruction-text = Нажми на кнопку ниже, чтобы открыть приложение и подключиться 📶
 extend-button-label = Продлить ➕
 donate-button-label = Поддержать 💶
