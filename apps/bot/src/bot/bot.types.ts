@@ -32,6 +32,12 @@ export interface SessionData {
    * the profile menu's dynamic "delete" button knows which row to drop.
    */
   activeSavedMethodId?: string;
+  /**
+   * Inviter's remnawave userId (uuid), decoded from a `/start ref_xxx` deep
+   * link. Kept around so the persistent keyboard's Connect button can still
+   * forward it to the TMA signup URL on later taps, not just the first one.
+   */
+  referralInviterId?: string;
   metadata?: {
     messageId?: number;
   };
@@ -55,6 +61,7 @@ export const initialSession = (): SessionData => {
     billingPortalUrl: undefined,
     hasActiveSubscription: false,
     activeSavedMethodId: undefined,
+    referralInviterId: undefined,
     user: {
       uuid: undefined,
       telegramId: undefined,

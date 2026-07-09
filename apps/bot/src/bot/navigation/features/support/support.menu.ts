@@ -1,6 +1,5 @@
 import * as process from 'node:process';
 import { Menu } from '@bot/navigation';
-import { DevicesMenu } from '@bot/navigation/features/devices/devices.menu';
 import { MainMenu } from '@bot/navigation/features/main/main.menu';
 import { MainMenuService } from '@bot/navigation/features/main/main.service';
 import { RevokeSubMenuService } from '@bot/navigation/features/subscription/revokeSub.service';
@@ -14,8 +13,6 @@ export class SupportMenu extends Base {
 
   constructor(
     readonly revokeSubMenuService: RevokeSubMenuService,
-    @Inject(forwardRef(() => DevicesMenu))
-    readonly devicesMenu: DevicesMenu,
     readonly mainMenuService: MainMenuService,
     @Inject(forwardRef(() => MainMenu))
     readonly mainMenu: MainMenu,
@@ -50,7 +47,7 @@ export class SupportMenu extends Base {
       .text(
         (ctx) => ctx.t('home-button-label'),
         async (ctx) => {
-          await this.mainMenuService.init(ctx, this.mainMenu.menu);
+          await this.mainMenuService.init(ctx, this.mainMenu);
         },
       );
   }

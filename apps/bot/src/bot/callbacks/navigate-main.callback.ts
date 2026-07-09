@@ -13,7 +13,7 @@ export class NavigateMainCallback {
 
   register(bot: Bot<BotContext>) {
     bot.callbackQuery('navigate_main', async (ctx) => {
-      await this.mainMenuService.init(ctx, this.mainMenu.menu, true);
+      await this.mainMenuService.init(ctx, this.mainMenu, true);
       await ctx.answerCallbackQuery();
     });
   }

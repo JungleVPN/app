@@ -2,8 +2,10 @@ dear-friend=Dear Friend
 provider-description-text = Happy to see you in the JUNGLE 🌴
 open-app-button-label = Open app 📲
 connect-button-label = Connect 📶
+connect-instruction-text = Tap the button below to open the app and connect 📶
 extend-button-label = Extend ➕
 pay-button-label = Pay 💶
+pay-instruction-text = Tap the button below to open the app and pay 💳
 donate-button-label = Donate 💶
 available-countries-button-label = Countries 🌍
 not-workinig-button-label = VPN is not working 🚨
@@ -29,6 +31,7 @@ invite-button-label = Invite 🖖
 invite-inline-title = Invite a friend to JUNGLE 🌴
 invite-inline-description = Thank you for inviting people to the Jungle 🙃
 chanel-button-label = Telegram chanel 🌟
+chanel-instruction-text = My Telegram channel where I post useful information and news regarding the service 🌟
 broadcast-sent-success = ✅ Message sent to all users!
 error-menu-outdated = Something changed, try /start again
 error-generic-restart = ❗ Something went wrong. Try /start again
@@ -431,21 +434,12 @@ support-text =
 
 
 invitation-text =
+    Hello, my freind!
+    I’m @Ramazzaniii, the creator of <code>JungleVPN</code> 🌴
+
     You have been invited to the <b>Jungle</b> by <b>{ $username }</b> 🌴
 
     Jungle is a VPN service. Connect easily and use the internet securely ❤️
-
-    ⚡️Unlimited traffic
-    🔒 Access to Russian and international resources
-
-
-    🌍 Available countries:
-    ╠ 🇩🇪 Germany
-    ╠ 🇵🇱 Poland
-    ╠ 🇫🇮 Finland
-    ╠ 🇷🇺 Russia
-    ╚ More coming…
-
 
 
 user-rewarded-text =

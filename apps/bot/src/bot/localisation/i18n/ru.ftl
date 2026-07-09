@@ -2,6 +2,7 @@ dear-friend = Дорогой друг!
 provider-description-text = Рад видеть тебя в JUNGLE 🌴
 open-app-button-label = Открыть приложение 📲
 connect-button-label = Подключиться 📶
+connect-instruction-text = Нажми на кнопку ниже, чтобы открыть приложение и подключиться 📶
 extend-button-label = Продлить ➕
 donate-button-label = Поддержать 💶
 available-countries-button-label = Страны 🌍
@@ -17,8 +18,10 @@ profile-button-label = Профиль 👤
 invoice-button-label = Чек 📄
 subscription-button-label = Автоплатеж 🔄
 pay-button-label = Оплатить подписку 💳
+pay-instruction-text = Нажми на кнопку ниже, чтобы открыть приложение и оплатить 💳
 home-button-label = Главное меню 🏠
 chanel-button-label = Телеграм канал 🌟
+chanel-instruction-text = Мой Телеграм канал, где я публикую полезную информацию и новости о развитии проекта 🌟
 download-button-label = Скачать 🔽
 add-link-button-label = Добавить ссылку 🔗
 add-v2raytun-profile-button-label = Добавить в v2raytun 🔗
@@ -87,20 +90,6 @@ donate-text =
         <code>LinkedIn</code>: <a href="https://www.linkedin.com/in/ramazan-ittiev/">Ссылка</a>
     </blockquote>
 
-
-available-countries-text =
-    🌍Вот список стран, которые доступны для подключения:
-
-    ╠ 🇩🇪 Германия
-    ╠ 🇵🇱 Польша
-    ╠ 🇫🇮 Финляндия
-    ╠ 🇷🇺 Россия
-    ╚ Дальше будет больше...
-
-    Также...
-
-    ⚡️Неограниченное количество трафика
-    🔒Доступ к РФ сайтам и зарубежным ресурсам
 
 devices-text =
     📱<b>Выбери платформу, на котором хочешь настроить VPN:</b>
@@ -422,21 +411,12 @@ support-text =
 
 
 invitation-text =
-    Тебя пригласил в <b>Jungle</b>, <b>{ $username }</b> 🌴
+    Привет, мой друг!
+    Я @Ramazzaniii, автор проекта <code>JungleVPN</code> 🌴
 
-    Jungle — это VPN сервис. Подключайся и пользуйся интернет безопасно ❤️
+    Тебя пригласил в <b>Jungle</b>, <b>{ $username }</b>
 
-    ⚡️Неограниченное количество трафика
-    🔒Доступ к РФ сайтам и зарубежным ресурсам
-
-
-    🌍Доступные страны:
-    ╠ 🇩🇪 Германия
-    ╠ 🇵🇱 Польша
-    ╠ 🇫🇮 Финляндия
-    ╠ 🇷🇺 Россия
-    ╚ Дальше будет больше...
-
+    Jungle — это VPN сервис. Подключайся и пользуйся интернетом безопасно ❤️
 
 
 user-rewarded-text =

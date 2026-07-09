@@ -1,5 +1,5 @@
 import { BotContext } from '@bot/bot.types';
-import { Menu } from '@bot/navigation';
+import { MainMenu } from '@bot/navigation/features/main/main.menu';
 import { Base } from '@bot/navigation/menu.base';
 import { isValidUsername, toDateString } from '@bot/utils/utils';
 import { Injectable } from '@nestjs/common';
@@ -11,7 +11,7 @@ export class MainMenuService extends Base {
     super();
   }
 
-  async init(ctx: BotContext, menu: Menu, deleteOldMsg?: boolean) {
+  async init(ctx: BotContext, mainMenu: MainMenu, deleteOldMsg?: boolean) {
     const tgUser = this.validateUser(ctx.from);
     const user = await this.remnaService.getUserByTgId(tgUser.id);
     if (!user) {
@@ -32,6 +32,18 @@ export class MainMenuService extends Base {
       devicesLimit: process.env.HWID_LIMIT ? parseInt(process.env.HWID_LIMIT, 10) : 5,
     });
 
-    await this.render(ctx, content, menu, deleteOldMsg);
+    // Reply keyboards can't be attached via editMessageText (Telegram only
+    // supports inline keyboards there), so this always sends a fresh message.
+    if (deleteOldMsg) {
+      try {
+        await ctx.deleteMessage();
+      } catch {}
+    }
+
+    await this.render(ctx, content, {
+      parse_mode: 'HTML',
+      link_preview_options: { is_disabled: true },
+      reply_markup: mainMenu.build(ctx),
+    });
   }
 }

@@ -19,7 +19,7 @@ export const coreEnv = {
   extraDeviceStickerFileId: (import.meta.env.PUBLIC_EXTRA_DEVICE_STICKER_FILE_ID ?? '') as string,
   promoCodeStickerFileId: (import.meta.env.PUBLIC_PROMO_CODE_STICKER_FILE_ID ?? '') as string,
 
-  tmaAppUrl: (import.meta.env.PUBLIC_TMA_APP_URL ?? '') as string,
+  tmaAppUrl: (import.meta.env.TMA_APP_URL ?? '') as string,
   supportUrl: (import.meta.env.PUBLIC_SUPPORT_URL ?? '') as string,
   botUrl: (import.meta.env.PUBLIC_BOT_URL ?? '') as string,
   paymentsUrl: (import.meta.env.PUBLIC_PAYMENTS_URL ?? '') as string,

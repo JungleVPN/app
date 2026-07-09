@@ -1,12 +1,12 @@
-export { ProtectedTransactionDetailsPage } from './profile/transactions/protected-details';
-export { ProtectedTransactionsPage } from './profile/transactions/protected';
 export { default as GetSubscriptionPage } from './getSubscription/GetSubscriptionPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';
 export { default as LoginPage } from './login/LoginPage';
 export { ProtectedDevicesPage } from './profile/devices/protected';
-export { ProtectedMenuPage } from './profile/menu/protected';
 export { ProtectedExtraDevicePurchasePage } from './profile/devices/protected-extra-device';
+export { ProtectedMenuPage } from './profile/menu/protected';
 export { ProtectedPaymentPage } from './profile/payment/protected';
 export { ProtectedProfileSubscriptionPage } from './profile/subscription/protected';
+export { ProtectedTransactionsPage } from './profile/transactions/protected';
+export { ProtectedTransactionDetailsPage } from './profile/transactions/protected-details';
 export { default as SubscriptionPage } from './subscription/SubscriptionPage';
 export { default as TermsPage } from './terms/TermsPage';

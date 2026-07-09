@@ -1,6 +1,4 @@
 import { NavigateMainCallback } from '@bot/callbacks/navigate-main.callback';
-import { NavigateProfileCallback } from '@bot/callbacks/navigate-profile.callback';
-import { NavigateToYookassaPaymentCallback } from '@bot/callbacks/navigate-to-yookassa.callback';
 import { BroadcastDeleteCommand } from '@bot/commands/broadcast/broadcast-delete.command';
 import { BroadcastEditCommand } from '@bot/commands/broadcast/broadcast-edit.command';
 import { BroadcastMessageCommand } from '@bot/commands/broadcast/broadcast-message.command';
@@ -15,7 +13,7 @@ import { UserNotConnectedListener } from '@bot/listeners/user-not-connected.list
 import { LocalisationService } from '@bot/localisation/localisation.service';
 import { MainMenu } from '@bot/navigation/features/main/main.menu';
 import { MainMenuService } from '@bot/navigation/features/main/main.service';
-import { PaymentMsgService } from '@bot/navigation/features/payment/payment.service';
+import { MainKeyboardCallback } from '@bot/navigation/features/main/main-keyboard.callback';
 import { RevokeSubMenuService } from '@bot/navigation/features/subscription/revokeSub.service';
 import { SubscriptionMsgService } from '@bot/navigation/features/subscription/subscribtion.service';
 import { MenuModule } from '@bot/navigation/menu.module';
@@ -38,7 +36,6 @@ import { BotService } from './bot.service';
     AnalyticsService,
     // MENU SERVICES
     MainMenuService,
-    PaymentMsgService,
     SubscriptionMsgService,
     RevokeSubMenuService,
     MainMenu,
@@ -60,8 +57,7 @@ import { BotService } from './bot.service';
     PollService,
     // CALLBACKS
     NavigateMainCallback,
-    NavigateProfileCallback,
-    NavigateToYookassaPaymentCallback,
+    MainKeyboardCallback,
   ],
   exports: [BotService],
 })

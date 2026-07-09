@@ -21,7 +21,7 @@ export class ReferralMenu extends Base {
       .text(
         (ctx) => ctx.t('home-button-label'),
         async (cxt) => {
-          await this.mainMenuService.init(cxt, this.mainMenu.menu);
+          await this.mainMenuService.init(cxt, this.mainMenu);
         },
       );
   }

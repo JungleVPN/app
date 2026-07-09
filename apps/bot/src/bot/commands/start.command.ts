@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { decodeReferralCode } from '@referral/referral.utils';
 import { RemnaService } from '@remna/remna.service';
-import { Bot, InlineKeyboard } from 'grammy';
+import { Bot } from 'grammy';
 import { AnalyticsService } from '../../analytics/analytics.service';
 
 @Injectable()
@@ -46,24 +46,25 @@ export class StartCommand {
           ? ctx.from?.username
           : ctx.t('dear-friend');
 
-        const tmaAppUrl = process.env.TMA_APP_URL || 'https://app.thejungle.pro';
-        const tmaUrl = inviterId ? `${tmaAppUrl}?ref=${inviterId}` : tmaAppUrl;
+        if (inviterId) {
+          ctx.session.referralInviterId = inviterId;
+        }
 
-        // New user: direct them to TMA to complete setup.
-        const keyboard = new InlineKeyboard().webApp(ctx.t('connect-button-label'), tmaUrl);
+        // New user: direct them to TMA to complete setup, and attach the
+        // persistent menu right away so it's in place from the first message.
         await ctx.reply(
           ctx.t('setup-prompt-text', {
             username: username!,
           }),
           {
             parse_mode: 'HTML',
-            reply_markup: keyboard,
+            reply_markup: this.mainMenu.build(ctx),
           },
         );
       } else {
         ctx.session.user = initialSession().user;
         ctx.session.userId = rmnUser.uuid;
-        await this.mainMenuService.init(ctx, this.mainMenu.menu);
+        await this.mainMenuService.init(ctx, this.mainMenu);
       }
 
       if (payload?.startsWith('ad_')) {

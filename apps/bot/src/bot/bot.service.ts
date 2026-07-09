@@ -1,8 +1,6 @@
 import * as process from 'node:process';
 import { BotContext, initialSession } from '@bot/bot.types';
 import { NavigateMainCallback } from '@bot/callbacks/navigate-main.callback';
-import { NavigateProfileCallback } from '@bot/callbacks/navigate-profile.callback';
-import { NavigateToYookassaPaymentCallback } from '@bot/callbacks/navigate-to-yookassa.callback';
 import { BroadcastDeleteCommand } from '@bot/commands/broadcast/broadcast-delete.command';
 import { BroadcastEditCommand } from '@bot/commands/broadcast/broadcast-edit.command';
 import { BroadcastMessageCommand } from '@bot/commands/broadcast/broadcast-message.command';
@@ -10,6 +8,7 @@ import { StartCommand } from '@bot/commands/start.command';
 import { InlineQueryListener } from '@bot/listeners/inline-query.listener';
 import { TelegramStarsListener } from '@bot/listeners/telegram-stars.listener';
 import { LocalisationService } from '@bot/localisation/localisation.service';
+import { MainKeyboardCallback } from '@bot/navigation/features/main/main-keyboard.callback';
 import { MenuTree } from '@bot/navigation/menu.tree';
 import { PollService } from '@bot/poll/poll.service';
 import { Injectable, OnModuleInit } from '@nestjs/common';
@@ -27,8 +26,7 @@ export class BotService implements OnModuleInit {
     private readonly broadcastEditCommand: BroadcastEditCommand,
     private readonly broadcastDeleteCommand: BroadcastDeleteCommand,
     private readonly navigateMainCallback: NavigateMainCallback,
-    private readonly navigateProfileCallback: NavigateProfileCallback,
-    private readonly navigateToYookassaPaymentCallback: NavigateToYookassaPaymentCallback,
+    private readonly mainKeyboardCallback: MainKeyboardCallback,
     private readonly localService: LocalisationService,
     private readonly inlineQueryListener: InlineQueryListener,
     private readonly telegramStarsListener: TelegramStarsListener,
@@ -46,9 +44,7 @@ export class BotService implements OnModuleInit {
 
     this.bot.use(this.localService.i18n);
 
-    const menuTree = this.menuTree.init();
-
-    this.bot.use(menuTree);
+    this.menuTree.init(this.bot);
 
     this.startCommand.register(this.bot);
     this.broadcastMessageCommand.register(this.bot);
@@ -57,8 +53,7 @@ export class BotService implements OnModuleInit {
     this.pollService.register(this.bot);
 
     this.navigateMainCallback.register(this.bot);
-    this.navigateProfileCallback.register(this.bot);
-    this.navigateToYookassaPaymentCallback.register(this.bot);
+    this.mainKeyboardCallback.register(this.bot);
     this.inlineQueryListener.register(this.bot);
     this.telegramStarsListener.register(this.bot);
 
