@@ -1,6 +1,6 @@
 import type { AdminPaymentDto } from '@workspace/types';
 import { useCallback, useState } from 'react';
-import { usePaymentsApi } from '../../../../runtime';
+import { usePaymentsApi } from '../../../../../runtime';
 
 interface UseAdminSearchState {
   query: string;

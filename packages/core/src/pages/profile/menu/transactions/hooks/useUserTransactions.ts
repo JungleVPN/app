@@ -1,7 +1,7 @@
 import type { AdminPaymentDto } from '@workspace/types';
 import { useEffect, useState } from 'react';
-import { usePaymentsApi } from '../../../../runtime';
-import { useAuthStoreInfo } from '../../../../stores';
+import { usePaymentsApi } from '../../../../../runtime';
+import { useAuthStoreInfo } from '../../../../../stores';
 
 interface UseUserTransactionsResult {
   transactions: AdminPaymentDto[];
@@ -26,9 +26,7 @@ export function useUserTransactions(): UseUserTransactionsResult {
     paymentsApi
       .searchPayments(rmnUser.uuid)
       .then(setTransactions)
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : 'Failed to load transactions'),
-      )
+      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load transactions'))
       .finally(() => setIsLoading(false));
   }, [rmnUser?.uuid, paymentsApi]);
 

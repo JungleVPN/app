@@ -1,7 +1,7 @@
 import type { AdminPaymentDto } from '@workspace/types';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { usePaymentsApi } from '../../../../runtime';
+import { usePaymentsApi } from '../../../../../runtime';
 
 interface UseTransactionDetailsResult {
   payment: AdminPaymentDto | null;

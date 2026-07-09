@@ -3,9 +3,9 @@ import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { useBackButton } from '../../../hooks';
-import { useNavbarStore } from '../../../stores';
-import { Block } from '../../../ui';
+import { useBackButton } from '../../../../hooks';
+import { useNavbarStore } from '../../../../stores';
+import { Block } from '../../../../ui';
 import { DetailRow } from './components/DetailRow';
 import { useTransactionDetails } from './hooks/useTransactionDetails';
 
@@ -46,16 +46,33 @@ export default function TransactionDetailsPage() {
 
       {payment && !isLoading && (
         <Block variant='secondary' title={t('transactions.details.title')}>
-          <DetailRow label={t('transactions.details.paymentId')} value={payment.paymentId} copyable />
-          <DetailRow label={t('transactions.details.userId')} value={payment.userId} showSeparatorAbove copyable />
+          <DetailRow
+            label={t('transactions.details.paymentId')}
+            value={payment.paymentId}
+            copyable
+          />
+          <DetailRow
+            label={t('transactions.details.userId')}
+            value={payment.userId}
+            showSeparatorAbove
+            copyable
+          />
           <DetailRow
             label={t('transactions.details.telegramId')}
             value={payment.telegramId != null ? String(payment.telegramId) : null}
             showSeparatorAbove
             copyable
           />
-          <DetailRow label={t('transactions.details.provider')} value={formatProvider(payment.provider)} showSeparatorAbove />
-          <DetailRow label={t('transactions.details.status')} value={payment.status} showSeparatorAbove />
+          <DetailRow
+            label={t('transactions.details.provider')}
+            value={formatProvider(payment.provider)}
+            showSeparatorAbove
+          />
+          <DetailRow
+            label={t('transactions.details.status')}
+            value={payment.status}
+            showSeparatorAbove
+          />
           <DetailRow
             label={t('transactions.details.amount')}
             value={
@@ -67,11 +84,23 @@ export default function TransactionDetailsPage() {
           />
           <DetailRow
             label={t('transactions.details.period')}
-            value={payment.selectedPeriod != null ? t('transactions.details.periodValue', { count: payment.selectedPeriod }) : null}
+            value={
+              payment.selectedPeriod != null
+                ? t('transactions.details.periodValue', { count: payment.selectedPeriod })
+                : null
+            }
             showSeparatorAbove
           />
-          <DetailRow label={t('transactions.details.createdAt')} value={formatDate(payment.createdAt)} showSeparatorAbove />
-          <DetailRow label={t('transactions.details.paidAt')} value={formatDate(payment.paidAt)} showSeparatorAbove />
+          <DetailRow
+            label={t('transactions.details.createdAt')}
+            value={formatDate(payment.createdAt)}
+            showSeparatorAbove
+          />
+          <DetailRow
+            label={t('transactions.details.paidAt')}
+            value={formatDate(payment.paidAt)}
+            showSeparatorAbove
+          />
         </Block>
       )}
     </>

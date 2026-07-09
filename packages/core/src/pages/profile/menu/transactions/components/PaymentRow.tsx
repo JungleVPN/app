@@ -1,7 +1,7 @@
 import { Description, Label, ListBox } from '@heroui/react';
 import { IconCreditCard, IconStar, IconWallet } from '@tabler/icons-react';
 import type { AdminPaymentDto } from '@workspace/types';
-import { toDateString } from '../../../../utils/date';
+import { toDateString } from '../../../../../utils';
 
 function ProviderIcon({ provider }: { provider: AdminPaymentDto['provider'] }) {
   if (provider === 'telegram_stars') {

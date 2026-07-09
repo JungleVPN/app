@@ -1,4 +1,4 @@
-import { AuthGuard } from '../../../components';
+import { AuthGuard } from '../../../../components';
 import TransactionDetailsPage from './TransactionDetailsPage';
 
 export function ProtectedTransactionDetailsPage() {
