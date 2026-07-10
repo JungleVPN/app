@@ -8,6 +8,8 @@ import { TelegramStarsService } from '../providers/telegram-stars/telegram-stars
 
 vi.mock('@workspace/database', () => ({
   TelegramStarsPayment: class {},
+  YookassaPayment: class {},
+  StripePayment: class {},
   Promo: class {},
   PromoRedemption: class {},
 }));

@@ -126,6 +126,7 @@
         "notActiveYet": "This promo code is not active yet.",
         "expired": "This promo code has expired.",
         "notEligible": "You are not eligible for this promo code.",
+        "notNewUser": "This promo code is only for new users.",
         "limitReached": "This promo code has reached its usage limit.",
         "alreadyUsed": "You have already used this promo code."
       }

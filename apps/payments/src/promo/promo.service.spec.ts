@@ -1,5 +1,5 @@
 import { Promo } from '@workspace/database';
-import type { PromoEffect } from '@workspace/types';
+import type { AdminPaymentDto, PromoEffect } from '@workspace/types';
 import { describe, expect, it, vi } from 'vitest';
 import { PromoInvalidError, PromoService } from './promo.service';
 
@@ -27,6 +27,8 @@ function setup(opts: {
   userRedemptions?: number;
   totalRedemptions?: number;
   existingRedemption?: boolean;
+  /** Settled payments returned by AdminService.search, keyed by userId (defaults to none). */
+  payments?: AdminPaymentDto[];
 }) {
   const promoRepo = { findOneBy: vi.fn().mockResolvedValue(opts.promo) };
 
@@ -55,8 +57,30 @@ function setup(opts: {
   };
   const dataSource = { transaction: (cb: any) => cb(manager) };
 
-  const service = new PromoService(promoRepo as any, redemptionRepo as any, dataSource as any);
-  return { service, insert, txRedemptions };
+  const adminService = { search: vi.fn().mockResolvedValue(opts.payments ?? []) };
+
+  const service = new PromoService(
+    promoRepo as any,
+    redemptionRepo as any,
+    dataSource as any,
+    adminService as any,
+  );
+  return { service, insert, txRedemptions, adminService };
+}
+
+function makePayment(overrides: Partial<AdminPaymentDto> = {}): AdminPaymentDto {
+  return {
+    paymentId: 'p1',
+    provider: 'yookassa',
+    userId: 'u1',
+    telegramId: null,
+    status: 'succeeded',
+    purpose: 'subscription',
+    selectedPeriod: 1,
+    createdAt: new Date(),
+    paidAt: new Date(),
+    ...overrides,
+  };
 }
 
 describe('PromoService', () => {
@@ -101,6 +125,31 @@ describe('PromoService', () => {
       ).rejects.toThrow(/expired subscriptions/);
       await expect(
         setup({ promo }).service.resolve('FREE2', { userId: 'u1', userStatus: 'EXPIRED' }),
+      ).resolves.toEqual(BONUS);
+    });
+
+    it('enforces new-user eligibility against payment history, not current subscription state', async () => {
+      const promo = makePromo({ eligibility: 'new' });
+
+      // Has a settled payment on record -> rejected, even with no active subscription.
+      const rejected = setup({ promo, payments: [makePayment()] }).service.resolve('FREE2', {
+        userId: 'u1',
+      });
+      await expect(rejected).rejects.toThrow(/only for new users/);
+      await expect(rejected).rejects.toMatchObject({ code: 'not_new_user' });
+
+      // Never paid -> eligible.
+      await expect(
+        setup({ promo, payments: [] }).service.resolve('FREE2', { userId: 'u1' }),
+      ).resolves.toEqual(BONUS);
+    });
+
+    it('ignores unsettled payments (no paidAt) when checking new-user eligibility', async () => {
+      const promo = makePromo({ eligibility: 'new' });
+      const pending = makePayment({ paidAt: null });
+
+      await expect(
+        setup({ promo, payments: [pending] }).service.resolve('FREE2', { userId: 'u1' }),
       ).resolves.toEqual(BONUS);
     });
 

@@ -29,7 +29,10 @@ export class Promo {
   @Column({ type: 'int', default: 1 })
   perUserLimit: number;
 
-  /** Who may redeem. `expired_only` requires the payer's subscription to be EXPIRED. */
+  /**
+   * Who may redeem. `expired_only` requires the payer's subscription to be EXPIRED.
+   * `new` requires the payer to have never had a settled payment.
+   */
   @Column({ type: 'varchar', default: 'all' })
   eligibility: PromoEligibility;
 

@@ -11,8 +11,8 @@
 /** Which payment provider a redemption came through. */
 export type PromoProvider = 'yookassa' | 'stripe' | 'stars';
 
-/** Who a promo may be used by. */
-export type PromoEligibility = 'all' | 'expired_only';
+/** Who a promo may be used by. `new` requires the user to have never had a settled payment. */
+export type PromoEligibility = 'all' | 'expired_only' | 'new';
 
 /**
  * What a promo does. Discriminated union so each effect is applied by its own
@@ -48,6 +48,7 @@ export type PromoErrorCode =
   | 'not_active_yet'
   | 'expired'
   | 'not_eligible'
+  | 'not_new_user'
   | 'limit_reached'
   | 'already_used';
 

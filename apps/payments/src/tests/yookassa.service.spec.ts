@@ -12,6 +12,8 @@ import type { PaymentStatusService } from '../payment-status/payment-status.serv
 vi.mock('@workspace/database', () => {
   return {
     YookassaPayment: class {},
+    TelegramStarsPayment: class {},
+    StripePayment: class {},
     SavedPaymentMethod: class {},
     Promo: class {},
     PromoRedemption: class {},

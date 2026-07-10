@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AdminService } from '@payments/admin/admin.service';
 import { Promo, PromoRedemption } from '@workspace/database';
 import type {
   PromoContext,
@@ -32,10 +33,22 @@ export class PromoService {
     @InjectRepository(PromoRedemption)
     private readonly redemptionRepo: Repository<PromoRedemption>,
     private readonly dataSource: DataSource,
+    private readonly adminService: AdminService,
   ) {}
 
   private static normalize(code: string): string {
     return code.trim().toUpperCase();
+  }
+
+  /**
+   * Whether `userId` has ever had a settled payment, across every provider.
+   * Checked against payment history rather than current subscription/saved-method
+   * state, so deleting a saved payment method or letting a subscription expire
+   * never makes a returning user look new again.
+   */
+  private async hasEverPaid(userId: string): Promise<boolean> {
+    const payments = await this.adminService.search(userId);
+    return payments.some((payment) => payment.userId === userId && !!payment.paidAt);
   }
 
   /**
@@ -66,6 +79,10 @@ export class PromoService {
         'This promo code is only for expired subscriptions.',
         'not_eligible',
       );
+    }
+
+    if (promo.eligibility === 'new' && (await this.hasEverPaid(ctx.userId))) {
+      throw new PromoInvalidError('This promo code is only for new users.', 'not_new_user');
     }
 
     if (promo.maxRedemptions !== null) {

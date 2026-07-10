@@ -12,6 +12,8 @@ import { StripeWebhookService } from '../providers/stripe/stripe-webhook.service
 
 vi.mock('@workspace/database', () => ({
   StripePayment: class {},
+  YookassaPayment: class {},
+  TelegramStarsPayment: class {},
   SavedPaymentMethod: class {},
   Promo: class {},
   PromoRedemption: class {},

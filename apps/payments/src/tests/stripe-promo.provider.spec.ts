@@ -8,6 +8,8 @@ import { PromoInvalidError, type PromoService } from '../promo/promo.service';
 
 vi.mock('@workspace/database', () => ({
   StripePayment: class {},
+  YookassaPayment: class {},
+  TelegramStarsPayment: class {},
   SavedPaymentMethod: class {},
   Promo: class {},
   PromoRedemption: class {},

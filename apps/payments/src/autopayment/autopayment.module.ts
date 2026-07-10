@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AdminModule } from '@payments/admin/admin.module';
+import { EmailNotificationModule } from '@payments/notifications/email-notification.module';
 import { PaymentStatusService } from '@payments/payment-status/payment-status.service';
 import { PromoService } from '@payments/promo/promo.service';
 import { YooKassaConnector } from '@payments/providers/yookassa/helpers/yookassa.connector';
@@ -7,7 +9,6 @@ import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider
 import { PaymentsUtils } from '@payments/utils/utils';
 import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { Promo, PromoRedemption, SavedPaymentMethod, YookassaPayment } from '@workspace/database';
-import { EmailNotificationModule } from '@payments/notifications/email-notification.module';
 import { AutopaymentController } from './autopayment.controller';
 import { AutopaymentService } from './autopayment.service';
 
@@ -15,6 +16,7 @@ import { AutopaymentService } from './autopayment.service';
   imports: [
     TypeOrmModule.forFeature([SavedPaymentMethod, YookassaPayment, Promo, PromoRedemption]),
     EmailNotificationModule,
+    AdminModule,
   ],
   controllers: [AutopaymentController],
   exports: [AutopaymentService],

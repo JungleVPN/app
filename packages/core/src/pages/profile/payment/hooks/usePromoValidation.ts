@@ -9,6 +9,7 @@ const PROMO_ALERT_KEYS: Record<PromoErrorCode, string> = {
   not_active_yet: 'payment.promo.alert.notActiveYet',
   expired: 'payment.promo.alert.expired',
   not_eligible: 'payment.promo.alert.notEligible',
+  not_new_user: 'payment.promo.alert.notNewUser',
   limit_reached: 'payment.promo.alert.limitReached',
   already_used: 'payment.promo.alert.alreadyUsed',
 };

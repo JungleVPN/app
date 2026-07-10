@@ -8,5 +8,6 @@ import { AdminService } from './admin.service';
   imports: [TypeOrmModule.forFeature([YookassaPayment, TelegramStarsPayment, StripePayment])],
   controllers: [AdminController],
   providers: [AdminService],
+  exports: [AdminService],
 })
 export class AdminModule {}
