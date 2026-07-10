@@ -7,6 +7,7 @@ import { add } from 'date-fns';
 import { Repository } from 'typeorm';
 import { ReferralRewardedEvent } from '../notifications/referrals-events';
 import { PaymentsClient } from './payments.client';
+import { type ExistingReferralConflict, findExistingReferralConflict } from './referral.utils';
 import { RemnaClient } from './remna.client';
 
 /** Window used to tell a genuinely paying inviter apart from one only ever on TRIAL — both report status "ACTIVE". */
@@ -62,20 +63,11 @@ export class ReferralService {
     }
 
     const referral = await this.getReferralByInvitedId(invitedId);
+    const conflict = findExistingReferralConflict(referral, inviterId);
 
-    if (referral && inviterId !== referral.inviterId) {
-      this.logger.warn('Someone has already invited: ', referral?.invitedId);
-      return { success: false, reason: 'user_is_invited' };
-    }
-
-    if (referral && referral.status === 'COMPLETED') {
-      this.logger.warn(`Invited user ${invitedId} already completed referral.`);
-      return { success: false, reason: 'referral_completed' };
-    }
-
-    if (referral) {
-      this.logger.warn(`Invited user ${invitedId} already has a referral record.`);
-      return { success: false, reason: 'already_exists' };
+    if (conflict) {
+      this.logReferralConflict(conflict, invitedId);
+      return { success: false, reason: conflict };
     }
 
     const inviter = await this.remnaClient.getUserByUuid(inviterId);
@@ -103,51 +95,52 @@ export class ReferralService {
   async handleInviterRewardAfterPayment(
     invitedId: string,
   ): Promise<{ rewarded: boolean; reason?: string; inviterRewarded?: boolean }> {
-    // Concurrency guard: if an identical call is already in-flight, reject early.
-    // This is the fast-path defence; a DB-level SELECT FOR UPDATE transaction is
-    // required for a complete fix across multiple process instances.
     if (this.inFlight.has(invitedId)) {
       return { rewarded: false, reason: 'already_processing' };
     }
     this.inFlight.add(invitedId);
 
     try {
-      const referral = await this.referralRepository.findOne({
-        where: { invitedId },
-      });
-
-      if (!referral) {
-        return { rewarded: false, reason: 'no_referral' };
-      }
-
-      if (referral.status === 'COMPLETED') {
-        this.logger.log(
-          `Inviter ${referral.inviterId} already received all bonuses for ${invitedId}`,
-        );
-        return { rewarded: false, reason: 'already_completed' };
-      }
-
-      const bonusDays = Number(process.env.REFERRAL_BONUS_IN_DAYS || '30');
-      await this.rewardUser(invitedId, bonusDays, 'invited');
-
-      const inviterEligible = await this.isInviterEligibleForBonus(referral.inviterId);
-      if (inviterEligible) {
-        await this.rewardUser(referral.inviterId, bonusDays, 'inviter');
-      } else {
-        this.logger.log(
-          `Inviter ${referral.inviterId} skipped for referral bonus — no active paid subscription in the last ${INVITER_PAID_WINDOW_DAYS} days.`,
-        );
-      }
-
-      referral.status = 'COMPLETED';
-      await this.referralRepository.save(referral);
-
-      return { rewarded: true, inviterRewarded: inviterEligible };
+      return await this.rewardInviterForCompletedReferral(invitedId);
     } finally {
-      // Always release the lock — even when an error is thrown mid-flight, so
-      // a legitimate retry can succeed after the rollback.
       this.inFlight.delete(invitedId);
     }
+  }
+
+  private async rewardInviterForCompletedReferral(
+    invitedId: string,
+  ): Promise<{ rewarded: boolean; reason?: string; inviterRewarded?: boolean }> {
+    const referral = await this.referralRepository.findOne({
+      where: { invitedId },
+    });
+
+    if (!referral) {
+      return { rewarded: false, reason: 'no_referral' };
+    }
+
+    if (referral.status === 'COMPLETED') {
+      this.logger.log(
+        `Inviter ${referral.inviterId} already received all bonuses for ${invitedId}`,
+      );
+      return { rewarded: false, reason: 'already_completed' };
+    }
+
+    const bonusDays = Number(process.env.REFERRAL_BONUS_IN_DAYS || '30');
+    await this.rewardUser(invitedId, bonusDays, 'invited');
+
+    const inviterEligible = await this.isInviterEligibleForBonus(referral.inviterId);
+    if (inviterEligible) {
+      await this.rewardUser(referral.inviterId, bonusDays, 'inviter');
+    } else {
+      this.logger.log(
+        `Inviter ${referral.inviterId} skipped for referral bonus — no active paid subscription in the last ${INVITER_PAID_WINDOW_DAYS} days.`,
+      );
+    }
+
+    referral.status = 'COMPLETED';
+    await this.referralRepository.save(referral);
+
+    return { rewarded: true, inviterRewarded: inviterEligible };
   }
 
   async deleteByInvitedId(invitedId: string): Promise<void> {
@@ -190,5 +183,18 @@ export class ReferralService {
 
     this.eventEmitter.emit('user.rewarded', payload);
     this.logger.log(`Rewarded ${role} ${userId} with ${days} day(s)`);
+  }
+
+  private logReferralConflict(conflict: ExistingReferralConflict, invitedId: string): void {
+    switch (conflict) {
+      case 'user_is_invited':
+        this.logger.warn('Someone has already invited: ', invitedId);
+        return;
+      case 'referral_completed':
+        this.logger.warn(`Invited user ${invitedId} already completed referral.`);
+        return;
+      case 'already_exists':
+        this.logger.warn(`Invited user ${invitedId} already has a referral record.`);
+    }
   }
 }

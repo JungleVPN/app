@@ -15,6 +15,7 @@ import type { Referral } from '@workspace/database';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ReferralService } from '../main/referral.service';
+import { findExistingReferralConflict } from '../main/referral.utils';
 import type { PaymentsClient } from '../main/payments.client';
 import type { RemnaClient } from '../main/remna.client';
 
@@ -233,5 +234,29 @@ describe('ReferralService', () => {
       await service.deleteByInvitedId(INVITED_UUID);
       expect(referralRepo.delete).toHaveBeenCalledWith({ invitedId: INVITED_UUID });
     });
+  });
+});
+
+describe('findExistingReferralConflict', () => {
+  it('returns null when there is no existing referral', () => {
+    expect(findExistingReferralConflict(null, INVITER_UUID)).toBeNull();
+  });
+
+  it('returns user_is_invited when the invited user was already invited by someone else', () => {
+    const referral = makeReferral({ inviterId: 'uuid-other-inviter' });
+
+    expect(findExistingReferralConflict(referral, INVITER_UUID)).toBe('user_is_invited');
+  });
+
+  it('returns referral_completed when the same inviter already completed the referral', () => {
+    const referral = makeReferral({ inviterId: INVITER_UUID, status: 'COMPLETED' });
+
+    expect(findExistingReferralConflict(referral, INVITER_UUID)).toBe('referral_completed');
+  });
+
+  it('returns already_exists when the same inviter has a non-completed referral record', () => {
+    const referral = makeReferral({ inviterId: INVITER_UUID, status: 'TRIAL' });
+
+    expect(findExistingReferralConflict(referral, INVITER_UUID)).toBe('already_exists');
   });
 });
