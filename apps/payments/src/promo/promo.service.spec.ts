@@ -153,6 +153,17 @@ describe('PromoService', () => {
       ).resolves.toEqual(BONUS);
     });
 
+    it('ignores extra-device purchases when checking new-user eligibility', async () => {
+      const promo = makePromo({ eligibility: 'new' });
+      const extraDevice = makePayment({ purpose: 'extra_device' });
+
+      // A trial user who bought an extra device slot has never paid for a
+      // subscription, so they're still eligible for a new-user promo.
+      await expect(
+        setup({ promo, payments: [extraDevice] }).service.resolve('FREE2', { userId: 'u1' }),
+      ).resolves.toEqual(BONUS);
+    });
+
     it('enforces the per-user limit', async () => {
       const { service } = setup({ promo: makePromo({ perUserLimit: 1 }), userRedemptions: 1 });
       await expect(service.resolve('FREE2', { userId: 'u1' })).rejects.toThrow(/already used/);

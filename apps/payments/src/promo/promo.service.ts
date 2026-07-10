@@ -41,14 +41,18 @@ export class PromoService {
   }
 
   /**
-   * Whether `userId` has ever had a settled payment, across every provider.
+   * Whether `userId` has ever settled a subscription payment, across every provider.
    * Checked against payment history rather than current subscription/saved-method
    * state, so deleting a saved payment method or letting a subscription expire
-   * never makes a returning user look new again.
+   * never makes a returning user look new again. Extra-device purchases don't
+   * count — a trial user can buy a device slot without ever paying for a plan.
    */
   private async hasEverPaid(userId: string): Promise<boolean> {
     const payments = await this.adminService.search(userId);
-    return payments.some((payment) => payment.userId === userId && !!payment.paidAt);
+    return payments.some(
+      (payment) =>
+        payment.userId === userId && payment.purpose === 'subscription' && !!payment.paidAt,
+    );
   }
 
   /**
