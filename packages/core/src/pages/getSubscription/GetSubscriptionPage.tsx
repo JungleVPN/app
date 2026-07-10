@@ -11,7 +11,7 @@ import { Block } from '../../ui';
 import {
   analytics,
   captureReferral,
-  cleanReferral,
+  clearReferral,
   getAttribution,
   getReferral,
   initUser,
@@ -105,7 +105,7 @@ export default function GetSubscriptionPage() {
             inviterId,
           });
           setRmnUser(newUser ?? null);
-          cleanReferral();
+          clearReferral();
           analytics.signUp('telegram');
         }
         navigate(profileSubscriptionPath);
@@ -124,7 +124,7 @@ export default function GetSubscriptionPage() {
           attribution: attribution ?? undefined,
           inviterId,
         });
-        cleanReferral();
+        clearReferral();
         analytics.signUp('web');
         navigate(`/subscription/${newUser?.shortUuid}`);
       }

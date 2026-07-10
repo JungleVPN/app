@@ -22,7 +22,8 @@ export function getReferral(): string | null {
   return localStorage.getItem(STORAGE_KEY);
 }
 
-export function cleanReferral(): void {
+/** Clears the captured referral once it's been used to create an account. */
+export function clearReferral(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(STORAGE_KEY);
 }
