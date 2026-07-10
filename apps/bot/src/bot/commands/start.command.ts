@@ -2,7 +2,7 @@ import * as process from 'node:process';
 import { BotContext, initialSession } from '@bot/bot.types';
 import { MainMenu } from '@bot/navigation/features/main/main.menu';
 import { MainMenuService } from '@bot/navigation/features/main/main.service';
-import { isValidUsername, toDateString, withReferral } from '@bot/utils/utils';
+import { isValidUsername, toDateString } from '@bot/utils/utils';
 import { Injectable } from '@nestjs/common';
 import { decodeReferralCode } from '@referral/referral.utils';
 import { RemnaService } from '@remna/remna.service';
@@ -39,18 +39,6 @@ export class StartCommand {
 
         if (inviterId) {
           ctx.session.referralInviterId = inviterId;
-
-          // BotFather's menu button is static and has no ref param. Override it
-          // per-chat so this user's menu button opens the TMA with their inviterId.
-          const tmaAppUrl = process.env.TMA_APP_URL || 'https://miniapp.thejungle.pro';
-          await ctx.api.setChatMenuButton({
-            chat_id: ctx.from.id,
-            menu_button: {
-              type: 'web_app',
-              text: ctx.t('connect-button-label'),
-              web_app: { url: withReferral(ctx, tmaAppUrl) },
-            },
-          });
         }
 
         await ctx.reply(
@@ -65,15 +53,7 @@ export class StartCommand {
       } else {
         ctx.session.user = initialSession().user;
         ctx.session.userId = rmnUser.uuid;
-        const tmaAppUrl = process.env.TMA_APP_URL || 'https://miniapp.thejungle.pro';
-        await ctx.api.setChatMenuButton({
-          chat_id: ctx.from.id,
-          menu_button: {
-            type: 'web_app',
-            text: ctx.t('connect-button-label'),
-            web_app: { url: tmaAppUrl },
-          },
-        });
+
         await this.mainMenuService.init(ctx, this.mainMenu);
       }
 

@@ -40,10 +40,16 @@ export class MainMenuService extends Base {
       } catch {}
     }
 
-    await this.render(ctx, content, {
-      parse_mode: 'HTML',
-      link_preview_options: { is_disabled: true },
-      reply_markup: mainMenu.build(ctx),
+    const tmaAppUrl = process.env.TMA_APP_URL || 'https://miniapp.thejungle.pro';
+    await ctx.api.setChatMenuButton({
+      chat_id: ctx.from?.id,
+      menu_button: {
+        type: 'web_app',
+        text: ctx.t('menu-app-button-label'),
+        web_app: { url: tmaAppUrl },
+      },
     });
+
+    await this.render(ctx, content, mainMenu.build(ctx));
   }
 }
