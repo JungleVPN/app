@@ -1,19 +1,27 @@
 import { SyntheticEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router';
+import { useNavigation } from '../../../hooks';
 import { useAppRoutes, useSupabaseClient } from '../../../runtime';
+import { captureReferral } from '../../../utils';
 
 export function useConfirm() {
   const supabase = useSupabaseClient();
   const { profileSubscriptionPath } = useAppRoutes();
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const { t } = useTranslation();
 
   const email = searchParams.get('email');
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(60);
   const [error, setError] = useState<string | null>(null);
+
+  // Re-capture here too: `ref` was forwarded onto this URL by useLogin(), so
+  // pick it up in case the original localStorage write didn't survive the hop.
+  useEffect(() => {
+    captureReferral();
+  }, []);
 
   useEffect(() => {
     if (timer > 0) {

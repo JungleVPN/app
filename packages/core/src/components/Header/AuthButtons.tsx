@@ -1,6 +1,7 @@
 import { Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation } from 'react-router';
+import { useNavigation } from '../../hooks';
 import { useSupabaseClient } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo } from '../../stores';
 
@@ -8,7 +9,7 @@ export function AuthButtons() {
   const supabase = useSupabaseClient();
   const { authUser, loading } = useAuthStoreInfo();
   const { setAuthUser, setRmnUser } = useAuthStoreActions();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const location = useLocation();
   const { t } = useTranslation();
 

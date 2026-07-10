@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from '../../../../components';
 import { coreEnv } from '../../../../env';
 import { usePlatformStore, useTermsStore } from '../../../../stores';
+import { withReferralParam } from '../../../../utils';
 
 export function TermsDialog() {
   const { t } = useTranslation();
@@ -39,7 +40,7 @@ export function TermsDialog() {
                   {t('terms.dialog.renewalCostLead')}
                   <Link
                     className='underline underline-offset-2'
-                    href={coreEnv.supportUrl}
+                    href={withReferralParam(coreEnv.supportUrl)}
                     target={platformType === 'web' ? '_blank' : '_self'}
                     rel='noopener noreferrer'
                   >
@@ -55,7 +56,7 @@ export function TermsDialog() {
                   {t('terms.dialog.agreementsLead')}
                   <Link
                     className='underline underline-offset-2'
-                    href='/terms'
+                    href={withReferralParam('/terms')}
                     onClick={close}
                   >
                     {t('terms.dialog.termsOfServiceLink')}

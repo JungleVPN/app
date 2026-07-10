@@ -1,14 +1,14 @@
 import { Label, ListBox } from '@heroui/react';
 import { IconChevronRight, IconCreditCardPay, IconUsers } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { coreEnv, getTelegramStickerUrl } from '../../../env';
+import { useNavigation } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { Block, Page, TgsSticker } from '../../../ui';
 
 export default function MenuPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const { profileTransactionsPath, profileReferralsPath } = useAppRoutes();
 
   return (
@@ -51,7 +51,9 @@ export default function MenuPage() {
             <span className='flex size-8 items-center justify-center rounded-xl bg-default-100'>
               <IconUsers stroke={2} />
             </span>
-            <Label className='flex-1 cursor-pointer text-sm font-medium'>{t('menu.referrals')}</Label>
+            <Label className='flex-1 cursor-pointer text-sm font-medium'>
+              {t('menu.referrals')}
+            </Label>
             <IconChevronRight className='size-4 text-muted' stroke={2} />
           </ListBox.Item>
         </ListBox>

@@ -1,12 +1,12 @@
 import { Button } from '@heroui/react';
 import { IconArrowRight } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigation } from '../../../../hooks';
 import { useAppRoutes } from '../../../../runtime';
 
 export function ExtraDeviceBlock() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const { profileExtraDevicePurchasePath } = useAppRoutes();
 
   return (

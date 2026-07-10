@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { coreEnv } from '../../env';
-import { useSubscriptionData } from '../../hooks';
+import { useNavigation, useSubscriptionData } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStoreInfo } from '../../stores';
 
 export function useSubscriptionPage() {
   const { subpageConfigUuid } = coreEnv;
   const { profileSubscriptionPath } = useAppRoutes();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const { shortUuid } = useParams<{ shortUuid: string }>();
   const { authUser, tgUser } = useAuthStoreInfo();
   const { error } = useSubscriptionData(shortUuid ?? '', subpageConfigUuid);

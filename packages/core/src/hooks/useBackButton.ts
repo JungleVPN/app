@@ -1,7 +1,8 @@
 import { backButton } from '@tma.js/sdk-react';
 import { useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation } from 'react-router';
 import { usePlatformStore } from '../stores';
+import { useNavigation } from './useNavigation';
 
 /**
  * Shows the Telegram back button and wires up a click handler for the
@@ -23,7 +24,7 @@ import { usePlatformStore } from '../stores';
  * On non-Telegram platforms the hook is a no-op.
  */
 export function useBackButton(onBack?: () => void) {
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const { pathname } = useLocation();
   const { platformType } = usePlatformStore();
 

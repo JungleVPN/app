@@ -2,16 +2,15 @@ import { Button } from '@heroui/react';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { Step } from '../../../../components';
 import { coreEnv, getTelegramStickerUrl } from '../../../../env';
-import { useBackButton, useClipboard } from '../../../../hooks';
+import { useBackButton, useClipboard, useNavigation } from '../../../../hooks';
 import { useAuthStoreInfo, useNavbarStore } from '../../../../stores';
 import { Page, TgsSticker } from '../../../../ui';
 
 export default function ReferralsPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const { copy, copied } = useClipboard();
   const { setNavbarVisible } = useNavbarStore();
   const { rmnUser } = useAuthStoreInfo();

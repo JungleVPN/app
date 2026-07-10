@@ -1,10 +1,11 @@
 import { type SyntheticEvent, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router';
+import { useNavigation } from '../../hooks';
 import { useSupabaseClient } from '../../runtime';
 
 export function useLogin() {
   const supabase = useSupabaseClient();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const [searchParams] = useSearchParams();
 
   const message = searchParams.get('message');

@@ -1,22 +1,35 @@
 import { useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router';
+import { Outlet } from 'react-router';
 import { useRemnawaveApi } from '../api';
 import { Navbar } from '../components';
 import { coreEnv } from '../env';
-import { useSavedMethodsData, useSubscriptionData } from '../hooks';
+import { useNavigation, useSavedMethodsData, useSubscriptionData } from '../hooks';
 import { TermsDialog } from '../pages/profile/payment/components/TermsDialog';
 import { useAppRoutes } from '../runtime';
-import { useAuthStore, useAuthStoreActions, useAuthStoreInfo, useNavbarStore, useTermsStore } from '../stores';
-import { initUser } from '../utils';
+import {
+  useAuthStore,
+  useAuthStoreActions,
+  useAuthStoreInfo,
+  useNavbarStore,
+  useTermsStore,
+} from '../stores';
+import { captureReferral, initUser } from '../utils';
 
 export function ProfileLayout() {
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const remnawaveApi = useRemnawaveApi();
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { getSubscriptionPath } = useAppRoutes();
   const { setNavbarVisible } = useNavbarStore();
   const { isOpen: isTermsOpen } = useTermsStore();
+
+  // Any profile route can receive a forwarded `?ref=` (e.g. the TMA header
+  // logo link), so re-capture here too before the no-account redirect below
+  // reads it back out via withReferralParam.
+  useEffect(() => {
+    captureReferral();
+  }, []);
 
   useEffect(() => {
     setNavbarVisible(!isTermsOpen);

@@ -1,7 +1,6 @@
 import { Surface } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { useBackButton } from '../../hooks';
+import { useBackButton, useNavigation } from '../../hooks';
 
 const olClass =
   'list-decimal list-outside space-y-2 pl-5 text-sm leading-relaxed text-muted marker:text-muted';
@@ -10,7 +9,7 @@ const ulClass =
 
 export default function TermsPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   useBackButton(() => navigate(-1));
 
   return (

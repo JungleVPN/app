@@ -2,8 +2,7 @@ import { Spinner } from '@heroui/react';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { useBackButton } from '../../../../hooks';
+import { useBackButton, useNavigation } from '../../../../hooks';
 import { useNavbarStore } from '../../../../stores';
 import { Block } from '../../../../ui';
 import { DetailRow } from './components/DetailRow';
@@ -23,7 +22,7 @@ function formatProvider(provider: string): string {
 
 export default function TransactionDetailsPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const { payment, isLoading, error } = useTransactionDetails();
   const { setNavbarVisible } = useNavbarStore();
 

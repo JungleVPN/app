@@ -3,8 +3,7 @@ import { IconSearch } from '@tabler/icons-react';
 import type { AdminPaymentDto } from '@workspace/types';
 import { Key, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { useBackButton } from '../../../../hooks';
+import { useBackButton, useNavigation } from '../../../../hooks';
 import { useAuthStoreInfo, useNavbarStore } from '../../../../stores';
 import { Block } from '../../../../ui';
 import { isAdminUser } from '../../../../utils';
@@ -14,7 +13,7 @@ import { useUserTransactions } from './hooks/useUserTransactions';
 
 export default function TransactionsPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const { tgUser, authUser } = useAuthStoreInfo();
   const isAdmin = isAdminUser(tgUser, authUser);
 

@@ -3,9 +3,10 @@ import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation } from 'react-router';
 import IconDevices from '../../assets/icons/device-tab-icon.svg?react';
 import IconPig from '../../assets/icons/payment-tab-icon.svg?react';
+import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useNavbarStore } from '../../stores';
 import css from './Tabs.module.css';
@@ -52,7 +53,7 @@ export const Navbar = () => {
     useAppRoutes();
   const { isVisible } = useNavbarStore();
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const { pathname } = useLocation();
 
   const TAB_VALUES = BASE_TAB_VALUES;

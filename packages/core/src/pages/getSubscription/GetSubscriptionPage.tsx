@@ -3,18 +3,26 @@ import { IconArrowRight, IconCheck, IconMail } from '@tabler/icons-react';
 import { backButton } from '@tma.js/sdk-react';
 import { type SyntheticEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { useRemnawaveApi } from '../../api';
+import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../stores';
 import { Block } from '../../ui';
-import { analytics, getAttribution, getReferral, initUser, validateEmail } from '../../utils';
+import {
+  analytics,
+  captureReferral,
+  cleanReferral,
+  getAttribution,
+  getReferral,
+  initUser,
+  validateEmail,
+} from '../../utils';
 import styles from './getSubscription.module.css';
 
 export default function GetSubscriptionPage() {
   const { profileSubscriptionPath } = useAppRoutes();
   const remnawaveApi = useRemnawaveApi();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +31,14 @@ export default function GetSubscriptionPage() {
   const { authUser, rmnUser, tgUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { platformType } = usePlatformStore();
+
+  // Re-run on every landing, not just app boot: an invited user can leave this
+  // page before signing up (header Login, OTP confirm, the no-account redirect
+  // back here) and land again with `?ref=` re-attached via withReferralParam.
+  // captureReferral() is first-touch-guarded, so this is a no-op once stored.
+  useEffect(() => {
+    captureReferral();
+  }, []);
 
   // Redirect away from the setup page if the user is already resolved —
   // covers both the web flow (authUser + rmnUser) and the TMA flow (tgUser + rmnUser).
@@ -89,6 +105,7 @@ export default function GetSubscriptionPage() {
             inviterId,
           });
           setRmnUser(newUser ?? null);
+          cleanReferral();
           analytics.signUp('telegram');
         }
         navigate(profileSubscriptionPath);
@@ -107,6 +124,7 @@ export default function GetSubscriptionPage() {
           attribution: attribution ?? undefined,
           inviterId,
         });
+        cleanReferral();
         analytics.signUp('web');
         navigate(`/subscription/${newUser?.shortUuid}`);
       }
