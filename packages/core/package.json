@@ -21,7 +21,9 @@
   },
   "scripts": {
     "lint": "biome lint ./src",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@heroui/react": "^3.0.3",
@@ -50,10 +52,13 @@
     "react-router": "^7.0.0"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.0",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@workspace/shared-config": "workspace:*",
+    "jsdom": "^25.0.1",
     "tailwindcss": "^4.2.4",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^4.1.2"
   }
 }

@@ -1,140 +1,14 @@
 import { Button, Chip, Description, FieldError, Form, Input, TextField } from '@heroui/react';
 import { IconArrowRight, IconCheck, IconMail } from '@tabler/icons-react';
-import { backButton } from '@tma.js/sdk-react';
-import { type SyntheticEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRemnawaveApi } from '../../api';
-import { useNavigation } from '../../hooks';
-import { useAppRoutes } from '../../runtime';
-import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../stores';
 import { Block } from '../../ui';
-import {
-  analytics,
-  captureReferral,
-  clearReferral,
-  getAttribution,
-  getReferral,
-  initUser,
-  validateEmail,
-} from '../../utils';
 import styles from './getSubscription.module.css';
+import { useGetSubscriptionPage } from './useGetSubscriptionPage';
 
 export default function GetSubscriptionPage() {
-  const { profileSubscriptionPath } = useAppRoutes();
-  const remnawaveApi = useRemnawaveApi();
-  const navigate = useNavigation();
   const { t } = useTranslation();
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [hasError, setHasError] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { authUser, rmnUser, tgUser } = useAuthStoreInfo();
-  const { setRmnUser } = useAuthStoreActions();
-  const { platformType } = usePlatformStore();
-
-  // Re-run on every landing, not just app boot: an invited user can leave this
-  // page before signing up (header Login, OTP confirm, the no-account redirect
-  // back here) and land again with `?ref=` re-attached via withReferralParam.
-  // captureReferral() is first-touch-guarded, so this is a no-op once stored.
-  useEffect(() => {
-    captureReferral();
-  }, []);
-
-  // Redirect away from the setup page if the user is already resolved —
-  // covers both the web flow (authUser + rmnUser) and the TMA flow (tgUser + rmnUser).
-  useEffect(() => {
-    if (rmnUser && (authUser || tgUser)) navigate(profileSubscriptionPath);
-    if (platformType === 'telegram') {
-      backButton.hide();
-    }
-  }, [authUser, tgUser, rmnUser, navigate, profileSubscriptionPath, platformType]);
-
-  // Fire once when an unauthenticated visitor lands on this page.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    if (!rmnUser) {
-      analytics.initialPageViewed(platformType === 'telegram' ? 'telegram' : 'web');
-    }
-  }, []);
-
-  const handleSubmit = async (e: SyntheticEvent) => {
-    e.preventDefault();
-    setError('');
-    setHasError(false);
-
-    if (!email.trim()) {
-      setError(t('getSubscription.error_empty_email'));
-      setHasError(true);
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      setError(t('getSubscription.error_invalid_email'));
-      setHasError(true);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      if (tgUser) {
-        // TMA flow — look up by email, link the Telegram identity, then land on the portal.
-        //
-        // If an account exists (e.g. a web user who already signed up): attach this telegramId
-        // so future logins resolve via Telegram without asking for email again.
-        //
-        // If no account exists yet: create one with both email and telegramId so the user
-        // can access their subscription from both Telegram and the web.
-        const telegramId = Number(tgUser.id);
-        const existingUser = await initUser(remnawaveApi, { email, telegramId });
-
-        if (existingUser) {
-          const linked = await remnawaveApi.updateUser({
-            uuid: existingUser.uuid,
-            telegramId,
-            email,
-          });
-          setRmnUser(linked ?? null);
-          analytics.login('telegram');
-        } else {
-          const attribution = getAttribution();
-          const inviterId = getReferral() ?? undefined;
-          const newUser = await remnawaveApi.createUser({
-            email,
-            telegramId,
-            attribution: attribution ?? undefined,
-            inviterId,
-          });
-          setRmnUser(newUser ?? null);
-          clearReferral();
-          analytics.signUp('telegram');
-        }
-        navigate(profileSubscriptionPath);
-      } else {
-        // Web flow — look up or create by email, then navigate to the public subscription page.
-        const existingUser = await initUser(remnawaveApi, { email });
-        if (existingUser) {
-          analytics.login('web');
-          navigate(`/subscription/${existingUser.shortUuid}`);
-          return;
-        }
-        const attribution = getAttribution();
-        const inviterId = getReferral() ?? undefined;
-        const newUser = await remnawaveApi.createUser({
-          email,
-          attribution: attribution ?? undefined,
-          inviterId,
-        });
-        clearReferral();
-        analytics.signUp('web');
-        navigate(`/subscription/${newUser?.shortUuid}`);
-      }
-    } catch {
-      setError(t('getSubscription.error_failed_to_create'));
-      setHasError(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { email, error, hasError, isLoading, handleEmailChange, handleSubmit } =
+    useGetSubscriptionPage();
 
   const features = [
     t('getSubscription.feature_devices'),
@@ -160,13 +34,7 @@ export default function GetSubscriptionPage() {
                 placeholder={t('getSubscription.email_placeholder')}
                 value={email}
                 variant='secondary'
-                onChange={(v) => {
-                  setEmail(v.target.value);
-                  if (error) {
-                    setHasError(false);
-                    setError('');
-                  }
-                }}
+                onChange={(v) => handleEmailChange(v.target.value)}
               />
             </div>
 
