@@ -143,10 +143,19 @@ export class AutopaymentService {
         }
 
         // Payment processed but failed (e.g. canceled by bank)
+        const reason = result.cancellation_details?.reason;
         this.logger.warn(
           `Autopayment attempt ${attempt} for user ${userId}: status=${result.status}` +
-            (result.cancellation_details ? ` reason=${result.cancellation_details.reason}` : ''),
+            (reason ? ` reason=${reason}` : ''),
         );
+
+        if (reason) {
+          this.eventEmitter.emit(WebhookEventEnum['payment.autopayment_failed'], {
+            userId,
+            provider: 'yookassa',
+            reason,
+          } satisfies Payments.PaymentFailedEventPayload);
+        }
       } catch (err: any) {
         this.logger.error(
           `Autopayment attempt ${attempt} for user ${userId} failed: ${err.message}`,
@@ -219,10 +228,6 @@ export class AutopaymentService {
           `(userId=${userId}): ${dbErr.message}. ` +
           `The charge was created in YooKassa — subscription extension will rely on the incoming webhook.`,
       );
-    }
-
-    if (payment.status === 'canceled' && payment.cancellation_details) {
-      throw new Error(`Autopayment failed: ${payment.cancellation_details.reason}`);
     }
 
     return payment;

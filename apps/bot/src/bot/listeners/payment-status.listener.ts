@@ -98,6 +98,22 @@ export class PaymentStatusListener {
     return this.commonPaymentFailed(body);
   }
 
+  @OnEvent('notify.payment.autopayment_failed')
+  handleAutopaymentFailed(body: {
+    payload: Payments.PaymentFailedEventPayload;
+    user: UserDto;
+  }): Promise<void> {
+    return this.commonPaymentFailed(body);
+  }
+
+  @OnEvent('notify.payment.autopayment_exhausted')
+  handleAutopaymentExhausted(body: {
+    payload: Payments.PaymentFailedEventPayload;
+    user: UserDto;
+  }): Promise<void> {
+    return this.commonPaymentFailed(body);
+  }
+
   async commonPaymentFailed(body: {
     payload: Payments.PaymentFailedEventPayload;
     user: UserDto;
