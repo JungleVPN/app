@@ -53,4 +53,17 @@ describe('PaymentStatusService — referral reward uses userId, not telegramId',
     expect(result.success).toBe(false);
     expect(mockAxiosPost).not.toHaveBeenCalled();
   });
+
+  it('does not trigger the referral reward for an extra-device purchase', async () => {
+    // A trial user buying a device slot must not complete their inviter's referral —
+    // only a paid base subscription counts.
+    const result = await service.handleUserUpdates({
+      selectedPeriod: 1,
+      userId: USER_ID,
+      purpose: 'extra_device',
+    });
+
+    expect(result.success).toBe(true);
+    expect(mockAxiosPost).not.toHaveBeenCalled();
+  });
 });

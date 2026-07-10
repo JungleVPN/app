@@ -22,6 +22,7 @@ import type { Referral } from '@workspace/database';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { InterServiceGuard } from '../guards/inter-service.guard';
+import type { PaymentsClient } from '../main/payments.client';
 import { ReferralController } from '../main/referral.controller';
 import { ReferralService } from '../main/referral.service';
 import type { RemnaClient } from '../main/remna.client';
@@ -53,6 +54,7 @@ const makeReferral = (overrides: Partial<Referral> = {}): Referral =>
 const makeRemnaUser = (uuid: string) => ({
   uuid,
   telegramId: 200,
+  status: 'ACTIVE',
   expireAt: new Date(Date.now() + 86_400_000).toISOString(),
   subscriptionUrl: `https://vpn/sub/${uuid}`,
   description: null,
@@ -72,6 +74,13 @@ function makeRemnaClient(uuid = INVITED_UUID): RemnaClient {
     getUserByUuid: vi.fn().mockResolvedValue(makeRemnaUser(uuid)),
     updateUser: vi.fn().mockResolvedValue({}),
   } as unknown as RemnaClient;
+}
+
+/** Inviter is assumed to have a settled payment in-window unless a test says otherwise. */
+function makePaymentsClient(hasPaidWithinDays = true): PaymentsClient {
+  return {
+    hasPaidWithinDays: vi.fn().mockResolvedValue(hasPaidWithinDays),
+  } as unknown as PaymentsClient;
 }
 
 describe('Security Audit', () => {
@@ -166,12 +175,17 @@ describe('Security Audit', () => {
     });
 
     it('rewards the inviter only when a confirmed payment record is found', async () => {
-      const confirmedPayment = { id: 'pay-1', status: 'succeeded', telegramId: 200 };  // unused stub for future paymentRepo wiring
+      const confirmedPayment = { id: 'pay-1', status: 'succeeded', telegramId: 200 }; // unused stub for future paymentRepo wiring
       const paymentRepo = { findOne: vi.fn().mockResolvedValue(confirmedPayment) };
 
-      const service = new ReferralService(referralRepo, remnaClient, {
-        emit: vi.fn(),
-      } as unknown as EventEmitter2);
+      const service = new ReferralService(
+        referralRepo,
+        remnaClient,
+        {
+          emit: vi.fn(),
+        } as unknown as EventEmitter2,
+        makePaymentsClient(),
+      );
 
       const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
 
@@ -186,9 +200,14 @@ describe('Security Audit', () => {
       const completedRepo = makeReferralRepo(makeReferral({ status: 'COMPLETED' }));
       const paymentRepo = { findOne: vi.fn().mockResolvedValue({ id: 'pay-1' }) };
 
-      const service = new ReferralService(completedRepo, remnaClient, {
-        emit: vi.fn(),
-      } as unknown as EventEmitter2);
+      const service = new ReferralService(
+        completedRepo,
+        remnaClient,
+        {
+          emit: vi.fn(),
+        } as unknown as EventEmitter2,
+        makePaymentsClient(),
+      );
 
       const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
 
@@ -226,9 +245,14 @@ describe('Security Audit', () => {
       const remnaClient = makeRemnaClient();
       const mockUpdateUser = remnaClient.updateUser as ReturnType<typeof vi.fn>;
 
-      const service = new ReferralService(referralRepo, remnaClient, {
-        emit: vi.fn(),
-      } as unknown as EventEmitter2);
+      const service = new ReferralService(
+        referralRepo,
+        remnaClient,
+        {
+          emit: vi.fn(),
+        } as unknown as EventEmitter2,
+        makePaymentsClient(),
+      );
 
       const [r1, r2] = await Promise.all([
         service.handleInviterRewardAfterPayment(INVITED_UUID),
@@ -259,9 +283,14 @@ describe('Security Audit', () => {
       const remnaClient = makeRemnaClient();
       const mockUpdateUser = remnaClient.updateUser as ReturnType<typeof vi.fn>;
 
-      const service = new ReferralService(referralRepo, remnaClient, {
-        emit: vi.fn(),
-      } as unknown as EventEmitter2);
+      const service = new ReferralService(
+        referralRepo,
+        remnaClient,
+        {
+          emit: vi.fn(),
+        } as unknown as EventEmitter2,
+        makePaymentsClient(),
+      );
 
       const r1 = await service.handleInviterRewardAfterPayment(INVITED_UUID);
       const r2 = await service.handleInviterRewardAfterPayment(INVITED_UUID); // replay
@@ -292,9 +321,14 @@ describe('Security Audit', () => {
         })
         .mockResolvedValue({});
 
-      const service = new ReferralService(referralRepo, remnaClient, {
-        emit: vi.fn(),
-      } as unknown as EventEmitter2);
+      const service = new ReferralService(
+        referralRepo,
+        remnaClient,
+        {
+          emit: vi.fn(),
+        } as unknown as EventEmitter2,
+        makePaymentsClient(),
+      );
 
       // First call fails mid-flight — should throw
       await expect(service.handleInviterRewardAfterPayment(INVITED_UUID)).rejects.toThrow();

@@ -6,7 +6,11 @@ import { Referral } from '@workspace/database';
 import { add } from 'date-fns';
 import { Repository } from 'typeorm';
 import { ReferralRewardedEvent } from '../notifications/referrals-events';
+import { PaymentsClient } from './payments.client';
 import { RemnaClient } from './remna.client';
+
+/** Window used to tell a genuinely paying inviter apart from one only ever on TRIAL — both report status "ACTIVE". */
+const INVITER_PAID_WINDOW_DAYS = 30;
 
 @Injectable()
 export class ReferralService {
@@ -26,6 +30,7 @@ export class ReferralService {
     private readonly referralRepository: Repository<Referral>,
     private readonly remnaClient: RemnaClient,
     private readonly eventEmitter: EventEmitter2,
+    private readonly paymentsClient: PaymentsClient,
   ) {}
 
   async getReferralByInvitedId(invitedId: string): Promise<Referral | null> {
@@ -97,7 +102,7 @@ export class ReferralService {
    */
   async handleInviterRewardAfterPayment(
     invitedId: string,
-  ): Promise<{ rewarded: boolean; reason?: string }> {
+  ): Promise<{ rewarded: boolean; reason?: string; inviterRewarded?: boolean }> {
     // Concurrency guard: if an identical call is already in-flight, reject early.
     // This is the fast-path defence; a DB-level SELECT FOR UPDATE transaction is
     // required for a complete fix across multiple process instances.
@@ -124,12 +129,20 @@ export class ReferralService {
 
       const bonusDays = Number(process.env.REFERRAL_BONUS_IN_DAYS || '30');
       await this.rewardUser(invitedId, bonusDays, 'invited');
-      await this.rewardUser(referral.inviterId, bonusDays, 'inviter');
+
+      const inviterEligible = await this.isInviterEligibleForBonus(referral.inviterId);
+      if (inviterEligible) {
+        await this.rewardUser(referral.inviterId, bonusDays, 'inviter');
+      } else {
+        this.logger.log(
+          `Inviter ${referral.inviterId} skipped for referral bonus — no active paid subscription in the last ${INVITER_PAID_WINDOW_DAYS} days.`,
+        );
+      }
 
       referral.status = 'COMPLETED';
       await this.referralRepository.save(referral);
 
-      return { rewarded: true };
+      return { rewarded: true, inviterRewarded: inviterEligible };
     } finally {
       // Always release the lock — even when an error is thrown mid-flight, so
       // a legitimate retry can succeed after the rollback.
@@ -139,6 +152,19 @@ export class ReferralService {
 
   async deleteByInvitedId(invitedId: string): Promise<void> {
     await this.referralRepository.delete({ invitedId });
+  }
+
+  /**
+   * Remnawave reports both a TRIAL and a paid subscription as status "ACTIVE",
+   * so status alone can't tell a genuinely paying inviter from someone still
+   * on their initial trial. Require an ACTIVE subscription *and* a settled
+   * payment within the last INVITER_PAID_WINDOW_DAYS days.
+   */
+  private async isInviterEligibleForBonus(inviterId: string): Promise<boolean> {
+    const inviter = await this.remnaClient.getUserByUuid(inviterId);
+    if (!inviter || inviter.status !== 'ACTIVE') return false;
+
+    return this.paymentsClient.hasPaidWithinDays(inviterId, INVITER_PAID_WINDOW_DAYS);
   }
 
   private async rewardUser(

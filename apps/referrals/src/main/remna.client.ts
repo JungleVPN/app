@@ -10,6 +10,7 @@ export interface RemnaUser {
   expireAt: string;
   subscriptionUrl: string;
   description: string | null;
+  status?: string;
   [key: string]: unknown;
 }
 

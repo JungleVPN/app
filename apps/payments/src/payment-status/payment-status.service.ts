@@ -60,7 +60,9 @@ export class PaymentStatusService {
       return { success: false };
     }
 
-    await this.triggerReferralReward(userId);
+    if (purpose === 'subscription') {
+      await this.triggerReferralReward(userId);
+    }
 
     this.logger.log(
       purpose === 'extra_device'

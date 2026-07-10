@@ -15,6 +15,7 @@ import type { Referral } from '@workspace/database';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ReferralService } from '../main/referral.service';
+import type { PaymentsClient } from '../main/payments.client';
 import type { RemnaClient } from '../main/remna.client';
 
 vi.mock('@workspace/database', () => ({ Referral: class {} }));
@@ -32,9 +33,10 @@ const makeReferral = (overrides: Partial<Referral> = {}): Referral =>
     ...overrides,
   }) as Referral;
 
-const makeRemnaUser = (uuid: string, telegramId: number | null = 100) => ({
+const makeRemnaUser = (uuid: string, telegramId: number | null = 100, status = 'ACTIVE') => ({
   uuid,
   telegramId,
+  status,
   expireAt: new Date(Date.now() + 86_400_000).toISOString(),
   subscriptionUrl: `https://vpn/sub/${uuid}`,
   description: null,
@@ -49,17 +51,31 @@ function makeReferralRepo(findOneResult: Referral | null = null): Repository<Ref
   } as unknown as Repository<Referral>;
 }
 
-function makeRemnaClient(): RemnaClient {
+function makeRemnaClient(status = 'ACTIVE'): RemnaClient {
   return {
-    getUserByUuid: vi.fn(async (uuid: string) => makeRemnaUser(uuid)),
+    getUserByUuid: vi.fn(async (uuid: string) => makeRemnaUser(uuid, 100, status)),
     updateUser: vi.fn().mockResolvedValue({}),
   } as unknown as RemnaClient;
 }
 
-function makeService(referralRepo: Repository<Referral>, remnaClient: RemnaClient) {
-  return new ReferralService(referralRepo, remnaClient, {
-    emit: vi.fn(),
-  } as unknown as EventEmitter2);
+/** Defaults to "paid within window" so existing reward tests keep their prior behavior. */
+function makePaymentsClient(hasPaidWithinDays = true): PaymentsClient {
+  return {
+    hasPaidWithinDays: vi.fn().mockResolvedValue(hasPaidWithinDays),
+  } as unknown as PaymentsClient;
+}
+
+function makeService(
+  referralRepo: Repository<Referral>,
+  remnaClient: RemnaClient,
+  paymentsClient: PaymentsClient = makePaymentsClient(),
+) {
+  return new ReferralService(
+    referralRepo,
+    remnaClient,
+    { emit: vi.fn() } as unknown as EventEmitter2,
+    paymentsClient,
+  );
 }
 
 describe('ReferralService', () => {
@@ -149,6 +165,41 @@ describe('ReferralService', () => {
       );
       expect(remnaClient.updateUser).toHaveBeenCalledWith(
         expect.objectContaining({ uuid: INVITED_UUID }),
+      );
+      expect(result.inviterRewarded).toBe(true);
+    });
+
+    it('rewards the invited user but skips the inviter when the inviter subscription is not ACTIVE', async () => {
+      const referralRepo = makeReferralRepo(makeReferral({ status: 'TRIAL' }));
+      const remnaClient = makeRemnaClient('EXPIRED');
+      const paymentsClient = makePaymentsClient(true);
+      const service = makeService(referralRepo, remnaClient, paymentsClient);
+
+      const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
+
+      expect(result).toEqual({ rewarded: true, inviterRewarded: false });
+      expect(remnaClient.updateUser).toHaveBeenCalledWith(
+        expect.objectContaining({ uuid: INVITED_UUID }),
+      );
+      expect(remnaClient.updateUser).not.toHaveBeenCalledWith(
+        expect.objectContaining({ uuid: INVITER_UUID }),
+      );
+    });
+
+    it('rewards the invited user but skips the inviter when there is no settled payment in the last 30 days', async () => {
+      // Remnawave reports both TRIAL and a paid subscription as ACTIVE — this is the
+      // case that ACTIVE-status alone cannot distinguish.
+      const referralRepo = makeReferralRepo(makeReferral({ status: 'TRIAL' }));
+      const remnaClient = makeRemnaClient('ACTIVE');
+      const paymentsClient = makePaymentsClient(false);
+      const service = makeService(referralRepo, remnaClient, paymentsClient);
+
+      const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
+
+      expect(result).toEqual({ rewarded: true, inviterRewarded: false });
+      expect(paymentsClient.hasPaidWithinDays).toHaveBeenCalledWith(INVITER_UUID, 30);
+      expect(remnaClient.updateUser).not.toHaveBeenCalledWith(
+        expect.objectContaining({ uuid: INVITER_UUID }),
       );
     });
 

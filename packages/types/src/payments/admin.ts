@@ -1,3 +1,5 @@
+import type { PaymentPurpose } from './yookassa';
+
 /** Payment provider identifier */
 export type AdminPaymentProvider = 'yookassa' | 'telegram_stars' | 'stripe';
 
@@ -9,6 +11,7 @@ export interface AdminPaymentDto {
   userId: string;
   telegramId?: number | null;
   status: string;
+  purpose: PaymentPurpose;
   /** Fiat amount (YooKassa only) */
   amount?: string;
   /** Stars amount (Telegram Stars only) */

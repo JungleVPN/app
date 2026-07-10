@@ -4,6 +4,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions, Referral } from '@workspace/database';
 import { InterServiceGuard } from './guards/inter-service.guard';
+import { PaymentsClient } from './main/payments.client';
 import { ReferralController } from './main/referral.controller';
 import { ReferralService } from './main/referral.service';
 import { RemnaClient } from './main/remna.client';
@@ -22,6 +23,6 @@ import { ReferralsNotificationModule } from './notifications/referrals-notificat
     ReferralsNotificationModule,
   ],
   controllers: [ReferralController],
-  providers: [ReferralService, RemnaClient, InterServiceGuard],
+  providers: [ReferralService, RemnaClient, PaymentsClient, InterServiceGuard],
 })
 export class AppModule {}
