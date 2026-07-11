@@ -132,7 +132,7 @@ export class PaymentStatusListener {
     const menu = new InlineKeyboard()
       .webApp(
         i18n.t(locale, 'pay-button-label'),
-        process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro',
+        process.env.PUBLIC_TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
       )
       .row()
       .text(i18n.t(locale, 'profile-button-label'), 'navigate_to_profile');
@@ -160,7 +160,7 @@ export class PaymentStatusListener {
     const menu = new InlineKeyboard()
       .webApp(
         i18n.t(locale, 'profile-button-label'),
-        process.env.TMA_APP_URL || 'https://app.thejungle.pro',
+        process.env.PUBLIC_TMA_APP_URL || 'https://app.thejungle.pro',
       )
       .row()
       .text(i18n.t(locale, 'home-button-label'), 'navigate_main');
@@ -178,7 +178,7 @@ export class PaymentStatusListener {
     const successMenu = new InlineKeyboard()
       .webApp(
         i18n.t(locale, 'profile-button-label'),
-        process.env.TMA_APP_URL || 'https://app.thejungle.pro',
+        process.env.PUBLIC_TMA_APP_URL || 'https://app.thejungle.pro',
       )
       .row()
       .text(i18n.t(locale, 'home-button-label'), 'navigate_main');
@@ -216,7 +216,7 @@ export class PaymentStatusListener {
     const successMenu = new InlineKeyboard()
       .webApp(
         this.localService.i18n.t(locale, 'profile-button-label'),
-        process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro',
+        process.env.PUBLIC_TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
       )
       .url(i18n.t(locale, 'invoice-button-label'), invoiceUrl || subscriptionUrl || '#')
       .row()

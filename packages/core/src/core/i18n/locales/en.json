@@ -46,6 +46,25 @@
     "devices": "Devices",
     "menu": "Menu"
   },
+  "affiliate": {
+    "chip": "Balance",
+    "description": "Only works with non-Russian payment methods",
+    "actionLabel": "Become a Partner",
+    "heroTitle": "Share & Earn",
+    "heroSubtitle": "Get up to {{rate}}% commission from every referral",
+    "conditionsTitle": "Program conditions",
+    "firstPaymentLabel": "First payment commission",
+    "recurringLabel": "Recurring payment commission",
+    "benefitsTitle": "Why join?",
+    "benefit1Label": "{{rate}}% on first payment",
+    "benefit1Desc": "Instant reward for each new friend",
+    "benefit2Label": "{{rate}}% recurring commission",
+    "benefit2Desc": "Passive income on every renewal",
+    "benefit3Label": "Withdraw any time",
+    "benefit3Desc": "No lockup period, full flexibility",
+    "benefit4Label": "No fees",
+    "benefit4Desc": "Keep 100% of what you earn"
+  },
   "devices": {
     "pageTitle": "Devices",
     "pageSubtitle": "Manage your connected devices",
@@ -325,6 +344,7 @@
     "pageTitle": "Menu",
     "transactionHistory": "Transaction History",
     "referrals": "Referrals",
+    "affiliates": "Affiliates",
     "subtitle": "Manage your account settings"
   },
   "referrals": {

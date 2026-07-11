@@ -1,15 +1,16 @@
 import {
   GetSubscriptionPage,
   ProfileLayout,
+  ProtectedAffiliatePage,
   ProtectedPaymentPage,
   ProtectedProfileSubscriptionPage,
   SubscriptionPage,
   TermsPage,
 } from '@workspace/core';
 import {
-  ProtectedMenuPage,
   ProtectedDevicesPage,
   ProtectedExtraDevicePurchasePage,
+  ProtectedMenuPage,
   ProtectedReferralsPage,
   ProtectedTransactionDetailsPage,
   ProtectedTransactionsPage,
@@ -85,6 +86,10 @@ export const router = createMemoryRouter(
             {
               path: 'referrals',
               Component: ProtectedReferralsPage,
+            },
+            {
+              path: 'affiliates',
+              Component: ProtectedAffiliatePage,
             },
           ],
         },

@@ -26,6 +26,7 @@ const appRoutes = {
   profileTransactionsPath: '/profile/transactions',
   profileMenuPath: '/profile/menu',
   profileReferralsPath: '/profile/referrals',
+  profileAffiliatesPath: '/profile/affiliates',
   getSubscriptionPath: '/getSubscription',
 };
 
@@ -39,7 +40,10 @@ void (async () => {
     const launchParams = ensureTelegramLaunchParams();
     const { tgWebAppPlatform: platform } = launchParams;
     const debug = (launchParams.tgWebAppStartParam || '').includes('debug') || import.meta.env.DEV;
-    captureAttribution({ platform: 'telegram', startParam: launchParams.tgWebAppStartParam || undefined });
+    captureAttribution({
+      platform: 'telegram',
+      startParam: launchParams.tgWebAppStartParam || undefined,
+    });
     captureReferral();
 
     await initTma({

@@ -33,7 +33,10 @@ export class SupportMenu extends Base {
               ctx.t('revoked-sub-text'),
               keyboard.webApp(
                 ctx.t('connect-button-label'),
-                withReferral(ctx, process.env.TMA_APP_URL || 'https://miniapp.thejungle.pro'),
+                withReferral(
+                  ctx,
+                  process.env.PUBLIC_TMA_APP_URL || 'https://miniapp.thejungle.pro',
+                ),
               ),
             );
           },

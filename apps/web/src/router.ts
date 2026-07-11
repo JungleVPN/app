@@ -1,4 +1,4 @@
-import { ProfileLayout } from '@workspace/core';
+import { ProfileLayout, ProtectedAffiliatePage } from '@workspace/core';
 import {
   ConfirmPage,
   GetSubscriptionPage,
@@ -69,6 +69,10 @@ export const router = createBrowserRouter([
           {
             path: 'referrals',
             Component: ProtectedReferralsPage,
+          },
+          {
+            path: 'affiliates',
+            Component: ProtectedAffiliatePage,
           },
         ],
       },

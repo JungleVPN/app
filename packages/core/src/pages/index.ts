@@ -1,6 +1,7 @@
 export { default as GetSubscriptionPage } from './getSubscription/GetSubscriptionPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';
 export { default as LoginPage } from './login/LoginPage';
+export { ProtectedAffiliatePage } from './profile/affiliate/protected';
 export { ProtectedDevicesPage } from './profile/devices/protected';
 export { ProtectedExtraDevicePurchasePage } from './profile/devices/protected-extra-device';
 export { ProtectedMenuPage } from './profile/menu/protected';

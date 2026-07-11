@@ -19,19 +19,24 @@ export const coreEnv = {
   extraDeviceStickerFileId: (import.meta.env.PUBLIC_EXTRA_DEVICE_STICKER_FILE_ID ?? '') as string,
   promoCodeStickerFileId: (import.meta.env.PUBLIC_PROMO_CODE_STICKER_FILE_ID ?? '') as string,
   referralsStickerFileId: (import.meta.env.PUBLIC_REFERRALS_STICKER_FILE_ID ?? '') as string,
+  affiliateStickerFileId: (import.meta.env.PUBLIC_AFFILIATE_STICKER_FILE_ID ?? '') as string,
 
-  tmaAppUrl: (import.meta.env.TMA_APP_URL ?? '') as string,
+  tmaAppUrl: (import.meta.env.PUBLIC_TMA_APP_URL ?? '') as string,
   webAppUrl: (import.meta.env.PUBLIC_WEB_APP_URL ?? 'https://web.thejungle.pro') as string,
   supportUrl: (import.meta.env.PUBLIC_SUPPORT_URL ?? '') as string,
   botUrl: (import.meta.env.PUBLIC_BOT_URL ?? '') as string,
   paymentsUrl: (import.meta.env.PUBLIC_PAYMENTS_URL ?? '') as string,
   remnawaveUrl: (import.meta.env.PUBLIC_REMNAWAVE_URL ?? '') as string,
+  affiliatePortalUrl: (import.meta.env.PUBLIC_AFFILIATE_PORTAL_URL ?? '') as string,
   supabaseUrl: (import.meta.env.PUBLIC_SUPABASE_URL ?? '') as string,
   supabaseAnonKey: (import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '') as string,
 
   extraDevicePriceRUB: Number(import.meta.env.PUBLIC_EXTRA_DEVICE_PRICE_RUB ?? ''),
   extraDevicePriceEUR: Number(import.meta.env.PUBLIC_EXTRA_DEVICE_PRICE_EUR ?? ''),
   extraDevicePriceStars: Number(import.meta.env.PUBLIC_EXTRA_DEVICE_PRICE_STARS ?? ''),
+
+  referralFirstPaymentRate: Number(import.meta.env.PUBLIC_REFERRAL_FIRST_PAYMENT_RATE ?? ''),
+  referralRecurringRate: Number(import.meta.env.PUBLIC_REFERRAL_RECURRING_PAYMENT_RATE ?? ''),
 
   admins: new Set(
     ((import.meta.env.PUBLIC_ADMINS ?? '') as string)

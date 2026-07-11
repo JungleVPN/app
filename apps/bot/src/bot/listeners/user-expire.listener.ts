@@ -60,7 +60,9 @@ export class UserExpireListener {
   async handleUserExpireEvent(payload: { event: WebHookEvent; data: UserDto; timestamp: string }) {
     const telegramId = payload.data.telegramId;
     if (!telegramId) {
-      this.logger.warn(`Skipping expire notification: telegramId is null for event ${payload.event}`);
+      this.logger.warn(
+        `Skipping expire notification: telegramId is null for event ${payload.event}`,
+      );
       return;
     }
 
@@ -70,7 +72,7 @@ export class UserExpireListener {
 
     keyboard.webApp(
       this.localService.i18n.t(locale, 'pay-button-label'),
-      process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
+      process.env.PUBLIC_TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
     );
     keyboard.row();
     keyboard.url(

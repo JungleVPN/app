@@ -1,5 +1,10 @@
 import { Label, ListBox } from '@heroui/react';
-import { IconChevronRight, IconCreditCardPay, IconUsers } from '@tabler/icons-react';
+import {
+  IconChevronRight,
+  IconCreditCardPay,
+  IconMoneybagMoveBack,
+  IconUsers,
+} from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { coreEnv, getTelegramStickerUrl } from '../../../env';
 import { useNavigation } from '../../../hooks';
@@ -9,7 +14,7 @@ import { Block, Page, TgsSticker } from '../../../ui';
 export default function MenuPage() {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { profileTransactionsPath, profileReferralsPath } = useAppRoutes();
+  const { profileTransactionsPath, profileReferralsPath, profileAffiliatesPath } = useAppRoutes();
 
   return (
     <Page
@@ -32,6 +37,7 @@ export default function MenuPage() {
           onAction={(key) => {
             if (key === 'transaction-history') void navigate(profileTransactionsPath);
             if (key === 'referrals') void navigate(profileReferralsPath);
+            if (key === 'affiliates') void navigate(profileAffiliatesPath);
           }}
         >
           <ListBox.Item
@@ -53,6 +59,19 @@ export default function MenuPage() {
             </span>
             <Label className='flex-1 cursor-pointer text-sm font-medium'>
               {t('menu.referrals')}
+            </Label>
+            <IconChevronRight className='size-4 text-muted' stroke={2} />
+          </ListBox.Item>
+          <ListBox.Item
+            id='affiliates'
+            textValue={t('menu.affiliates')}
+            className='px-4 py-2 gap-1'
+          >
+            <span className='flex size-8 items-center justify-center rounded-xl bg-default-100'>
+              <IconMoneybagMoveBack stroke={2} />
+            </span>
+            <Label className='flex-1 cursor-pointer text-sm font-medium'>
+              {t('menu.affiliates')}
             </Label>
             <IconChevronRight className='size-4 text-muted' stroke={2} />
           </ListBox.Item>

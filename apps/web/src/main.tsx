@@ -28,6 +28,7 @@ const appRoutes = {
   profileTransactionsPath: '/profile/transactions',
   profileMenuPath: '/profile/menu',
   profileReferralsPath: '/profile/referrals',
+  profileAffiliatesPath: '/profile/affiliates',
   getSubscriptionPath: '/',
 };
 

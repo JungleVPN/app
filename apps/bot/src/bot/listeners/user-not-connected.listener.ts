@@ -37,7 +37,7 @@ export class UserNotConnectedListener {
     const keyboard = new InlineKeyboard()
       .webApp(
         this.localService.i18n.t(locale, 'profile-button-label'),
-        process.env.TMA_APP_URL || 'https://app.thejungle.pro',
+        process.env.PUBLIC_TMA_APP_URL || 'https://app.thejungle.pro',
       )
       .text(this.localService.i18n.t(locale, 'home-button-label'), 'navigate_main')
       .row()
