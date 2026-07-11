@@ -78,6 +78,8 @@ export class ReferralService {
 
     await this.createReferralRecord(inviterId, invitedId);
 
+    this.logger.log(`Referral created: ${invitedId}`);
+
     return { success: true, reason: 'new_user' };
   }
 
