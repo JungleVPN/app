@@ -43,7 +43,7 @@ export function withReferralParam(path: string): string {
 
   const [base, existingSearch] = path.split('?');
   const params = new URLSearchParams(existingSearch);
-  console.log(params);
+
   params.set('ref', inviterId);
   return `${base}?${params.toString()}`;
 }

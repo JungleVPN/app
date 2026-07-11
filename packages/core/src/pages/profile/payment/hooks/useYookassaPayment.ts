@@ -2,7 +2,6 @@ import { openLink } from '@tma.js/sdk-react';
 import { useRemnawaveApi } from '../../../../api';
 import { coreEnv } from '../../../../env';
 import { useCreatePaymentSession, useDeleteSavedMethod, useUpdateUser } from '../../../../hooks';
-import { analytics } from '../../../../utils';
 import { useAppRoutes, usePaymentsApi } from '../../../../runtime';
 import {
   useAuthStoreActions,
@@ -10,6 +9,7 @@ import {
   usePlatformStore,
   useSavedMethodsStoreActions,
 } from '../../../../stores';
+import { analytics } from '../../../../utils';
 
 export function useYookassaPayment() {
   const { rmnUser, tgUser } = useAuthStoreInfo();

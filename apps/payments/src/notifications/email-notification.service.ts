@@ -28,7 +28,12 @@ function toDateString(value: Date | string): string {
 
 // ── Email templates ───────────────────────────────────────────────────────────
 
-function buildEmailHtml(body: string, paymentUrl: string, ctaLabel: string, supportUrl: string): string {
+function buildEmailHtml(
+  body: string,
+  paymentUrl: string,
+  ctaLabel: string,
+  supportUrl: string,
+): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -134,7 +139,7 @@ export class EmailNotificationService {
   }
 
   private get paymentUrl(): string {
-    return process.env.TMA_APP_PAYMENT_URL ?? 'https://t.me';
+    return process.env.PUBLIC_WEB_PAYMENT_URL ?? 'https://t.me';
   }
 
   private get supportUrl(): string {
