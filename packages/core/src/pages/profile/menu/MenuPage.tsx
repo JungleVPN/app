@@ -14,7 +14,7 @@ import { Block, Page, TgsSticker } from '../../../ui';
 export default function MenuPage() {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { profileTransactionsPath, profileReferralsPath, profileAffiliatesPath } = useAppRoutes();
+  const { profileTransactionsPath, profileReferralsPath, affiliatesPath } = useAppRoutes();
 
   return (
     <Page
@@ -37,7 +37,7 @@ export default function MenuPage() {
           onAction={(key) => {
             if (key === 'transaction-history') void navigate(profileTransactionsPath);
             if (key === 'referrals') void navigate(profileReferralsPath);
-            if (key === 'affiliates') void navigate(profileAffiliatesPath);
+            if (key === 'affiliates') void navigate(affiliatesPath);
           }}
         >
           <ListBox.Item

@@ -19,6 +19,7 @@ initDayjs();
 const appRoutes = {
   paymentReturnPath: '/profile/subscription',
   authGateRedirectPath: '/getSubscription',
+  affiliatesPath: '/affiliates',
   profileSubscriptionPath: '/profile/subscription',
   profilePaymentPath: '/profile/payments',
   profileDevicesPath: '/profile/devices',
@@ -26,7 +27,6 @@ const appRoutes = {
   profileTransactionsPath: '/profile/transactions',
   profileMenuPath: '/profile/menu',
   profileReferralsPath: '/profile/referrals',
-  profileAffiliatesPath: '/profile/affiliates',
   getSubscriptionPath: '/getSubscription',
 };
 
