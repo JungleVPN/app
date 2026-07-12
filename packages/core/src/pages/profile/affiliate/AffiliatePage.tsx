@@ -3,7 +3,7 @@ import {
   IconArrowRight,
   IconLockOpen,
   IconMoodDollar,
-  IconRepeat,
+  // IconRepeat,
   IconSparkles,
 } from '@tabler/icons-react';
 import { useEffect } from 'react';
@@ -18,7 +18,7 @@ export default function AffiliatePage() {
   const navigate = useNavigation();
 
   const firstPaymentRate = Math.round(coreEnv.referralFirstPaymentRate * 100);
-  const recurringRate = Math.round(coreEnv.referralRecurringRate * 100);
+  // const recurringRate = Math.round(coreEnv.referralRecurringRate * 100);
   const affiliateStickerFileId = getTelegramStickerUrl(coreEnv.affiliateStickerFileId);
 
   const { setNavbarVisible } = useNavbarStore();
@@ -40,12 +40,12 @@ export default function AffiliatePage() {
       label: t('affiliate.benefit1Label', { rate: firstPaymentRate }),
       desc: t('affiliate.benefit1Desc'),
     },
-    {
-      id: 'recurring',
-      icon: <IconRepeat stroke={2} className='size-5' />,
-      label: t('affiliate.benefit2Label', { rate: recurringRate }),
-      desc: t('affiliate.benefit2Desc'),
-    },
+    // {
+    //   id: 'recurring',
+    //   icon: <IconRepeat stroke={2} className='size-5' />,
+    //   label: t('affiliate.benefit2Label', { rate: recurringRate }),
+    //   desc: t('affiliate.benefit2Desc'),
+    // },
     {
       id: 'withdraw',
       icon: <IconLockOpen stroke={2} className='size-5' />,
