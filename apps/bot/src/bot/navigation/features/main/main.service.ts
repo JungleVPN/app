@@ -40,7 +40,7 @@ export class MainMenuService extends Base {
       } catch {}
     }
 
-    const tmaAppUrl = process.env.PUBLIC_TMA_APP_URL || 'https://miniapp.thejungle.pro';
+    const tmaAppUrl = process.env.PUBLIC_TMA_APP_URL || 'https://app.thejungle.pro';
     await ctx.api.setChatMenuButton({
       chat_id: ctx.from?.id,
       menu_button: {

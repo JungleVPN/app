@@ -5,6 +5,7 @@ connect-button-label = Подключиться 📶
 menu-app-button-label = Личный кабинет 🌴
 connect-instruction-text = Нажми на кнопку ниже, чтобы открыть приложение и подключиться 📶
 extend-button-label = Продлить ➕
+web-button-label = Сайт 🌍
 donate-button-label = Поддержать 💶
 available-countries-button-label = Страны 🌍
 not-workinig-button-label = VPN не работает 🚨

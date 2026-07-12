@@ -14,7 +14,8 @@
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
     "docker:prod": "docker compose up --build -d && docker compose logs -f",
-    "docker:client": "docker compose up --build -d web tma bot && docker compose logs -f"
+    "docker:client": "docker compose up --build -d web tma bot && docker compose logs -f",
+    "docker:noCache": "docker compose up -d --force-recreate && docker compose logs -f"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.3",
