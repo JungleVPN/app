@@ -1,6 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SavedPaymentMethod, StripePayment } from '@workspace/database';
+import {
+  SavedPaymentMethod,
+  StripePayment,
+  TelegramStarsPayment,
+  YookassaPayment,
+} from '@workspace/database';
 import { StripeProvider } from '@payments/providers/stripe/stripe.provider';
 import { StripeWebhookService } from '@payments/providers/stripe/stripe-webhook.service';
 import { StripeController } from '@payments/providers/stripe/stripe.controller';
@@ -9,7 +14,12 @@ import { PromoModule } from '../../promo/promo.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([StripePayment, SavedPaymentMethod]),
+    TypeOrmModule.forFeature([
+      StripePayment,
+      SavedPaymentMethod,
+      YookassaPayment,
+      TelegramStarsPayment,
+    ]),
     PaymentStatusModule,
     PromoModule,
   ],

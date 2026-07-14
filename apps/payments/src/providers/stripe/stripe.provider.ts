@@ -1,11 +1,10 @@
 import * as process from 'node:process';
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { StripePayment } from '@workspace/database';
+import { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
 import type { StripeSubscriptionStatusDto } from '@workspace/types';
-import { BadRequestException } from '@nestjs/common';
 import Stripe from 'stripe';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { PromoInvalidError, PromoService } from '../../promo/promo.service';
 import type { BillingPortalSession, CheckoutSession, CreateStripePaymentDto } from './stripe.types';
 import { StripeWebhookService } from './stripe-webhook.service';
@@ -18,6 +17,9 @@ export class StripeProvider {
   constructor(
     readonly stripeWebhookService: StripeWebhookService,
     @InjectRepository(StripePayment) private repository: Repository<StripePayment>,
+    @InjectRepository(YookassaPayment) private yookassaRepository: Repository<YookassaPayment>,
+    @InjectRepository(TelegramStarsPayment)
+    private telegramStarsRepository: Repository<TelegramStarsPayment>,
     private readonly promoService: PromoService,
   ) {
     this.stripe = new Stripe(process.env.STRIPE_API_KEY || '');
@@ -42,6 +44,12 @@ export class StripeProvider {
           })
         : null;
 
+    // Only ever attribute the referral on a user's first-ever successful payment
+    const toltReferralId =
+      purchaseType === 'subscription' && !(await this.hasPriorSuccessfulPayment(dto.userId))
+        ? dto.toltReferralId
+        : null;
+
     if (customerId) {
       // Only redirect to billing portal for subscription renewals, never for extra-device.
       if (purchaseType === 'subscription') {
@@ -56,7 +64,7 @@ export class StripeProvider {
         purchaseType,
         dto.userId,
         promoCode,
-        dto.toltReferralId,
+        toltReferralId,
       );
     }
 
@@ -67,8 +75,18 @@ export class StripeProvider {
       purchaseType,
       dto.userId,
       promoCode,
-      dto.toltReferralId,
+      toltReferralId,
     );
+  }
+
+  /** Whether `userId` has any prior successful payment, across all payment providers. */
+  private async hasPriorSuccessfulPayment(userId: string): Promise<boolean> {
+    const [stripePayment, yookassaPayment, starsPayment] = await Promise.all([
+      this.repository.exists({ where: { userId, status: In(['paid', 'completed']) } }),
+      this.yookassaRepository.exists({ where: { userId, status: 'succeeded' } }),
+      this.telegramStarsRepository.exists({ where: { userId, status: 'succeeded' } }),
+    ]);
+    return stripePayment || yookassaPayment || starsPayment;
   }
 
   /** Validate a promo code at checkout; returns the normalized code or throws 400. */

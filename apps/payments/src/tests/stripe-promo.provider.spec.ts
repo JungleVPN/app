@@ -18,12 +18,25 @@ vi.mock('@workspace/database', () => ({
 function makeProvider(promoResolve?: () => Promise<unknown>) {
   const repository = {
     findOne: vi.fn().mockResolvedValue(null), // no existing customer → new-customer path
+    exists: vi.fn().mockResolvedValue(false),
+  } as unknown as Repository<any>;
+  const yookassaRepository = {
+    exists: vi.fn().mockResolvedValue(false),
+  } as unknown as Repository<any>;
+  const telegramStarsRepository = {
+    exists: vi.fn().mockResolvedValue(false),
   } as unknown as Repository<any>;
 
   const resolve = vi.fn(promoResolve ?? (async () => ({ type: 'bonus_months', months: 2 })));
   const promoService = { resolve } as unknown as PromoService;
 
-  const provider = new StripeProvider({} as StripeWebhookService, repository, promoService);
+  const provider = new StripeProvider(
+    {} as StripeWebhookService,
+    repository,
+    yookassaRepository,
+    telegramStarsRepository,
+    promoService,
+  );
 
   const sessionsCreate = vi.fn().mockResolvedValue({ id: 'cs_1', url: 'https://stripe/cs_1' });
   (provider as any).stripe = {

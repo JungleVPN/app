@@ -1,8 +1,8 @@
 import { openLink } from '@tma.js/sdk-react';
+import { coreEnv } from '../../../../env';
 import { useCreateStripeSession } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreInfo, usePlatformStore } from '../../../../stores';
-import { coreEnv } from '../../../../env';
 
 export function useExtraDeviceStripePayment() {
   const { rmnUser, tgUser } = useAuthStoreInfo();
@@ -25,7 +25,6 @@ export function useExtraDeviceStripePayment() {
       userId: rmnUser.uuid,
       purchaseType: 'extra_device',
       payment: { amount: coreEnv.extraDevicePriceEUR, currency: 'EUR' },
-      toltReferralId: window.tolt_referral ?? null,
       metadata: {
         email: payerEmail,
         userId: rmnUser.uuid,
