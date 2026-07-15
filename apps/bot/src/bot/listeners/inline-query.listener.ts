@@ -3,6 +3,7 @@ import { BotService } from '@bot/bot.service';
 import { BotContext } from '@bot/bot.types';
 import { LocalisationService } from '@bot/localisation/localisation.service';
 import { isValidUsername } from '@bot/utils/utils';
+import { LocaleId } from '@grammyjs/i18n';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ReferralService } from '@referral/referral.service';
 import { RemnaService } from '@remna/remna.service';
@@ -35,7 +36,9 @@ export class InlineQueryListener {
       }
 
       const link = this.referralService.getUserReferralLink(rmnUser.uuid);
-      const locale = rmnUser.description || process.env.DEFAULT_LOCALE || 'ru';
+      const locale =
+        (await this.remnaService.getUserLang(rmnUser.uuid)) ||
+        (process.env.DEFAULT_LOCALE as LocaleId);
 
       const keyboard = new InlineKeyboard().url(
         this.localService.i18n.t(locale, 'connect-button-label'),

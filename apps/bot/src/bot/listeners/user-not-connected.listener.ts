@@ -3,10 +3,11 @@ import { BotService } from '@bot/bot.service';
 import { BotContext } from '@bot/bot.types';
 import { LocalisationService } from '@bot/localisation/localisation.service';
 import { safeSendMessage } from '@bot/utils/utils';
+import { LocaleId } from '@grammyjs/i18n';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { WebHookEvent } from '@remna/remna.model';
-import { UserLocale } from '@shared/user.types';
+import { RemnaService } from '@remna/remna.service';
 import { UserDto } from '@workspace/types';
 import { differenceInHours } from 'date-fns';
 import { Bot, InlineKeyboard } from 'grammy';
@@ -19,6 +20,7 @@ export class UserNotConnectedListener {
   constructor(
     readonly botService: BotService,
     readonly localService: LocalisationService,
+    readonly remnaService: RemnaService,
   ) {
     this.bot = this.botService.bot;
   }
@@ -29,7 +31,9 @@ export class UserNotConnectedListener {
     data: UserDto;
     timestamp: string;
   }) {
-    const locale = (payload.data.description || process.env.DEFAULT_LOCALE || 'ru') as UserLocale;
+    const locale =
+      (payload.data.uuid ? await this.remnaService.getUserLang(payload.data.uuid) : null) ||
+      (process.env.DEFAULT_LOCALE as LocaleId);
     const createdAt = new Date(payload.data.createdAt);
     const timestamp = new Date(payload.timestamp);
     const diffHours = differenceInHours(timestamp, createdAt);
@@ -59,7 +63,7 @@ export class UserNotConnectedListener {
     await this.handleInitial(payload.data.telegramId, locale, keyboard);
   }
 
-  async handleThreeDays(telegramId: number, locale: UserLocale, keyboard: InlineKeyboard) {
+  async handleThreeDays(telegramId: number, locale: LocaleId, keyboard: InlineKeyboard) {
     const text = this.localService.i18n.t(locale, 'user-not-connected-72');
 
     await safeSendMessage(this.bot, telegramId, text, {
@@ -68,7 +72,7 @@ export class UserNotConnectedListener {
     });
   }
 
-  async handleInitial(telegramId: number, locale: UserLocale, keyboard: InlineKeyboard) {
+  async handleInitial(telegramId: number, locale: LocaleId, keyboard: InlineKeyboard) {
     const text = this.localService.i18n.t(locale, 'user-not-connected-24');
 
     await safeSendMessage(this.bot, telegramId, text, {

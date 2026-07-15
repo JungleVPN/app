@@ -124,5 +124,24 @@ export function createRemnawaveApi(client: ApiClient) {
         apiRoutes.remnawave.userDevice(userUuid, hwid),
       );
     },
+
+    async getUserMetadata(uuid: string): Promise<Record<string, unknown> | null> {
+      try {
+        return await client.get<Record<string, unknown>>(apiRoutes.remnawave.userMetadata(uuid));
+      } catch {
+        return null;
+      }
+    },
+
+    async upsertUserMetadata(
+      uuid: string,
+      metadata: Record<string, unknown>,
+    ): Promise<void> {
+      try {
+        await client.put<void>(apiRoutes.remnawave.userMetadata(uuid), { metadata });
+      } catch {
+        // best-effort; language preference loss is non-critical
+      }
+    },
   };
 }

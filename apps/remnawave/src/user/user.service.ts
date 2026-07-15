@@ -17,10 +17,13 @@ import {
   GetUserByTelegramIdResponseDto,
   GetUserByUuidCommand,
   GetUserByUuidResponseDto,
+  GetUserMetadataCommand,
+  GetUserMetadataResponseDto,
   RevokeUserSubscriptionCommand,
   UpdateUserCommand,
   UpdateUserRequestDto,
   UpdateUserResponseDto,
+  UpsertUserMetadataCommand,
   UserDto,
 } from '@workspace/types';
 import axios from 'axios';
@@ -258,6 +261,21 @@ export class UserService implements OnModuleInit {
     } catch {
       return { photoUrl: null };
     }
+  }
+
+  async getUserMetadata(uuid: string) {
+    return await this.panelClient.request<GetUserMetadataResponseDto>({
+      url: GetUserMetadataCommand.url(uuid),
+      method: GetUserMetadataCommand.endpointDetails.REQUEST_METHOD,
+    });
+  }
+
+  async upsertUserMetadata(uuid: string, metadata: Record<string, unknown>): Promise<void> {
+    await this.panelClient.request({
+      url: UpsertUserMetadataCommand.url(uuid),
+      method: UpsertUserMetadataCommand.endpointDetails.REQUEST_METHOD,
+      body: { metadata },
+    });
   }
 
   async revokeSubscription(uuid: string): Promise<string> {

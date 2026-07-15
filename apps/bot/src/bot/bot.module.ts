@@ -6,7 +6,6 @@ import { StartCommand } from '@bot/commands/start.command';
 import { InlineQueryListener } from '@bot/listeners/inline-query.listener';
 import { PaymentStatusListener } from '@bot/listeners/payment-status.listener';
 import { TelegramStarsListener } from '@bot/listeners/telegram-stars.listener';
-import { TorrentListener } from '@bot/listeners/torrent.listener';
 import { UserRewardedListener } from '@bot/listeners/user.rewarded.listener';
 import { UserExpireListener } from '@bot/listeners/user-expire.listener';
 import { UserNotConnectedListener } from '@bot/listeners/user-not-connected.listener';
@@ -44,7 +43,6 @@ import { BotService } from './bot.service';
     // HANDLERS
     UserExpireListener,
     UserNotConnectedListener,
-    TorrentListener,
     PaymentStatusListener,
     TelegramStarsListener,
     UserRewardedListener,

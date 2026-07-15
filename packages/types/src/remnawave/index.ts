@@ -7,6 +7,7 @@ export {
   EVENTS as REMNAWAVE_EVENTS,
   EVENTS_SCOPES as REMNAWAVE_EVENTS_SCOPES,
   GetAllUsersCommand,
+  GetMetadataCommand,
   GetSubpageConfigByShortUuidCommand,
   GetSubscriptionInfoByShortUuidCommand,
   GetSubscriptionPageConfigCommand,
@@ -14,9 +15,11 @@ export {
   GetUserByTelegramIdCommand,
   GetUserByUuidCommand,
   GetUserHwidDevicesCommand,
+  GetUserMetadataCommand,
   RevokeUserSubscriptionCommand,
   type TRemnawaveWebhookEvent,
   UpdateUserCommand,
+  UpsertUserMetadataCommand,
 } from '@remnawave/backend-contract';
 
 export {
@@ -36,6 +39,7 @@ import {
   GetUserByTelegramIdCommand,
   GetUserByUuidCommand,
   GetUserHwidDevicesCommand,
+  GetUserMetadataCommand,
   UpdateUserCommand,
 } from '@remnawave/backend-contract';
 
@@ -51,3 +55,4 @@ export type CreateUserResponseDto = CreateUserCommand.Response['response'];
 export type UpdateUserResponseDto = UpdateUserCommand.Response['response'];
 export type DeleteUserResponseDto = DeleteUserCommand.Response['response'];
 export type HwidDeviceDto = GetUserHwidDevicesCommand.Response['response']['devices'][number];
+export type GetUserMetadataResponseDto = GetUserMetadataCommand.Response['response'];

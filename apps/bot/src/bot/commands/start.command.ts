@@ -29,6 +29,13 @@ export class StartCommand {
       const users = await this.remnaService.getUserByTgId(ctx.from.id);
       const rmnUser = users?.[0] ?? null;
 
+      if (rmnUser && ctx.from.language_code) {
+        const existingLang = await this.remnaService.getUserLang(rmnUser.uuid);
+        if (!existingLang) {
+          await this.remnaService.upsertUserLang(rmnUser.uuid, ctx.from.language_code);
+        }
+      }
+
       if (!rmnUser) {
         const username = isValidUsername(ctx.from?.username)
           ? ctx.from?.username
@@ -53,7 +60,6 @@ export class StartCommand {
 
         await this.mainMenuService.init(ctx, this.mainMenu);
       }
-
     });
   }
 }

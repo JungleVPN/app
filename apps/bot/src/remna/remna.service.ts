@@ -6,6 +6,7 @@ import {
   apiRoutes,
   CreateUserRequestDto,
   GetUserByTelegramIdResponseDto,
+  GetUserMetadataResponseDto,
   UserDto,
 } from '@workspace/types';
 import { AxiosInstance } from 'axios';
@@ -24,7 +25,7 @@ export class RemnaService {
     body,
   }: {
     url: string;
-    method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+    method?: 'GET' | 'POST' | 'PATCH' | 'DELETE' | 'PUT';
     body?: unknown;
   }): Promise<Data> {
     try {
@@ -83,6 +84,31 @@ export class RemnaService {
     } catch (e: any) {
       if (e.status === 404) return null;
       throw e;
+    }
+  }
+
+  async getUserLang(uuid: string): Promise<string | null> {
+    try {
+      const { metadata } = await this.fetch<GetUserMetadataResponseDto>({
+        method: 'GET',
+        url: apiRoutes.remnawave.userMetadata(uuid),
+      });
+      const lang = metadata?.lang;
+      return typeof lang === 'string' ? lang : null;
+    } catch {
+      return null;
+    }
+  }
+
+  async upsertUserLang(uuid: string, lang: string): Promise<void> {
+    try {
+      await this.fetch<unknown>({
+        method: 'PUT',
+        url: apiRoutes.remnawave.userMetadata(uuid),
+        body: { metadata: { lang } },
+      });
+    } catch (e: any) {
+      this.logger.warn(`Failed to upsert lang metadata for ${uuid}: ${e?.message}`);
     }
   }
 

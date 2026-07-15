@@ -5,6 +5,7 @@ import { LocalisationService } from '@bot/localisation/localisation.service';
 import { safeSendMessage, toDateString } from '@bot/utils/utils';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { RemnaService } from '@remna/remna.service';
 import { WebHookEvent } from '@remna/remna.model';
 import { UserDto } from '@workspace/types';
 import { Bot, InlineKeyboard } from 'grammy';
@@ -24,6 +25,7 @@ export class UserExpireListener {
   constructor(
     private readonly botService: BotService,
     private readonly localService: LocalisationService,
+    private readonly remnaService: RemnaService,
   ) {
     this.bot = this.botService.bot;
   }
@@ -47,7 +49,12 @@ export class UserExpireListener {
       return;
     }
 
-    const locale = payload.data.description || process.env.DEFAULT_LOCALE || 'ru';
+    const locale =
+      (payload.data.uuid
+        ? await this.remnaService.getUserLang(payload.data.uuid)
+        : null) ||
+      process.env.DEFAULT_LOCALE ||
+      'ru';
 
     const keyboard = new InlineKeyboard();
 

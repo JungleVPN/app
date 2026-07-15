@@ -11,6 +11,7 @@ import {
   useAuthStoreActions,
   useAuthStoreInfo,
   useNavbarStore,
+  usePlatformStore,
   useTermsStore,
 } from '../stores';
 import { captureReferral, initUser } from '../utils';
@@ -23,6 +24,7 @@ export function ProfileLayout() {
   const { getSubscriptionPath } = useAppRoutes();
   const { setNavbarVisible } = useNavbarStore();
   const { isOpen: isTermsOpen } = useTermsStore();
+  const { platformType } = usePlatformStore();
 
   // Any profile route can receive a forwarded `?ref=` (e.g. the TMA header
   // logo link), so re-capture here too before the no-account redirect below
@@ -57,6 +59,19 @@ export function ProfileLayout() {
   // Pre-fetch both subscription and saved payment methods as soon as rmnUser
   // is known so child routes render immediately without a loading flash on
   // subsequent navigations.
+
+  useEffect(() => {
+    if (!rmnUser || platformType !== 'web') return;
+    const browserLang = navigator.language.split('-')[0];
+    remnawaveApi
+      .getUserMetadata(rmnUser.uuid)
+      .then((meta) => {
+        if (!meta?.lang) {
+          remnawaveApi.upsertUserMetadata(rmnUser.uuid, { lang: browserLang }).catch(console.error);
+        }
+      })
+      .catch(console.error);
+  }, [rmnUser?.uuid, platformType, remnawaveApi, rmnUser]);
 
   useSubscriptionData(rmnUser?.shortUuid, coreEnv.subpageConfigUuid);
   useSavedMethodsData(rmnUser?.uuid ?? '');

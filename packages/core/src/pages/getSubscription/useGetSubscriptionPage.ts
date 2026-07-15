@@ -81,6 +81,12 @@ export function useGetSubscriptionPage() {
     if (existingUser) {
       const linked = await remnawaveApi.updateUser({ uuid: existingUser.uuid, telegramId, email });
       setRmnUser(linked ?? null);
+      if (tgUser.language_code) {
+        const existing = await remnawaveApi.getUserMetadata(existingUser.uuid);
+        if (!existing?.lang) {
+          await remnawaveApi.upsertUserMetadata(existingUser.uuid, { lang: tgUser.language_code });
+        }
+      }
       analytics.login('telegram');
     } else {
       const newUser = await remnawaveApi.createUser({
@@ -90,6 +96,9 @@ export function useGetSubscriptionPage() {
         inviterId: getReferral() ?? undefined,
       });
       setRmnUser(newUser ?? null);
+      if (newUser && tgUser.language_code) {
+        await remnawaveApi.upsertUserMetadata(newUser.uuid, { lang: tgUser.language_code });
+      }
       clearReferral();
       analytics.signUp('telegram');
     }

@@ -3,6 +3,7 @@ import { BotService } from '@bot/bot.service';
 import { BotContext } from '@bot/bot.types';
 import { LocalisationService } from '@bot/localisation/localisation.service';
 import { toDateString } from '@bot/utils/utils';
+import { LocaleId } from '@grammyjs/i18n';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { RemnaService } from '@remna/remna.service';
@@ -26,7 +27,10 @@ export class UserRewardedListener {
 
     const user = await this.remnaService.getUserByTgId(telegramId);
     const expireAt = user?.[0].expireAt;
-    const locale = user?.[0].description || process.env.DEFAULT_LOCALE || 'ru';
+    const locale =
+      (user?.[0]?.uuid ? await this.remnaService.getUserLang(user[0].uuid) : null) ||
+      (process.env.DEFAULT_LOCALE as LocaleId);
+
     const formattedDate = toDateString(expireAt!);
 
     const textKey = role === 'inviter' ? 'user-rewarded-text' : 'referred-user-rewarded-text';

@@ -1,15 +1,21 @@
 import { Button, Dropdown, Label } from '@heroui/react';
 import type { TSubscriptionPageLanguageCode } from '@remnawave/subscription-page-types';
 import { useTranslation } from 'react-i18next';
-import { useSubscriptionConfigStoreActions } from '../../stores';
+import { useRemnawaveApi } from '../../api';
+import { useAuthStore, useSubscriptionConfigStoreActions } from '../../stores';
 
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
   const { setLanguage } = useSubscriptionConfigStoreActions();
+  const remnawaveApi = useRemnawaveApi();
+  const rmnUser = useAuthStore((s) => s.rmnUser);
 
-  const handleLanguageChange = (newLocale: string) => {
-    i18n.changeLanguage(newLocale);
+  const handleLanguageChange = async (newLocale: string) => {
+    await i18n.changeLanguage(newLocale);
     setLanguage(newLocale as TSubscriptionPageLanguageCode);
+    if (rmnUser?.uuid) {
+      await remnawaveApi.upsertUserMetadata(rmnUser.uuid, { lang: newLocale });
+    }
   };
 
   const code = i18n.language?.split('-')[0] || 'ru';

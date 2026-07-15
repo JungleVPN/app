@@ -1,6 +1,6 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
-import type { RemnawebhookPayload } from '@workspace/types';
+import { apiRoutes, RemnawebhookPayload } from '@workspace/types';
 import axios, { isAxiosError } from 'axios';
 
 type UserData = RemnawebhookPayload['data'];
@@ -159,7 +159,7 @@ export class EmailNotificationService {
       return;
     }
 
-    const locale = this.resolveLocale(user.description);
+    const locale = await this.resolveLocale(user.uuid);
     const expireDate = toDateString(user.expireAt);
     const { subject, html } = EMAIL_TEMPLATES[locale][hoursRemaining](
       expireDate,
@@ -200,16 +200,24 @@ export class EmailNotificationService {
     }
   }
 
-  private resolveLocale(description: string | null): SupportedLocale {
-    const locale = (description ?? '').toLowerCase().trim();
+  private get remnawaveBaseUrl(): string {
+    return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002/remnawave';
+  }
 
-    if (isSupportedLocale(locale)) {
-      return locale;
+  private async resolveLocale(uuid: string): Promise<SupportedLocale> {
+    try {
+      const { data } = await axios.get<Record<string, unknown>>(
+        `${this.remnawaveBaseUrl}/${apiRoutes.remnawave.userMetadata(uuid)}`,
+        {
+          headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
+          timeout: 5_000,
+        },
+      );
+      const lang = (data as any)?.lang;
+      if (typeof lang === 'string' && isSupportedLocale(lang)) return lang;
+    } catch {
+      // fall through to default
     }
-
-    this.logger.log(
-      `Unknown locale "${description ?? 'null'}" — falling back to ${DEFAULT_LOCALE}`,
-    );
     return DEFAULT_LOCALE;
   }
 }

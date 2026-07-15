@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
 } from '@nestjs/common';
 import * as Remnawave from '@workspace/types';
 import { AttributionPayload, UpdateUserResponseDto } from '@workspace/types';
@@ -81,6 +82,19 @@ export class UserController {
     },
   ): Promise<UpdateUserResponseDto> {
     return this.userService.updateExpiry(uuid, body.months);
+  }
+
+  @Get(':uuid/metadata')
+  async getUserMetadata(@Param('uuid') uuid: string) {
+    return this.userService.getUserMetadata(uuid);
+  }
+
+  @Put(':uuid/metadata')
+  async upsertUserMetadata(
+    @Param('uuid') uuid: string,
+    @Body() body: { metadata: Record<string, unknown> },
+  ): Promise<void> {
+    return this.userService.upsertUserMetadata(uuid, body.metadata);
   }
 
   @Delete(':uuid')

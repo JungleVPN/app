@@ -4,4 +4,3 @@
  */
 
 export type UserDevice = 'ios' | 'android' | 'macOS' | 'windows';
-export type UserLocale = 'en' | 'ru';

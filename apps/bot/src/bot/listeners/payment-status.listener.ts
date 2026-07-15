@@ -3,8 +3,10 @@ import { BotService } from '@bot/bot.service';
 import { BotContext } from '@bot/bot.types';
 import { LocalisationService } from '@bot/localisation/localisation.service';
 import { safeSendMessage, toDateString } from '@bot/utils/utils';
+import { LocaleId } from '@grammyjs/i18n';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { RemnaService } from '@remna/remna.service';
 import { Payments } from '@shared/payments';
 import { UserDto } from '@workspace/types';
 import { Bot, InlineKeyboard } from 'grammy';
@@ -54,8 +56,14 @@ export class PaymentStatusListener {
   constructor(
     private readonly botService: BotService,
     private readonly localService: LocalisationService,
+    private readonly remnaService: RemnaService,
   ) {
     this.bot = this.botService.bot;
+  }
+
+  private async resolveLocale(user: UserDto): Promise<string> {
+    const lang = user.uuid ? await this.remnaService.getUserLang(user.uuid) : null;
+    return lang || (process.env.DEFAULT_LOCALE as LocaleId);
   }
 
   @OnEvent('notify.payment.succeeded')
@@ -64,7 +72,7 @@ export class PaymentStatusListener {
     user: UserDto;
   }) {
     const { user, payload } = body;
-    const locale = user.description || process.env.DEFAULT_LOCALE || 'en';
+    const locale = await this.resolveLocale(user);
 
     if (!user.telegramId) return;
 
@@ -119,7 +127,7 @@ export class PaymentStatusListener {
     user: UserDto;
   }): Promise<void> {
     const { payload, user } = body;
-    const locale = user.description || process.env.DEFAULT_LOCALE || 'en';
+    const locale = await this.resolveLocale(user);
     const i18n = this.localService.i18n;
 
     const i18nKey = this.resolveFailureI18nKey(payload.reason);
