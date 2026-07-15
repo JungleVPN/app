@@ -16,6 +16,7 @@ import type { UserAttribution } from '@workspace/database';
 import type { Repository } from 'typeorm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { RemnaPanelClient } from '../common/remna-panel.client';
+import type { AnalyticsService } from './analytics.service';
 import { UserService } from './user.service';
 
 const mockAxiosPost = vi.fn();
@@ -39,7 +40,11 @@ function makeService() {
     save: vi.fn().mockResolvedValue({}),
   } as unknown as Repository<UserAttribution>;
 
-  const service = new UserService(panelClient, configService, attributionRepo);
+  const analyticsService = {
+    trackUserCreated: vi.fn().mockResolvedValue(undefined),
+  } as unknown as AnalyticsService;
+
+  const service = new UserService(panelClient, configService, analyticsService, attributionRepo);
   return { service, panelClient };
 }
 

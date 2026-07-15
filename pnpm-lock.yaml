@@ -199,6 +199,9 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1
+      googleapis:
+        specifier: ^165.0.0
+        version: 165.0.0
       grammy:
         specifier: ^1.42.0
         version: 1.42.0
@@ -327,6 +330,9 @@ importers:
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
+      googleapis:
+        specifier: ^165.0.0
+        version: 165.0.0
       grammy:
         specifier: ^1.42.0
         version: 1.42.0

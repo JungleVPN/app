@@ -1,20 +1,17 @@
-import * as process from 'node:process';
 import { BotContext, initialSession } from '@bot/bot.types';
 import { MainMenu } from '@bot/navigation/features/main/main.menu';
 import { MainMenuService } from '@bot/navigation/features/main/main.service';
-import { isValidUsername, toDateString } from '@bot/utils/utils';
+import { isValidUsername } from '@bot/utils/utils';
 import { Injectable } from '@nestjs/common';
 import { decodeReferralCode } from '@referral/referral.utils';
 import { RemnaService } from '@remna/remna.service';
 import { Bot } from 'grammy';
-import { AnalyticsService } from '../../analytics/analytics.service';
 
 @Injectable()
 export class StartCommand {
   constructor(
     readonly mainMenu: MainMenu,
     readonly mainMenuService: MainMenuService,
-    readonly analyticsService: AnalyticsService,
     readonly remnaService: RemnaService,
   ) {}
 
@@ -57,22 +54,6 @@ export class StartCommand {
         await this.mainMenuService.init(ctx, this.mainMenu);
       }
 
-      if (payload?.startsWith('ad_')) {
-        await this.addData(payload, ctx.from?.id || 0);
-      }
-
-      if (payload?.startsWith('web_app')) {
-        await this.addData(payload, ctx.from?.id || 0);
-      }
-    });
-  }
-
-  async addData(channel: string, userId: number) {
-    await this.analyticsService.addData({
-      channel,
-      userId,
-      dateAndTime: toDateString(new Date(), true),
-      sheetId: `${process.env.GOOGLE_SHEET_TITLE}!A2`,
     });
   }
 }

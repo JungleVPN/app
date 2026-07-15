@@ -28,6 +28,7 @@ import { addDays, addMonths } from 'date-fns';
 import { Bot } from 'grammy';
 import { Repository } from 'typeorm';
 import { RemnaPanelClient } from '../common/remna-panel.client';
+import { AnalyticsService } from './analytics.service';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -37,6 +38,7 @@ export class UserService implements OnModuleInit {
   constructor(
     private readonly panelClient: RemnaPanelClient,
     private readonly configService: ConfigService,
+    private readonly analyticsService: AnalyticsService,
     @InjectRepository(UserAttribution)
     private readonly attributionRepo: Repository<UserAttribution>,
   ) {}
@@ -127,6 +129,13 @@ export class UserService implements OnModuleInit {
     });
 
     if (attribution) {
+      await this.analyticsService
+        .trackUserCreated({
+          user,
+          attribution,
+        })
+        .catch((err) => this.logger.warn(`Analytics tracking failed: ${err.message}`));
+
       await this.attributionRepo.save({
         userId: user.uuid,
         platform: attribution.platform,

@@ -3,13 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserAttribution } from '@workspace/database';
 import { RemnaPanelClient } from '../common/remna-panel.client';
 import { InterServiceGuard } from '../guards/inter-service.guard';
+import { AnalyticsService } from './analytics.service';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserAttribution])],
   controllers: [UserController],
-  providers: [RemnaPanelClient, UserService, InterServiceGuard],
+  providers: [RemnaPanelClient, UserService, InterServiceGuard, AnalyticsService],
   exports: [UserService],
 })
 export class UserModule {}

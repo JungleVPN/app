@@ -29,6 +29,9 @@ export function captureAttribution(options: {
     // Prefer URL params (direct ad click); fall back to cookie set by landing page
     const urlParams = new URLSearchParams(window.location.search);
     const cookieParams = readLandingCookie();
+    const adParam = urlParams.get('ad') ?? cookieParams.get('ad');
+    if (adParam) payload.adCode = adParam;
+
     const params = urlParams.has('utm_source') || urlParams.has('fbclid') || urlParams.has('gclid')
       ? urlParams
       : cookieParams;
