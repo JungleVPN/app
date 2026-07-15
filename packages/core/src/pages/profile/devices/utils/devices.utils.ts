@@ -6,17 +6,6 @@ import {
   IconDeviceMobile,
 } from '@tabler/icons-react';
 
-export interface HwidDevice {
-  hwid: string;
-  userUuid: string;
-  platform: string | null;
-  osVersion: string | null;
-  deviceModel: string | null;
-  userAgent: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export function extractAppName(userAgent: string | null): string | null {
   if (!userAgent) return null;
   const firstToken = userAgent.split('/')[0].split(' ')[0].trim();

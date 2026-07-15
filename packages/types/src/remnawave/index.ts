@@ -35,6 +35,7 @@ import {
   DeleteUserCommand,
   GetUserByTelegramIdCommand,
   GetUserByUuidCommand,
+  GetUserHwidDevicesCommand,
   UpdateUserCommand,
 } from '@remnawave/backend-contract';
 
@@ -49,3 +50,4 @@ export type GetUserByUuidResponseDto = GetUserByUuidCommand.Response['response']
 export type CreateUserResponseDto = CreateUserCommand.Response['response'];
 export type UpdateUserResponseDto = UpdateUserCommand.Response['response'];
 export type DeleteUserResponseDto = DeleteUserCommand.Response['response'];
+export type HwidDeviceDto = GetUserHwidDevicesCommand.Response['response']['devices'][number];

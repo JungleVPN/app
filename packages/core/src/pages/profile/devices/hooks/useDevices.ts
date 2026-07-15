@@ -5,14 +5,14 @@ import {
   useRemnawaveApi,
   useUserDevices,
 } from '@workspace/core';
+import type { HwidDeviceDto } from '@workspace/types';
 import { useEffect, useMemo, useState } from 'react';
-import { HwidDevice } from '../utils/devices.utils';
 
 export function useDevices() {
   const remnawaveApi = useRemnawaveApi();
   const { rmnUser } = useAuthStoreInfo();
 
-  const [devices, setDevices] = useState<HwidDevice[] | null>(null);
+  const [devices, setDevices] = useState<HwidDeviceDto[] | null>(null);
   const [deviceToDelete, setDeviceToDelete] = useState<string | null>(null);
   const confirmState = useOverlayState();
 

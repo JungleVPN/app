@@ -1,13 +1,13 @@
 import { Spinner } from '@heroui/react';
+import { HwidDeviceDto } from '@workspace/types';
 import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Block } from '../../../../ui';
-import type { HwidDevice } from '../utils/devices.utils';
 import { DeviceDeleteDialog } from './DeviceDeleteDialog';
 import { DeviceRow } from './DeviceRow';
 
 interface DevicesListProps {
-  devices: HwidDevice[] | null;
+  devices: HwidDeviceDto[] | null;
   isFetching: boolean;
   isDeleting: boolean;
   confirmIsOpen: boolean;
@@ -33,11 +33,11 @@ export function DevicesList({
     <>
       <Block title={t('devices.listHeading')} titleBadge={titleBadge} variant='secondary'>
         {isFetching || devices === null ? (
-          <div className='flex min-h-[120px] items-center justify-center py-8'>
+          <div className='flex min-h-30 items-center justify-center py-8'>
             <Spinner color='accent' size='md' />
           </div>
         ) : devices.length === 0 ? (
-          <div className='flex min-h-[80px] items-center justify-center px-4 py-6'>
+          <div className='flex min-h-20 items-center justify-center px-4 py-6'>
             <p className='text-sm text-muted'>{t('devices.noDevices')}</p>
           </div>
         ) : (

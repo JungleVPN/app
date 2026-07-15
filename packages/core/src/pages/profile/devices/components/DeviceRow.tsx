@@ -1,11 +1,11 @@
 import { Button, Separator } from '@heroui/react';
 import { IconTrash } from '@tabler/icons-react';
+import { HwidDeviceDto } from '@workspace/types';
 import { useTranslation } from 'react-i18next';
-import type { HwidDevice } from '../utils/devices.utils';
 import { extractAppName, resolveDeviceIcon } from '../utils/devices.utils';
 
 interface DeviceRowProps {
-  device: HwidDevice;
+  device: HwidDeviceDto;
   isDeleting: boolean;
   showSeparatorAbove: boolean;
   onDeleteRequest: (hwid: string) => void;
@@ -24,7 +24,7 @@ export function DeviceRow({
   return (
     <>
       {showSeparatorAbove && <Separator className='shrink-0' variant='default' />}
-      <div className='flex min-h-[52px] items-center gap-3 px-4 py-2.5'>
+      <div className='flex min-h-13 items-center gap-3 px-4 py-2.5'>
         <span aria-hidden className='shrink-0 text-muted'>
           <AppIcon stroke={1.25} size={24} />
         </span>
