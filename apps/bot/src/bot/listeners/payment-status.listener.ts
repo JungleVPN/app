@@ -129,13 +129,10 @@ export class PaymentStatusListener {
     );
 
     const text = i18n.t(locale, i18nKey);
-    const menu = new InlineKeyboard()
-      .webApp(
-        i18n.t(locale, 'pay-button-label'),
-        process.env.PUBLIC_TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
-      )
-      .row()
-      .text(i18n.t(locale, 'profile-button-label'), 'navigate_to_profile');
+    const menu = new InlineKeyboard().webApp(
+      i18n.t(locale, 'pay-button-label'),
+      process.env.PUBLIC_TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
+    );
 
     if (user.telegramId) {
       await safeSendMessage(this.bot, user.telegramId, text, {

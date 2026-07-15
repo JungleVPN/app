@@ -30,22 +30,6 @@ export class WebhookController {
     return { ok: true };
   }
 
-  @Post('torrent')
-  async handleTorrentEvents(
-    @Headers('Authorization') token: string,
-    @Body() payload: {
-      username: string;
-      ip: string;
-      server: string;
-      action: string;
-      duration: string;
-      timestamp: string;
-    },
-  ) {
-    this.webhookService.validateAndProcessTorrent(token, payload);
-    return { ok: true };
-  }
-
   @Post('payment/yookassa')
   @HttpCode(200)
   async handleYookassaEvents(

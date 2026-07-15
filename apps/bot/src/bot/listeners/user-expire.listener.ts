@@ -9,6 +9,13 @@ import { WebHookEvent } from '@remna/remna.model';
 import { UserDto } from '@workspace/types';
 import { Bot, InlineKeyboard } from 'grammy';
 
+type ExpirationPayload = {
+  event: WebHookEvent;
+  data: UserDto;
+  timestamp: string;
+  meta?: { expiration?: number | null } | null;
+};
+
 @Injectable()
 export class UserExpireListener {
   bot: Bot<BotContext>;
@@ -21,43 +28,17 @@ export class UserExpireListener {
     this.bot = this.botService.bot;
   }
 
-  @OnEvent('user.expires_in_24_hours')
-  async listenToUser24ExpiresEvent(payload: {
-    event: WebHookEvent;
-    data: UserDto;
-    timestamp: string;
-  }) {
-    await this.handleUserExpireEvent(payload);
-  }
-
-  @OnEvent('user.expires_in_48_hours')
-  async listenToUser48ExpiresEvent(payload: {
-    event: WebHookEvent;
-    data: UserDto;
-    timestamp: string;
-  }) {
-    await this.handleUserExpireEvent(payload);
-  }
-
   @OnEvent('user.expired')
-  async listenToUserExpiresEvent(payload: {
-    event: WebHookEvent;
-    data: UserDto;
-    timestamp: string;
-  }) {
+  async listenToUserExpiredEvent(payload: ExpirationPayload) {
     await this.handleUserExpireEvent(payload);
   }
 
-  @OnEvent('user.expired_24_hours_ago')
-  async listenToUserExpires24Event(payload: {
-    event: WebHookEvent;
-    data: UserDto;
-    timestamp: string;
-  }) {
+  @OnEvent('user.expiration')
+  async listenToUserExpirationEvent(payload: ExpirationPayload) {
     await this.handleUserExpireEvent(payload);
   }
 
-  async handleUserExpireEvent(payload: { event: WebHookEvent; data: UserDto; timestamp: string }) {
+  async handleUserExpireEvent(payload: ExpirationPayload) {
     const telegramId = payload.data.telegramId;
     if (!telegramId) {
       this.logger.warn(
@@ -79,10 +60,9 @@ export class UserExpireListener {
       this.localService.i18n.t(locale, 'support-button-label'),
       process.env.PUBLIC_SUPPORT_URL || 'https://t.me/JungleVPN_support',
     );
-    keyboard.text(this.localService.i18n.t(locale, 'home-button-label'), 'navigate_main');
 
     const formattedDate = toDateString(payload.data.expireAt);
-    const translationKey = this.getTranslationKey(payload.event);
+    const translationKey = this.getTranslationKey(payload.event, payload.meta?.expiration ?? null);
 
     const text = this.localService.i18n.t(locale, translationKey, {
       formattedDate,
@@ -94,18 +74,19 @@ export class UserExpireListener {
     });
   }
 
-  getTranslationKey(event: WebHookEvent) {
-    switch (event) {
-      case 'user.expired':
-        return 'expired-subscription-text';
-      case 'user.expires_in_48_hours':
-        return 'expires-in-48-hours-subscription-text';
-      case 'user.expires_in_24_hours':
-        return 'expires-in-24-hours-subscription-text';
-      case 'user.expired_24_hours_ago':
-        return 'expired-24-hours-ago-subscription-text';
-      default:
-        return 'expired-subscription-text';
+  getTranslationKey(event: WebHookEvent, expirationHours: number | null): string {
+    if (event === 'user.expired') {
+      return 'expired-subscription-text';
     }
+
+    if (event === 'user.expiration') {
+      if (expirationHours === null) return 'expired-subscription-text';
+      if (expirationHours >= 48) return 'expired-48-hours-ago-subscription-text';
+      if (expirationHours > 0) return 'expired-24-hours-ago-subscription-text';
+      if (expirationHours >= -24) return 'expires-in-24-hours-subscription-text';
+      return 'expires-in-48-hours-subscription-text';
+    }
+
+    return 'expired-subscription-text';
   }
 }

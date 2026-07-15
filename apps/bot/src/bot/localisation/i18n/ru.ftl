@@ -104,7 +104,7 @@ revoked-sub-text =
 
     Попробуй подключиться заново. Просто нажми на кнопку ниже и следуй инструкциям 🙂
 
-    Твой Jungle 🌴
+    Jungle 🌴 🌴
 
 payment-periods-text =
     <b>На какой срок хочешь подключить VPN?</b>
@@ -176,7 +176,15 @@ expired-24-hours-ago-subscription-text =
 
     Если возникли проблемы с продлением, напиши в поддержку, я помогу 🙂
 
-    Твой Jungle  🌴
+    Jungle 🌴  🌴
+
+
+expired-48-hours-ago-subscription-text =
+    <b>Твоя подписка закончилась 48 часов назад 🥲</b>
+
+    Если хочешь вернуться — нажми кнопку ниже, чтобы продлить.
+
+    Jungle 🌴
 
 
 user-not-connected-24 =

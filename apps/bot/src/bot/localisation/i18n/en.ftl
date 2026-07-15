@@ -231,6 +231,14 @@ expired-24-hours-ago-subscription-text =
     Your Jungle  🌴
 
 
+expired-48-hours-ago-subscription-text =
+    Your subscription expired 48 hours ago 🥲
+
+    If you'd like to come back, tap the button below to renew.
+
+    Your Jungle  🌴
+
+
 
 torrent-warning-text =
     Warning!

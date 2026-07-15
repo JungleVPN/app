@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.3",
-    "@remnawave/backend-contract": "^2.7.2",
+    "@remnawave/backend-contract": "2.8.35",
     "@remnawave/subscription-page-types": "^0.4.0"
   },
   "devDependencies": {

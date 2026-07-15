@@ -5,6 +5,7 @@ export {
   DeleteUserCommand,
   DeleteUserHwidDeviceCommand,
   EVENTS as REMNAWAVE_EVENTS,
+  EVENTS_SCOPES as REMNAWAVE_EVENTS_SCOPES,
   GetAllUsersCommand,
   GetSubpageConfigByShortUuidCommand,
   GetSubscriptionInfoByShortUuidCommand,

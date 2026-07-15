@@ -3,21 +3,8 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import type { PaymentWebhookNotification, TRemnawaveWebhookEvent } from '@workspace/types';
-import { apiRoutes, REMNAWAVE_EVENTS } from '@workspace/types';
+import { apiRoutes, REMNAWAVE_EVENTS, REMNAWAVE_EVENTS_SCOPES } from '@workspace/types';
 import axios from 'axios';
-
-/** Events that should be forwarded to the payments service for autopayment processing. */
-const PAYMENT_FORWARDED_EVENTS = new Set<TRemnawaveWebhookEvent['event']>([
-  REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRES_IN_24_HOURS,
-  REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRES_IN_48_HOURS,
-]);
-
-/** Events that should be forwarded directly to the bot for user notifications. */
-const BOT_FORWARDED_EVENTS = new Set<TRemnawaveWebhookEvent['event']>([
-  REMNAWAVE_EVENTS.USER.EXPIRED,
-  REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRED_24_HOURS_AGO,
-  REMNAWAVE_EVENTS.USER.NOT_CONNECTED,
-]);
 
 @Injectable()
 export class WebhookService {
@@ -42,11 +29,27 @@ export class WebhookService {
    * the HMAC signature.
    */
   async processRemnaEvent(payload: TRemnawaveWebhookEvent): Promise<void> {
-    if (PAYMENT_FORWARDED_EVENTS.has(payload.event)) {
-      await this.forwardRemnaEventToPayments(payload);
+    if (payload.scope !== REMNAWAVE_EVENTS_SCOPES.USER) return;
+
+    const { event } = payload;
+
+    if (event === REMNAWAVE_EVENTS.USER.EXPIRATION) {
+      const hours = payload.meta?.expiration ?? null;
+      if (hours === null) {
+        this.logger.warn('Received user.expiration event without meta.expiration, skipping');
+        return;
+      }
+      // Negative hours = before expiry → payments handles autopayment + email
+      // Positive hours = after expiry → notify user directly via bot
+      if (hours < 0) {
+        await this.forwardRemnaEventToPayments(payload);
+      } else {
+        await this.forwardRemnaEventToBot(payload);
+      }
+      return;
     }
 
-    if (BOT_FORWARDED_EVENTS.has(payload.event)) {
+    if (event === REMNAWAVE_EVENTS.USER.EXPIRED || event === REMNAWAVE_EVENTS.USER.NOT_CONNECTED) {
       await this.forwardRemnaEventToBot(payload);
     }
   }

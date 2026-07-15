@@ -1,7 +1,6 @@
 import 'reflect-metadata';
-import { BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { REMNAWAVE_EVENTS } from '@workspace/types';
+import { REMNAWAVE_EVENTS, REMNAWAVE_EVENTS_SCOPES } from '@workspace/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WebhookService } from '../main/webhook.service';
 
@@ -41,32 +40,6 @@ describe('WebhookService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('validateAndProcessTorrent', () => {
-    beforeEach(() => {
-      mockConfigService.get.mockImplementation((key: string, fallback?: string): string => {
-        if (key === 'REMNAWAVE_TORRENT_WEBHOOK_TOKEN') return 'token';
-        return fallback ?? '';
-      });
-      service = new WebhookService(
-        mockEventEmitter as unknown as EventEmitter2,
-        mockConfigService as any,
-      );
-    });
-
-    it('throws BadRequestException for invalid token', () => {
-      const payload = {} as any;
-      expect(() => service.validateAndProcessTorrent('invalid', payload)).toThrow(
-        BadRequestException,
-      );
-    });
-
-    it('emits event for valid token', () => {
-      const payload = { username: 'test' } as any;
-      service.validateAndProcessTorrent('token', payload);
-      expect(mockEventEmitter.emit).toHaveBeenCalledWith('torrent.event', payload);
-    });
-  });
-
   describe('forwardStripeWebhook', () => {
     it('forwards raw body and signature to payments service', async () => {
       const rawBody = Buffer.from('{"test": true}');
@@ -85,10 +58,12 @@ describe('WebhookService', () => {
   });
 
   describe('processRemnaEvent', () => {
-    it('forwards 48h expiry event to payments, not bot', async () => {
+    it('forwards user.expiration -48h event to payments, not bot', async () => {
       const payload = {
-        event: REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRES_IN_48_HOURS,
+        scope: REMNAWAVE_EVENTS_SCOPES.USER,
+        event: REMNAWAVE_EVENTS.USER.EXPIRATION,
         data: { uuid: 'user-1', telegramId: 42 },
+        meta: { expiration: -48 },
       } as any;
 
       await service.processRemnaEvent(payload);
@@ -101,10 +76,12 @@ describe('WebhookService', () => {
       );
     });
 
-    it('forwards 24h expiry event to payments only', async () => {
+    it('forwards user.expiration -24h event to payments only', async () => {
       const payload = {
-        event: REMNAWAVE_EVENTS.USER.EXPIRE_NOTIFY_EXPIRES_IN_24_HOURS,
+        scope: REMNAWAVE_EVENTS_SCOPES.USER,
+        event: REMNAWAVE_EVENTS.USER.EXPIRATION,
         data: { uuid: 'user-1', telegramId: 42 },
+        meta: { expiration: -24 },
       } as any;
 
       await service.processRemnaEvent(payload);
@@ -117,10 +94,12 @@ describe('WebhookService', () => {
       );
     });
 
-    it('forwards expired event to bot only', async () => {
+    it('forwards user.expiration +24h event to bot only', async () => {
       const payload = {
-        event: REMNAWAVE_EVENTS.USER.EXPIRED,
+        scope: REMNAWAVE_EVENTS_SCOPES.USER,
+        event: REMNAWAVE_EVENTS.USER.EXPIRATION,
         data: { uuid: 'user-1', telegramId: 42 },
+        meta: { expiration: 24 },
       } as any;
 
       await service.processRemnaEvent(payload);
@@ -131,6 +110,37 @@ describe('WebhookService', () => {
         payload,
         expect.any(Object),
       );
+    });
+
+    it('forwards user.expired event to bot only', async () => {
+      const payload = {
+        scope: REMNAWAVE_EVENTS_SCOPES.USER,
+        event: REMNAWAVE_EVENTS.USER.EXPIRED,
+        data: { uuid: 'user-1', telegramId: 42 },
+        meta: null,
+      } as any;
+
+      await service.processRemnaEvent(payload);
+
+      expect(mockAxiosPost).toHaveBeenCalledTimes(1);
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        expect.stringContaining('/notify/user-event'),
+        payload,
+        expect.any(Object),
+      );
+    });
+
+    it('skips user.expiration event without meta.expiration', async () => {
+      const payload = {
+        scope: REMNAWAVE_EVENTS_SCOPES.USER,
+        event: REMNAWAVE_EVENTS.USER.EXPIRATION,
+        data: { uuid: 'user-1', telegramId: 42 },
+        meta: null,
+      } as any;
+
+      await service.processRemnaEvent(payload);
+
+      expect(mockAxiosPost).not.toHaveBeenCalled();
     });
   });
 

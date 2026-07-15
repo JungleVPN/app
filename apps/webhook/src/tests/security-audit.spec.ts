@@ -36,9 +36,11 @@ const makeValidSignature = (secret: string, payload: object): string =>
   crypto.createHmac('sha256', secret).update(JSON.stringify(payload)).digest('hex');
 
 const remnaPayload = {
-  event: 'user.expires_in_24_hours',
+  scope: 'user',
+  event: 'user.expiration',
   data: { uuid: 'u-1', telegramId: 42 },
   timestamp: '2026-01-01T00:00:00Z',
+  meta: { expiration: -24 },
 } as any;
 
 describe('Security Audit', () => {

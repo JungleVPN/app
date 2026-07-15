@@ -15,7 +15,7 @@ export class NotificationController {
 
   /**
    * Receives user lifecycle events from the backend (forwarded from Remnawave webhooks).
-   * Events: user.expired, user.expires_in_24_hours, user.expired_24_hours_ago, user.not_connected
+   * Events: user.expired, user.expiration (with meta.expiration hours), user.not_connected
    */
   @Post('user-event')
   @HttpCode(200)
@@ -26,6 +26,7 @@ export class NotificationController {
       event: WebHookEvent;
       data: UserDto;
       timestamp: string;
+      meta?: { expiration?: number | null } | null;
     },
   ) {
     this.validateSecret(secret);
