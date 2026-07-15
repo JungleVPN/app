@@ -2,7 +2,7 @@ import { Label, ListBox } from '@heroui/react';
 import {
   IconChevronRight,
   IconCreditCardPay,
-  IconMoneybagMoveBack,
+  // IconMoneybagMoveBack,
   IconUsers,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -62,19 +62,19 @@ export default function MenuPage() {
             </Label>
             <IconChevronRight className='size-4 text-muted' stroke={2} />
           </ListBox.Item>
-          <ListBox.Item
-            id='affiliates'
-            textValue={t('menu.affiliates')}
-            className='px-4 py-2 gap-1'
-          >
-            <span className='flex size-8 items-center justify-center rounded-xl bg-default-100'>
-              <IconMoneybagMoveBack stroke={2} />
-            </span>
-            <Label className='flex-1 cursor-pointer text-sm font-medium'>
-              {t('menu.affiliates')}
-            </Label>
-            <IconChevronRight className='size-4 text-muted' stroke={2} />
-          </ListBox.Item>
+          {/*<ListBox.Item*/}
+          {/*  id='affiliates'*/}
+          {/*  textValue={t('menu.affiliates')}*/}
+          {/*  className='px-4 py-2 gap-1'*/}
+          {/*>*/}
+          {/*  <span className='flex size-8 items-center justify-center rounded-xl bg-default-100'>*/}
+          {/*    <IconMoneybagMoveBack stroke={2} />*/}
+          {/*  </span>*/}
+          {/*  <Label className='flex-1 cursor-pointer text-sm font-medium'>*/}
+          {/*    {t('menu.affiliates')}*/}
+          {/*  </Label>*/}
+          {/*  <IconChevronRight className='size-4 text-muted' stroke={2} />*/}
+          {/*</ListBox.Item>*/}
         </ListBox>
       </Block>
     </Page>
