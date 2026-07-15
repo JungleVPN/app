@@ -443,9 +443,6 @@ importers:
       '@heroui/styles':
         specifier: ^3.0.3
         version: 3.0.3(tailwind-merge@3.4.0)(tailwindcss@4.2.4)
-      '@remnawave/backend-contract':
-        specifier: 2.6.0
-        version: 2.6.0
       '@remnawave/subscription-page-types':
         specifier: ^0.4.0
         version: 0.4.0
@@ -1803,9 +1800,6 @@ packages:
     resolution: {integrity: sha512-gp6xo/s2lX54AlTjOiqwDnxA7UW79BNvI9dB9pr3LZTzRKCd1ZA+ZbgKw/ReIiWuvvVw/8QFJpnqeeFyLocMcQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
-
-  '@remnawave/backend-contract@2.6.0':
-    resolution: {integrity: sha512-FflB8IBKNE6lGKx7VyDWbGtYcWyWufD0e2VVjh3zLEJFA0ntpE/3n9ov17fYNcjkYjVi0qI0Mr99VlzB1Ff53g==}
 
   '@remnawave/backend-contract@2.8.35':
     resolution: {integrity: sha512-La0HgubSKCVve1O88wT6S72PneS17zdWDoxg/5/U0ayRh7KnRlphk9jkp1364x5YGx2Xhl/bgmkt+JLD3uG4lg==}
@@ -6430,10 +6424,6 @@ snapshots:
   '@react-types/shared@3.34.0(react@19.2.5)':
     dependencies:
       react: 19.2.5
-
-  '@remnawave/backend-contract@2.6.0':
-    dependencies:
-      zod: 3.25.76
 
   '@remnawave/backend-contract@2.8.35':
     dependencies:

@@ -15,7 +15,6 @@
   "dependencies": {
     "@heroui/react": "^3.0.3",
     "@heroui/styles": "^3.0.3",
-    "@remnawave/backend-contract": "2.6.0",
     "@remnawave/subscription-page-types": "^0.4.0",
     "@supabase/supabase-js": "^2.103.3",
     "@tabler/icons-react": "^3.31.0",
