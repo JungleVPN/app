@@ -51,11 +51,6 @@ export class AutopaymentService {
     const userId = payload.data.uuid;
     const telegramId = payload.data.telegramId;
 
-    if (!telegramId) {
-      this.logger.warn('user.expires_in_24_hours event with no telegramId, skipping');
-      return;
-    }
-
     const savedMethod = await this.savedMethodRepo.findOneBy({
       userId,
       provider: 'yookassa',
@@ -129,7 +124,7 @@ export class AutopaymentService {
   }: {
     userId: string;
     paymentMethodId: string;
-    telegramId?: number;
+    telegramId?: number | null;
   }): Promise<void> {
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       this.logger.log(`Autopayment attempt ${attempt}/${MAX_RETRIES} for user ${userId}`);
@@ -168,7 +163,7 @@ export class AutopaymentService {
     }
 
     this.logger.warn(
-      `All ${MAX_RETRIES} autopayment attempts failed for user ${telegramId} — falling back to manual payment`,
+      `All ${MAX_RETRIES} autopayment attempts failed for user ${userId} — falling back to manual payment`,
     );
 
     this.eventEmitter.emit(WebhookEventEnum['payment.autopayment_exhausted'], {
@@ -189,7 +184,7 @@ export class AutopaymentService {
   }: {
     userId: string;
     paymentMethodId: string;
-    telegramId?: number;
+    telegramId?: number | null;
   }): Promise<Payments.IPayment> {
     const amount = this.autopaymentAmount;
     const selectedPeriod = this.autopaymentPeriod;
