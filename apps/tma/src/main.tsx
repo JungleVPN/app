@@ -44,7 +44,7 @@ void (async () => {
 
     captureAttribution({
       platform: 'telegram',
-      startParam: (launchParams.adCode || undefined) as string | undefined,
+      startParam: new URLSearchParams(window.location.search).get('adCode') ?? undefined,
     });
     captureReferral();
 

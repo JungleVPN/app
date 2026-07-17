@@ -2,7 +2,6 @@ import * as process from 'node:process';
 import { BotContext, ErrorMessage } from '@bot/bot.types';
 import { PaymentPeriod } from '@shared/payments';
 import { UserDevice } from '@shared/user.types';
-import { decodeAdCode } from '@utils/url';
 import { Api, Bot, GrammyError, RawApi } from 'grammy';
 import type { Message, MessageEntity } from 'grammy/types';
 
@@ -23,7 +22,7 @@ export const withReferral = (ctx: BotContext, url: string): string => {
       params.set('ref', ctx.session.startPayload.value);
       break;
     case 'ad':
-      params.set('adCode', decodeAdCode(ctx.session.startPayload.value ?? ''));
+      params.set('adCode', ctx.session.startPayload.value);
       break;
   }
 

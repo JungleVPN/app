@@ -17,6 +17,10 @@ export class EventsService {
     @InjectRepository(UserAttribution)
     private readonly attributionRepo: Repository<UserAttribution>,
   ) {
+    if (!process.env.GOOGLE_API_KEY) {
+      throw new Error('You must provide a GOOGLE_API_KEY');
+    }
+
     const auth = new google.auth.JWT({
       key: process.env.GOOGLE_API_KEY,
       email: process.env.GOOGLE_EMAIL,
