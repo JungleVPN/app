@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SavedPaymentMethod, StripePayment } from '@workspace/database';
@@ -6,7 +6,7 @@ import { Payments, WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
 import { Repository } from 'typeorm';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
-import { StripeProvider } from './stripe.provider';
+import { StripeClientService } from './stripe-client.service';
 import type { StripeInvoicePayload } from './stripe.types';
 import {
   customerToId,
@@ -20,8 +20,7 @@ export class StripeWebhookService {
   private readonly logger = new Logger(StripeWebhookService.name);
 
   constructor(
-    @Inject(forwardRef(() => StripeProvider))
-    private readonly stripeProvider: StripeProvider,
+    private readonly stripeClient: StripeClientService,
     private readonly paymentStatusService: PaymentStatusService,
     private readonly eventEmitter: EventEmitter2,
     @InjectRepository(StripePayment)
@@ -148,7 +147,7 @@ export class StripeWebhookService {
     if (!promoCode && subscriptionId) {
       try {
         const subscription =
-          await this.stripeProvider.stripe.subscriptions.retrieve(subscriptionId);
+          await this.stripeClient.stripe.subscriptions.retrieve(subscriptionId);
         promoCode = subscription.metadata?.promoCode ?? null;
       } catch (err) {
         this.logger.warn(
@@ -308,7 +307,7 @@ export class StripeWebhookService {
     const customerId = customerToId(invoice.customer);
     const subscriptionId = subscriptionToId(invoice.parent?.subscription_details?.subscription);
 
-    const customer = await this.stripeProvider.retrieveCustomer(customerId);
+    const customer = await this.stripeClient.retrieveCustomer(customerId);
     if (!customer || customer.deleted) return null;
 
     const amountVal = isSuccess ? invoice.amount_paid : invoice.amount_due;

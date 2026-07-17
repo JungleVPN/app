@@ -3,9 +3,10 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
 import type { StripeSubscriptionStatusDto } from '@workspace/types';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
 import { In, Repository } from 'typeorm';
 import { PromoInvalidError, PromoService } from '../../promo/promo.service';
+import { StripeClientService } from './stripe-client.service';
 import type { BillingPortalSession, CheckoutSession, CreateStripePaymentDto } from './stripe.types';
 import { StripeWebhookService } from './stripe-webhook.service';
 
@@ -15,6 +16,7 @@ export class StripeProvider {
   private readonly logger = new Logger(StripeProvider.name);
 
   constructor(
+    private readonly stripeClient: StripeClientService,
     readonly stripeWebhookService: StripeWebhookService,
     @InjectRepository(StripePayment) private repository: Repository<StripePayment>,
     @InjectRepository(YookassaPayment) private yookassaRepository: Repository<YookassaPayment>,
@@ -22,7 +24,7 @@ export class StripeProvider {
     private telegramStarsRepository: Repository<TelegramStarsPayment>,
     private readonly promoService: PromoService,
   ) {
-    this.stripe = new Stripe(process.env.STRIPE_API_KEY || '');
+    this.stripe = stripeClient.stripe;
   }
 
   async handleWebhook(payload: Stripe.Event) {
@@ -164,11 +166,6 @@ export class StripeProvider {
       this.logger.error(`Error creating portal session for customer ${customer}`, error);
       throw error;
     }
-  }
-
-  async retrieveCustomer(customerId: string | null) {
-    if (!customerId) return null;
-    return await this.stripe.customers.retrieve(customerId);
   }
 
   private async createCustomer(dto: CreateStripePaymentDto): Promise<string> {

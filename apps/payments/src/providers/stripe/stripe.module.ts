@@ -6,6 +6,7 @@ import {
   TelegramStarsPayment,
   YookassaPayment,
 } from '@workspace/database';
+import { StripeClientService } from '@payments/providers/stripe/stripe-client.service';
 import { StripeProvider } from '@payments/providers/stripe/stripe.provider';
 import { StripeWebhookService } from '@payments/providers/stripe/stripe-webhook.service';
 import { StripeController } from '@payments/providers/stripe/stripe.controller';
@@ -25,6 +26,6 @@ import { PromoModule } from '../../promo/promo.module';
   ],
   controllers: [StripeController],
   exports: [StripeProvider, StripeWebhookService],
-  providers: [StripeProvider, StripeWebhookService],
+  providers: [StripeClientService, StripeProvider, StripeWebhookService],
 })
 export class StripeModule {}
