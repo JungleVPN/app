@@ -1,27 +1,20 @@
 import * as process from 'node:process';
-import { BotService } from '@bot/bot.service';
 import { BotContext } from '@bot/bot.types';
 import { LocalisationService } from '@bot/localisation/localisation.service';
 import { isValidUsername } from '@bot/utils/utils';
 import { LocaleId } from '@grammyjs/i18n';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ReferralService } from '@referral/referral.service';
 import { RemnaService } from '@remna/remna.service';
 import { Bot, InlineKeyboard } from 'grammy';
 
 @Injectable()
 export class InlineQueryListener {
-  bot: Bot<BotContext>;
-
   constructor(
-    @Inject(forwardRef(() => BotService))
-    private readonly botService: BotService,
     private readonly remnaService: RemnaService,
     private readonly referralService: ReferralService,
     private readonly localService: LocalisationService,
-  ) {
-    this.bot = this.botService.bot;
-  }
+  ) {}
 
   register(bot: Bot<BotContext>) {
     bot.on('inline_query', async (ctx) => {
