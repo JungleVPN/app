@@ -27,6 +27,7 @@ export const coreEnv = {
   botUrl: (import.meta.env.PUBLIC_BOT_URL ?? '') as string,
   paymentsUrl: (import.meta.env.PUBLIC_PAYMENTS_URL ?? '') as string,
   remnawaveUrl: (import.meta.env.PUBLIC_REMNAWAVE_URL ?? '') as string,
+  analyticsUrl: (import.meta.env.PUBLIC_ANALYTICS_URL ?? '') as string,
   affiliatePortalUrl: (import.meta.env.PUBLIC_AFFILIATE_PORTAL_URL ?? '') as string,
   supabaseUrl: (import.meta.env.PUBLIC_SUPABASE_URL ?? '') as string,
   supabaseAnonKey: (import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '') as string,

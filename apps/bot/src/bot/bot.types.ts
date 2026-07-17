@@ -1,6 +1,6 @@
 import { I18nFlavor } from '@grammyjs/i18n';
 import { PaymentPeriod, PaymentProvider } from '@shared/payments';
-import { UserDevice } from '@shared/user.types';
+import { StartPayload, UserDevice } from '@shared/user.types';
 import { UserDto } from '@workspace/types';
 import { Context, SessionFlavor as GrammySessionFlavor } from 'grammy';
 
@@ -26,18 +26,8 @@ export interface SessionData {
   selectedPeriod?: PaymentPeriod;
   billingPortalUrl?: string;
   hasActiveSubscription?: boolean;
-  /**
-   * Primary id of the currently-rendered saved payment method on the profile
-   * screen. Populated by `ProfileMenuService.init()` right before rendering so
-   * the profile menu's dynamic "delete" button knows which row to drop.
-   */
   activeSavedMethodId?: string;
-  /**
-   * Inviter's remnawave userId (uuid), decoded from a `/start ref_xxx` deep
-   * link. Kept around so the persistent keyboard's Connect button can still
-   * forward it to the TMA signup URL on later taps, not just the first one.
-   */
-  referralInviterId?: string;
+  startPayload?: StartPayload;
   metadata?: {
     messageId?: number;
   };
@@ -61,7 +51,7 @@ export const initialSession = (): SessionData => {
     billingPortalUrl: undefined,
     hasActiveSubscription: false,
     activeSavedMethodId: undefined,
-    referralInviterId: undefined,
+    startPayload: undefined,
     user: {
       uuid: undefined,
       telegramId: undefined,

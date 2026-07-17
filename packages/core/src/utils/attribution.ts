@@ -6,7 +6,7 @@ const STORAGE_KEY = 'jv_attribution';
 const COOKIE_NAME = 'jv_attr';
 
 function readLandingCookie(): URLSearchParams {
-  const match = document.cookie.split('; ').find(c => c.startsWith(COOKIE_NAME + '='));
+  const match = document.cookie.split('; ').find((c) => c.startsWith(`${COOKIE_NAME}=`));
   if (!match) return new URLSearchParams();
   return new URLSearchParams(decodeURIComponent(match.split('=').slice(1).join('=')));
 }
@@ -24,17 +24,19 @@ export function captureAttribution(options: {
   };
 
   if (options.platform === 'telegram') {
-    if (options.startParam) payload.adCode = options.startParam;
+    const isReferral = options.startParam?.startsWith('ref_');
+    if (options.startParam && !isReferral) payload.adCode = options.startParam;
   } else {
-    // Prefer URL params (direct ad click); fall back to cookie set by landing page
     const urlParams = new URLSearchParams(window.location.search);
     const cookieParams = readLandingCookie();
-    const adParam = urlParams.get('ad') ?? cookieParams.get('ad');
+
+    const adParam = urlParams.get('adCode') ?? cookieParams.get('adCode');
     if (adParam) payload.adCode = adParam;
 
-    const params = urlParams.has('utm_source') || urlParams.has('fbclid') || urlParams.has('gclid')
-      ? urlParams
-      : cookieParams;
+    const params =
+      urlParams.has('utm_source') || urlParams.has('fbclid') || urlParams.has('gclid')
+        ? urlParams
+        : cookieParams;
 
     payload.source = params.get('utm_source') ?? undefined;
     payload.medium = params.get('utm_medium') ?? undefined;
@@ -46,8 +48,7 @@ export function captureAttribution(options: {
   }
 
   // Only persist if there's at least one attribution signal
-  const hasSignal =
-    payload.source || payload.clickId || payload.adCode || payload.campaign;
+  const hasSignal = payload.source || payload.clickId || payload.adCode || payload.campaign;
   if (!hasSignal) return;
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));

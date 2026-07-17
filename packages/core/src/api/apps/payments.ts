@@ -1,6 +1,6 @@
 import {
-  apiRoutes,
   type AdminPaymentDto,
+  apiRoutes,
   type CreateStripeSessionDto,
   type CreateTelegramStarsInvoiceDto,
   type CreateYookassaSessionDto,
@@ -17,7 +17,8 @@ export function createPaymentsApi(client: ApiClient) {
   return {
     async createYookassaSession(
       dto: Omit<CreateYookassaSessionDto, 'amount'>,
-    ): Promise<PaymentSession> {  // selectedPeriod is derived server-side — callers don't set it
+    ): Promise<PaymentSession> {
+      // selectedPeriod is derived server-side — callers don't set it
       return client.post<PaymentSession>(apiRoutes.payments.yookassaCreateSession, dto);
     },
 

@@ -1,10 +1,10 @@
 import { BotContext, initialSession } from '@bot/bot.types';
 import { MainMenu } from '@bot/navigation/features/main/main.menu';
 import { MainMenuService } from '@bot/navigation/features/main/main.service';
-import { isValidUsername } from '@bot/utils/utils';
+import { isValidUsername, withReferral } from '@bot/utils/utils';
 import { Injectable } from '@nestjs/common';
-import { decodeReferralCode } from '@referral/referral.utils';
 import { RemnaService } from '@remna/remna.service';
+import { decodeStartPayload } from '@utils/url';
 import { Bot } from 'grammy';
 
 @Injectable()
@@ -20,11 +20,7 @@ export class StartCommand {
       await ctx.react('🍌');
       if (!ctx.from?.id) return;
 
-      const payload = ctx.match;
-
-      const inviterId = payload?.startsWith('ref_')
-        ? decodeReferralCode(payload.replace('ref_', ''))
-        : null;
+      ctx.session.startPayload = decodeStartPayload(ctx.match);
 
       const users = await this.remnaService.getUserByTgId(ctx.from.id);
       const rmnUser = users?.[0] ?? null;
@@ -36,14 +32,20 @@ export class StartCommand {
         }
       }
 
+      const tmaAppUrl = process.env.PUBLIC_TMA_APP_URL || 'https://app.thejungle.pro';
+      await ctx.api.setChatMenuButton({
+        chat_id: ctx.from?.id,
+        menu_button: {
+          type: 'web_app',
+          text: ctx.t('menu-app-button-label'),
+          web_app: { url: withReferral(ctx, tmaAppUrl) },
+        },
+      });
+
       if (!rmnUser) {
         const username = isValidUsername(ctx.from?.username)
           ? ctx.from?.username
           : ctx.t('dear-friend');
-
-        if (inviterId) {
-          ctx.session.referralInviterId = inviterId;
-        }
 
         await ctx.reply(
           ctx.t('setup-prompt-text', {

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "turbo dev --concurrency=11",
+    "dev": "turbo dev --concurrency=12",
     "build": "turbo build",
     "lint": "turbo lint",
     "format": "biome format --write .",

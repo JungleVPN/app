@@ -2,6 +2,7 @@ import * as process from 'node:process';
 import { BotContext, ErrorMessage } from '@bot/bot.types';
 import { PaymentPeriod } from '@shared/payments';
 import { UserDevice } from '@shared/user.types';
+import { decodeAdCode } from '@utils/url';
 import { Api, Bot, GrammyError, RawApi } from 'grammy';
 import type { Message, MessageEntity } from 'grammy/types';
 
@@ -11,9 +12,23 @@ type EditMessageTextOptions = Parameters<Api<RawApi>['editMessageText']>[3];
 type SendPhotoOptions = Parameters<Api<RawApi>['sendPhoto']>[3];
 type EditMessageCaptionOptions = Parameters<Api<RawApi>['editMessageCaption']>[2];
 
-/** Appends `?ref=<inviterId>` to a TMA URL when the session has a pending referral. */
+/** Appends session-derived params (`ref`, `ad`) to a TMA URL. */
 export const withReferral = (ctx: BotContext, url: string): string => {
-  return ctx.session.referralInviterId ? `${url}?ref=${ctx.session.referralInviterId}` : url;
+  const params = new URLSearchParams();
+  if (!ctx.session.startPayload?.value) return url;
+
+  switch (ctx.session.startPayload?.type) {
+    case 'referral':
+      if (!ctx.session.startPayload.value) return url;
+      params.set('ref', ctx.session.startPayload.value);
+      break;
+    case 'ad':
+      params.set('adCode', decodeAdCode(ctx.session.startPayload.value ?? ''));
+      break;
+  }
+
+  const qs = params.toString();
+  return qs ? `${url}?${qs}` : url;
 };
 
 export const isValidUsername = (username: string | undefined | null): boolean => {

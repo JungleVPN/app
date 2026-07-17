@@ -11,7 +11,7 @@ import {
   Put,
 } from '@nestjs/common';
 import * as Remnawave from '@workspace/types';
-import { AttributionPayload, UpdateUserResponseDto } from '@workspace/types';
+import { UpdateUserResponseDto } from '@workspace/types';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -40,8 +40,6 @@ export class UserController {
   @HttpCode(HttpStatus.CREATED)
   async createUser(
     @Body() body: Pick<Remnawave.CreateUserRequestDto, 'telegramId' | 'email' | 'description'> & {
-      attribution?: AttributionPayload;
-      /** Remnawave userId (uuid) of the inviter, decoded from a /start ref_xxx code. */
       inviterId?: string;
     },
   ): Promise<Remnawave.CreateUserResponseDto> {
