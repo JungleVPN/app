@@ -2,7 +2,7 @@ x-app-build: &app-build
   context: .
   dockerfile: Dockerfile
   args:
-    TURBO_CONCURRENCY: ${TURBO_CONCURRENCY:-2}
+    TURBO_CONCURRENCY: ${TURBO_CONCURRENCY:-7}
   secrets:
     - env
 

@@ -4,7 +4,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"],
-      "inputs": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.css", "src/**/*.ftl", "tsconfig.json"]
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.css", "src/**/*.ftl", "src/**/*.json", "tsconfig.json", "nest-cli.json"]
     },
     "dev": {
       "dependsOn": ["^build"],

@@ -24,10 +24,10 @@ RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
 # ── Build everything ─────────────────────────────────────────────────
 FROM deps AS build
 COPY . .
-# Turbo defaults to high parallelism; several Nest/Vite/tsc processes at once
-# exhaust RAM on small VPSes (swap → build looks "stuck"). Override when needed:
+# SWC builds use ~50-100 MB each (vs ~400 MB for tsc), so 6 concurrent is safe.
+# Override if building on a very constrained host:
 #   docker compose build --build-arg TURBO_CONCURRENCY=4
-ARG TURBO_CONCURRENCY=4
+ARG TURBO_CONCURRENCY=7
 
 # Build all packages except Vite apps first (Turbo runs many Nest builds in parallel).
 # .turbo cache mount speeds up repeat builds on the same host when no remote cache is set.
