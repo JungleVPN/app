@@ -57,7 +57,10 @@ export function captureAttribution(options: {
 export function getAttribution(): AttributionPayload | null {
   if (typeof window === 'undefined') return null;
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return null;
+  if (!raw) {
+    console.warn(`Failed to get attribution from GA: ${raw}`);
+    return null;
+  }
   try {
     return JSON.parse(raw) as AttributionPayload;
   } catch {
@@ -66,5 +69,10 @@ export function getAttribution(): AttributionPayload | null {
 }
 
 export function clearAttribution(): void {
-  if (typeof window !== 'undefined') localStorage.removeItem(STORAGE_KEY);
+  const urlParams = new URLSearchParams(window.location.search);
+
+  if (typeof window !== 'undefined' && urlParams.has('adCode')) {
+    urlParams.set('adCode', '');
+    localStorage.removeItem(STORAGE_KEY);
+  }
 }

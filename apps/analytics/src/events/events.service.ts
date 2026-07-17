@@ -40,18 +40,23 @@ export class EventsService {
   }
 
   private async saveToDb(userId: string, attribution: AttributionPayload): Promise<void> {
-    await this.attributionRepo.save({
-      userId,
-      platform: attribution.platform,
-      source: attribution.source ?? null,
-      medium: attribution.medium ?? null,
-      campaign: attribution.campaign ?? null,
-      adset: attribution.adset ?? null,
-      ad: attribution.ad ?? null,
-      clickId: attribution.clickId ?? null,
-      adCode: attribution.adCode ?? null,
-      raw: attribution,
-    });
+    try {
+      await this.attributionRepo.save({
+        userId,
+        platform: attribution.platform,
+        source: attribution.source ?? null,
+        medium: attribution.medium ?? null,
+        campaign: attribution.campaign ?? null,
+        adset: attribution.adset ?? null,
+        ad: attribution.ad ?? null,
+        clickId: attribution.clickId ?? null,
+        adCode: attribution.adCode ?? null,
+        raw: attribution,
+      });
+    } catch (err: any) {
+      this.logger.error(`Failed to save data to attributionRepo ${err.message}`);
+      throw err;
+    }
   }
 
   private async writeToSheets(
@@ -60,27 +65,28 @@ export class EventsService {
   ): Promise<void> {
     const dateAndTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
 
-    // Columns: Channel | Ad Code | UserId | Email | Date and Time | Provider
-    await this.sheets.spreadsheets.values.append({
-      spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: `${process.env.GOOGLE_SHEET_TITLE}!A2`,
-      valueInputOption: 'RAW',
-      requestBody: {
-        values: [
-          [
-            attribution.platform,
-            attribution.adCode ?? '',
-            user.telegramId ? Number(user.telegramId) : '',
-            attribution.adCode ? (user.email ?? '') : '',
-            dateAndTime,
-            '',
+    try {
+      await this.sheets.spreadsheets.values.append({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: `${process.env.GOOGLE_SHEET_TITLE}!A2`,
+        valueInputOption: 'RAW',
+        requestBody: {
+          values: [
+            [
+              attribution.platform,
+              attribution.adCode ?? '',
+              user.telegramId ? Number(user.telegramId) : '',
+              attribution.adCode ? (user.email ?? '') : '',
+              dateAndTime,
+              '',
+            ],
           ],
-        ],
-      },
-    });
+        },
+      });
 
-    if (process.env.NODE_ENV === 'development') {
       this.logger.log('Appended data to GA');
+    } catch (error: any) {
+      this.logger.error(`Failed to save data to GA: ${error.message}`);
     }
   }
 }

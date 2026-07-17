@@ -20,6 +20,7 @@ export class StartCommand {
       await ctx.react('🍌');
       if (!ctx.from?.id) return;
 
+      ctx.session.userId = undefined;
       ctx.session.startPayload = decodeStartPayload(ctx.match);
 
       const users = await this.remnaService.getUserByTgId(ctx.from.id);
