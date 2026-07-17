@@ -10,6 +10,7 @@ COPY apps/webhook/package.json ./apps/webhook/package.json
 COPY apps/remnawave/package.json ./apps/remnawave/package.json
 COPY apps/referrals/package.json ./apps/referrals/package.json
 COPY apps/broadcasts/package.json ./apps/broadcasts/package.json
+COPY apps/analytics/package.json ./apps/analytics/package.json
 COPY apps/bot/package.json ./apps/bot/package.json
 COPY apps/tma/package.json ./apps/tma/package.json
 COPY apps/web/package.json ./apps/web/package.json
@@ -58,6 +59,7 @@ COPY --from=prod-deps /app/apps/webhook/node_modules ./apps/webhook/node_modules
 COPY --from=prod-deps /app/apps/remnawave/node_modules ./apps/remnawave/node_modules
 COPY --from=prod-deps /app/apps/referrals/node_modules ./apps/referrals/node_modules
 COPY --from=prod-deps /app/apps/broadcasts/node_modules ./apps/broadcasts/node_modules
+COPY --from=prod-deps /app/apps/analytics/node_modules ./apps/analytics/node_modules
 COPY --from=prod-deps /app/apps/bot/node_modules ./apps/bot/node_modules
 COPY --from=prod-deps /app/apps/web/node_modules ./apps/web/node_modules
 COPY --from=prod-deps /app/apps/tma/node_modules ./apps/tma/node_modules
@@ -69,6 +71,7 @@ COPY --from=prod-deps /app/apps/webhook/dist ./apps/webhook/dist
 COPY --from=prod-deps /app/apps/remnawave/dist ./apps/remnawave/dist
 COPY --from=prod-deps /app/apps/referrals/dist ./apps/referrals/dist
 COPY --from=prod-deps /app/apps/broadcasts/dist ./apps/broadcasts/dist
+COPY --from=prod-deps /app/apps/analytics/dist ./apps/analytics/dist
 COPY --from=prod-deps /app/apps/bot/dist ./apps/bot/dist
 COPY --from=prod-deps /app/apps/web/dist ./apps/web/dist
 COPY --from=prod-deps /app/apps/tma/dist ./apps/tma/dist
@@ -80,6 +83,7 @@ COPY --from=prod-deps /app/apps/webhook/package.json ./apps/webhook/package.json
 COPY --from=prod-deps /app/apps/remnawave/package.json ./apps/remnawave/package.json
 COPY --from=prod-deps /app/apps/referrals/package.json ./apps/referrals/package.json
 COPY --from=prod-deps /app/apps/broadcasts/package.json ./apps/broadcasts/package.json
+COPY --from=prod-deps /app/apps/analytics/package.json ./apps/analytics/package.json
 COPY --from=prod-deps /app/apps/bot/package.json ./apps/bot/package.json
 COPY --from=prod-deps /app/apps/web/package.json ./apps/web/package.json
 COPY --from=prod-deps /app/apps/tma/package.json ./apps/tma/package.json
