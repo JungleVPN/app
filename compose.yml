@@ -78,7 +78,7 @@ services:
     build:
       <<: *app-build
     container_name: payments
-    command: ["node", "apps/payments/dist/src/main.js"]
+    command: ["node", "apps/payments/dist/main.js"]
     networks:
       - jungle-net
     depends_on:

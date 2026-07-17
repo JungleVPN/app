@@ -16,6 +16,7 @@ const {
   mockSetRmnUser,
   mockPlatformStore,
   mockAnalytics,
+  mockTrackUserCreated,
   mockCaptureReferral,
   mockClearReferral,
   mockGetAttribution,
@@ -35,6 +36,7 @@ const {
     login: vi.fn(),
     signUp: vi.fn(),
   },
+  mockTrackUserCreated: vi.fn(),
   mockCaptureReferral: vi.fn(),
   mockClearReferral: vi.fn(),
   mockGetAttribution: vi.fn(),
@@ -55,6 +57,9 @@ vi.mock('../../api', () => ({
     getUserByTelegramId: mockGetUserByTelegramId,
     createUser: mockCreateUser,
     updateUser: mockUpdateUser,
+  }),
+  useAnalyticsApi: () => ({
+    trackUserCreated: mockTrackUserCreated,
   }),
 }));
 
@@ -339,7 +344,6 @@ describe('useGetSubscriptionPage', () => {
 
       expect(mockCreateUser).toHaveBeenCalledWith({
         email: 'new@example.com',
-        attribution: { platform: 'web' },
         inviterId: 'inviter-1',
       });
       expect(mockClearReferral).toHaveBeenCalledTimes(1);
@@ -414,7 +418,6 @@ describe('useGetSubscriptionPage', () => {
       expect(mockCreateUser).toHaveBeenCalledWith({
         email: 'newtg@example.com',
         telegramId: 888,
-        attribution: { platform: 'telegram' },
         inviterId: 'inviter-2',
       });
       expect(mockClearReferral).toHaveBeenCalledTimes(1);

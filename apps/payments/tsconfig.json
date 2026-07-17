@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": ".",
-    "rootDir": ".",
+    "rootDir": "./src",
     "strictPropertyInitialization": false,
     "paths": {
       "@payments/*": ["./src/*"]
