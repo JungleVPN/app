@@ -1,4 +1,7 @@
 export const apiRoutes = {
+  analytics: {
+    trackUserCreated: '/events/user-created',
+  },
   bot: {
     notifyPayment: '/notify/payment',
     notifyUserEvent: '/notify/user-event',

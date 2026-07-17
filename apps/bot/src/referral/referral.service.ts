@@ -1,9 +1,9 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { createBackendClient } from '@utils/http-client';
+import { generateReferralCode } from '@utils/url';
 import { apiRoutes } from '@workspace/types';
 import { AxiosInstance } from 'axios';
-import { generateReferralCode } from './referral.utils';
 
 export interface ReferralRecord {
   id: string;

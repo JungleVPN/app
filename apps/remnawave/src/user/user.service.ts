@@ -1,10 +1,7 @@
 import * as process from 'node:process';
 import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserAttribution } from '@workspace/database';
 import {
-  AttributionPayload,
   apiRoutes,
   CreateUserCommand,
   CreateUserRequestDto,
@@ -29,9 +26,7 @@ import {
 import axios from 'axios';
 import { addDays, addMonths } from 'date-fns';
 import { Bot } from 'grammy';
-import { Repository } from 'typeorm';
 import { RemnaPanelClient } from '../common/remna-panel.client';
-import { AnalyticsService } from './analytics.service';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -41,9 +36,6 @@ export class UserService implements OnModuleInit {
   constructor(
     private readonly panelClient: RemnaPanelClient,
     private readonly configService: ConfigService,
-    private readonly analyticsService: AnalyticsService,
-    @InjectRepository(UserAttribution)
-    private readonly attributionRepo: Repository<UserAttribution>,
   ) {}
 
   onModuleInit() {
@@ -102,8 +94,6 @@ export class UserService implements OnModuleInit {
 
   async createUser(
     payload: Pick<CreateUserRequestDto, 'telegramId' | 'email' | 'description'> & {
-      attribution?: AttributionPayload;
-      /** Remnawave userId (uuid) of the inviter, decoded from a /start ref_xxx code. */
       inviterId?: string;
     },
   ): Promise<CreateUserResponseDto> {
@@ -113,7 +103,7 @@ export class UserService implements OnModuleInit {
     );
     const expireAt = addDays(new Date(), trialDays);
 
-    const { attribution, inviterId, ...rest } = payload;
+    const { inviterId, ...rest } = payload;
 
     const body: CreateUserRequestDto = {
       ...rest,
@@ -130,28 +120,6 @@ export class UserService implements OnModuleInit {
       method: CreateUserCommand.endpointDetails.REQUEST_METHOD,
       body,
     });
-
-    if (attribution) {
-      await this.analyticsService
-        .trackUserCreated({
-          user,
-          attribution,
-        })
-        .catch((err) => this.logger.warn(`Analytics tracking failed: ${err.message}`));
-
-      await this.attributionRepo.save({
-        userId: user.uuid,
-        platform: attribution.platform,
-        source: attribution.source ?? null,
-        medium: attribution.medium ?? null,
-        campaign: attribution.campaign ?? null,
-        adset: attribution.adset ?? null,
-        ad: attribution.ad ?? null,
-        clickId: attribution.clickId ?? null,
-        adCode: attribution.adCode ?? null,
-        raw: attribution,
-      });
-    }
 
     if (inviterId) {
       await this.notifyReferral(inviterId, user.uuid);

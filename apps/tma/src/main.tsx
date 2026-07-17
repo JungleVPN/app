@@ -5,9 +5,10 @@ import { RouterProvider } from 'react-router';
 import '@workspace/core/core/i18n';
 import '@/assets/globals.css';
 
-import { ApiProvider } from '@workspace/core/api';
+import { AnalyticsApiProvider, ApiProvider } from '@workspace/core/api';
 import { AppRoutesProvider, PaymentsApiProvider } from '@workspace/core/runtime';
 import { captureAttribution, captureReferral, initDayjs } from '@workspace/core/utils';
+import { analyticsClient } from '@/api/analytics';
 import { paymentsApi } from '@/api/payments.ts';
 import { backendClient } from '@/api/remnawave';
 import { ensureTelegramLaunchParams } from '@/lib/ensure-telegram-launch-params';
@@ -40,9 +41,10 @@ void (async () => {
     const launchParams = ensureTelegramLaunchParams();
     const { tgWebAppPlatform: platform } = launchParams;
     const debug = (launchParams.tgWebAppStartParam || '').includes('debug') || import.meta.env.DEV;
+
     captureAttribution({
       platform: 'telegram',
-      startParam: launchParams.tgWebAppStartParam || undefined,
+      startParam: new URLSearchParams(window.location.search).get('adCode') ?? undefined,
     });
     captureReferral();
 
@@ -56,9 +58,11 @@ void (async () => {
       <StrictMode>
         <AppRoutesProvider value={appRoutes}>
           <PaymentsApiProvider api={paymentsApi}>
-            <ApiProvider client={backendClient}>
-              <RouterProvider router={router} />
-            </ApiProvider>
+            <AnalyticsApiProvider client={analyticsClient}>
+              <ApiProvider client={backendClient}>
+                <RouterProvider router={router} />
+              </ApiProvider>
+            </AnalyticsApiProvider>
           </PaymentsApiProvider>
         </AppRoutesProvider>
       </StrictMode>,

@@ -1,13 +1,14 @@
 import { backButton, type User } from '@tma.js/sdk-react';
 import { type SyntheticEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRemnawaveApi } from '../../api';
+import { useAnalyticsApi, useRemnawaveApi } from '../../api';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../stores';
 import {
   analytics,
   captureReferral,
+  clearAttribution,
   clearReferral,
   getAttribution,
   getReferral,
@@ -18,6 +19,7 @@ import {
 export function useGetSubscriptionPage() {
   const { profileSubscriptionPath } = useAppRoutes();
   const remnawaveApi = useRemnawaveApi();
+  const analyticsApi = useAnalyticsApi();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
@@ -92,14 +94,18 @@ export function useGetSubscriptionPage() {
       const newUser = await remnawaveApi.createUser({
         email,
         telegramId,
-        attribution: getAttribution() ?? undefined,
         inviterId: getReferral() ?? undefined,
       });
       setRmnUser(newUser ?? null);
-      if (newUser && tgUser.language_code) {
-        await remnawaveApi.upsertUserMetadata(newUser.uuid, { lang: tgUser.language_code });
+      if (newUser) {
+        const attribution = getAttribution();
+        if (attribution) analyticsApi.trackUserCreated(newUser, attribution);
+        if (tgUser.language_code) {
+          await remnawaveApi.upsertUserMetadata(newUser.uuid, { lang: tgUser.language_code });
+        }
       }
       clearReferral();
+      clearAttribution();
       analytics.signUp('telegram');
     }
     navigate(profileSubscriptionPath);
@@ -115,10 +121,14 @@ export function useGetSubscriptionPage() {
     }
     const newUser = await remnawaveApi.createUser({
       email,
-      attribution: getAttribution() ?? undefined,
       inviterId: getReferral() ?? undefined,
     });
+    if (newUser) {
+      const attribution = getAttribution();
+      if (attribution) analyticsApi.trackUserCreated(newUser, attribution);
+    }
     clearReferral();
+    clearAttribution();
     analytics.signUp('web');
     navigate(`/subscription/${newUser?.shortUuid}`);
   };

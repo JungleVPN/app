@@ -4,3 +4,7 @@
  */
 
 export type UserDevice = 'ios' | 'android' | 'macOS' | 'windows';
+export type StartPayload = {
+  type: 'referral' | 'ad';
+  value: string | null;
+} | null;

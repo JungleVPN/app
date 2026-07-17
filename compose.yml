@@ -96,6 +96,26 @@ services:
       test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+process.env.PAYMENTS_PORT||3001);c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
       <<: *nest-hc
 
+  analytics:
+    build:
+      <<: *app-build
+    container_name: analytics
+    command: ["node", "apps/analytics/dist/main.js"]
+    networks:
+      - jungle-net
+    depends_on:
+      db:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    env_file: .env
+    ports:
+      - "127.0.0.1:${ANALYTICS_PORT}:${ANALYTICS_PORT}"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+process.env.ANALYTICS_PORT||3006);c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
+      <<: *nest-hc
+
   referrals:
     build:
       <<: *app-build

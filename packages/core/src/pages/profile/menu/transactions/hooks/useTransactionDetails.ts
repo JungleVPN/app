@@ -16,7 +16,7 @@ export function useTransactionDetails(): UseTransactionDetailsResult {
   const [payment, setPayment] = useState<AdminPaymentDto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  console.log(paymentId);
+
   useEffect(() => {
     if (!paymentId) return;
 

@@ -1,0 +1,33 @@
+{
+  "name": "@workspace/analytics",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "start:prod": "node dist/main.js",
+    "lint": "biome lint ./src",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/typeorm": "^10.0.2",
+    "@workspace/database": "workspace:*",
+    "@workspace/types": "workspace:*",
+    "googleapis": "^144.0.0",
+    "pg": "^8.13.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^10.1.2",
+    "@workspace/shared-config": "workspace:*",
+    "typescript": "^5.4.5"
+  }
+}

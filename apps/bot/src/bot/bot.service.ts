@@ -40,7 +40,12 @@ export class BotService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    this.bot.use(session({ initial: initialSession }));
+    this.bot.use(
+      session({
+        initial: initialSession,
+        getSessionKey: (ctx) => ctx.chat?.id.toString() ?? ctx.from?.id.toString(),
+      }),
+    );
 
     this.bot.use(this.localService.i18n);
 
