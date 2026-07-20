@@ -6,7 +6,9 @@ export function createAnalyticsApi(client: ApiClient) {
     trackUserCreated(user: CreateUserResponseDto, attribution: AttributionPayload): void {
       client
         .post<void>(apiRoutes.analytics.trackUserCreated, { user, attribution })
-        .catch(() => {});
+        .catch((err: unknown) => {
+          console.error('[analytics] trackUserCreated failed', err);
+        });
     },
   };
 }

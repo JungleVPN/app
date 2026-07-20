@@ -33,6 +33,7 @@ export class EventsService {
     user: CreateUserResponseDto,
     attribution: AttributionPayload,
   ): Promise<void> {
+    this.logger.log(`trackUserCreated called for user ${user.uuid}, adCode=${attribution.adCode}`);
     await Promise.all([
       this.saveToDb(user.uuid, attribution),
       this.writeToSheets(user, attribution),
@@ -63,6 +64,7 @@ export class EventsService {
     user: CreateUserResponseDto,
     attribution: AttributionPayload,
   ): Promise<void> {
+    this.logger.log(`writeToSheets: sheet=${process.env.GOOGLE_SHEET_ID}, title=${process.env.GOOGLE_SHEET_TITLE}`);
     const dateAndTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
 
     try {

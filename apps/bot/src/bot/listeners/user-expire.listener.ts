@@ -5,8 +5,8 @@ import { LocalisationService } from '@bot/localisation/localisation.service';
 import { safeSendMessage, toDateString } from '@bot/utils/utils';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { RemnaService } from '@remna/remna.service';
 import { WebHookEvent } from '@remna/remna.model';
+import { RemnaService } from '@remna/remna.service';
 import { UserDto } from '@workspace/types';
 import { Bot, InlineKeyboard } from 'grammy';
 
@@ -42,17 +42,9 @@ export class UserExpireListener {
 
   async handleUserExpireEvent(payload: ExpirationPayload) {
     const telegramId = payload.data.telegramId;
-    if (!telegramId) {
-      this.logger.warn(
-        `Skipping expire notification: telegramId is null for event ${payload.event}`,
-      );
-      return;
-    }
 
     const locale =
-      (payload.data.uuid
-        ? await this.remnaService.getUserLang(payload.data.uuid)
-        : null) ||
+      (payload.data.uuid ? await this.remnaService.getUserLang(payload.data.uuid) : null) ||
       process.env.DEFAULT_LOCALE ||
       'ru';
 
@@ -75,10 +67,12 @@ export class UserExpireListener {
       formattedDate,
     });
 
-    await safeSendMessage(this.bot, telegramId, text, {
-      parse_mode: 'HTML',
-      reply_markup: keyboard,
-    });
+    if (telegramId) {
+      await safeSendMessage(this.bot, telegramId, text, {
+        parse_mode: 'HTML',
+        reply_markup: keyboard,
+      });
+    }
   }
 
   getTranslationKey(event: WebHookEvent, expirationHours: number | null): string {
