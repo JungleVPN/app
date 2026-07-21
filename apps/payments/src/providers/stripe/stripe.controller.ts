@@ -91,7 +91,6 @@ export class StripeController {
         currency: dto.payment.currency,
         userId: dto.userId,
         purpose: dto.purchaseType ?? 'subscription',
-        promoCode: dto.promoCode ? dto.promoCode.trim().toUpperCase() : null,
         paidAt: null,
         stripeSubscriptionId: null,
         invoiceUrl: null,

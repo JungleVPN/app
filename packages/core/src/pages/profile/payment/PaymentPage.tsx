@@ -114,6 +114,7 @@ export default function PaymentPage() {
           isPending={isPending}
           starsError={starsError}
           platformType={platformType}
+          enablePromo={selectedMethod !== 'stripe'}
           onYookassaPayment={handleYookassaPayment}
           onStripePayment={handleStripePayment}
           onStarsPayment={handleStarsPayment}

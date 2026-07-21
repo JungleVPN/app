@@ -40,10 +40,6 @@ export class Promo {
   @Column({ type: 'boolean', default: true })
   active: boolean;
 
-  /** Stripe `promotion_code` object ID (format: `promo_xxx`). Set manually after creating in Stripe dashboard. */
-  @Column({ type: 'varchar', nullable: true })
-  stripePromoCodeId: string | null;
-
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 

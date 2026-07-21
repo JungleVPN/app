@@ -1,11 +1,10 @@
 import * as process from 'node:process';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
 import type { StripeSubscriptionStatusDto } from '@workspace/types';
 import type Stripe from 'stripe';
 import { In, Repository } from 'typeorm';
-import { PromoInvalidError, PromoService } from '../../promo/promo.service';
 import type { BillingPortalSession, CheckoutSession, CreateStripePaymentDto } from './stripe.types';
 import { StripeClientService } from './stripe-client.service';
 import { StripeWebhookService } from './stripe-webhook.service';
@@ -22,7 +21,6 @@ export class StripeProvider {
     @InjectRepository(YookassaPayment) private yookassaRepository: Repository<YookassaPayment>,
     @InjectRepository(TelegramStarsPayment)
     private telegramStarsRepository: Repository<TelegramStarsPayment>,
-    private readonly promoService: PromoService,
   ) {
     this.stripe = stripeClientService.stripe;
   }
@@ -35,16 +33,6 @@ export class StripeProvider {
     const purchaseType = dto.purchaseType ?? 'subscription';
     const priceId = this.getPriceId(purchaseType);
     const customerId = await this.getCustomerId(dto.userId);
-
-    // Validate any promo up front so the user gets immediate feedback. Only
-    // subscription payments carry promos; the binding check is at fulfillment.
-    const promo =
-      purchaseType === 'subscription' && dto.promoCode
-        ? await this.validatePromoOrThrow(dto.promoCode, {
-            userId: dto.userId,
-            userStatus: dto.userStatus,
-          })
-        : null;
 
     // Only ever attribute the referral on a user's first-ever successful payment
     const toltReferralId =
@@ -65,7 +53,6 @@ export class StripeProvider {
         customerId,
         purchaseType,
         dto.userId,
-        promo,
         toltReferralId,
       );
     }
@@ -76,7 +63,6 @@ export class StripeProvider {
       newCustomer,
       purchaseType,
       dto.userId,
-      promo,
       toltReferralId,
     );
   }
@@ -91,37 +77,17 @@ export class StripeProvider {
     return stripePayment || yookassaPayment || starsPayment;
   }
 
-  /** Validate a promo code at checkout; returns the normalized code and its Stripe ID or throws 400. */
-  private async validatePromoOrThrow(
-    code: string,
-    ctx: { userId: string; userStatus?: string },
-  ): Promise<{ code: string; stripePromoCodeId: string | null }> {
-    try {
-      await this.promoService.resolve(code, ctx);
-      const normalized = code.trim().toUpperCase();
-      const promo = await this.promoService.findByCode(normalized);
-      return { code: normalized, stripePromoCodeId: promo?.stripePromoCodeId ?? null };
-    } catch (err) {
-      if (err instanceof PromoInvalidError) {
-        throw new BadRequestException(err.message);
-      }
-      throw err;
-    }
-  }
-
   private async createCheckoutSession(
     priceId: string,
     customer: string,
     purchaseType: 'subscription' | 'extra_device',
     userId: string,
-    promo: { code: string; stripePromoCodeId: string | null } | null = null,
     toltReferralId?: string | null,
   ): Promise<CheckoutSession> {
     const isExtraDevice = purchaseType === 'extra_device';
     const metadata = {
       userId: userId || null,
       purpose: purchaseType,
-      promoCode: promo?.code || null,
       tolt_referral: toltReferralId || null,
     };
 
@@ -132,11 +98,7 @@ export class StripeProvider {
         mode: isExtraDevice ? 'payment' : 'subscription',
         metadata,
         subscription_data: { metadata },
-        discounts: [
-          {
-            promotion_code: promo?.stripePromoCodeId || undefined,
-          },
-        ],
+        allow_promotion_codes: true,
         success_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
         cancel_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
         phone_number_collection: { enabled: false },

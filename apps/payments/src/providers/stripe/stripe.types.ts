@@ -1,5 +1,5 @@
-import type Stripe from 'stripe';
 import type { PaymentPurpose } from '@workspace/types';
+import type Stripe from 'stripe';
 
 /**
  * Metadata attached to a Stripe payment session.
@@ -21,8 +21,6 @@ export interface CreateStripePaymentDto {
   };
   /** Required for web: must contain at least { email }. */
   readonly metadata: WebStripeMetadata;
-  /** Optional promo code entered by the user; validated server-side. */
-  readonly promoCode?: string | null;
   /** Subscription status from remnawave, when known — used to validate the promo. */
   readonly userStatus?: string;
   /** Tolt affiliate referral id (`window.tolt_referral`), when the visitor came via a referral link. */

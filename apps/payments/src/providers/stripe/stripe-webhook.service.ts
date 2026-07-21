@@ -133,7 +133,7 @@ export class StripeWebhookService {
     }
 
     // Strict amount → period validation (security finding #12) on the success path.
-    const selectedPeriod = mapEURAmountToMonthsNumber(invoice.amount_paid.toString());
+    const selectedPeriod = mapEURAmountToMonthsNumber(invoice.subtotal.toString());
 
     // Promo rides on the subscription's metadata (set via `subscription_data` at
     // checkout), so it reaches every invoice. Resolve it from the subscription
