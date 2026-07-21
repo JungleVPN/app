@@ -112,11 +112,11 @@ describe('AutopaymentService', () => {
   // ── Entry point: init ────────────────────────────
 
   describe('init', () => {
-    it('skips when payload has no telegramId', async () => {
+    it('Doesnt skip when payload has no telegramId', async () => {
       await service.init(makePayload(undefined));
 
-      expect(mockSmFindOneBy).not.toHaveBeenCalled();
-      expect(mockEmit).not.toHaveBeenCalled();
+      expect(mockSmFindOneBy).toHaveBeenCalled();
+      expect(mockEmit).toHaveBeenCalled();
     });
 
     it('notifies bot for manual payment when no saved method exists', async () => {
@@ -320,7 +320,11 @@ describe('AutopaymentService', () => {
     });
 
     it('skips bot notification when user has an active saved method', async () => {
-      mockSmFindOneBy.mockResolvedValue({ userId: 'user-1', paymentMethodId: 'pm_1', isActive: true });
+      mockSmFindOneBy.mockResolvedValue({
+        userId: 'user-1',
+        paymentMethodId: 'pm_1',
+        isActive: true,
+      });
 
       await service.checkAndNotifyExpiry48h(payload48h);
 
