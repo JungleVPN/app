@@ -400,6 +400,12 @@ payment-failed-permission-revoked-text =
 
 
 
+payment-failed-general-decline-text =
+    ❗ <b>Payment failed</b>
+
+    Your bank declined the payment without giving a specific reason.
+    Please check your bank for details or try a different payment method.
+
 
 profile-text = { $activeMethod }
 

@@ -179,7 +179,7 @@ describe('AutopaymentService', () => {
       expect(mockEmit).not.toHaveBeenCalled();
     });
 
-    it('retries up to 3 times on canceled status, then notifies bot', async () => {
+    it('emits payment.insufficient_funds after all retries fail with insufficient_funds', async () => {
       mockCreate.mockResolvedValue({
         id: 'pay_x',
         status: 'canceled',
@@ -189,11 +189,44 @@ describe('AutopaymentService', () => {
       await service.init(makePayload(42));
 
       expect(mockCreate).toHaveBeenCalledTimes(3);
-      // Each failed attempt emits AUTOPAYMENT_FAILED; then AUTOPAYMENT_EXHAUSTED
-      expect(mockEmit).toHaveBeenCalledTimes(4);
+      expect(mockEmit).toHaveBeenCalledTimes(1);
       expect(mockEmit).toHaveBeenCalledWith(
-        WebhookEventEnum['payment.autopayment_failed'],
+        WebhookEventEnum['payment.insufficient_funds'],
         expect.objectContaining({ userId: 'user-1', reason: 'insufficient_funds' }),
+      );
+    });
+
+    it('emits payment.general_decline after all retries fail with general_decline', async () => {
+      mockCreate.mockResolvedValue({
+        id: 'pay_x',
+        status: 'canceled',
+        cancellation_details: { reason: 'general_decline', party: 'payment_network' },
+      });
+
+      await service.init(makePayload(42));
+
+      expect(mockCreate).toHaveBeenCalledTimes(3);
+      expect(mockEmit).toHaveBeenCalledTimes(1);
+      expect(mockEmit).toHaveBeenCalledWith(
+        WebhookEventEnum['payment.general_decline'],
+        expect.objectContaining({ userId: 'user-1', reason: 'general_decline' }),
+      );
+    });
+
+    it('emits autopayment_exhausted for permanent failures', async () => {
+      mockCreate.mockResolvedValue({
+        id: 'pay_x',
+        status: 'canceled',
+        cancellation_details: { reason: 'payment_method_restricted', party: 'payment_network' },
+      });
+
+      await service.init(makePayload(42));
+
+      expect(mockCreate).toHaveBeenCalledTimes(3);
+      expect(mockEmit).toHaveBeenCalledTimes(1);
+      expect(mockEmit).toHaveBeenCalledWith(
+        WebhookEventEnum['payment.autopayment_exhausted'],
+        expect.objectContaining({ userId: 'user-1', reason: 'payment_method_restricted' }),
       );
     });
 
@@ -209,7 +242,7 @@ describe('AutopaymentService', () => {
       );
     });
 
-    it('succeeds on second attempt after first failure', async () => {
+    it('succeeds on second attempt after first failure — no notification sent', async () => {
       mockCreate
         .mockResolvedValueOnce({
           id: 'pay_fail',
@@ -224,8 +257,7 @@ describe('AutopaymentService', () => {
       await service.init(makePayload(42));
 
       expect(mockCreate).toHaveBeenCalledTimes(2);
-      // Only 1 AUTOPAYMENT_FAILED event (from first attempt)
-      expect(mockEmit).toHaveBeenCalledTimes(1);
+      expect(mockEmit).not.toHaveBeenCalled();
     });
   });
 

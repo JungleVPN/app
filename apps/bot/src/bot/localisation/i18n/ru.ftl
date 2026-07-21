@@ -409,6 +409,14 @@ payment-failed-permission-revoked-text =
 
 
 
+payment-failed-general-decline-text =
+    ❗ <b>Оплата не прошла</b>
+
+    Банк отклонил платёж без уточнения причины.
+    Проверь счет в банке или попробуй другой способ оплаты.
+
+
+
 support-text =
     Раз ты тут, то VPN не работает 😭
 

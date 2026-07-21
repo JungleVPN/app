@@ -36,7 +36,7 @@ const CANCEL_REASON_I18N_KEY: Record<Payments.CancelReason, string> = {
   internal_timeout: 'payment-failed-timeout-text',
   permission_revoked: 'payment-failed-permission-revoked-text',
   canceled_by_merchant: 'payment-failed-text',
-  general_decline: 'payment-failed-text',
+  general_decline: 'payment-failed-general-decline-text',
   no_active_method: 'no-active-method-text',
 };
 
@@ -116,6 +116,22 @@ export class PaymentStatusListener {
 
   @OnEvent('notify.payment.autopayment_exhausted')
   handleAutopaymentExhausted(body: {
+    payload: Payments.PaymentFailedEventPayload;
+    user: UserDto;
+  }): Promise<void> {
+    return this.commonPaymentFailed(body);
+  }
+
+  @OnEvent('notify.payment.insufficient_funds')
+  handleInsufficientFunds(body: {
+    payload: Payments.PaymentFailedEventPayload;
+    user: UserDto;
+  }): Promise<void> {
+    return this.commonPaymentFailed(body);
+  }
+
+  @OnEvent('notify.payment.general_decline')
+  handleGeneralDecline(body: {
     payload: Payments.PaymentFailedEventPayload;
     user: UserDto;
   }): Promise<void> {

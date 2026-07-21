@@ -126,6 +126,8 @@ export class AutopaymentService {
     paymentMethodId: string;
     telegramId?: number | null;
   }): Promise<void> {
+    let lastReason: Payments.CancelReason | undefined;
+
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       this.logger.log(`Autopayment attempt ${attempt}/${MAX_RETRIES} for user ${userId}`);
 
@@ -137,7 +139,6 @@ export class AutopaymentService {
           return;
         }
 
-        // Payment processed but failed (e.g. canceled by bank)
         const reason = result.cancellation_details?.reason;
         this.logger.warn(
           `Autopayment attempt ${attempt} for user ${userId}: status=${result.status}` +
@@ -145,11 +146,7 @@ export class AutopaymentService {
         );
 
         if (reason) {
-          this.eventEmitter.emit(WebhookEventEnum['payment.autopayment_failed'], {
-            userId,
-            provider: 'yookassa',
-            reason,
-          } satisfies Payments.PaymentFailedEventPayload);
+          lastReason = reason;
         }
       } catch (err: any) {
         this.logger.error(
@@ -166,10 +163,18 @@ export class AutopaymentService {
       `All ${MAX_RETRIES} autopayment attempts failed for user ${userId} — falling back to manual payment`,
     );
 
-    this.eventEmitter.emit(WebhookEventEnum['payment.autopayment_exhausted'], {
+    const eventByReason: Partial<Record<Payments.CancelReason, WebhookEventEnum>> = {
+      insufficient_funds: WebhookEventEnum['payment.insufficient_funds'],
+      general_decline: WebhookEventEnum['payment.general_decline'],
+    };
+
+    const eventName =
+      (lastReason && eventByReason[lastReason]) ?? WebhookEventEnum['payment.autopayment_exhausted'];
+
+    this.eventEmitter.emit(eventName, {
       userId,
       provider: 'yookassa',
-      reason: 'autopayment_exhausted',
+      reason: lastReason ?? 'autopayment_exhausted',
     } satisfies Payments.PaymentFailedEventPayload);
   }
 
