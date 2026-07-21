@@ -26,7 +26,7 @@ import {
 import axios from 'axios';
 import { addDays, addMonths } from 'date-fns';
 import { Bot } from 'grammy';
-import { RemnaPanelClient } from '../common/remna-panel.client';
+import { RemnaPanelClient, RemnaPanelError } from '../common/remna-panel.client';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -231,11 +231,16 @@ export class UserService implements OnModuleInit {
     }
   }
 
-  async getUserMetadata(uuid: string) {
-    return await this.panelClient.request<GetUserMetadataResponseDto>({
-      url: GetUserMetadataCommand.url(uuid),
-      method: GetUserMetadataCommand.endpointDetails.REQUEST_METHOD,
-    });
+  async getUserMetadata(uuid: string): Promise<GetUserMetadataResponseDto | null> {
+    try {
+      return await this.panelClient.request<GetUserMetadataResponseDto>({
+        url: GetUserMetadataCommand.url(uuid),
+        method: GetUserMetadataCommand.endpointDetails.REQUEST_METHOD,
+      });
+    } catch (e) {
+      if (e instanceof RemnaPanelError && e.status === 404) return null;
+      throw e;
+    }
   }
 
   async upsertUserMetadata(uuid: string, metadata: Record<string, unknown>): Promise<void> {
