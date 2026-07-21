@@ -21,6 +21,7 @@ export class StartCommand {
       if (!ctx.from?.id) return;
 
       ctx.session.userId = undefined;
+      ctx.session.lang = undefined;
       ctx.session.startPayload = decodeStartPayload(ctx.match);
 
       const users = await this.remnaService.getUserByTgId(ctx.from.id);
@@ -28,9 +29,11 @@ export class StartCommand {
 
       if (rmnUser && ctx.from.language_code) {
         const existingLang = await this.remnaService.getUserLang(rmnUser.uuid);
+        const resolvedLang = existingLang ?? ctx.from.language_code;
         if (!existingLang) {
           await this.remnaService.upsertUserLang(rmnUser.uuid, ctx.from.language_code);
         }
+        ctx.session.lang = resolvedLang;
       }
 
       const tmaAppUrl = process.env.PUBLIC_TMA_APP_URL || 'https://app.thejungle.pro';

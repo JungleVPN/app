@@ -16,6 +16,7 @@ export interface ClientApp {
 
 export interface SessionData {
   userId: string | undefined;
+  lang: string | undefined;
   paymentUrl: string | undefined;
   paymentId: string | undefined;
   clientApp: Array<ClientApp> | undefined;
@@ -39,6 +40,7 @@ export type SessionFlavor = GrammySessionFlavor<SessionData>;
 export const initialSession = (): SessionData => {
   return {
     userId: undefined,
+    lang: undefined,
     paymentUrl: undefined,
     paymentId: undefined,
     selectedDevice: undefined,

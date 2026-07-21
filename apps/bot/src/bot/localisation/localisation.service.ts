@@ -14,10 +14,15 @@ export class LocalisationService {
       defaultLocale: process.env.DEFAULT_LOCALE || 'en',
       directory: path.join(__dirname, 'i18n'),
       localeNegotiator: async (ctx) => {
+        if (ctx.session?.lang) return ctx.session.lang;
+
         const uuid = ctx.session?.userId;
         if (uuid) {
           const lang = await this.remnaService.getUserLang(uuid);
-          if (lang) return lang;
+          if (lang) {
+            ctx.session.lang = lang;
+            return lang;
+          }
         }
         return ctx.from?.language_code ?? undefined;
       },
