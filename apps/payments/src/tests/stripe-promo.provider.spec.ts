@@ -2,9 +2,9 @@ import 'reflect-metadata';
 import { BadRequestException } from '@nestjs/common';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PromoInvalidError, type PromoService } from '../promo/promo.service';
 import { StripeProvider } from '../providers/stripe/stripe.provider';
 import type { StripeWebhookService } from '../providers/stripe/stripe-webhook.service';
-import { PromoInvalidError, type PromoService } from '../promo/promo.service';
 
 vi.mock('@workspace/database', () => ({
   StripePayment: class {},
@@ -28,10 +28,16 @@ function makeProvider(promoResolve?: () => Promise<unknown>) {
   } as unknown as Repository<any>;
 
   const resolve = vi.fn(promoResolve ?? (async () => ({ type: 'bonus_months', months: 2 })));
-  const promoService = { resolve } as unknown as PromoService;
+  const promoService = {
+    resolve,
+    findByCode: vi.fn().mockResolvedValue(null),
+  } as unknown as PromoService;
+
+  const stripeClientService = { stripe: {} } as any;
 
   const provider = new StripeProvider(
     {} as StripeWebhookService,
+    stripeClientService,
     repository,
     yookassaRepository,
     telegramStarsRepository,
@@ -85,9 +91,9 @@ describe('StripeProvider promo wiring', () => {
     const { provider, sessionsCreate } = makeProvider(async () => {
       throw new PromoInvalidError('nope', 'invalid');
     });
-    await expect(
-      provider.createPayment({ ...dto, promoCode: 'BAD' }),
-    ).rejects.toBeInstanceOf(BadRequestException);
+    await expect(provider.createPayment({ ...dto, promoCode: 'BAD' })).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
     expect(sessionsCreate).not.toHaveBeenCalled();
   });
 

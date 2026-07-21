@@ -107,6 +107,10 @@ export class PromoService {
     return promo.effect;
   }
 
+  async findByCode(code: string): Promise<Promo | null> {
+    return this.promoRepo.findOneBy({ code: PromoService.normalize(code) });
+  }
+
   /** Non-throwing wrapper for the validation endpoint. */
   async validate(dto: ValidatePromoDto): Promise<ValidatePromoResponse> {
     try {

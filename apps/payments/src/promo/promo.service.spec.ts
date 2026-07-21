@@ -15,6 +15,7 @@ function makePromo(overrides: Partial<Promo> = {}): Promo {
     perUserLimit: 1,
     eligibility: 'all',
     active: true,
+    stripePromoCodeId: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,

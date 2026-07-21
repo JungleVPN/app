@@ -6,8 +6,8 @@ import type { StripeSubscriptionStatusDto } from '@workspace/types';
 import type Stripe from 'stripe';
 import { In, Repository } from 'typeorm';
 import { PromoInvalidError, PromoService } from '../../promo/promo.service';
-import { StripeClientService } from './stripe-client.service';
 import type { BillingPortalSession, CheckoutSession, CreateStripePaymentDto } from './stripe.types';
+import { StripeClientService } from './stripe-client.service';
 import { StripeWebhookService } from './stripe-webhook.service';
 
 @Injectable()
@@ -16,15 +16,15 @@ export class StripeProvider {
   private readonly logger = new Logger(StripeProvider.name);
 
   constructor(
-    private readonly stripeClient: StripeClientService,
     readonly stripeWebhookService: StripeWebhookService,
+    readonly stripeClientService: StripeClientService,
     @InjectRepository(StripePayment) private repository: Repository<StripePayment>,
     @InjectRepository(YookassaPayment) private yookassaRepository: Repository<YookassaPayment>,
     @InjectRepository(TelegramStarsPayment)
     private telegramStarsRepository: Repository<TelegramStarsPayment>,
     private readonly promoService: PromoService,
   ) {
-    this.stripe = stripeClient.stripe;
+    this.stripe = stripeClientService.stripe;
   }
 
   async handleWebhook(payload: Stripe.Event) {
@@ -38,7 +38,7 @@ export class StripeProvider {
 
     // Validate any promo up front so the user gets immediate feedback. Only
     // subscription payments carry promos; the binding check is at fulfillment.
-    const promoCode =
+    const promo =
       purchaseType === 'subscription' && dto.promoCode
         ? await this.validatePromoOrThrow(dto.promoCode, {
             userId: dto.userId,
@@ -65,7 +65,7 @@ export class StripeProvider {
         customerId,
         purchaseType,
         dto.userId,
-        promoCode,
+        promo,
         toltReferralId,
       );
     }
@@ -76,7 +76,7 @@ export class StripeProvider {
       newCustomer,
       purchaseType,
       dto.userId,
-      promoCode,
+      promo,
       toltReferralId,
     );
   }
@@ -91,14 +91,16 @@ export class StripeProvider {
     return stripePayment || yookassaPayment || starsPayment;
   }
 
-  /** Validate a promo code at checkout; returns the normalized code or throws 400. */
+  /** Validate a promo code at checkout; returns the normalized code and its Stripe ID or throws 400. */
   private async validatePromoOrThrow(
     code: string,
     ctx: { userId: string; userStatus?: string },
-  ): Promise<string> {
+  ): Promise<{ code: string; stripePromoCodeId: string | null }> {
     try {
       await this.promoService.resolve(code, ctx);
-      return code.trim().toUpperCase();
+      const normalized = code.trim().toUpperCase();
+      const promo = await this.promoService.findByCode(normalized);
+      return { code: normalized, stripePromoCodeId: promo?.stripePromoCodeId ?? null };
     } catch (err) {
       if (err instanceof PromoInvalidError) {
         throw new BadRequestException(err.message);
@@ -112,30 +114,29 @@ export class StripeProvider {
     customer: string,
     purchaseType: 'subscription' | 'extra_device',
     userId: string,
-    promoCode: string | null = null,
+    promo: { code: string; stripePromoCodeId: string | null } | null = null,
     toltReferralId?: string | null,
   ): Promise<CheckoutSession> {
     const isExtraDevice = purchaseType === 'extra_device';
-    const subscriptionMetadata = {
-      ...(promoCode ? { promoCode } : {}),
-      ...(toltReferralId ? { tolt_referral: toltReferralId } : {}),
+    const metadata = {
+      userId: userId || null,
+      purpose: purchaseType,
+      promoCode: promo?.code || null,
+      tolt_referral: toltReferralId || null,
     };
+
     try {
       return await this.stripe.checkout.sessions.create({
         customer,
         line_items: [{ price: priceId, quantity: 1 }],
         mode: isExtraDevice ? 'payment' : 'subscription',
-        metadata: {
-          purpose: purchaseType,
-          userId,
-          ...(toltReferralId ? { tolt_referral: toltReferralId } : {}),
-        },
-        // Stamp the promo/Tolt referral onto the subscription so they reach every
-        // invoice's `subscription_details.metadata` — the carrier read at fulfillment
-        // (and what Tolt reads to attribute recurring revenue).
-        ...(!isExtraDevice && Object.keys(subscriptionMetadata).length > 0
-          ? { subscription_data: { metadata: subscriptionMetadata } }
-          : {}),
+        metadata,
+        subscription_data: { metadata },
+        discounts: [
+          {
+            promotion_code: promo?.stripePromoCodeId || undefined,
+          },
+        ],
         success_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
         cancel_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
         phone_number_collection: { enabled: false },

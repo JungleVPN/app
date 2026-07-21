@@ -6,7 +6,6 @@ import { Payments, WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
 import { Repository } from 'typeorm';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
-import { StripeClientService } from './stripe-client.service';
 import type { StripeInvoicePayload } from './stripe.types';
 import {
   customerToId,
@@ -14,6 +13,7 @@ import {
   mapToCorrectAmount,
   subscriptionToId,
 } from './stripe.utils';
+import { StripeClientService } from './stripe-client.service';
 
 @Injectable()
 export class StripeWebhookService {
@@ -146,8 +146,7 @@ export class StripeWebhookService {
         ?.promoCode ?? null;
     if (!promoCode && subscriptionId) {
       try {
-        const subscription =
-          await this.stripeClient.stripe.subscriptions.retrieve(subscriptionId);
+        const subscription = await this.stripeClient.stripe.subscriptions.retrieve(subscriptionId);
         promoCode = subscription.metadata?.promoCode ?? null;
       } catch (err) {
         this.logger.warn(
