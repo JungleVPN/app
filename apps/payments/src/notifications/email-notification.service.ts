@@ -207,7 +207,7 @@ export class EmailNotificationService {
   private async resolveLocale(uuid: string): Promise<SupportedLocale> {
     try {
       const { data } = await axios.get<Record<string, unknown>>(
-        `${this.remnawaveBaseUrl}/${apiRoutes.remnawave.userMetadata(uuid)}`,
+        `${this.remnawaveBaseUrl}${apiRoutes.remnawave.userMetadata(uuid)}`,
         {
           headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
           timeout: 5_000,
