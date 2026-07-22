@@ -63,5 +63,5 @@ jobs:
             -o StrictHostKeyChecking=no \
             -p ${{ secrets.DEPLOY_PORT }} \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "cd ${{ secrets.DEPLOY_PATH }} && docker compose -f compose.prod.yml pull && docker compose -f compose.prod.yml up -d && docker image prune -f"
+            "cd ${{ secrets.DEPLOY_PATH }} && docker compose pull && docker compose up -d && docker image prune -f && docker compose ps"
           rm -f /tmp/deploy_key
