@@ -89,6 +89,16 @@ export class BotNotificationService {
     await this.notify('payment.no_active_method', event);
   }
 
+  @OnEvent(WebhookEventEnum['payment.insufficient_funds'])
+  async onInsufficientFunds(event: Payments.PaymentFailedEventPayload): Promise<void> {
+    await this.notify('payment.insufficient_funds', event);
+  }
+
+  @OnEvent(WebhookEventEnum['payment.general_decline'])
+  async onGeneralDecline(event: Payments.PaymentFailedEventPayload): Promise<void> {
+    await this.notify('payment.general_decline', event);
+  }
+
   /**
    * Sends payment notification to the bot's /notify/payment endpoint.
    * Loads the user from remnawave and includes it in the body. Throws if the user does not exist.
