@@ -1,12 +1,20 @@
 import * as process from 'node:process';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { google } from 'googleapis';
-import { Advertisement, PollAnswer } from './analytics.model';
+import { Advertisement, BotStartedEvent, PollAnswer } from './analytics.model';
 
 const scopes = ['https://www.googleapis.com/auth/spreadsheets'];
 
 @Injectable()
 export class AnalyticsService {
+  private readonly logger = new Logger(AnalyticsService.name);
+
+  trackBotStarted(event: BotStartedEvent): void {
+    this.logger.log(
+      `bot_started telegramId=${event.telegramId} adCode=${event.adCode ?? 'organic'} returning=${event.isReturningUser}`,
+    );
+  }
+
   async addData(data: Advertisement) {
     const auth = new google.auth.JWT({
       key: process.env.GOOGLE_API_KEY,

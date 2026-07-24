@@ -47,10 +47,6 @@ export function captureAttribution(options: {
       params.get('fbclid') ?? params.get('gclid') ?? params.get('ttclid') ?? undefined;
   }
 
-  // Only persist if there's at least one attribution signal
-  const hasSignal = payload.source || payload.clickId || payload.adCode || payload.campaign;
-  if (!hasSignal) return;
-
   localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
 

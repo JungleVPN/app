@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { RemnaService } from '@remna/remna.service';
 import { decodeStartPayload } from '@utils/url';
 import { Bot } from 'grammy';
+import { AnalyticsService } from '../../analytics/analytics.service';
 
 @Injectable()
 export class StartCommand {
@@ -13,59 +14,73 @@ export class StartCommand {
     readonly mainMenu: MainMenu,
     readonly mainMenuService: MainMenuService,
     readonly remnaService: RemnaService,
+    readonly analyticsService: AnalyticsService,
   ) {}
 
   register(bot: Bot<BotContext>) {
-    bot.command('start', async (ctx) => {
-      await ctx.react('🍌');
-      if (!ctx.from?.id) return;
+    bot.command('start', (ctx) => this.handle(ctx));
+  }
 
-      ctx.session.userId = undefined;
-      ctx.session.lang = undefined;
-      ctx.session.startPayload = decodeStartPayload(ctx.match);
+  async handle(ctx: BotContext): Promise<void> {
+    await ctx.react('🍌');
+    if (!ctx.from?.id) return;
 
-      const users = await this.remnaService.getUserByTgId(ctx.from.id);
-      const rmnUser = users?.[0] ?? null;
+    ctx.session.userId = undefined;
+    ctx.session.lang = undefined;
 
-      if (rmnUser && ctx.from.language_code) {
-        const existingLang = await this.remnaService.getUserLang(rmnUser.uuid);
-        const resolvedLang = existingLang ?? ctx.from.language_code;
-        if (!existingLang) {
-          await this.remnaService.upsertUserLang(rmnUser.uuid, ctx.from.language_code);
-        }
-        ctx.session.lang = resolvedLang;
+    const matchStr = typeof ctx.match === 'string' ? ctx.match : (ctx.match?.[0] ?? '');
+    ctx.session.startPayload = decodeStartPayload(matchStr);
+
+    const users = await this.remnaService.getUserByTgId(ctx.from.id);
+    const rmnUser = users?.[0] ?? null;
+
+    if (rmnUser && ctx.from.language_code) {
+      const existingLang = await this.remnaService.getUserLang(rmnUser.uuid);
+      const resolvedLang = existingLang ?? ctx.from.language_code;
+      if (!existingLang) {
+        await this.remnaService.upsertUserLang(rmnUser.uuid, ctx.from.language_code);
       }
+      ctx.session.lang = resolvedLang;
+    }
 
-      const tmaAppUrl = process.env.PUBLIC_TMA_APP_URL || 'https://app.thejungle.pro';
-      await ctx.api.setChatMenuButton({
-        chat_id: ctx.from?.id,
-        menu_button: {
-          type: 'web_app',
-          text: ctx.t('menu-app-button-label'),
-          web_app: { url: withReferral(ctx, tmaAppUrl) },
-        },
-      });
+    const adCode =
+      ctx.session.startPayload?.type === 'ad' ? ctx.session.startPayload.value : undefined;
 
-      if (!rmnUser) {
-        const username = isValidUsername(ctx.from?.username)
-          ? ctx.from?.username
-          : ctx.t('dear-friend');
-
-        await ctx.reply(
-          ctx.t('setup-prompt-text', {
-            username: username!,
-          }),
-          {
-            parse_mode: 'HTML',
-            reply_markup: this.mainMenu.build(ctx),
-          },
-        );
-      } else {
-        ctx.session.user = initialSession().user;
-        ctx.session.userId = rmnUser.uuid;
-
-        await this.mainMenuService.init(ctx, this.mainMenu);
-      }
+    this.analyticsService.trackBotStarted({
+      telegramId: ctx.from.id,
+      adCode,
+      isReturningUser: rmnUser !== null,
     });
+
+    const tmaAppUrl = process.env.PUBLIC_TMA_APP_URL || 'https://app.thejungle.pro';
+    await ctx.api.setChatMenuButton({
+      chat_id: ctx.from?.id,
+      menu_button: {
+        type: 'web_app',
+        text: ctx.t('menu-app-button-label'),
+        web_app: { url: withReferral(ctx, tmaAppUrl) },
+      },
+    });
+
+    if (!rmnUser) {
+      const username = isValidUsername(ctx.from?.username)
+        ? ctx.from?.username
+        : ctx.t('dear-friend');
+
+      await ctx.reply(
+        ctx.t('setup-prompt-text', {
+          username: username!,
+        }),
+        {
+          parse_mode: 'HTML',
+          reply_markup: this.mainMenu.build(ctx),
+        },
+      );
+    } else {
+      ctx.session.user = initialSession().user;
+      ctx.session.userId = rmnUser.uuid;
+
+      await this.mainMenuService.init(ctx, this.mainMenu);
+    }
   }
 }
