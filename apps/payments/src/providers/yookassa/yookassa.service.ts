@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { PaymentsUtils } from '@payments/utils/utils';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
@@ -47,6 +48,7 @@ export class YookassaService {
     private readonly eventEmitter: EventEmitter2,
     private readonly paymentsUtils: PaymentsUtils,
     private readonly promoService: PromoService,
+    private readonly analyticsClient: AnalyticsClientService,
   ) {}
 
   // ── Query methods ────────────────────────────────────────────────────────
@@ -142,6 +144,14 @@ export class YookassaService {
       paidAt: null,
     });
     await this.yookassaPaymentRepo.save(record);
+
+    await this.analyticsClient.track({
+      event: 'checkout_started',
+      userId,
+      provider: 'yookassa',
+      amount: amountValue,
+      currency: 'RUB',
+    });
 
     this.logger.log(`Created Yookassa payment session ${payment.id} for user ${userId}`);
     return { id: payment.id, url: confirmationUrl };
@@ -258,6 +268,15 @@ export class YookassaService {
         isFirstPayment,
       } satisfies Payments.PaymentSucceededEventPayload);
 
+      await this.analyticsClient.track({
+        event: 'payment_succeeded',
+        userId: record.userId,
+        provider: 'yookassa',
+        selectedPeriod: record.selectedPeriod,
+        isFirstPayment,
+        isAutoPayment: false,
+      });
+
       if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {
         await this.activatePaymentMethod({ userId: record.userId, payment_method });
       }
@@ -321,6 +340,14 @@ export class YookassaService {
       selectedPeriod: record.selectedPeriod ?? 0,
       reason: cancellation_details.reason,
     } satisfies Payments.PaymentFailedEventPayload);
+
+    this.analyticsClient.track({
+      event: 'payment_failed',
+      userId: record.userId,
+      provider: 'yookassa',
+      paymentId: id,
+      reason: cancellation_details.reason ?? 'unknown',
+    });
   }
 
   // ── Saved payment methods ───────────────────────────────────────────────
@@ -382,6 +409,14 @@ export class YookassaService {
       });
 
       await this.savedMethodRepo.save(method);
+
+      this.analyticsClient.track({
+        event: 'payment_method_saved',
+        userId,
+        provider: 'yookassa',
+        paymentId: payment_method.id,
+        methodType: payment_method.type,
+      });
 
       this.logger.log(
         `Activated payment method ${payment_method.id} (${payment_method.type}) for user ${userId}`,

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AnalyticsClientModule } from '@payments/analytics/analytics-client.module';
 import { PaymentsUtils } from '@payments/utils/utils';
 import { TelegramStarsPayment } from '@workspace/database';
 import { PaymentStatusModule } from '../../payment-status/payment-status.module';
@@ -8,7 +9,12 @@ import { TelegramStarsController } from './telegram-stars.controller';
 import { TelegramStarsService } from './telegram-stars.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TelegramStarsPayment]), PaymentStatusModule, PromoModule],
+  imports: [
+    TypeOrmModule.forFeature([TelegramStarsPayment]),
+    PaymentStatusModule,
+    PromoModule,
+    AnalyticsClientModule,
+  ],
   controllers: [TelegramStarsController],
   providers: [TelegramStarsService, PaymentsUtils],
   exports: [TelegramStarsService],

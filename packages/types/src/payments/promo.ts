@@ -8,9 +8,6 @@
  * needs to change.
  */
 
-/** Which payment provider a redemption came through. */
-export type PromoProvider = 'yookassa' | 'stripe' | 'stars';
-
 /** Who a promo may be used by. `new` requires the user to have never had a settled payment. */
 export type PromoEligibility = 'all' | 'expired_only' | 'new';
 

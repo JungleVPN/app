@@ -1,12 +1,5 @@
-import type { PromoProvider } from '@workspace/types';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  Index,
-  PrimaryGeneratedColumn,
-  Unique,
-} from 'typeorm';
+import type { PaymentMethod } from '@workspace/types';
+import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 /**
  * One row per promo actually applied to a successful payment.
@@ -30,7 +23,7 @@ export class PromoRedemption {
 
   /** Which provider's payment this redemption belongs to. */
   @Column({ type: 'varchar' })
-  provider: PromoProvider;
+  provider: PaymentMethod;
 
   /** The provider's payment/session id — the correlation key with the payment. */
   @Column()

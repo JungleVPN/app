@@ -1,7 +1,7 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { PromoService } from '@payments/promo/promo.service';
-import { apiRoutes, PaymentPurpose, PromoProvider } from '@workspace/types';
+import { apiRoutes, PaymentPurpose, PaymentMethod } from '@workspace/types';
 import axios from 'axios';
 
 /**
@@ -38,7 +38,7 @@ export class PaymentStatusService {
     userId: string;
     purpose?: PaymentPurpose;
     /** Set for subscription payments that may carry a promo code. */
-    promo?: { code: string | null; provider: PromoProvider; paymentId: string };
+    promo?: { code: string | null; provider: PaymentMethod; paymentId: string };
   }): Promise<{ success: boolean }> {
     // Promo codes only extend subscriptions — never device slots.
     const months =

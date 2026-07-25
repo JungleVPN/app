@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Referral } from '@workspace/database';
 import { add } from 'date-fns';
 import { Repository } from 'typeorm';
+import { AnalyticsClientService } from '../analytics/analytics-client.service';
 import { ReferralRewardedEvent } from '../notifications/referrals-events';
 import { PaymentsClient } from './payments.client';
 import { type ExistingReferralConflict, findExistingReferralConflict } from './referral.utils';
@@ -32,6 +33,7 @@ export class ReferralService {
     private readonly remnaClient: RemnaClient,
     private readonly eventEmitter: EventEmitter2,
     private readonly paymentsClient: PaymentsClient,
+    private readonly analyticsClient: AnalyticsClientService,
   ) {}
 
   async getReferralByInvitedId(invitedId: string): Promise<Referral | null> {
@@ -141,6 +143,12 @@ export class ReferralService {
 
     referral.status = 'COMPLETED';
     await this.referralRepository.save(referral);
+
+    await this.analyticsClient.track({
+      event: 'referral_reward_granted',
+      invitedUserId: invitedId,
+      inviterUserId: referral.inviterId,
+    });
 
     return { rewarded: true, inviterRewarded: inviterEligible };
   }

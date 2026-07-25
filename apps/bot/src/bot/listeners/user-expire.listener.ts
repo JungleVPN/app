@@ -9,6 +9,7 @@ import { WebHookEvent } from '@remna/remna.model';
 import { RemnaService } from '@remna/remna.service';
 import { UserDto } from '@workspace/types';
 import { Bot, InlineKeyboard } from 'grammy';
+import { AnalyticsClientService } from '../../analytics/analytics-client.service';
 
 type ExpirationPayload = {
   event: WebHookEvent;
@@ -26,12 +27,19 @@ export class UserExpireListener {
     private readonly botService: BotService,
     private readonly localService: LocalisationService,
     private readonly remnaService: RemnaService,
+    private readonly analyticsClient: AnalyticsClientService,
   ) {
     this.bot = this.botService.bot;
   }
 
   @OnEvent('user.expired')
   async listenToUserExpiredEvent(payload: ExpirationPayload) {
+    if (payload.data.uuid) {
+      await this.analyticsClient.track({
+        event: 'subscription_expired',
+        userId: payload.data.uuid,
+      });
+    }
     await this.handleUserExpireEvent(payload);
   }
 

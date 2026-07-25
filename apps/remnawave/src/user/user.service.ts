@@ -26,6 +26,7 @@ import {
 import axios from 'axios';
 import { addDays, addMonths } from 'date-fns';
 import { Bot } from 'grammy';
+import { AnalyticsClientService } from '../analytics/analytics-client.service';
 import { RemnaPanelClient, RemnaPanelError } from '../common/remna-panel.client';
 
 @Injectable()
@@ -36,6 +37,7 @@ export class UserService implements OnModuleInit {
   constructor(
     private readonly panelClient: RemnaPanelClient,
     private readonly configService: ConfigService,
+    private readonly analyticsClient: AnalyticsClientService,
   ) {}
 
   onModuleInit() {
@@ -124,6 +126,13 @@ export class UserService implements OnModuleInit {
     if (inviterId) {
       await this.notifyReferral(inviterId, user.uuid);
     }
+
+    await this.analyticsClient.track({
+      event: 'user_created',
+      userId: user.uuid,
+      telegramId: Number(user.telegramId),
+      email: user.email ?? null,
+    });
 
     return user;
   }

@@ -2,6 +2,7 @@ import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { EmailNotificationService } from '@payments/notifications/email-notification.service';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { getConfiguredAmounts } from '@payments/utils/amount';
@@ -27,6 +28,7 @@ export class AutopaymentService {
     private readonly eventEmitter: EventEmitter2,
     private readonly validatePaymentRequest: ValidatePaymentRequest,
     private readonly emailNotificationService: EmailNotificationService,
+    private readonly analyticsClient: AnalyticsClientService,
   ) {}
 
   private get botBaseUrl(): string {
@@ -80,6 +82,12 @@ export class AutopaymentService {
       this.emailNotificationService.notifyExpiry(payload.data, 24).catch((err: unknown) => {
         this.logger.error(`Unhandled error in 24h expiry email: ${err}`);
       });
+
+      await this.analyticsClient.track({
+        event: 'expiry_reminder_sent',
+        userId,
+        hoursRemaining: 24,
+      });
       return;
     }
 
@@ -115,6 +123,8 @@ export class AutopaymentService {
         this.logger.error(`Unhandled error in 48h expiry email for user ${userId}: ${err}`);
       }),
     ]);
+
+    await this.analyticsClient.track({ event: 'expiry_reminder_sent', userId, hoursRemaining: 48 });
   }
 
   private async attemptAutopaymentWithRetries({
@@ -169,13 +179,21 @@ export class AutopaymentService {
     };
 
     const eventName =
-      (lastReason && eventByReason[lastReason]) ?? WebhookEventEnum['payment.autopayment_exhausted'];
+      (lastReason && eventByReason[lastReason]) ??
+      WebhookEventEnum['payment.autopayment_exhausted'];
 
     this.eventEmitter.emit(eventName, {
       userId,
       provider: 'yookassa',
       reason: lastReason ?? 'autopayment_exhausted',
     } satisfies Payments.PaymentFailedEventPayload);
+
+    await this.analyticsClient.track({
+      event: 'autopayment_failed',
+      userId,
+      provider: 'yookassa',
+      reason: lastReason ?? 'autopayment_exhausted',
+    });
   }
 
   /**
@@ -198,6 +216,12 @@ export class AutopaymentService {
     // This catches misconfiguration before any money moves.
     this.validatePaymentRequest.validateAmount(amount);
     this.validatePaymentRequest.validatePeriod(selectedPeriod);
+
+    await this.analyticsClient.track({
+      event: 'autopayment_initiated',
+      userId,
+      provider: 'yookassa',
+    });
     const description = process.env.PAYMENT_DESCRIPTION || 'Happy to see you in the JUNGLE 🌴';
 
     const request: Payments.CreatePaymentRequest = {

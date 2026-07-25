@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AdminService } from '@payments/admin/admin.service';
+import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { Promo, PromoRedemption } from '@workspace/database';
 import type {
+  PaymentMethod,
   PromoContext,
   PromoEffect,
   PromoErrorCode,
-  PromoProvider,
   ValidatePromoDto,
   ValidatePromoResponse,
 } from '@workspace/types';
@@ -34,6 +35,7 @@ export class PromoService {
     private readonly redemptionRepo: Repository<PromoRedemption>,
     private readonly dataSource: DataSource,
     private readonly adminService: AdminService,
+    private readonly analyticsClient: AnalyticsClientService,
   ) {}
 
   private static normalize(code: string): string {
@@ -139,7 +141,7 @@ export class PromoService {
   async applyToMonths(
     code: string | null | undefined,
     months: number,
-    redemption: { userId: string; provider: PromoProvider; paymentId: string },
+    redemption: { userId: string; provider: PaymentMethod; paymentId: string },
   ): Promise<number> {
     if (!code) return months;
     const normalized = PromoService.normalize(code);
@@ -186,6 +188,13 @@ export class PromoService {
         userId: redemption.userId,
         provider: redemption.provider,
         paymentId: redemption.paymentId,
+      });
+
+      await this.analyticsClient.track({
+        event: 'promo_code_applied',
+        userId: redemption.userId,
+        code: normalized,
+        provider: redemption.provider,
       });
 
       this.logger.log(

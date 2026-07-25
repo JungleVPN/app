@@ -1,3 +1,5 @@
+import { PaymentMethod } from '../payments';
+
 export type BotStartedEvent = {
   event: 'bot_started';
   email: string | null;
@@ -18,14 +20,12 @@ export type UserCreatedEvent = {
   userId: string;
   telegramId: number;
   email: string | null;
-  adCode: string | null;
-  referralCode: string | null;
 };
 
 export type CheckoutStartedEvent = {
   event: 'checkout_started';
   userId: string;
-  provider: 'yookassa' | 'stripe';
+  provider: PaymentMethod;
   amount: string;
   currency: string;
 };
@@ -33,7 +33,7 @@ export type CheckoutStartedEvent = {
 export type PaymentSucceededEvent = {
   event: 'payment_succeeded';
   userId: string;
-  provider: 'yookassa' | 'stripe';
+  provider: PaymentMethod;
   selectedPeriod: number;
   isFirstPayment: boolean;
   isAutoPayment: boolean;
@@ -72,7 +72,7 @@ export type PromoCodeAppliedEvent = {
   event: 'promo_code_applied';
   userId: string;
   code: string;
-  provider: 'yookassa' | 'stripe';
+  provider: PaymentMethod;
 };
 
 export type ReferralRewardGrantedEvent = {

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AnalyticsClientModule } from '@payments/analytics/analytics-client.module';
 import { AdminModule } from '@payments/admin/admin.module';
 import { EmailNotificationModule } from '@payments/notifications/email-notification.module';
 import { PaymentStatusService } from '@payments/payment-status/payment-status.service';
@@ -17,6 +18,7 @@ import { AutopaymentService } from './autopayment.service';
     TypeOrmModule.forFeature([SavedPaymentMethod, YookassaPayment, Promo, PromoRedemption]),
     EmailNotificationModule,
     AdminModule,
+    AnalyticsClientModule,
   ],
   controllers: [AutopaymentController],
   exports: [AutopaymentService],

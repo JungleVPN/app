@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AnalyticsClientModule } from '@payments/analytics/analytics-client.module';
 import { BotNotificationModule } from '@payments/notifications/bot-notification.module';
 import { YooKassaConnector } from '@payments/providers/yookassa/helpers/yookassa.connector';
 import { YookassaController } from '@payments/providers/yookassa/yookassa.controller';
@@ -17,6 +18,7 @@ import { PromoModule } from '../../promo/promo.module';
     PaymentStatusModule,
     PromoModule,
     BotNotificationModule,
+    AnalyticsClientModule,
   ],
   controllers: [YookassaController],
   exports: [YooKassaProvider, YookassaService],

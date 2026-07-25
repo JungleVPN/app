@@ -1,5 +1,6 @@
 export const apiRoutes = {
   analytics: {
+    trackEvent: '/events',
     trackUserCreated: '/events/user-created',
   },
   bot: {

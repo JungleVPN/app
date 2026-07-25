@@ -1,6 +1,7 @@
 import * as process from 'node:process';
 import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { PaymentsUtils } from '@payments/utils/utils';
 import { TelegramStarsPayment } from '@workspace/database';
 import type {
@@ -31,6 +32,7 @@ export class TelegramStarsService implements OnModuleInit {
     private readonly paymentStatusService: PaymentStatusService,
     private readonly paymentsUtils: PaymentsUtils,
     private readonly promoService: PromoService,
+    private readonly analyticsClient: AnalyticsClientService,
   ) {}
 
   onModuleInit() {
@@ -93,6 +95,14 @@ export class TelegramStarsService implements OnModuleInit {
       [{ label: title, amount: starsAmount }],
     );
 
+    await this.analyticsClient.track({
+      event: 'checkout_started',
+      userId,
+      provider: 'stars',
+      amount: starsAmount.toString(),
+      currency: 'XTR',
+    });
+
     this.logger.log(`Created Stars invoice for userId=${userId}, recordId=${saved.id}`);
     return { invoiceLink };
   }
@@ -133,6 +143,11 @@ export class TelegramStarsService implements OnModuleInit {
       return { ok: true };
     }
 
+    const priorSucceeded = await this.starsPaymentRepo.count({
+      where: { userId: record.userId, status: 'succeeded' },
+    });
+    const isFirstPayment = priorSucceeded === 0;
+
     await this.starsPaymentRepo.update(paymentRecordId, {
       status: 'succeeded',
       telegramPaymentChargeId,
@@ -149,6 +164,15 @@ export class TelegramStarsService implements OnModuleInit {
     if (!result.success) {
       this.logger.error(`PaymentStatusService failed for Stars record ${paymentRecordId}`);
     } else {
+      await this.analyticsClient.track({
+        event: 'payment_succeeded',
+        userId: record.userId,
+        provider: 'stars',
+        selectedPeriod: record.selectedPeriod,
+        isFirstPayment,
+        isAutoPayment: false,
+      });
+
       this.logger.log(
         `Stars payment succeeded for userId=${record.userId}, record=${paymentRecordId}`,
       );

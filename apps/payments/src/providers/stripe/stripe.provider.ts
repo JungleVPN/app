@@ -1,6 +1,7 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
 import type { StripeSubscriptionStatusDto } from '@workspace/types';
 import type Stripe from 'stripe';
@@ -21,6 +22,7 @@ export class StripeProvider {
     @InjectRepository(YookassaPayment) private yookassaRepository: Repository<YookassaPayment>,
     @InjectRepository(TelegramStarsPayment)
     private telegramStarsRepository: Repository<TelegramStarsPayment>,
+    private readonly analyticsClient: AnalyticsClientService,
   ) {
     this.stripe = stripeClientService.stripe;
   }
@@ -48,23 +50,39 @@ export class StripeProvider {
           return this.createPortalSession(customerId);
         }
       }
-      return this.createCheckoutSession(
+      const session = await this.createCheckoutSession(
         priceId,
         customerId,
         purchaseType,
         dto.userId,
         toltReferralId,
       );
+      await this.analyticsClient.track({
+        event: 'checkout_started',
+        userId: dto.userId,
+        provider: 'stripe',
+        amount: dto.payment.amount.toString() || process.env.PUBLIC_ALLOWED_AMOUNT_EUR || '0',
+        currency: 'EUR',
+      });
+      return session;
     }
 
     const newCustomer = await this.createCustomer(dto);
-    return this.createCheckoutSession(
+    const session = await this.createCheckoutSession(
       priceId,
       newCustomer,
       purchaseType,
       dto.userId,
       toltReferralId,
     );
+    await this.analyticsClient.track({
+      event: 'checkout_started',
+      userId: dto.userId,
+      provider: 'stripe',
+      amount: dto.payment.amount.toString() || process.env.PUBLIC_ALLOWED_AMOUNT_EUR || '0',
+      currency: 'EUR',
+    });
+    return session;
   }
 
   /** Whether `userId` has any prior successful payment, across all payment providers. */

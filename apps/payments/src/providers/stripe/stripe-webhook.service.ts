@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { SavedPaymentMethod, StripePayment } from '@workspace/database';
 import { Payments, WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
@@ -27,6 +28,7 @@ export class StripeWebhookService {
     private readonly stripePaymentRepo: Repository<StripePayment>,
     @InjectRepository(SavedPaymentMethod)
     private readonly savedMethodRepo: Repository<SavedPaymentMethod>,
+    private readonly analyticsClient: AnalyticsClientService,
   ) {}
 
   async handleWebhook(event: Stripe.Event) {
@@ -186,6 +188,15 @@ export class StripeWebhookService {
         invoiceUrl: payload.invoiceUrl ?? undefined,
         isFirstPayment,
       } satisfies Payments.PaymentSucceededEventPayload);
+
+      await this.analyticsClient.track({
+        event: 'payment_succeeded',
+        userId: payload.userId,
+        provider: 'stripe',
+        selectedPeriod,
+        isFirstPayment,
+        isAutoPayment: invoice.billing_reason === 'subscription_cycle',
+      });
     }
   }
 
@@ -213,6 +224,14 @@ export class StripeWebhookService {
       provider: 'stripe',
       reason: 'general_decline',
     } satisfies Payments.PaymentFailedEventPayload);
+
+    await this.analyticsClient.track({
+      event: 'payment_failed',
+      userId: payload.userId,
+      provider: 'stripe',
+      paymentId: invoice.id,
+      reason: 'general_decline',
+    });
   }
 
   // ── customer.subscription.deleted ────────────────────────────────────────
@@ -272,6 +291,14 @@ export class StripeWebhookService {
       });
 
       await this.savedMethodRepo.save(method);
+
+      await this.analyticsClient.track({
+        event: 'payment_method_saved',
+        userId,
+        provider: 'stripe',
+        paymentId: stripeSubscriptionId,
+        methodType: 'stripe',
+      });
 
       this.logger.log(
         `Activated Stripe payment method (sub ${stripeSubscriptionId}) for user ${userId}`,
