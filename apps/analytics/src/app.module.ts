@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions, UserAttribution } from '@workspace/database';
 import { EventsController } from './events/events.controller';
 import { EventsService } from './events/events.service';
+import { InterServiceGuard } from './guards/inter-service.guard';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { EventsService } from './events/events.service';
     TypeOrmModule.forFeature([UserAttribution]),
   ],
   controllers: [EventsController],
-  providers: [EventsService],
+  providers: [EventsService, InterServiceGuard],
 })
 export class AppModule {}

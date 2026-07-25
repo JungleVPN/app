@@ -155,6 +155,13 @@ export class StripeWebhookService {
       }
     }
 
+    // Count prior paid invoices before stamping this one — the current row is
+    // still un-stamped at this point, so a count of 0 means first payment.
+    const priorPaid = await this.stripePaymentRepo.count({
+      where: { userId: payload.userId, status: 'paid' },
+    });
+    const isFirstPayment = priorPaid === 0;
+
     // Extend BEFORE writing the idempotency stamp: if remnawave is down this
     // throws, the row stays un-stamped, and Stripe's retry re-enters and tries
     // again — rather than locking the user out of a paid renewal.
@@ -177,11 +184,11 @@ export class StripeWebhookService {
         provider: 'stripe',
         selectedPeriod,
         invoiceUrl: payload.invoiceUrl ?? undefined,
+        isFirstPayment,
       } satisfies Payments.PaymentSucceededEventPayload);
     }
   }
 
-  // ── invoice.payment_failed ───────────────────────────────────────────────
   private async handleInvoiceFailure(event: Stripe.Event) {
     const invoice = event.data.object as Stripe.Invoice;
     const payload = await this.buildInvoicePayload(event, false);

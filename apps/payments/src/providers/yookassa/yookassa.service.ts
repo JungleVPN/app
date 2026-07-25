@@ -226,6 +226,13 @@ export class YookassaService {
       return;
     }
 
+    // Count prior succeeded payments before stamping this one — the current record
+    // is still pending at this point, so a count of 0 means this is the first payment.
+    const priorSucceeded = await this.yookassaPaymentRepo.count({
+      where: { userId: record.userId, status: 'succeeded' },
+    });
+    const isFirstPayment = priorSucceeded === 0;
+
     // Extend subscription BEFORE writing the idempotency stamp.
     // If this throws, paidAt remains null so YooKassa's next retry will re-enter
     // and try again once remnawave recovers — rather than being locked out forever.
@@ -248,6 +255,7 @@ export class YookassaService {
         provider: 'yookassa',
         selectedPeriod: record.selectedPeriod,
         purpose: record.purpose,
+        isFirstPayment,
       } satisfies Payments.PaymentSucceededEventPayload);
 
       if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {

@@ -5,6 +5,7 @@
  * so consumers can still do `import { ... } from '@workspace/types'`.
  */
 
+export * from './analytics';
 export * from './api-routes';
 export * from './attribution';
 export * from './payments';

@@ -63,6 +63,7 @@ describe('YookassaService', () => {
 
   let mockYkUpdate: any;
   let mockYkFindOneBy: any;
+  let mockYkCount: any;
 
   let mockSmFindOneBy: any;
   let mockSmCreate: any;
@@ -85,9 +86,11 @@ describe('YookassaService', () => {
       selectedPeriod: 1,
       telegramId: 42,
     });
+    mockYkCount = vi.fn().mockResolvedValue(0);
     yookassaPaymentRepo = {
       update: mockYkUpdate,
       findOneBy: mockYkFindOneBy,
+      count: mockYkCount,
     } as unknown as Repository<YookassaPayment>;
 
     mockSmFindOneBy = vi.fn();
@@ -207,6 +210,41 @@ describe('YookassaService', () => {
       // instead of being locked out by the idempotency check forever.
       expect(mockYkUpdate).not.toHaveBeenCalled();
       expect(mockEmit).not.toHaveBeenCalled();
+    });
+
+    describe('isFirstPayment detection', () => {
+      it('emits payment.succeeded with isFirstPayment true when no prior succeeded payments exist', async () => {
+        mockYkCount.mockResolvedValue(0);
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(mockEmit).toHaveBeenCalledWith(
+          WebhookEventEnum['payment.succeeded'],
+          expect.objectContaining({ isFirstPayment: true }),
+        );
+      });
+
+      it('emits payment.succeeded with isFirstPayment false when prior succeeded payments exist', async () => {
+        mockYkCount.mockResolvedValue(2);
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(mockEmit).toHaveBeenCalledWith(
+          WebhookEventEnum['payment.succeeded'],
+          expect.objectContaining({ isFirstPayment: false }),
+        );
+      });
+
+      it('includes isFirstPayment in the emitted payment.succeeded event', async () => {
+        mockYkCount.mockResolvedValue(0);
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(mockEmit).toHaveBeenCalledWith(
+          WebhookEventEnum['payment.succeeded'],
+          expect.objectContaining({ isFirstPayment: true }),
+        );
+      });
     });
   });
 

@@ -2,7 +2,7 @@ import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserAttribution } from '@workspace/database';
-import { AttributionPayload, CreateUserResponseDto } from '@workspace/types';
+import { AnalyticsEvent, AttributionPayload, CreateUserResponseDto } from '@workspace/types';
 import { google } from 'googleapis';
 import { Repository } from 'typeorm';
 
@@ -27,6 +27,10 @@ export class EventsService {
       scopes: SHEETS_SCOPES,
     });
     this.sheets = google.sheets({ version: 'v4', auth });
+  }
+
+  trackEvent(event: AnalyticsEvent): void {
+    this.logger.log(`event=${event.event} ${JSON.stringify(event)}`);
   }
 
   async trackUserCreated(
@@ -64,7 +68,9 @@ export class EventsService {
     user: CreateUserResponseDto,
     attribution: AttributionPayload,
   ): Promise<void> {
-    this.logger.log(`writeToSheets: sheet=${process.env.GOOGLE_SHEET_ID}, title=${process.env.GOOGLE_SHEET_TITLE}`);
+    this.logger.log(
+      `writeToSheets: sheet=${process.env.GOOGLE_SHEET_ID}, title=${process.env.GOOGLE_SHEET_TITLE}`,
+    );
     const dateAndTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
 
     try {

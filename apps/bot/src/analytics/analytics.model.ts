@@ -12,9 +12,3 @@ export interface PollAnswer {
   options: string[];
   dateAndTime: string;
 }
-
-export interface BotStartedEvent {
-  telegramId: number;
-  adCode: string | null | undefined;
-  isReturningUser: boolean;
-}

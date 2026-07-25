@@ -24,11 +24,12 @@ import { PaymentsModule } from '@payments/payments.module';
 import { ReferralModule } from '@referral/referral.module';
 import { RemnaModule } from '@remna/remna.module';
 import { RemnaService } from '@remna/remna.service';
+import { AnalyticsClientModule } from '../analytics/analytics-client.module';
 import { AnalyticsService } from '../analytics/analytics.service';
 import { BotService } from './bot.service';
 
 @Module({
-  imports: [PaymentsModule, RemnaModule, MenuModule, ReferralModule, BroadcastsModule],
+  imports: [PaymentsModule, RemnaModule, MenuModule, ReferralModule, BroadcastsModule, AnalyticsClientModule],
   providers: [
     BotService,
     RemnaService,

@@ -67,7 +67,9 @@ export namespace Payments {
     purpose?: PaymentPurpose;
   }
 
-  export interface PaymentSucceededEventPayload extends PaymentResultEventPayload {}
+  export interface PaymentSucceededEventPayload extends PaymentResultEventPayload {
+    isFirstPayment?: boolean;
+  }
 
   export interface PaymentFailedEventPayload extends PaymentResultEventPayload {
     reason: string;
