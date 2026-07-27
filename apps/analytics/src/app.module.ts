@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { dataSourceOptions, UserAttribution } from '@workspace/database';
+import { AnalyticsEvent, dataSourceOptions, UserAttribution } from '@workspace/database';
 import { EventsController } from './events/events.controller';
 import { EventsService } from './events/events.service';
 import { InterServiceGuard } from './guards/inter-service.guard';
@@ -14,7 +14,7 @@ import { InterServiceGuard } from './guards/inter-service.guard';
       expandVariables: true,
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
-    TypeOrmModule.forFeature([UserAttribution]),
+    TypeOrmModule.forFeature([AnalyticsEvent, UserAttribution]),
   ],
   controllers: [EventsController],
   providers: [EventsService, InterServiceGuard],

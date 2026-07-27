@@ -2,6 +2,7 @@ import path from 'node:path';
 import * as process from 'node:process';
 import { config } from 'dotenv';
 import { DataSource, type DataSourceOptions } from 'typeorm';
+import { AnalyticsEvent } from './entities/analytics-event.entity';
 import { Broadcast } from './entities/broadcast.entity';
 import { BroadcastMessage } from './entities/broadcast-message.entity';
 import { Promo } from './entities/promo.entity';
@@ -28,6 +29,7 @@ export const dataSourceOptions: DataSourceOptions = {
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
   entities: [
+    AnalyticsEvent,
     Promo,
     PromoRedemption,
     Referral,

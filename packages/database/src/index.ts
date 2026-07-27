@@ -1,4 +1,5 @@
 export * from './datasource';
+export * from './entities/analytics-event.entity';
 export * from './entities/broadcast.entity';
 export * from './entities/broadcast-message.entity';
 export * from './entities/promo.entity';
