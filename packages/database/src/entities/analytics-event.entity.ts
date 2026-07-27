@@ -31,6 +31,9 @@ export class AnalyticsEvent {
   adCode: string | null;
 
   @Column({ type: 'text', nullable: true })
+  email: string | null;
+
+  @Column({ type: 'text', nullable: true })
   source: string | null;
 
   @Column({ type: 'jsonb', nullable: true })

@@ -14,6 +14,7 @@ export class AnalyticsEvents1785000000000 implements MigrationInterface {
         "platform"    TEXT,
         "channel"     TEXT,
         "ad_code"     TEXT,
+        "email"       TEXT,
         "source"      TEXT,
         "properties"  JSONB,
         "occurred_at" TIMESTAMPTZ  NOT NULL DEFAULT now(),
