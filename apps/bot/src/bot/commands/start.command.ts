@@ -34,27 +34,8 @@ export class StartCommand {
     const users = await this.remnaService.getUserByTgId(ctx.from.id);
     const rmnUser = users?.[0] ?? null;
 
-    if (rmnUser && ctx.from.language_code) {
-      const existingLang = await this.remnaService.getUserLang(rmnUser.uuid);
-      const resolvedLang = existingLang ?? ctx.from.language_code;
-      if (!existingLang) {
-        await this.remnaService.upsertUserLang(rmnUser.uuid, ctx.from.language_code);
-      }
-      ctx.session.lang = resolvedLang;
-    }
-
-    const adCode =
-      ctx.session.startPayload?.type === 'ad' ? ctx.session.startPayload.value : undefined;
-
-    this.analyticsService.trackBotStarted({
-      telegramId: ctx.from.id,
-      email: rmnUser?.email || null,
-      adCode: adCode || null,
-      isReturningUser: rmnUser !== null,
-    });
-
     const tmaAppUrl = process.env.PUBLIC_TMA_APP_URL || 'https://app.thejungle.pro';
-    await ctx.api.setChatMenuButton({
+    void ctx.api.setChatMenuButton({
       chat_id: ctx.from?.id,
       menu_button: {
         type: 'web_app',
@@ -81,7 +62,26 @@ export class StartCommand {
       ctx.session.user = initialSession().user;
       ctx.session.userId = rmnUser.uuid;
 
-      await this.mainMenuService.init(ctx, this.mainMenu);
+      if (ctx.from.language_code) {
+        const existingLang = await this.remnaService.getUserLang(rmnUser.uuid);
+        const resolvedLang = existingLang ?? ctx.from.language_code;
+        if (!existingLang) {
+          void this.remnaService.upsertUserLang(rmnUser.uuid, ctx.from.language_code);
+        }
+        ctx.session.lang = resolvedLang;
+      }
+
+      await this.mainMenuService.init(ctx, this.mainMenu, undefined, rmnUser);
     }
+
+    const adCode =
+      ctx.session.startPayload?.type === 'ad' ? ctx.session.startPayload.value : undefined;
+
+    this.analyticsService.trackBotStarted({
+      telegramId: ctx.from.id,
+      email: rmnUser?.email || null,
+      adCode: adCode || null,
+      isReturningUser: rmnUser !== null,
+    });
   }
 }

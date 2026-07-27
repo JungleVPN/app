@@ -1,10 +1,11 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserAttribution } from '@workspace/database';
+import { AnalyticsEvent as AnalyticsEventEntity, UserAttribution } from '@workspace/database';
 import { AnalyticsEvent, AttributionPayload, CreateUserResponseDto } from '@workspace/types';
 import { google } from 'googleapis';
 import { Repository } from 'typeorm';
+import { PostHogService } from '../posthog/posthog.service';
 
 const SHEETS_SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 
@@ -16,6 +17,9 @@ export class EventsService {
   constructor(
     @InjectRepository(UserAttribution)
     private readonly attributionRepo: Repository<UserAttribution>,
+    @InjectRepository(AnalyticsEventEntity)
+    private readonly analyticsEventRepo: Repository<AnalyticsEventEntity>,
+    private readonly postHog: PostHogService,
   ) {
     if (!process.env.GOOGLE_API_KEY) {
       throw new Error('You must provide a GOOGLE_API_KEY');
@@ -29,8 +33,10 @@ export class EventsService {
     this.sheets = google.sheets({ version: 'v4', auth });
   }
 
-  trackEvent(event: AnalyticsEvent): void {
+  async trackEvent(event: AnalyticsEvent): Promise<void> {
     this.logger.log(`event=${event.event} ${JSON.stringify(event)}`);
+    await this.persist(event);
+    this.captureToPostHog(event);
   }
 
   async trackUserCreated(
@@ -42,6 +48,58 @@ export class EventsService {
       this.saveToDb(user.uuid, attribution),
       this.writeToSheets(user, attribution),
     ]);
+  }
+
+  private async persist(event: AnalyticsEvent): Promise<void> {
+    const userId = 'userId' in event ? event.userId : null;
+    const telegramId = 'telegramId' in event ? event.telegramId : null;
+    const email = 'email' in event ? event.email : null;
+    const adCode = 'adCode' in event ? event.adCode : null;
+
+    try {
+      await this.analyticsEventRepo.save({
+        event: event.event,
+        userId,
+        telegramId,
+        email,
+        adCode,
+        properties: event as object,
+        occurredAt: new Date(),
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Failed to persist analytics event "${event.event}": ${message}`);
+    }
+  }
+
+  private captureToPostHog(event: AnalyticsEvent): void {
+    try {
+      const userId = 'userId' in event ? event.userId : null;
+      const telegramId = 'telegramId' in event ? event.telegramId : null;
+      const distinctId = userId ?? (telegramId != null ? `tg:${telegramId}` : null);
+
+      if (!distinctId) {
+        this.logger.warn(`No identity for PostHog capture: event=${event.event}`);
+        return;
+      }
+
+      if (event.event === 'user_created') {
+        this.postHog.identify(distinctId, {
+          $set: {
+            telegram_id: event.telegramId,
+            ...(event.email != null && { email: event.email }),
+          },
+          $set_once: {
+            first_seen: new Date().toISOString(),
+          },
+        });
+      }
+
+      this.postHog.capture(distinctId, event.event, event as unknown as Record<string, unknown>);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`Failed to capture to PostHog "${event.event}": ${message}`);
+    }
   }
 
   private async saveToDb(userId: string, attribution: AttributionPayload): Promise<void> {

@@ -4,6 +4,7 @@ import { Base } from '@bot/navigation/menu.base';
 import { isValidUsername, toDateString } from '@bot/utils/utils';
 import { Injectable } from '@nestjs/common';
 import { RemnaService } from '@remna/remna.service';
+import { UserDto } from '@workspace/types';
 
 @Injectable()
 export class MainMenuService extends Base {
@@ -11,15 +12,13 @@ export class MainMenuService extends Base {
     super();
   }
 
-  async init(ctx: BotContext, mainMenu: MainMenu, deleteOldMsg?: boolean) {
-    const tgUser = this.validateUser(ctx.from);
-    const user = await this.remnaService.getUserByTgId(tgUser.id);
+  async init(ctx: BotContext, mainMenu: MainMenu, deleteOldMsg?: boolean, user?: UserDto | null) {
     if (!user) {
       return;
     }
-    ctx.session.userId = user[0].uuid;
+    ctx.session.userId = user.uuid;
 
-    const isExpired = Date.now() > new Date(user[0].expireAt).getTime();
+    const isExpired = Date.now() > new Date(user.expireAt).getTime();
 
     const username = isValidUsername(ctx.from?.username)
       ? ctx.from?.username
@@ -27,7 +26,7 @@ export class MainMenuService extends Base {
 
     const content = ctx.t('main-text', {
       username: username!,
-      expireAt: toDateString(user[0].expireAt),
+      expireAt: toDateString(user.expireAt),
       isExpired: isExpired ? 'true' : 'false',
       devicesLimit: process.env.HWID_LIMIT ? parseInt(process.env.HWID_LIMIT, 10) : 5,
     });

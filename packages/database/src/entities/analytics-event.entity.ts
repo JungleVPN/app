@@ -13,7 +13,7 @@ export class AnalyticsEvent {
   @Column({ type: 'text', nullable: true })
   userId: string | null;
 
-  @Index({ where: '"telegram_id" IS NOT NULL' })
+  @Index({ where: '"telegramId" IS NOT NULL' })
   @Column({ type: 'bigint', nullable: true })
   telegramId: number | null;
 
@@ -26,7 +26,7 @@ export class AnalyticsEvent {
   @Column({ type: 'text', nullable: true })
   channel: string | null;
 
-  @Index({ where: '"ad_code" IS NOT NULL' })
+  @Index({ where: '"adCode" IS NOT NULL' })
   @Column({ type: 'text', nullable: true })
   adCode: string | null;
 
