@@ -407,6 +407,9 @@
         "description": "We'll help in any situation — we respond in ~10 minutes."
       }
     },
+    "countries": {
+      "label": "Available in 6+ countries"
+    },
     "pricing": {
       "title": "Simple and honest",
       "titleHighlight": "pricing",

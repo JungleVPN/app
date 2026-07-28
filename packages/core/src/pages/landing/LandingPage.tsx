@@ -1,4 +1,5 @@
 import { FAQSection } from './FAQSection';
+import { CountriesMarquee } from './CountriesMarquee';
 import { FeaturesSection } from './FeaturesSection';
 import { FooterSection } from './FooterSection';
 import { HeroSection } from './HeroSection';
@@ -11,6 +12,9 @@ export default function LandingPage() {
       <HeroSection />
       <div className={'max-w-7xl mx-auto'}>
         <FeaturesSection />
+      </div>
+      <CountriesMarquee />
+      <div className={'max-w-7xl mx-auto'}>
         <div id='pricing'>
           <PricingSection />
         </div>

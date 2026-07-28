@@ -9,7 +9,7 @@ export function HeroSection() {
   const navigate = useNavigate();
 
   return (
-    <section className='flex h-full flex-col gap-20 pt-48'>
+    <section className='flex h-full flex-col gap-16 pt-48'>
       <div className='mx-auto flex w-full max-w-7xl  flex-col items-center justify-center gap-6 px-6 text-center md:px-12 lg:px-24'>
         <div className='flex flex-col gap-3'>
           <h1 className='text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-7xl'>
