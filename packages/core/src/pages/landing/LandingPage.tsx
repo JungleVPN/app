@@ -1,3 +1,4 @@
+import { FAQSection } from './FAQSection';
 import { FeaturesSection } from './FeaturesSection';
 import { HeroSection } from './HeroSection';
 import { PartnershipSection } from './PartnershipSection';
@@ -11,6 +12,7 @@ export default function LandingPage() {
         <FeaturesSection />
         <PricingSection />
         <PartnershipSection />
+        <FAQSection />
       </div>
     </>
   );
