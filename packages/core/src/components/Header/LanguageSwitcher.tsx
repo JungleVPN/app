@@ -18,7 +18,7 @@ export function LanguageSwitcher() {
     }
   };
 
-  const code = i18n.language?.split('-')[0] || 'ru';
+  const code = i18n.language?.split('-')[0];
 
   return (
     <Dropdown>

@@ -1,7 +1,19 @@
 <!DOCTYPE html>
-<html  class="light" data-theme="light" lang="ru">
+<html class="light" data-theme="light" lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <!-- Anti-FOUC: apply persisted theme before React hydrates -->
+    <script>
+      (() => {
+        try {
+          const t = localStorage.getItem('jungleVPN-theme');
+          if (t === 'dark' || t === 'light') {
+            document.documentElement.className = t;
+            document.documentElement.setAttribute('data-theme', t);
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/assets/Logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JungleVPN</title>

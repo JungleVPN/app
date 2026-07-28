@@ -1,3 +1,4 @@
+import { Card } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 
 type PartnershipCardProps = {
@@ -7,17 +8,25 @@ type PartnershipCardProps = {
   learnMoreHref?: string;
 };
 
-function PartnershipCard({ title, description, learnMoreLabel, learnMoreHref = '#' }: PartnershipCardProps) {
+function PartnershipCard({
+  title,
+  description,
+  learnMoreLabel,
+  learnMoreHref = '#',
+}: PartnershipCardProps) {
   return (
-    <div className='flex flex-col justify-between rounded-2xl bg-[#f0f4ff] p-8 dark:bg-muted/30'>
+    <Card
+      variant='secondary'
+      className='flex flex-col justify-between p-8 shadow-surface shadow-md'
+    >
       <div>
         <h3 className='mb-4 text-xl font-bold text-foreground'>{title}</h3>
         <p className='text-muted text-sm leading-relaxed'>{description}</p>
       </div>
-      <a href={learnMoreHref} className='mt-10 text-sm font-medium text-primary hover:underline'>
+      <a href={learnMoreHref} className='mt-10 text-sm font-medium text-accent hover:underline'>
         {learnMoreLabel}
       </a>
-    </div>
+    </Card>
   );
 }
 

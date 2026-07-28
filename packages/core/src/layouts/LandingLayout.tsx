@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router';
 import { ErrorBoundary, Header } from '../components';
+import { usePlatformStoreActions } from '../stores';
 
 export function LandingLayout() {
   const [scrolled, setScrolled] = useState(false);
+
+  const { setPlatformType } = usePlatformStoreActions();
+  useEffect(() => {
+    setPlatformType('web');
+  }, [setPlatformType]);
 
   useEffect(() => {
     const root = document.getElementById('root');

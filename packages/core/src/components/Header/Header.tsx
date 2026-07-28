@@ -40,30 +40,28 @@ export function Header() {
   };
 
   return (
-    <div className='flex items-center justify-between max-w-200 m-auto'>
-      <div>
-        <Link to={getLink()}>
-          {platformType === 'telegram' && photoUrl ? (
-            <Avatar size='sm' className='size-13'>
-              <Avatar.Image alt={tgUser?.first_name ?? 'User'} src={photoUrl} />
-              <Avatar.Fallback>{tgUser?.first_name?.[0] ?? 'U'}</Avatar.Fallback>
-            </Avatar>
-          ) : (
-            <img
-              alt={t('header.logoAlt')}
-              src={Logo}
-              style={{
-                width: '42px',
-                height: '42px',
-              }}
-            />
-          )}
-        </Link>
-      </div>
+    <div className='flex items-center justify-start max-w-200 m-auto gap-12'>
+      <Link to={getLink()}>
+        {platformType === 'telegram' && photoUrl ? (
+          <Avatar size='sm' className='size-13'>
+            <Avatar.Image alt={tgUser?.first_name ?? 'User'} src={photoUrl} />
+            <Avatar.Fallback>{tgUser?.first_name?.[0] ?? 'U'}</Avatar.Fallback>
+          </Avatar>
+        ) : (
+          <img
+            alt={t('header.logoAlt')}
+            src={Logo}
+            style={{
+              width: '42px',
+              height: '42px',
+            }}
+          />
+        )}
+      </Link>
 
       {isLanding && (
         <nav className='flex items-center gap-6'>
-          {(['partnership', 'pricing'] as const).map((id) => (
+          {(['pricing', 'partnership'] as const).map((id) => (
             <Button
               key={id}
               className='text-sm text-foreground/70 hover:text-foreground transition-colors cursor-pointer bg-transparent border-none p-0'
@@ -75,9 +73,9 @@ export function Header() {
         </nav>
       )}
 
-      <div className='flex items-center justify-between gap-2'>
+      <div className='flex items-center justify-between gap-2 ml-auto'>
         {!isLanding && <SubscriptionLinkWidget />}
-        <ThemeToggle />
+        {platformType === 'web' && <ThemeToggle />}
         <LanguageSwitcher />
         {platformType === 'web' && <AuthButtons />}
       </div>

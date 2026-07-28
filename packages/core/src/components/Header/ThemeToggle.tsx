@@ -11,7 +11,6 @@ export function ThemeToggle() {
       isIconOnly
       isSelected={theme === 'dark'}
       size='md'
-      variant='ghost'
       onChange={toggleTheme}
     >
       {theme === 'dark' ? <IconMoon size={18} /> : <IconSun size={18} />}

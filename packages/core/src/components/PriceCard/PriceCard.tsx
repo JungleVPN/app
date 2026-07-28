@@ -25,7 +25,7 @@ export function PriceCard({
   onCtaClick,
 }: PriceCardProps) {
   return (
-    <Card className='w-full max-w-sm p-8 shadow-xl'>
+    <Card variant='secondary' className='w-full max-w-sm p-8 shadow-md'>
       <div className='mb-6 flex flex-col gap-1'>
         <span className='text-lg font-bold text-foreground'>{period}</span>
         {subtitle && <span className='text-sm text-muted'>{subtitle}</span>}

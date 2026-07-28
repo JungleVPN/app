@@ -7,34 +7,58 @@
   transition: none !important;
 }
 
+/* ─── Web light theme ────────────────────────────────────────────────────── */
+/* HeroUI's @heroui/styles already defines the full light palette as :root    */
+/* defaults. Only add brand-specific or component-level overrides here.       */
+:root,
+.light,
+[data-theme="light"] {
+  --deprecated-separator-color: rgba(210, 210, 215, 1);
+  --second-button-color: rgb(99 102 241 / 10%);
+  --text-confirm-color: #2da44e;
+  --color-accent: #ffcb3d;
+  --accent: #ffcb3d;
+  --surface: oklch(0.9524 0.0013 286.37);
+  --color-accent-soft-foreground: #ffcb3d;
+  --button-confirm-color: #2da44e;
+  --button-main-disabled-color: #d1d5db;
+  --text-main-disabled-color: #9ca3af;
+  --button-destructive-color: rgb(239 68 68 / 10%);
+  --highlight-default: rgba(0, 0, 0, 0.06);
+  --quick-menu-background: rgba(255, 255, 255, 0.92);
+  --quick-menu-foreground: #1a1a1a;
+  --toast-background: rgba(255, 255, 255, 0.92);
+  --text-overlay: #1a1a1a;
+  --toast-link: #ffcb3d;
+  --tertiary-fill-background: rgba(0, 0, 0, 0.06);
+  --quaternary-fill-background: rgba(0, 0, 0, 0.04);
+  --separator-non-opaque-color: rgba(0, 0, 0, 0.12);
+  --accent-orange: #f59e0b;
+  --segmented-control-active-background: #ffffff;
+  --tooltip-background: #1f2937;
+  --border-color: oklch(70% 0.01 250 / 40%);
+  --accent-cyan: #0891b2;
+  --dpr: 2;
+  --main-card-content-height: 192px;
+  --tabbar-height: 88px;
+  --tabbar-current-height: var(--tabbar-height);
+  --has-tabbar: 1;
+  --overscroll-top: var(--background);
+  --overscroll-bottom: var(--background);
+}
+
+/* ─── Web dark theme ─────────────────────────────────────────────────────── */
+/* HeroUI's @heroui/styles handles all semantic tokens (--background,         */
+/* --foreground, --accent, --surface, etc.) for .dark / [data-theme="dark"].  */
+/* Only add component-level or utility vars that HeroUI doesn't own here.     */
 .dark,
 [data-theme="dark"] {
-  --tg-theme-section-separator-color: #252229;
-  --tg-theme-bottom-bar-bg-color: #161419;
-  --tg-color-scheme: dark;
-  --tg-theme-bg-color: #1f1c22;
-  --tg-theme-link-color: #71608b;
-  --tg-theme-button-color: #71608b;
-  --tg-theme-section-bg-color: #1f1c22;
-  --tg-theme-secondary-bg-color: #141216;
-  --tg-theme-button-text-color: #ffffff;
-  --tg-theme-header-bg-color: #141216;
-  --tg-theme-hint-color: #b1c3d5;
-  --tg-theme-text-color: #ffffff;
-  --tg-theme-destructive-text-color: #ef5b5b;
-  --tg-theme-subtitle-text-color: #b1c3d5;
-  --tg-theme-section-header-text-color: #b1c3d5;
-  --tg-theme-accent-text-color: #71608b;
-  --tg-viewport-height: 100vh;
-  --tg-viewport-stable-height: 100vh;
-  --tg-safe-area-inset-top: 0px;
-  --tg-safe-area-inset-bottom: 0px;
-  --tg-safe-area-inset-left: 0px;
-  --tg-safe-area-inset-right: 0px;
   --deprecated-separator-color: rgba(61, 61, 63, 1);
   --second-button-color: rgb(113 96 139 / 10%);
   --text-confirm-color: #35ca5b;
   --button-confirm-color: #35ca5b;
+  --background: oklch(0.19 0 0 / 1);
+  --surface: oklch(0.257 0.0037 286.14);
   --button-main-disabled-color: #2f2f2f;
   --text-main-disabled-color: #606060;
   --button-destructive-color: rgb(239 91 91 / 10%);
@@ -50,50 +74,15 @@
   --accent-orange: #ff9f0a;
   --segmented-control-active-background: #636366;
   --tooltip-background: #3a3a3c;
-  --border-color: oklch(from #b1c3d5 l c h / 40%);
+  --border-color: oklch(79% 0.03 250 / 40%);
   --accent-cyan: #64d2ff;
   --dpr: 2;
   --main-card-content-height: 192px;
   --tabbar-height: 88px;
   --tabbar-current-height: var(--tabbar-height);
   --has-tabbar: 1;
-  --overscroll-top: var(--tg-theme-bg-color);
-  --overscroll-bottom: var(--tg-theme-bg-color);
-
-  /* ─── HeroUI semantic tokens → TG variables ──────────────────────────────
-     These map HeroUI's design system to Telegram's theme variables.
-     When TG updates CSS vars at runtime (via Mini App init data),
-     all HeroUI components automatically reflect the new theme. */
-  --accent: var(--tg-theme-button-color);
-  --accent-foreground: var(--tg-theme-button-text-color);
-  --background: var(--tg-theme-bg-color);
-  --foreground: var(--tg-theme-text-color);
-  --surface: var(--tg-theme-section-bg-color);
-  --surface-foreground: var(--tg-theme-text-color);
-  --muted: var(--tg-theme-hint-color);
-  --link: var(--tg-theme-link-color);
-  --focus: var(--tg-theme-button-color);
-  --danger: var(--tg-theme-destructive-text-color);
-}
-
-@theme inline {
-  /* ─── Expose TG variables as Tailwind utility classes ────────────────────
-     Usage: bg-tg-button, text-tg-text, border-tg-hint, etc.
-     These are additive — they don't override HeroUI's own @theme mappings. */
-  --color-tg-button: var(--tg-theme-button-color);
-  --color-tg-button-text: var(--tg-theme-button-text-color);
-  --color-tg-bg: var(--tg-theme-bg-color);
-  --color-tg-text: var(--tg-theme-text-color);
-  --color-tg-hint: var(--tg-theme-hint-color);
-  --color-tg-link: var(--tg-theme-link-color);
-  --color-tg-secondary-bg: var(--tg-theme-secondary-bg-color);
-  --color-tg-section-bg: var(--tg-theme-section-bg-color);
-  --color-tg-header-bg: var(--tg-theme-header-bg-color);
-  --color-tg-accent-text: var(--tg-theme-accent-text-color);
-  --color-tg-subtitle-text: var(--tg-theme-subtitle-text-color);
-  --color-tg-destructive: var(--tg-theme-destructive-text-color);
-  --color-tg-bottom-bar: var(--tg-theme-bottom-bar-bg-color);
-  --color-tg-separator: var(--tg-theme-section-separator-color);
+  --overscroll-top: var(--background);
+  --overscroll-bottom: var(--background);
 }
 
 .alert-dialog__dialog {
@@ -131,7 +120,7 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px oklch(0.19 0 0) inset !important;
+  -webkit-box-shadow: 0 0 0 30px var(--field-background, oklch(0.97 0 0)) inset !important;
 }
 
 .app-container {
@@ -141,8 +130,8 @@ input:-webkit-autofill:active {
 }
 
 .step-card {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   transition:
@@ -156,7 +145,7 @@ input:-webkit-autofill:active {
 }
 
 .logo-text-normal {
-  color: white;
+  color: var(--foreground);
 }
 
 .info-card-cyan {

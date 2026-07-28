@@ -1,13 +1,18 @@
 import { Accordion } from '@heroui/react';
-import { IconDevices, IconReceiptRefund, IconShieldCheck, IconUsersGroup } from '@tabler/icons-react';
+import {
+  IconDevices,
+  IconReceiptRefund,
+  IconShieldCheck,
+  IconUsersGroup,
+} from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const FAQ_ICONS: ReactNode[] = [
-  <IconShieldCheck size={20} />,
-  <IconDevices size={20} />,
-  <IconUsersGroup size={20} />,
-  <IconReceiptRefund size={20} />,
+  <IconShieldCheck size={20} key={1} />,
+  <IconDevices size={20} key={2} />,
+  <IconUsersGroup size={20} key={3} />,
+  <IconReceiptRefund size={20} key={4} />,
 ];
 
 const FAQ_KEYS = ['q1', 'q2', 'q3', 'q4'] as const;
