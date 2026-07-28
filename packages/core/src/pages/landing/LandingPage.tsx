@@ -1,9 +1,13 @@
+import { FeaturesSection } from './FeaturesSection';
 import { HeroSection } from './HeroSection';
 
 export default function LandingPage() {
   return (
-    <div className='h-full'>
+    <>
       <HeroSection />
-    </div>
+      <div className={'max-w-7xl mx-auto'}>
+        <FeaturesSection />
+      </div>
+    </>
   );
 }
