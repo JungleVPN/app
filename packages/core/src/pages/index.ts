@@ -1,4 +1,5 @@
 export { default as GetSubscriptionPage } from './getSubscription/GetSubscriptionPage';
+export { default as LandingPage } from './landing/LandingPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';
 export { default as LoginPage } from './login/LoginPage';
 export { default as AffiliatePage } from './profile/affiliate/AffiliatePage';

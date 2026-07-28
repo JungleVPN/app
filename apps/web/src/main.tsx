@@ -30,7 +30,7 @@ const appRoutes = {
   profileTransactionsPath: '/profile/transactions',
   profileMenuPath: '/profile/menu',
   profileReferralsPath: '/profile/referrals',
-  getSubscriptionPath: '/',
+  getSubscriptionPath: '/subscribe',
 };
 
 createRoot(document.getElementById('root')!).render(

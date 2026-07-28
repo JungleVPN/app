@@ -1,8 +1,9 @@
-import { ProfileLayout } from '@workspace/core';
+import { LandingLayout, ProfileLayout } from '@workspace/core';
 import {
   AffiliatePage,
   ConfirmPage,
   GetSubscriptionPage,
+  LandingPage,
   LoginPage,
   ProtectedDevicesPage,
   ProtectedExtraDevicePurchasePage,
@@ -21,10 +22,20 @@ import { WebRootLayout } from '@/layouts/WebRootLayout';
 
 export const router = createBrowserRouter([
   {
+    path: '/',
+    Component: LandingLayout,
+    children: [
+      {
+        index: true,
+        Component: LandingPage,
+      },
+    ],
+  },
+  {
     Component: WebRootLayout,
     children: [
       {
-        path: '/',
+        path: '/subscribe',
         Component: GetSubscriptionPage,
       },
       {
