@@ -36,11 +36,11 @@ export function Header() {
   };
 
   return (
-    <div className='flex items-center justify-between'>
+    <div className='flex items-center justify-between max-w-200 m-auto'>
       <div>
         <Link to={getLink()}>
           {platformType === 'telegram' && photoUrl ? (
-            <Avatar size='sm' className='size-[52px]'>
+            <Avatar size='sm' className='size-13'>
               <Avatar.Image alt={tgUser?.first_name ?? 'User'} src={photoUrl} />
               <Avatar.Fallback>{tgUser?.first_name?.[0] ?? 'U'}</Avatar.Fallback>
             </Avatar>
