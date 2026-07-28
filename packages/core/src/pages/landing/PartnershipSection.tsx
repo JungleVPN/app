@@ -1,10 +1,13 @@
+import { useTranslation } from 'react-i18next';
+
 type PartnershipCardProps = {
   title: string;
   description: string;
+  learnMoreLabel: string;
   learnMoreHref?: string;
 };
 
-function PartnershipCard({ title, description, learnMoreHref = '#' }: PartnershipCardProps) {
+function PartnershipCard({ title, description, learnMoreLabel, learnMoreHref = '#' }: PartnershipCardProps) {
   return (
     <div className='flex flex-col justify-between rounded-2xl bg-[#f0f4ff] p-8 dark:bg-muted/30'>
       <div>
@@ -12,34 +15,35 @@ function PartnershipCard({ title, description, learnMoreHref = '#' }: Partnershi
         <p className='text-muted text-sm leading-relaxed'>{description}</p>
       </div>
       <a href={learnMoreHref} className='mt-10 text-sm font-medium text-primary hover:underline'>
-        Learn more
+        {learnMoreLabel}
       </a>
     </div>
   );
 }
 
+const PARTNERSHIP_KEYS = ['affiliate', 'referral'] as const;
+
 export function PartnershipSection() {
+  const { t } = useTranslation();
+
   return (
     <section className='mx-auto w-full px-6 py-48 md:px-12 lg:px-24'>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
-          JungleVPN partnership opportunities
+          {t('landing.partnership.title')}
         </h2>
-        <p className='text-muted text-base lg:text-lg'>
-          Let's work together to make the internet more secure, private, and accessible for
-          everyone.
-        </p>
+        <p className='text-muted text-base lg:text-lg'>{t('landing.partnership.subtitle')}</p>
       </div>
 
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-        <PartnershipCard
-          title='Affiliate program'
-          description='Earn with JungleVPN — take advantage of one of the most rewarding referral programs on the market.'
-        />
-        <PartnershipCard
-          title='Referral program'
-          description='Boost your business security with our tailored VPN solutions. Enjoy exclusive discounts on subscription plans and advanced protection for your entire team.'
-        />
+        {PARTNERSHIP_KEYS.map((key) => (
+          <PartnershipCard
+            key={key}
+            title={t(`landing.partnership.${key}.title`)}
+            description={t(`landing.partnership.${key}.description`)}
+            learnMoreLabel={t('landing.partnership.learnMore')}
+          />
+        ))}
       </div>
     </section>
   );

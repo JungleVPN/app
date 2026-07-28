@@ -1,8 +1,11 @@
 import { Button, Chip } from '@heroui/react';
 import { IconShieldCheck } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { WorldMap } from './WorldMap';
 
 export function HeroSection() {
+  const { t } = useTranslation();
+
   return (
     <section className='flex h-full flex-col gap-20 pt-48'>
       <div className='mx-auto flex w-full max-w-7xl  flex-col items-center justify-center gap-6 px-6 text-center md:px-12 lg:px-24'>
@@ -11,14 +14,14 @@ export function HeroSection() {
             Jungle VPN
           </h1>
           <p className='mx-auto max-w-xl text-base text-muted lg:text-lg'>
-            Explore freely and stay protected with advanced encryption!
+            {t('landing.hero.subtitle')}
           </p>
         </div>
         <div className='flex flex-col items-center gap-3'>
-          <Button size='lg'>Try now</Button>
+          <Button size='lg'>{t('landing.hero.cta')}</Button>
           <Chip color='default' variant='soft' className='w-fit'>
             <IconShieldCheck size={14} />
-            <Chip.Label>30-day money-back guarantee</Chip.Label>
+            <Chip.Label>{t('landing.hero.guarantee')}</Chip.Label>
           </Chip>
         </div>
       </div>

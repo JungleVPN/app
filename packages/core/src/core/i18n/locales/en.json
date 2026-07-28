@@ -371,6 +371,95 @@
       "description": "Credited immediately after your friend pays for a subscription."
     }
   },
+  "landing": {
+    "hero": {
+      "subtitle": "Explore freely and stay protected with advanced encryption!",
+      "cta": "Try now",
+      "guarantee": "30-day money-back guarantee"
+    },
+    "features": {
+      "title": "Why choose",
+      "titleHighlight": "JungleVPN",
+      "subtitle": "6 reasons why thousands of users around the world trust us",
+      "feature1": {
+        "title": "Instant access",
+        "description": "Connect in 2 minutes — no complex setup required."
+      },
+      "feature2": {
+        "title": "Money-back guarantee",
+        "description": "We'll refund you if the site you need doesn't open."
+      },
+      "feature3": {
+        "title": "Data protection",
+        "description": "Your data and traffic are securely protected."
+      },
+      "feature4": {
+        "title": "Unlimited speed",
+        "description": "No traffic or speed limits."
+      },
+      "feature5": {
+        "title": "For all devices",
+        "description": "Works on your phone, laptop, and even router."
+      },
+      "feature6": {
+        "title": "Friendly support",
+        "description": "We'll help in any situation — we respond in ~10 minutes."
+      }
+    },
+    "pricing": {
+      "title": "Simple and honest",
+      "titleHighlight": "pricing",
+      "subtitle": "One plan — full access. No hidden conditions.",
+      "period": "1 month",
+      "interval": "/ month",
+      "guarantee": "30-day money-back guarantee",
+      "cta": "Get",
+      "advantage1": "Unlimited traffic and speed",
+      "advantage2": "Protection on all devices",
+      "advantage3": "Instant access to any website",
+      "advantage4": "Friendly support 24/7"
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "q1": {
+        "question": "What makes JungleVPN one of the best VPNs on the market?",
+        "answer": "JungleVPN combines military-grade encryption, a strict no-logs policy, and lightning-fast servers in 60+ countries. Our proprietary protocol delivers speeds that let you stream, game, and browse without interruption — all while keeping your data private."
+      },
+      "q2": {
+        "question": "What devices are supported by JungleVPN?",
+        "answer": "JungleVPN works on all major platforms: iOS, Android, macOS, Windows, and Linux. Browser extensions are available for Chrome and Firefox. One subscription covers all your devices simultaneously."
+      },
+      "q3": {
+        "question": "Can I use one JungleVPN subscription on multiple devices?",
+        "answer": "Yes. A single JungleVPN subscription lets you connect unlimited devices at the same time. Protect your phone, laptop, tablet, and router all under one plan."
+      },
+      "q4": {
+        "question": "How does the JungleVPN 30-day money-back guarantee work?",
+        "answer": "If you're not completely satisfied within the first 30 days, contact our support team and we'll issue a full refund — no questions asked. The guarantee applies to all new subscriptions."
+      }
+    },
+    "partnership": {
+      "title": "JungleVPN partnership opportunities",
+      "subtitle": "Let's work together to make the internet more secure, private, and accessible for everyone.",
+      "learnMore": "Learn more",
+      "affiliate": {
+        "title": "Affiliate program",
+        "description": "Earn with JungleVPN — take advantage of one of the most rewarding referral programs on the market."
+      },
+      "referral": {
+        "title": "Referral program",
+        "description": "Boost your business security with our tailored VPN solutions. Enjoy exclusive discounts on subscription plans and advanced protection for your entire team."
+      }
+    },
+    "footer": {
+      "copyright": "© {{year}}. All rights reserved.",
+      "terms": "Terms",
+      "support": "Support",
+      "affiliate": "Affiliate",
+      "referral": "Referral",
+      "pricing": "Pricing"
+    }
+  },
   "transactions": {
     "pageTitle": "Transaction History",
     "noTransactions": "No transactions yet",

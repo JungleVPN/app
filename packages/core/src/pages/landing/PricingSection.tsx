@@ -1,11 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 
-const advantages = [
-  'Безлимитный трафик и скорость',
-  'Защита на всех устройствах',
-  'Мгновенный доступ к любым сайтам',
-  'Дружелюбная поддержка 24/7',
-];
+const ADVANTAGE_KEYS = ['advantage1', 'advantage2', 'advantage3', 'advantage4'] as const;
 
 function PaymentMethods() {
   return (
@@ -102,26 +98,29 @@ function DiscoverIcon() {
 }
 
 export function PricingSection() {
+  const { t } = useTranslation();
+
+  const advantages = ADVANTAGE_KEYS.map((key) => t(`landing.pricing.${key}`));
+
   return (
     <section className='mx-auto w-full px-6 py-24 md:px-12 lg:px-24'>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
-          Простые и честные <span className='text-primary'>цены</span>
+          {t('landing.pricing.title')}{' '}
+          <span className='text-primary'>{t('landing.pricing.titleHighlight')}</span>
         </h2>
-        <p className='text-muted text-base lg:text-lg'>
-          Один план — полный доступ. Без скрытых условий.
-        </p>
+        <p className='text-muted text-base lg:text-lg'>{t('landing.pricing.subtitle')}</p>
       </div>
 
       <div className='flex flex-col items-center gap-8'>
         <PriceCard
-          period='1 month'
+          period={t('landing.pricing.period')}
           currency='€'
           price='7.99'
-          interval='/ month'
+          interval={t('landing.pricing.interval')}
           advantages={advantages}
-          guarantee='30-day money-back guarantee'
-          cta='Get'
+          guarantee={t('landing.pricing.guarantee')}
+          cta={t('landing.pricing.cta')}
         />
         <PaymentMethods />
       </div>

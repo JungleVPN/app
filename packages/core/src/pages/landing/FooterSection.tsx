@@ -1,13 +1,8 @@
 import { IconBrandInstagram, IconBrandTelegram } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import Logo from '../../assets/Logo.svg';
 
-const links = [
-  { label: 'Terms', href: '#' },
-  { label: 'Support', href: '#' },
-  { label: 'Affiliate', href: '#' },
-  { label: 'Referral', href: '#' },
-  { label: 'Pricing', href: '#' },
-];
+const LINK_KEYS = ['terms', 'support', 'affiliate', 'referral', 'pricing'] as const;
 
 const socials = [
   { label: 'Instagram', href: '#', icon: <IconBrandInstagram size={18} /> },
@@ -15,6 +10,8 @@ const socials = [
 ];
 
 export function FooterSection() {
+  const { t } = useTranslation();
+
   return (
     <footer className='w-full border-t border-divider'>
       <div className='mx-auto flex max-w-7xl flex-col gap-8 px-6 py-12 md:px-12 lg:px-24'>
@@ -30,18 +27,20 @@ export function FooterSection() {
               }}
             />
           </div>
-          <p className='text-sm text-muted'>© {new Date().getFullYear()}. All rights reserved.</p>
+          <p className='text-sm text-muted'>
+            {t('landing.footer.copyright', { year: new Date().getFullYear() })}
+          </p>
         </div>
 
         <div className='flex flex-wrap items-center justify-between gap-6'>
           <nav className='flex flex-wrap gap-6'>
-            {links.map((link) => (
+            {LINK_KEYS.map((key) => (
               <a
-                key={link.label}
-                href={link.href}
+                key={key}
+                href='#'
                 className='text-sm text-muted transition-colors hover:text-foreground'
               >
-                {link.label}
+                {t(`landing.footer.${key}`)}
               </a>
             ))}
           </nav>
