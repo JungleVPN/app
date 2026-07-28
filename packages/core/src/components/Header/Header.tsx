@@ -10,6 +10,7 @@ import { withReferralParam } from '../../utils';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Header() {
   const { t } = useTranslation();
@@ -18,6 +19,8 @@ export function Header() {
   const { platformType } = usePlatformStore();
   const remnawaveApi = useRemnawaveApi();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+
+  const isLanding = pathname === '/';
 
   useEffect(() => {
     if (platformType !== 'telegram' || !tgUser?.id) return;
@@ -58,7 +61,7 @@ export function Header() {
         </Link>
       </div>
 
-      {pathname === '/' && (
+      {isLanding && (
         <nav className='flex items-center gap-6'>
           {(['partnership', 'pricing'] as const).map((id) => (
             <Button
@@ -73,7 +76,8 @@ export function Header() {
       )}
 
       <div className='flex items-center justify-between gap-2'>
-        <SubscriptionLinkWidget />
+        {!isLanding && <SubscriptionLinkWidget />}
+        <ThemeToggle />
         <LanguageSwitcher />
         {platformType === 'web' && <AuthButtons />}
       </div>
