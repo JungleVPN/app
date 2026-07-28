@@ -22,11 +22,11 @@ export function useSavedMethodsData(userId: string): void {
     pendingUserIds.add(userId);
 
     Promise.all([
-      paymentsApi.getSavedMethods(userId).catch((err) => {
+      paymentsApi.getSavedMethods().catch((err) => {
         console.error('Failed to pre-fetch saved methods:', err);
         return [] as SavedMethodDto[];
       }),
-      paymentsApi.getStripeSubscription(userId).catch((err) => {
+      paymentsApi.getStripeSubscription().catch((err) => {
         console.error('Failed to pre-fetch Stripe subscription:', err);
         return { active: false, portalUrl: null };
       }),

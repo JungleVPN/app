@@ -16,17 +16,17 @@ export const apiRoutes = {
   },
   payments: {
     stripeCreateSession: '/stripe/create-session',
-    stripeSubscription: (userId: string) => `/stripe/subscription/${encodeURIComponent(userId)}`,
+    stripeSubscription: '/stripe/subscription',
     stripeWebhook: '/stripe/webhook',
     yookassaCreateSession: '/yookassa/create-session',
     yookassaWebhook: '/yookassa/webhook',
-    yookassaSavedMethods: (userId: string) =>
-      `/yookassa/saved-methods/${encodeURIComponent(userId)}`,
-    yookassaSavedMethodById: (userId: string, id: string) =>
-      `/yookassa/saved-methods/${encodeURIComponent(userId)}/${encodeURIComponent(id)}`,
+    yookassaSavedMethods: '/yookassa/saved-methods',
+    yookassaSavedMethodById: (id: string) =>
+      `/yookassa/saved-methods/${encodeURIComponent(id)}`,
     telegramStarsCreateInvoice: '/telegram-stars/create-invoice',
     telegramStarsPaymentSucceeded: '/telegram-stars/payment-succeeded',
     promoValidate: '/promo/validate',
+    myTransactions: '/my-transactions',
     searchPayments: '/search',
     remnawaveEvent: '/remnawave-event',
   },

@@ -18,7 +18,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { StripePayment } from '@workspace/database';
 import type Stripe from 'stripe';
 import { Repository } from 'typeorm';
-import { AdminGuard } from '../../admin/admin.guard';
+import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
+import { AdminRoleGuard } from '../../auth/admin-role.guard';
+import { ClientUserGuard } from '../../auth/client-user.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
 import { StripeProvider } from './stripe.provider';
 import type { CreateStripePaymentDto, Session } from './stripe.types';
@@ -33,29 +35,32 @@ export class StripeController {
     private readonly stripeProvider: StripeProvider,
   ) {}
 
-  /** List all Stripe payments, newest first */
+  /** List all Stripe payments, newest first — internal use only */
   @Get()
+  @UseGuards(InterServiceGuard)
   async list() {
     return this.stripePaymentRepo.find({ order: { createdAt: 'DESC' } });
   }
 
-  /** Active-subscription status + Billing Portal URL for a user */
-  @Get('subscription/:userId')
-  async getSubscriptionStatus(@Param('userId') userId: string) {
+  /** Active-subscription status + Billing Portal URL for the authenticated user */
+  @Get('subscription')
+  @UseGuards(ClientUserGuard)
+  async getSubscriptionStatus(@AuthenticatedUserId() userId: string) {
     return this.stripeProvider.getSubscriptionStatus(userId);
   }
 
-  /** Get a single Stripe payment by id */
+  /** Get a single Stripe payment by id — internal use only */
   @Get(':id')
+  @UseGuards(InterServiceGuard)
   async getById(@Param('id') id: string) {
     const payment = await this.stripePaymentRepo.findOneBy({ id });
     if (!payment) throw new NotFoundException(`Stripe payment ${id} not found`);
     return payment;
   }
 
-  /** Update a Stripe payment status (and optional fields) — admin only, never called by the webhook/checkout flow */
+  /** Update a Stripe payment status — admin identity validated via credential */
   @Patch(':id')
-  @UseGuards(AdminGuard)
+  @UseGuards(ClientUserGuard, AdminRoleGuard)
   async updateStatus(
     @Param('id') id: string,
     @Body() body: { status?: string; paidAt?: string | null },

@@ -36,6 +36,7 @@ export {
 import {
   CreateUserCommand,
   DeleteUserCommand,
+  GetUserByEmailCommand,
   GetUserByTelegramIdCommand,
   GetUserByUuidCommand,
   GetUserHwidDevicesCommand,
@@ -50,6 +51,7 @@ export type UserDto = CreateUserCommand.Response['response'];
 
 // by-telegram-id and by-email return arrays of users inside `response`
 export type GetUserByTelegramIdResponseDto = GetUserByTelegramIdCommand.Response['response'];
+export type GetUserByEmailCommandDto = GetUserByEmailCommand.Response['response'];
 export type GetUserByUuidResponseDto = GetUserByUuidCommand.Response['response'];
 export type CreateUserResponseDto = CreateUserCommand.Response['response'];
 export type UpdateUserResponseDto = UpdateUserCommand.Response['response'];
