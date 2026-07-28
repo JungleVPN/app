@@ -1,5 +1,6 @@
 import { Card } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 
 type PartnershipCardProps = {
   title: string;
@@ -23,9 +24,9 @@ function PartnershipCard({
         <h3 className='mb-4 text-xl font-bold text-foreground'>{title}</h3>
         <p className='text-muted text-sm leading-relaxed'>{description}</p>
       </div>
-      <a href={learnMoreHref} className='mt-10 text-sm font-medium text-accent hover:underline'>
+      <Link to={learnMoreHref ?? '#'} className='mt-10 text-sm font-medium text-accent hover:underline'>
         {learnMoreLabel}
-      </a>
+      </Link>
     </Card>
   );
 }
@@ -51,6 +52,7 @@ export function PartnershipSection() {
             title={t(`landing.partnership.${key}.title`)}
             description={t(`landing.partnership.${key}.description`)}
             learnMoreLabel={t('landing.partnership.learnMore')}
+            learnMoreHref={key === 'affiliate' ? '/affiliates' : '/profile/referrals'}
           />
         ))}
       </div>

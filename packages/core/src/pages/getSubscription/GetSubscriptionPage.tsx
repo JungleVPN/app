@@ -20,9 +20,7 @@ export default function GetSubscriptionPage() {
     <Form className={styles.form}>
       <div className='mx-auto flex max-w-5xl flex-col gap-3'>
         <div className='flex flex-col gap-2'>
-          <p className='text-base font-medium text-foreground ml-4'>
-            {t('getSubscription.enter_email')}
-          </p>
+          <p className='text-base font-medium ml-4'>{t('getSubscription.enter_email')}</p>
           <TextField isInvalid={hasError} isRequired name='email' id={'email'} type='email'>
             <div className='relative w-full'>
               <span className={styles.inputIcon}>
@@ -54,7 +52,7 @@ export default function GetSubscriptionPage() {
               <div className={styles.itemLabel}>
                 <div className='flex flex-col gap-0.5'>
                   <p className={styles.itemName}>{t('getSubscription.item_name')}</p>
-                  <Chip color='accent' size='sm' className={'w-fit'} variant='soft'>
+                  <Chip color='warning' size='sm' className={'w-fit'} variant='secondary'>
                     <Chip.Label>{t('getSubscription.discount')}</Chip.Label>
                   </Chip>
                 </div>

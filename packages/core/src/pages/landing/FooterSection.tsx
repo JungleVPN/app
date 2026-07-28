@@ -1,16 +1,35 @@
-import { IconBrandInstagram, IconBrandTelegram } from '@tabler/icons-react';
+import { IconBrandTelegram } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 import Logo from '../../assets/Logo.svg';
+import { coreEnv } from '../../env';
+
+type FooterLinkDef =
+  | { type: 'internal'; to: string }
+  | { type: 'anchor'; href: string }
+  | { type: 'external'; href: string };
+
+const FOOTER_LINKS: Record<
+  'terms' | 'support' | 'affiliate' | 'referral' | 'pricing',
+  FooterLinkDef
+> = {
+  terms: { type: 'internal', to: '/terms' },
+  support: { type: 'external', href: coreEnv.supportUrl },
+  affiliate: { type: 'internal', to: '/affiliates' },
+  referral: { type: 'internal', to: '/profile/referrals' },
+  pricing: { type: 'anchor', href: '#pricing' },
+};
 
 const LINK_KEYS = ['terms', 'support', 'affiliate', 'referral', 'pricing'] as const;
 
-const socials = [
-  { label: 'Instagram', href: '#', icon: <IconBrandInstagram size={18} /> },
-  { label: 'Telegram', href: '#', icon: <IconBrandTelegram size={18} /> },
-];
+const linkClass = 'text-sm text-muted transition-colors hover:text-foreground';
 
 export function FooterSection() {
   const { t } = useTranslation();
+
+  const socials = [
+    { label: 'Telegram', href: coreEnv.supportUrl, icon: <IconBrandTelegram size={18} /> },
+  ];
 
   return (
     <footer className='w-full border-t border-divider'>
@@ -34,15 +53,29 @@ export function FooterSection() {
 
         <div className='flex flex-wrap items-center justify-between gap-6'>
           <nav className='flex flex-wrap gap-6'>
-            {LINK_KEYS.map((key) => (
-              <a
-                key={key}
-                href='#'
-                className='text-sm text-muted transition-colors hover:text-foreground'
-              >
-                {t(`landing.footer.${key}`)}
-              </a>
-            ))}
+            {LINK_KEYS.map((key) => {
+              const def = FOOTER_LINKS[key];
+              const label = t(`landing.footer.${key}`);
+              if (def.type === 'internal') {
+                return (
+                  <Link key={key} to={def.to} className={linkClass}>
+                    {label}
+                  </Link>
+                );
+              }
+              return (
+                <a
+                  key={key}
+                  href={def.href}
+                  className={linkClass}
+                  {...(def.type === 'external'
+                    ? { target: '_blank', rel: 'noopener noreferrer' }
+                    : {})}
+                >
+                  {label}
+                </a>
+              );
+            })}
           </nav>
 
           <div className='flex items-center gap-4'>
@@ -51,6 +84,8 @@ export function FooterSection() {
                 key={social.label}
                 href={social.href}
                 aria-label={social.label}
+                target={social.href !== '#' ? '_blank' : undefined}
+                rel={social.href !== '#' ? 'noopener noreferrer' : undefined}
                 className='text-muted transition-colors hover:text-foreground'
               >
                 {social.icon}

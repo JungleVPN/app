@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 
 const ADVANTAGE_KEYS = ['advantage1', 'advantage2', 'advantage3', 'advantage4'] as const;
@@ -99,6 +100,7 @@ function DiscoverIcon() {
 
 export function PricingSection() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const advantages = ADVANTAGE_KEYS.map((key) => t(`landing.pricing.${key}`));
 
@@ -121,6 +123,7 @@ export function PricingSection() {
           advantages={advantages}
           guarantee={t('landing.pricing.guarantee')}
           cta={t('landing.pricing.cta')}
+          onCtaClick={() => navigate('/subscribe')}
         />
         <PaymentMethods />
       </div>

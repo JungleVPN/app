@@ -1,10 +1,12 @@
 import { Button, Chip } from '@heroui/react';
 import { IconShieldCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 import { WorldMap } from './WorldMap';
 
 export function HeroSection() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   return (
     <section className='flex h-full flex-col gap-20 pt-48'>
@@ -18,7 +20,7 @@ export function HeroSection() {
           </p>
         </div>
         <div className='flex flex-col items-center gap-3'>
-          <Button size='lg'>{t('landing.hero.cta')}</Button>
+          <Button size='lg' onClick={() => navigate('/subscribe')}>{t('landing.hero.cta')}</Button>
           <Chip color='default' variant='soft' className='w-fit'>
             <IconShieldCheck size={14} />
             <Chip.Label>{t('landing.hero.guarantee')}</Chip.Label>

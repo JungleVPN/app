@@ -44,16 +44,10 @@
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  border: 1px solid var(--tg-theme-section-separator-color, rgba(255, 255, 255, 0.12));
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 8px;
-  background: color-mix(
-    in srgb,
-    var(--tg-theme-secondary-bg-color, rgba(255, 255, 255, 0.06)) 40%,
-    transparent
-  );
 }
 
 .title {
@@ -84,7 +78,6 @@
   left: 18px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--tg-theme-hint-color, rgba(255, 255, 255, 0.35));
   pointer-events: none;
   z-index: 2;
   display: flex;
@@ -94,29 +87,15 @@
 .input {
   width: 100%;
   border-radius: 32px;
-  color: var(--tg-theme-text-color, #fff);
   font-size: 16px;
   padding: 10px 8px 10px 42px;
   transition: all 0.25s ease;
   box-sizing: border-box;
 }
 
-.input::placeholder {
-  color: var(--tg-theme-hint-color, rgba(255, 255, 255, 0.3));
-}
-
 .input:focus {
-  border-color: color-mix(in srgb, var(--tg-theme-hint-color, #ffffff) 55%, transparent);
-  background: color-mix(
-    in srgb,
-    var(--tg-theme-secondary-bg-color, rgba(255, 255, 255, 0.1)) 75%,
-    transparent
-  );
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tg-theme-button-color, #ffffff) 12%, transparent);
-}
-
-.input:hover:not(:focus) {
-  border-color: var(--tg-theme-section-separator-color, rgba(255, 255, 255, 0.2));
+  border-color: none;
+  box-shadow: none;
 }
 
 .submitButton {
@@ -210,7 +189,6 @@
 
 .footerText {
   font-size: 13px;
-  color: color-mix(in srgb, var(--tg-theme-hint-color, #ffffff) 45%, transparent);
   line-height: 1.5;
 }
 
@@ -226,7 +204,6 @@
 .summaryTitle {
   font-size: 20px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #fff);
   margin-bottom: 4px;
 }
 
@@ -257,7 +234,6 @@
 .itemName {
   font-size: 16px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #fff);
 }
 
 .priceColumn {
@@ -288,7 +264,6 @@
 .featuresTitle {
   font-size: 16px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #fff);
   margin-bottom: 4px;
 }
 
