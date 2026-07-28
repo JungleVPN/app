@@ -21,7 +21,7 @@ export function useDevices() {
 
   useEffect(() => {
     if (!rmnUser?.uuid) return;
-    fetchDevices(rmnUser.uuid).then((result) => {
+    fetchDevices().then((result) => {
       setDevices(result?.devices ?? []);
     });
   }, [rmnUser?.uuid, fetchDevices]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -32,8 +32,8 @@ export function useDevices() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!rmnUser?.uuid || !deviceToDelete) return;
-    const result = await deleteDevice(rmnUser.uuid, deviceToDelete);
+    if (!deviceToDelete) return;
+    const result = await deleteDevice(deviceToDelete);
     if (result) setDevices(result.devices);
     setDeviceToDelete(null);
   };

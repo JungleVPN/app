@@ -7,7 +7,6 @@ export {
   useCreateTelegramStarsInvoice,
   useDeleteSavedMethod,
 } from './use-payment';
-export { useUpdateUser } from './use-user';
 export { useBackButton } from './useBackButton';
 export { useClipboard } from './useClipboard';
 export { useNavigation } from './useNavigation';

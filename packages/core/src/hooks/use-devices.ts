@@ -5,14 +5,11 @@ import { useAsync } from './use-async';
 type RemnawaveApi = ReturnType<typeof createRemnawaveApi>;
 
 export function useUserDevices(api: RemnawaveApi) {
-  const fn = useCallback((userUuid: string) => api.getUserDevices(userUuid), [api]);
+  const fn = useCallback(() => api.getMyDevices(), [api]);
   return useAsync(fn);
 }
 
 export function useDeleteDevice(api: RemnawaveApi) {
-  const fn = useCallback(
-    (userUuid: string, hwid: string) => api.deleteUserDevice(userUuid, hwid),
-    [api],
-  );
+  const fn = useCallback((hwid: string) => api.deleteMyDevice(hwid), [api]);
   return useAsync(fn);
 }

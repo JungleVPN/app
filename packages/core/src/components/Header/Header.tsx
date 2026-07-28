@@ -22,10 +22,10 @@ export function Header() {
     if (platformType !== 'telegram' || !tgUser?.id) return;
 
     remnawaveApi
-      .getTelegramPhotoUrl(String(tgUser.id))
+      .getMyTelegramPhoto()
       .then(({ photoUrl: url }) => setPhotoUrl(url))
       .catch(() => {});
-  }, [platformType, tgUser?.id, remnawaveApi.getTelegramPhotoUrl]);
+  }, [platformType, tgUser?.id, remnawaveApi.getMyTelegramPhoto]);
 
   const getLink = () => {
     if (authUser || platformType === 'telegram') {

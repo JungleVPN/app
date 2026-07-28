@@ -12,7 +12,6 @@ import {
   clearReferral,
   getAttribution,
   getReferral,
-  initUser,
   validateEmail,
 } from '../../utils';
 
@@ -77,60 +76,37 @@ export function useGetSubscriptionPage() {
   // If no account exists yet: create one with both email and telegramId so the user
   // can access their subscription from both Telegram and the web.
   const submitTelegramUser = async (tgUser: User) => {
-    const telegramId = Number(tgUser.id);
-    const existingUser = await initUser(remnawaveApi, { email, telegramId });
+    const user = await remnawaveApi.connectEmail(email, {
+      inviterId: getReferral() ?? undefined,
+    });
 
-    if (existingUser) {
-      const linked = await remnawaveApi.updateUser({ uuid: existingUser.uuid, telegramId, email });
-      setRmnUser(linked ?? null);
+    setRmnUser(user ?? null);
+
+    if (user) {
       if (tgUser.language_code) {
-        const existing = await remnawaveApi.getUserMetadata(existingUser.uuid);
-        if (!existing?.lang) {
-          await remnawaveApi.upsertUserMetadata(existingUser.uuid, { lang: tgUser.language_code });
-        }
+        await remnawaveApi.upsertMyMetadata({ lang: tgUser.language_code });
       }
-      analytics.login('telegram');
-    } else {
-      const newUser = await remnawaveApi.createUser({
-        email,
-        telegramId,
-        inviterId: getReferral() ?? undefined,
-      });
-      setRmnUser(newUser ?? null);
-      if (newUser) {
-        const attribution = getAttribution();
-        if (attribution) analyticsApi.trackUserCreated(newUser, attribution);
-        if (tgUser.language_code) {
-          await remnawaveApi.upsertUserMetadata(newUser.uuid, { lang: tgUser.language_code });
-        }
-      }
+      const attribution = getAttribution();
+      if (attribution) analyticsApi.trackUserCreated(user, attribution);
       clearReferral();
       clearAttribution();
-      analytics.signUp('telegram');
     }
+
     navigate(profileSubscriptionPath);
   };
 
-  // Web flow — look up or create by email, then navigate to the public subscription page.
+  // Web flow — find or create by email, then navigate to the public subscription page.
   const submitWebUser = async () => {
-    const existingUser = await initUser(remnawaveApi, { email });
-    if (existingUser) {
-      analytics.login('web');
-      navigate(`/subscription/${existingUser.shortUuid}`);
-      return;
-    }
-    const newUser = await remnawaveApi.createUser({
-      email,
+    const user = await remnawaveApi.connectEmail(email, {
       inviterId: getReferral() ?? undefined,
     });
-    if (newUser) {
+    if (user) {
       const attribution = getAttribution();
-      if (attribution) analyticsApi.trackUserCreated(newUser, attribution);
+      if (attribution) analyticsApi.trackUserCreated(user, attribution);
+      clearReferral();
+      clearAttribution();
+      navigate(`/subscription/${user.shortUuid}`);
     }
-    clearReferral();
-    clearAttribution();
-    analytics.signUp('web');
-    navigate(`/subscription/${newUser?.shortUuid}`);
   };
 
   const handleSubmit = async (e: SyntheticEvent) => {

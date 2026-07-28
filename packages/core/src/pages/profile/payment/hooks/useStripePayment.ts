@@ -2,7 +2,7 @@ import { openLink } from '@tma.js/sdk-react';
 import { useCallback, useState } from 'react';
 import { useRemnawaveApi } from '../../../../api';
 import { coreEnv } from '../../../../env';
-import { useCreateStripeSession, useUpdateUser } from '../../../../hooks';
+import { useCreateStripeSession } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../../../stores';
 import { analytics } from '../../../../utils';
@@ -24,8 +24,6 @@ export function useStripePayment() {
 
   const { isLoading: isStripePaying, execute: createStripeSession } =
     useCreateStripeSession(paymentsApi);
-  const { execute: updateUser } = useUpdateUser(remnawaveApi);
-
   const isNativeApp =
     platformType !== 'web' && (clientPlatform === 'ios' || clientPlatform === 'android');
 
@@ -49,7 +47,7 @@ export function useStripePayment() {
     if (!uuid) return;
     setIsOpeningStripePortal(true);
     try {
-      const status = await paymentsApi.getStripeSubscription(uuid);
+      const status = await paymentsApi.getStripeSubscription();
       if (status.portalUrl) redirectTo(status.portalUrl);
     } finally {
       setIsOpeningStripePortal(false);
@@ -62,26 +60,10 @@ export function useStripePayment() {
     let activeUser = rmnUser;
 
     if (email) {
-      const byEmail = await remnawaveApi.getUserByEmail({ email });
-      const existingUserWithEmail = byEmail?.[0];
-
-      if (existingUserWithEmail && existingUserWithEmail.uuid !== rmnUser.uuid) {
-        // Web account exists for this email — link Telegram ID to it and use it for payment.
-        const linked = await updateUser({
-          uuid: existingUserWithEmail.uuid,
-          telegramId: tgUser?.id != null ? Number(tgUser.id) : undefined,
-        });
-        if (linked) {
-          setRmnUser(linked);
-          activeUser = linked;
-        }
-      } else {
-        // No separate web account — just save the email on the current account.
-        const updated = await updateUser({ uuid: rmnUser.uuid, email });
-        if (updated) {
-          setRmnUser(updated);
-          activeUser = updated;
-        }
+      const result = await remnawaveApi.linkEmail(email);
+      if (result) {
+        setRmnUser(result);
+        activeUser = result;
       }
     }
 
