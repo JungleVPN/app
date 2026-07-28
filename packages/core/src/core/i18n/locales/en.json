@@ -33,7 +33,11 @@
     "title": "JungleVPN",
     "logout": "Logout",
     "login": "Log In",
-    "logoAlt": "JungleVPN logo"
+    "logoAlt": "JungleVPN logo",
+    "nav": {
+      "partnership": "Partnership",
+      "pricing": "Prices"
+    }
   },
   "languages": {
     "nativeRu": "Русский",

@@ -1,8 +1,8 @@
-import { Avatar } from '@heroui/react';
+import { Avatar, Button } from '@heroui/react';
 import { useAuthStore } from '@workspace/core';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { useRemnawaveApi } from '../../api';
 import Logo from '../../assets/Logo.svg';
 import { usePlatformStore } from '../../stores';
@@ -13,6 +13,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 
 export function Header() {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
   const { authUser, tgUser } = useAuthStore();
   const { platformType } = usePlatformStore();
   const remnawaveApi = useRemnawaveApi();
@@ -56,6 +57,20 @@ export function Header() {
           )}
         </Link>
       </div>
+
+      {pathname === '/' && (
+        <nav className='flex items-center gap-6'>
+          {(['partnership', 'pricing'] as const).map((id) => (
+            <Button
+              key={id}
+              className='text-sm text-foreground/70 hover:text-foreground transition-colors cursor-pointer bg-transparent border-none p-0'
+              onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              {t(`header.nav.${id}`)}
+            </Button>
+          ))}
+        </nav>
+      )}
 
       <div className='flex items-center justify-between gap-2'>
         <SubscriptionLinkWidget />

@@ -117,6 +117,7 @@ body {
   overflow: clip auto;
   overscroll-behavior-x: none;
   position: relative;
+  scroll-behavior: smooth;
   scrollbar-width: none;
   width: 100%;
 }

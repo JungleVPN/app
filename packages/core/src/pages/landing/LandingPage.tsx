@@ -11,8 +11,12 @@ export default function LandingPage() {
       <HeroSection />
       <div className={'max-w-7xl mx-auto'}>
         <FeaturesSection />
-        <PricingSection />
-        <PartnershipSection />
+        <div id='pricing'>
+          <PricingSection />
+        </div>
+        <div id='partnership'>
+          <PartnershipSection />
+        </div>
         <FAQSection />
       </div>
       <FooterSection />
