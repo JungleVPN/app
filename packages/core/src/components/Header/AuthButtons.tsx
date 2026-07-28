@@ -1,4 +1,5 @@
-import { Button } from '@heroui/react';
+import { Button, Dropdown, Label } from '@heroui/react';
+import { IconLogout, IconUser } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { useNavigation } from '../../hooks';
@@ -28,13 +29,34 @@ export function AuthButtons() {
     navigate('/');
   };
 
+  const handleAction = async (key: string | number) => {
+    if (key === 'profile') navigate('/profile/subscription');
+    if (key === 'logout') await handleLogout();
+  };
+
   if (authUser) {
     return (
-      <div className='flex gap-2'>
-        <Button variant='outline' onPress={handleLogout}>
-          {t('header.logout')}
+      <Dropdown>
+        <Button isIconOnly size='md' variant='outline'>
+          <IconUser stroke={2} />
         </Button>
-      </div>
+        <Dropdown.Popover>
+          <Dropdown.Menu onAction={handleAction}>
+            <Dropdown.Item id='profile' textValue={t('header.profile')}>
+              <div className='flex items-center gap-2'>
+                <IconUser stroke={2} size={16} />
+                <Label>{t('header.profile')}</Label>
+              </div>
+            </Dropdown.Item>
+            <Dropdown.Item id='logout' textValue={t('header.logout')}>
+              <div className='flex items-center gap-2'>
+                <IconLogout stroke={2} size={16} />
+                <Label>{t('header.logout')}</Label>
+              </div>
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown.Popover>
+      </Dropdown>
     );
   }
 

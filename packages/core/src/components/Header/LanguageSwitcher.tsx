@@ -22,7 +22,7 @@ export function LanguageSwitcher() {
 
   return (
     <Dropdown>
-      <Button className='min-w-10 uppercase' size='md' variant='secondary'>
+      <Button className='min-w-10 uppercase' variant='outline' size='md'>
         {code}
       </Button>
       <Dropdown.Popover>

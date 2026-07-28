@@ -9,6 +9,7 @@ export function ThemeToggle() {
     <ToggleButton
       aria-label='Toggle theme'
       isIconOnly
+      variant='default'
       isSelected={theme === 'dark'}
       size='md'
       onChange={toggleTheme}

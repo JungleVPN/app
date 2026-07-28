@@ -25,7 +25,7 @@
   height: 100%;
   -webkit-backdrop-filter: saturate(300%) blur(8px);
   backdrop-filter: saturate(300%) blur(8px);
-  background: rgb(from var(--tg-theme-section-bg-color) r g b / 84%);
+  background: rgb(from var(--tg-theme-section-bg-color, var(--background)) r g b / 84%);
   box-shadow:
     0 1px 2px 0 #00000014,
     0 2px 16px 1px #0000001a;
@@ -61,7 +61,7 @@
   z-index: 1;
   border-radius: 4rem;
   box-shadow: 0 1px 2px rgb(0 0 0 / 8%);
-  background-color: rgb(from var(--tg-theme-accent-text-color) r g b / 10%);
+  background-color: rgb(from var(--tg-theme-accent-text-color, var(--accent)) r g b / 10%);
   border-color: transparent;
 }
 
@@ -89,13 +89,13 @@
      color-mix() blends base colour → accent as the indicator slides over. */
   color: color-mix(
     in srgb,
-    var(--tg-theme-accent-text-color) calc(var(--tab-overlap, 0) * 100%),
-    var(--tg-theme-text-color)
+    var(--tg-theme-accent-text-color, var(--accent)) calc(var(--tab-overlap, 0) * 100%),
+    var(--tg-theme-text-color, var(--foreground))
   );
   fill: color-mix(
     in srgb,
-    var(--tg-theme-accent-text-color) calc(var(--tab-overlap, 0) * 100%),
-    var(--tg-theme-text-color)
+    var(--tg-theme-accent-text-color, var(--accent)) calc(var(--tab-overlap, 0) * 100%),
+    var(--tg-theme-text-color, var(--foreground))
   );
 }
 

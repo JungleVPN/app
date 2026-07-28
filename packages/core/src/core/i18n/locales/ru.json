@@ -30,6 +30,7 @@
   },
   "header": {
     "title": "JungleVPN",
+    "profile": "Профиль",
     "logout": "Выйти",
     "login": "Войти",
     "logoAlt": "Логотип JungleVPN",
