@@ -23,3 +23,4 @@ export {
 export { SubscriptionView } from './SubscriptionView/SubscriptionView';
 export { Navbar } from './Tabs/Tabs';
 export { ThemeIconComponent } from './ThemeIcon/ThemeIcon';
+export { ThemeToggle } from './Header/ThemeToggle';
