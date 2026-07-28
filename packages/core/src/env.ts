@@ -36,6 +36,8 @@ export const coreEnv = {
   extraDevicePriceEUR: Number(import.meta.env.PUBLIC_EXTRA_DEVICE_PRICE_EUR ?? ''),
   extraDevicePriceStars: Number(import.meta.env.PUBLIC_EXTRA_DEVICE_PRICE_STARS ?? ''),
 
+  deviceLimit: Number(import.meta.env.PUBLIC_HWID_LIMIT ?? ''),
+
   referralFirstPaymentRate: Number(import.meta.env.PUBLIC_REFERRAL_FIRST_PAYMENT_RATE ?? ''),
   referralRecurringRate: Number(import.meta.env.PUBLIC_REFERRAL_RECURRING_PAYMENT_RATE ?? ''),
 

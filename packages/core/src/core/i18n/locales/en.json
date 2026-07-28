@@ -374,85 +374,83 @@
   },
   "landing": {
     "hero": {
-      "subtitle": "Explore freely and stay protected with advanced encryption!",
+      "subtitle": "Open the whole internet — safely and without limits.",
       "cta": "Try now",
       "guarantee": "30-day money-back guarantee"
     },
     "features": {
-      "title": "Why choose",
-      "titleHighlight": "JungleVPN",
-      "subtitle": "6 reasons why thousands of users around the world trust us",
+      "title": "Why people love JungleVPN",
+      "subtitle": "Here's why thousands of people choose JungleVPN every day",
       "feature1": {
-        "title": "Instant access",
-        "description": "Connect in 2 minutes — no complex setup required."
+        "title": "Ready in minutes",
+        "description": "You'll be up and running in 2 minutes — no tech skills needed."
       },
       "feature2": {
         "title": "Money-back guarantee",
-        "description": "We'll refund you if the site you need doesn't open."
+        "description": "Not happy? We'll give your money back, no questions asked."
       },
       "feature3": {
-        "title": "Data protection",
-        "description": "Your data and traffic are securely protected."
+        "title": "Your privacy, protected",
+        "description": "Everything you do online stays private. Always."
       },
       "feature4": {
         "title": "Unlimited speed",
-        "description": "No traffic or speed limits."
+        "description": "Stream, browse, and download as much as you want — no limits."
       },
       "feature5": {
-        "title": "For all devices",
-        "description": "Works on your phone, laptop, and even router."
+        "title": "Works everywhere",
+        "description": "Your phone, laptop, tablet — we've got them all covered. Connect up to {{deviceLimit}} devices"
       },
       "feature6": {
         "title": "Friendly support",
-        "description": "We'll help in any situation — we respond in ~10 minutes."
+        "description": "Real people, real help. We usually reply in about 10 minutes."
       }
     },
     "countries": {
-      "label": "Available in 6+ countries"
+      "label": "Servers in 6+ countries"
     },
     "pricing": {
-      "title": "Simple and honest",
-      "titleHighlight": "pricing",
-      "subtitle": "One plan — full access. No hidden conditions.",
+      "title": "Our prices",
+      "subtitle": "One plan, all you need is included.",
       "period": "1 month",
       "interval": "/ month",
       "guarantee": "30-day money-back guarantee",
-      "cta": "Get",
-      "advantage1": "Unlimited traffic and speed",
-      "advantage2": "Protection on all devices",
-      "advantage3": "Instant access to any website",
-      "advantage4": "Friendly support 24/7"
+      "cta": "Connect",
+      "advantage1": "Unlimited speed & data",
+      "advantage2": "Works on all your devices",
+      "advantage3": "Access any website, anywhere",
+      "advantage4": "Support whenever you need it"
     },
     "faq": {
-      "title": "Frequently asked questions",
+      "title": "Got questions?",
       "q1": {
-        "question": "What makes JungleVPN one of the best VPNs on the market?",
-        "answer": "JungleVPN combines military-grade encryption, a strict no-logs policy, and lightning-fast servers in 60+ countries. Our proprietary protocol delivers speeds that let you stream, game, and browse without interruption — all while keeping your data private."
+        "question": "What makes JungleVPN special?",
+        "answer": "JungleVPN is built around one idea — it just works. Fast servers, strong privacy, and a team that actually helps when something goes wrong. Thousands of people use it every day to access their favourite sites from anywhere in the world."
       },
       "q2": {
-        "question": "What devices are supported by JungleVPN?",
-        "answer": "JungleVPN works on all major platforms: iOS, Android, macOS, Windows, and Linux. Browser extensions are available for Chrome and Firefox. One subscription covers all your devices simultaneously."
+        "question": "Which devices can I use JungleVPN on?",
+        "answer": "JungleVPN works on iPhone, Android, Mac, Windows, and Linux. One subscription covers all your devices at the same time — your phone, laptop, and tablet included."
       },
       "q3": {
-        "question": "Can I use one JungleVPN subscription on multiple devices?",
-        "answer": "Yes. A single JungleVPN subscription lets you connect unlimited devices at the same time. Protect your phone, laptop, tablet, and router all under one plan."
+        "question": "Can I use JungleVPN on more than one device?",
+        "answer": "Yes! One subscription works on all your devices at once. Connect your phone, laptop, tablet, and even your friend's phone. One plan covers 5 devices."
       },
       "q4": {
-        "question": "How does the JungleVPN 30-day money-back guarantee work?",
-        "answer": "If you're not completely satisfied within the first 30 days, contact our support team and we'll issue a full refund — no questions asked. The guarantee applies to all new subscriptions."
+        "question": "What if I'm not satisfied?",
+        "answer": "No worries. If you're not happy within the first 30 days, just reach out and we'll give you a full refund — no questions asked. We want you to love JungleVPN."
       }
     },
     "partnership": {
-      "title": "JungleVPN partnership opportunities",
-      "subtitle": "Let's work together to make the internet more secure, private, and accessible for everyone.",
+      "title": "Grow together with JungleVPN",
+      "subtitle": "Whether you want to earn or share, we have a program for you.",
       "learnMore": "Learn more",
       "affiliate": {
         "title": "Affiliate program",
-        "description": "Earn with JungleVPN — take advantage of one of the most rewarding referral programs on the market."
+        "description": "Earn money by sharing JungleVPN. Get a commission for every person who subscribes through your link."
       },
       "referral": {
         "title": "Referral program",
-        "description": "Boost your business security with our tailored VPN solutions. Enjoy exclusive discounts on subscription plans and advanced protection for your entire team."
+        "description": "Share JungleVPN with a friend and you both get 30 free days. Simple as that."
       }
     },
     "footer": {

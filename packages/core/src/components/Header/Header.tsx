@@ -32,9 +32,9 @@ export function Header() {
   }, [platformType, tgUser?.id, remnawaveApi.getTelegramPhotoUrl]);
 
   const getLink = () => {
-    if (authUser && platformType !== 'telegram') return withReferralParam('/');
+    if (!authUser && platformType === 'telegram') return withReferralParam(pathname);
 
-    return withReferralParam(pathname);
+    return withReferralParam('/');
   };
 
   return (

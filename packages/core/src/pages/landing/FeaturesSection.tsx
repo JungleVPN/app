@@ -8,6 +8,7 @@ import {
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { FeatureCard } from '../../components/FeatureCard';
+import { coreEnv } from '../../env';
 
 const FEATURE_ICONS = [
   <IconCircleCheck size={36} stroke={1.5} />,
@@ -27,8 +28,7 @@ export function FeaturesSection() {
     <section className='mx-auto w-full px-6 py-48 md:px-12 lg:px-24'>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
-          {t('landing.features.title')}{' '}
-          <span className='text-primary'>{t('landing.features.titleHighlight')}</span>
+          {t('landing.features.title')}
         </h2>
         <p className='text-muted text-base lg:text-lg'>{t('landing.features.subtitle')}</p>
       </div>
@@ -39,7 +39,7 @@ export function FeaturesSection() {
             key={key}
             icon={FEATURE_ICONS[index]}
             title={t(`landing.features.${key}.title`)}
-            description={t(`landing.features.${key}.description`)}
+            description={t(`landing.features.${key}.description`, {deviceLimit: coreEnv.deviceLimit})}
           />
         ))}
       </div>
