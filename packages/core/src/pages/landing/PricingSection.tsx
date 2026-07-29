@@ -1,8 +1,8 @@
+import { IconBrandAppleFilled, IconBrandGoogleFilled } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { coreEnv } from '../../env';
-import { IconBrandAppleFilled, IconBrandGoogleFilled } from '@tabler/icons-react';
 
 const ADVANTAGE_KEYS = ['advantage1', 'advantage2', 'advantage3', 'advantage4'] as const;
 
@@ -52,7 +52,6 @@ function GooglePayIcon() {
   );
 }
 
-
 export function PricingSection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -77,7 +76,7 @@ export function PricingSection() {
           advantages={advantages}
           guarantee={t('landing.pricing.guarantee')}
           cta={t('landing.pricing.cta')}
-          onCtaClick={() => navigate('/subscribe')}
+          onCtaClick={() => navigate('/login')}
         />
         <PaymentMethods />
       </div>

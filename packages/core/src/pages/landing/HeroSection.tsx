@@ -20,7 +20,9 @@ export function HeroSection() {
           </p>
         </div>
         <div className='flex flex-col items-center gap-3'>
-          <Button size='lg' onClick={() => navigate('/subscribe')}>{t('landing.hero.cta')}</Button>
+          <Button size='lg' onClick={() => navigate('/login')}>
+            {t('landing.hero.cta')}
+          </Button>
           <Chip color='default' variant='soft' className='w-fit'>
             <IconShieldCheck size={14} />
             <Chip.Label>{t('landing.hero.guarantee')}</Chip.Label>

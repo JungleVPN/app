@@ -1,5 +1,5 @@
-import { FAQSection } from './FAQSection';
 import { CountriesMarquee } from './CountriesMarquee';
+import { FAQSection } from './FAQSection';
 import { FeaturesSection } from './FeaturesSection';
 import { FooterSection } from './FooterSection';
 import { HeroSection } from './HeroSection';

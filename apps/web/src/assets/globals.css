@@ -19,6 +19,7 @@
   --color-accent: #ffcb3d;
   --accent: #ffcb3d;
   --surface: oklch(0.9524 0.0013 286.37);
+  --surface-secondary: oklch(1 0 0 / 1);
   --color-accent-soft-foreground: #ffcb3d;
   --button-confirm-color: #2da44e;
   --button-main-disabled-color: #d1d5db;

@@ -28,7 +28,7 @@ export function FAQSection() {
         </h2>
       </div>
 
-      <Accordion className='mx-auto w-full max-w-3xl' variant='surface'>
+      <Accordion className='w-full max-w-md m-auto bg-surface-secondary' variant='surface'>
         {FAQ_KEYS.map((key, index) => (
           <Accordion.Item key={key}>
             <Accordion.Heading>
