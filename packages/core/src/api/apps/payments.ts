@@ -18,7 +18,6 @@ export function createPaymentsApi(client: ApiClient) {
     async createYookassaSession(
       dto: Omit<CreateYookassaSessionDto, 'amount'>,
     ): Promise<PaymentSession> {
-      // selectedPeriod is derived server-side — callers don't set it
       return client.post<PaymentSession>(apiRoutes.payments.yookassaCreateSession, dto);
     },
 
@@ -26,16 +25,19 @@ export function createPaymentsApi(client: ApiClient) {
       return client.post<PaymentSession>(apiRoutes.payments.stripeCreateSession, dto);
     },
 
-    async getStripeSubscription(userId: string): Promise<StripeSubscriptionStatusDto> {
-      return client.get<StripeSubscriptionStatusDto>(apiRoutes.payments.stripeSubscription(userId));
+    /** Subscription status + Billing Portal URL for the authenticated user. */
+    async getStripeSubscription(): Promise<StripeSubscriptionStatusDto> {
+      return client.get<StripeSubscriptionStatusDto>(apiRoutes.payments.stripeSubscription);
     },
 
-    async getSavedMethods(userId: string): Promise<SavedMethodDto[]> {
-      return client.get<SavedMethodDto[]>(apiRoutes.payments.yookassaSavedMethods(userId));
+    /** Active saved payment methods for the authenticated user. */
+    async getSavedMethods(): Promise<SavedMethodDto[]> {
+      return client.get<SavedMethodDto[]>(apiRoutes.payments.yookassaSavedMethods);
     },
 
-    async deleteSavedMethod(userId: string, id: string): Promise<void> {
-      return client.delete<void>(apiRoutes.payments.yookassaSavedMethodById(userId, id));
+    /** Delete a saved payment method belonging to the authenticated user. */
+    async deleteSavedMethod(id: string): Promise<void> {
+      return client.delete<void>(apiRoutes.payments.yookassaSavedMethodById(id));
     },
 
     async createTelegramStarsInvoice(
@@ -51,6 +53,12 @@ export function createPaymentsApi(client: ApiClient) {
       return client.post<ValidatePromoResponse>(apiRoutes.payments.promoValidate, dto);
     },
 
+    /** Payment history for the authenticated user across all providers. */
+    async getMyTransactions(): Promise<AdminPaymentDto[]> {
+      return client.get<AdminPaymentDto[]>(apiRoutes.payments.myTransactions);
+    },
+
+    /** Cross-user search — admin only. */
     async searchPayments(q: string): Promise<AdminPaymentDto[]> {
       return client.get<AdminPaymentDto[]>(apiRoutes.payments.searchPayments, { params: { q } });
     },

@@ -17,17 +17,17 @@ export const apiRoutes = {
   },
   payments: {
     stripeCreateSession: '/stripe/create-session',
-    stripeSubscription: (userId: string) => `/stripe/subscription/${encodeURIComponent(userId)}`,
+    stripeSubscription: '/stripe/subscription',
     stripeWebhook: '/stripe/webhook',
     yookassaCreateSession: '/yookassa/create-session',
     yookassaWebhook: '/yookassa/webhook',
-    yookassaSavedMethods: (userId: string) =>
-      `/yookassa/saved-methods/${encodeURIComponent(userId)}`,
-    yookassaSavedMethodById: (userId: string, id: string) =>
-      `/yookassa/saved-methods/${encodeURIComponent(userId)}/${encodeURIComponent(id)}`,
+    yookassaSavedMethods: '/yookassa/saved-methods',
+    yookassaSavedMethodById: (id: string) =>
+      `/yookassa/saved-methods/${encodeURIComponent(id)}`,
     telegramStarsCreateInvoice: '/telegram-stars/create-invoice',
     telegramStarsPaymentSucceeded: '/telegram-stars/payment-succeeded',
     promoValidate: '/promo/validate',
+    myTransactions: '/my-transactions',
     searchPayments: '/search',
     remnawaveEvent: '/remnawave-event',
   },
@@ -37,6 +37,7 @@ export const apiRoutes = {
     rewardAfterPayment: '/reward-after-payment',
   },
   remnawave: {
+    // ── server-to-server (InterServiceGuard) ─────────────────────────────
     users: '/users',
     userByTelegramId: (telegramId: number | string) => `/users/by-telegram-id/${telegramId}`,
     userByEmail: (email: string) => `/users/by-email/${encodeURIComponent(email)}`,
@@ -52,5 +53,14 @@ export const apiRoutes = {
     userExtraDevice: (uuid: string) => `/users/${uuid}/extra-device`,
     userExpiry: (uuid: string) => `/users/${uuid}/expiry`,
     userMetadata: (uuid: string) => `/users/${uuid}/metadata`,
+    // ── client-facing (ClientUserGuard — no UUID in path) ─────────────────
+    me: '/users/me',
+    meMetadata: '/users/me/metadata',
+    meDevices: '/users/me/devices',
+    meDevice: (hwid: string) => `/users/me/devices/${encodeURIComponent(hwid)}`,
+    meTelegramPhoto: '/users/me/telegram-photo',
+    meLinkEmail: '/users/me/link-email',
+    // ── TMA registration (TelegramCredentialGuard — user may not exist yet) ─
+    connectEmail: '/users/connect/email',
   },
 } as const;

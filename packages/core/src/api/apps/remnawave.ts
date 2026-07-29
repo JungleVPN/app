@@ -8,6 +8,7 @@ import {
   GetSubscriptionPageConfigCommand,
   GetUserByEmailCommand,
   GetUserByTelegramIdCommand,
+  GetUserByUuidResponseDto,
   GetUserHwidDevicesCommand,
   UpdateUserCommand,
   UpdateUserResponseDto,
@@ -136,6 +137,92 @@ export function createRemnawaveApi(client: ApiClient) {
       } catch {
         // best-effort; language preference loss is non-critical
       }
+    },
+
+    // ── client-facing "me" methods (no UUID in path — derived from credential) ──
+
+    async getMe(): Promise<GetUserByUuidResponseDto | null> {
+      try {
+        return await client.get<GetUserByUuidResponseDto>(apiRoutes.remnawave.me);
+      } catch {
+        return null;
+      }
+    },
+
+    async updateMe(
+      body: Omit<UpdateUserCommand.Request, 'uuid'>,
+    ): Promise<UpdateUserResponseDto | null> {
+      return client.patch<UpdateUserResponseDto>(apiRoutes.remnawave.me, body);
+    },
+
+    async getMyMetadata(): Promise<Record<string, unknown> | null> {
+      try {
+        return await client.get<Record<string, unknown>>(apiRoutes.remnawave.meMetadata);
+      } catch {
+        return null;
+      }
+    },
+
+    async upsertMyMetadata(metadata: Record<string, unknown>): Promise<void> {
+      try {
+        await client.put<void>(apiRoutes.remnawave.meMetadata, { metadata });
+      } catch {
+        // best-effort; language preference loss is non-critical
+      }
+    },
+
+    async getMyDevices(): Promise<GetUserHwidDevicesCommand.Response['response'] | null> {
+      try {
+        return await client.get<GetUserHwidDevicesCommand.Response['response']>(
+          apiRoutes.remnawave.meDevices,
+        );
+      } catch (err: unknown) {
+        if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
+          return null;
+        }
+        throw err;
+      }
+    },
+
+    async deleteMyDevice(
+      hwid: string,
+    ): Promise<DeleteUserHwidDeviceCommand.Response['response'] | null> {
+      return client.delete<DeleteUserHwidDeviceCommand.Response['response']>(
+        apiRoutes.remnawave.meDevice(hwid),
+      );
+    },
+
+    async getMyTelegramPhoto(): Promise<{ photoUrl: string | null }> {
+      try {
+        return await client.get<{ photoUrl: string | null }>(apiRoutes.remnawave.meTelegramPhoto);
+      } catch {
+        return { photoUrl: null };
+      }
+    },
+
+    /**
+     * Links an email to the authenticated user's account. If a different
+     * account already owns the email, links the authenticated Telegram
+     * identity to that account instead and returns the linked account.
+     * Replaces the old getUserByEmail → updateUser(otherUuid) pattern.
+     */
+    async linkEmail(email: string): Promise<UpdateUserResponseDto | null> {
+      return client.post<UpdateUserResponseDto>(apiRoutes.remnawave.meLinkEmail, { email });
+    },
+
+    /**
+     * Find-or-create the remnawave user for a TMA user providing their email.
+     * Replaces the old initUser() → updateUser/createUser chain on the
+     * subscription page. Requires X-Telegram-Init-Data header.
+     */
+    async connectEmail(
+      email: string,
+      options: { inviterId?: string } = {},
+    ): Promise<CreateUserResponseDto | UpdateUserResponseDto | null> {
+      return client.post<CreateUserResponseDto>(apiRoutes.remnawave.connectEmail, {
+        email,
+        ...options,
+      });
     },
   };
 }

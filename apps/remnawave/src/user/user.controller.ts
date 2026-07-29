@@ -9,13 +9,15 @@ import {
   Patch,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import * as Remnawave from '@workspace/types';
 import { UpdateUserResponseDto } from '@workspace/types';
+import { InterServiceGuard } from '../guards/inter-service.guard';
 import { UserService } from './user.service';
 
 @Controller('users')
-// @UseGuards(InterServiceGuard)
+@UseGuards(InterServiceGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

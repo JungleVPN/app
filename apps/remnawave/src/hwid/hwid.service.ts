@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   DeleteAllUserHwidDevicesCommand,
   DeleteUserHwidDeviceCommand,
@@ -8,13 +8,9 @@ import { RemnaPanelClient } from '../common/remna-panel.client';
 
 @Injectable()
 export class HwidService {
-  private readonly logger = new Logger(HwidService.name);
-
   constructor(private readonly panelClient: RemnaPanelClient) {}
 
-  async getUserDevices(
-    userUuid: string,
-  ): Promise<GetUserHwidDevicesCommand.Response['response']> {
+  async getUserDevices(userUuid: string): Promise<GetUserHwidDevicesCommand.Response['response']> {
     return this.panelClient.request<GetUserHwidDevicesCommand.Response['response']>({
       method: GetUserHwidDevicesCommand.endpointDetails.REQUEST_METHOD,
       url: GetUserHwidDevicesCommand.url(userUuid),

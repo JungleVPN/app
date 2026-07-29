@@ -397,6 +397,9 @@ importers:
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
       googleapis:
         specifier: ^165.0.0
         version: 165.0.0
@@ -419,6 +422,9 @@ importers:
       '@nestjs/schematics':
         specifier: ^10.1.2
         version: 10.2.3(chokidar@4.0.3)(typescript@5.9.3)
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@workspace/shared-config':
         specifier: workspace:*
         version: link:../../packages/shared-config

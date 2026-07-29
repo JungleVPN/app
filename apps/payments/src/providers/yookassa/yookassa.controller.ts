@@ -15,6 +15,8 @@ import {
   type PaymentSession,
   type PaymentWebhookNotification,
 } from '@workspace/types';
+import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
+import { ClientUserGuard } from '../../auth/client-user.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
 
 @Controller('yookassa')
@@ -34,40 +36,39 @@ export class YookassaController {
     return { ok: true };
   }
 
-  // ── Saved payment methods (must be before :id to avoid route conflicts) ─
+  // ── Saved payment methods ──────────────────────────────────────────
+  // userId is derived from the validated credential, never from the URL.
 
-  /** List active saved payment methods for a user */
-  @Get('saved-methods/:userId')
-  getActiveSavedMethods(@Param('userId') userId: string) {
+  /** List active saved payment methods for the authenticated user */
+  @Get('saved-methods')
+  @UseGuards(ClientUserGuard)
+  getActiveSavedMethods(@AuthenticatedUserId() userId: string) {
     return this.yookassaService.getActiveSavedMethods(userId);
   }
 
-  /**
-   * Hard-delete a saved payment method owned by `userId`.
-   *
-   * The `userId` is part of the route so a user cannot delete someone else's
-   * saved method by guessing an id. 404 if the row doesn't exist or belongs
-   * to a different user.
-   */
-  @Delete('saved-methods/:userId/:id')
+  /** Hard-delete a saved payment method belonging to the authenticated user */
+  @Delete('saved-methods/:id')
+  @UseGuards(ClientUserGuard)
   async deleteSavedMethod(
-    @Param('userId') userId: string,
     @Param('id') id: string,
+    @AuthenticatedUserId() userId: string,
   ): Promise<{ ok: true }> {
     await this.yookassaService.deletePaymentMethod(id, userId);
     return { ok: true };
   }
 
-  // ── Payments ───────────────────────────────────────────────────────
+  // ── Internal payment records — inter-service only ──────────────────
 
-  /** List all Yookassa payments, newest first */
+  /** List all Yookassa payments, newest first — internal use only */
   @Get()
+  @UseGuards(InterServiceGuard)
   listPayments() {
     return this.yookassaService.listPayments();
   }
 
-  /** Get a single Yookassa payment by id */
+  /** Get a single Yookassa payment by id — internal use only */
   @Get(':id')
+  @UseGuards(InterServiceGuard)
   getPaymentById(@Param('id') id: string) {
     return this.yookassaService.getPaymentById(id);
   }

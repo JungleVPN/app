@@ -14,7 +14,7 @@ import {
   usePlatformStore,
   useTermsStore,
 } from '../stores';
-import { captureReferral, initUser } from '../utils';
+import { captureReferral } from '../utils';
 
 export function ProfileLayout() {
   const navigate = useNavigation();
@@ -48,7 +48,8 @@ export function ProfileLayout() {
   useEffect(() => {
     if (useAuthStore.getState().rmnUser) return;
     if (authUser?.email || tgUser?.id) {
-      initUser(remnawaveApi, { email: authUser?.email, telegramId: tgUser?.id })
+      remnawaveApi
+        .getMe()
         .then((user) => {
           setRmnUser(user ?? null);
           if (!user) navigate(getSubscriptionPath);
@@ -64,10 +65,10 @@ export function ProfileLayout() {
     if (!rmnUser || platformType !== 'web') return;
     const browserLang = navigator.language.split('-')[0];
     remnawaveApi
-      .getUserMetadata(rmnUser.uuid)
+      .getMyMetadata()
       .then((meta) => {
         if (!meta?.lang) {
-          remnawaveApi.upsertUserMetadata(rmnUser.uuid, { lang: browserLang }).catch(console.error);
+          remnawaveApi.upsertMyMetadata({ lang: browserLang }).catch(console.error);
         }
       })
       .catch(console.error);

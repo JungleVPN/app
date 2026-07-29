@@ -38,7 +38,7 @@ export function useCreateStripeSession(api: PaymentsApi) {
  * Call `execute(userId, id)`, then refetch the methods list on success.
  */
 export function useDeleteSavedMethod(api: PaymentsApi) {
-  const fn = useCallback((userId: string, id: string) => api.deleteSavedMethod(userId, id), [api]);
+  const fn = useCallback((id: string) => api.deleteSavedMethod(id), [api]);
   return useAsync(fn);
 }
 

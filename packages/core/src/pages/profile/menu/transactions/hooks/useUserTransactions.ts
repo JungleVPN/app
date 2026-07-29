@@ -24,7 +24,7 @@ export function useUserTransactions(): UseUserTransactionsResult {
     setError(null);
 
     paymentsApi
-      .searchPayments(rmnUser.uuid)
+      .getMyTransactions()
       .then(setTransactions)
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load transactions'))
       .finally(() => setIsLoading(false));

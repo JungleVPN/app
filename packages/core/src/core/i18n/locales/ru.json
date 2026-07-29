@@ -18,7 +18,9 @@
     "title": "Войдите или зарегистрируйтесь",
     "email_label": "Email",
     "email_placeholder": "Введите email",
-    "submit": "Продолжить"
+    "submit": "Продолжить",
+    "trial_card_title": "Что вы получите после входа",
+    "trial_card_description": "Пробный период доступен только для новых аккаунтов."
   },
   "confirm": {
     "title": "Введите полученный код",

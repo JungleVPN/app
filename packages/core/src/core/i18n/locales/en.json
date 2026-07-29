@@ -19,7 +19,9 @@
     "title": "Login or Sign Up",
     "email_label": "Email",
     "email_placeholder": "Your email",
-    "submit": "Continue"
+    "submit": "Continue",
+    "trial_card_title": "What you'll get after login",
+    "trial_card_description": "Trial applies to new accounts only."
   },
   "confirm": {
     "title": "Enter the code you received",

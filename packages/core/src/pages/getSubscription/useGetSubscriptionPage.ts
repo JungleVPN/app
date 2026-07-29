@@ -1,5 +1,5 @@
 import { backButton, type User } from '@tma.js/sdk-react';
-import { type SyntheticEvent, useEffect, useState } from 'react';
+import { type SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAnalyticsApi, useRemnawaveApi } from '../../api';
 import { useNavigation } from '../../hooks';
@@ -12,12 +12,11 @@ import {
   clearReferral,
   getAttribution,
   getReferral,
-  initUser,
   validateEmail,
 } from '../../utils';
 
 export function useGetSubscriptionPage() {
-  const { profileSubscriptionPath } = useAppRoutes();
+  const { profileSubscriptionPath, authGateRedirectPath } = useAppRoutes();
   const remnawaveApi = useRemnawaveApi();
   const analyticsApi = useAnalyticsApi();
   const navigate = useNavigation();
@@ -26,9 +25,10 @@ export function useGetSubscriptionPage() {
   const [error, setError] = useState<string | null>(null);
   const [hasError, setHasError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { authUser, rmnUser, tgUser } = useAuthStoreInfo();
+  const { authUser, rmnUser, tgUser, loading } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { platformType } = usePlatformStore();
+  const connectingRef = useRef(false);
 
   // Re-run on every landing, not just app boot: an invited user can leave this
   // page before signing up (header Login, OTP confirm, the no-account redirect
@@ -38,17 +38,60 @@ export function useGetSubscriptionPage() {
     captureReferral();
   }, []);
 
-  // Redirect away from the setup page if the user is already resolved —
-  // covers both the web flow (authUser + rmnUser) and the TMA flow (tgUser + rmnUser).
+  // Navigation side-effects based on auth + account state:
+  //   - Already resolved → subscription page
+  //   - Web, auth resolved, no session → login gate (email verified via magic link first)
+  //   - TMA → hide back button
   useEffect(() => {
-    if (rmnUser && (authUser || tgUser)) navigate(profileSubscriptionPath);
+    if (rmnUser && (authUser || tgUser)) {
+      navigate(profileSubscriptionPath);
+      return;
+    }
+    if (platformType === 'web' && !loading && !authUser) {
+      navigate(authGateRedirectPath);
+      return;
+    }
     if (platformType === 'telegram') {
       backButton.hide();
     }
-  }, [authUser, tgUser, rmnUser, navigate, profileSubscriptionPath, platformType]);
+  }, [
+    authUser,
+    tgUser,
+    rmnUser,
+    loading,
+    navigate,
+    profileSubscriptionPath,
+    authGateRedirectPath,
+    platformType,
+  ]);
 
-  // Fire once when an unauthenticated visitor lands on this page.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // Web auto-connect: once Supabase auth resolves and there's still no remnawave
+  // account, create it automatically using the verified JWT email — no form input
+  // needed since the email was already collected during magic-link login.
+  // connectingRef guards against double-invocation from React Strict Mode or
+  // multiple onAuthStateChange fires before rmnUser lands in the store.
+  useEffect(() => {
+    if (platformType !== 'web' || !authUser || rmnUser || connectingRef.current) return;
+    connectingRef.current = true;
+
+    remnawaveApi
+      .connectEmail('', { inviterId: getReferral() ?? undefined })
+      .then((user) => {
+        if (!user) return;
+        setRmnUser(user);
+        const attribution = getAttribution();
+        if (attribution) analyticsApi.trackUserCreated(user, attribution);
+        clearReferral();
+        clearAttribution();
+        navigate(`/profile/subscription`);
+      })
+      .catch((err) => {
+        connectingRef.current = false;
+        console.error(err);
+      });
+  }, [platformType, authUser, rmnUser, remnawaveApi, analyticsApi, navigate, setRmnUser]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional fire-once
   useEffect(() => {
     if (!rmnUser) {
       analytics.initialPageViewed(platformType === 'telegram' ? 'telegram' : 'web');
@@ -77,60 +120,23 @@ export function useGetSubscriptionPage() {
   // If no account exists yet: create one with both email and telegramId so the user
   // can access their subscription from both Telegram and the web.
   const submitTelegramUser = async (tgUser: User) => {
-    const telegramId = Number(tgUser.id);
-    const existingUser = await initUser(remnawaveApi, { email, telegramId });
-
-    if (existingUser) {
-      const linked = await remnawaveApi.updateUser({ uuid: existingUser.uuid, telegramId, email });
-      setRmnUser(linked ?? null);
-      if (tgUser.language_code) {
-        const existing = await remnawaveApi.getUserMetadata(existingUser.uuid);
-        if (!existing?.lang) {
-          await remnawaveApi.upsertUserMetadata(existingUser.uuid, { lang: tgUser.language_code });
-        }
-      }
-      analytics.login('telegram');
-    } else {
-      const newUser = await remnawaveApi.createUser({
-        email,
-        telegramId,
-        inviterId: getReferral() ?? undefined,
-      });
-      setRmnUser(newUser ?? null);
-      if (newUser) {
-        const attribution = getAttribution();
-        if (attribution) analyticsApi.trackUserCreated(newUser, attribution);
-        if (tgUser.language_code) {
-          await remnawaveApi.upsertUserMetadata(newUser.uuid, { lang: tgUser.language_code });
-        }
-      }
-      clearReferral();
-      clearAttribution();
-      analytics.signUp('telegram');
-    }
-    navigate(profileSubscriptionPath);
-  };
-
-  // Web flow — look up or create by email, then navigate to the public subscription page.
-  const submitWebUser = async () => {
-    const existingUser = await initUser(remnawaveApi, { email });
-    if (existingUser) {
-      analytics.login('web');
-      navigate(`/subscription/${existingUser.shortUuid}`);
-      return;
-    }
-    const newUser = await remnawaveApi.createUser({
-      email,
+    const user = await remnawaveApi.connectEmail(email, {
       inviterId: getReferral() ?? undefined,
     });
-    if (newUser) {
+
+    setRmnUser(user ?? null);
+
+    if (user) {
+      if (tgUser.language_code) {
+        await remnawaveApi.upsertMyMetadata({ lang: tgUser.language_code });
+      }
       const attribution = getAttribution();
-      if (attribution) analyticsApi.trackUserCreated(newUser, attribution);
+      if (attribution) analyticsApi.trackUserCreated(user, attribution);
+      clearReferral();
+      clearAttribution();
     }
-    clearReferral();
-    clearAttribution();
-    analytics.signUp('web');
-    navigate(`/subscription/${newUser?.shortUuid}`);
+
+    navigate(profileSubscriptionPath);
   };
 
   const handleSubmit = async (e: SyntheticEvent) => {
@@ -149,8 +155,6 @@ export function useGetSubscriptionPage() {
     try {
       if (tgUser) {
         await submitTelegramUser(tgUser);
-      } else {
-        await submitWebUser();
       }
     } catch {
       setError(t('getSubscription.error_failed_to_create'));
@@ -160,11 +164,14 @@ export function useGetSubscriptionPage() {
     }
   };
 
+  const isConnecting = platformType === 'web' && !!authUser && !rmnUser;
+
   return {
     email,
     error,
     hasError,
     isLoading,
+    isConnecting,
     handleEmailChange,
     handleSubmit,
   };

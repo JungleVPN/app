@@ -1,12 +1,14 @@
-import { Controller, Delete, Get, HttpCode, HttpStatus, Param } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, HttpStatus, Param, UseGuards } from '@nestjs/common';
 import {
   DeleteAllUserHwidDevicesCommand,
   DeleteUserHwidDeviceCommand,
   GetUserHwidDevicesCommand,
 } from '@workspace/types';
+import { InterServiceGuard } from '../guards/inter-service.guard';
 import { HwidService } from './hwid.service';
 
 @Controller('users/:userUuid/devices')
+@UseGuards(InterServiceGuard)
 export class HwidController {
   constructor(private readonly hwidService: HwidService) {}
 
