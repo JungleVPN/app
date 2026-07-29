@@ -62,7 +62,10 @@ vi.mock('../../hooks', () => ({
 }));
 
 vi.mock('../../runtime', () => ({
-  useAppRoutes: () => ({ profileSubscriptionPath: '/profile/subscription' }),
+  useAppRoutes: () => ({
+    profileSubscriptionPath: '/profile/subscription',
+    authGateRedirectPath: '/login',
+  }),
 }));
 
 vi.mock('../../stores', () => ({
@@ -200,13 +203,13 @@ describe('useGetSubscriptionPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/profile/subscription');
   });
 
-  it('does not redirect when rmnUser is resolved but neither authUser nor tgUser is present', () => {
+  it('redirects to the login page when rmnUser is resolved but web auth session is absent', () => {
     setAuthState({ rmnUser: createRemnaUser() });
     setPlatform('web');
 
     renderHook(() => useGetSubscriptionPage());
 
-    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalledWith('/login');
   });
 
   it('hides the telegram back button on the telegram platform', () => {
@@ -301,68 +304,81 @@ describe('useGetSubscriptionPage', () => {
     expect(mockConnectEmail).not.toHaveBeenCalled();
   });
 
-  describe('web flow', () => {
-    it('navigates to the subscription page when connectEmail returns a user', async () => {
-      setAuthState();
+  describe('web auto-connect flow', () => {
+    it('calls connectEmail with an empty string and navigates after a new web user authenticates', async () => {
+      setAuthState({ authUser: { id: 'auth-1' } });
       setPlatform('web');
-      mockConnectEmail.mockResolvedValue(createRemnaUser({ shortUuid: 'existing-short' }));
+      mockConnectEmail.mockResolvedValue(createRemnaUser({ shortUuid: 'new-short' }));
       mockGetAttribution.mockReturnValue(null);
-      const { result } = renderHook(() => useGetSubscriptionPage());
+      mockGetReferral.mockReturnValue(null);
 
-      act(() => {
-        result.current.handleEmailChange('alice@example.com');
-      });
       await act(async () => {
-        await result.current.handleSubmit(submitEvent());
+        renderHook(() => useGetSubscriptionPage());
       });
 
-      expect(mockConnectEmail).toHaveBeenCalledWith('alice@example.com', { inviterId: undefined });
-      expect(mockNavigate).toHaveBeenCalledWith('/subscription/existing-short');
-      expect(mockTrackUserCreated).not.toHaveBeenCalled();
-      expect(result.current.isLoading).toBe(false);
+      expect(mockConnectEmail).toHaveBeenCalledWith('', { inviterId: undefined });
+      expect(mockSetRmnUser).toHaveBeenCalledWith(expect.objectContaining({ shortUuid: 'new-short' }));
+      expect(mockNavigate).toHaveBeenCalledWith('/profile/subscription');
     });
 
-    it('tracks user creation with attribution and clears referral on sign-up', async () => {
-      setAuthState();
+    it('tracks user creation with attribution and clears referral and attribution after auto-connect', async () => {
+      setAuthState({ authUser: { id: 'auth-1' } });
       setPlatform('web');
       mockGetAttribution.mockReturnValue({ platform: 'web' });
       mockGetReferral.mockReturnValue('inviter-1');
       mockConnectEmail.mockResolvedValue(createRemnaUser({ shortUuid: 'new-short' }));
-      const { result } = renderHook(() => useGetSubscriptionPage());
 
-      act(() => {
-        result.current.handleEmailChange('new@example.com');
-      });
       await act(async () => {
-        await result.current.handleSubmit(submitEvent());
+        renderHook(() => useGetSubscriptionPage());
       });
 
-      expect(mockConnectEmail).toHaveBeenCalledWith('new@example.com', { inviterId: 'inviter-1' });
+      expect(mockConnectEmail).toHaveBeenCalledWith('', { inviterId: 'inviter-1' });
       expect(mockTrackUserCreated).toHaveBeenCalledWith(
         expect.objectContaining({ shortUuid: 'new-short' }),
         { platform: 'web' },
       );
-      expect(mockClearReferral).toHaveBeenCalledTimes(1);
-      expect(mockClearAttribution).toHaveBeenCalledTimes(1);
-      expect(mockNavigate).toHaveBeenCalledWith('/subscription/new-short');
+      expect(mockClearReferral).toHaveBeenCalled();
+      expect(mockClearAttribution).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith('/profile/subscription');
     });
 
-    it('surfaces a failure error when the api call rejects', async () => {
-      setAuthState();
+    it('does not call connectEmail when the web user already has a remnawave account', async () => {
+      setAuthState({ authUser: { id: 'auth-1' }, rmnUser: createRemnaUser() });
+      setPlatform('web');
+
+      await act(async () => {
+        renderHook(() => useGetSubscriptionPage());
+      });
+
+      expect(mockConnectEmail).not.toHaveBeenCalled();
+    });
+
+    it('does not navigate when connectEmail returns null', async () => {
+      setAuthState({ authUser: { id: 'auth-1' } });
+      setPlatform('web');
+      mockConnectEmail.mockResolvedValue(null);
+      mockGetReferral.mockReturnValue(null);
+
+      await act(async () => {
+        renderHook(() => useGetSubscriptionPage());
+      });
+
+      expect(mockConnectEmail).toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('does not navigate when connectEmail rejects', async () => {
+      setAuthState({ authUser: { id: 'auth-1' } });
       setPlatform('web');
       mockConnectEmail.mockRejectedValue(new Error('network down'));
-      const { result } = renderHook(() => useGetSubscriptionPage());
+      mockGetReferral.mockReturnValue(null);
 
-      act(() => {
-        result.current.handleEmailChange('alice@example.com');
-      });
       await act(async () => {
-        await result.current.handleSubmit(submitEvent());
+        renderHook(() => useGetSubscriptionPage());
       });
 
-      expect(result.current.error).toBe('getSubscription.error_failed_to_create');
-      expect(result.current.hasError).toBe(true);
-      expect(result.current.isLoading).toBe(false);
+      expect(mockConnectEmail).toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
