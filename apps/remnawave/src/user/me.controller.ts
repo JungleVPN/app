@@ -6,21 +6,22 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
-  Patch,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import type {
   DeleteUserHwidDeviceCommand,
-  GetUserHwidDevicesCommand,
   GetUserByUuidResponseDto,
+  GetUserHwidDevicesCommand,
   GetUserMetadataResponseDto,
   UpdateUserResponseDto,
 } from '@workspace/types';
-import type { AuthenticatedRequest } from '../auth/client-user.guard';
+import { AnyCredentialGuard, type AnyCredentialRequest } from '../auth/any-credential.guard';
 import { AuthenticatedUserId } from '../auth/authenticated-user.decorator';
+import type { AuthenticatedRequest } from '../auth/client-user.guard';
 import { ClientUserGuard } from '../auth/client-user.guard';
 import { HwidService } from '../hwid/hwid.service';
 import { UserService } from './user.service';
@@ -32,9 +33,13 @@ import { UserService } from './user.service';
  *
  * Must be registered BEFORE UserController so literal `/users/me` is
  * matched before the parameterised `/users/:uuid` route.
+ *
+ * Guard split:
+ *   GET /users/me          → AnyCredentialGuard: credential-valid is enough; returns null
+ *                            for new users so the frontend can redirect to onboarding.
+ *   All other endpoints    → ClientUserGuard: user must already exist in the DB.
  */
 @Controller('users/me')
-@UseGuards(ClientUserGuard)
 export class MeController {
   constructor(
     private readonly userService: UserService,
@@ -42,13 +47,25 @@ export class MeController {
   ) {}
 
   @Get()
-  async getMe(
-    @AuthenticatedUserId() userId: string,
-  ): Promise<GetUserByUuidResponseDto | null> {
-    return this.userService.getUserByUuid(userId);
+  @UseGuards(AnyCredentialGuard)
+  async getMe(@Req() req: AnyCredentialRequest): Promise<GetUserByUuidResponseDto | null> {
+    if (req.authenticatedTelegramId != null) {
+      const users = await this.userService.getUserByTgId(req.authenticatedTelegramId);
+      const user = Array.isArray(users) ? users[0] : users;
+      return user ?? null;
+    }
+
+    if (req.authenticatedEmail) {
+      const users = await this.userService.getUserByEmail(req.authenticatedEmail);
+      const user = Array.isArray(users) ? users[0] : users;
+      return user ?? null;
+    }
+
+    return null;
   }
 
   @Patch()
+  @UseGuards(ClientUserGuard)
   async updateMe(
     @AuthenticatedUserId() userId: string,
     @Body() body: Record<string, unknown>,
@@ -57,6 +74,7 @@ export class MeController {
   }
 
   @Get('metadata')
+  @UseGuards(ClientUserGuard)
   async getMetadata(
     @AuthenticatedUserId() userId: string,
   ): Promise<GetUserMetadataResponseDto | null> {
@@ -65,6 +83,7 @@ export class MeController {
 
   @Put('metadata')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(ClientUserGuard)
   async upsertMetadata(
     @AuthenticatedUserId() userId: string,
     @Body() body: { metadata: Record<string, unknown> },
@@ -73,6 +92,7 @@ export class MeController {
   }
 
   @Get('telegram-photo')
+  @UseGuards(ClientUserGuard)
   async getTelegramPhoto(
     @AuthenticatedUserId() userId: string,
   ): Promise<{ photoUrl: string | null }> {
@@ -83,6 +103,7 @@ export class MeController {
   }
 
   @Get('devices')
+  @UseGuards(ClientUserGuard)
   async getDevices(
     @AuthenticatedUserId() userId: string,
   ): Promise<GetUserHwidDevicesCommand.Response['response'] | null> {
@@ -91,6 +112,7 @@ export class MeController {
 
   @Delete('devices/:hwid')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(ClientUserGuard)
   async deleteDevice(
     @AuthenticatedUserId() userId: string,
     @Param('hwid') hwid: string,
@@ -104,11 +126,11 @@ export class MeController {
    * If a different account already owns the provided email, this endpoint
    * links the authenticated Telegram identity to that account and returns it
    * (the active account changes). Otherwise the email is saved on the current
-   * account. One call replaces the old client-side
-   * getUserByEmail → updateUser(existingUuid) dance.
+   * account.
    */
   @Post('link-email')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(ClientUserGuard)
   async linkEmail(
     @AuthenticatedUserId() userId: string,
     @Body() body: { email: string },

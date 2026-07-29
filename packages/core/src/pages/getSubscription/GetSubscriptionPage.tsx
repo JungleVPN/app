@@ -1,14 +1,17 @@
 import { Button, Chip, Description, FieldError, Form, Input, TextField } from '@heroui/react';
 import { IconArrowRight, IconCheck, IconMail } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { Loading } from '../../components';
 import { Block } from '../../ui';
 import styles from './getSubscription.module.css';
 import { useGetSubscriptionPage } from './useGetSubscriptionPage';
 
 export default function GetSubscriptionPage() {
   const { t } = useTranslation();
-  const { email, error, hasError, isLoading, handleEmailChange, handleSubmit } =
+  const { email, error, hasError, isLoading, isConnecting, handleEmailChange, handleSubmit } =
     useGetSubscriptionPage();
+
+  if (isConnecting) return <Loading />;
 
   const features = [
     t('getSubscription.feature_devices'),
