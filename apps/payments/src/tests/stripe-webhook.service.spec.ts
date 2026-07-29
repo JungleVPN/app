@@ -7,7 +7,7 @@ import type Stripe from 'stripe';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PaymentStatusService } from '../payment-status/payment-status.service';
-import { StripeProvider } from '../providers/stripe/stripe.provider';
+import { StripeClientService } from '../providers/stripe/stripe-client.service';
 import { StripeWebhookService } from '../providers/stripe/stripe-webhook.service';
 
 vi.mock('@workspace/database', () => ({
@@ -35,6 +35,7 @@ const makeInvoiceEvent = (
       object: {
         id: 'in_1',
         customer: 'cus_1',
+        subtotal: 200,
         amount_paid: 200,
         amount_due: 200,
         status: type === 'invoice.payment_succeeded' ? 'paid' : 'open',
@@ -56,7 +57,7 @@ const makeCheckoutEvent = (overrides: Partial<any> = {}): Stripe.Event =>
 
 describe('StripeWebhookService', () => {
   let service: StripeWebhookService;
-  let stripeProvider: StripeProvider;
+  let stripeClient: StripeClientService;
   let paymentStatusService: PaymentStatusService;
   let eventEmitter: EventEmitter2;
   let repo: Repository<StripePayment>;
@@ -94,10 +95,10 @@ describe('StripeWebhookService', () => {
 
     mockRetrieveCustomer = vi.fn().mockResolvedValue(CUSTOMER);
     mockRetrieveSubscription = vi.fn().mockResolvedValue({ id: 'sub_1', metadata: {} });
-    stripeProvider = {
+    stripeClient = {
       retrieveCustomer: mockRetrieveCustomer,
       stripe: { subscriptions: { retrieve: mockRetrieveSubscription } },
-    } as unknown as StripeProvider;
+    } as unknown as StripeClientService;
 
     mockHandleUserUpdates = vi.fn().mockResolvedValue({ success: true });
     paymentStatusService = {
@@ -119,7 +120,7 @@ describe('StripeWebhookService', () => {
     } as unknown as Repository<any>;
 
     service = new StripeWebhookService(
-      stripeProvider,
+      stripeClient,
       paymentStatusService,
       eventEmitter,
       repo,
@@ -188,7 +189,7 @@ describe('StripeWebhookService', () => {
 
     it('throws on an unrecognised paid amount (security finding #12)', async () => {
       await expect(
-        service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded', { amount_paid: 99900 })),
+        service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded', { subtotal: 99900 })),
       ).rejects.toThrow();
       expect(mockHandleUserUpdates).not.toHaveBeenCalled();
     });
