@@ -451,7 +451,7 @@
       }
     },
     "partnership": {
-      "title": "Grow together with JungleVPN",
+      "title": "Earn with JungleVPN",
       "subtitle": "Whether you want to earn or share, we have a program for you.",
       "learnMore": "Learn more",
       "affiliate": {
@@ -462,6 +462,13 @@
         "title": "Referral program",
         "description": "Share JungleVPN with a friend and you both get 30 free days. Simple as that."
       }
+    },
+    "freeTrial": {
+      "badge": "Free trial",
+      "title": "Try it FREE for {{days}} days",
+      "subtitle": "No credit card required!",
+      "cta": "Start free trial",
+      "disclaimer": "Pya only if you like the quality of the service"
     },
     "footer": {
       "copyright": "© {{year}}. All rights reserved.",

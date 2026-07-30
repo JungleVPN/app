@@ -41,6 +41,8 @@ export const coreEnv = {
   referralFirstPaymentRate: Number(import.meta.env.PUBLIC_REFERRAL_FIRST_PAYMENT_RATE ?? ''),
   referralRecurringRate: Number(import.meta.env.PUBLIC_REFERRAL_RECURRING_PAYMENT_RATE ?? ''),
 
+  trialPeriodInDays: Number(import.meta.env.PUBLIC_TRIAL_PERIOD_IN_DAYS ?? 3),
+
   admins: new Set(
     ((import.meta.env.PUBLIC_ADMINS ?? '') as string)
       .split(',')
