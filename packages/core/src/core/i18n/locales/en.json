@@ -477,7 +477,8 @@
       "support": "Support",
       "affiliate": "Affiliate",
       "referral": "Referral",
-      "pricing": "Pricing"
+      "pricing": "Pricing",
+      "trial": "Pricing"
     }
   },
   "transactions": {

@@ -16,6 +16,7 @@ import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ReferralService } from '../main/referral.service';
 import { findExistingReferralConflict } from '../main/referral.utils';
+import type { AnalyticsClientService } from '../analytics/analytics-client.service';
 import type { PaymentsClient } from '../main/payments.client';
 import type { RemnaClient } from '../main/remna.client';
 
@@ -66,6 +67,10 @@ function makePaymentsClient(hasPaidWithinDays = true): PaymentsClient {
   } as unknown as PaymentsClient;
 }
 
+function makeAnalyticsClient(): AnalyticsClientService {
+  return { track: vi.fn().mockResolvedValue(undefined) } as unknown as AnalyticsClientService;
+}
+
 function makeService(
   referralRepo: Repository<Referral>,
   remnaClient: RemnaClient,
@@ -76,6 +81,7 @@ function makeService(
     remnaClient,
     { emit: vi.fn() } as unknown as EventEmitter2,
     paymentsClient,
+    makeAnalyticsClient(),
   );
 }
 

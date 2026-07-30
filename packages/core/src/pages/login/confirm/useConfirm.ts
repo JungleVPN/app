@@ -45,7 +45,8 @@ export function useConfirm() {
     if (verifyError) {
       setError(t('confirm.error_invalid_code'));
     } else {
-      navigate(profileSubscriptionPath);
+      const to = searchParams.get('to');
+      navigate(to ?? profileSubscriptionPath);
     }
   };
 

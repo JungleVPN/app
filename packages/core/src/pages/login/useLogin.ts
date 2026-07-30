@@ -29,7 +29,9 @@ export function useLogin() {
       return;
     }
 
-    navigate(`/login/confirm?email=${encodeURIComponent(email)}&message=Enter OTP`);
+    const to = searchParams.get('to');
+    const confirmUrl = `/login/confirm?email=${encodeURIComponent(email)}&message=Enter OTP${to ? `&to=${encodeURIComponent(to)}` : ''}`;
+    navigate(confirmUrl);
   };
 
   return { email, setEmail, loading, error, message, handleSubmit };

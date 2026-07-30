@@ -31,7 +31,7 @@ function PartnershipCard({
   );
 }
 
-const PARTNERSHIP_KEYS = ['affiliate'] as const;
+const PARTNERSHIP_KEYS = ['affiliate', 'referral'] as const;
 
 export function PartnershipSection() {
   const { t } = useTranslation();
@@ -45,7 +45,7 @@ export function PartnershipSection() {
         <p className='text-muted text-base lg:text-lg'>{t('landing.partnership.subtitle')}</p>
       </div>
 
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-1'>
+      <div className='grid grid-cols-2 gap-6 md:grid-cols-2'>
         {PARTNERSHIP_KEYS.map((key) => (
           <PartnershipCard
             key={key}
