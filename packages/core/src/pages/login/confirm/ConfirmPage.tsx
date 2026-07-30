@@ -52,16 +52,14 @@ export default function ConfirmPage() {
               {t('confirm.submit')}
             </Button>
             <Button
-              className='mx-auto max-w-xs text-accent'
+              className='mx-auto max-w-xs'
               isDisabled={timer > 0}
               variant='ghost'
               onPress={() => void handleResend()}
             >
               {timer > 0 ? t('confirm.resend_in', { timer }) : t('confirm.resend_otp')}
             </Button>
-            <Description className='text-center text-xs text-muted'>
-              {t('confirm.hint')}
-            </Description>
+            <Description className='text-center text-xs'>{t('confirm.hint')}</Description>
           </div>
         </Block>
       </Form>

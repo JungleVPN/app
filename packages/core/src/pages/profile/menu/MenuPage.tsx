@@ -33,7 +33,7 @@ export default function MenuPage() {
         <ListBox
           aria-label={t('menu.pageTitle')}
           selectionMode='none'
-          className='w-full bg-default p-0'
+          className='w-full p-0'
           onAction={(key) => {
             if (key === 'transaction-history') void navigate(profileTransactionsPath);
             if (key === 'referrals') void navigate(profileReferralsPath);
@@ -45,7 +45,7 @@ export default function MenuPage() {
             textValue={t('menu.transactionHistory')}
             className='px-4 py-2 gap-1'
           >
-            <span className='flex size-8 items-center justify-center rounded-xl bg-default-100'>
+            <span className='flex size-8 items-center justify-center rounded-xl'>
               <IconCreditCardPay stroke={2} />
             </span>
             <Label className='flex-1 cursor-pointer text-sm font-medium'>
@@ -54,7 +54,7 @@ export default function MenuPage() {
             <IconChevronRight className='size-4 text-muted' stroke={2} />
           </ListBox.Item>
           <ListBox.Item id='referrals' textValue={t('menu.referrals')} className='px-4 py-2 gap-1'>
-            <span className='flex size-8 items-center justify-center rounded-xl bg-default-100'>
+            <span className='flex size-8 items-center justify-center rounded-xl'>
               <IconUsers stroke={2} />
             </span>
             <Label className='flex-1 cursor-pointer text-sm font-medium'>
