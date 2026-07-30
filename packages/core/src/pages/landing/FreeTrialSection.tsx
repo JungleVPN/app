@@ -27,7 +27,7 @@ export function FreeTrialSection() {
 
           <Button
             size='lg'
-            className='bg-white font-semibold text-emerald-700 shadow-lg hover:bg-white/90'
+            className=' font-semibold shadow-lg '
             onClick={() => navigate('/login')}
           >
             {t('landing.freeTrial.cta')}

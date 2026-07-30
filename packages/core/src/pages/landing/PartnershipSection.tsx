@@ -1,12 +1,15 @@
 import { Card } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { coreEnv, getTelegramStickerUrl } from '../../env';
+import { TgsSticker } from '../../ui';
 
 type PartnershipCardProps = {
   title: string;
   description: string;
   learnMoreLabel: string;
   learnMoreHref?: string;
+  icon?: string;
 };
 
 function PartnershipCard({
@@ -14,11 +17,12 @@ function PartnershipCard({
   description,
   learnMoreLabel,
   learnMoreHref = '#',
+  icon,
 }: PartnershipCardProps) {
   return (
     <Card
       variant='secondary'
-      className='flex flex-col justify-between p-8 shadow-surface shadow-md'
+      className='relative flex flex-col justify-between p-8 shadow-surface shadow-md'
     >
       <div>
         <h3 className='mb-4 text-xl font-bold'>{title}</h3>
@@ -27,11 +31,17 @@ function PartnershipCard({
       <Link to={learnMoreHref ?? '#'} className='mt-10 text-sm font-medium  underline'>
         {learnMoreLabel}
       </Link>
+      {icon && <TgsSticker src={icon} className='absolute right-4 bottom-4 h-24 w-24 opacity-80' />}
     </Card>
   );
 }
 
 const PARTNERSHIP_KEYS = ['affiliate', 'referral'] as const;
+
+const PARTNERSHIP_STICKERS: Record<(typeof PARTNERSHIP_KEYS)[number], string | undefined> = {
+  affiliate: getTelegramStickerUrl(coreEnv.affiliateStickerFileId),
+  referral: getTelegramStickerUrl(coreEnv.referralsStickerFileId),
+};
 
 export function PartnershipSection() {
   const { t } = useTranslation();
@@ -45,7 +55,7 @@ export function PartnershipSection() {
         <p className='text-muted text-base lg:text-lg'>{t('landing.partnership.subtitle')}</p>
       </div>
 
-      <div className='grid grid-cols-2 gap-6 md:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
         {PARTNERSHIP_KEYS.map((key) => (
           <PartnershipCard
             key={key}
@@ -53,6 +63,7 @@ export function PartnershipSection() {
             description={t(`landing.partnership.${key}.description`)}
             learnMoreLabel={t('landing.partnership.learnMore')}
             learnMoreHref={key === 'affiliate' ? '/affiliates' : '/profile/referrals'}
+            icon={PARTNERSHIP_STICKERS[key]}
           />
         ))}
       </div>
