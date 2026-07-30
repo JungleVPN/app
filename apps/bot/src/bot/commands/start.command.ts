@@ -29,7 +29,7 @@ export class StartCommand {
     ctx.session.lang = undefined;
 
     const matchStr = typeof ctx.match === 'string' ? ctx.match : (ctx.match?.[0] ?? '');
-    ctx.session.startPayload = decodeStartPayload(matchStr);
+    ctx.session.startPayload = decodeStartPayload(matchStr, process.env.REFERRAL_CODE_SECRET ?? '');
 
     const users = await this.remnaService.getUserByTgId(ctx.from.id);
     const rmnUser = users?.[0] ?? null;
