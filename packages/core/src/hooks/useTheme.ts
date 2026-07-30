@@ -1,8 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 
 type Theme = 'light' | 'dark';
 
 const STORAGE_KEY = 'jungleVPN-theme';
+
+function getInitialTheme(): Theme {
+  const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+  if (stored === 'light' || stored === 'dark') return stored;
+  return 'light';
+}
 
 function applyTheme(theme: Theme) {
   const html = document.documentElement;
@@ -17,23 +23,32 @@ function applyTheme(theme: Theme) {
   });
 }
 
-function getInitialTheme(): Theme {
-  const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-  if (stored === 'light' || stored === 'dark') return stored;
+let currentTheme: Theme = getInitialTheme();
+const listeners = new Set<() => void>();
 
-  return 'light';
+function setTheme(theme: Theme) {
+  currentTheme = theme;
+  localStorage.setItem(STORAGE_KEY, theme);
+  applyTheme(theme);
+  listeners.forEach((l) => l());
 }
 
-export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
 
-  useEffect(() => {
-    applyTheme(theme);
-    localStorage.setItem(STORAGE_KEY, theme);
-  }, [theme]);
+function getSnapshot() {
+  return currentTheme;
+}
+
+applyTheme(currentTheme);
+
+export function useTheme() {
+  const theme = useSyncExternalStore(subscribe, getSnapshot);
 
   const toggleTheme = useCallback(() => {
-    setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    setTheme(currentTheme === 'dark' ? 'light' : 'dark');
   }, []);
 
   return { theme, toggleTheme };

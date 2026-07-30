@@ -1,8 +1,10 @@
 import { IconBrandTelegram } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import Logo from '../../assets/Logo.svg';
+import Logo from '../../assets/Logo.svg?react';
+import LogoDark from '../../assets/Logo_dark.svg?react';
 import { coreEnv } from '../../env';
+import { useTheme } from '../../hooks';
 
 type FooterLinkDef =
   | { type: 'internal'; to: string }
@@ -26,6 +28,7 @@ const linkClass = 'text-sm text-muted transition-colors hover:text-foreground';
 
 export function FooterSection() {
   const { t } = useTranslation();
+  const { theme } = useTheme();
 
   const socials = [
     { label: 'Telegram', href: coreEnv.supportUrl, icon: <IconBrandTelegram size={18} /> },
@@ -35,16 +38,13 @@ export function FooterSection() {
     <footer className='w-full border-t border-divider'>
       <div className='mx-auto flex max-w-7xl flex-col gap-8 px-6 py-12 md:px-12 lg:px-24'>
         <div className='flex flex-col items-start gap-6'>
-          <div className={'flex items-baseline gap-2'}>
+          <div className={'flex items-center gap-2'}>
+            {theme === 'dark' ? (
+              <LogoDark aria-label={t('header.logoAlt')} width={56} height={56} />
+            ) : (
+              <Logo aria-label={t('header.logoAlt')} width={56} height={56} />
+            )}
             <p className='text-lg'>JungleVPN</p>
-            <img
-              alt='Logo'
-              src={Logo}
-              style={{
-                width: '42px',
-                height: '42px',
-              }}
-            />
           </div>
           <p className='text-sm text-muted'>
             {t('landing.footer.copyright', { year: new Date().getFullYear() })}

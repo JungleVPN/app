@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router';
 import { useRemnawaveApi } from '../../api';
-import Logo from '../../assets/Logo.svg';
+import Logo from '../../assets/Logo.svg?react';
+import LogoDark from '../../assets/Logo_dark.svg?react';
+import { useTheme } from '../../hooks';
 import { usePlatformStore } from '../../stores';
 import { withReferralParam } from '../../utils';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
@@ -17,6 +19,7 @@ export function Header() {
   const { pathname } = useLocation();
   const { authUser, tgUser } = useAuthStore();
   const { platformType } = usePlatformStore();
+  const { theme } = useTheme();
   const remnawaveApi = useRemnawaveApi();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
@@ -38,28 +41,23 @@ export function Header() {
   };
 
   return (
-    <div className='flex items-center justify-start max-w-200 m-auto gap-12'>
+    <div className='flex items-center justify-start m-auto gap-12'>
       <Link to={getLink()}>
         {platformType === 'telegram' && photoUrl ? (
           <Avatar size='sm' className='size-13'>
             <Avatar.Image alt={tgUser?.first_name ?? 'User'} src={photoUrl} />
             <Avatar.Fallback>{tgUser?.first_name?.[0] ?? 'U'}</Avatar.Fallback>
           </Avatar>
+        ) : theme === 'dark' ? (
+          <LogoDark aria-label={t('header.logoAlt')} width={56} height={56} />
         ) : (
-          <img
-            alt={t('header.logoAlt')}
-            src={Logo}
-            style={{
-              width: '42px',
-              height: '42px',
-            }}
-          />
+          <Logo aria-label={t('header.logoAlt')} width={56} height={56} />
         )}
       </Link>
 
       {isLanding && (
-        <nav className='flex items-center gap-6'>
-          {(['pricing', 'partnership'] as const).map((id) => (
+        <nav className='hidden sm:flex items-center gap-6'>
+          {(['trial', 'partnership'] as const).map((id) => (
             <Button
               key={id}
               className='text-sm text-foreground/70 hover:text-foreground transition-colors cursor-pointer bg-transparent border-none p-0'
