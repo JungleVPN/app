@@ -21,10 +21,10 @@ function PartnershipCard({
       className='flex flex-col justify-between p-8 shadow-surface shadow-md'
     >
       <div>
-        <h3 className='mb-4 text-xl font-bold text-foreground'>{title}</h3>
+        <h3 className='mb-4 text-xl font-bold'>{title}</h3>
         <p className='text-muted text-sm leading-relaxed'>{description}</p>
       </div>
-      <Link to={learnMoreHref ?? '#'} className='mt-10 text-sm font-medium text-accent hover:underline'>
+      <Link to={learnMoreHref ?? '#'} className='mt-10 text-sm font-medium  underline'>
         {learnMoreLabel}
       </Link>
     </Card>
@@ -39,7 +39,7 @@ export function PartnershipSection() {
   return (
     <section className='mx-auto w-full px-6 py-48 md:px-12 lg:px-24'>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
+        <h2 className='text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl'>
           {t('landing.partnership.title')}
         </h2>
         <p className='text-muted text-base lg:text-lg'>{t('landing.partnership.subtitle')}</p>

@@ -12,18 +12,18 @@ const PINS = [
 
 export function WorldMap() {
   const svgMap = useMemo(() => {
-    const map = new DottedMap({ height: 60, grid: 'diagonal' });
+    const map = new DottedMap({ height: 100, grid: 'diagonal' });
 
     PINS.forEach(({ lat, lng }) => {
       map.addPin({
         lat,
         lng,
-        svgOptions: { color: '#22c55e', radius: 0.5 },
+        svgOptions: { color: '#ffcb3d', radius: 0.7 },
       });
     });
 
     return map.getSVG({
-      radius: 0.22,
+      radius: 0.5,
       color: '#6b7280',
       shape: 'circle',
       backgroundColor: 'transparent',

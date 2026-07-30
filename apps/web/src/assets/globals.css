@@ -16,11 +16,11 @@
   --deprecated-separator-color: rgba(210, 210, 215, 1);
   --second-button-color: rgb(99 102 241 / 10%);
   --text-confirm-color: #2da44e;
-  --color-accent: #ffcb3d;
-  --accent: #ffcb3d;
+  --color-accent: oklch(0.32 0.04 195.45);
+  --accent: oklch(0.32 0.04 195.45);
   --surface: oklch(0.9524 0.0013 286.37);
   --surface-secondary: oklch(1 0 0 / 1);
-  --color-accent-soft-foreground: #ffcb3d;
+  --color-accent-soft-foreground: oklch(0.32 0.04 195.45);
   --button-confirm-color: #2da44e;
   --button-main-disabled-color: #d1d5db;
   --text-main-disabled-color: #9ca3af;
@@ -30,7 +30,7 @@
   --quick-menu-foreground: #1a1a1a;
   --toast-background: rgba(255, 255, 255, 0.92);
   --text-overlay: #1a1a1a;
-  --toast-link: #ffcb3d;
+  --toast-link: oklch(0.32 0.04 195.45);
   --tertiary-fill-background: rgba(0, 0, 0, 0.06);
   --quaternary-fill-background: rgba(0, 0, 0, 0.04);
   --separator-non-opaque-color: rgba(0, 0, 0, 0.12);
@@ -57,9 +57,11 @@
   --deprecated-separator-color: rgba(61, 61, 63, 1);
   --second-button-color: rgb(113 96 139 / 10%);
   --text-confirm-color: #35ca5b;
+  --color-accent: oklch(0.32 0.04 195.45);
   --button-confirm-color: #35ca5b;
   --background: oklch(0.19 0 0 / 1);
   --surface: oklch(0.257 0.0037 286.14);
+  --surface-secondary: oklch(0.3 0 0 / 1);
   --button-main-disabled-color: #2f2f2f;
   --text-main-disabled-color: #606060;
   --button-destructive-color: rgb(239 91 91 / 10%);

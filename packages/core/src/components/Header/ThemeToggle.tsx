@@ -10,6 +10,7 @@ export function ThemeToggle() {
       aria-label='Toggle theme'
       isIconOnly
       variant='default'
+      className={'color-text-overlay'}
       isSelected={theme === 'dark'}
       size='md'
       onChange={toggleTheme}

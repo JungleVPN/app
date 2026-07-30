@@ -53,18 +53,18 @@ export default function LoginPage() {
       <Block className={'p-4'} description={t('login.trial_card_description')}>
         <div className='flex flex-col gap-3'>
           <div className='flex flex-col gap-1'>
-            <Chip color='accent' size='sm' className={'w-fit'} variant='soft'>
+            <Chip color='success' size='sm' className={'w-fit'} variant='soft'>
               <Chip.Label>{t('getSubscription.discount')}</Chip.Label>
             </Chip>
-            <p className='text-sm font-medium text-foreground'>{t('login.trial_card_title')}</p>
+            <p className='text-sm font-medium'>{t('login.trial_card_title')}</p>
           </div>
           <div className='flex flex-col gap-2'>
             {features.map((feature) => (
               <div key={feature} className='flex items-center gap-2'>
-                <div className='flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent'>
+                <div className='flex h-5 w-5 shrink-0 items-center justify-center rounded-full'>
                   <IconCheck size={12} stroke={3} />
                 </div>
-                <p className='text-sm text-foreground/80'>{feature}</p>
+                <p className='text-sm '>{feature}</p>
               </div>
             ))}
           </div>
