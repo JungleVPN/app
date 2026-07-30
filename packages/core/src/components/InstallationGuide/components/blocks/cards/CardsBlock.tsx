@@ -21,7 +21,6 @@ export const CardsBlockRenderer = ({
               <ThemeIconComponent
                 getIconFromLibrary={getIconFromLibrary}
                 gradientStyle={gradientStyle}
-                svgIconColor={block.svgIconColor}
                 svgIconKey={block.svgIconKey}
               />
               <div className='min-w-0 flex-1'>

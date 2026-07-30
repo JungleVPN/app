@@ -109,7 +109,7 @@ input:-webkit-autofill:active {
 }
 
 .info-card-violet {
-  background: linear-gradient(135deg, rgba(151, 117, 250, 0.1) 0%, rgba(132, 94, 247, 0.05) 100%);
+  /*background: linear-gradient(135deg, rgba(151, 117, 250, 0.1) 0%, rgba(132, 94, 247, 0.05) 100%);*/
   border: 1px solid rgba(151, 117, 250, 0.2);
 }
 

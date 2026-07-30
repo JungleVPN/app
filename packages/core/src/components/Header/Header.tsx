@@ -48,7 +48,7 @@ export function Header() {
             <Avatar.Image alt={tgUser?.first_name ?? 'User'} src={photoUrl} />
             <Avatar.Fallback>{tgUser?.first_name?.[0] ?? 'U'}</Avatar.Fallback>
           </Avatar>
-        ) : theme === 'dark' ? (
+        ) : theme === 'dark' || platformType === 'telegram' ? (
           <LogoDark aria-label={t('header.logoAlt')} width={56} height={56} />
         ) : (
           <Logo aria-label={t('header.logoAlt')} width={56} height={56} />

@@ -24,7 +24,6 @@ export const TimelineBlockRenderer = ({
                   <ThemeIconComponent
                     getIconFromLibrary={getIconFromLibrary}
                     gradientStyle={gradientStyle}
-                    svgIconColor={block.svgIconColor}
                     svgIconKey={block.svgIconKey}
                   />
                 </div>

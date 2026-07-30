@@ -1,33 +1,23 @@
-import { Surface } from '@heroui/react';
+import { Button } from '@heroui/react';
 import type { ColorGradientStyle } from '../../utils/colorParser';
 
 interface IProps {
   getIconFromLibrary: (iconKey: string) => string;
   gradientStyle: ColorGradientStyle;
-  svgIconColor: string;
   svgIconKey: string;
 }
 
 export const ThemeIconComponent = (props: IProps) => {
-  const { svgIconColor, gradientStyle, svgIconKey, getIconFromLibrary } = props;
+  const { svgIconKey, getIconFromLibrary } = props;
 
   return (
-    <Surface
-      className='size-9 shrink-0 rounded-full'
-      style={{
-        background: gradientStyle.background,
-        border: gradientStyle.border,
-        boxShadow: gradientStyle.boxShadow,
-        color: svgIconColor,
-      }}
-      variant='transparent'
-    >
+    <Button isIconOnly className='size-9 shrink-0 rounded-full' variant='primary'>
       <span
-        className='flex size-full items-center justify-center [&_svg]:size-[18px]'
+        className='flex size-full items-center justify-center [&_svg]:size-4.5'
         dangerouslySetInnerHTML={{
           __html: getIconFromLibrary(svgIconKey),
         }}
       />
-    </Surface>
+    </Button>
   );
 };

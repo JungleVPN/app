@@ -21,7 +21,6 @@ export const MinimalBlockRenderer = ({
               <ThemeIconComponent
                 getIconFromLibrary={getIconFromLibrary}
                 gradientStyle={gradientStyle}
-                svgIconColor={block.svgIconColor}
                 svgIconKey={block.svgIconKey}
               />
               <p
