@@ -420,7 +420,15 @@
       "advantage1": "Безлимитная скорость и трафик",
       "advantage2": "Работает на всех устройствах",
       "advantage3": "Доступ к любым сайтам",
-      "advantage4": "Поддержка в любое время"
+      "advantage4": "Поддержка в любое время",
+      "badge": "Лучший выбор",
+      "totalLabel": "Итого",
+      "noDiscount": "Ежемесячная оплата без скидки",
+      "monthlySubtitle": "подходит для старта",
+      "yearlyPeriod": "1 год",
+      "yearlyDiscount": "скидка 50%",
+      "biennialPeriod": "2 года",
+      "biennialDiscount": "скидка 60%"
     },
     "faq": {
       "title": "Частые вопросы",

@@ -2,9 +2,6 @@ import { IconBrandAppleFilled, IconBrandGoogleFilled } from '@tabler/icons-react
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
-import { coreEnv } from '../../env';
-
-const ADVANTAGE_KEYS = ['advantage1', 'advantage2', 'advantage3', 'advantage4'] as const;
 
 function PaymentMethods() {
   return (
@@ -56,7 +53,16 @@ export function PricingSection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const advantages = ADVANTAGE_KEYS.map((key) => t(`landing.pricing.${key}`));
+  const handleCtaClick = () => navigate('/login');
+
+  const sharedProps = {
+    currency: '€',
+    interval: t('landing.pricing.interval'),
+    guarantee: t('landing.pricing.guarantee'),
+    cta: t('landing.pricing.cta'),
+    totalLabel: t('landing.pricing.totalLabel'),
+    onCtaClick: handleCtaClick,
+  };
 
   return (
     <section className='mx-auto w-full px-6 py-24 md:px-12 lg:px-24'>
@@ -68,16 +74,36 @@ export function PricingSection() {
       </div>
 
       <div className='flex flex-col items-center gap-8'>
-        <PriceCard
-          period={t('landing.pricing.period')}
-          currency='€'
-          price={coreEnv.allowedAmountStripe}
-          interval={t('landing.pricing.interval')}
-          advantages={advantages}
-          guarantee={t('landing.pricing.guarantee')}
-          cta={t('landing.pricing.cta')}
-          onCtaClick={() => navigate('/login')}
-        />
+        <div className='grid w-full max-w-5xl grid-cols-1 items-center gap-4 md:grid-cols-3'>
+          <PriceCard
+            {...sharedProps}
+            period={t('landing.pricing.yearlyPeriod')}
+            discount={t('landing.pricing.yearlyDiscount')}
+            price='3,99'
+            originalTotal='95,76 €'
+            discountedTotal='47,88 €'
+          />
+
+          <PriceCard
+            {...sharedProps}
+            period={t('landing.pricing.biennialPeriod')}
+            discount={t('landing.pricing.biennialDiscount')}
+            price='2,99'
+            originalTotal='179,40 €'
+            discountedTotal='71,76 €'
+            badge={t('landing.pricing.badge')}
+            highlighted
+          />
+
+          <PriceCard
+            {...sharedProps}
+            period={t('landing.pricing.period')}
+            subtitle={t('landing.pricing.monthlySubtitle')}
+            price='7,99'
+            noDiscountLabel={t('landing.pricing.noDiscount')}
+          />
+        </div>
+
         <PaymentMethods />
       </div>
     </section>

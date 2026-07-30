@@ -421,7 +421,15 @@
       "advantage1": "Unlimited speed & data",
       "advantage2": "Works on all your devices",
       "advantage3": "Access any website, anywhere",
-      "advantage4": "Support whenever you need it"
+      "advantage4": "Support whenever you need it",
+      "badge": "Best choice",
+      "totalLabel": "Total",
+      "noDiscount": "Monthly billing, no discount",
+      "monthlySubtitle": "good for getting started",
+      "yearlyPeriod": "1 year",
+      "yearlyDiscount": "50% off",
+      "biennialPeriod": "2 years",
+      "biennialDiscount": "60% off"
     },
     "faq": {
       "title": "Got questions?",
