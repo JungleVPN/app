@@ -1,6 +1,8 @@
 import { Alert, Button, Chip, Form, Input, Label, Surface, TextField } from '@heroui/react';
 import { IconCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { Navigate } from 'react-router';
+import { useAuthStore } from '../../stores';
 import { Block } from '../../ui';
 import css from './login.module.css';
 import { useLogin } from './useLogin';
@@ -8,6 +10,12 @@ import { useLogin } from './useLogin';
 export default function LoginPage() {
   const { t } = useTranslation();
   const { email, setEmail, loading, error, message, handleSubmit } = useLogin();
+  const authUser = useAuthStore((state) => state.authUser);
+  const authLoading = useAuthStore((state) => state.loading);
+
+  if (!authLoading && authUser) {
+    return <Navigate to='/profile/subscription' replace />;
+  }
 
   const features = [
     t('getSubscription.feature_devices'),
