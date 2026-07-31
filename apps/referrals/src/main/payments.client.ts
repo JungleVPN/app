@@ -1,10 +1,10 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
-import { AdminPaymentDto, apiRoutes } from '@workspace/types';
+import { apiRoutes } from '@workspace/types';
 import axios from 'axios';
 
 /**
- * HTTP client for the payments service's unified search endpoint.
+ * HTTP client for the payments service's internal has-ever-paid endpoint.
  * Used to verify an inviter has an actual settled payment (not just a
  * trial), since remnawave reports both TRIAL and paid subscriptions as
  * status "ACTIVE".
@@ -18,26 +18,22 @@ export class PaymentsClient {
   }
 
   /**
-   * Whether `userId` has at least one settled *subscription* payment (paidAt set)
-   * within the last `days` days. Extra-device add-on purchases don't count — a
-   * trial user can buy one without ever paying for a base subscription.
+   * Whether `userId` has at least one settled *subscription* payment on record.
+   * Extra-device add-on purchases don't count — a trial user can buy one
+   * without ever paying for a base subscription.
    */
-  async hasPaidWithinDays(userId: string, days: number): Promise<boolean> {
+  async hasEverPaid(userId: string): Promise<boolean> {
     try {
-      const { data } = await axios.get<AdminPaymentDto[]>(
-        `${this.baseUrl}${apiRoutes.payments.searchPayments}`,
-        { params: { q: userId } },
+      const { data } = await axios.get<{ result: boolean }>(
+        `${this.baseUrl}${apiRoutes.payments.hasEverPaid}`,
+        {
+          params: { userId },
+          headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
+        },
       );
-
-      const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
-      return data.some(
-        (payment) =>
-          payment.purpose === 'subscription' &&
-          payment.paidAt &&
-          new Date(payment.paidAt).getTime() >= cutoff,
-      );
+      return data.result;
     } catch (err: any) {
-      this.logger.error(`hasPaidWithinDays failed for ${userId}: ${err.message}`);
+      this.logger.error(`hasEverPaid failed for ${userId}: ${err.message}`);
       return false;
     }
   }

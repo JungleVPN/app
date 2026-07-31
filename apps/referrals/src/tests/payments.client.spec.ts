@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import type { AdminPaymentDto } from '@workspace/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PaymentsClient } from '../main/payments.client';
 
@@ -10,60 +9,49 @@ vi.mock('axios', () => ({
 
 const USER_ID = 'uuid-inviter-1';
 
-const makePayment = (overrides: Partial<AdminPaymentDto> = {}): AdminPaymentDto =>
-  ({
-    paymentId: 'pay-1',
-    provider: 'yookassa',
-    userId: USER_ID,
-    telegramId: null,
-    status: 'succeeded',
-    purpose: 'subscription',
-    selectedPeriod: 1,
-    createdAt: new Date(),
-    paidAt: new Date(),
-    ...overrides,
-  }) as AdminPaymentDto;
-
-describe('PaymentsClient.hasPaidWithinDays', () => {
+describe('PaymentsClient.hasEverPaid', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('returns true when a settled subscription payment falls within the window', async () => {
-    mockAxiosGet.mockResolvedValue({ data: [makePayment()] });
+  it('returns true when the endpoint reports a settled subscription payment', async () => {
+    mockAxiosGet.mockResolvedValue({ data: { result: true } });
 
     const client = new PaymentsClient();
-    const result = await client.hasPaidWithinDays(USER_ID, 30);
+    const result = await client.hasEverPaid(USER_ID);
 
     expect(result).toBe(true);
   });
 
-  it('ignores extra-device payments — an add-on purchase is not a paid subscription', async () => {
-    mockAxiosGet.mockResolvedValue({
-      data: [makePayment({ purpose: 'extra_device' })],
-    });
+  it('returns false when the endpoint reports no settled subscription payment', async () => {
+    mockAxiosGet.mockResolvedValue({ data: { result: false } });
 
     const client = new PaymentsClient();
-    const result = await client.hasPaidWithinDays(USER_ID, 30);
+    const result = await client.hasEverPaid(USER_ID);
 
     expect(result).toBe(false);
   });
 
-  it('ignores subscription payments outside the window', async () => {
-    const old = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
-    mockAxiosGet.mockResolvedValue({ data: [makePayment({ paidAt: old })] });
+  it('sends the x-service-secret header', async () => {
+    process.env.INTER_SERVICE_SECRET = 'test-secret';
+    mockAxiosGet.mockResolvedValue({ data: { result: true } });
 
     const client = new PaymentsClient();
-    const result = await client.hasPaidWithinDays(USER_ID, 30);
+    await client.hasEverPaid(USER_ID);
 
-    expect(result).toBe(false);
+    expect(mockAxiosGet).toHaveBeenCalledWith(
+      expect.stringContaining('internal/has-ever-paid'),
+      expect.objectContaining({
+        headers: expect.objectContaining({ 'x-service-secret': 'test-secret' }),
+      }),
+    );
   });
 
   it('returns false and does not throw when the request fails', async () => {
     mockAxiosGet.mockRejectedValue(new Error('network error'));
 
     const client = new PaymentsClient();
-    const result = await client.hasPaidWithinDays(USER_ID, 30);
+    const result = await client.hasEverPaid(USER_ID);
 
     expect(result).toBe(false);
   });

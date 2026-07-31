@@ -17,9 +17,10 @@ export function ProfileLayout() {
   const { getSubscriptionPath } = useAppRoutes();
   const { platformType } = usePlatformStore();
 
-  // Any profile route can receive a forwarded `?ref=` (e.g. the TMA header
-  // logo link), so re-capture here too before the no-account redirect below
-  // reads it back out via withReferralParam.
+  // Re-capture on every profile-route entry: an invited user can land here
+  // after an auth redirect before they've created an account.
+  // captureReferral() is first-touch-guarded, so this is a no-op once the
+  // cookie is set.
   useEffect(() => {
     captureReferral();
   }, []);

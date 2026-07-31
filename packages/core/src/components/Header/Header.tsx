@@ -8,7 +8,7 @@ import Logo from '../../assets/Logo_dark.svg?react';
 import LogoDark from '../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../hooks';
 import { usePlatformStore } from '../../stores';
-import { withReferralParam } from '../../utils';
+
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -35,9 +35,8 @@ export function Header() {
   }, [platformType, tgUser?.id, remnawaveApi.getMyTelegramPhoto]);
 
   const getLink = () => {
-    if (!authUser && platformType === 'telegram') return withReferralParam(pathname);
-
-    return withReferralParam('/');
+    if (!authUser && platformType === 'telegram') return pathname;
+    return '/';
   };
 
   return (

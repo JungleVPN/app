@@ -60,10 +60,10 @@ function makeRemnaClient(status = 'ACTIVE'): RemnaClient {
   } as unknown as RemnaClient;
 }
 
-/** Defaults to "paid within window" so existing reward tests keep their prior behavior. */
-function makePaymentsClient(hasPaidWithinDays = true): PaymentsClient {
+/** Defaults to "has ever paid" so existing reward tests keep their prior behavior. */
+function makePaymentsClient(hasEverPaid = true): PaymentsClient {
   return {
-    hasPaidWithinDays: vi.fn().mockResolvedValue(hasPaidWithinDays),
+    hasEverPaid: vi.fn().mockResolvedValue(hasEverPaid),
   } as unknown as PaymentsClient;
 }
 
@@ -204,7 +204,7 @@ describe('ReferralService', () => {
       const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
 
       expect(result).toEqual({ rewarded: true, inviterRewarded: false });
-      expect(paymentsClient.hasPaidWithinDays).toHaveBeenCalledWith(INVITER_UUID, 30);
+      expect(paymentsClient.hasEverPaid).toHaveBeenCalledWith(INVITER_UUID);
       expect(remnaClient.updateUser).not.toHaveBeenCalledWith(
         expect.objectContaining({ uuid: INVITER_UUID }),
       );

@@ -1,49 +1,45 @@
-const STORAGE_KEY = 'jv_referral';
+const COOKIE_NAME = 'jv_referral';
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+
+function setCookie(value: string): void {
+  document.cookie = `${COOKIE_NAME}=${encodeURIComponent(value)}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`;
+}
+
+function readCookie(): string | null {
+  const match = document.cookie
+    .split('; ')
+    .find((c) => c.startsWith(`${COOKIE_NAME}=`));
+  if (!match) return null;
+  return decodeURIComponent(match.split('=').slice(1).join('='));
+}
+
+function deleteCookie(): void {
+  document.cookie = `${COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
+}
 
 /**
- * Captures the `ref` URL param into localStorage as soon as the app boots.
- * Reading it lazily from window.location.search at submit time loses it if
- * client-side navigation (e.g. an auth redirect) drops the query string
- * before the user finishes signup.
+ * Captures the `ref` URL param into a 30-day cookie on first touch.
+ * Called on every page load so that any entry point (landing, /subscribe, etc.)
+ * can capture the code. The first-touch guard prevents overwriting an already-
+ * stored code when the user navigates internally.
  */
 export function captureReferral(): void {
   if (typeof window === 'undefined') return;
-  if (localStorage.getItem(STORAGE_KEY)) return; // first-touch only
+  if (readCookie()) return; // first-touch only
 
   const inviterId = new URLSearchParams(window.location.search).get('ref');
-
   if (!inviterId) return;
 
-  localStorage.setItem(STORAGE_KEY, inviterId);
+  setCookie(inviterId);
 }
 
 export function getReferral(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem(STORAGE_KEY);
+  return readCookie();
 }
 
-/** Clears the captured referral once it's been used to create an account. */
+/** Clears the referral cookie once it has been used to attribute an account. */
 export function clearReferral(): void {
   if (typeof window === 'undefined') return;
-  localStorage.removeItem(STORAGE_KEY);
-}
-
-/**
- * Re-attaches the captured `ref` (if any) to an internal path as a query param.
- * The invited user can leave GetSubscriptionPage before signing up — e.g. via
- * the header Login button, through the OTP confirm step, or the redirect back
- * here for an account with no remnawave user yet — and every one of those hops
- * lands back on a fresh page load/route. Carrying `ref` explicitly through
- * them means GetSubscriptionPage can re-capture it on each landing instead of
- * depending solely on the original localStorage write surviving the detour.
- */
-export function withReferralParam(path: string): string {
-  const inviterId = getReferral();
-  if (!inviterId) return path;
-
-  const [base, existingSearch] = path.split('?');
-  const params = new URLSearchParams(existingSearch);
-
-  params.set('ref', inviterId);
-  return `${base}?${params.toString()}`;
+  deleteCookie();
 }

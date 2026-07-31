@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
 import type { AdminPaymentDto } from '@workspace/types';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class AdminService {
@@ -14,6 +14,16 @@ export class AdminService {
     @InjectRepository(StripePayment)
     private readonly stripeRepo: Repository<StripePayment>,
   ) {}
+
+  async hasEverPaid(userId: string): Promise<boolean> {
+    const settled = { purpose: 'subscription', paidAt: Not(IsNull()) } as const;
+    const [yookassa, stars, stripe] = await Promise.all([
+      this.yookassaRepo.exists({ where: { userId, ...settled } }),
+      this.starsRepo.exists({ where: { userId, ...settled } }),
+      this.stripeRepo.exists({ where: { userId, ...settled } }),
+    ]);
+    return yookassa || stars || stripe;
+  }
 
   async search(q: string): Promise<AdminPaymentDto[]> {
     const [yookassaResults, starsResults, stripeResults] = await Promise.all([

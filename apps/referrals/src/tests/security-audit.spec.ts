@@ -81,10 +81,10 @@ function makeAnalyticsClient(): AnalyticsClientService {
   return { track: vi.fn().mockResolvedValue(undefined) } as unknown as AnalyticsClientService;
 }
 
-/** Inviter is assumed to have a settled payment in-window unless a test says otherwise. */
-function makePaymentsClient(hasPaidWithinDays = true): PaymentsClient {
+/** Inviter is assumed to have a settled payment on record unless a test says otherwise. */
+function makePaymentsClient(hasEverPaid = true): PaymentsClient {
   return {
-    hasPaidWithinDays: vi.fn().mockResolvedValue(hasPaidWithinDays),
+    hasEverPaid: vi.fn().mockResolvedValue(hasEverPaid),
   } as unknown as PaymentsClient;
 }
 

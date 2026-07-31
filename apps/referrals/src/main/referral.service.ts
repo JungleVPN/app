@@ -11,8 +11,6 @@ import { PaymentsClient } from './payments.client';
 import { type ExistingReferralConflict, findExistingReferralConflict } from './referral.utils';
 import { RemnaClient } from './remna.client';
 
-/** Window used to tell a genuinely paying inviter apart from one only ever on TRIAL — both report status "ACTIVE". */
-const INVITER_PAID_WINDOW_DAYS = 30;
 
 @Injectable()
 export class ReferralService {
@@ -137,7 +135,7 @@ export class ReferralService {
       await this.rewardUser(referral.inviterId, bonusDays, 'inviter');
     } else {
       this.logger.log(
-        `Inviter ${referral.inviterId} skipped for referral bonus — no active paid subscription in the last ${INVITER_PAID_WINDOW_DAYS} days.`,
+        `Inviter ${referral.inviterId} skipped for referral bonus — no settled subscription payment on record.`,
       );
     }
 
@@ -160,14 +158,14 @@ export class ReferralService {
   /**
    * Remnawave reports both a TRIAL and a paid subscription as status "ACTIVE",
    * so status alone can't tell a genuinely paying inviter from someone still
-   * on their initial trial. Require an ACTIVE subscription *and* a settled
-   * payment within the last INVITER_PAID_WINDOW_DAYS days.
+   * on their initial trial. Require an ACTIVE subscription *and* at least one
+   * settled subscription payment ever recorded.
    */
   private async isInviterEligibleForBonus(inviterId: string): Promise<boolean> {
     const inviter = await this.remnaClient.getUserByUuid(inviterId);
     if (!inviter || inviter.status !== 'ACTIVE') return false;
 
-    return this.paymentsClient.hasPaidWithinDays(inviterId, INVITER_PAID_WINDOW_DAYS);
+    return this.paymentsClient.hasEverPaid(inviterId);
   }
 
   private async rewardUser(

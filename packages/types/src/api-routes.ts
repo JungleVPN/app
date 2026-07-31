@@ -29,6 +29,7 @@ export const apiRoutes = {
     promoValidate: '/promo/validate',
     myTransactions: '/my-transactions',
     searchPayments: '/search',
+    hasEverPaid: '/internal/has-ever-paid',
     remnawaveEvent: '/remnawave-event',
   },
   referrals: {

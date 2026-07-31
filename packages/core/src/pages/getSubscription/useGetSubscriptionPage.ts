@@ -30,10 +30,9 @@ export function useGetSubscriptionPage() {
   const { platformType } = usePlatformStore();
   const connectingRef = useRef(false);
 
-  // Re-run on every landing, not just app boot: an invited user can leave this
-  // page before signing up (header Login, OTP confirm, the no-account redirect
-  // back here) and land again with `?ref=` re-attached via withReferralParam.
-  // captureReferral() is first-touch-guarded, so this is a no-op once stored.
+  // Re-run on every landing: if the user arrives directly at /subscribe with
+  // a ?ref= param, capture it. First-touch-guarded — no-op once the cookie
+  // is set.
   useEffect(() => {
     captureReferral();
   }, []);

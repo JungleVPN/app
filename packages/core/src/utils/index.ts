@@ -18,7 +18,7 @@ export { detectOs } from './detectOs';
 export { formatCurrency, truncate } from './format';
 export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';
-export { captureReferral, clearReferral, getReferral, withReferralParam } from './referral';
+export { captureReferral, clearReferral, getReferral } from './referral';
 export type { Storage } from './storage';
 export { createStorage } from './storage';
 export { TemplateEngine } from './templateEngine';
