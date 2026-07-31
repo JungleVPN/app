@@ -503,3 +503,8 @@ referral-completed-text =
 
 referral-own-user-link-text =
     You followed your own referral link. You can’t invite yourself 🥲. Tap /start
+
+referral-not-active-text =
+Only active subscribers can invite friends 🌴
+
+Subscribe to JUNGLE or renew your subscription and start inviting friends for bonus days!
