@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { BadRequestException } from '@nestjs/common';
 import type { Repository } from 'typeorm';
 import { describe, expect, it, vi } from 'vitest';
+import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { PaymentStatusService } from '../payment-status/payment-status.service';
 import { PromoInvalidError, type PromoService } from '../promo/promo.service';
 import { TelegramStarsService } from '../providers/telegram-stars/telegram-stars.service';
@@ -24,6 +25,7 @@ function makeService(promoResolve?: () => Promise<unknown>) {
     }),
     findOneBy: vi.fn(),
     update: vi.fn().mockResolvedValue({ affected: 1 }),
+    count: vi.fn().mockResolvedValue(0),
   } as unknown as Repository<any>;
 
   const handleUserUpdates = vi.fn().mockResolvedValue({ success: true });
@@ -38,12 +40,21 @@ function makeService(promoResolve?: () => Promise<unknown>) {
   const resolve = vi.fn(promoResolve ?? (async () => ({ type: 'bonus_months', months: 2 })));
   const promoService = { resolve } as unknown as PromoService;
 
-  const service = new TelegramStarsService(repo, paymentStatusService, paymentsUtils, promoService);
+  const analyticsClient = {
+    track: vi.fn().mockResolvedValue(undefined),
+  } as unknown as AnalyticsClientService;
+
+  const service = new TelegramStarsService(
+    repo,
+    paymentStatusService,
+    paymentsUtils,
+    promoService,
+    analyticsClient,
+  );
   // Bypass onModuleInit (no real bot/token in tests).
   (service as any).bot = {
     api: { createInvoiceLink: vi.fn().mockResolvedValue('https://t.me/inv') },
   };
-
   return { service, repo, handleUserUpdates, resolve };
 }
 

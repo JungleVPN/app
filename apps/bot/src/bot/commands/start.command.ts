@@ -80,7 +80,7 @@ export class StartCommand {
     this.analyticsService.trackBotStarted({
       telegramId: ctx.from.id,
       email: rmnUser?.email || null,
-      adCode: adCode || null,
+      adCode,
       isReturningUser: rmnUser !== null,
     });
   }

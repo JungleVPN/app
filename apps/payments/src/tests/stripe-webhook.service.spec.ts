@@ -6,6 +6,7 @@ import { WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { PaymentStatusService } from '../payment-status/payment-status.service';
 import { StripeClientService } from '../providers/stripe/stripe-client.service';
 import { StripeWebhookService } from '../providers/stripe/stripe-webhook.service';
@@ -76,6 +77,7 @@ describe('StripeWebhookService', () => {
   let mockSavedUpdate: any;
   let mockSavedSave: any;
   let mockSavedCreate: any;
+  let analyticsClient: AnalyticsClientService;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -91,6 +93,7 @@ describe('StripeWebhookService', () => {
       update: mockUpdate,
       save: mockSave,
       create: mockCreate,
+      count: vi.fn().mockResolvedValue(0),
     } as unknown as Repository<StripePayment>;
 
     mockRetrieveCustomer = vi.fn().mockResolvedValue(CUSTOMER);
@@ -119,12 +122,17 @@ describe('StripeWebhookService', () => {
       create: mockSavedCreate,
     } as unknown as Repository<any>;
 
+    analyticsClient = {
+      track: vi.fn().mockResolvedValue(undefined),
+    } as unknown as AnalyticsClientService;
+
     service = new StripeWebhookService(
       stripeClient,
       paymentStatusService,
       eventEmitter,
       repo,
       savedMethodRepo,
+      analyticsClient,
     );
   });
 

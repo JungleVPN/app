@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import * as process from 'node:process';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import { AutopaymentService } from '@payments/autopayment/autopayment.service';
+import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { EmailNotificationService } from '@payments/notifications/email-notification.service';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { ValidatePaymentRequest } from '@payments/utils/validators';
@@ -55,6 +56,7 @@ describe('AutopaymentService', () => {
   let mockValidateAmount: any;
   let mockValidatePeriod: any;
   let emailNotificationService: EmailNotificationService;
+  let analyticsClient: AnalyticsClientService;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -96,6 +98,10 @@ describe('AutopaymentService', () => {
       notifyExpiry: vi.fn().mockResolvedValue(undefined),
     } as unknown as EmailNotificationService;
 
+    analyticsClient = {
+      track: vi.fn().mockResolvedValue(undefined),
+    } as unknown as AnalyticsClientService;
+
     service = new AutopaymentService(
       savedMethodRepo,
       yookassaPaymentRepo,
@@ -103,6 +109,7 @@ describe('AutopaymentService', () => {
       eventEmitter,
       validatePaymentRequest,
       emailNotificationService,
+      analyticsClient,
     );
 
     // Stub delay to make tests fast

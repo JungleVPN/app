@@ -7,6 +7,7 @@ import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { PaymentWebhookNotification, WebhookEventEnum } from '@workspace/types';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { PaymentStatusService } from '../payment-status/payment-status.service';
 
 vi.mock('@workspace/database', () => {
@@ -73,6 +74,7 @@ describe('YookassaService', () => {
   let mockHandleUserUpdates: any;
   let mockGetPayment: any;
   let mockEmit: any;
+  let analyticsClient: AnalyticsClientService;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -120,6 +122,10 @@ describe('YookassaService', () => {
       emit: mockEmit,
     } as unknown as EventEmitter2;
 
+    analyticsClient = {
+      track: vi.fn().mockResolvedValue(undefined),
+    } as unknown as AnalyticsClientService;
+
     service = new YookassaService(
       yooKassaProvider,
       yookassaPaymentRepo,
@@ -128,6 +134,7 @@ describe('YookassaService', () => {
       eventEmitter,
       {} as any,
       {} as any,
+      analyticsClient,
     );
   });
 

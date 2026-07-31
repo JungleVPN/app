@@ -4,7 +4,7 @@ export type BotStartedEvent = {
   event: 'bot_started';
   email: string | null;
   telegramId: number;
-  adCode: string | null;
+  adCode: string | null | undefined;
   isReturningUser: boolean;
 };
 

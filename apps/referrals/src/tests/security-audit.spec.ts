@@ -21,6 +21,7 @@ import type { EventEmitter2 } from '@nestjs/event-emitter';
 import type { Referral } from '@workspace/database';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { AnalyticsClientService } from '../analytics/analytics-client.service';
 import { InterServiceGuard } from '../guards/inter-service.guard';
 import type { PaymentsClient } from '../main/payments.client';
 import { ReferralController } from '../main/referral.controller';
@@ -74,6 +75,10 @@ function makeRemnaClient(uuid = INVITED_UUID): RemnaClient {
     getUserByUuid: vi.fn().mockResolvedValue(makeRemnaUser(uuid)),
     updateUser: vi.fn().mockResolvedValue({}),
   } as unknown as RemnaClient;
+}
+
+function makeAnalyticsClient(): AnalyticsClientService {
+  return { track: vi.fn().mockResolvedValue(undefined) } as unknown as AnalyticsClientService;
 }
 
 /** Inviter is assumed to have a settled payment in-window unless a test says otherwise. */
@@ -185,6 +190,7 @@ describe('Security Audit', () => {
           emit: vi.fn(),
         } as unknown as EventEmitter2,
         makePaymentsClient(),
+        makeAnalyticsClient(),
       );
 
       const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
@@ -207,6 +213,7 @@ describe('Security Audit', () => {
           emit: vi.fn(),
         } as unknown as EventEmitter2,
         makePaymentsClient(),
+        makeAnalyticsClient(),
       );
 
       const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
@@ -252,6 +259,7 @@ describe('Security Audit', () => {
           emit: vi.fn(),
         } as unknown as EventEmitter2,
         makePaymentsClient(),
+        makeAnalyticsClient(),
       );
 
       const [r1, r2] = await Promise.all([
@@ -290,6 +298,7 @@ describe('Security Audit', () => {
           emit: vi.fn(),
         } as unknown as EventEmitter2,
         makePaymentsClient(),
+        makeAnalyticsClient(),
       );
 
       const r1 = await service.handleInviterRewardAfterPayment(INVITED_UUID);
@@ -328,6 +337,7 @@ describe('Security Audit', () => {
           emit: vi.fn(),
         } as unknown as EventEmitter2,
         makePaymentsClient(),
+        makeAnalyticsClient(),
       );
 
       // First call fails mid-flight — should throw

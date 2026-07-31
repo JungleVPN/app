@@ -104,6 +104,7 @@ describe('Security Audit', () => {
         { emit: vi.fn() } as unknown as EventEmitter2,
         {} as any,
         {} as any,
+        { track: vi.fn() } as any,
       );
     });
 
@@ -166,6 +167,7 @@ describe('Security Audit', () => {
         { emit: vi.fn() } as unknown as EventEmitter2,
         {} as any,
         {} as any,
+        { track: vi.fn() } as any,
       );
       (svc as any).isIPRangeValid = mockIsIPRangeValid;
 
@@ -238,12 +240,14 @@ describe('Security Audit', () => {
         {
           findOneBy: mockFindOneBy,
           update: vi.fn().mockResolvedValue({ affected: 1 }),
+          count: vi.fn().mockResolvedValue(0),
         } as unknown as Repository<YookassaPayment>,
         makeSavedMethodRepo(null),
         { handleUserUpdates: mockHandleUserUpdates } as unknown as PaymentStatusService,
         { emit: vi.fn() } as unknown as EventEmitter2,
         {} as any,
         {} as any,
+        { track: vi.fn() } as any,
       );
     });
 
@@ -275,12 +279,14 @@ describe('Security Audit', () => {
         {
           findOneBy: mockFindOneBy,
           update: mockYkUpdate,
+          count: vi.fn().mockResolvedValue(0),
         } as unknown as Repository<YookassaPayment>,
         makeSavedMethodRepo(null),
         { handleUserUpdates: mockHandleUserUpdates } as unknown as PaymentStatusService,
         { emit: vi.fn() } as unknown as EventEmitter2,
         {} as any,
         {} as any,
+        { track: vi.fn() } as any,
       );
 
       const payload = makeSucceededPayload('pay_replay');

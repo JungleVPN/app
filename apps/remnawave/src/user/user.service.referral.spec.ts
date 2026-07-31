@@ -13,6 +13,7 @@ import 'reflect-metadata';
 import * as process from 'node:process';
 import type { ConfigService } from '@nestjs/config';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { AnalyticsClientService } from '../analytics/analytics-client.service';
 import type { RemnaPanelClient } from '../common/remna-panel.client';
 import { UserService } from './user.service';
 
@@ -33,7 +34,11 @@ function makeService() {
     get: vi.fn((_key: string, fallback?: unknown) => fallback),
   } as unknown as ConfigService;
 
-  const service = new UserService(panelClient, configService);
+  const analyticsClient = {
+    track: vi.fn().mockResolvedValue(undefined),
+  } as unknown as AnalyticsClientService;
+
+  const service = new UserService(panelClient, configService, analyticsClient);
   return { service, panelClient };
 }
 

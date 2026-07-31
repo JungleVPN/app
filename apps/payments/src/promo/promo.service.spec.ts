@@ -1,6 +1,7 @@
 import { Promo } from '@workspace/database';
 import type { AdminPaymentDto, PromoEffect } from '@workspace/types';
 import { describe, expect, it, vi } from 'vitest';
+import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { PromoInvalidError, PromoService } from './promo.service';
 
 const BONUS: PromoEffect = { type: 'bonus_months', months: 2 };
@@ -15,7 +16,6 @@ function makePromo(overrides: Partial<Promo> = {}): Promo {
     perUserLimit: 1,
     eligibility: 'all',
     active: true,
-    stripePromoCodeId: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
@@ -60,11 +60,16 @@ function setup(opts: {
 
   const adminService = { search: vi.fn().mockResolvedValue(opts.payments ?? []) };
 
+  const analyticsClient = {
+    track: vi.fn().mockResolvedValue(undefined),
+  } as unknown as AnalyticsClientService;
+
   const service = new PromoService(
     promoRepo as any,
     redemptionRepo as any,
     dataSource as any,
     adminService as any,
+    analyticsClient,
   );
   return { service, insert, txRedemptions, adminService };
 }

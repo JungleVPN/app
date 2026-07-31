@@ -26,6 +26,7 @@ describe('AnalyticsClientService', () => {
     expect(post).toHaveBeenCalledWith('/events', {
       event: 'bot_started',
       telegramId: 123,
+      email: 'test@email.com',
       adCode: null,
       isReturningUser: false,
     });
