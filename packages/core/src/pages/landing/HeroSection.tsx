@@ -12,7 +12,7 @@ export function HeroSection() {
     <section className='flex h-full flex-col gap-16 pt-48'>
       <div className='mx-auto flex w-full max-w-7xl  flex-col items-center justify-center gap-6 px-6 text-center md:px-12 lg:px-24'>
         <div className='flex flex-col gap-3'>
-          <h1 className='text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-7xl'>
+          <h1 className='text-6xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-7xl'>
             Jungle VPN
           </h1>
           <p className='mx-auto max-w-xl text-base text-muted lg:text-lg'>
@@ -20,7 +20,7 @@ export function HeroSection() {
           </p>
         </div>
         <div className='flex flex-col items-center gap-3'>
-          <Button size='lg' onClick={() => navigate('/login')}>
+          <Button size='lg' className={'w-48 h-14 rounded-4xl'} onClick={() => navigate('/login')}>
             {t('landing.hero.cta')}
           </Button>
           <Chip color='default' variant='soft' className='w-fit'>

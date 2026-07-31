@@ -1,7 +1,7 @@
 import { IconBrandTelegram } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import Logo from '../../assets/Logo.svg?react';
+import Logo from '../../assets/Logo_dark.svg?react';
 import LogoDark from '../../assets/Logo_dark.svg?react';
 import { coreEnv } from '../../env';
 import { useTheme } from '../../hooks';

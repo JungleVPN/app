@@ -13,11 +13,15 @@
 0 2610 0 2610 -21 95 c-93 415 -384 727 -799 857 l-90 28 -2765 2 c-2151 1
 -2777 -2 -2820 -11z"/>
   </clipPath>
+  <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="rgb(192, 132, 252)"/>
+    <stop offset="100%" stop-color="rgb(250, 204, 21)"/>
+  </linearGradient>
 </defs>
 <rect width="100%" height="100%" fill="white" clip-path="url(#icon-shape)"/>
 
     <g transform="translate(0.000000,718.000000) scale(0.100000,-0.100000)"
-       fill="oklch(0.32 0.04 195.45)" stroke="none">
+       fill="url(#bgGradient)" stroke="none">
         <path d="M910 7166 c-425 -95 -758 -416 -873 -840 l-22 -81 -3 -2610 c-2
 -1878 0 -2632 8 -2690 14 -101 70 -269 120 -362 151 -281 412 -484 724 -563
 78 -20 108 -20 2837 -20 2371 0 2767 2 2826 15 424 90 759 428 857 865 l21 95

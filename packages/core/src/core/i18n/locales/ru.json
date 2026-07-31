@@ -382,6 +382,8 @@
     },
     "features": {
       "title": "Почему выбирают JungleVPN",
+      "titleStart": "Почему выбирают",
+      "titleBrand": "JungleVPN",
       "subtitle": "Вот почему тысячи людей выбирают нас каждый день",
       "feature1": {
         "title": "Готово за 2 минуты",

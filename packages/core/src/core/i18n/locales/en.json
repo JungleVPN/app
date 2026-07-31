@@ -383,6 +383,8 @@
     },
     "features": {
       "title": "Why people love JungleVPN",
+      "titleStart": "Why people love",
+      "titleBrand": "JungleVPN",
       "subtitle": "Here's why thousands of people choose JungleVPN every day",
       "feature1": {
         "title": "Ready in minutes",
