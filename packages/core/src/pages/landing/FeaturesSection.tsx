@@ -1,22 +1,23 @@
 import { useTranslation } from 'react-i18next';
-import feature_1 from '../../assets/lottie/feature_1.lottie?url';
-import feature_2 from '../../assets/lottie/feature_2.lottie?url';
-import feature_3 from '../../assets/lottie/feature_3.lottie?url';
-import feature_4 from '../../assets/lottie/feature_4.lottie?url';
-import feature_5 from '../../assets/lottie/feature_5.lottie?url';
-import feature_6 from '../../assets/lottie/feature_6.lottie?url';
+import globe from '../../assets/lottie/globe.lottie?url';
+import globe_dark from '../../assets/lottie/globe_dark.lottie?url';
+import money from '../../assets/lottie/money.lottie?url';
+import money_dark from '../../assets/lottie/money_dark.lottie?url';
+import privacy from '../../assets/lottie/privacy.lottie?url';
+import privacy_dark from '../../assets/lottie/privacy_dark.lottie?url';
+import ready from '../../assets/lottie/ready.lottie?url';
+import ready_dark from '../../assets/lottie/ready_dark.lottie?url';
+import speed from '../../assets/lottie/speed.lottie?url';
+import speed_dark from '../../assets/lottie/speed_dark.lottie?url';
+import support from '../../assets/lottie/support.lottie?url';
+import support_dark from '../../assets/lottie/support_dark.lottie?url';
 import { FeatureCard } from '../../components/FeatureCard';
 import { coreEnv } from '../../env';
+import { useTheme } from '../../hooks';
 import { LottieIcon } from '../../ui';
 
-const FEATURE_ICONS = [
-  <LottieIcon key={1} loop src={feature_1} />,
-  <LottieIcon key={2} loop src={feature_2} />,
-  <LottieIcon key={3} loop src={feature_3} />,
-  <LottieIcon key={4} loop src={feature_4} />,
-  <LottieIcon key={5} loop src={feature_5} />,
-  <LottieIcon key={6} loop src={feature_6} />,
-];
+const DARK_ICONS = [globe_dark, speed_dark, privacy_dark, money_dark, ready_dark, support_dark];
+const LIGHT_ICONS = [globe, speed, privacy, money, ready, support];
 
 const FEATURE_KEYS = [
   'feature1',
@@ -29,6 +30,8 @@ const FEATURE_KEYS = [
 
 export function FeaturesSection() {
   const { t } = useTranslation();
+  const { theme } = useTheme();
+  const icons = theme === 'dark' ? DARK_ICONS : LIGHT_ICONS;
 
   return (
     <section className='mx-auto w-full px-6 py-48 md:px-12 lg:px-24'>
@@ -46,7 +49,7 @@ export function FeaturesSection() {
         {FEATURE_KEYS.map((key, index) => (
           <FeatureCard
             key={key}
-            icon={FEATURE_ICONS[index]}
+            icon={icons[index] ? <LottieIcon key={key} loop src={icons[index]} /> : undefined}
             title={t(`landing.features.${key}.title`)}
             description={t(`landing.features.${key}.description`, {
               deviceLimit: coreEnv.deviceLimit,
