@@ -1,6 +1,8 @@
 import { Surface } from '@heroui/react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBackButton, useNavigation } from '../../hooks';
+import { useNavbarStore } from '../../stores';
 
 const olClass =
   'list-decimal list-outside space-y-2 pl-5 text-sm leading-relaxed text-muted marker:text-muted';
@@ -9,8 +11,17 @@ const ulClass =
 
 export default function TermsPage() {
   const { t } = useTranslation();
+  const { setNavbarVisible } = useNavbarStore();
   const navigate = useNavigation();
+
   useBackButton(() => navigate(-1));
+
+  useEffect(() => {
+    setNavbarVisible(false);
+    return () => {
+      setNavbarVisible(true);
+    };
+  }, [setNavbarVisible]);
 
   return (
     <Surface className='flex min-w-[320px] flex-col gap-3 rounded-3xl p-6' variant='secondary'>

@@ -10,7 +10,7 @@ import { useNavbarStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
 import { PaymentForm } from './components/PaymentForm';
 import { PaymentMethodSelector } from './components/PaymentMethodSelector';
-import { PaymentMethodsList } from './components/PaymentMethodsList';
+import { SavedMethod } from './components/SavedMethod';
 import { usePayment } from './hooks/usePayment';
 
 export default function PaymentPage() {
@@ -99,7 +99,7 @@ export default function PaymentPage() {
               )}
             </Button>
           ) : null}
-          <PaymentMethodsList
+          <SavedMethod
             savedMethods={savedMethods}
             isLoadingMethods={isLoadingMethods}
             isDeleting={isDeleting}

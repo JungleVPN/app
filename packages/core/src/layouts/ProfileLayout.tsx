@@ -6,14 +6,7 @@ import { coreEnv } from '../env';
 import { useNavigation, useSavedMethodsData, useSubscriptionData } from '../hooks';
 import { TermsDialog } from '../pages/profile/payment/components/TermsDialog';
 import { useAppRoutes } from '../runtime';
-import {
-  useAuthStore,
-  useAuthStoreActions,
-  useAuthStoreInfo,
-  useNavbarStore,
-  usePlatformStore,
-  useTermsStore,
-} from '../stores';
+import { useAuthStore, useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../stores';
 import { captureReferral } from '../utils';
 
 export function ProfileLayout() {
@@ -22,8 +15,6 @@ export function ProfileLayout() {
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { getSubscriptionPath } = useAppRoutes();
-  const { setNavbarVisible } = useNavbarStore();
-  const { isOpen: isTermsOpen } = useTermsStore();
   const { platformType } = usePlatformStore();
 
   // Any profile route can receive a forwarded `?ref=` (e.g. the TMA header
@@ -32,10 +23,6 @@ export function ProfileLayout() {
   useEffect(() => {
     captureReferral();
   }, []);
-
-  useEffect(() => {
-    setNavbarVisible(!isTermsOpen);
-  }, [isTermsOpen, setNavbarVisible]);
 
   // Resolve the remnawave user from the available auth identity.
   //

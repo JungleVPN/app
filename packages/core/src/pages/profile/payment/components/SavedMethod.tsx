@@ -1,26 +1,31 @@
 import { Spinner } from '@heroui/react';
 import { SavedMethodRow } from '@workspace/core/components';
 import type { SavedMethodDto } from '@workspace/types';
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useTermsStore } from '../../../../stores';
+import { useNavbarStore, useTermsStore } from '../../../../stores';
 import { Block } from '../../../../ui';
 
-interface PaymentMethodsListProps {
+interface SavedMethodProps {
   savedMethods: SavedMethodDto[] | null;
   isLoadingMethods: boolean;
   isDeleting?: boolean;
   onDelete?: (id: string) => void;
 }
 
-export function PaymentMethodsList({
+export function SavedMethod({
   savedMethods,
   isLoadingMethods,
   isDeleting,
   onDelete,
-}: PaymentMethodsListProps) {
+}: SavedMethodProps) {
   const { t } = useTranslation();
-  const { open: openTerms } = useTermsStore();
+  const { open: openTerms, isOpen: isTermsOpen } = useTermsStore();
+  const { setNavbarVisible } = useNavbarStore();
+
+  useEffect(() => {
+    setNavbarVisible(!isTermsOpen);
+  }, [setNavbarVisible, isTermsOpen]);
 
   const description = (
     <>
