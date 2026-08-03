@@ -379,7 +379,21 @@
     "hero": {
       "subtitle": "Open the whole internet — safely and without limits.",
       "cta": "Try now",
-      "guarantee": "30-day money-back guarantee"
+      "guarantee": "3-day FREE trial",
+      "bento": {
+        "speed": {
+          "title": "Unlimited speed",
+          "description": "Stream and calls without slowdowns."
+        },
+        "privacy": {
+          "title": "Unlimited traffic",
+          "description": "Brows as much as you want!"
+        },
+        "devices": {
+          "title": "No logs policy",
+          "description": "Everything you do online is yours"
+        }
+      }
     },
     "features": {
       "title": "Why people love JungleVPN",

@@ -11,7 +11,7 @@ import speed from '../../assets/lottie/speed.lottie?url';
 import speed_dark from '../../assets/lottie/speed_dark.lottie?url';
 import support from '../../assets/lottie/support.lottie?url';
 import support_dark from '../../assets/lottie/support_dark.lottie?url';
-import { FeatureCard } from '../../components/FeatureCard';
+import { ContentCard } from '../../components/ContentCard';
 import { coreEnv } from '../../env';
 import { useTheme } from '../../hooks';
 import { LottieIcon } from '../../ui';
@@ -47,7 +47,7 @@ export function FeaturesSection() {
 
       <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
         {FEATURE_KEYS.map((key, index) => (
-          <FeatureCard
+          <ContentCard
             key={key}
             icon={icons[index] ? <LottieIcon key={key} loop src={icons[index]} /> : undefined}
             title={t(`landing.features.${key}.title`)}
