@@ -6,18 +6,19 @@ import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
+import ar from './locales/ar.json';
 import en from './locales/en.json';
 import ru from './locales/ru.json';
 
-export const DEFAULT_LOCALE = 'ru' as const;
-export const SUPPORTED_LOCALES = ['ru', 'en', 'zh', 'fa'] as const;
+export const DEFAULT_LOCALE = import.meta.env.DEFAULT_LOCALE || 'en';
+export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'fa'] as const;
 
 /** zh/fa reuse English until dedicated files exist */
 const resources = {
   ru: { translation: ru },
   en: { translation: en },
-  zh: { translation: en },
-  fa: { translation: en },
+  ar: { translation: ar },
+  fa: { translation: ar },
 } as const;
 
 i18n
@@ -35,5 +36,16 @@ i18n
       caches: ['localStorage'],
     },
   });
+
+/**
+ * Applies a language from user metadata if it is supported.
+ * Mirrors the bot's localeNegotiator: metadata lang takes priority over the
+ * device-level localStorage/navigator detection that runs at cold start.
+ */
+export function applyUserLang(lang: string): void {
+  if ((SUPPORTED_LOCALES as readonly string[]).includes(lang)) {
+    i18n.changeLanguage(lang);
+  }
+}
 
 export default i18n;

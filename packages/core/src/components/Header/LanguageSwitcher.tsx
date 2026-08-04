@@ -18,12 +18,18 @@ export function LanguageSwitcher() {
     }
   };
 
-  const code = i18n.language?.split('-')[0];
+  const LANGUAGE_LABELS: Record<string, string> = {
+    ru: 'RU',
+    en: 'EN',
+    ar: 'AR',
+  };
+
+  const displayCode = LANGUAGE_LABELS[i18n.language] ?? i18n.language?.split('-')[0].toUpperCase();
 
   return (
     <Dropdown>
       <Button className='min-w-10 uppercase' variant='tertiary' size='md'>
-        {code}
+        {displayCode}
       </Button>
       <Dropdown.Popover>
         <Dropdown.Menu
@@ -36,6 +42,9 @@ export function LanguageSwitcher() {
           </Dropdown.Item>
           <Dropdown.Item id='en' textValue={t('languages.nativeEn')}>
             <Label>{t('languages.nativeEn')}</Label>
+          </Dropdown.Item>
+          <Dropdown.Item id='ar' textValue={t('languages.nativeAr')}>
+            <Label>{t('languages.nativeAr')}</Label>
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown.Popover>

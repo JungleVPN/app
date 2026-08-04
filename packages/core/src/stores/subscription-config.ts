@@ -8,6 +8,30 @@ detector.init({
   caches: ['localStorage'],
 });
 
+/**
+ * Maps i18n language codes to their subpage-config equivalents when the panel
+ * uses a different key. E.g. the panel stores Arabic under "fa" since it
+ * predates first-class "ar" support.
+ */
+const SUBPAGE_LANG_ALIASES: Partial<Record<string, TSubscriptionPageLanguageCode>> = {
+  ar: 'fa' as TSubscriptionPageLanguageCode,
+};
+
+function resolveSubpageLang(
+  lang: string | undefined,
+  supportedLocales: TSubscriptionPageLanguageCode[],
+): TSubscriptionPageLanguageCode | undefined {
+  if (!lang) return undefined;
+  if (supportedLocales.includes(lang as TSubscriptionPageLanguageCode)) {
+    return lang as TSubscriptionPageLanguageCode;
+  }
+  const alias = SUBPAGE_LANG_ALIASES[lang];
+  if (alias && supportedLocales.includes(alias)) {
+    return alias;
+  }
+  return undefined;
+}
+
 function detectLanguage(
   supportedLocales: TSubscriptionPageLanguageCode[],
 ): TSubscriptionPageLanguageCode {
@@ -16,9 +40,9 @@ function detectLanguage(
   const lang = Array.isArray(detected) ? detected[0] : detected;
   const shortLang = lang?.split('-')[0];
 
-  if (shortLang && supportedLocales.includes(shortLang as TSubscriptionPageLanguageCode)) {
-    detector.cacheUserLanguage(shortLang);
-    return shortLang as TSubscriptionPageLanguageCode;
+  const resolved = resolveSubpageLang(shortLang, supportedLocales);
+  if (resolved) {
+    return resolved;
   }
 
   return supportedLocales[0];
@@ -60,8 +84,10 @@ export const useSubscriptionConfigStore = create<
     },
 
     setLanguage: (lang: TSubscriptionPageLanguageCode) => {
-      detector.cacheUserLanguage(lang);
-      set({ currentLang: lang });
+      const config = useSubscriptionConfigStore.getState().config;
+      const locales = config?.locales ?? [];
+      const subpageLang = resolveSubpageLang(lang, locales) ?? locales[0] ?? lang;
+      set({ currentLang: subpageLang });
     },
 
     getInitialState: () => {

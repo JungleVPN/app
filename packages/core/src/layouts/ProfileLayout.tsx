@@ -2,11 +2,12 @@ import { useEffect } from 'react';
 import { Outlet } from 'react-router';
 import { useRemnawaveApi } from '../api';
 import { Navbar } from '../components';
+import { applyUserLang } from '../core/i18n';
 import { coreEnv } from '../env';
 import { useNavigation, useSavedMethodsData, useSubscriptionData } from '../hooks';
 import { TermsDialog } from '../pages/profile/payment/components/TermsDialog';
 import { useAppRoutes } from '../runtime';
-import { useAuthStore, useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../stores';
+import { useAuthStore, useAuthStoreActions, useAuthStoreInfo } from '../stores';
 import { captureReferral } from '../utils';
 
 export function ProfileLayout() {
@@ -15,7 +16,6 @@ export function ProfileLayout() {
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { getSubscriptionPath } = useAppRoutes();
-  const { platformType } = usePlatformStore();
 
   // Re-capture on every profile-route entry: an invited user can land here
   // after an auth redirect before they've created an account.
@@ -50,17 +50,19 @@ export function ProfileLayout() {
   // subsequent navigations.
 
   useEffect(() => {
-    if (!rmnUser || platformType !== 'web') return;
-    const browserLang = navigator.language.split('-')[0];
+    if (!rmnUser) return;
     remnawaveApi
       .getMyMetadata()
       .then((meta) => {
-        if (!meta?.lang) {
-          remnawaveApi.upsertMyMetadata({ lang: browserLang }).catch(console.error);
+        if (meta?.lang) {
+          applyUserLang(String(meta.lang));
+        } else {
+          const currentLang = navigator.language.split('-')[0];
+          remnawaveApi.upsertMyMetadata({ lang: currentLang }).catch(console.error);
         }
       })
       .catch(console.error);
-  }, [rmnUser?.uuid, platformType, remnawaveApi, rmnUser]);
+  }, [rmnUser?.uuid, remnawaveApi, rmnUser]);
 
   useSubscriptionData(rmnUser?.shortUuid, coreEnv.subpageConfigUuid);
   useSavedMethodsData(rmnUser?.uuid ?? '');

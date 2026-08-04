@@ -44,7 +44,8 @@
   },
   "languages": {
     "nativeRu": "Русский",
-    "nativeEn": "English"
+    "nativeEn": "English",
+    "nativeAr": "العربية"
   },
   "profileTabs": {
     "ariaLabel": "Разделы профиля",
