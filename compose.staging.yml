@@ -166,6 +166,7 @@ services:
     command: ["apps/web/node_modules/.bin/serve", "apps/web/dist", "--single", "--listen", "tcp://0.0.0.0:${WEB_PORT:-7080}"]
     networks:
       - jungle-stage-net
+    env_file: .env
     ports:
       - "127.0.0.1:${WEB_PORT:-7080}:${WEB_PORT:-7080}"
     restart: always
@@ -182,6 +183,7 @@ services:
     command: ["apps/tma/node_modules/.bin/serve", "apps/tma/dist", "--single", "--listen", "tcp://0.0.0.0:${TMA_PORT:-7090}"]
     networks:
       - jungle-stage-net
+    env_file: .env
     ports:
       - "127.0.0.1:${TMA_PORT:-7090}:${TMA_PORT:-7090}"
     restart: always
