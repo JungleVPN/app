@@ -1,0 +1,228 @@
+x-app-image: &app-image
+  image: ${APP_IMAGE:-ghcr.io/junglevpn/app:stage-latest}
+  pull_policy: always
+
+x-nest-hc: &nest-hc
+  interval: 10s
+  timeout: 5s
+  retries: 5
+  start_period: 30s
+
+services:
+  db:
+    image: postgres:17.6
+    container_name: stage-jungle-database
+    env_file: .env
+    entrypoint: ["sh", "/usr/local/bin/sync-db-password.sh"]
+    command: ["postgres"]
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT}:5432"
+    networks:
+      - jungle-stage-net
+    volumes:
+      - stage-db:/var/lib/postgresql/data
+      - ./scripts/sync-db-password.sh:/usr/local/bin/sync-db-password.sh:ro
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/db-ready && pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+
+  migration:
+    <<: *app-image
+    command: ["node", "packages/database/dist/run-migrations.js"]
+    networks:
+      - jungle-stage-net
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+
+  remnawave:
+    <<: *app-image
+    container_name: stage-remnawave
+    command: ["node", "apps/remnawave/dist/main.js"]
+    networks:
+      - jungle-stage-net
+    depends_on:
+      db:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    env_file: .env
+    ports:
+      - "127.0.0.1:${REMNAWAVE_PORT}:${REMNAWAVE_PORT}"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+process.env.REMNAWAVE_PORT||3002);c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
+      <<: *nest-hc
+
+  payments:
+    <<: *app-image
+    container_name: stage-payments
+    command: ["node", "apps/payments/dist/main.js"]
+    networks:
+      - jungle-stage-net
+    depends_on:
+      db:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+      remnawave:
+        condition: service_healthy
+    env_file: .env
+    ports:
+      - "127.0.0.1:${PAYMENTS_PORT}:${PAYMENTS_PORT}"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+process.env.PAYMENTS_PORT||3001);c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
+      <<: *nest-hc
+
+  analytics:
+    <<: *app-image
+    container_name: stage-analytics
+    command: ["node", "apps/analytics/dist/main.js"]
+    networks:
+      - jungle-stage-net
+    depends_on:
+      db:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    env_file: .env
+    ports:
+      - "127.0.0.1:${ANALYTICS_PORT}:${ANALYTICS_PORT}"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+process.env.ANALYTICS_PORT||3006);c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
+      <<: *nest-hc
+
+  referrals:
+    <<: *app-image
+    container_name: stage-referrals
+    command: ["node", "apps/referrals/dist/main.js"]
+    networks:
+      - jungle-stage-net
+    depends_on:
+      db:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+      remnawave:
+        condition: service_healthy
+    env_file: .env
+    ports:
+      - "127.0.0.1:${REFERRALS_PORT}:${REFERRALS_PORT}"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+process.env.REFERRALS_PORT||3004);c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
+      <<: *nest-hc
+
+  broadcasts:
+    <<: *app-image
+    container_name: stage-broadcasts
+    command: ["node", "apps/broadcasts/dist/main.js"]
+    networks:
+      - jungle-stage-net
+    depends_on:
+      db:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    env_file: .env
+    ports:
+      - "127.0.0.1:${BROADCASTS_PORT}:${BROADCASTS_PORT}"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+process.env.BROADCASTS_PORT||3005);c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
+      <<: *nest-hc
+
+  webhook:
+    <<: *app-image
+    container_name: stage-webhook
+    command: ["node", "apps/webhook/dist/main.js"]
+    networks:
+      - jungle-stage-net
+    depends_on:
+      db:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+      payments:
+        condition: service_healthy
+    env_file: .env
+    ports:
+      - "127.0.0.1:${WEBHOOK_PORT}:${WEBHOOK_PORT}"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+process.env.WEBHOOK_PORT||3003);c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
+      <<: *nest-hc
+
+  web:
+    <<: *app-image
+    container_name: stage-web
+    command: ["apps/web/node_modules/.bin/serve", "apps/web/dist", "--single", "--listen", "tcp://0.0.0.0:${WEB_PORT:-7080}"]
+    networks:
+      - jungle-stage-net
+    ports:
+      - "127.0.0.1:${WEB_PORT:-7080}:${WEB_PORT:-7080}"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+(process.env.WEB_PORT||7080));c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  tma:
+    <<: *app-image
+    container_name: stage-tma
+    command: ["apps/tma/node_modules/.bin/serve", "apps/tma/dist", "--single", "--listen", "tcp://0.0.0.0:${TMA_PORT:-7090}"]
+    networks:
+      - jungle-stage-net
+    ports:
+      - "127.0.0.1:${TMA_PORT:-7090}:${TMA_PORT:-7090}"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+(process.env.TMA_PORT||7090));c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  bot:
+    <<: *app-image
+    container_name: stage-bot
+    command: ["node", "apps/bot/dist/main.js"]
+    networks:
+      - jungle-stage-net
+    depends_on:
+      db:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+      remnawave:
+        condition: service_healthy
+      payments:
+        condition: service_healthy
+      referrals:
+        condition: service_healthy
+      broadcasts:
+        condition: service_healthy
+    env_file: .env
+    ports:
+      - "127.0.0.1:${BOT_PORT:-7070}:${BOT_PORT:-7070}"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+process.env.BOT_PORT||7070);c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
+      <<: *nest-hc
+
+
+volumes:
+  stage-db:
+
+networks:
+  jungle-stage-net:
+    external: true

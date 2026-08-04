@@ -2,7 +2,7 @@ name: Build & Deploy
 
 on:
   push:
-    branches: [main, CI-CD]
+    branches: [main, stage, CI-CD]
   workflow_dispatch:
 
 env:
@@ -36,10 +36,17 @@ jobs:
       - name: Build and push
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          if [ "${{ github.ref }}" = "refs/heads/stage" ]; then
+            LATEST_TAG="${{ env.IMAGE }}:stage-latest"
+            SHA_TAG="${{ env.IMAGE }}:stage-sha-${SHORT_SHA}"
+          else
+            LATEST_TAG="${{ env.IMAGE }}:latest"
+            SHA_TAG="${{ env.IMAGE }}:sha-${SHORT_SHA}"
+          fi
           docker buildx build \
             --push \
-            --tag "${{ env.IMAGE }}:sha-${SHORT_SHA}" \
-            --tag "${{ env.IMAGE }}:latest" \
+            --tag "${SHA_TAG}" \
+            --tag "${LATEST_TAG}" \
             --secret id=env,src=/tmp/build.env \
             --cache-from type=gha \
             --cache-to type=gha,mode=max \
@@ -47,7 +54,7 @@ jobs:
             .
 
   deploy:
-    name: Deploy to server
+    name: Deploy to production
     runs-on: ubuntu-latest
     needs: build
     if: github.ref == 'refs/heads/main'
@@ -64,4 +71,24 @@ jobs:
             -p ${{ secrets.DEPLOY_PORT }} \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
             "cd ${{ secrets.DEPLOY_PATH }} && docker compose pull && docker compose up -d && docker image prune -f && docker compose ps"
+          rm -f /tmp/deploy_key
+
+  deploy-staging:
+    name: Deploy to staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/stage'
+
+    steps:
+      - name: Deploy via SSH
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          echo "$DEPLOY_KEY" > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+          ssh -i /tmp/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -p ${{ secrets.DEPLOY_PORT }} \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "cd ${{ secrets.STAGING_DEPLOY_PATH }} && docker compose -f compose.staging.yml pull && docker compose -f compose.staging.yml up -d && docker image prune -f && docker compose -f compose.staging.yml ps"
           rm -f /tmp/deploy_key
