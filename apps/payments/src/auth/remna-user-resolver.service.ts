@@ -18,7 +18,7 @@ export class RemnaUserResolverService {
   private readonly http: AxiosInstance;
 
   constructor(readonly config: ConfigService) {
-    const baseURL = config.getOrThrow<string>('PUBLIC_REMNAWAVE_URL');
+    const baseURL = config.get<string>('REMNAWAVE_INTERNAL_URL') ?? config.getOrThrow<string>('PUBLIC_REMNAWAVE_URL');
     const secret = config.getOrThrow<string>('INTER_SERVICE_SECRET');
 
     this.http = axios.create({

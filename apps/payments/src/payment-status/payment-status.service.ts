@@ -17,11 +17,11 @@ export class PaymentStatusService {
   constructor(private readonly promoService: PromoService) {}
 
   private get remnawareBaseUrl(): string {
-    return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002/remnawave';
+    return process.env.REMNAWAVE_INTERNAL_URL || process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002/remnawave';
   }
 
   private get referralsBaseUrl(): string {
-    return process.env.PUBLIC_REFERRALS_URL || 'http://localhost:3004/referrals';
+    return process.env.REFERRALS_INTERNAL_URL || process.env.PUBLIC_REFERRALS_URL || 'http://localhost:3004/referrals';
   }
 
   /**

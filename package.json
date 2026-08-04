@@ -14,6 +14,7 @@
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
     "docker:prod": "docker compose up --build -d && docker compose logs -f",
+    "docker:stage": "docker compose -f compose.staging.yml down && docker compose -f compose.staging.yml up -d",
     "docker:client": "docker compose up --build -d web tma bot && docker compose logs -f",
     "docker:noCache": "docker compose up -d --force-recreate && docker compose logs -f"
   },

@@ -16,11 +16,11 @@ export class WebhookService {
   ) {}
 
   private get paymentsBaseUrl(): string {
-    return this.configService.get<string>('PUBLIC_PAYMENTS_URL', 'http://localhost:3001/payments');
+    return this.configService.get<string>('PAYMENTS_INTERNAL_URL') || this.configService.get<string>('PUBLIC_PAYMENTS_URL', 'http://localhost:3001/payments');
   }
 
   private get botBaseUrl(): string {
-    return this.configService.get<string>('PUBLIC_BOT_URL', 'http://localhost:7080/bot');
+    return this.configService.get<string>('BOT_INTERNAL_URL') || this.configService.get<string>('PUBLIC_BOT_URL', 'http://localhost:7080/bot');
   }
 
   /**

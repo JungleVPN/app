@@ -91,7 +91,7 @@ export class UserService implements OnModuleInit {
   }
 
   private get referralsBaseUrl(): string {
-    return process.env.PUBLIC_REFERRALS_URL || 'http://localhost:3004/referrals';
+    return process.env.REFERRALS_INTERNAL_URL || process.env.PUBLIC_REFERRALS_URL || 'http://localhost:3004/referrals';
   }
 
   async createUser(

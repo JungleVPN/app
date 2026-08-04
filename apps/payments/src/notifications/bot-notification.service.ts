@@ -22,7 +22,7 @@ export class BotNotificationService {
   private readonly logger = new Logger(BotNotificationService.name);
 
   private get botBaseUrl(): string {
-    return process.env.PUBLIC_BOT_URL || 'http://localhost:7080/bot';
+    return process.env.BOT_INTERNAL_URL || process.env.PUBLIC_BOT_URL || 'http://localhost:7080/bot';
   }
 
   private get botNotifySecret(): string {
@@ -30,7 +30,7 @@ export class BotNotificationService {
   }
 
   private get remnawareBaseUrl(): string {
-    return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002/remnawave';
+    return process.env.REMNAWAVE_INTERNAL_URL || process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002/remnawave';
   }
 
   private async getUserByUuid(uuid: string): Promise<GetUserByUuidResponseDto> {

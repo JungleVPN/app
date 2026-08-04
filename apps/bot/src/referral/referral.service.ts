@@ -23,7 +23,7 @@ export class ReferralService {
   private readonly logger = new Logger(ReferralService.name);
 
   private backend: AxiosInstance = createBackendClient(
-    process.env.PUBLIC_REFERRALS_URL || 'http://localhost:3004/referrals',
+    process.env.REFERRALS_INTERNAL_URL || process.env.PUBLIC_REFERRALS_URL || 'http://localhost:3004/referrals',
   );
 
   async getReferralRecord(invitedId: string): Promise<ReferralRecord | null> {
