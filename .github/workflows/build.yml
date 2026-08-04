@@ -31,7 +31,12 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Write build-time .env
-        run: printf '%s' "${{ secrets.BUILD_ENV }}" > /tmp/build.env
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/stage" ]; then
+            printf '%s' "${{ secrets.STAGING_BUILD_ENV }}" > /tmp/build.env
+          else
+            printf '%s' "${{ secrets.BUILD_ENV }}" > /tmp/build.env
+          fi
 
       - name: Build and push
         run: |

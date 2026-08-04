@@ -34,7 +34,7 @@ export function AuthButtons() {
     if (key === 'logout') await handleLogout();
   };
 
-  if (authUser) {
+  if (authUser && location.pathname !== '/') {
     return (
       <Dropdown>
         <Button isIconOnly size='md' variant='outline'>
