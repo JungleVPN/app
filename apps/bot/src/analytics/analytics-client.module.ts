@@ -9,9 +9,7 @@ import { ANALYTICS_HTTP_CLIENT, AnalyticsClientService } from './analytics-clien
       provide: ANALYTICS_HTTP_CLIENT,
       useFactory: () =>
         createBackendClient(
-          process.env.ANALYTICS_INTERNAL_URL ??
-            process.env.PUBLIC_ANALYTICS_URL ??
-            'http://localhost:3007/analytics',
+          process.env.PUBLIC_ANALYTICS_URL ?? 'http://localhost:3007/analytics',
         ),
     },
     AnalyticsClientService,

@@ -23,7 +23,7 @@ export class ReferralMenuService extends Base {
     ctx.session.userId = user?.[0].uuid;
     const locale =
       (user?.[0]?.uuid ? await this.remnaService.getUserLang(user[0].uuid) : null) ||
-      (process.env.DEFAULT_LOCALE as LocaleId);
+      (process.env.PUBLIC_DEFAULT_LOCALE as LocaleId);
 
     let menuToSend = menu;
     let content = this.localService.i18n.t(locale, 'referral-page-text', {

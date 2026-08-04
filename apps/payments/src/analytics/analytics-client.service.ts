@@ -25,7 +25,7 @@ export class AnalyticsClientService {
   constructor(@Optional() @Inject(ANALYTICS_HTTP_CLIENT) client?: AxiosInstance) {
     this.client =
       client ??
-      createAnalyticsClient(process.env.ANALYTICS_INTERNAL_URL ?? process.env.PUBLIC_ANALYTICS_URL ?? 'http://localhost:3007/analytics');
+      createAnalyticsClient(process.env.PUBLIC_ANALYTICS_URL ?? 'http://localhost:3007/analytics');
   }
 
   async track(event: AnalyticsEvent): Promise<void> {

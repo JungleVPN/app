@@ -10,7 +10,7 @@ import ar from './locales/ar.json';
 import en from './locales/en.json';
 import ru from './locales/ru.json';
 
-export const DEFAULT_LOCALE = import.meta.env.DEFAULT_LOCALE || 'en';
+export const DEFAULT_LOCALE = import.meta.env.PUBLIC_DEFAULT_LOCALE || 'en';
 export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'fa'] as const;
 
 /** zh/fa reuse English until dedicated files exist */

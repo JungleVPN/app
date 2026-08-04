@@ -41,7 +41,7 @@ export class ClientUserGuard implements CanActivate {
   }
 
   private async viaInitData(req: AuthenticatedRequest, raw: string): Promise<boolean> {
-    const botToken = this.config.getOrThrow<string>('PUBLIC_TELEGRAM_BOT_TOKEN');
+    const botToken = this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN');
     const maxAge = parseInt(
       this.config.get<string>('TELEGRAM_INIT_DATA_MAX_AGE_SECONDS', '3600'),
       10,

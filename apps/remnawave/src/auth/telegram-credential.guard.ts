@@ -21,7 +21,7 @@ export class TelegramCredentialGuard implements CanActivate {
     const raw = this.header(req, 'x-telegram-init-data');
     if (!raw) throw new UnauthorizedException('Telegram initData required');
 
-    const botToken = this.config.getOrThrow<string>('PUBLIC_TELEGRAM_BOT_TOKEN');
+    const botToken = this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN');
     const maxAge = parseInt(
       this.config.get<string>('TELEGRAM_INIT_DATA_MAX_AGE_SECONDS', '3600'),
       10,

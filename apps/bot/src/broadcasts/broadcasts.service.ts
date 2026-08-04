@@ -25,7 +25,7 @@ export class BroadcastsService {
   private readonly logger = new Logger(BroadcastsService.name);
 
   private backend: AxiosInstance = createBackendClient(
-    process.env.BROADCASTS_INTERNAL_URL || process.env.BROADCASTS_URL || 'http://localhost:3005/broadcasts',
+    process.env.BROADCASTS_URL || 'http://localhost:3005/broadcasts',
   );
 
   async create(messageText: string): Promise<BroadcastDto> {

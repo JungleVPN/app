@@ -23,7 +23,7 @@ export class TelegramController {
       throw new NotFoundException(`Sticker file not found for fileId: ${fileId}`);
     }
 
-    const token = process.env.PUBLIC_TELEGRAM_BOT_TOKEN;
+    const token = process.env.TELEGRAM_BOT_TOKEN;
     const url = `https://api.telegram.org/file/bot${token}/${file.file_path}`;
 
     const upstream = await fetch(url);

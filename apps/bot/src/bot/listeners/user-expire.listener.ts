@@ -3,7 +3,7 @@ import { BotService } from '@bot/bot.service';
 import { BotContext } from '@bot/bot.types';
 import { LocalisationService } from '@bot/localisation/localisation.service';
 import { safeSendMessage, toDateString } from '@bot/utils/utils';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { WebHookEvent } from '@remna/remna.model';
 import { RemnaService } from '@remna/remna.service';
@@ -21,7 +21,6 @@ type ExpirationPayload = {
 @Injectable()
 export class UserExpireListener {
   bot: Bot<BotContext>;
-  private readonly logger = new Logger(UserExpireListener.name);
 
   constructor(
     private readonly botService: BotService,
@@ -53,14 +52,14 @@ export class UserExpireListener {
 
     const locale =
       (payload.data.uuid ? await this.remnaService.getUserLang(payload.data.uuid) : null) ||
-      process.env.DEFAULT_LOCALE ||
+      process.env.PUBLIC_DEFAULT_LOCALE ||
       'ru';
 
     const keyboard = new InlineKeyboard();
 
     keyboard.webApp(
       this.localService.i18n.t(locale, 'pay-button-label'),
-      process.env.PUBLIC_TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
+      process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
     );
     keyboard.row();
     keyboard.url(

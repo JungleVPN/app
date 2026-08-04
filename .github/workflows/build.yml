@@ -33,9 +33,9 @@ jobs:
       - name: Write build-time .env
         run: |
           if [ "${{ github.ref }}" = "refs/heads/stage" ]; then
-            printf '%s' "${{ secrets.STAGING_BUILD_ENV }}" > /tmp/build.env
+            cp staging.build.env /tmp/build.env
           else
-            printf '%s' "${{ secrets.BUILD_ENV }}" > /tmp/build.env
+            cp prod.build.env /tmp/build.env
           fi
 
       - name: Build and push

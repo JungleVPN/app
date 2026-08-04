@@ -14,7 +14,7 @@ export class PaymentsClient {
   private readonly logger = new Logger(PaymentsClient.name);
 
   private get baseUrl(): string {
-    return process.env.PAYMENTS_INTERNAL_URL || process.env.PUBLIC_PAYMENTS_URL || 'http://localhost:3001/payments';
+    return process.env.PUBLIC_PAYMENTS_URL || 'http://localhost:3001/payments';
   }
 
   /**

@@ -10,7 +10,7 @@ export class AnalyticsClientService {
 
   constructor() {
     this.client = axios.create({
-      baseURL: process.env.ANALYTICS_INTERNAL_URL ?? process.env.PUBLIC_ANALYTICS_URL ?? 'http://localhost:3007/analytics',
+      baseURL: process.env.PUBLIC_ANALYTICS_URL ?? 'http://localhost:3007/analytics',
       timeout: 5_000,
       headers: {
         'Content-Type': 'application/json',

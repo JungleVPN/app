@@ -33,7 +33,7 @@ export class UserNotConnectedListener {
   }) {
     const locale =
       (payload.data.uuid ? await this.remnaService.getUserLang(payload.data.uuid) : null) ||
-      (process.env.DEFAULT_LOCALE as LocaleId);
+      (process.env.PUBLIC_DEFAULT_LOCALE as LocaleId);
     const createdAt = new Date(payload.data.createdAt);
     const timestamp = new Date(payload.timestamp);
     const diffHours = differenceInHours(timestamp, createdAt);

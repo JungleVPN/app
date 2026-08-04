@@ -30,9 +30,9 @@ export class MainKeyboardCallback extends Base {
     });
 
     bot.filter(hears('pay-button-label'), async (ctx) => {
-      const tmaPaymentUrl = process.env.PUBLIC_TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro';
+      const tmaPaymentUrl = process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro';
       const webAppUrl =
-        process.env.PUBLIC_WEB_PAYMENT_URL || 'https://app.thejungle.pro/profile/payments';
+        process.env.WEB_PAYMENT_URL || 'https://app.thejungle.pro/profile/payments';
       const webtUrl = withReferral(ctx, webAppUrl);
 
       await ctx.reply(ctx.t('pay-instruction-text'), {

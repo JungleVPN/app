@@ -36,7 +36,7 @@ export class TelegramStarsService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    const token = process.env.PUBLIC_TELEGRAM_BOT_TOKEN;
+    const token = process.env.TELEGRAM_BOT_TOKEN;
     if (!token) {
       throw new Error('TELEGRAM_BOT_TOKEN is required for TelegramStarsService');
     }

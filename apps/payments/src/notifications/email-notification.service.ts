@@ -139,7 +139,7 @@ export class EmailNotificationService {
   }
 
   private get paymentUrl(): string {
-    return process.env.PUBLIC_WEB_PAYMENT_URL ?? 'https://t.me';
+    return process.env.WEB_PAYMENT_URL ?? 'https://t.me';
   }
 
   private get supportUrl(): string {
@@ -201,7 +201,7 @@ export class EmailNotificationService {
   }
 
   private get remnawaveBaseUrl(): string {
-    return process.env.REMNAWAVE_INTERNAL_URL || process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002/remnawave';
+    return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002/remnawave';
   }
 
   private async resolveLocale(uuid: string): Promise<SupportedLocale> {

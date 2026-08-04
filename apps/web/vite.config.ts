@@ -5,7 +5,6 @@ import { defineConfig } from 'vite';
 import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
-  // Read .env from the monorepo root so all apps share one file.
   envDir: path.resolve(__dirname, '../../'),
   envPrefix: ['VITE_', 'PUBLIC_'],
   plugins: [tailwindcss(), react(), svgr()],
@@ -23,7 +22,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    // Docker/VPS: sourcemaps roughly double bundle work and RAM during vite build.
     sourcemap: process.env.WEB_BUILD_SOURCEMAP !== 'false',
   },
 });

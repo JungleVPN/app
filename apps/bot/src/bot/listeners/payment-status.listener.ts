@@ -63,7 +63,7 @@ export class PaymentStatusListener {
 
   private async resolveLocale(user: UserDto): Promise<string> {
     const lang = user.uuid ? await this.remnaService.getUserLang(user.uuid) : null;
-    return lang || (process.env.DEFAULT_LOCALE as LocaleId);
+    return lang || (process.env.PUBLIC_DEFAULT_LOCALE as LocaleId);
   }
 
   @OnEvent('notify.payment.succeeded')
@@ -155,7 +155,7 @@ export class PaymentStatusListener {
     const text = i18n.t(locale, i18nKey);
     const menu = new InlineKeyboard().webApp(
       i18n.t(locale, 'pay-button-label'),
-      process.env.PUBLIC_TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
+      process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
     );
 
     if (user.telegramId) {
@@ -237,7 +237,7 @@ export class PaymentStatusListener {
     const successMenu = new InlineKeyboard()
       .webApp(
         this.localService.i18n.t(locale, 'profile-button-label'),
-        process.env.PUBLIC_TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
+        process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
       )
       .url(i18n.t(locale, 'invoice-button-label'), invoiceUrl || subscriptionUrl || '#')
       .row()

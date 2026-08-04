@@ -25,7 +25,7 @@ export class AnyCredentialGuard implements CanActivate {
 
     const initDataRaw = this.header(req, 'x-telegram-init-data');
     if (initDataRaw) {
-      const botToken = this.config.getOrThrow<string>('PUBLIC_TELEGRAM_BOT_TOKEN');
+      const botToken = this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN');
       const maxAge = parseInt(
         this.config.get<string>('TELEGRAM_INIT_DATA_MAX_AGE_SECONDS', '3600'),
         10,

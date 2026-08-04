@@ -15,9 +15,7 @@ export class AnalyticsClientService {
     this.client =
       client ??
       createBackendClient(
-        process.env.ANALYTICS_INTERNAL_URL ??
-          process.env.PUBLIC_ANALYTICS_URL ??
-          'http://localhost:3007/analytics',
+        process.env.PUBLIC_ANALYTICS_URL ?? 'http://localhost:3007/analytics',
       );
   }
 

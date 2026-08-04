@@ -16,7 +16,7 @@ import { Bot, GrammyError, HttpError, session } from 'grammy';
 
 @Injectable()
 export class BotService implements OnModuleInit {
-  token = process.env.PUBLIC_TELEGRAM_BOT_TOKEN;
+  token = process.env.TELEGRAM_BOT_TOKEN;
   bot: Bot<BotContext>;
 
   constructor(
