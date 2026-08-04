@@ -52,8 +52,8 @@ export class PaymentsService {
    * Returns `true` on success and `false` for any non-2xx response or network
    * error — callers decide whether to show an error toast or just re-render.
    */
-  async deleteSavedMethod(userId: string, id: string): Promise<AxiosResponse<void>> {
-    return this.backend.delete<void>(apiRoutes.payments.yookassaSavedMethodById(userId, id));
+  async deleteSavedMethod(id: string): Promise<AxiosResponse<void>> {
+    return this.backend.delete<void>(apiRoutes.payments.yookassaSavedMethodById(id));
   }
 
   /**
@@ -64,8 +64,8 @@ export class PaymentsService {
    * identically to "BE unreachable" — the profile screen shouldn't fail just
    * because we couldn't enrich it with autopayment info.
    */
-  async getSavedMethods(userId: string): Promise<AxiosResponse<SavedMethodDto[]>> {
-    return this.backend.get<SavedMethodDto[]>(apiRoutes.payments.yookassaSavedMethods(userId));
+  async getSavedMethods(): Promise<AxiosResponse<SavedMethodDto[]>> {
+    return this.backend.get<SavedMethodDto[]>(apiRoutes.payments.yookassaSavedMethods);
   }
 
   /**

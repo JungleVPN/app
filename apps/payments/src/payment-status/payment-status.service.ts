@@ -1,7 +1,7 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { PromoService } from '@payments/promo/promo.service';
-import { apiRoutes, PaymentPurpose, PaymentMethod } from '@workspace/types';
+import { apiRoutes, PaymentMethod, PaymentPurpose } from '@workspace/types';
 import axios from 'axios';
 
 /**
@@ -17,7 +17,7 @@ export class PaymentStatusService {
   constructor(private readonly promoService: PromoService) {}
 
   private get remnawareBaseUrl(): string {
-    return process.env.PUBLIC_REMNAWAVE_URL || 'http://localhost:3002/remnawave';
+    return process.env.REMNAWAVE_URL || 'http://localhost:3002/remnawave';
   }
 
   private get referralsBaseUrl(): string {
