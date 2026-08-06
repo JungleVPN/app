@@ -1,7 +1,7 @@
+import { PaymentPurpose } from '../common';
 import type { IConfirmation } from './confirmation';
 import type { IAmount, Metadata } from './general';
 import type { IPaymentMethod, PaymentMethodData } from './payment-method';
-import type { PaymentPurpose } from './session';
 
 // NOTE: The upstream SDK's Payments namespace also references Receipts, Receiver,
 // IAirline and DealType. We don't use any of those fields today, so they are

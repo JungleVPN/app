@@ -44,6 +44,9 @@ export class YookassaPayment {
   @Column({ type: 'varchar', nullable: true })
   promoCode: string | null;
 
+  @Column({ type: 'varchar', nullable: true, unique: false })
+  paymentMethodId: string | null;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 

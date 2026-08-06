@@ -483,17 +483,17 @@ describe('Security Audit', () => {
 
   describe('[FINDING #12] mapEURAmountToMonthsNumber must throw on unrecognised amounts', () => {
     beforeEach(() => {
-      process.env.PUBLIC_ALLOWED_AMOUNT_EUR = '5';
       process.env.PUBLIC_ALLOWED_PERIOD = '1';
+      process.env.PRICE_EUR_MONTH_1 = '5';
     });
 
     afterEach(() => {
-      delete process.env.PUBLIC_ALLOWED_AMOUNT_EUR;
       delete process.env.PUBLIC_ALLOWED_PERIOD;
+      delete process.env.PRICE_EUR_MONTH_1;
+      delete process.env.PRICE_EUR_MONTH_3;
     });
 
     it('throws for an amount not matching the configured price', () => {
-      // Correct behavior: unknown amount must surface as an error, not silently return 1
       expect(() => mapEURAmountToMonthsNumber('99900')).toThrow();
     });
 
@@ -501,18 +501,19 @@ describe('Security Audit', () => {
       expect(() => mapEURAmountToMonthsNumber('0')).toThrow();
     });
 
-    it('throws when the price is not configured (empty)', () => {
-      process.env.PUBLIC_ALLOWED_AMOUNT_EUR = '';
-
+    it('throws when no periods are configured', () => {
+      delete process.env.PUBLIC_ALLOWED_PERIOD;
       expect(() => mapEURAmountToMonthsNumber('500')).toThrow();
     });
 
-    it('returns PUBLIC_ALLOWED_PERIOD months for the configured price', () => {
-      // 500 EUR cents = 5 EUR → matches PUBLIC_ALLOWED_AMOUNT_EUR = '5'
+    it('returns correct months for the configured price', () => {
+      // 500 EUR cents = 5 EUR → matches PRICE_EUR_MONTH_1 = '5' → 1 month
       expect(mapEURAmountToMonthsNumber('500')).toBe(1);
 
-      process.env.PUBLIC_ALLOWED_PERIOD = '3';
-      expect(mapEURAmountToMonthsNumber('500')).toBe(3);
+      // Add a 3-month plan and verify it maps correctly
+      process.env.PUBLIC_ALLOWED_PERIOD = '1,3';
+      process.env.PRICE_EUR_MONTH_3 = '12';
+      expect(mapEURAmountToMonthsNumber('1200')).toBe(3);
     });
   });
 });

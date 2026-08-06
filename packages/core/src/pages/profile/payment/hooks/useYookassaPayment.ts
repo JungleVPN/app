@@ -56,6 +56,7 @@ export function useYookassaPayment() {
           : `${window.location.origin}${paymentReturnPath}`,
         type: 'redirect',
       },
+      selectedPeriod: 1,
     });
 
     if (!session?.url) return;

@@ -4,7 +4,6 @@ import { MainMenuService } from '@bot/navigation/features/main/main.service';
 import { ReferralMenu } from '@bot/navigation/features/referral/referral.menu';
 import { ReferralMenuService } from '@bot/navigation/features/referral/referral.service';
 import { RevokeSubMenuService } from '@bot/navigation/features/subscription/revokeSub.service';
-import { SubscriptionMsgService } from '@bot/navigation/features/subscription/subscribtion.service';
 import { SubscriptionMenu } from '@bot/navigation/features/subscription/subscription.menu';
 import { SupportMenu } from '@bot/navigation/features/support/support.menu';
 import { Module } from '@nestjs/common';
@@ -19,7 +18,6 @@ import { MenuTree } from './menu.tree';
     // SERVICES
     MainMenuService,
     RevokeSubMenuService,
-    SubscriptionMsgService,
     ReferralMenuService,
     RemnaService,
     ReferralService,
@@ -37,7 +35,6 @@ import { MenuTree } from './menu.tree';
     // SERVICES
     MainMenuService,
     RevokeSubMenuService,
-    SubscriptionMsgService,
     ReferralMenuService,
     // MENUS
     MenuTree,

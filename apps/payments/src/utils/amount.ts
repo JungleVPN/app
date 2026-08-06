@@ -1,49 +1,47 @@
-/**
- * Provider-agnostic subscription-price configuration.
- *
- * The two payment providers price the same subscription in different
- * currencies (YooKassa in RUB, Stripe in EUR), so each currency has its own
- * configured price held in its own env var. Everything else — parsing,
- * validation, and the amount→period mapping — is shared here so neither
- * provider duplicates the logic.
- *
- * Single-price model: any configured price grants `ALLOWED_PERIODS` months.
- */
 export type Currency = 'RUB' | 'EUR';
 
-/** The env var holding the configured price(s) for each currency. */
-const PRICE_ENV: Record<Currency, string> = {
-  RUB: 'PUBLIC_ALLOWED_AMOUNT_RUB', // YooKassa — comma-separated list, first entry is canonical
-  EUR: 'PUBLIC_ALLOWED_AMOUNT_EUR', // Stripe — single price
-};
+const PERIOD_KEYS = [
+  { key: 'MONTH_1', months: 1 },
+  { key: 'MONTH_3', months: 3 },
+  { key: 'MONTH_6', months: 6 },
+  { key: 'MONTH_12', months: 12 },
+] as const;
 
-/** Configured prices for a currency, in major units (e.g. EUR, RUB), as strings. */
-export function getConfiguredAmounts(currency: Currency): string[] {
-  return (process.env[PRICE_ENV[currency]] || '')
+function enabledPeriodMonths(): number[] {
+  return (process.env.PUBLIC_ALLOWED_PERIOD || '')
     .split(',')
-    .map((value) => value.trim())
-    .filter((value) => Number(value) > 0);
-}
-
-/** True when `amount` (major units) matches a configured price for the currency. */
-export function isAllowedAmount(amount: number, currency: Currency): boolean {
-  return getConfiguredAmounts(currency).some((configured) => Number(configured) === amount);
+    .map((p) => Number(p.trim()))
+    .filter((p) => p > 0);
 }
 
 /**
  * Months granted by a paid `amount` (major units) for the currency.
  *
- * Finding #12: throws instead of silently returning a default when the amount
- * does not match a configured price — callers must never grant an unrecognised
- * amount. An empty/missing price config rejects every amount (fail-safe).
+ * Iterates enabled periods and matches the amount against the corresponding
+ * PRICE_*_MONTH_N env var. Throws when no match is found — callers must never
+ * grant an unrecognised amount. An unconfigured PUBLIC_ALLOWED_PERIOD rejects
+ * every amount (fail-safe).
  */
 export function amountToMonths(amount: number, currency: Currency): number {
-  if (!isAllowedAmount(amount, currency)) {
-    throw new Error(
-      `Unrecognized ${currency} amount: ${amount}. ` +
-        `Allowed: ${getConfiguredAmounts(currency).join(', ') || '(none configured)'}.`,
-    );
+  const enabled = enabledPeriodMonths();
+  for (const { key, months } of PERIOD_KEYS) {
+    if (!enabled.includes(months)) continue;
+    const price = process.env[`PRICE_${currency}_${key}`];
+    if (price && Number(price) === amount) return months;
   }
+  throw new Error(`Unrecognized ${currency} amount: ${amount}. `);
+}
 
-  return Number(process.env.PUBLIC_ALLOWED_PERIOD ?? 1);
+/**
+ * The configured price (as string) for a given number of months.
+ * Throws when the period is unknown or its price env var is not set.
+ */
+export function getPriceForPeriod(currency: Currency, months: number): string {
+  const entry = PERIOD_KEYS.find((p) => p.months === months);
+  if (!entry) throw new Error(`Unknown period: ${months} months`);
+  const price = process.env[`PRICE_${currency}_${entry.key}`];
+  if (!price || Number(price) <= 0) {
+    throw new Error(`Missing price for ${currency} and ${months} month(s)`);
+  }
+  return price;
 }

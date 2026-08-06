@@ -15,15 +15,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { getPriceForPeriod } from '@payments/utils/amount';
 import { StripePayment } from '@workspace/database';
+import { type CreateStripeSessionDto } from '@workspace/types';
 import type Stripe from 'stripe';
 import { Repository } from 'typeorm';
-import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
 import { AdminRoleGuard } from '../../auth/admin-role.guard';
+import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
 import { ClientUserGuard } from '../../auth/client-user.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
 import { StripeProvider } from './stripe.provider';
-import type { CreateStripePaymentDto, Session } from './stripe.types';
+import type { Session } from './stripe.types';
 
 @Controller('stripe')
 export class StripeController {
@@ -76,8 +78,13 @@ export class StripeController {
 
   /** Create a checkout / portal session via Stripe */
   @Post('create-session')
-  async createSession(@Body() dto: CreateStripePaymentDto): Promise<Session> {
-    const session = await this.stripeProvider.createPayment(dto);
+  async createSession(@Body() dto: CreateStripeSessionDto): Promise<Session> {
+    const selectedPeriod = dto.selectedPeriod;
+    const amount = getPriceForPeriod('EUR', selectedPeriod);
+    const session = await this.stripeProvider.createPayment({
+      ...dto,
+      selectedPeriod,
+    });
 
     const customer = typeof session.customer === 'string' ? session.customer : session.customer?.id;
 
@@ -92,8 +99,8 @@ export class StripeController {
         url: session.url,
         customer: customer,
         status: 'pending',
-        amount: +dto.payment.amount,
-        currency: dto.payment.currency,
+        amount: +amount,
+        currency: 'EUR',
         userId: dto.userId,
         purpose: dto.purchaseType ?? 'subscription',
         paidAt: null,

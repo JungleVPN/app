@@ -2,23 +2,16 @@ import type { IAmount } from './general';
 
 /** Способы оплаты */
 export type IPaymentMethod =
-  | IPaymentMethodAlfabank
   | IPaymentMethodMobileBalance
   | IPaymentMethodCard
-  | IPaymentMethodInstallments
-  | IPaymentMethodCash
   | IPaymentMethodSbp
-  | IPaymentMethodB2b_sberbank
   | IPaymentMethodTinkoff_bank
   | IPaymentMethodYooMoney
-  | IPaymentMethodQiwi
   | IPaymentMethodSberbank
   | IPaymentMethodSberLoan
   | IPaymentMethodSberBnpl
   | IPaymentMethodApplePay
-  | IPaymentMethodGooglePay
-  | IPaymentMethodWebmoney
-  | IPaymentMethodWechat;
+  | IPaymentMethodGooglePay;
 
 export enum PaymentMethodsEnum {
   /** Банковская карта или карта МИР */
@@ -288,16 +281,6 @@ export interface IPaymentMethodSberbank extends IGeneralPayMethod {
 }
 
 /**
- * Альфа-Клик
- * @deprecated Сервис устарел. Рекомендуется использовать другие способы оплаты.
- */
-export interface IPaymentMethodAlfabank {
-  type: PaymentMethodsEnum.alfabank;
-  /** Логин пользователя в Альфа-Клике (привязанный телефон или дополнительный логин). Обязателен для сценария External. */
-  login?: string;
-}
-
-/**
  * T-Pay (Тинькофф)
  * @see https://yookassa.ru/developers/payment-acceptance/getting-started/payment-methods#tinkoff-bank
  */
@@ -343,11 +326,6 @@ export interface IPaymentMethodCash {
   type: PaymentMethodsEnum.cash;
   /** Телефон пользователя, на который придет смс с кодом платежа (для внесения наличных). Указывается в формате ITU-T E.164, например 79000000000. Поле можно оставить пустым: пользователь сможет заполнить его при оплате на стороне ЮKassa. */
   phone?: string;
-}
-
-/** Заплатить по частям */
-export interface IPaymentMethodInstallments {
-  type: PaymentMethodsEnum.installments;
 }
 
 /** "Покупки в кредит" от Сбербанка" */

@@ -1,6 +1,5 @@
 import * as process from 'node:process';
 import { BotContext } from '@bot/bot.types';
-import { PROD } from '@bot/utils/constants';
 import { convertEntitiesToHtml } from '@bot/utils/utils';
 import {
   BroadcastAudience,
@@ -97,7 +96,7 @@ export abstract class BroadcastBase {
   protected async getValidUsers(
     audience: BroadcastAudience = DEFAULT_AUDIENCE,
   ): Promise<UserDto[]> {
-    const isProd = process.env.NODE_ENV === PROD;
+    const isProd = process.env.NODE_ENV === 'production';
     const users = isProd ? await this.remnaService.getAllUsers() : mockBroadcastUserDto;
 
     const eligible = users.filter((u) => u.telegramId && !this.isAdmin(u.telegramId));

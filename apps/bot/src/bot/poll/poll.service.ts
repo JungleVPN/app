@@ -1,6 +1,5 @@
 import * as process from 'node:process';
 import { BotContext } from '@bot/bot.types';
-import { PROD } from '@bot/utils/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { RemnaService } from '@remna/remna.service';
 import { mockBroadcastUserDto } from '@shared/mock-data';
@@ -99,7 +98,7 @@ export class PollService {
       return;
     }
 
-    const isProd = process.env.NODE_ENV === PROD;
+    const isProd = process.env.NODE_ENV === 'production';
     const users = isProd ? await this.remnaService.getAllUsers() : mockBroadcastUserDto;
     const validUsers = users.filter((u) => u.telegramId && u.telegramId !== this.adminId);
 

@@ -5,8 +5,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { EmailNotificationService } from '@payments/notifications/email-notification.service';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
-import { getConfiguredAmounts } from '@payments/utils/amount';
-import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { apiRoutes, Payments, RemnawebhookPayload, WebhookEventEnum } from '@workspace/types';
 import axios from 'axios';
@@ -26,7 +24,6 @@ export class AutopaymentService {
     private readonly yookassaPaymentRepo: Repository<YookassaPayment>,
     private readonly yookassaProvider: YooKassaProvider,
     private readonly eventEmitter: EventEmitter2,
-    private readonly validatePaymentRequest: ValidatePaymentRequest,
     private readonly emailNotificationService: EmailNotificationService,
     private readonly analyticsClient: AnalyticsClientService,
   ) {}
@@ -37,16 +34,6 @@ export class AutopaymentService {
 
   private get botNotifySecret(): string {
     return process.env.BOT_NOTIFY_SECRET ?? '';
-  }
-
-  private get autopaymentAmount(): string {
-    // First configured RUB price is the canonical subscription amount.
-    return getConfiguredAmounts('RUB')[0] ?? '200';
-  }
-
-  private get autopaymentPeriod(): number {
-    const raw = process.env.PUBLIC_ALLOWED_PERIOD || '1';
-    return Number(raw.split(',')[0].trim());
   }
 
   async init(payload: RemnawebhookPayload): Promise<void> {
@@ -69,10 +56,6 @@ export class AutopaymentService {
         return;
       }
 
-      this.logger.warn(
-        `No active saved payment method for user ${telegramId} — notifying bot for manual payment`,
-      );
-
       this.eventEmitter.emit(WebhookEventEnum['payment.no_active_method'], {
         userId,
         provider: 'yookassa',
@@ -91,11 +74,47 @@ export class AutopaymentService {
       return;
     }
 
-    await this.attemptAutopaymentWithRetries({
-      userId,
-      paymentMethodId: savedMethod.paymentMethodId,
-      telegramId,
-    });
+    const result = await this.attemptAutopaymentWithRetries(savedMethod.paymentMethodId);
+
+    if (result.status === 'error') {
+      const eventByReason: Partial<Record<Payments.CancelReason, WebhookEventEnum>> = {
+        insufficient_funds: WebhookEventEnum['payment.insufficient_funds'],
+        general_decline: WebhookEventEnum['payment.general_decline'],
+      };
+
+      const eventName =
+        (result.reason && eventByReason[result.reason]) ??
+        WebhookEventEnum['payment.autopayment_exhausted'];
+
+      this.eventEmitter.emit(eventName, {
+        userId,
+        provider: 'yookassa',
+        reason: result.reason ?? 'autopayment_exhausted',
+      } satisfies Payments.PaymentFailedEventPayload);
+
+      await this.analyticsClient.track({
+        event: 'autopayment_failed',
+        userId,
+        provider: 'yookassa',
+        reason: result.reason ?? 'autopayment_exhausted',
+      });
+      return;
+    } else {
+      const { payment, selectedPeriod } = result;
+
+      const record = this.yookassaPaymentRepo.create({
+        id: payment.id,
+        status: payment.status,
+        amount: payment.amount.value,
+        userId,
+        selectedPeriod,
+        paymentMethodId: savedMethod.paymentMethodId,
+        telegramId,
+        description: process.env.PAYMENT_DESCRIPTION,
+        paidAt: new Date(),
+      });
+      await this.yookassaPaymentRepo.save(record);
+    }
   }
 
   async checkAndNotifyExpiry48h(payload: RemnawebhookPayload): Promise<void> {
@@ -127,31 +146,32 @@ export class AutopaymentService {
     await this.analyticsClient.track({ event: 'expiry_reminder_sent', userId, hoursRemaining: 48 });
   }
 
-  private async attemptAutopaymentWithRetries({
-    telegramId,
-    userId,
-    paymentMethodId,
-  }: {
-    userId: string;
-    paymentMethodId: string;
-    telegramId?: number | null;
-  }): Promise<void> {
+  private async attemptAutopaymentWithRetries(
+    paymentMethodId: string,
+  ): Promise<
+    | { status: 'success'; reason: undefined; payment: Payments.IPayment; selectedPeriod: number }
+    | { status: 'error'; reason: Payments.CancelReason | undefined; payment: null }
+  > {
     let lastReason: Payments.CancelReason | undefined;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      this.logger.log(`Autopayment attempt ${attempt}/${MAX_RETRIES} for user ${userId}`);
+      this.logger.log(
+        `Autopayment attempt ${attempt}/${MAX_RETRIES}. PaymentMethodId=${paymentMethodId} `,
+      );
 
       try {
-        const result = await this.executeAutopayment({ userId, paymentMethodId, telegramId });
+        const { payment, selectedPeriod } = await this.executeAutopayment(paymentMethodId);
 
-        if (result.status === 'succeeded') {
-          this.logger.log(`Autopayment succeeded for user ${userId} (attempt ${attempt})`);
-          return;
+        if (payment.status === 'succeeded') {
+          this.logger.log(
+            `Autopayment succeeded! PaymentMethodId=${paymentMethodId} (attempt ${attempt})`,
+          );
+          return { status: 'success', reason: undefined, payment, selectedPeriod };
         }
 
-        const reason = result.cancellation_details?.reason;
+        const reason = payment.cancellation_details?.reason;
         this.logger.warn(
-          `Autopayment attempt ${attempt} for user ${userId}: status=${result.status}` +
+          `Autopayment attempt ${attempt}. PaymentMethodId=${paymentMethodId}. Status=${payment.status}` +
             (reason ? ` reason=${reason}` : ''),
         );
 
@@ -160,7 +180,7 @@ export class AutopaymentService {
         }
       } catch (err: any) {
         this.logger.error(
-          `Autopayment attempt ${attempt} for user ${userId} failed: ${err.message}`,
+          `Autopayment attempt ${attempt} for paymentMethodId=${paymentMethodId} failed: ${err.message}`,
         );
       }
 
@@ -170,91 +190,36 @@ export class AutopaymentService {
     }
 
     this.logger.warn(
-      `All ${MAX_RETRIES} autopayment attempts failed for user ${userId} — falling back to manual payment`,
+      `All ${MAX_RETRIES} autopayment attempts failed for paymentMethodId=${paymentMethodId} — falling back to manual payment`,
     );
 
-    const eventByReason: Partial<Record<Payments.CancelReason, WebhookEventEnum>> = {
-      insufficient_funds: WebhookEventEnum['payment.insufficient_funds'],
-      general_decline: WebhookEventEnum['payment.general_decline'],
-    };
-
-    const eventName =
-      (lastReason && eventByReason[lastReason]) ??
-      WebhookEventEnum['payment.autopayment_exhausted'];
-
-    this.eventEmitter.emit(eventName, {
-      userId,
-      provider: 'yookassa',
-      reason: lastReason ?? 'autopayment_exhausted',
-    } satisfies Payments.PaymentFailedEventPayload);
-
-    await this.analyticsClient.track({
-      event: 'autopayment_failed',
-      userId,
-      provider: 'yookassa',
-      reason: lastReason ?? 'autopayment_exhausted',
-    });
+    return { status: 'error', reason: lastReason, payment: null };
   }
 
-  /**
-   * Execute a single autopayment attempt.
-   * Creates the payment via YooKassa, persists the record, and emits failure events.
-   */
-  private async executeAutopayment({
-    telegramId,
-    userId,
-    paymentMethodId,
-  }: {
-    userId: string;
-    paymentMethodId: string;
-    telegramId?: number | null;
-  }): Promise<Payments.IPayment> {
-    const amount = this.autopaymentAmount;
-    const selectedPeriod = this.autopaymentPeriod;
-
-    // Validate that the env-configured amount and period are in the allowed set.
-    // This catches misconfiguration before any money moves.
-    this.validatePaymentRequest.validateAmount(amount);
-    this.validatePaymentRequest.validatePeriod(selectedPeriod);
-
-    await this.analyticsClient.track({
-      event: 'autopayment_initiated',
-      userId,
-      provider: 'yookassa',
+  private async executeAutopayment(
+    paymentMethodId: string,
+  ): Promise<{ payment: Payments.IPayment; selectedPeriod: number }> {
+    const previousPayment = await this.yookassaPaymentRepo.findOne({
+      where: { paymentMethodId },
+      order: { createdAt: 'DESC' },
     });
+
+    if (!previousPayment) {
+      throw new Error(`No previous payment found for paymentMethodId ${paymentMethodId}`);
+    }
+
+    const { selectedPeriod, amount } = previousPayment;
     const description = process.env.PAYMENT_DESCRIPTION || 'Happy to see you in the JUNGLE 🌴';
 
     const request: Payments.CreatePaymentRequest = {
-      amount: { value: String(amount), currency: 'RUB' },
+      amount: { value: amount, currency: 'RUB' },
       capture: true,
       payment_method_id: paymentMethodId,
       description,
     };
 
     const payment = await this.yookassaProvider.create(request);
-
-    const record = this.yookassaPaymentRepo.create({
-      id: payment.id,
-      status: payment.status,
-      amount,
-      userId,
-      selectedPeriod,
-      telegramId: telegramId ?? null,
-      description,
-      paidAt: null,
-    });
-
-    try {
-      await this.yookassaPaymentRepo.save(record);
-    } catch (dbErr: any) {
-      this.logger.error(
-        `Failed to persist autopayment record for payment ${payment.id} ` +
-          `(userId=${userId}): ${dbErr.message}. ` +
-          `The charge was created in YooKassa — subscription extension will rely on the incoming webhook.`,
-      );
-    }
-
-    return payment;
+    return { payment, selectedPeriod };
   }
 
   private delay(ms: number): Promise<void> {

@@ -1,3 +1,4 @@
+import { PaymentPurpose } from '../common';
 import type { Payments } from './payment';
 
 /** Response from create-session endpoints (both providers) */
@@ -5,9 +6,6 @@ export interface PaymentSession {
   id: string;
   url: string;
 }
-
-/** Determines what action is taken after a successful payment. */
-export type PaymentPurpose = 'subscription' | 'extra_device';
 
 /**
  * Body for POST /payments/yookassa/create-session.
@@ -25,4 +23,6 @@ export interface CreateYookassaSessionDto
   promoCode?: string | null;
   /** Subscription status from remnawave, when known — used to validate the promo. */
   userStatus?: string;
+  /** Subscription plan in months (1, 3, 6, 12). Defaults to the first allowed period. */
+  selectedPeriod: number;
 }

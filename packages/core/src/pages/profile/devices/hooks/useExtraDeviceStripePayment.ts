@@ -1,5 +1,4 @@
 import { openLink } from '@tma.js/sdk-react';
-import { coreEnv } from '../../../../env';
 import { useCreateStripeSession } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreInfo, usePlatformStore } from '../../../../stores';
@@ -24,7 +23,7 @@ export function useExtraDeviceStripePayment() {
     const session = await createStripeSession({
       userId: rmnUser.uuid,
       purchaseType: 'extra_device',
-      payment: { amount: coreEnv.extraDevicePriceEUR, currency: 'EUR' },
+      selectedPeriod: 1,
       metadata: {
         email: payerEmail,
         userId: rmnUser.uuid,
