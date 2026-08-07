@@ -25,6 +25,7 @@ const appRoutes = {
   affiliatesPath: '/affiliates',
   profileSubscriptionPath: '/profile/subscription',
   profilePaymentPath: '/profile/payments',
+  profilePlansPath: '/profile/plans',
   profileDevicesPath: '/profile/devices',
   profileExtraDevicePurchasePath: '/profile/devices/extra',
   profileTransactionsPath: '/profile/transactions',

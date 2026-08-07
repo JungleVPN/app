@@ -10,6 +10,7 @@ export interface AppRoutes {
   affiliatesPath: string;
   profileSubscriptionPath: string;
   profilePaymentPath: string;
+  profilePlansPath: string;
   profileDevicesPath: string;
   profileMenuPath: string;
   profileExtraDevicePurchasePath: string;

@@ -115,6 +115,12 @@
     "priceRubButton": "{{amount}} ₽ / month",
     "priceEurButton": "{{amount}} € / month",
     "priceStarsButton": "{{amount}} ⭐ / month",
+    "planPriceRubButton_one": "{{amount}} ₽ · {{count}} month",
+    "planPriceRubButton_other": "{{amount}} ₽ · {{count}} months",
+    "planPriceEurButton_one": "{{amount}} € · {{count}} month",
+    "planPriceEurButton_other": "{{amount}} € · {{count}} months",
+    "planPriceStarsButton_one": "{{amount}} ⭐ · {{count}} month",
+    "planPriceStarsButton_other": "{{amount}} ⭐ · {{count}} months",
     "extendButton": "Extend",
     "selectMethodHeading": "Payment method",
     "methodYookassa": "Cards and SBP",
@@ -518,5 +524,14 @@
       "paidAt": "Paid At",
       "copy": "Copy {{label}}"
     }
+  },
+  "plans": {
+    "pageTitle": "Select a plan",
+    "pageDescription": "The linked card will be charged based on the selected plan",
+    "tabsAriaLabel": "Select a subscription plan",
+    "month_one": "{{count}} month",
+    "month_other": "{{count}} months",
+    "perMonth": "per month",
+    "continueButton": "Continue"
   }
 }

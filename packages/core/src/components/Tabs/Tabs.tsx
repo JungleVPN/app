@@ -33,6 +33,7 @@ function getActiveTab(
   pathname: string,
   subscriptionPath: string,
   paymentPath: string,
+  plansPath: string,
   devicesPath: string,
   menuPath: string,
 ): TabValue {
@@ -41,7 +42,7 @@ function getActiveTab(
     const b = normalizePath(base);
     return norm === b || norm.startsWith(`${b}/`);
   };
-  if (matches(paymentPath)) return 'payments';
+  if (matches(paymentPath) || matches(plansPath)) return 'payments';
   if (matches(devicesPath)) return 'devices';
   if (matches(subscriptionPath)) return 'subscription';
   if (matches(menuPath)) return 'menu';
@@ -49,8 +50,13 @@ function getActiveTab(
 }
 
 export const Navbar = () => {
-  const { profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileMenuPath } =
-    useAppRoutes();
+  const {
+    profileSubscriptionPath,
+    profilePaymentPath,
+    profilePlansPath,
+    profileDevicesPath,
+    profileMenuPath,
+  } = useAppRoutes();
   const { isVisible } = useNavbarStore();
   const { t } = useTranslation();
   const navigate = useNavigation();
@@ -62,6 +68,7 @@ export const Navbar = () => {
     pathname,
     profileSubscriptionPath,
     profilePaymentPath,
+    profilePlansPath,
     profileDevicesPath,
     profileMenuPath,
   );
@@ -132,11 +139,11 @@ export const Navbar = () => {
     () =>
       ({
         subscription: profileSubscriptionPath,
-        payments: profilePaymentPath,
+        payments: profilePlansPath,
         devices: profileDevicesPath,
         menu: profileMenuPath,
       }) satisfies Record<TabValue, string>,
-    [profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileMenuPath],
+    [profileSubscriptionPath, profilePlansPath, profileDevicesPath, profileMenuPath],
   );
 
   const tabs = useMemo<TabDef[]>(

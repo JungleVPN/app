@@ -9,6 +9,7 @@ import {
   ProtectedExtraDevicePurchasePage,
   ProtectedMenuPage,
   ProtectedPaymentPage,
+  ProtectedPlansPage,
   ProtectedProfileSubscriptionPage,
   ProtectedReferralsPage,
   ProtectedTransactionDetailsPage,
@@ -53,6 +54,10 @@ export const router = createBrowserRouter([
           {
             path: 'subscription',
             Component: ProtectedProfileSubscriptionPage,
+          },
+          {
+            path: 'plans',
+            Component: ProtectedPlansPage,
           },
           {
             path: 'payments',

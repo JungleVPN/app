@@ -114,6 +114,15 @@
     "priceRubButton": "{{amount}} ₽ / месяц",
     "priceEurButton": "{{amount}} € / месяц",
     "priceStarsButton": "{{amount}} ⭐ / месяц",
+    "planPriceRubButton_one": "{{amount}} ₽ · {{count}} месяц",
+    "planPriceRubButton_few": "{{amount}} ₽ · {{count}} месяца",
+    "planPriceRubButton_many": "{{amount}} ₽ · {{count}} месяцев",
+    "planPriceEurButton_one": "{{amount}} € · {{count}} месяц",
+    "planPriceEurButton_few": "{{amount}} € · {{count}} месяца",
+    "planPriceEurButton_many": "{{amount}} € · {{count}} месяцев",
+    "planPriceStarsButton_one": "{{amount}} ⭐ · {{count}} месяц",
+    "planPriceStarsButton_few": "{{amount}} ⭐ · {{count}} месяца",
+    "planPriceStarsButton_many": "{{amount}} ⭐ · {{count}} месяцев",
     "extendButton": "Продлить",
     "selectMethodHeading": "Способ оплаты",
     "methodYookassa": "Карты и СБП",
@@ -517,5 +526,16 @@
       "paidAt": "Оплачен",
       "copy": "Скопировать {{label}}"
     }
+  },
+  "plans": {
+    "pageTitle": "Выберите план",
+    "pageDescription": "Привязанная карта будет списывать средства согласно выбранному плану",
+    "tabsAriaLabel": "Выберите план подписки",
+    "month_one": "{{count}} месяц",
+    "month_few": "{{count}} месяца",
+    "month_many": "{{count}} месяцев",
+    "month_other": "{{count}} месяцев",
+    "perMonth": "в месяц",
+    "continueButton": "Продолжить"
   }
 }

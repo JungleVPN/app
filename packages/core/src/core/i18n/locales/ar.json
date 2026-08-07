@@ -115,6 +115,21 @@
     "priceRubButton": "{{amount}} ₽ / شهر",
     "priceEurButton": "{{amount}} € / شهر",
     "priceStarsButton": "{{amount}} ⭐ / شهر",
+    "planPriceRubButton_one": "{{amount}} ₽ · {{count}} شهر",
+    "planPriceRubButton_two": "{{amount}} ₽ · {{count}} شهرين",
+    "planPriceRubButton_few": "{{amount}} ₽ · {{count}} أشهر",
+    "planPriceRubButton_many": "{{amount}} ₽ · {{count}} شهرًا",
+    "planPriceRubButton_other": "{{amount}} ₽ · {{count}} شهر",
+    "planPriceEurButton_one": "{{amount}} € · {{count}} شهر",
+    "planPriceEurButton_two": "{{amount}} € · {{count}} شهرين",
+    "planPriceEurButton_few": "{{amount}} € · {{count}} أشهر",
+    "planPriceEurButton_many": "{{amount}} € · {{count}} شهرًا",
+    "planPriceEurButton_other": "{{amount}} € · {{count}} شهر",
+    "planPriceStarsButton_one": "{{amount}} ⭐ · {{count}} شهر",
+    "planPriceStarsButton_two": "{{amount}} ⭐ · {{count}} شهرين",
+    "planPriceStarsButton_few": "{{amount}} ⭐ · {{count}} أشهر",
+    "planPriceStarsButton_many": "{{amount}} ⭐ · {{count}} شهرًا",
+    "planPriceStarsButton_other": "{{amount}} ⭐ · {{count}} شهر",
     "extendButton": "تجديد",
     "selectMethodHeading": "طريقة الدفع",
     "methodYookassa": "كروت وSBP",
@@ -518,5 +533,18 @@
       "paidAt": "تاريخ الدفع",
       "copy": "نسخ {{label}}"
     }
+  },
+  "plans": {
+    "pageTitle": "اختر خطة",
+    "pageDescription": "سيتم الخصم من الكارت المربوط حسب الخطة المختارة",
+    "tabsAriaLabel": "اختر خطة الاشتراك",
+    "month_zero": "{{count}} شهر",
+    "month_one": "شهر واحد",
+    "month_two": "شهران",
+    "month_few": "{{count}} أشهر",
+    "month_many": "{{count}} شهرًا",
+    "month_other": "{{count}} شهر",
+    "perMonth": "في الشهر",
+    "continueButton": "متابعة"
   }
 }
