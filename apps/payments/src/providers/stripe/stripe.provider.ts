@@ -99,7 +99,7 @@ export class StripeProvider {
         line_items: [{ price: priceId, quantity: 1 }],
         mode: isExtraDevice ? 'payment' : 'subscription',
         metadata,
-        subscription_data: { metadata },
+        ...(!isExtraDevice && { subscription_data: { metadata } }),
         allow_promotion_codes: true,
         success_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
         cancel_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
