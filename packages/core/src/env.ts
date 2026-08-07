@@ -9,8 +9,6 @@ import { apiRoutes } from '@workspace/types';
 export const coreEnv = {
   subpageConfigUuid: (import.meta.env.PUBLIC_SUBPAGE_CONFIG ?? '') as string,
 
-  allowedPeriod: Number(import.meta.env.PUBLIC_ALLOWED_PERIOD ?? 1),
-
   successStickerFileId: (import.meta.env.PUBLIC_SUCCESS_STICKER_FILE_ID ?? '') as string,
   menuStickerFileId: (import.meta.env.PUBLIC_MENU_STICKER_FILE_ID ?? '') as string,
   extraDeviceStickerFileId: (import.meta.env.PUBLIC_EXTRA_DEVICE_STICKER_FILE_ID ?? '') as string,

@@ -11,7 +11,7 @@ import {
 } from '../../../../stores';
 import { analytics } from '../../../../utils';
 
-export function useYookassaPayment() {
+export function useYookassaPayment(selectedPeriod: number) {
   const { rmnUser, tgUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { setSavedMethods } = useSavedMethodsStoreActions();
@@ -56,7 +56,7 @@ export function useYookassaPayment() {
           : `${window.location.origin}${paymentReturnPath}`,
         type: 'redirect',
       },
-      selectedPeriod: 1,
+      selectedPeriod,
     });
 
     if (!session?.url) return;

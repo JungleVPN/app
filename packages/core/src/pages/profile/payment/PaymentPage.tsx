@@ -41,7 +41,7 @@ export default function PaymentPage() {
     handleOpenStripePortal,
     isOpeningStripePortal,
     validatePromo,
-  } = usePayment();
+  } = usePayment(selectedPlan?.months ?? 1);
   const { setNavbarVisible } = useNavbarStore();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('yookassa');
 

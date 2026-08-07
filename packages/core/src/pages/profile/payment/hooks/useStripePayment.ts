@@ -13,7 +13,7 @@ import { analytics } from '../../../../utils';
  * redirects the user to the returned Stripe Checkout / Billing Portal URL.
  * Subscription extension is handled by the existing Stripe webhook.
  */
-export function useStripePayment() {
+export function useStripePayment(selectedPeriod: number) {
   const { rmnUser, tgUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { platformType, clientPlatform } = usePlatformStore();
@@ -70,7 +70,7 @@ export function useStripePayment() {
 
     const session = await createStripeSession({
       userId: activeUser.uuid,
-      selectedPeriod: 1,
+      selectedPeriod,
       userStatus: activeUser.status,
       toltReferralId: window.tolt_referral ?? null,
       metadata: {
