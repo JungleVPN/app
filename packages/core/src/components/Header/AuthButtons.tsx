@@ -22,6 +22,10 @@ export function AuthButtons() {
     navigate('/login');
   };
 
+  const handleTryNow = () => {
+    navigate('/login');
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setAuthUser(null);
@@ -62,5 +66,12 @@ export function AuthButtons() {
 
   if (location.pathname.includes('login')) return null;
 
-  return <Button onPress={handleLogin}>{t('header.login')}</Button>;
+  return (
+    <>
+      <Button variant={'tertiary'} onPress={handleLogin}>
+        {t('header.login')}
+      </Button>
+      <Button onPress={handleTryNow}>{t('header.cta')}</Button>
+    </>
+  );
 }
