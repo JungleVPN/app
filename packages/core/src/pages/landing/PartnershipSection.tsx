@@ -1,40 +1,7 @@
-import { Card } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { ContentCard } from '../../components/ContentCard';
 import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { TgsSticker } from '../../ui';
-
-type PartnershipCardProps = {
-  title: string;
-  description: string;
-  learnMoreLabel: string;
-  learnMoreHref?: string;
-  icon?: string;
-};
-
-function PartnershipCard({
-  title,
-  description,
-  learnMoreLabel,
-  learnMoreHref = '#',
-  icon,
-}: PartnershipCardProps) {
-  return (
-    <Card
-      variant='secondary'
-      className='relative flex flex-col justify-between p-8 shadow-surface shadow-md'
-    >
-      <div>
-        <h3 className='mb-4 text-xl font-bold'>{title}</h3>
-        <p className='text-muted text-sm leading-relaxed'>{description}</p>
-      </div>
-      <Link to={learnMoreHref ?? '#'} className='mt-10 text-sm font-medium  underline'>
-        {learnMoreLabel}
-      </Link>
-      {icon && <TgsSticker src={icon} className='absolute right-4 bottom-4 h-24 w-24 opacity-80' />}
-    </Card>
-  );
-}
 
 const PARTNERSHIP_KEYS = ['affiliate', 'referral'] as const;
 
@@ -55,15 +22,20 @@ export function PartnershipSection() {
         <p className='text-muted text-base lg:text-lg'>{t('landing.partnership.subtitle')}</p>
       </div>
 
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
         {PARTNERSHIP_KEYS.map((key) => (
-          <PartnershipCard
+          <ContentCard
             key={key}
+            variant='stat'
             title={t(`landing.partnership.${key}.title`)}
             description={t(`landing.partnership.${key}.description`)}
             learnMoreLabel={t('landing.partnership.learnMore')}
             learnMoreHref={key === 'affiliate' ? '/affiliates' : '/profile/referrals'}
-            icon={PARTNERSHIP_STICKERS[key]}
+            icon={
+              PARTNERSHIP_STICKERS[key] ? (
+                <TgsSticker src={PARTNERSHIP_STICKERS[key]!} className='h-full w-full' />
+              ) : undefined
+            }
           />
         ))}
       </div>

@@ -404,6 +404,13 @@
         }
       }
     },
+    "trust": {
+      "chip": "Privacy-first",
+      "title": "Trusted by thousands",
+      "users": "People around the world trust JungleVPN to keep their connection private every day.",
+      "countries": "We operate servers across multiple countries so you always have a fast, nearby node.",
+      "servers": "Our high-speed servers are optimised for streaming, gaming, and everyday browsing."
+    },
     "features": {
       "title": "Why people love JungleVPN",
       "titleStart": "Why people love",
