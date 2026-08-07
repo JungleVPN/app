@@ -5,6 +5,7 @@ import { FooterSection } from './FooterSection';
 import { FreeTrialSection } from './FreeTrialSection';
 import { HeroSection } from './HeroSection';
 import { PartnershipSection } from './PartnershipSection';
+import { HowItWorksSection } from './HowItWorksSection';
 import { TrustSection } from './TrustSection';
 // import { PricingSection } from './PricingSection';
 
@@ -14,6 +15,9 @@ export default function LandingPage() {
       <HeroSection />
       <div className={'max-w-7xl mx-auto'}>
         <TrustSection />
+      </div>
+      <div className={'max-w-7xl mx-auto'}>
+        <HowItWorksSection />
       </div>
       <div className={'max-w-7xl mx-auto'}>
         <FeaturesSection />

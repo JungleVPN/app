@@ -404,6 +404,23 @@
         }
       }
     },
+    "howItWorks": {
+      "chip": "Get started",
+      "title": "Up and running in minutes",
+      "subtitle": "Three simple steps and you're protected.",
+      "install": {
+        "title": "Install the app",
+        "description": "Choose the version for your device and install the app in seconds. Available for iOS, Android, Mac, and Windows."
+      },
+      "subscribe": {
+        "title": "Add your subscription",
+        "description": "Open the app, enter your subscription link, and you're all set. No complicated settings or technical knowledge needed."
+      },
+      "connect": {
+        "title": "Connect and use",
+        "description": "Tap connect and start browsing freely. Your connection is encrypted and your privacy protected from the very first second."
+      }
+    },
     "trust": {
       "chip": "Privacy-first",
       "title": "Trusted by thousands",
