@@ -300,12 +300,12 @@ describe('Security Audit', () => {
 
   describe('[FINDING #12] mapEURAmountToMonthsNumber must throw on unrecognised amounts', () => {
     beforeEach(() => {
-      process.env.PUBLIC_ALLOWED_PERIOD = '1';
+      process.env.ALLOWED_PERIOD = '1';
       process.env.PRICE_EUR_MONTH_1 = '5';
     });
 
     afterEach(() => {
-      delete process.env.PUBLIC_ALLOWED_PERIOD;
+      delete process.env.ALLOWED_PERIOD;
       delete process.env.PRICE_EUR_MONTH_1;
       delete process.env.PRICE_EUR_MONTH_3;
     });
@@ -319,7 +319,7 @@ describe('Security Audit', () => {
     });
 
     it('throws when no periods are configured', () => {
-      delete process.env.PUBLIC_ALLOWED_PERIOD;
+      delete process.env.ALLOWED_PERIOD;
       expect(() => mapEURAmountToMonthsNumber('500')).toThrow();
     });
 
@@ -328,7 +328,7 @@ describe('Security Audit', () => {
       expect(mapEURAmountToMonthsNumber('500')).toBe(1);
 
       // Add a 3-month plan and verify it maps correctly
-      process.env.PUBLIC_ALLOWED_PERIOD = '1,3';
+      process.env.ALLOWED_PERIOD = '1,3';
       process.env.PRICE_EUR_MONTH_3 = '12';
       expect(mapEURAmountToMonthsNumber('1200')).toBe(3);
     });

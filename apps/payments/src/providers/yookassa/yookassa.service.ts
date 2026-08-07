@@ -83,14 +83,7 @@ export class YookassaService {
       ...paymentFields
     } = dto;
 
-    const allowedPeriods = this.paymentsUtils.getAllowedPeriods();
     const selectedPeriod = purpose === 'extra_device' ? 0 : dto.selectedPeriod;
-
-    if (purpose !== 'extra_device' && !allowedPeriods.includes(selectedPeriod)) {
-      throw new BadRequestException(
-        `Invalid selectedPeriod: ${selectedPeriod}. Allowed: ${allowedPeriods.join(', ')}`,
-      );
-    }
 
     const amountValue =
       purpose === 'extra_device'
@@ -100,7 +93,7 @@ export class YookassaService {
     // Validate any promo up front so the user gets immediate feedback. Only
     // subscription payments carry promos; the binding check is at fulfillment.
     const validatedPromoCode =
-      purpose === 'subscription' && promoCode
+      purpose !== 'extra_device' && promoCode
         ? await this.validatePromoOrThrow(promoCode, { userId, userStatus, selectedPeriod })
         : null;
 

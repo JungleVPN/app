@@ -8,7 +8,7 @@ const PERIOD_KEYS = [
 ] as const;
 
 function enabledPeriodMonths(): number[] {
-  return (process.env.PUBLIC_ALLOWED_PERIOD || '')
+  return (process.env.ALLOWED_PERIOD || '')
     .split(',')
     .map((p) => Number(p.trim()))
     .filter((p) => p > 0);
@@ -19,7 +19,7 @@ function enabledPeriodMonths(): number[] {
  *
  * Iterates enabled periods and matches the amount against the corresponding
  * PRICE_*_MONTH_N env var. Throws when no match is found — callers must never
- * grant an unrecognised amount. An unconfigured PUBLIC_ALLOWED_PERIOD rejects
+ * grant an unrecognised amount. An unconfigured ALLOWED_PERIOD rejects
  * every amount (fail-safe).
  */
 export function amountToMonths(amount: number, currency: Currency): number {

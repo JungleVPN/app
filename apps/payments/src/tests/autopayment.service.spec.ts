@@ -58,7 +58,7 @@ describe('AutopaymentService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    process.env.PUBLIC_ALLOWED_PERIOD = '1';
+    process.env.ALLOWED_PERIOD = '1';
     process.env.PRICE_RUB_MONTH_1 = '200';
     process.env.BOT_URL = 'http://bot:7080';
     process.env.BOT_NOTIFY_SECRET = 'secret';
@@ -112,7 +112,7 @@ describe('AutopaymentService', () => {
   });
 
   afterEach(() => {
-    delete process.env.PUBLIC_ALLOWED_PERIOD;
+    delete process.env.ALLOWED_PERIOD;
     delete process.env.PRICE_RUB_MONTH_1;
     delete process.env.BOT_URL;
     delete process.env.BOT_NOTIFY_SECRET;

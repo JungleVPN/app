@@ -13,14 +13,6 @@ export class PaymentsUtils {
       .filter((n) => n > 0);
   }
 
-  getAllowedPeriods(): number[] {
-    const envValue = this.configService.get<string>('PUBLIC_ALLOWED_PERIOD', '');
-    return (envValue || '')
-      .split(',')
-      .map((p) => Number(p.trim()))
-      .filter((p) => p > 0);
-  }
-
   getExtraDevicePriceRUB(): string {
     return this.configService.get<string>('PUBLIC_EXTRA_DEVICE_PRICE_RUB', '');
   }

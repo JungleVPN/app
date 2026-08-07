@@ -84,7 +84,7 @@ const subscriptionDto = (
 
 describe('StripeProvider.createPayment', () => {
   beforeEach(() => {
-    process.env.PUBLIC_ALLOWED_PERIOD = '1,3,6,12';
+    process.env.ALLOWED_PERIOD = '1,3,6,12';
     process.env.PRICE_EUR_MONTH_1 = '6';
     process.env.PRICE_EUR_MONTH_3 = '15';
     process.env.PRICE_EUR_MONTH_6 = '26';
@@ -94,7 +94,7 @@ describe('StripeProvider.createPayment', () => {
 
   afterEach(() => {
     for (const key of [
-      'PUBLIC_ALLOWED_PERIOD',
+      'ALLOWED_PERIOD',
       'PRICE_EUR_MONTH_1',
       'PRICE_EUR_MONTH_3',
       'PRICE_EUR_MONTH_6',

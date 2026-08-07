@@ -3,7 +3,7 @@ import { amountToMonths, getPriceForPeriod } from '../utils/amount';
 
 describe('provider-agnostic amount config', () => {
   beforeEach(() => {
-    process.env.PUBLIC_ALLOWED_PERIOD = '1,3';
+    process.env.ALLOWED_PERIOD = '1,3';
     process.env.PRICE_RUB_MONTH_1 = '200';
     process.env.PRICE_RUB_MONTH_3 = '501';
     process.env.PRICE_EUR_MONTH_1 = '6';
@@ -11,7 +11,7 @@ describe('provider-agnostic amount config', () => {
   });
 
   afterEach(() => {
-    delete process.env.PUBLIC_ALLOWED_PERIOD;
+    delete process.env.ALLOWED_PERIOD;
     delete process.env.PRICE_RUB_MONTH_1;
     delete process.env.PRICE_RUB_MONTH_3;
     delete process.env.PRICE_RUB_MONTH_6;
@@ -31,7 +31,7 @@ describe('provider-agnostic amount config', () => {
     });
 
     it('maps 6-month and 12-month amounts correctly', () => {
-      process.env.PUBLIC_ALLOWED_PERIOD = '1,3,6,12';
+      process.env.ALLOWED_PERIOD = '1,3,6,12';
       process.env.PRICE_RUB_MONTH_6 = '882';
       process.env.PRICE_RUB_MONTH_12 = '1440';
       process.env.PRICE_EUR_MONTH_6 = '26.4';
@@ -49,7 +49,7 @@ describe('provider-agnostic amount config', () => {
     });
 
     it('rejects every amount when no periods are configured', () => {
-      delete process.env.PUBLIC_ALLOWED_PERIOD;
+      delete process.env.ALLOWED_PERIOD;
       expect(() => amountToMonths(6, 'EUR')).toThrow();
     });
   });

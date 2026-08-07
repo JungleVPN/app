@@ -81,7 +81,7 @@ describe('StripeWebhookService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.PUBLIC_ALLOWED_PERIOD = '1';
+    process.env.ALLOWED_PERIOD = '1';
     process.env.PRICE_EUR_MONTH_1 = '2';
 
     mockFindOneBy = vi.fn().mockResolvedValue(null);
@@ -138,7 +138,7 @@ describe('StripeWebhookService', () => {
 
   afterEach(() => {
     delete process.env.PRICE_EUR_MONTH_1;
-    delete process.env.PUBLIC_ALLOWED_PERIOD;
+    delete process.env.ALLOWED_PERIOD;
   });
 
   describe('invoice.payment_succeeded', () => {
