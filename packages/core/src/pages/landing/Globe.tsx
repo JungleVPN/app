@@ -1,0 +1,136 @@
+import createGlobe from 'cobe';
+import { useEffect, useRef } from 'react';
+
+const MARKERS = [
+  { location: [60.1699, 24.9384] as [number, number], size: 0.1 }, // Finland (Helsinki)
+  { location: [50.1109, 8.6821] as [number, number], size: 0.1 }, // Germany (Frankfurt)
+  { location: [48.2082, 16.3738] as [number, number], size: 0.1 }, // Austria (Vienna)
+  { location: [55.7558, 37.6176] as [number, number], size: 0.1 }, // Russia (Moscow)
+  { location: [38.7509, -77.4753] as [number, number], size: 0.1 }, // USA (Manassas, VA)
+  { location: [52.3676, 4.9041] as [number, number], size: 0.1 }, // Netherlands (Amsterdam)
+];
+
+function themeConfig(dark: boolean) {
+  return {
+    dark: dark ? 1 : 0,
+    diffuse: dark ? 2 : 1.2,
+    mapBrightness: dark ? 6 : 8,
+    baseColor: dark
+      ? ([0.3, 0.3, 0.3] as [number, number, number])
+      : ([1, 1, 1] as [number, number, number]),
+    glowColor: [1, 1, 1] as [number, number, number],
+  };
+}
+
+export function Globe() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const pointerRef = useRef({ dragging: false, lastX: 0, lastY: 0, startPhi: 0, startTheta: 0 });
+  const phiRef = useRef(0);
+  const thetaRef = useRef(0.3);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 1000;
+    canvas.height = 1000;
+    canvas.className = 'w-full h-full cursor-grab active:cursor-grabbing select-none';
+    container.appendChild(canvas);
+
+    const isDark = document.documentElement.classList.contains('dark');
+
+    const headChildCountBefore = document.head.childElementCount;
+    const globe = createGlobe(canvas, {
+      devicePixelRatio: 2,
+      width: 1000,
+      height: 1000,
+      phi: phiRef.current,
+      theta: thetaRef.current,
+      mapSamples: 16000,
+      markerElevation: 0,
+      markerColor: [1, 0.78, 0.1],
+      markers: MARKERS,
+      ...themeConfig(isDark),
+    });
+
+    // cobe appends a <style> to document.head and mutates its textContent on every
+    // globe.update() call (60fps). React DevTools watches document.head via
+    // MutationObserver, so those mutations cause the DevTools panel to re-scan
+    // the fiber tree constantly. Removing the detached element stops the mutations;
+    // cobe's closure still holds a reference and can write to it without error.
+    Array.from(document.head.children)
+      .slice(headChildCountBefore)
+      .map((el) => el.remove());
+
+    let animId: number;
+
+    function animate() {
+      if (!pointerRef.current.dragging) {
+        phiRef.current += 0.01;
+      }
+      const pulse = 0.01 + 0.025 * Math.abs(Math.sin(Date.now() / 600));
+      globe.update({
+        phi: phiRef.current,
+        theta: thetaRef.current,
+        markers: MARKERS.map((m) => ({ ...m, size: pulse })),
+      });
+      animId = requestAnimationFrame(animate);
+    }
+
+    animId = requestAnimationFrame(animate);
+
+    let currentDark = isDark;
+    const observer = new MutationObserver(() => {
+      const dark = document.documentElement.classList.contains('dark');
+      if (dark === currentDark) return;
+      currentDark = dark;
+      globe.update(themeConfig(dark));
+    });
+    observer.observe(document.documentElement, { attributeFilter: ['class'] });
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return;
+      pointerRef.current.dragging = true;
+      pointerRef.current.lastX = e.clientX;
+      pointerRef.current.lastY = e.clientY;
+      pointerRef.current.startPhi = phiRef.current;
+      pointerRef.current.startTheta = thetaRef.current;
+      canvas.setPointerCapture(e.pointerId);
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (!pointerRef.current.dragging) return;
+      phiRef.current = pointerRef.current.startPhi + (e.clientX - pointerRef.current.lastX) * 0.006;
+      thetaRef.current = Math.max(
+        -Math.PI / 2,
+        Math.min(
+          Math.PI / 2,
+          pointerRef.current.startTheta + (e.clientY - pointerRef.current.lastY) * 0.006,
+        ),
+      );
+    };
+
+    const onPointerUp = () => {
+      pointerRef.current.dragging = false;
+    };
+
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerup', onPointerUp);
+    canvas.addEventListener('pointercancel', onPointerUp);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      observer.disconnect();
+      globe.destroy();
+      canvas.removeEventListener('pointerdown', onPointerDown);
+      canvas.removeEventListener('pointermove', onPointerMove);
+      canvas.removeEventListener('pointerup', onPointerUp);
+      canvas.removeEventListener('pointercancel', onPointerUp);
+      container.innerHTML = '';
+    };
+  }, []);
+
+  return <div ref={containerRef} className='w-full aspect-square' />;
+}

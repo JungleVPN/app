@@ -381,7 +381,14 @@
     "hero": {
       "subtitle": "Open the whole internet — safely and without limits.",
       "cta": "Try now",
-      "guarantee": "3-day FREE trial",
+      "login": "Login",
+      "trial": "3-day FREE trial",
+      "guarantee": "30-day money-back guarantee",
+      "features": {
+        "smartSplit": "Our friendly and knowledgeable team is always ready to help",
+        "russianServices": "Browse seamlessly without interruptions.",
+        "speed": "High speed and unlimited traffic"
+      },
       "bento": {
         "speed": {
           "title": "Unlimited speed",
