@@ -8,7 +8,7 @@ import IconDevices from '../../assets/icons/device-tab-icon.svg?react';
 import IconPig from '../../assets/icons/payment-tab-icon.svg?react';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
-import { useNavbarStore } from '../../stores';
+import { useNavbarStore, useSavedMethodsStoreInfo } from '../../stores';
 import css from './Tabs.module.css';
 
 type TabValue = 'subscription' | 'payments' | 'devices' | 'menu';
@@ -58,6 +58,8 @@ export const Navbar = () => {
     profileMenuPath,
   } = useAppRoutes();
   const { isVisible } = useNavbarStore();
+  const savedMethods = useSavedMethodsStoreInfo();
+  const hasActiveMethod = savedMethods?.some((m) => m.isActive) ?? false;
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { pathname } = useLocation();
@@ -139,11 +141,11 @@ export const Navbar = () => {
     () =>
       ({
         subscription: profileSubscriptionPath,
-        payments: profilePlansPath,
+        payments: hasActiveMethod ? profilePaymentPath : profilePlansPath,
         devices: profileDevicesPath,
         menu: profileMenuPath,
       }) satisfies Record<TabValue, string>,
-    [profileSubscriptionPath, profilePlansPath, profileDevicesPath, profileMenuPath],
+    [profileSubscriptionPath, profilePaymentPath, profilePlansPath, hasActiveMethod, profileDevicesPath, profileMenuPath],
   );
 
   const tabs = useMemo<TabDef[]>(

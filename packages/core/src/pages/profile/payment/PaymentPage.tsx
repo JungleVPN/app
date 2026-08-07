@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url';
+import { useNavigation } from '../../../hooks';
+import { useAppRoutes } from '../../../runtime';
 import { useNavbarStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
 import { PaymentForm } from './components/PaymentForm';
@@ -17,7 +19,11 @@ import { getButtonLabel } from './utils/getButtonLabel';
 export default function PaymentPage() {
   const { t } = useTranslation();
   const location = useLocation();
-  const selectedPlan = location.state?.selectedPlan as { months: number; priceEur: number; priceRub: number };
+  const selectedPlan = location.state?.selectedPlan as {
+    months: number;
+    priceEur: number;
+    priceRub: number;
+  };
 
   const {
     savedMethods,
@@ -43,13 +49,21 @@ export default function PaymentPage() {
     validatePromo,
   } = usePayment(selectedPlan?.months ?? 1);
   const { setNavbarVisible } = useNavbarStore();
+  const navigate = useNavigation();
+  const { profilePlansPath } = useAppRoutes();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('yookassa');
 
   useEffect(() => {
     setNavbarVisible(!successState.isOpen);
   }, [setNavbarVisible, successState.isOpen]);
 
-  const buttonLabel = getButtonLabel(selectedMethod, selectedPlan, t);
+  useEffect(() => {
+    if (!isLoading && !hasActiveMethod && !selectedPlan) {
+      navigate(profilePlansPath);
+    }
+  }, [isLoading, hasActiveMethod, selectedPlan, navigate, profilePlansPath]);
+
+  const buttonLabel = selectedPlan ? getButtonLabel(selectedMethod, selectedPlan, t) : '';
 
   const isPendingByMethod: Record<PaymentMethod, boolean> = {
     yookassa: isPaying,

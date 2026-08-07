@@ -1,7 +1,7 @@
 import { openLink } from '@tma.js/sdk-react';
 import { useRemnawaveApi } from '../../../../api';
 import { coreEnv } from '../../../../env';
-import { useCreatePaymentSession, useDeleteSavedMethod } from '../../../../hooks';
+import { useCreatePaymentSession, useDeleteSavedMethod, useNavigation } from '../../../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../../../runtime';
 import {
   useAuthStoreActions,
@@ -16,7 +16,8 @@ export function useYookassaPayment(selectedPeriod: number) {
   const { setRmnUser } = useAuthStoreActions();
   const { setSavedMethods } = useSavedMethodsStoreActions();
   const { platformType, clientPlatform } = usePlatformStore();
-  const { paymentReturnPath } = useAppRoutes();
+  const { paymentReturnPath, profilePlansPath } = useAppRoutes();
+  const navigate = useNavigation();
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
 
@@ -29,6 +30,9 @@ export function useYookassaPayment(selectedPeriod: number) {
     await deleteMethod(id);
     const list = await paymentsApi.getSavedMethods();
     setSavedMethods(list);
+    if (!list?.some((m) => m.isActive)) {
+      navigate(profilePlansPath);
+    }
   };
 
   const handleYookassaPayment = async (email?: string, promoCode?: string) => {
