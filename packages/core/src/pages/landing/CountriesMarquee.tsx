@@ -28,8 +28,8 @@ export function CountriesMarquee() {
         {t('landing.countries.label')}
       </p>
       <Marquee pauseOnHover gradient gradientColor='var(--background)'>
-        {[...COUNTRIES, ...COUNTRIES, ...COUNTRIES, ...COUNTRIES].map(({ flag, name }, i) => (
-          <CountryBadge key={i} flag={flag} name={name} />
+        {[...COUNTRIES, ...COUNTRIES, ...COUNTRIES, ...COUNTRIES].map(({ flag, name }) => (
+          <CountryBadge key={flag} flag={flag} name={name} />
         ))}
       </Marquee>
     </section>

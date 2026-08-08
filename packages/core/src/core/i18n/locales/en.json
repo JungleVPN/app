@@ -528,6 +528,36 @@
       "referral": "Referral",
       "pricing": "Pricing",
       "trial": "Pricing"
+    },
+    "bento": {
+      "titleStart": "Everything you need,",
+      "titleBrand": "built in",
+      "subtitle": "A complete platform packed with powerful features",
+      "learnMore": "Learn more",
+      "affiliate": {
+        "title": "Affiliate Program",
+        "description": "Earn commissions by promoting JungleVPN. Get your unique link and start earning today."
+      },
+      "reverseVpn": {
+        "title": "Reverse VPN",
+        "description": "Access Russian services from abroad. Connect to RU servers seamlessly."
+      },
+      "security": {
+        "title": "Security",
+        "description": "Military-grade protection for all your traffic. No logs, no leaks."
+      },
+      "encryption": {
+        "title": "Encryption",
+        "description": "The most modern encryption. Your data is always secure."
+      },
+      "referral": {
+        "title": "Referral Program",
+        "description": "Invite friends and earn bonuses. Share your link and get rewarded for every signup."
+      },
+      "center": {
+        "title": "JungleVPN — always connected",
+        "description": "Fast, secure, and private internet access anywhere in the world"
+      }
     }
   },
   "transactions": {

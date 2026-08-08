@@ -1,3 +1,4 @@
+import { BentoSection } from './BentoSection';
 import { CountriesMarquee } from './CountriesMarquee';
 import { FAQSection } from './FAQSection';
 import { FeaturesSection } from './FeaturesSection';
@@ -21,6 +22,9 @@ export default function LandingPage() {
       </div>
       <div className={'max-w-7xl mx-auto'}>
         <FeaturesSection />
+      </div>
+      <div className={'max-w-7xl mx-auto'}>
+        <BentoSection />
       </div>
       <CountriesMarquee />
       <div className={'max-w-7xl mx-auto'}>
