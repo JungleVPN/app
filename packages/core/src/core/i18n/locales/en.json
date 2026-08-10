@@ -433,27 +433,19 @@
       "titleStart": "Why people love",
       "titleBrand": "JungleVPN",
       "subtitle": "Here's why thousands of people choose JungleVPN every day",
-      "feature1": {
+      "ready": {
         "title": "Ready in minutes",
         "description": "You'll be up and running in 2 minutes — no tech skills needed."
       },
-      "feature2": {
+      "money": {
         "title": "Money-back guarantee",
         "description": "Not happy? We'll give your money back, no questions asked."
       },
-      "feature3": {
-        "title": "Your privacy, protected",
-        "description": "Everything you do online stays private. Always."
-      },
-      "feature4": {
-        "title": "Unlimited speed",
-        "description": "Stream, browse, and download as much as you want — no limits."
-      },
-      "feature5": {
+      "globe": {
         "title": "Works everywhere",
         "description": "Your phone, laptop, tablet — we've got them all covered. Connect up to {{deviceLimit}} devices"
       },
-      "feature6": {
+      "support": {
         "title": "Friendly support",
         "description": "Real people, real help. We usually reply in about 10 minutes."
       }
@@ -546,10 +538,6 @@
         "title": "Security",
         "description": "Military-grade protection for all your traffic. No logs, no leaks."
       },
-      "encryption": {
-        "title": "Encryption",
-        "description": "The most modern encryption. Your data is always secure."
-      },
       "referral": {
         "title": "Referral Program",
         "description": "Invite friends and earn bonuses. Share your link and get rewarded for every signup."
@@ -557,6 +545,14 @@
       "center": {
         "title": "JungleVPN — always connected",
         "description": "Fast, secure, and private internet access anywhere in the world"
+      },
+      "privacy": {
+        "title": "Your privacy, protected",
+        "description": "Everything you do online stays private. Always."
+      },
+      "speed": {
+        "title": "Unlimited speed",
+        "description": "Stream, browse, and download as much as you want — no limits."
       }
     }
   },

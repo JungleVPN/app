@@ -5,9 +5,12 @@ import { FeaturesSection } from './FeaturesSection';
 import { FooterSection } from './FooterSection';
 import { FreeTrialSection } from './FreeTrialSection';
 import { HeroSection } from './HeroSection';
-import { PartnershipSection } from './PartnershipSection';
 import { HowItWorksSection } from './HowItWorksSection';
+import { PartnershipSection } from './PartnershipSection';
+import { Stats } from './Stats';
 import { TrustSection } from './TrustSection';
+import { WorldMap } from './WorldMap';
+
 // import { PricingSection } from './PricingSection';
 
 export default function LandingPage() {
@@ -17,6 +20,7 @@ export default function LandingPage() {
       <div className={'max-w-7xl mx-auto'}>
         <TrustSection />
       </div>
+      <CountriesMarquee />
       <div className={'max-w-7xl mx-auto'}>
         <HowItWorksSection />
       </div>
@@ -26,7 +30,13 @@ export default function LandingPage() {
       <div className={'max-w-7xl mx-auto'}>
         <BentoSection />
       </div>
-      <CountriesMarquee />
+      <div className={'pt-40'}>
+        <WorldMap />
+      </div>
+
+      <div className={'mb-40'}>
+        <Stats />
+      </div>
       <div className={'max-w-7xl mx-auto'}>
         {/*<div id='pricing'>*/}
         {/*  <PricingSection />*/}
