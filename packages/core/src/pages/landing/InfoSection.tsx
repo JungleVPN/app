@@ -79,7 +79,7 @@ export function InfoSection() {
         {CONCEPT_CARDS.map(({ key, icon, color, bg, accent }) => (
           <div
             key={key}
-            className={`relative flex min-h-44 flex-col justify-between overflow-hidden rounded-3xl p-7 ${bg}`}
+            className={`relative flex min-h-44 flex-col justify-between overflow-hidden rounded-3xl p-7 transition-transform duration-300 hover:-translate-y-1.5 ${bg}`}
           >
             <div className={`absolute -right-8 -top-8 h-32 w-32 rounded-full ${accent}`} />
             <span className={`relative ${color}`}>{icon}</span>
@@ -109,7 +109,7 @@ export function InfoSection() {
         {USE_CASE_CARDS.map(({ key, icon, color }) => (
           <div
             key={key}
-            className='flex items-start gap-4 rounded-2xl border border-divider bg-surface-secondary p-6'
+            className='flex items-start gap-4 rounded-2xl border border-divider bg-surface-secondary p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md'
           >
             <span className={`mt-0.5 shrink-0 ${color}`}>{icon}</span>
             <div>
@@ -148,7 +148,7 @@ export function InfoSection() {
         {DEVICES.map(({ key, icon }) => (
           <div
             key={key}
-            className='flex flex-col items-center gap-3 rounded-2xl border border-divider bg-surface-secondary py-6 px-4'
+            className='flex flex-col items-center gap-3 rounded-2xl border border-divider bg-surface-secondary py-6 px-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1'
           >
             <span className='text-muted'>{icon}</span>
             <h3 className='text-sm font-semibold text-foreground'>

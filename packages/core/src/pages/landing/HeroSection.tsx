@@ -1,8 +1,19 @@
 import { Button, Chip } from '@heroui/react';
 import { IconCheck, IconShieldCheck } from '@tabler/icons-react';
+import { motion, Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Globe } from './Globe';
+
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.14 } },
+};
+
+const item: Variants | undefined = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+};
 
 export function HeroSection() {
   const { t } = useTranslation();
@@ -16,24 +27,29 @@ export function HeroSection() {
   return (
     <section className='mx-auto flex w-full max-w-7xl flex-col gap-0 px-6 pt-36 md:px-12 lg:px-24'>
       <div className='flex flex-col items-center lg:flex-row lg:items-center lg:gap-12'>
-        <div className='flex flex-col items-center gap-6 text-center lg:max-w-lg lg:items-start lg:text-left lg:shrink-0'>
-          <div className='flex flex-col gap-3'>
+        <motion.div
+          className='flex flex-col items-center gap-6 text-center lg:max-w-lg lg:items-start lg:text-left lg:shrink-0'
+          variants={container}
+          initial='hidden'
+          animate='show'
+        >
+          <motion.div variants={item} className='flex flex-col gap-3'>
             <h1 className='text-6xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-7xl'>
               Jungle VPN
             </h1>
             <p className='max-w-xl text-base text-muted lg:text-lg'>{t('landing.hero.subtitle')}</p>
-          </div>
+          </motion.div>
 
-          <ul className='flex flex-col gap-2 items-start'>
+          <motion.ul variants={item} className='flex flex-col gap-2 items-start'>
             {features.map((feature) => (
               <li key={feature} className='flex items-center gap-2 text-sm text-muted'>
                 <IconCheck size={16} className='text-primary shrink-0' />
                 <span className='text-start'>{feature}</span>
               </li>
             ))}
-          </ul>
+          </motion.ul>
 
-          <div className='flex flex-col items-center gap-3 lg:items-start'>
+          <motion.div variants={item} className='flex flex-col items-center gap-3 lg:items-start'>
             <div className='flex items-center gap-3'>
               <Button
                 size='lg'
@@ -55,12 +71,17 @@ export function HeroSection() {
               <IconShieldCheck size={14} />
               <Chip.Label>{t('landing.hero.trial')}</Chip.Label>
             </Chip>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        <div className='w-full max-w-lg mx-auto lg:max-w-none lg:flex-1'>
+        <motion.div
+          className='w-full max-w-lg mx-auto lg:max-w-none lg:flex-1'
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+        >
           <Globe />
-        </div>
+        </motion.div>
       </div>
     </section>
   );

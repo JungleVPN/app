@@ -94,9 +94,6 @@ const STEPS: Step[] = [
   },
 ];
 
-// Container height: 700px, card height ≈ 220px, vertical stagger: 240px
-// Card centers at Y: 110px (15.7%), 350px (50%), 590px (84.3%)
-// Cards span X: card-01 0–30%, card-02 35–65%, card-03 70–100%
 const DESKTOP_POSITIONS: DesktopPosition[] = [
   { left: '00%', top: 0, rotate: '-5deg' },
   { left: '75%', top: 280, rotate: '3deg' },
@@ -106,7 +103,10 @@ const DESKTOP_POSITIONS: DesktopPosition[] = [
 function StepCard({ step }: { step: Step }) {
   const { t } = useTranslation();
   return (
-    <Card variant='secondary' className='flex flex-col gap-5 p-7 shadow-lg'>
+    <Card
+      variant='secondary'
+      className='flex flex-col gap-5 p-7 shadow-lg transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl'
+    >
       <div className='flex items-start justify-between'>
         <span className={`text-5xl font-bold italic ${step.color}`}>{step.number}</span>
         <div className={`${step.bgColor} ${step.color} rounded-xl p-3`}>{step.icon}</div>

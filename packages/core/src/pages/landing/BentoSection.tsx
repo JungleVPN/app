@@ -26,7 +26,7 @@ export function BentoSection() {
 
       <div className='grid grid-cols-2 gap-4 lg:grid-cols-3 lg:grid-rows-[repeat(3,220px)]'>
         {/* Affiliate — wide top-left */}
-        <div className='relative flex min-h-50 flex-col justify-between overflow-hidden rounded-3xl bg-violet-300 p-7 dark:bg-violet-500 col-span-2 lg:col-span-3 lg:row-1'>
+        <div className='relative flex min-h-50 flex-col justify-between overflow-hidden rounded-3xl bg-violet-300 p-7 dark:bg-violet-500 col-span-2 lg:col-span-3 lg:row-1 transition-transform duration-300 hover:-translate-y-1.5'>
           <div className='absolute -right-10 -top-10 h-44 w-44 rounded-full bg-violet-200/60 dark:bg-violet-800/30' />
           <IconAffiliate size={40} className='relative text-violet-400 dark:text-violet-100' />
           <div className='relative'>
@@ -48,7 +48,7 @@ export function BentoSection() {
         </div>
 
         {/* Reverse VPN — top-right col 1 */}
-        <div className='relative flex min-h-50 flex-col justify-between overflow-hidden rounded-3xl bg-amber-200 p-7 dark:bg-amber-300'>
+        <div className='relative flex min-h-50 flex-col justify-between overflow-hidden rounded-3xl bg-amber-200 p-7 dark:bg-amber-300 transition-transform duration-300 hover:-translate-y-1.5'>
           <IconArrowsExchange size={36} className='text-amber-500' />
           <div>
             <h3 className='text-base font-bold text-amber-900 dark:text-amber-900'>
@@ -61,7 +61,7 @@ export function BentoSection() {
         </div>
 
         {/* Security — top-right col 2 */}
-        <div className='relative flex min-h-50 flex-col justify-between overflow-hidden rounded-3xl bg-sky-200 p-7 dark:bg-sky-950/60'>
+        <div className='relative flex min-h-50 flex-col justify-between overflow-hidden rounded-3xl bg-sky-200 p-7 dark:bg-sky-950/60 transition-transform duration-300 hover:-translate-y-1.5'>
           <IconShieldCheck size={36} className='text-sky-500' />
           <div>
             <h3 className='text-base font-bold text-sky-900 dark:text-sky-100'>
@@ -74,7 +74,7 @@ export function BentoSection() {
         </div>
 
         {/* Privacy — row 2, cols 1–2 */}
-        <div className='relative flex min-h-50 flex-col justify-between overflow-hidden rounded-3xl bg-indigo-100 p-7 dark:bg-indigo-950/60'>
+        <div className='relative flex min-h-50 flex-col justify-between overflow-hidden rounded-3xl bg-indigo-100 p-7 dark:bg-indigo-950/60 transition-transform duration-300 hover:-translate-y-1.5'>
           <div className='absolute -right-8 -top-8 h-36 w-36 rounded-full bg-indigo-200/60 dark:bg-indigo-800/20' />
           <IconFingerprint size={36} className='relative text-indigo-500' />
           <div className='relative'>
@@ -88,7 +88,7 @@ export function BentoSection() {
         </div>
 
         {/* Speed — row 3, cols 1–2 */}
-        <div className='relative flex min-h-50 flex-col justify-between overflow-hidden rounded-3xl bg-cyan-100 p-7 dark:bg-cyan-950/60'>
+        <div className='relative flex min-h-50 flex-col justify-between overflow-hidden rounded-3xl bg-cyan-100 p-7 dark:bg-cyan-950/60 transition-transform duration-300 hover:-translate-y-1.5'>
           <div className='absolute -right-8 -top-8 h-36 w-36 rounded-full bg-cyan-200/60 dark:bg-cyan-800/20' />
           <IconBolt size={36} className='relative text-cyan-500' />
           <div className='relative'>
@@ -110,7 +110,7 @@ export function BentoSection() {
         </div> */}
 
         {/* Referral — bottom-right */}
-        <div className='relative flex min-h-50 flex-col justify-between overflow-hidden rounded-3xl bg-rose-100 p-7 dark:bg-rose-950/60 col-span-2'>
+        <div className='relative flex min-h-50 flex-col justify-between overflow-hidden rounded-3xl bg-rose-100 p-7 dark:bg-rose-950/60 col-span-2 transition-transform duration-300 hover:-translate-y-1.5'>
           <div className='absolute -bottom-8 -right-8 h-36 w-36 rounded-full bg-rose-100 dark:bg-rose-900/30' />
           <IconUsers size={36} className='relative text-rose-500' />
           <div className='relative'>
