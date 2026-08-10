@@ -12,6 +12,7 @@ import { usePlatformStore } from '../../stores';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { MobileDrawer } from './MobileDrawer';
 import { ThemeToggle } from './ThemeToggle';
 
 export function Header() {
@@ -39,20 +40,21 @@ export function Header() {
     return '/';
   };
 
+  const logoNode =
+    platformType === 'telegram' && photoUrl ? (
+      <Avatar size='sm' className='size-13'>
+        <Avatar.Image alt={tgUser?.first_name ?? 'User'} src={photoUrl} />
+        <Avatar.Fallback>{tgUser?.first_name?.[0] ?? 'U'}</Avatar.Fallback>
+      </Avatar>
+    ) : theme === 'dark' || platformType === 'telegram' ? (
+      <LogoDark aria-label={t('header.logoAlt')} width={56} height={56} />
+    ) : (
+      <Logo aria-label={t('header.logoAlt')} width={56} height={56} />
+    );
+
   return (
     <div className='flex items-center justify-start m-auto gap-12'>
-      <Link to={getLink()}>
-        {platformType === 'telegram' && photoUrl ? (
-          <Avatar size='sm' className='size-13'>
-            <Avatar.Image alt={tgUser?.first_name ?? 'User'} src={photoUrl} />
-            <Avatar.Fallback>{tgUser?.first_name?.[0] ?? 'U'}</Avatar.Fallback>
-          </Avatar>
-        ) : theme === 'dark' || platformType === 'telegram' ? (
-          <LogoDark aria-label={t('header.logoAlt')} width={56} height={56} />
-        ) : (
-          <Logo aria-label={t('header.logoAlt')} width={56} height={56} />
-        )}
-      </Link>
+      <Link to={getLink()}>{logoNode}</Link>
 
       {isLanding && (
         <nav className='hidden sm:flex items-center gap-6'>
@@ -68,12 +70,21 @@ export function Header() {
         </nav>
       )}
 
-      <div className='flex items-center justify-between gap-2 ml-auto'>
+      {/* Desktop controls */}
+      <div className='hidden sm:flex items-center justify-between gap-2 ml-auto'>
         {!isLanding && <SubscriptionLinkWidget />}
         {platformType === 'web' && <ThemeToggle />}
         <LanguageSwitcher />
         {platformType === 'web' && <AuthButtons />}
       </div>
+
+      {/* Mobile: hamburger only */}
+      {platformType === 'web' && (
+        <div className='flex sm:hidden items-center gap-2 ml-auto'>
+          {!isLanding && <SubscriptionLinkWidget />}
+          <MobileDrawer />
+        </div>
+      )}
     </div>
   );
 }

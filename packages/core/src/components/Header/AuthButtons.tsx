@@ -67,11 +67,11 @@ export function AuthButtons() {
   if (location.pathname.includes('login')) return null;
 
   return (
-    <>
+    <div className='flex items-center gap-2'>
       <Button variant={'tertiary'} onPress={handleLogin}>
         {t('header.login')}
       </Button>
       <Button onPress={handleTryNow}>{t('header.cta')}</Button>
-    </>
+    </div>
   );
 }
