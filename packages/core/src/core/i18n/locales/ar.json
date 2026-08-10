@@ -478,7 +478,8 @@
       "yearlyPeriod": "سنة واحدة",
       "yearlyDiscount": "خصم 50%",
       "biennialPeriod": "سنتين",
-      "biennialDiscount": "خصم 60%"
+      "biennialDiscount": "خصم 60%",
+      "monthsPeriod": "{{count}} أشهر"
     },
     "faq": {
       "title": "عندك أسئلة؟",

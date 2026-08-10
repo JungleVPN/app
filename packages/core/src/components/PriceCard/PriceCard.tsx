@@ -41,24 +41,24 @@ export function PriceCard({
   return (
     <div className={`relative flex flex-col ${highlighted ? 'z-10' : ''}`}>
       {highlighted && badge && (
-        <div className='rounded-t-2xl bg-linear-to-r from-violet-500 to-blue-500 py-2 text-center text-sm font-semibold text-white'>
+        <div className='rounded-t-2xl bg-linear-to-r from-purple-400 to-yellow-400 ring-2 ring-purple-400 py-2 text-center text-sm font-semibold text-white'>
           🔥 {badge}
         </div>
       )}
 
       <Card
         variant='secondary'
-        className={`w-full p-8 shadow-md ${highlighted ? 'rounded-t-none ring-2 ring-indigo-500' : ''}`}
+        className={`w-full p-8 shadow-md ${highlighted ? 'rounded-t-none ring-2 ring-purple-400' : ''}`}
       >
         <div className='mb-6 flex flex-col gap-1'>
           <span className='text-lg font-bold text-foreground'>{period}</span>
-          {discount && <span className='text-sm font-semibold text-indigo-600'>{discount}</span>}
+          {discount && <span className='text-sm font-semibold text-purple-400'>{discount}</span>}
           {subtitle && !discount && <span className='text-sm text-muted'>{subtitle}</span>}
         </div>
 
         <div className='mb-6 flex items-baseline gap-1'>
           <span
-            className={`text-5xl font-bold tracking-tight ${highlighted ? 'text-indigo-600' : 'text-foreground'}`}
+            className={`text-5xl font-bold tracking-tight ${highlighted ? 'text-purple-400' : 'text-foreground'}`}
           >
             {price}
             {currency}
@@ -101,8 +101,8 @@ export function PriceCard({
           size='lg'
           className={
             highlighted
-              ? 'w-full bg-indigo-600 text-white hover:bg-indigo-700'
-              : 'w-full border border-indigo-500 bg-transparent text-indigo-600 hover:bg-indigo-50'
+              ? 'w-full bg-linear-to-r from-purple-400 to-yellow-400 text-white hover:bg-indigo-700'
+              : 'w-full border border-purple-400 bg-transparent text-purple-400 hover:bg-indigo-50'
           }
           onClick={onCtaClick}
         >

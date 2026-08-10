@@ -1,5 +1,5 @@
 import { Chip } from '@heroui/react';
-import { IconCheck, IconX } from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 type Row = {

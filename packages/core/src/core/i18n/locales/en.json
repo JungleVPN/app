@@ -471,7 +471,8 @@
       "yearlyPeriod": "1 year",
       "yearlyDiscount": "50% off",
       "biennialPeriod": "2 years",
-      "biennialDiscount": "60% off"
+      "biennialDiscount": "60% off",
+      "monthsPeriod": "{{count}} months"
     },
     "faq": {
       "title": "Got questions?",

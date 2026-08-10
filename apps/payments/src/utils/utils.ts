@@ -19,7 +19,7 @@ export class PaymentsUtils {
   }
 
   getAllowedPeriods(): number[] {
-    const envValue = this.configService.get<string>('PUBLIC_ALLOWED_PERIOD', '');
+    const envValue = this.configService.get<string>('ALLOWED_PERIOD', '');
     return (envValue || '')
       .split(',')
       .map((p) => Number(p.trim()))

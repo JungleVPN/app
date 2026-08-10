@@ -8,11 +8,10 @@ import { FreeTrialSection } from './FreeTrialSection';
 import { HeroSection } from './HeroSection';
 import { HowItWorksSection } from './HowItWorksSection';
 import { PartnershipSection } from './PartnershipSection';
+import { PricingSection } from './PricingSection';
 import { Stats } from './Stats';
 import { TrustSection } from './TrustSection';
 import { WorldMap } from './WorldMap';
-
-// import { PricingSection } from './PricingSection';
 
 export default function LandingPage() {
   return (
@@ -40,9 +39,9 @@ export default function LandingPage() {
       </div>
       <ComparisonSection />
       <div className={'max-w-7xl mx-auto'}>
-        {/*<div id='pricing'>*/}
-        {/*  <PricingSection />*/}
-        {/*</div>*/}
+        <div id='pricing'>
+          <PricingSection />
+        </div>
         <FreeTrialSection />
         <div id='partnership'>
           <PartnershipSection />

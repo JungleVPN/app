@@ -1,7 +1,10 @@
 import { IconBrandAppleFilled, IconBrandGoogleFilled } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
+import { apiRoutes, type SubscriptionPlanDto } from '@workspace/types';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
+import { coreEnv } from '../../env';
 
 function PaymentMethods() {
   return (
@@ -49,9 +52,31 @@ function GooglePayIcon() {
   );
 }
 
+function usePlans() {
+  const [plans, setPlans] = useState<SubscriptionPlanDto[]>([]);
+
+  useEffect(() => {
+    const url = `${coreEnv.paymentsUrl}${apiRoutes.payments.plans}`;
+    fetch(url)
+      .then((r) => r.json())
+      .then((data: SubscriptionPlanDto[]) => setPlans(data))
+      .catch(() => {});
+  }, []);
+
+  return plans;
+}
+
 export function PricingSection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const plans = usePlans();
+
+  function formatMonths(months: number): string {
+    if (months === 1) return t('landing.pricing.period');
+    if (months === 12) return t('landing.pricing.yearlyPeriod');
+    if (months === 24) return t('landing.pricing.biennialPeriod');
+    return t('landing.pricing.monthsPeriod', { count: months });
+  }
 
   const handleCtaClick = () => navigate('/login');
 
@@ -64,6 +89,8 @@ export function PricingSection() {
     onCtaClick: handleCtaClick,
   };
 
+  if (plans.length === 0) return null;
+
   return (
     <section className='mx-auto w-full px-6 py-24 md:px-12 lg:px-24'>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
@@ -75,33 +102,21 @@ export function PricingSection() {
 
       <div className='flex flex-col items-center gap-8'>
         <div className='grid w-full max-w-5xl grid-cols-1 items-center gap-4 md:grid-cols-3'>
-          <PriceCard
-            {...sharedProps}
-            period={t('landing.pricing.yearlyPeriod')}
-            discount={t('landing.pricing.yearlyDiscount')}
-            price='3,99'
-            originalTotal='95,76 €'
-            discountedTotal='47,88 €'
-          />
-
-          <PriceCard
-            {...sharedProps}
-            period={t('landing.pricing.biennialPeriod')}
-            discount={t('landing.pricing.biennialDiscount')}
-            price='2,99'
-            originalTotal='179,40 €'
-            discountedTotal='71,76 €'
-            badge={t('landing.pricing.badge')}
-            highlighted
-          />
-
-          <PriceCard
-            {...sharedProps}
-            period={t('landing.pricing.period')}
-            subtitle={t('landing.pricing.monthlySubtitle')}
-            price='7,99'
-            noDiscountLabel={t('landing.pricing.noDiscount')}
-          />
+          {plans.map((plan, i) => (
+            <PriceCard
+              key={plan.months}
+              {...sharedProps}
+              period={formatMonths(plan.months)}
+              price={plan.priceEur}
+              highlighted={i === Math.floor(plans.length / 2) && plans.length > 1}
+              badge={
+                i === Math.floor(plans.length / 2) && plans.length > 1
+                  ? t('landing.pricing.badge')
+                  : undefined
+              }
+              noDiscountLabel={t('landing.pricing.noDiscount')}
+            />
+          ))}
         </div>
 
         <PaymentMethods />
