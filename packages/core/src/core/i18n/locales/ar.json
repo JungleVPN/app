@@ -561,6 +561,44 @@
         "title": "سرعة بلا حدود",
         "description": "شاهد وتصفح وحمّل ما تريد — بلا قيود."
       }
+    },
+    "comparison": {
+      "chip": "لنقارن",
+      "titleStart": "JungleVPN مقابل",
+      "titleBrand": "VPN المجانية",
+      "subtitle": "كن حذرًا — خدمات VPN المجانية غالبًا تبيع بياناتك لتغطية تكاليفها.",
+      "header": {
+        "feature": "لنقارن",
+        "ours": "JungleVPN",
+        "theirs": "VPN مجاني"
+      },
+      "rows": {
+        "speed": {
+          "feature": "السرعة",
+          "ours": "سريع، حتى 5 Gbps",
+          "theirs": "بطيء"
+        },
+        "dataLimit": {
+          "feature": "حد استخدام البيانات الشهري",
+          "ours": "غير محدود",
+          "theirs": "50 GB"
+        },
+        "support": {
+          "feature": "دعم العملاء",
+          "ours": "24/7",
+          "theirs": "لا يوجد دعم"
+        },
+        "devices": {
+          "feature": "الأجهزة المدعومة",
+          "ours": "جميع أجهزتك",
+          "theirs": "الكمبيوتر والجوال"
+        },
+        "tracking": {
+          "feature": "تتبع نشاطك على الإنترنت",
+          "ours": "أبدًا",
+          "theirs": "محتمل"
+        }
+      }
     }
   },
   "transactions": {

@@ -1,4 +1,5 @@
 import { BentoSection } from './BentoSection';
+import { ComparisonSection } from './ComparisonSection';
 import { CountriesMarquee } from './CountriesMarquee';
 import { FAQSection } from './FAQSection';
 import { FeaturesSection } from './FeaturesSection';
@@ -37,6 +38,7 @@ export default function LandingPage() {
       <div className={'mb-40'}>
         <Stats />
       </div>
+      <ComparisonSection />
       <div className={'max-w-7xl mx-auto'}>
         {/*<div id='pricing'>*/}
         {/*  <PricingSection />*/}

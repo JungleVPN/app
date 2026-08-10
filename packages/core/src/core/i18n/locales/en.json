@@ -554,6 +554,44 @@
         "title": "Unlimited speed",
         "description": "Stream, browse, and download as much as you want — no limits."
       }
+    },
+    "comparison": {
+      "chip": "Let's compare",
+      "titleStart": "JungleVPN vs",
+      "titleBrand": "Free VPNs",
+      "subtitle": "Be cautious — free VPNs often sell your data to cover their costs, putting your privacy at risk.",
+      "header": {
+        "feature": "Let's compare",
+        "ours": "JungleVPN",
+        "theirs": "Free VPN"
+      },
+      "rows": {
+        "speed": {
+          "feature": "Speed",
+          "ours": "Fast, up to 5 Gbps",
+          "theirs": "Slow"
+        },
+        "dataLimit": {
+          "feature": "Monthly data usage limit",
+          "ours": "Unlimited",
+          "theirs": "50 GB"
+        },
+        "support": {
+          "feature": "Customer support",
+          "ours": "24/7",
+          "theirs": "No support"
+        },
+        "devices": {
+          "feature": "Supported devices",
+          "ours": "All your devices",
+          "theirs": "PC and Mobile"
+        },
+        "tracking": {
+          "feature": "Tracks your online activity",
+          "ours": "Never",
+          "theirs": "Possible"
+        }
+      }
     }
   },
   "transactions": {
