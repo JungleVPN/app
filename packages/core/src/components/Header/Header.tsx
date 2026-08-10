@@ -23,6 +23,7 @@ export function Header() {
   const { theme } = useTheme();
   const remnawaveApi = useRemnawaveApi();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
   const isLanding = pathname === '/';
 
@@ -34,6 +35,14 @@ export function Header() {
       .then(({ photoUrl: url }) => setPhotoUrl(url))
       .catch(() => {});
   }, [platformType, tgUser?.id, remnawaveApi.getMyTelegramPhoto]);
+
+  useEffect(() => {
+    const root = document.getElementById('root');
+    if (!root) return;
+    const onScroll = () => setScrolled(root.scrollTop > 0);
+    root.addEventListener('scroll', onScroll, { passive: true });
+    return () => root.removeEventListener('scroll', onScroll);
+  }, []);
 
   const getLink = () => {
     if (!authUser && platformType === 'telegram') return pathname;
@@ -52,8 +61,8 @@ export function Header() {
       <Logo aria-label={t('header.logoAlt')} width={56} height={56} />
     );
 
-  return (
-    <div className='flex items-center justify-start m-auto gap-12'>
+  const inner = (
+    <div className='flex items-center justify-between gap-4'>
       <Link to={getLink()}>{logoNode}</Link>
 
       {isLanding && (
@@ -71,7 +80,9 @@ export function Header() {
       )}
 
       {/* Desktop controls */}
-      <div className='hidden sm:flex items-center justify-between gap-2 ml-auto'>
+      <div
+        className={`${isLanding ? 'hidden sm:flex' : ''} flex items-center justify-between gap-2 ml-auto`}
+      >
         {!isLanding && <SubscriptionLinkWidget />}
         {platformType === 'web' && <ThemeToggle />}
         <LanguageSwitcher />
@@ -79,12 +90,28 @@ export function Header() {
       </div>
 
       {/* Mobile: hamburger only */}
-      {platformType === 'web' && (
-        <div className='flex sm:hidden items-center gap-2 ml-auto'>
+      {platformType === 'web' && isLanding && (
+        <div className={'flex sm:hidden items-center gap-2 ml-auto'}>
           {!isLanding && <SubscriptionLinkWidget />}
           <MobileDrawer />
         </div>
       )}
+    </div>
+  );
+
+  return (
+    <div
+      className={`${platformType === 'telegram' ? 'relative' : 'sticky top-0 z-50 shrink-0 py-3'}`}
+    >
+      <div
+        className={`max-w-[90%] lg:max-w-[60%] xl:max-w-[40%] m-auto px-4 py-2 transition-all duration-300 ${
+          scrolled && platformType !== 'telegram'
+            ? 'shadow-lg backdrop-blur-md bg-background/80 rounded-2xl'
+            : ''
+        }`}
+      >
+        {inner}
+      </div>
     </div>
   );
 }

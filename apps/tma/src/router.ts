@@ -7,11 +7,11 @@ import {
   SubscriptionPage,
   TermsPage,
 } from '@workspace/core';
-import { ProtectedPlansPage } from '@workspace/core/pages';
 import {
   ProtectedDevicesPage,
   ProtectedExtraDevicePurchasePage,
   ProtectedMenuPage,
+  ProtectedPlansPage,
   ProtectedReferralsPage,
   ProtectedTransactionDetailsPage,
   ProtectedTransactionsPage,

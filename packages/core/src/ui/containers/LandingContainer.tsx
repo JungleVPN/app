@@ -1,7 +1,7 @@
 import { Surface } from '@heroui/react';
 import type { PropsWithChildren } from 'react';
 
-export interface AppContainerProps extends PropsWithChildren {
+export interface LandingContainerProps extends PropsWithChildren {
   className?: string;
 }
 
@@ -14,11 +14,11 @@ export interface AppContainerProps extends PropsWithChildren {
  *
  * Compatible with web and Telegram Mini App layouts.
  */
-export function AppContainer({ children, className }: AppContainerProps) {
+export function LandingContainer({ children, className }: LandingContainerProps) {
   return (
     <Surface
       variant='transparent'
-      className={`w-full max-w-xl mx-auto px-6 py-4 ${className || ''}`}
+      className={`w-full px-4 md:px-8 lg:px-24 xl:px-72 ${className || ''}`}
     >
       {children}
     </Surface>

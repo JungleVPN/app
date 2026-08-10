@@ -5,6 +5,7 @@ export { ErrorConnection } from './ErrorConnection/ErrorConnection';
 export { AuthButtons } from './Header/AuthButtons';
 export { Header } from './Header/Header';
 export { LanguageSwitcher } from './Header/LanguageSwitcher';
+export { ThemeToggle } from './Header/ThemeToggle';
 export { InfoBlock } from './InfoBlock/InfoBlock';
 export { InstallationGuideConnector } from './InstallationGuide';
 export { LanguagePicker } from './LanguagePicker/LanguagePicker';
@@ -13,6 +14,7 @@ export { Loading } from './Loading/Loading';
 export { PromoDrawer } from './payment/PromoDrawer';
 export { SavedMethodRow } from './payment/SavedMethodRow';
 export { StarsPaymentSuccessDrawer } from './payment/StarsPaymentSuccessDrawer';
+export { ScrollShadowComponent } from './ScrollShadow';
 export { Step } from './Step/Step';
 export { SubscribeCta } from './SubscribeCTA/SubscribeCTA';
 export {
@@ -23,4 +25,3 @@ export {
 export { SubscriptionView } from './SubscriptionView/SubscriptionView';
 export { Navbar } from './Tabs/Tabs';
 export { ThemeIconComponent } from './ThemeIcon/ThemeIcon';
-export { ThemeToggle } from './Header/ThemeToggle';

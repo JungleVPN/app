@@ -8,6 +8,7 @@ import { useNavigation, useSavedMethodsData, useSubscriptionData } from '../hook
 import { TermsDialog } from '../pages/profile/payment/components/TermsDialog';
 import { useAppRoutes } from '../runtime';
 import { useAuthStore, useAuthStoreActions, useAuthStoreInfo } from '../stores';
+import { ProfileContainer } from '../ui/containers/ProfileContainer';
 import { captureReferral } from '../utils';
 
 export function ProfileLayout() {
@@ -69,7 +70,9 @@ export function ProfileLayout() {
 
   return (
     <>
-      <Outlet />
+      <ProfileContainer>
+        <Outlet />
+      </ProfileContainer>
       {rmnUser && <Navbar />}
       <TermsDialog />
     </>

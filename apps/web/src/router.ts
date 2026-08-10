@@ -19,33 +19,52 @@ import {
 } from '@workspace/core/pages';
 import { createBrowserRouter } from 'react-router';
 
+import { WebAppLayout } from '@/layouts/WebAppLayout';
 import { WebRootLayout } from '@/layouts/WebRootLayout';
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    Component: LandingLayout,
+    Component: WebAppLayout,
     children: [
       {
-        index: true,
-        Component: LandingPage,
-      },
-    ],
-  },
-  {
-    Component: WebRootLayout,
-    children: [
-      {
-        path: '/subscribe',
-        Component: GetSubscriptionPage,
+        path: '/',
+        Component: LandingLayout,
+        children: [
+          {
+            index: true,
+            Component: LandingPage,
+          },
+        ],
       },
       {
-        path: '/login',
-        Component: LoginPage,
-      },
-      {
-        path: '/login/confirm',
-        Component: ConfirmPage,
+        Component: WebRootLayout,
+        children: [
+          {
+            path: '/subscribe',
+            Component: GetSubscriptionPage,
+          },
+          {
+            path: '/login',
+            Component: LoginPage,
+          },
+          {
+            path: '/login/confirm',
+            Component: ConfirmPage,
+          },
+
+          {
+            path: '/subscription/:shortUuid',
+            Component: SubscriptionPage,
+          },
+          {
+            path: '/terms',
+            Component: TermsPage,
+          },
+          {
+            path: '/affiliates',
+            Component: AffiliatePage,
+          },
+        ],
       },
       {
         path: '/profile',
@@ -88,18 +107,6 @@ export const router = createBrowserRouter([
             Component: ProtectedReferralsPage,
           },
         ],
-      },
-      {
-        path: '/subscription/:shortUuid',
-        Component: SubscriptionPage,
-      },
-      {
-        path: '/terms',
-        Component: TermsPage,
-      },
-      {
-        path: '/affiliates',
-        Component: AffiliatePage,
       },
     ],
   },
