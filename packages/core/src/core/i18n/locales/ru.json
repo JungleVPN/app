@@ -483,6 +483,7 @@
       "badge": "Лучший выбор",
       "totalLabel": "Итого",
       "noDiscount": "Ежемесячная оплата без скидки",
+      "discount": "скидка {{percent}}%",
       "monthlySubtitle": "подходит для старта",
       "yearlyPeriod": "1 год",
       "yearlyDiscount": "скидка 50%",
@@ -583,11 +584,6 @@
         "theirs": "Бесплатный VPN"
       },
       "rows": {
-        "locations": {
-          "feature": "Количество локаций",
-          "ours": "50+",
-          "theirs": "<10"
-        },
         "speed": {
           "feature": "Скорость",
           "ours": "Быстро, до 5 Гбит/с",
@@ -665,7 +661,9 @@
         "android": "Android",
         "macos": "macOS",
         "windows": "Windows",
-        "linux": "Linux"
+        "linux": "Linux",
+        "appleTv": "Apple TV",
+        "androidTv": "Android TV"
       }
     }
   },

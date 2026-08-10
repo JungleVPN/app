@@ -22,7 +22,7 @@ export default function MenuPage() {
         coreEnv.menuStickerFileId ? (
           <TgsSticker
             src={getTelegramStickerUrl(coreEnv.menuStickerFileId)}
-            className='mx-auto h-28 w-28'
+            className='h-28 w-28'
           />
         ) : undefined
       }

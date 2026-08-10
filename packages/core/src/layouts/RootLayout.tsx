@@ -23,7 +23,7 @@ export function RootLayout() {
       <AppAlert />
       <Surface
         variant='transparent'
-        className='mx-auto flex h-dvh w-full max-w-xl flex-col px-6'
+        className='flex h-dvh w-full max-w-xl flex-col px-6'
         style={isMobileTma ? { paddingTop: '6rem' } : undefined}
       >
         <ScrollShadow className='flex-1 overflow-y-auto' hideScrollBar>

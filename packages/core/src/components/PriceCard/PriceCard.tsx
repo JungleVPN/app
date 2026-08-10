@@ -39,7 +39,9 @@ export function PriceCard({
   highlighted,
 }: PriceCardProps) {
   return (
-    <div className={`relative flex flex-col ${highlighted ? 'z-10' : ''}`}>
+    <div
+      className={`relative cursor-default flex flex-col ${highlighted ? 'z-10' : ''} rounded-b-3xl transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl`}
+    >
       {highlighted && badge && (
         <div className='rounded-t-2xl bg-linear-to-r from-purple-400 to-yellow-400 ring-2 ring-purple-400 py-2 text-center text-sm font-semibold text-white'>
           🔥 {badge}
@@ -48,15 +50,15 @@ export function PriceCard({
 
       <Card
         variant='secondary'
-        className={`w-full p-8 shadow-md ${highlighted ? 'rounded-t-none ring-2 ring-purple-400' : ''}`}
+        className={`w-full p-6 shadow-md ${highlighted ? 'rounded-t-none ring-2 ring-purple-400' : ''} `}
       >
-        <div className='mb-6 flex flex-col gap-1'>
+        <div className='mb-4 flex flex-col gap-1'>
           <span className='text-lg font-bold text-foreground'>{period}</span>
           {discount && <span className='text-sm font-semibold text-purple-400'>{discount}</span>}
           {subtitle && !discount && <span className='text-sm text-muted'>{subtitle}</span>}
         </div>
 
-        <div className='mb-6 flex items-baseline gap-1'>
+        <div className='mb-4 flex items-baseline gap-1'>
           <span
             className={`text-5xl font-bold tracking-tight ${highlighted ? 'text-purple-400' : 'text-foreground'}`}
           >
@@ -66,7 +68,7 @@ export function PriceCard({
           <span className='text-sm text-muted'>{interval}</span>
         </div>
 
-        <div className='mb-6'>
+        <div className='mb-4'>
           {(originalTotal || discountedTotal) && (
             <div className='flex flex-wrap items-center gap-1 text-sm text-muted'>
               <span>{totalLabel}</span>
@@ -81,7 +83,7 @@ export function PriceCard({
         </div>
 
         {advantages && advantages.length > 0 && (
-          <ul className='mb-6 flex flex-col gap-2'>
+          <ul className='mb-4 flex flex-col gap-2'>
             {advantages.map((item) => (
               <li key={item} className='flex items-center gap-2 text-sm text-foreground'>
                 {item}
@@ -90,9 +92,9 @@ export function PriceCard({
           </ul>
         )}
 
-        <div className='mb-6 h-px bg-border' />
+        <div className='mb-4 h-px bg-border' />
 
-        <div className='mb-6 flex items-center gap-2 text-sm text-muted'>
+        <div className='mb-4 flex items-center gap-2 text-sm text-muted'>
           <IconArrowsShuffle size={18} className='shrink-0' />
           {guarantee}
         </div>

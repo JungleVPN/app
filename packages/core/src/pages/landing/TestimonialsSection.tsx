@@ -149,7 +149,7 @@ export function TestimonialsSection() {
       </div>
 
       {/* Desktop & tablet: vertical columns */}
-      <div className='hidden gap-4 px-6 sm:flex md:px-12 lg:px-24'>
+      <div className='hidden gap-4 px-6 sm:flex '>
         <VerticalMarqueeColumn items={COL_1} direction='up' duration={26} />
         <VerticalMarqueeColumn items={COL_2} direction='down' duration={30} />
         <VerticalMarqueeColumn items={COL_3} direction='up' duration={22} />
@@ -157,14 +157,27 @@ export function TestimonialsSection() {
 
       {/* Mobile: horizontal rows */}
       <div className='flex flex-col gap-4 sm:hidden'>
-        <Marquee pauseOnHover speed={30}>
+        <Marquee
+          gradient
+          gradientWidth={30}
+          gradientColor='var(--background)'
+          pauseOnHover
+          speed={30}
+        >
           {ROW_1.map((t) => (
             <div key={t.name} className='mx-2 w-64'>
               <TestimonialCard {...t} />
             </div>
           ))}
         </Marquee>
-        <Marquee pauseOnHover direction='right' speed={30}>
+        <Marquee
+          gradient
+          gradientWidth={30}
+          gradientColor='var(--background)'
+          pauseOnHover
+          direction='right'
+          speed={30}
+        >
           {ROW_2.map((t) => (
             <div key={t.name} className='mx-2 w-64'>
               <TestimonialCard {...t} />

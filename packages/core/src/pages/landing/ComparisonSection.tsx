@@ -13,11 +13,6 @@ export function ComparisonSection() {
 
   const rows: Row[] = [
     {
-      feature: t('landing.comparison.rows.locations.feature'),
-      ours: t('landing.comparison.rows.locations.ours'),
-      theirs: t('landing.comparison.rows.locations.theirs'),
-    },
-    {
       feature: t('landing.comparison.rows.speed.feature'),
       ours: t('landing.comparison.rows.speed.ours'),
       theirs: t('landing.comparison.rows.speed.theirs'),
@@ -45,7 +40,7 @@ export function ComparisonSection() {
   ];
 
   return (
-    <section className='mx-auto w-full max-w-7xl px-6 py-48 md:px-12 lg:px-24'>
+    <section className='w-full  py-36 '>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>{t('landing.comparison.chip')}</Chip.Label>

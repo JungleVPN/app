@@ -37,7 +37,7 @@ export function FooterSection() {
 
   return (
     <footer className='w-full border-t border-divider'>
-      <div className='mx-auto flex max-w-7xl flex-col gap-8 px-6 py-12 md:px-12 lg:px-24'>
+      <div className='flex flex-col gap-8 py-12 '>
         <div className='flex flex-col items-start gap-6'>
           <div className={'flex items-center gap-2'}>
             {theme === 'dark' ? (

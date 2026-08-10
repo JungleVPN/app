@@ -473,6 +473,7 @@
       "badge": "Best choice",
       "totalLabel": "Total",
       "noDiscount": "Monthly billing, no discount",
+      "discount": "{{percent}}% off",
       "monthlySubtitle": "good for getting started",
       "yearlyPeriod": "1 year",
       "yearlyDiscount": "50% off",
@@ -650,7 +651,9 @@
         "android": "Android",
         "macos": "macOS",
         "windows": "Windows",
-        "linux": "Linux"
+        "linux": "Linux",
+        "appleTv": "Apple TV",
+        "androidTv": "Android TV"
       }
     }
   },

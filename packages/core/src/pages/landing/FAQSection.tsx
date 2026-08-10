@@ -22,15 +22,15 @@ export function FAQSection() {
   const { t } = useTranslation();
 
   return (
-    <section className='w-full px-6 py-48 md:px-12 lg:px-24'>
+    <section className='w-full  py-36 '>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
           {t('landing.faq.title')}
         </h2>
       </div>
-      <div className='flex items-center justify-center gap-3 text-center'>
+      <div className='flex flex-col items-center justify-center gap-4 text-center md:flex-row'>
         <FreeTrialSection />
-        <Accordion className='w-full max-w-md m-auto bg-surface-secondary' variant='surface'>
+        <Accordion className='w-full bg-surface-secondary' variant='surface'>
           {FAQ_KEYS.map((key, index) => (
             <Accordion.Item key={key}>
               <Accordion.Heading>

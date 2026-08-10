@@ -50,6 +50,42 @@ function GooglePayIcon() {
   );
 }
 
+type PriceCalculation = {
+  price: string;
+  discount?: string;
+  originalTotal?: string;
+  discountedTotal?: string;
+  noDiscountLabel?: string;
+};
+
+function calculatePricing(
+  plan: { months: number; priceEur: string },
+  monthlyPrice: number | null,
+  discountLabel: (percent: number) => string,
+  noDiscountLabel: string,
+): PriceCalculation {
+  const totalPrice = parseFloat(plan.priceEur);
+  const price = (totalPrice / plan.months).toFixed(2);
+
+  if (plan.months === 1) {
+    return { price, noDiscountLabel };
+  }
+
+  if (monthlyPrice === null) {
+    return { price };
+  }
+
+  const originalTotalNum = monthlyPrice * plan.months;
+  const savedPct = Math.round((1 - totalPrice / originalTotalNum) * 100);
+
+  return {
+    price,
+    discount: discountLabel(savedPct),
+    originalTotal: `€${originalTotalNum.toFixed(2)}`,
+    discountedTotal: `€${totalPrice.toFixed(2)}`,
+  };
+}
+
 export function PricingSection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -75,8 +111,10 @@ export function PricingSection() {
 
   if (plans.length === 0) return null;
 
+  const monthlyPrice = parseFloat(plans.find((p) => p.months === 1)?.priceEur ?? '0') || null;
+
   return (
-    <section className='mx-auto w-full px-6 py-48 md:px-12 lg:px-24'>
+    <section className='py-36 px-0 sm:px-8 md:px-48 lg:px-0'>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
           {t('landing.pricing.title')}
@@ -85,22 +123,31 @@ export function PricingSection() {
       </div>
 
       <div className='flex flex-col items-center gap-8'>
-        <div className='grid w-full max-w-5xl grid-cols-1 items-center gap-4 md:grid-cols-4'>
-          {plans.map((plan, i) => (
-            <PriceCard
-              key={plan.months}
-              {...sharedProps}
-              period={formatMonths(plan.months)}
-              price={plan.priceEur}
-              highlighted={i === Math.floor(plans.length / 2) && plans.length > 1}
-              badge={
-                i === Math.floor(plans.length / 2) && plans.length > 1
-                  ? t('landing.pricing.badge')
-                  : undefined
-              }
-              noDiscountLabel={t('landing.pricing.noDiscount')}
-            />
-          ))}
+        <div className='grid w-full max-w-5xl grid-cols-1 items-center gap-4 lg:grid-cols-4'>
+          {plans.map((plan, i) => {
+            const isHighlighted = i === Math.floor(plans.length / 2) && plans.length > 1;
+            const pricing = calculatePricing(
+              plan,
+              monthlyPrice,
+              (percent) => t('landing.pricing.discount', { percent }),
+              t('landing.pricing.noDiscount'),
+            );
+
+            return (
+              <div
+                key={plan.months}
+                className={isHighlighted ? 'order-first lg:order-0' : 'rounded-t-2xl'}
+              >
+                <PriceCard
+                  {...sharedProps}
+                  {...pricing}
+                  period={formatMonths(plan.months)}
+                  highlighted={isHighlighted}
+                  badge={isHighlighted ? t('landing.pricing.badge') : undefined}
+                />
+              </div>
+            );
+          })}
         </div>
 
         <PaymentMethods />

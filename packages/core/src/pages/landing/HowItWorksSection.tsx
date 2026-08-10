@@ -95,9 +95,9 @@ const STEPS: Step[] = [
 ];
 
 const DESKTOP_POSITIONS: DesktopPosition[] = [
-  { left: '00%', top: 0, rotate: '-5deg' },
-  { left: '75%', top: 280, rotate: '3deg' },
-  { left: '-10%', top: 580, rotate: '-3deg' },
+  { left: '20%', top: 0, rotate: '-5deg' },
+  { left: '55%', top: 300, rotate: '3deg' },
+  { left: '10%', top: 580, rotate: '-3deg' },
 ];
 
 function StepCard({ step }: { step: Step }) {
@@ -125,7 +125,7 @@ export function HowItWorksSection() {
   const { t } = useTranslation();
 
   return (
-    <section className='mx-auto w-full px-6 py-48 md:px-12 lg:px-24'>
+    <section className='w-full py-48'>
       <div className='mb-20 flex flex-col items-center gap-3 text-center'>
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>{t('landing.howItWorks.chip')}</Chip.Label>
@@ -154,9 +154,9 @@ export function HowItWorksSection() {
         >
           {/* Card 01 right-center → Card 02 left-center */}
           <line
-            x1='10%'
-            y1='16%'
-            x2='100%'
+            x1='30%'
+            y1='20%'
+            x2='65%'
             y2='70%'
             stroke='currentColor'
             strokeWidth='2'
@@ -165,7 +165,7 @@ export function HowItWorksSection() {
           />
           {/* Card 02 right-center → Card 03 left-center */}
           <line
-            x1='100%'
+            x1='80%'
             y1='70%'
             x2='50%'
             y2='100%'
@@ -180,7 +180,7 @@ export function HowItWorksSection() {
         {STEPS.map((step, i) => (
           <div
             key={step.key}
-            className='absolute w-[60%] z-10'
+            className='absolute w-[60%] lg:w-[40%] z-10'
             style={{
               left: DESKTOP_POSITIONS[i].left,
               top: `${DESKTOP_POSITIONS[i].top}px`,

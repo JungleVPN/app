@@ -31,7 +31,7 @@ export function TrustSection() {
   const { t } = useTranslation();
 
   return (
-    <section className='mx-auto min-h-full w-full px-6 py-56 md:px-12 lg:px-24'>
+    <section className='w-full  py-56 '>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>{t('landing.trust.chip')}</Chip.Label>

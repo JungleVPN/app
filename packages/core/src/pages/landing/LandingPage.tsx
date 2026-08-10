@@ -17,47 +17,44 @@ import { WorldMap } from './WorldMap';
 
 export default function LandingPage() {
   return (
-    <>
+    <div className='px-4 md:px-8 lg:px-24 xl:px-72'>
       <HeroSection />
-      <div className={'max-w-7xl mx-auto'}>
-        <TrustSection />
-      </div>
-      <CountriesMarquee />
-      <div className={'max-w-7xl mx-auto'}>
-        <HowItWorksSection />
-      </div>
-      <div className={'max-w-7xl mx-auto'}>
-        <FeaturesSection />
-      </div>
-      <div className={'max-w-7xl mx-auto'}>
-        <BentoSection />
-      </div>
-      <div className={'pt-40'}>
-        <WorldMap />
-      </div>
 
-      <div className={'mb-40'}>
+      <TrustSection />
+      <CountriesMarquee />
+
+      <HowItWorksSection />
+
+      <FeaturesSection />
+
+      <BentoSection />
+
+      <div className='py-24 md:py-48'>
+        <WorldMap />
         <Stats />
       </div>
+
       <ComparisonSection />
 
-      <div className={'max-w-7xl mx-auto'}>
-        <div id='pricing'>
-          <PricingSection />
-        </div>
-        <TestimonialsSection />
-        <FAQSection />
-        <div id='partnership'>
-          <PartnershipSection />
-        </div>
-        <div className={'max-w-7xl mx-auto'}>
-          <InfoSection />
-        </div>
-        <div className={'max-w-7xl my-36'}>
-          <FreeTrialSection />
-        </div>
+      <div id='pricing'>
+        <PricingSection />
       </div>
+
+      <TestimonialsSection />
+
+      <FAQSection />
+
+      <div id='partnership'>
+        <PartnershipSection />
+      </div>
+
+      <InfoSection />
+
+      <div className='mb-24'>
+        <FreeTrialSection />
+      </div>
+
       <FooterSection />
-    </>
+    </div>
   );
 }

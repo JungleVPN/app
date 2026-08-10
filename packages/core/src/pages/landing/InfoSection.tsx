@@ -58,13 +58,15 @@ const DEVICES = [
   { key: 'macos', icon: <IconDeviceLaptop size={32} /> },
   { key: 'windows', icon: <IconBrandWindows size={32} /> },
   { key: 'linux', icon: <IconBrandUbuntu size={32} /> },
+  { key: 'appleTv', icon: <IconBrandApple size={32} /> },
+  { key: 'androidTv', icon: <IconBrandAndroid size={32} /> },
 ] as const;
 
 export function InfoSection() {
   const { t } = useTranslation();
 
   return (
-    <section className='mx-auto w-full px-6 py-24 md:px-12 lg:px-24'>
+    <section className='w-full py-24 '>
       {/* ── What is a VPN? ── */}
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
@@ -144,11 +146,11 @@ export function InfoSection() {
         </p>
       </div>
 
-      <div className='grid grid-cols-3 gap-4 sm:grid-cols-5'>
+      <div className='flex flex-wrap items-center gap-4 justify-around'>
         {DEVICES.map(({ key, icon }) => (
           <div
             key={key}
-            className='flex flex-col items-center gap-3 rounded-2xl border border-divider bg-surface-secondary py-6 px-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1'
+            className='w-fit flex flex-col items-center gap-3 rounded-2xl py-6 px-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1'
           >
             <span className='text-muted'>{icon}</span>
             <h3 className='text-sm font-semibold text-foreground'>

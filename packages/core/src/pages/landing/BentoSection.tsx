@@ -13,7 +13,7 @@ export function BentoSection() {
   const { t } = useTranslation();
 
   return (
-    <section className='mx-auto w-full px-6 py-48 md:px-12 lg:px-24'>
+    <section className='w-full  py-36 '>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
           {t('landing.bento.titleStart')}{' '}

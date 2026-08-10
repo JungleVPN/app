@@ -18,7 +18,7 @@ export function ErrorView({ errorCode }: ErrorViewProps) {
   const message = i18nKey ? t(i18nKey) : `${t('errors.unknown')} (${errorCode})`;
 
   return (
-    <Surface className='mx-auto my-8 max-w-4xl p-4' variant='transparent'>
+    <Surface className='my-8 max-w-4xl p-4' variant='transparent'>
       <Surface className='flex flex-col items-center gap-8' variant='transparent'>
         <h2 className='text-center text-lg font-semibold text-foreground'>{message}</h2>
         <ErrorConnection />

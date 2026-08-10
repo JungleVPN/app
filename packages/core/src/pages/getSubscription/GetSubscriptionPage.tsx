@@ -21,7 +21,7 @@ export default function GetSubscriptionPage() {
 
   return (
     <Form className={styles.form}>
-      <div className='mx-auto flex max-w-5xl flex-col gap-3'>
+      <div className='flex max-w-5xl flex-col gap-3'>
         <div className='flex flex-col gap-2'>
           <p className='text-base font-medium ml-4'>{t('getSubscription.enter_email')}</p>
           <TextField isInvalid={hasError} isRequired name='email' id={'email'} type='email'>

@@ -489,6 +489,7 @@
       "badge": "الأفضل",
       "totalLabel": "الإجمالي",
       "noDiscount": "فوترة شهرية، بدون خصم",
+      "discount": "خصم {{percent}}%",
       "monthlySubtitle": "كويس للبداية",
       "yearlyPeriod": "سنة واحدة",
       "yearlyDiscount": "خصم 50%",
@@ -666,7 +667,9 @@
         "android": "Android",
         "macos": "macOS",
         "windows": "Windows",
-        "linux": "Linux"
+        "linux": "Linux",
+        "appleTv": "Apple TV",
+        "androidTv": "Android TV"
       }
     }
   },

@@ -16,7 +16,7 @@ export default function ConfirmPage() {
   const { otp, timer, error, setOtp, handleConfirm, handleResend } = useConfirm();
 
   return (
-    <Surface className='mx-auto w-fit max-w-md pt-24' variant='transparent'>
+    <Surface className='w-fit max-w-md pt-24' variant='transparent'>
       <Form onSubmit={(e) => void handleConfirm(e)}>
         <Block className={'p-4'}>
           <div className='flex flex-col gap-4'>
@@ -26,7 +26,7 @@ export default function ConfirmPage() {
 
             {error ? <Description className='text-center text-danger'>{error}</Description> : null}
 
-            <div className='mx-auto flex w-full max-w-xs flex-col gap-2'>
+            <div className='flex w-full max-w-xs flex-col gap-2'>
               <Label className='sr-only'>{t('a11y.otpCode')}</Label>
               <InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS} value={otp} onChange={setOtp}>
                 <InputOTP.Group>
@@ -45,14 +45,14 @@ export default function ConfirmPage() {
 
             <Button
               fullWidth
-              className='mx-auto max-w-xs'
+              className='max-w-xs'
               isDisabled={!otp || otp.length < 6}
               type='submit'
             >
               {t('confirm.submit')}
             </Button>
             <Button
-              className='mx-auto max-w-xs'
+              className='max-w-xs'
               isDisabled={timer > 0}
               variant='ghost'
               onPress={() => void handleResend()}

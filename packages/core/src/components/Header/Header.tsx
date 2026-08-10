@@ -56,7 +56,7 @@ export function Header() {
 
       {isLanding && (
         <nav className='hidden sm:flex items-center gap-6'>
-          {(['trial', 'partnership'] as const).map((id) => (
+          {(['pricing', 'partnership'] as const).map((id) => (
             <Button
               key={id}
               className='text-sm text-foreground/70 hover:text-foreground transition-colors cursor-pointer bg-transparent border-none p-0'

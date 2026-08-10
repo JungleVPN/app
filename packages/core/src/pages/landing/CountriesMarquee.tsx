@@ -23,7 +23,7 @@ export function CountriesMarquee() {
   const { t } = useTranslation();
 
   return (
-    <section className='w-full py-12'>
+    <section className='w-full'>
       <p className='mb-6 text-center text-sm font-medium uppercase tracking-widest text-muted'>
         {t('landing.countries.label')}
       </p>
