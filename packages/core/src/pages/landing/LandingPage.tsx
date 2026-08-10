@@ -4,12 +4,12 @@ import { CountriesMarquee } from './CountriesMarquee';
 import { FAQSection } from './FAQSection';
 import { FeaturesSection } from './FeaturesSection';
 import { FooterSection } from './FooterSection';
-import { FreeTrialSection } from './FreeTrialSection';
 import { HeroSection } from './HeroSection';
 import { HowItWorksSection } from './HowItWorksSection';
 import { PartnershipSection } from './PartnershipSection';
 import { PricingSection } from './PricingSection';
 import { Stats } from './Stats';
+import { TestimonialsSection } from './TestimonialsSection';
 import { TrustSection } from './TrustSection';
 import { WorldMap } from './WorldMap';
 
@@ -42,11 +42,11 @@ export default function LandingPage() {
         <div id='pricing'>
           <PricingSection />
         </div>
-        <FreeTrialSection />
+        <TestimonialsSection />
+        <FAQSection />
         <div id='partnership'>
           <PartnershipSection />
         </div>
-        <FAQSection />
       </div>
       <FooterSection />
     </>

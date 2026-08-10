@@ -10,7 +10,7 @@ export function FreeTrialSection() {
   const days = coreEnv.trialPeriodInDays;
 
   return (
-    <section className='mx-auto w-full px-6 py-16 md:px-12 lg:px-24' id='trial'>
+    <section className='' id='trial'>
       <div className='relative overflow-hidden rounded-3xl bg-linear-to-r  from-purple-400 to-yellow-400 px-8 py-16 text-center shadow-xl md:px-16'>
         <div className='relative flex flex-col items-center gap-6'>
           <Chip color='default' variant='soft' className='bg-white/30 text-white backdrop-blur-sm'>
