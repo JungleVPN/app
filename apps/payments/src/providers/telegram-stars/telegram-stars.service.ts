@@ -51,7 +51,6 @@ export class TelegramStarsService implements OnModuleInit {
    */
   async createInvoice(dto: CreateTelegramStarsInvoiceDto): Promise<TelegramStarsInvoiceResponse> {
     const { userId, title, telegramId, description, purpose = 'subscription' } = dto;
-    const allowedPeriods = this.paymentsUtils.getAllowedPeriods();
     const starsAmount =
       purpose === 'extra_device'
         ? this.paymentsUtils.getExtraDeviceStarsAmount()
@@ -64,13 +63,14 @@ export class TelegramStarsService implements OnModuleInit {
         ? await this.validatePromoOrThrow(dto.promoCode, {
             userId,
             userStatus: dto.userStatus,
-            selectedPeriod: allowedPeriods[0],
+            // TODO Fix periods and add plans
+            selectedPeriod: 1,
           })
         : null;
 
     const record = this.starsPaymentRepo.create({
       userId,
-      selectedPeriod: allowedPeriods[0],
+      selectedPeriod: 1,
       starsAmount,
       telegramId,
       status: 'pending',

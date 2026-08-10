@@ -10,6 +10,7 @@ export { ProtectedReferralsPage } from './profile/menu/referrals/protected';
 export { ProtectedTransactionsPage } from './profile/menu/transactions/protected';
 export { ProtectedTransactionDetailsPage } from './profile/menu/transactions/protected-details';
 export { ProtectedPaymentPage } from './profile/payment/protected';
+export { ProtectedPlansPage } from './profile/plans/protected';
 export { ProtectedProfileSubscriptionPage } from './profile/subscription/protected';
 export { default as SubscriptionPage } from './subscription/SubscriptionPage';
 export { default as TermsPage } from './terms/TermsPage';

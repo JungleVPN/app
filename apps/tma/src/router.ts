@@ -7,6 +7,7 @@ import {
   SubscriptionPage,
   TermsPage,
 } from '@workspace/core';
+import { ProtectedPlansPage } from '@workspace/core/pages';
 import {
   ProtectedDevicesPage,
   ProtectedExtraDevicePurchasePage,
@@ -59,6 +60,10 @@ export const router = createMemoryRouter(
             {
               path: 'subscription',
               Component: ProtectedProfileSubscriptionPage,
+            },
+            {
+              path: 'plans',
+              Component: ProtectedPlansPage,
             },
             {
               path: 'payments',

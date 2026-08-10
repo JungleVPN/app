@@ -10,6 +10,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
+import { getPriceForPeriod } from '@payments/utils/amount';
 import { PaymentsUtils } from '@payments/utils/utils';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import {
@@ -82,24 +83,17 @@ export class YookassaService {
       ...paymentFields
     } = dto;
 
-    const existingSession = await this.findValidPendingSession(userId);
-    if (existingSession) {
-      this.logger.log(
-        `Reusing pending Yookassa payment session ${existingSession.id} for user ${userId}`,
-      );
-      return existingSession;
-    }
+    const selectedPeriod = purpose === 'extra_device' ? 0 : dto.selectedPeriod;
 
     const amountValue =
       purpose === 'extra_device'
         ? this.paymentsUtils.getExtraDevicePriceRUB()
-        : this.paymentsUtils.getAllowedAmounts()[0];
-    const selectedPeriod = this.paymentsUtils.getAllowedPeriods()[0];
+        : getPriceForPeriod('RUB', selectedPeriod);
 
     // Validate any promo up front so the user gets immediate feedback. Only
     // subscription payments carry promos; the binding check is at fulfillment.
     const validatedPromoCode =
-      purpose === 'subscription' && promoCode
+      purpose !== 'extra_device' && promoCode
         ? await this.validatePromoOrThrow(promoCode, { userId, userStatus, selectedPeriod })
         : null;
 
@@ -141,6 +135,7 @@ export class YookassaService {
       description: payment.description ?? null,
       purpose,
       promoCode: validatedPromoCode,
+      paymentMethodId: null,
       paidAt: null,
     });
     await this.yookassaPaymentRepo.save(record);
@@ -171,29 +166,6 @@ export class YookassaService {
       }
       throw err;
     }
-  }
-
-  /**
-   * Returns an existing reusable pending session for the user, or null.
-   *
-   * A session is reusable only if it is still `pending`, has a confirmation URL,
-   * and was created within the last hour (YooKassa confirmation URLs expire).
-   * This dedups rapid re-clicks so we don't create a fresh provider payment on
-   * every call.
-   */
-  private async findValidPendingSession(userId: string): Promise<PaymentSession | null> {
-    const existing = await this.yookassaPaymentRepo.findOne({
-      where: { userId, status: 'pending' },
-      order: { createdAt: 'DESC' },
-    });
-
-    if (!existing?.url) return null;
-
-    const ONE_HOUR_MS = 60 * 60 * 1_000;
-    const isFresh = Date.now() - new Date(existing.createdAt).getTime() < ONE_HOUR_MS;
-    if (!isFresh) return null;
-
-    return { id: existing.id, url: existing.url };
   }
 
   // ── Webhook handling ────────────────────────────────────────────────────
@@ -231,11 +203,6 @@ export class YookassaService {
       return;
     }
 
-    if (record.status === 'succeeded' && record.paidAt !== null) {
-      this.logger.log(`Payment ${id} already processed — ignoring duplicate webhook`);
-      return;
-    }
-
     // Count prior succeeded payments before stamping this one — the current record
     // is still pending at this point, so a count of 0 means this is the first payment.
     const priorSucceeded = await this.yookassaPaymentRepo.count({
@@ -255,6 +222,7 @@ export class YookassaService {
 
     await this.yookassaPaymentRepo.update(id, {
       status,
+      paymentMethodId: payment_method?.id,
       paidAt: captured_at ? new Date(captured_at) : new Date(),
       url: null,
     });

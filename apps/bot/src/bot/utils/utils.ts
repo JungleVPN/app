@@ -1,6 +1,5 @@
 import * as process from 'node:process';
 import { BotContext, ErrorMessage } from '@bot/bot.types';
-import { PaymentPeriod } from '@shared/payments';
 import { UserDevice } from '@shared/user.types';
 import { Api, Bot, GrammyError, RawApi } from 'grammy';
 import type { Message, MessageEntity } from 'grammy/types';
@@ -36,34 +35,6 @@ export const isValidUsername = (username: string | undefined | null): boolean =>
   return regex.test(username);
 };
 
-export const mapDeviceLabel = (device: UserDevice) => {
-  switch (device) {
-    case 'ios':
-      return '🍏 IOS';
-    case 'android':
-      return '🤖 Android';
-    case 'macOS':
-      return '💻 MacOS';
-    case 'windows':
-      return '🖥 Windows';
-    default:
-      return device;
-  }
-};
-
-export const mapToClientAppName = (device: UserDevice) => {
-  switch (device) {
-    case 'ios':
-    case 'android':
-    case 'macOS':
-      return 'v2RayTun';
-    case 'windows':
-      return 'Happ';
-    default:
-      return 'v2RayTun';
-  }
-};
-
 export const toDateString = (value: Date | string, utc?: boolean) => {
   if (typeof value === 'string') {
     value = new Date(value);
@@ -76,47 +47,6 @@ export const toDateString = (value: Date | string, utc?: boolean) => {
     minute: '2-digit',
     timeZone: utc ? undefined : 'Europe/Moscow',
   });
-};
-
-export const mapPeriodToMonthsNumber = (period: PaymentPeriod | undefined) => {
-  switch (period) {
-    case 'month_1':
-      return 1;
-    case 'month_3':
-      return 3;
-    case 'month_6':
-      return 6;
-    default:
-      return 1;
-  }
-};
-
-export const mapEURAmountToMonthsNumber = (amount: string | undefined) => {
-  switch (amount) {
-    case `${process.env.PRICE_EUR_MONTH_1}00`:
-      return 1;
-    case `${process.env.PRICE_EUR_MONTH_3}00`:
-      return 3;
-    case `${process.env.PRICE_EUR_MONTH_6}00`:
-      return 6;
-    default:
-      return 1;
-  }
-};
-
-export const mapToCorrectAmount = (amount: number) => {
-  return +amount.toString().slice(0, amount.toString().length - 2);
-};
-
-export const mapPeriodLabelToPriceLabel = (period: PaymentPeriod) => {
-  switch (period) {
-    case 'month_1':
-      return 'payment-period-button-label-1';
-    case 'month_3':
-      return 'payment-period-button-label-2';
-    case 'month_6':
-      return 'payment-period-button-label-3';
-  }
 };
 
 export async function safeSendMessage(

@@ -46,7 +46,7 @@ export function AppTabs({
       <Tabs.ListContainer className={'w-full'}>
         <Tabs.List
           aria-label={t('a11y.appsTabs')}
-          className={'w-full bg-[var(--quaternary-fill-background)]'}
+          className={'w-full bg-(--quaternary-fill-background)'}
         >
           {platformApps.map((app, index) => {
             const isActive = index === safeIndex;

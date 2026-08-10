@@ -7,7 +7,6 @@ import { YookassaController } from '@payments/providers/yookassa/yookassa.contro
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
 import { PaymentsUtils } from '@payments/utils/utils';
-import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { PaymentStatusModule } from '../../payment-status/payment-status.module';
 import { PromoModule } from '../../promo/promo.module';
@@ -22,12 +21,6 @@ import { PromoModule } from '../../promo/promo.module';
   ],
   controllers: [YookassaController],
   exports: [YooKassaProvider, YookassaService],
-  providers: [
-    YooKassaConnector,
-    YooKassaProvider,
-    YookassaService,
-    ValidatePaymentRequest,
-    PaymentsUtils,
-  ],
+  providers: [YooKassaConnector, YooKassaProvider, YookassaService, PaymentsUtils],
 })
 export class YookassaModule {}

@@ -14,11 +14,11 @@ import {
 } from '../../../../stores';
 import { analytics } from '../../../../utils';
 
-export function useTelegramStarsPayment() {
+export function useTelegramStarsPayment(selectedPeriod: number) {
   const { t } = useTranslation();
   const { rmnUser } = useAuthStoreInfo();
   const { platformType } = usePlatformStore();
-  const { allowedPeriod, extraDevicePriceStars } = coreEnv;
+  const { extraDevicePriceStars } = coreEnv;
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
   const { setSubscriptionInfo } = useSubscriptionInfoStoreActions();
@@ -38,8 +38,9 @@ export function useTelegramStarsPayment() {
     const result = await createStarsInvoice({
       userId: rmnUser.uuid,
       telegramId: rmnUser.telegramId,
-      title: t('payment.stars.invoiceTitle', { period: allowedPeriod }),
-      description: t('payment.stars.invoiceDescription', { period: allowedPeriod }),
+      selectedPeriod,
+      title: t('payment.stars.invoiceTitle', { period: selectedPeriod }),
+      description: t('payment.stars.invoiceDescription', { period: selectedPeriod }),
       promoCode: promoCode || null,
       userStatus: rmnUser.status,
     });

@@ -8,7 +8,7 @@ import IconDevices from '../../assets/icons/device-tab-icon.svg?react';
 import IconPig from '../../assets/icons/payment-tab-icon.svg?react';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
-import { useNavbarStore } from '../../stores';
+import { useNavbarStore, useSavedMethodsStoreInfo } from '../../stores';
 import css from './Tabs.module.css';
 
 type TabValue = 'subscription' | 'payments' | 'devices' | 'menu';
@@ -33,6 +33,7 @@ function getActiveTab(
   pathname: string,
   subscriptionPath: string,
   paymentPath: string,
+  plansPath: string,
   devicesPath: string,
   menuPath: string,
 ): TabValue {
@@ -41,7 +42,7 @@ function getActiveTab(
     const b = normalizePath(base);
     return norm === b || norm.startsWith(`${b}/`);
   };
-  if (matches(paymentPath)) return 'payments';
+  if (matches(paymentPath) || matches(plansPath)) return 'payments';
   if (matches(devicesPath)) return 'devices';
   if (matches(subscriptionPath)) return 'subscription';
   if (matches(menuPath)) return 'menu';
@@ -49,9 +50,16 @@ function getActiveTab(
 }
 
 export const Navbar = () => {
-  const { profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileMenuPath } =
-    useAppRoutes();
+  const {
+    profileSubscriptionPath,
+    profilePaymentPath,
+    profilePlansPath,
+    profileDevicesPath,
+    profileMenuPath,
+  } = useAppRoutes();
   const { isVisible } = useNavbarStore();
+  const savedMethods = useSavedMethodsStoreInfo();
+  const hasActiveMethod = savedMethods?.some((m) => m.isActive) ?? false;
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { pathname } = useLocation();
@@ -62,6 +70,7 @@ export const Navbar = () => {
     pathname,
     profileSubscriptionPath,
     profilePaymentPath,
+    profilePlansPath,
     profileDevicesPath,
     profileMenuPath,
   );
@@ -132,11 +141,11 @@ export const Navbar = () => {
     () =>
       ({
         subscription: profileSubscriptionPath,
-        payments: profilePaymentPath,
+        payments: hasActiveMethod ? profilePaymentPath : profilePlansPath,
         devices: profileDevicesPath,
         menu: profileMenuPath,
       }) satisfies Record<TabValue, string>,
-    [profileSubscriptionPath, profilePaymentPath, profileDevicesPath, profileMenuPath],
+    [profileSubscriptionPath, profilePaymentPath, profilePlansPath, hasActiveMethod, profileDevicesPath, profileMenuPath],
   );
 
   const tabs = useMemo<TabDef[]>(

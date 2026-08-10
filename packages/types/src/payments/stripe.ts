@@ -1,6 +1,4 @@
-import type { PaymentPurpose } from './yookassa';
-
-export type { PaymentPurpose };
+import { PaymentPurpose } from './common';
 
 /**
  * Stripe create-session request — POST /payments/stripe/create-session.
@@ -14,18 +12,12 @@ export interface CreateStripeSessionDto {
   userId: string;
   /** Defaults to 'subscription'. Use 'extra_device' for one-time device-slot purchases. */
   purchaseType?: PaymentPurpose;
-  payment: {
-    amount: number | string;
-    currency: 'EUR';
-  };
-  metadata: {
-    email: string;
-    [key: string]: string;
-  };
-  /** Optional promo code entered by the user; validated server-side. */
-  promoCode?: string | null;
+
+  metadata: Record<string, string>;
   /** Subscription status from remnawave, when known — used to validate the promo. */
   userStatus?: string;
+  /** Subscription plan in months (1, 3, 6, 12). Defaults to the first allowed period. */
+  selectedPeriod: number;
   /** Tolt affiliate referral id (`window.tolt_referral`), when the visitor came via a referral link. */
   toltReferralId?: string | null;
 }

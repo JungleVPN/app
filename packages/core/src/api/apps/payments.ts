@@ -46,7 +46,7 @@ export function createPaymentsApi(client: ApiClient) {
     },
 
     async createTelegramStarsInvoice(
-      dto: Omit<CreateTelegramStarsInvoiceDto, 'starsAmount' | 'selectedPeriod'>,
+      dto: Omit<CreateTelegramStarsInvoiceDto, 'starsAmount'>,
     ): Promise<TelegramStarsInvoiceResponse> {
       return client.post<TelegramStarsInvoiceResponse>(
         apiRoutes.payments.telegramStarsCreateInvoice,

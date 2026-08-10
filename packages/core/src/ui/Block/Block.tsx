@@ -19,15 +19,11 @@ export function Block({
   variant = 'secondary',
 }: BlockProps) {
   return (
-    <div className='flex w-full flex-col gap-2 rounded-[1rem]'>
+    <div className='flex w-full flex-col gap-2 rounded-2xl'>
       {title && (
         <div className='flex items-center justify-between px-4'>
-          <h2 className='text-xs font-semibold tracking-[0.06em] text-muted uppercase'>
-            {title}
-          </h2>
-          {titleBadge && (
-            <span className='text-xs font-medium text-muted'>{titleBadge}</span>
-          )}
+          <h2 className='text-xs font-semibold tracking-[0.06em] text-muted uppercase'>{title}</h2>
+          {titleBadge && <span className='text-xs font-medium text-muted'>{titleBadge}</span>}
         </div>
       )}
 

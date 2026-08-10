@@ -1,7 +1,7 @@
 import { openLink } from '@tma.js/sdk-react';
 import { useRemnawaveApi } from '../../../../api';
 import { coreEnv } from '../../../../env';
-import { useCreatePaymentSession, useDeleteSavedMethod } from '../../../../hooks';
+import { useCreatePaymentSession, useDeleteSavedMethod, useNavigation } from '../../../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../../../runtime';
 import {
   useAuthStoreActions,
@@ -11,12 +11,13 @@ import {
 } from '../../../../stores';
 import { analytics } from '../../../../utils';
 
-export function useYookassaPayment() {
+export function useYookassaPayment(selectedPeriod: number) {
   const { rmnUser, tgUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { setSavedMethods } = useSavedMethodsStoreActions();
   const { platformType, clientPlatform } = usePlatformStore();
-  const { paymentReturnPath } = useAppRoutes();
+  const { paymentReturnPath, profilePlansPath } = useAppRoutes();
+  const navigate = useNavigation();
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
 
@@ -29,6 +30,9 @@ export function useYookassaPayment() {
     await deleteMethod(id);
     const list = await paymentsApi.getSavedMethods();
     setSavedMethods(list);
+    if (!list?.some((m) => m.isActive)) {
+      navigate(profilePlansPath);
+    }
   };
 
   const handleYookassaPayment = async (email?: string, promoCode?: string) => {
@@ -56,6 +60,7 @@ export function useYookassaPayment() {
           : `${window.location.origin}${paymentReturnPath}`,
         type: 'redirect',
       },
+      selectedPeriod,
     });
 
     if (!session?.url) return;

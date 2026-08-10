@@ -1,4 +1,4 @@
-import type { PaymentPurpose } from './yookassa';
+import { PaymentPurpose } from './common';
 
 /** Payment provider identifier */
 export type AdminPaymentProvider = 'yookassa' | 'telegram_stars' | 'stripe';

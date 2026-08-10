@@ -1,15 +1,14 @@
 import 'reflect-metadata';
 import * as process from 'node:process';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
-import { AutopaymentService } from '@payments/autopayment/autopayment.service';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
+import { AutopaymentService } from '@payments/autopayment/autopayment.service';
 import type { EmailNotificationService } from '@payments/notifications/email-notification.service';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
-import { ValidatePaymentRequest } from '@payments/utils/validators';
 import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { RemnawebhookPayload, WebhookEventEnum } from '@workspace/types';
 import type { Repository } from 'typeorm';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@workspace/database', () => ({
   SavedPaymentMethod: class {},
@@ -46,23 +45,21 @@ describe('AutopaymentService', () => {
   let yookassaPaymentRepo: Repository<YookassaPayment>;
   let yookassaProvider: YooKassaProvider;
   let eventEmitter: EventEmitter2;
-  let validatePaymentRequest: ValidatePaymentRequest;
 
   let mockSmFindOneBy: ReturnType<typeof vi.fn>;
+  let mockYkFindOne: ReturnType<typeof vi.fn>;
   let mockYkCreate: ReturnType<typeof vi.fn>;
   let mockYkSave: ReturnType<typeof vi.fn>;
   let mockCreate: ReturnType<typeof vi.fn>;
   let mockEmit: ReturnType<typeof vi.fn>;
-  let mockValidateAmount: any;
-  let mockValidatePeriod: any;
   let emailNotificationService: EmailNotificationService;
   let analyticsClient: AnalyticsClientService;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    process.env.YOOKASSA_AMOUNT = '200';
-    process.env.ALLOWED_PERIODS = '1';
+    process.env.ALLOWED_PERIOD = '1';
+    process.env.PRICE_RUB_MONTH_1 = '200';
     process.env.BOT_URL = 'http://bot:7080';
     process.env.BOT_NOTIFY_SECRET = 'secret';
     process.env.PAYMENT_DESCRIPTION = 'Test payment';
@@ -72,9 +69,15 @@ describe('AutopaymentService', () => {
       findOneBy: mockSmFindOneBy,
     } as unknown as Repository<SavedPaymentMethod>;
 
+    mockYkFindOne = vi.fn().mockResolvedValue({
+      selectedPeriod: 1,
+      paymentMethodId: 'pm_1',
+      amount: '200',
+    });
     mockYkCreate = vi.fn((data: any) => data);
     mockYkSave = vi.fn(async (v: any) => v);
     yookassaPaymentRepo = {
+      findOne: mockYkFindOne,
       create: mockYkCreate,
       save: mockYkSave,
     } as unknown as Repository<YookassaPayment>;
@@ -86,13 +89,6 @@ describe('AutopaymentService', () => {
 
     mockEmit = vi.fn();
     eventEmitter = { emit: mockEmit } as unknown as EventEmitter2;
-
-    mockValidateAmount = vi.fn();
-    mockValidatePeriod = vi.fn();
-    validatePaymentRequest = {
-      validateAmount: mockValidateAmount,
-      validatePeriod: mockValidatePeriod,
-    } as unknown as ValidatePaymentRequest;
 
     emailNotificationService = {
       notifyExpiry: vi.fn().mockResolvedValue(undefined),
@@ -107,13 +103,20 @@ describe('AutopaymentService', () => {
       yookassaPaymentRepo,
       yookassaProvider,
       eventEmitter,
-      validatePaymentRequest,
       emailNotificationService,
       analyticsClient,
     );
 
     // Stub delay to make tests fast
     vi.spyOn(service as any, 'delay').mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    delete process.env.ALLOWED_PERIOD;
+    delete process.env.PRICE_RUB_MONTH_1;
+    delete process.env.BOT_URL;
+    delete process.env.BOT_NOTIFY_SECRET;
+    delete process.env.PAYMENT_DESCRIPTION;
   });
 
   // ── Entry point: init ────────────────────────────
@@ -155,6 +158,7 @@ describe('AutopaymentService', () => {
       mockCreate.mockResolvedValue({
         id: 'pay_1',
         status: 'succeeded',
+        amount: { value: '200', currency: 'RUB' },
       });
 
       await service.init(makePayload(42));
@@ -178,6 +182,7 @@ describe('AutopaymentService', () => {
       mockCreate.mockResolvedValue({
         id: 'pay_1',
         status: 'succeeded',
+        amount: { value: '200', currency: 'RUB' },
       });
 
       await service.init(makePayload(42));
@@ -255,10 +260,12 @@ describe('AutopaymentService', () => {
           id: 'pay_fail',
           status: 'canceled',
           cancellation_details: { reason: 'temporary_error', party: 'yoo_kassa' },
+          amount: { value: '200', currency: 'RUB' },
         })
         .mockResolvedValueOnce({
           id: 'pay_ok',
           status: 'succeeded',
+          amount: { value: '200', currency: 'RUB' },
         });
 
       await service.init(makePayload(42));
@@ -283,6 +290,7 @@ describe('AutopaymentService', () => {
       mockCreate.mockResolvedValue({
         id: 'pay_1',
         status: 'succeeded',
+        amount: { value: '200', currency: 'RUB' },
       });
 
       await service.init(makePayload(42));
@@ -296,25 +304,23 @@ describe('AutopaymentService', () => {
           selectedPeriod: 1,
           telegramId: 42,
           description: 'Test payment',
-          paidAt: null,
+          paidAt: expect.any(Date),
         }),
       );
-      expect(mockYkSave).toHaveBeenCalled();
+      expect(mockYkSave).toHaveBeenCalledTimes(1);
     });
 
-    it('persists record with null paidAt on cancellation', async () => {
+    it('does not persist a record on cancellation — record is saved only on success', async () => {
       mockCreate.mockResolvedValue({
         id: 'pay_c',
         status: 'canceled',
         cancellation_details: { reason: 'insufficient_funds', party: 'payment_network' },
+        amount: { value: '200', currency: 'RUB' },
       });
-      mockAxiosPost.mockResolvedValue({ status: 200 });
 
       await service.init(makePayload(42));
 
-      // 3 attempts = 3 records saved
-      expect(mockYkSave).toHaveBeenCalledTimes(3);
-      expect(mockYkCreate).toHaveBeenCalledWith(expect.objectContaining({ paidAt: null }));
+      expect(mockYkSave).not.toHaveBeenCalled();
     });
   });
 

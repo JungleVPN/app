@@ -7,7 +7,7 @@ import { useStripePayment } from './useStripePayment';
 import { useTelegramStarsPayment } from './useTelegramStarsPayment';
 import { useYookassaPayment } from './useYookassaPayment';
 
-export function usePayment() {
+export function usePayment(selectedPeriod: number) {
   const { t } = useTranslation();
   const { tgUser, rmnUser } = useAuthStoreInfo();
   const { platformType } = usePlatformStore();
@@ -27,9 +27,9 @@ export function usePayment() {
   const needsEmailInput = Boolean(tgUser) && !rmnUser?.email;
   const isLoading = savedMethods === null;
 
-  const yookassa = useYookassaPayment();
-  const stripe = useStripePayment();
-  const stars = useTelegramStarsPayment();
+  const yookassa = useYookassaPayment(selectedPeriod);
+  const stripe = useStripePayment(selectedPeriod);
+  const stars = useTelegramStarsPayment(selectedPeriod);
   const { validatePromo } = usePromoValidation();
 
   return {

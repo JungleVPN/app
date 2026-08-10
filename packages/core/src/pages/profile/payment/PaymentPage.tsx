@@ -2,19 +2,29 @@ import { Button, type Selection, Spinner } from '@heroui/react';
 import { Page } from '@workspace/core';
 import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
 import type { PaymentMethod } from '@workspace/types';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router';
 import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url';
-import { coreEnv } from '../../../env';
+import { useNavigation } from '../../../hooks';
+import { useAppRoutes } from '../../../runtime';
 import { useNavbarStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
 import { PaymentForm } from './components/PaymentForm';
 import { PaymentMethodSelector } from './components/PaymentMethodSelector';
 import { SavedMethod } from './components/SavedMethod';
 import { usePayment } from './hooks/usePayment';
+import { getButtonLabel } from './utils/getButtonLabel';
 
 export default function PaymentPage() {
   const { t } = useTranslation();
+  const location = useLocation();
+  const selectedPlan = location.state?.selectedPlan as {
+    months: number;
+    priceEur: number;
+    priceRub: number;
+  };
+
   const {
     savedMethods,
     platformType,
@@ -37,26 +47,23 @@ export default function PaymentPage() {
     handleOpenStripePortal,
     isOpeningStripePortal,
     validatePromo,
-  } = usePayment();
+  } = usePayment(selectedPlan?.months ?? 1);
   const { setNavbarVisible } = useNavbarStore();
+  const navigate = useNavigation();
+  const { profilePlansPath } = useAppRoutes();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('yookassa');
 
   useEffect(() => {
     setNavbarVisible(!successState.isOpen);
   }, [setNavbarVisible, successState.isOpen]);
 
-  const getButtonLabel = useCallback(() => {
-    switch (selectedMethod) {
-      case 'yookassa':
-        return t('payment.priceRubButton', { amount: coreEnv.allowedAmountRub });
-      case 'stripe':
-        return t('payment.priceEurButton', { amount: coreEnv.allowedAmountStripe });
-      case 'stars':
-        return t('payment.priceStarsButton', { amount: coreEnv.allowedAmountStars });
+  useEffect(() => {
+    if (!isLoading && !hasActiveMethod && !selectedPlan) {
+      navigate(profilePlansPath);
     }
-  }, [selectedMethod, t]);
+  }, [isLoading, hasActiveMethod, selectedPlan, navigate, profilePlansPath]);
 
-  const buttonLabel = getButtonLabel();
+  const buttonLabel = selectedPlan ? getButtonLabel(selectedMethod, selectedPlan, t) : '';
 
   const isPendingByMethod: Record<PaymentMethod, boolean> = {
     yookassa: isPaying,

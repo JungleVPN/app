@@ -1,7 +1,6 @@
 import { openLink } from '@tma.js/sdk-react';
 import { useCallback, useState } from 'react';
 import { useRemnawaveApi } from '../../../../api';
-import { coreEnv } from '../../../../env';
 import { useCreateStripeSession } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../../../stores';
@@ -14,11 +13,10 @@ import { analytics } from '../../../../utils';
  * redirects the user to the returned Stripe Checkout / Billing Portal URL.
  * Subscription extension is handled by the existing Stripe webhook.
  */
-export function useStripePayment() {
+export function useStripePayment(selectedPeriod: number) {
   const { rmnUser, tgUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { platformType, clientPlatform } = usePlatformStore();
-  const { allowedAmountStripe } = coreEnv;
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
 
@@ -54,7 +52,7 @@ export function useStripePayment() {
     }
   }, [rmnUser?.uuid, paymentsApi, redirectTo]);
 
-  const handleStripePayment = async (email?: string, promoCode?: string) => {
+  const handleStripePayment = async (email?: string) => {
     if (!rmnUser) return;
 
     let activeUser = rmnUser;
@@ -72,8 +70,7 @@ export function useStripePayment() {
 
     const session = await createStripeSession({
       userId: activeUser.uuid,
-      payment: { amount: allowedAmountStripe, currency: 'EUR' },
-      promoCode: promoCode || null,
+      selectedPeriod,
       userStatus: activeUser.status,
       toltReferralId: window.tolt_referral ?? null,
       metadata: {

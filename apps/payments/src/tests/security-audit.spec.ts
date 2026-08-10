@@ -297,203 +297,20 @@ describe('Security Audit', () => {
       expect(mockYkUpdate).toHaveBeenCalledTimes(1);
     });
   });
-  // describe('[FINDING #9] createSession must reject selectedPeriod values outside the allowed set', () => {
-  //   let controller: YookassaController;
-  //   let mockProviderCreate: ReturnType<typeof vi.fn>;
-  //
-  //   beforeEach(() => {
-  //     vi.clearAllMocks();
-  //     process.env.ALLOWED_AMOUNTS = '200,600,1200';
-  //     process.env.ALLOWED_PERIODS = '1,3,6';
-  //
-  //     mockProviderCreate = vi.fn().mockResolvedValue({
-  //       id: 'pay_new',
-  //       status: 'pending',
-  //       description: 'Test',
-  //       confirmation: { type: 'redirect', confirmation_url: 'https://yookassa.ru/pay/pay_new' },
-  //     });
-  //
-  //     controller = new YookassaController(
-  //       {
-  //         find: vi.fn(),
-  //         findOneBy: vi.fn(),
-  //         create: vi.fn((d: unknown) => d),
-  //         save: vi.fn(async (v: unknown) => v),
-  //       } as unknown as Repository<YookassaPayment>,
-  //       makeSavedMethodRepo(),
-  //       makeYookassaService(),
-  //       { create: mockProviderCreate } as unknown as YooKassaProvider,
-  //       makeRealValidatePaymentRequest(),
-  //     );
-  //   });
-  //
-  //   afterEach(() => {
-  //     delete process.env.ALLOWED_AMOUNTS;
-  //     delete process.env.ALLOWED_PERIODS;
-  //   });
-  //
-  //   it('rejects selectedPeriod = 120 (not an allowed tier)', async () => {
-  //     const dto: CreateYookassaSessionDto = {
-  //       userId: 'user-uuid-1',
-  //       selectedPeriod: 120,
-  //       amount: { value: '100.00', currency: 'RUB' },
-  //       description: 'VPN subscription',
-  //     };
-  //
-  //     await expect(controller.createSession(dto)).rejects.toThrow(BadRequestException);
-  //     expect(mockProviderCreate).not.toHaveBeenCalled();
-  //   });
-  //
-  //   it('rejects selectedPeriod = 0', async () => {
-  //     const dto: CreateYookassaSessionDto = {
-  //       userId: 'user-uuid-1',
-  //       selectedPeriod: 0,
-  //       amount: { value: '100.00', currency: 'RUB' },
-  //       description: 'VPN subscription',
-  //     };
-  //
-  //     await expect(controller.createSession(dto)).rejects.toThrow(BadRequestException);
-  //   });
-  //
-  //   it('rejects negative selectedPeriod', async () => {
-  //     const dto: CreateYookassaSessionDto = {
-  //       userId: 'user-uuid-1',
-  //       selectedPeriod: -6,
-  //       amount: { value: '100.00', currency: 'RUB' },
-  //       description: 'VPN subscription',
-  //     };
-  //
-  //     await expect(controller.createSession(dto)).rejects.toThrow(BadRequestException);
-  //   });
-  //
-  //   it.each([
-  //     [1, '200'],
-  //     [3, '600'],
-  //     [6, '1200'],
-  //   ])('CONTROL: accepts period %d with a matching allowed amount', async (period, amount) => {
-  //     const dto: CreateYookassaSessionDto = {
-  //       userId: 'user-uuid-1',
-  //       selectedPeriod: period,
-  //       amount: { value: amount, currency: 'RUB' },
-  //       description: 'VPN subscription',
-  //     };
-  //
-  //     await expect(controller.createSession(dto)).resolves.not.toThrow();
-  //   });
-  // });
-  // describe('[FINDING #13] createSession must reject amounts not in ALLOWED_AMOUNTS', () => {
-  //   let controller: YookassaController;
-  //   let mockProviderCreate: ReturnType<typeof vi.fn>;
-  //
-  //   beforeEach(() => {
-  //     vi.clearAllMocks();
-  //     process.env.ALLOWED_AMOUNTS = '200,600,1200';
-  //     process.env.ALLOWED_PERIODS = '1,3,6';
-  //
-  //     mockProviderCreate = vi.fn().mockResolvedValue({
-  //       id: 'pay_new',
-  //       status: 'pending',
-  //       description: 'Test',
-  //       confirmation: { type: 'redirect', confirmation_url: 'https://yookassa.ru/pay/pay_new' },
-  //     });
-  //
-  //     controller = new YookassaController(
-  //       {
-  //         find: vi.fn(),
-  //         findOneBy: vi.fn(),
-  //         create: vi.fn((d: unknown) => d),
-  //         save: vi.fn(async (v: unknown) => v),
-  //       } as unknown as Repository<YookassaPayment>,
-  //       makeSavedMethodRepo(),
-  //       makeYookassaService(),
-  //       { create: mockProviderCreate } as unknown as YooKassaProvider,
-  //       makeRealValidatePaymentRequest(),
-  //     );
-  //   });
-  //
-  //   afterEach(() => {
-  //     delete process.env.ALLOWED_AMOUNTS;
-  //     delete process.env.ALLOWED_PERIODS;
-  //   });
-  //
-  //   it('rejects an arbitrary amount (99 RUB) not in the allowed set', async () => {
-  //     const dto: CreateYookassaSessionDto = {
-  //       userId: 'user-uuid-1',
-  //       selectedPeriod: 1,
-  //       amount: { value: '99.00', currency: 'RUB' },
-  //       description: 'VPN subscription',
-  //     };
-  //
-  //     await expect(controller.createSession(dto)).rejects.toThrow(BadRequestException);
-  //     expect(mockProviderCreate).not.toHaveBeenCalled();
-  //   });
-  //
-  //   it('rejects amount = 0', async () => {
-  //     const dto: CreateYookassaSessionDto = {
-  //       userId: 'user-uuid-1',
-  //       selectedPeriod: 1,
-  //       amount: { value: '0', currency: 'RUB' },
-  //       description: 'VPN subscription',
-  //     };
-  //
-  //     await expect(controller.createSession(dto)).rejects.toThrow(BadRequestException);
-  //     expect(mockProviderCreate).not.toHaveBeenCalled();
-  //   });
-  //
-  //   it('rejects a negative amount', async () => {
-  //     const dto: CreateYookassaSessionDto = {
-  //       userId: 'user-uuid-1',
-  //       selectedPeriod: 1,
-  //       amount: { value: '-200', currency: 'RUB' },
-  //       description: 'VPN subscription',
-  //     };
-  //
-  //     await expect(controller.createSession(dto)).rejects.toThrow(BadRequestException);
-  //     expect(mockProviderCreate).not.toHaveBeenCalled();
-  //   });
-  //
-  //   it('rejects all amounts when ALLOWED_AMOUNTS is not configured', async () => {
-  //     delete process.env.ALLOWED_AMOUNTS;
-  //     const dto: CreateYookassaSessionDto = {
-  //       userId: 'user-uuid-1',
-  //       selectedPeriod: 1,
-  //       amount: { value: '200.00', currency: 'RUB' },
-  //       description: 'VPN subscription',
-  //     };
-  //
-  //     // When ALLOWED_AMOUNTS is absent, no amount should pass (fail-safe)
-  //     await expect(controller.createSession(dto)).rejects.toThrow(BadRequestException);
-  //     expect(mockProviderCreate).not.toHaveBeenCalled();
-  //   });
-  //
-  //   it.each([
-  //     ['200.00', 1],
-  //   ])('CONTROL: accepts valid amount %s RUB for period %d month(s)', async (amountValue, period) => {
-  //     const dto: CreateYookassaSessionDto = {
-  //       userId: 'user-uuid-1',
-  //       selectedPeriod: period,
-  //       amount: { value: amountValue, currency: 'RUB' },
-  //       description: 'VPN subscription',
-  //     };
-  //
-  //     await expect(controller.createSession(dto)).resolves.not.toThrow();
-  //     expect(mockProviderCreate).toHaveBeenCalled();
-  //   });
-  // });
 
   describe('[FINDING #12] mapEURAmountToMonthsNumber must throw on unrecognised amounts', () => {
     beforeEach(() => {
-      process.env.PUBLIC_ALLOWED_AMOUNT_EUR = '5';
-      process.env.PUBLIC_ALLOWED_PERIOD = '1';
+      process.env.ALLOWED_PERIOD = '1';
+      process.env.PRICE_EUR_MONTH_1 = '5';
     });
 
     afterEach(() => {
-      delete process.env.PUBLIC_ALLOWED_AMOUNT_EUR;
-      delete process.env.PUBLIC_ALLOWED_PERIOD;
+      delete process.env.ALLOWED_PERIOD;
+      delete process.env.PRICE_EUR_MONTH_1;
+      delete process.env.PRICE_EUR_MONTH_3;
     });
 
     it('throws for an amount not matching the configured price', () => {
-      // Correct behavior: unknown amount must surface as an error, not silently return 1
       expect(() => mapEURAmountToMonthsNumber('99900')).toThrow();
     });
 
@@ -501,18 +318,19 @@ describe('Security Audit', () => {
       expect(() => mapEURAmountToMonthsNumber('0')).toThrow();
     });
 
-    it('throws when the price is not configured (empty)', () => {
-      process.env.PUBLIC_ALLOWED_AMOUNT_EUR = '';
-
+    it('throws when no periods are configured', () => {
+      delete process.env.ALLOWED_PERIOD;
       expect(() => mapEURAmountToMonthsNumber('500')).toThrow();
     });
 
-    it('returns PUBLIC_ALLOWED_PERIOD months for the configured price', () => {
-      // 500 EUR cents = 5 EUR → matches PUBLIC_ALLOWED_AMOUNT_EUR = '5'
+    it('returns correct months for the configured price', () => {
+      // 500 EUR cents = 5 EUR → matches PRICE_EUR_MONTH_1 = '5' → 1 month
       expect(mapEURAmountToMonthsNumber('500')).toBe(1);
 
-      process.env.PUBLIC_ALLOWED_PERIOD = '3';
-      expect(mapEURAmountToMonthsNumber('500')).toBe(3);
+      // Add a 3-month plan and verify it maps correctly
+      process.env.ALLOWED_PERIOD = '1,3';
+      process.env.PRICE_EUR_MONTH_3 = '12';
+      expect(mapEURAmountToMonthsNumber('1200')).toBe(3);
     });
   });
 });

@@ -3,10 +3,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
-import type { StripeSubscriptionStatusDto } from '@workspace/types';
+import { CreateStripeSessionDto, StripeSubscriptionStatusDto } from '@workspace/types';
 import type Stripe from 'stripe';
 import { In, Repository } from 'typeorm';
-import type { BillingPortalSession, CheckoutSession, CreateStripePaymentDto } from './stripe.types';
+import type { BillingPortalSession, CheckoutSession } from './stripe.types';
 import { StripeClientService } from './stripe-client.service';
 import { StripeWebhookService } from './stripe-webhook.service';
 
@@ -31,9 +31,9 @@ export class StripeProvider {
     await this.stripeWebhookService.handleWebhook(payload);
   }
 
-  async createPayment(dto: CreateStripePaymentDto) {
+  async createPayment(dto: CreateStripeSessionDto) {
     const purchaseType = dto.purchaseType ?? 'subscription';
-    const priceId = this.getPriceId(purchaseType);
+    const priceId = this.getPriceId(purchaseType, dto.selectedPeriod);
     const customerId = await this.getCustomerId(dto.userId);
 
     // Only ever attribute the referral on a user's first-ever successful payment
@@ -50,39 +50,23 @@ export class StripeProvider {
           return this.createPortalSession(customerId);
         }
       }
-      const session = await this.createCheckoutSession(
+      return await this.createCheckoutSession(
         priceId,
         customerId,
         purchaseType,
         dto.userId,
         toltReferralId,
       );
-      await this.analyticsClient.track({
-        event: 'checkout_started',
-        userId: dto.userId,
-        provider: 'stripe',
-        amount: dto.payment.amount.toString() || process.env.PUBLIC_ALLOWED_AMOUNT_EUR || '0',
-        currency: 'EUR',
-      });
-      return session;
     }
 
     const newCustomer = await this.createCustomer(dto);
-    const session = await this.createCheckoutSession(
+    return await this.createCheckoutSession(
       priceId,
       newCustomer,
       purchaseType,
       dto.userId,
       toltReferralId,
     );
-    await this.analyticsClient.track({
-      event: 'checkout_started',
-      userId: dto.userId,
-      provider: 'stripe',
-      amount: dto.payment.amount.toString() || process.env.PUBLIC_ALLOWED_AMOUNT_EUR || '0',
-      currency: 'EUR',
-    });
-    return session;
   }
 
   /** Whether `userId` has any prior successful payment, across all payment providers. */
@@ -115,7 +99,7 @@ export class StripeProvider {
         line_items: [{ price: priceId, quantity: 1 }],
         mode: isExtraDevice ? 'payment' : 'subscription',
         metadata,
-        subscription_data: { metadata },
+        ...(!isExtraDevice && { subscription_data: { metadata } }),
         allow_promotion_codes: true,
         success_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
         cancel_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
@@ -149,7 +133,7 @@ export class StripeProvider {
     }
   }
 
-  private async createCustomer(dto: CreateStripePaymentDto): Promise<string> {
+  private async createCustomer(dto: CreateStripeSessionDto): Promise<string> {
     // Always stamp the remnawave userId (uuid) onto the customer so the webhook
     // can resolve the user without relying on email/telegramId.
     const newCustomer = await this.stripe.customers.create({
@@ -202,16 +186,22 @@ export class StripeProvider {
     }
   }
 
-  private getPriceId(purchaseType: 'subscription' | 'extra_device' = 'subscription'): string {
+  private getPriceId(
+    purchaseType: 'subscription' | 'extra_device' = 'subscription',
+    selectedPeriod?: number,
+  ): string {
     if (purchaseType === 'extra_device') {
-      const priceId = process.env.STRIPE_EXTRA_DEVICE_PRICE_ID || '';
+      const priceId = process.env.STRIPE_EXTRA_DEVICE_PRICE_ID;
       if (!priceId) {
-        this.logger.error('STRIPE_EXTRA_DEVICE_PRICE_ID is not configured');
         throw new Error('Extra device price configuration missing');
       }
       return priceId;
     }
-    const priceId = process.env.STRIPE_SUBSCRIPTION_PRICE_ID || '';
+    const periodSpecificId = selectedPeriod
+      ? process.env[`STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_${selectedPeriod}`]
+      : undefined;
+    const priceId =
+      periodSpecificId || process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1 || '';
     if (!priceId) {
       throw new Error('Subscription price configuration missing');
     }

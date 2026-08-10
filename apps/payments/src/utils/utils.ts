@@ -1,14 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { getConfiguredAmounts } from './amount';
 
 @Injectable()
 export class PaymentsUtils {
   constructor(readonly configService: ConfigService) {}
-
-  getAllowedAmounts() {
-    return getConfiguredAmounts('RUB');
-  }
 
   getAllowedStarsAmounts() {
     const envValue = this.configService.get<string>('PUBLIC_ALLOWED_AMOUNT_STARS', '');
@@ -18,19 +13,8 @@ export class PaymentsUtils {
       .filter((n) => n > 0);
   }
 
-  getAllowedPeriods(): number[] {
-    const envValue = this.configService.get<string>('ALLOWED_PERIOD', '');
-    return (envValue || '')
-      .split(',')
-      .map((p) => Number(p.trim()))
-      .filter((p) => p > 0);
-  }
-
   getExtraDevicePriceRUB(): string {
-    return this.configService.get<string>(
-      'PUBLIC_EXTRA_DEVICE_PRICE_RUB',
-      this.getAllowedAmounts()[0] ?? '0',
-    );
+    return this.configService.get<string>('PUBLIC_EXTRA_DEVICE_PRICE_RUB', '');
   }
 
   getExtraDeviceStarsAmount(): number {

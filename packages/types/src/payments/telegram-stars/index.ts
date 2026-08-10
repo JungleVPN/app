@@ -1,6 +1,4 @@
-import type { PaymentPurpose } from '../yookassa';
-
-export type { PaymentPurpose };
+import { PaymentPurpose } from '../common';
 
 /** Request body for POST /telegram-stars/create-invoice (TMA → payments service) */
 export interface CreateTelegramStarsInvoiceDto {

@@ -105,7 +105,7 @@ export class AdminService {
   }
 
   private async searchStripe(q: string): Promise<AdminPaymentDto[]> {
-    const selectedPeriod = Number(process.env.PUBLIC_ALLOWED_PERIOD ?? 1);
+    const selectedPeriod = Number(process.env.ALLOWED_PERIOD ?? 1);
 
     const rows = await this.stripeRepo
       .createQueryBuilder('p')

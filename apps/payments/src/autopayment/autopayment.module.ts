@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AnalyticsClientModule } from '@payments/analytics/analytics-client.module';
 import { AdminModule } from '@payments/admin/admin.module';
+import { AnalyticsClientModule } from '@payments/analytics/analytics-client.module';
 import { EmailNotificationModule } from '@payments/notifications/email-notification.module';
 import { PaymentStatusService } from '@payments/payment-status/payment-status.service';
 import { PromoService } from '@payments/promo/promo.service';
 import { YooKassaConnector } from '@payments/providers/yookassa/helpers/yookassa.connector';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { PaymentsUtils } from '@payments/utils/utils';
-import { ValidatePaymentRequest } from '@payments/utils/validators';
 import { Promo, PromoRedemption, SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { AutopaymentController } from './autopayment.controller';
 import { AutopaymentService } from './autopayment.service';
@@ -27,7 +26,6 @@ import { AutopaymentService } from './autopayment.service';
     AutopaymentService,
     YooKassaProvider,
     PaymentStatusService,
-    ValidatePaymentRequest,
     PaymentsUtils,
     PromoService,
   ],
