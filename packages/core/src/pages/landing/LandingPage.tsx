@@ -6,6 +6,7 @@ import { FeaturesSection } from './FeaturesSection';
 import { FooterSection } from './FooterSection';
 import { HeroSection } from './HeroSection';
 import { HowItWorksSection } from './HowItWorksSection';
+import { InfoSection } from './InfoSection';
 import { PartnershipSection } from './PartnershipSection';
 import { PricingSection } from './PricingSection';
 import { Stats } from './Stats';
@@ -38,6 +39,7 @@ export default function LandingPage() {
         <Stats />
       </div>
       <ComparisonSection />
+
       <div className={'max-w-7xl mx-auto'}>
         <div id='pricing'>
           <PricingSection />
@@ -46,6 +48,9 @@ export default function LandingPage() {
         <FAQSection />
         <div id='partnership'>
           <PartnershipSection />
+        </div>
+        <div className={'max-w-7xl mx-auto'}>
+          <InfoSection />
         </div>
       </div>
       <FooterSection />

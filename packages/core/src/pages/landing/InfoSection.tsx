@@ -1,0 +1,162 @@
+import {
+  IconBrandAndroid,
+  IconBrandApple,
+  IconBrandUbuntu,
+  IconBrandWindows,
+  IconDeviceLaptop,
+  IconEyeOff,
+  IconFingerprint,
+  IconGlobe,
+  IconKey,
+  IconNetwork,
+  IconShieldCheck,
+  IconWifi,
+} from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+
+const CONCEPT_CARDS = [
+  {
+    key: 'encryption',
+    icon: <IconKey size={32} />,
+    color: 'text-sky-500',
+    bg: 'bg-sky-100 dark:bg-sky-950/60',
+    accent: 'bg-sky-200/60 dark:bg-sky-800/20',
+  },
+  {
+    key: 'masking',
+    icon: <IconEyeOff size={32} />,
+    color: 'text-violet-500',
+    bg: 'bg-violet-100 dark:bg-violet-950/60',
+    accent: 'bg-violet-200/60 dark:bg-violet-800/20',
+  },
+  {
+    key: 'tunnel',
+    icon: <IconNetwork size={32} />,
+    color: 'text-amber-500',
+    bg: 'bg-amber-100 dark:bg-amber-950/60',
+    accent: 'bg-amber-200/60 dark:bg-amber-800/20',
+  },
+] as const;
+
+const USE_CASE_CARDS = [
+  { key: 'blocked', icon: <IconGlobe size={24} />, color: 'text-emerald-500' },
+  { key: 'wifi', icon: <IconWifi size={24} />, color: 'text-blue-500' },
+  { key: 'privacy', icon: <IconFingerprint size={24} />, color: 'text-purple-500' },
+  { key: 'russian', icon: <IconShieldCheck size={24} />, color: 'text-orange-500' },
+] as const;
+
+const STATS = [
+  { key: 'speed', value: '5 Gbps' },
+  { key: 'countries', value: '6+' },
+  { key: 'guarantee', value: '30' },
+  { key: 'support', value: '~10m' },
+] as const;
+
+const DEVICES = [
+  { key: 'ios', icon: <IconBrandApple size={32} /> },
+  { key: 'android', icon: <IconBrandAndroid size={32} /> },
+  { key: 'macos', icon: <IconDeviceLaptop size={32} /> },
+  { key: 'windows', icon: <IconBrandWindows size={32} /> },
+  { key: 'linux', icon: <IconBrandUbuntu size={32} /> },
+] as const;
+
+export function InfoSection() {
+  const { t } = useTranslation();
+
+  return (
+    <section className='mx-auto w-full px-6 py-24 md:px-12 lg:px-24'>
+      {/* ── What is a VPN? ── */}
+      <div className='mb-12 flex flex-col items-center gap-3 text-center'>
+        <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
+          {t('landing.info.what.title')}
+        </h2>
+        <p className='max-w-2xl text-base text-muted lg:text-lg'>
+          {t('landing.info.what.subtitle')}
+        </p>
+      </div>
+
+      <div className='mb-24 grid grid-cols-1 gap-4 sm:grid-cols-3'>
+        {CONCEPT_CARDS.map(({ key, icon, color, bg, accent }) => (
+          <div
+            key={key}
+            className={`relative flex min-h-44 flex-col justify-between overflow-hidden rounded-3xl p-7 ${bg}`}
+          >
+            <div className={`absolute -right-8 -top-8 h-32 w-32 rounded-full ${accent}`} />
+            <span className={`relative ${color}`}>{icon}</span>
+            <div className='relative'>
+              <h3 className='text-base font-bold text-foreground'>
+                {t(`landing.info.what.${key}.title`)}
+              </h3>
+              <p className='mt-1 text-sm leading-relaxed text-muted'>
+                {t(`landing.info.what.${key}.description`)}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Why you need a VPN ── */}
+      <div className='mb-12 flex flex-col items-center gap-3 text-center'>
+        <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
+          {t('landing.info.why.title')}
+        </h2>
+        <p className='max-w-2xl text-base text-muted lg:text-lg'>
+          {t('landing.info.why.subtitle')}
+        </p>
+      </div>
+
+      <div className='mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2'>
+        {USE_CASE_CARDS.map(({ key, icon, color }) => (
+          <div
+            key={key}
+            className='flex items-start gap-4 rounded-2xl border border-divider bg-surface-secondary p-6'
+          >
+            <span className={`mt-0.5 shrink-0 ${color}`}>{icon}</span>
+            <div>
+              <h3 className='font-semibold text-foreground'>
+                {t(`landing.info.why.${key}.title`)}
+              </h3>
+              <p className='mt-1 text-sm leading-relaxed text-muted'>
+                {t(`landing.info.why.${key}.description`)}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Stats strip ── */}
+      <div className='mb-24 grid grid-cols-2 gap-4 rounded-3xl border border-divider bg-surface-secondary p-8 lg:grid-cols-4'>
+        {STATS.map(({ key, value }) => (
+          <div key={key} className='flex flex-col items-center gap-1 text-center'>
+            <span className='text-3xl font-bold text-foreground lg:text-4xl'>{value}</span>
+            <span className='text-xs text-muted lg:text-sm'>{t(`landing.info.stats.${key}`)}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Device support ── */}
+      <div className='mb-12 flex flex-col items-center gap-3 text-center'>
+        <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
+          {t('landing.info.devices.title')}
+        </h2>
+        <p className='max-w-2xl text-base text-muted lg:text-lg'>
+          {t('landing.info.devices.subtitle')}
+        </p>
+      </div>
+
+      <div className='grid grid-cols-3 gap-4 sm:grid-cols-5'>
+        {DEVICES.map(({ key, icon }) => (
+          <div
+            key={key}
+            className='flex flex-col items-center gap-3 rounded-2xl border border-divider bg-surface-secondary py-6 px-4'
+          >
+            <span className='text-muted'>{icon}</span>
+            <h3 className='text-sm font-semibold text-foreground'>
+              {t(`landing.info.devices.${key}`)}
+            </h3>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}

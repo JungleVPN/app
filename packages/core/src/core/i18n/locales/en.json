@@ -599,6 +599,59 @@
           "theirs": "Possible"
         }
       }
+    },
+    "info": {
+      "what": {
+        "title": "What Is a VPN?",
+        "subtitle": "A VPN (Virtual Private Network) creates a secure, encrypted connection between your device and the internet — so no one can see what you're doing online.",
+        "encryption": {
+          "title": "Encryption",
+          "description": "Your data is scrambled into unreadable code before it leaves your device, so hackers and ISPs can't intercept it."
+        },
+        "masking": {
+          "title": "IP Masking",
+          "description": "Your real IP address is hidden and replaced with the VPN server's address — websites only see the server, not you."
+        },
+        "tunnel": {
+          "title": "Secure Tunnel",
+          "description": "All your traffic travels through a private encrypted tunnel between your device and the VPN server, shielded from prying eyes."
+        }
+      },
+      "why": {
+        "title": "Why You Need a VPN",
+        "subtitle": "Whether you're at home, travelling, or on public Wi-Fi, a VPN keeps your connection private and your data safe.",
+        "blocked": {
+          "title": "Access Any Website",
+          "description": "Bypass geo-restrictions and censorship. Stream, browse, and use any service from anywhere in the world."
+        },
+        "wifi": {
+          "title": "Stay Safe on Public Wi-Fi",
+          "description": "Coffee shops and airports are hunting grounds for hackers. A VPN encrypts your traffic so they get nothing useful."
+        },
+        "privacy": {
+          "title": "Keep Your Activity Private",
+          "description": "Your internet provider can see everything you do. A VPN hides your browsing so your data stays yours alone."
+        },
+        "russian": {
+          "title": "Use Russian Services Abroad",
+          "description": "Living outside Russia? Connect via a Russian server and use banking, streaming, and other local services without interruption."
+        }
+      },
+      "stats": {
+        "speed": "Max server speed",
+        "countries": "Server countries",
+        "guarantee": "Day money-back guarantee",
+        "support": "Avg. support reply time"
+      },
+      "devices": {
+        "title": "Works on Every Device You Own",
+        "subtitle": "One subscription covers all your devices simultaneously — no extra fees, no limits.",
+        "ios": "iPhone & iPad",
+        "android": "Android",
+        "macos": "macOS",
+        "windows": "Windows",
+        "linux": "Linux"
+      }
     }
   },
   "transactions": {
