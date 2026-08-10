@@ -7,12 +7,14 @@ const PERIOD_KEYS = [
   { key: 'MONTH_12', months: 12 },
 ] as const;
 
-function enabledPeriodMonths(): number[] {
-  return (process.env.ALLOWED_PERIOD || '')
-    .split(',')
+export const enabledPeriodMonths = (): number[] => {
+  if (!process.env.ALLOWED_PERIOD) {
+    throw new Error('No period months selected.');
+  }
+  return process.env.ALLOWED_PERIOD.split(',')
     .map((p) => Number(p.trim()))
     .filter((p) => p > 0);
-}
+};
 
 /**
  * Months granted by a paid `amount` (major units) for the currency.

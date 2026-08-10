@@ -1,10 +1,8 @@
 import { IconBrandAppleFilled, IconBrandGoogleFilled } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { apiRoutes, type SubscriptionPlanDto } from '@workspace/types';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
-import { coreEnv } from '../../env';
+import { usePlans } from '../../hooks';
 
 function PaymentMethods() {
   return (
@@ -52,20 +50,6 @@ function GooglePayIcon() {
   );
 }
 
-function usePlans() {
-  const [plans, setPlans] = useState<SubscriptionPlanDto[]>([]);
-
-  useEffect(() => {
-    const url = `${coreEnv.paymentsUrl}${apiRoutes.payments.plans}`;
-    fetch(url)
-      .then((r) => r.json())
-      .then((data: SubscriptionPlanDto[]) => setPlans(data))
-      .catch(() => {});
-  }, []);
-
-  return plans;
-}
-
 export function PricingSection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -78,7 +62,7 @@ export function PricingSection() {
     return t('landing.pricing.monthsPeriod', { count: months });
   }
 
-  const handleCtaClick = () => navigate('/login');
+  const handleCtaClick = () => navigate('/profile/plans');
 
   const sharedProps = {
     currency: '€',
@@ -92,7 +76,7 @@ export function PricingSection() {
   if (plans.length === 0) return null;
 
   return (
-    <section className='mx-auto w-full px-6 py-24 md:px-12 lg:px-24'>
+    <section className='mx-auto w-full px-6 py-48 md:px-12 lg:px-24'>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
           {t('landing.pricing.title')}
@@ -101,7 +85,7 @@ export function PricingSection() {
       </div>
 
       <div className='flex flex-col items-center gap-8'>
-        <div className='grid w-full max-w-5xl grid-cols-1 items-center gap-4 md:grid-cols-3'>
+        <div className='grid w-full max-w-5xl grid-cols-1 items-center gap-4 md:grid-cols-4'>
           {plans.map((plan, i) => (
             <PriceCard
               key={plan.months}
