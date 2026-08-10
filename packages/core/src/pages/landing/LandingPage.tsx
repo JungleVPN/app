@@ -4,6 +4,7 @@ import { CountriesMarquee } from './CountriesMarquee';
 import { FAQSection } from './FAQSection';
 import { FeaturesSection } from './FeaturesSection';
 import { FooterSection } from './FooterSection';
+import { FreeTrialSection } from './FreeTrialSection';
 import { HeroSection } from './HeroSection';
 import { HowItWorksSection } from './HowItWorksSection';
 import { InfoSection } from './InfoSection';
@@ -51,6 +52,9 @@ export default function LandingPage() {
         </div>
         <div className={'max-w-7xl mx-auto'}>
           <InfoSection />
+        </div>
+        <div className={'max-w-7xl my-36'}>
+          <FreeTrialSection />
         </div>
       </div>
       <FooterSection />
