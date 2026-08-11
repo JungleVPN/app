@@ -41,7 +41,9 @@ void (async () => {
   try {
     const launchParams = ensureTelegramLaunchParams();
     const { tgWebAppPlatform: platform } = launchParams;
-    const debug = (launchParams.tgWebAppStartParam || '').includes('debug') || import.meta.env.DEV;
+    const debug =
+      (launchParams.tgWebAppStartParam || '').includes('debug') ||
+      import.meta.env.NODE_ENV !== 'production';
 
     captureAttribution({
       platform: 'telegram',
