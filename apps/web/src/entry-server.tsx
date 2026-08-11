@@ -23,7 +23,8 @@ const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
     locale: 'ru',
     lang: 'ru',
     title: 'JungleVPN — Быстрый и надёжный VPN',
-    description: 'Доступ к любым сайтам без ограничений. Высокая скорость, полная анонимность.',
+    description:
+      'JungleVPN откроет доступ к свободному и безопасному интернету. Высокая скорость, безлимитный трафик и большое количество устройств. Безопасный VPN-сервис для всей семьи.',
   },
   en: {
     locale: 'en',
@@ -44,8 +45,11 @@ if (import.meta.env.PUBLIC_DOMAIN_RU) DOMAIN_LOCALE[import.meta.env.PUBLIC_DOMAI
 if (import.meta.env.PUBLIC_DOMAIN_EU) DOMAIN_LOCALE[import.meta.env.PUBLIC_DOMAIN_EU] = 'en';
 if (import.meta.env.PUBLIC_DOMAIN_AE) DOMAIN_LOCALE[import.meta.env.PUBLIC_DOMAIN_AE] = 'ar';
 
+const PREFIX_LOCALE: Record<string, string> = { ru: 'ru', eu: 'en', ae: 'ar' };
+
 function resolveConfig(hostname: string): DomainConfig {
-  const localeKey = DOMAIN_LOCALE[hostname] ?? DOMAIN_LOCALE[hostname.split(/[-.]/, 1)[0]] ?? 'en';
+  const prefix = hostname.split(/[-.]/, 1)[0];
+  const localeKey = DOMAIN_LOCALE[hostname] ?? PREFIX_LOCALE[prefix] ?? 'en';
   const base = LOCALE_CONFIGS[localeKey] ?? LOCALE_CONFIGS['en']!;
   return { ...base, Landing: LandingPage };
 }

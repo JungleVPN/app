@@ -1,16 +1,33 @@
 import { Button, Dropdown, Label } from '@heroui/react';
 import type { TSubscriptionPageLanguageCode } from '@remnawave/subscription-page-types';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router';
 import { useRemnawaveApi } from '../../api';
-import { useAuthStore, useSubscriptionConfigStoreActions } from '../../stores';
+import { useAuthStore, usePlatformStore, useSubscriptionConfigStoreActions } from '../../stores';
+
+const LANDING_DOMAINS: Record<string, string | undefined> = {
+  ru: import.meta.env.PUBLIC_DOMAIN_RU ? `https://${import.meta.env.PUBLIC_DOMAIN_RU}` : undefined,
+  en: import.meta.env.PUBLIC_DOMAIN_EU ? `https://${import.meta.env.PUBLIC_DOMAIN_EU}` : undefined,
+  ar: import.meta.env.PUBLIC_DOMAIN_AE ? `https://${import.meta.env.PUBLIC_DOMAIN_AE}` : undefined,
+};
 
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
   const { setLanguage } = useSubscriptionConfigStoreActions();
   const remnawaveApi = useRemnawaveApi();
   const rmnUser = useAuthStore((s) => s.rmnUser);
+  const { pathname } = useLocation();
+  const { platformType } = usePlatformStore();
 
   const handleLanguageChange = async (newLocale: string) => {
+    const isLanding = pathname === '/';
+    const targetDomain = LANDING_DOMAINS[newLocale];
+
+    if (isLanding && platformType === 'web' && targetDomain) {
+      window.location.href = targetDomain;
+      return;
+    }
+
     await i18n.changeLanguage(newLocale);
     setLanguage(newLocale as TSubscriptionPageLanguageCode);
     if (rmnUser?.uuid) {
