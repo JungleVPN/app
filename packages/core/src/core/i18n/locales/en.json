@@ -386,15 +386,20 @@
   },
   "landing": {
     "hero": {
-      "subtitle": "Open the whole internet — safely and without limits.",
-      "cta": "Try now",
+      "subtitle": "Fast, private and stable connection for a free internet.",
+      "cta": "Connect",
       "login": "Login",
-      "trial": "3-day FREE trial",
+      "trial": "Try it free for 3 days",
       "guarantee": "30-day money-back guarantee",
       "features": {
-        "smartSplit": "Our friendly and knowledgeable team is always ready to help",
-        "russianServices": "Browse seamlessly without interruptions.",
+        "smartSplit": "Smart traffic split: no need to manually toggle VPN on and off",
+        "russianServices": "Russian servers work directly",
         "speed": "High speed and unlimited traffic"
+      },
+      "stats": {
+        "locations": { "value": "6+", "label": "locations" },
+        "traffic": { "value": "Unlimited", "label": "traffic" },
+        "devices": { "value": "All", "label": "devices" }
       },
       "bento": {
         "speed": {

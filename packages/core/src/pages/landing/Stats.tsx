@@ -18,7 +18,7 @@ export const Stats = () => {
       {[...SERVERS, ...SERVERS, ...SERVERS].map(({ flag, name, stableId }) => (
         <div
           key={name}
-          className='mx-3 flex items-start gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2'
+          className='mx-3 flex items-start j gap-2 rounded-xl border border-violet-400/20 bg-violet-400/10 px-4 py-2'
         >
           <div className='flex items-center gap-1'>
             <span className='text-xl'>{flag}</span>
@@ -29,7 +29,7 @@ export const Stats = () => {
             width={100}
             height={40}
             title={name}
-            className='flex-shrink-0'
+            className='shrink-0'
           />
         </div>
       ))}

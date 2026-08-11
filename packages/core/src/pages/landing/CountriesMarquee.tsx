@@ -27,7 +27,7 @@ export function CountriesMarquee() {
       <p className='mb-6 text-center text-sm font-medium uppercase tracking-widest text-muted'>
         {t('landing.countries.label')}
       </p>
-      <Marquee pauseOnHover gradient gradientColor='var(--background)'>
+      <Marquee pauseOnHover>
         {[...COUNTRIES, ...COUNTRIES, ...COUNTRIES, ...COUNTRIES].map(({ flag, name }) => (
           <CountryBadge key={flag} flag={flag} name={name} />
         ))}

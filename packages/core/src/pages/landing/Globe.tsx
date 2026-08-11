@@ -1,14 +1,36 @@
-import createGlobe from 'cobe';
+import createGlobe, { Arc } from 'cobe';
 import { useEffect, useRef } from 'react';
 
-const MARKERS = [
-  { location: [60.1699, 24.9384] as [number, number], size: 0.1 }, // Finland (Helsinki)
-  { location: [50.1109, 8.6821] as [number, number], size: 0.1 }, // Germany (Frankfurt)
-  { location: [48.2082, 16.3738] as [number, number], size: 0.1 }, // Austria (Vienna)
-  { location: [55.7558, 37.6176] as [number, number], size: 0.1 }, // Russia (Moscow)
-  { location: [38.7509, -77.4753] as [number, number], size: 0.1 }, // USA (Manassas, VA)
-  { location: [52.3676, 4.9041] as [number, number], size: 0.1 }, // Netherlands (Amsterdam)
-];
+const LOCATIONS = {
+  us: [38.7509, -77.4753] as [number, number], // USA
+  ru: [55.7558, 37.6176] as [number, number], // Russia (Moscow)
+  de: [50.1109, 8.6821] as [number, number], // Germany (Frankfurt)
+  ae: [25.2048, 55.2708] as [number, number], // UAE (Dubai)
+  cn: [31.2304, 121.4737] as [number, number], // China (Shanghai)
+  br: [-23.5505, -46.6333] as [number, number], // Brazil (São Paulo)
+} as const;
+
+type LocationKey = keyof typeof LOCATIONS;
+
+const MARKERS = Object.values(LOCATIONS).map((location) => ({ location, size: 0.1 }));
+
+const ARC_COLOR: [number, number, number] = [0.3, 0.3, 0.3];
+
+function buildArcs(fromKey: LocationKey): Arc[] {
+  const from = LOCATIONS[fromKey];
+  return (Object.keys(LOCATIONS) as LocationKey[])
+    .filter((key) => key !== fromKey)
+    .map((key) => ({ from, to: LOCATIONS[key], color: ARC_COLOR }));
+}
+
+function resolveFromKey(): LocationKey {
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  if (hostname === import.meta.env.PUBLIC_DOMAIN_RU) return 'ru';
+  if (hostname === import.meta.env.PUBLIC_DOMAIN_AE) return 'ae';
+  return 'de'; // EU / default
+}
+
+const ARCH = buildArcs(resolveFromKey());
 
 function themeConfig(dark: boolean) {
   return {
@@ -51,6 +73,9 @@ export function Globe() {
       theta: thetaRef.current,
       mapSamples: 16000,
       markerElevation: 0,
+      arcs: ARCH,
+      arcWidth: 0.4,
+      arcHeight: 0.4,
       markerColor: [1, 0.78, 0.1],
       markers: MARKERS,
       ...themeConfig(isDark),

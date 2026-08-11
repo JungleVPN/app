@@ -24,7 +24,7 @@ export function WorldMap() {
 
     return map.getSVG({
       radius: 0.5,
-      color: '#dedede',
+      color: '#b4b4b4',
       shape: 'circle',
       backgroundColor: 'transparent',
     });
