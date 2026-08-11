@@ -3,12 +3,12 @@ import { useEffect } from 'react';
 import { Outlet } from 'react-router';
 import { AppAlert, ErrorBoundary } from '../components';
 import { usePlatformStore } from '../stores';
+import { ProfileContainer } from '../ui/containers/ProfileContainer';
 
 export function RootLayout() {
   const {
     platformType,
     clientPlatform,
-    isMobileTma,
     actions: { setIsMobileTma },
   } = usePlatformStore();
 
@@ -21,13 +21,11 @@ export function RootLayout() {
   return (
     <ErrorBoundary>
       <AppAlert />
-      <Surface
-        variant='transparent'
-        className='flex h-dvh flex-col'
-        style={isMobileTma ? { paddingTop: '6rem' } : undefined}
-      >
-        <Outlet />
-      </Surface>
+      <ProfileContainer>
+        <Surface variant='transparent' className='flex flex-col w-full'>
+          <Outlet />
+        </Surface>
+      </ProfileContainer>
     </ErrorBoundary>
   );
 }

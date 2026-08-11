@@ -24,7 +24,7 @@ export default function LoginPage() {
   ];
 
   return (
-    <div className='mt-24 max-w-sm flex flex-col gap-3'>
+    <div className='mt-24 w-full flex flex-col gap-3'>
       <Surface variant='transparent'>
         <Block className={'p-4'}>
           <h1 className={`text-center text-2xl font-semibold ${css.title}`}>{t('login.title')}</h1>

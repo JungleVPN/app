@@ -18,7 +18,7 @@ export function ProfileContainer({ children, className }: ProfileContainerProps)
   return (
     <Surface
       variant='transparent'
-      className={`w-full px-4 md:px-8 lg:px-48 xl:px-144 pt-8 pb-24 ${className || ''}`}
+      className={`flex flex-col items-center justify-center w-full px-4 sm:px-4 md:px-48 lg:px-72 xl:px-156 pt-4 pb-24 ${className || ''}`}
     >
       {children}
     </Surface>

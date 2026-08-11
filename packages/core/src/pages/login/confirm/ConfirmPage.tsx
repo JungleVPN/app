@@ -16,10 +16,10 @@ export default function ConfirmPage() {
   const { otp, timer, error, setOtp, handleConfirm, handleResend } = useConfirm();
 
   return (
-    <Surface className='w-fit max-w-md pt-24' variant='transparent'>
+    <Surface className='pt-24' variant='transparent'>
       <Form onSubmit={(e) => void handleConfirm(e)}>
         <Block className={'p-4'}>
-          <div className='flex flex-col gap-4'>
+          <div className='flex flex-col gap-4 items-center justify-center'>
             <h1 className='text-center text-2xl font-semibold text-foreground'>
               {t('confirm.title')}
             </h1>

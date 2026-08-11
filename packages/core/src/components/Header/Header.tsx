@@ -19,7 +19,7 @@ export function Header() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const { authUser, tgUser } = useAuthStore();
-  const { platformType } = usePlatformStore();
+  const { platformType, isMobileTma } = usePlatformStore();
   const { theme } = useTheme();
   const remnawaveApi = useRemnawaveApi();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
@@ -100,11 +100,9 @@ export function Header() {
   );
 
   return (
-    <div
-      className={`${platformType === 'telegram' ? 'relative' : 'sticky top-0 z-50 shrink-0 py-3'}`}
-    >
+    <div className={`${isMobileTma ? 'mt-28' : 'sticky top-0 z-50 shrink-0 py-3'}`}>
       <div
-        className={`max-w-[90%] lg:max-w-[60%] xl:max-w-[40%] m-auto px-4 py-2 transition-all duration-300 ${
+        className={`max-w-[90%] lg:max-w-[60%] xl:max-w-[40%] m-auto px-4 py-1 transition-all duration-300 ${
           scrolled && platformType !== 'telegram'
             ? 'shadow-lg backdrop-blur-md bg-background/80 rounded-2xl'
             : ''

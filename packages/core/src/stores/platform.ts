@@ -41,7 +41,7 @@ export interface IPlatformActions {
 
 const initialState: IPlatformState = {
   platformType: null,
-  isMobileTma: true,
+  isMobileTma: false,
   initStatus: 'idle',
   initError: null,
   clientPlatform: 'unknown',

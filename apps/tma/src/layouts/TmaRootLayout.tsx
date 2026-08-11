@@ -8,7 +8,7 @@ export function TmaRootLayout() {
     <TmaAuthProvider>
       <TmaProvider>
         <Header />
-        <ScrollShadowComponent className='flex-1 overflow-y-auto' hideScrollBar>
+        <ScrollShadowComponent hideScrollBar>
           <RootLayout />
         </ScrollShadowComponent>
       </TmaProvider>
