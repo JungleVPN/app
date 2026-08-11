@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="light" data-theme="light" lang="ru">
+<html class="light" data-theme="light" lang="en">
   <head>
     <meta charset="UTF-8" />
     <!-- Anti-FOUC: apply persisted theme before React hydrates -->
@@ -16,7 +16,7 @@
     </script>
     <link rel="icon" type="image/svg+xml" href="/assets/Logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JungleVPN</title>
+    <!--app-head-->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -42,7 +42,7 @@
 
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="root"><!--app-html--></div>
+    <script type="module" src="/src/entry-client.tsx"></script>
   </body>
 </html>

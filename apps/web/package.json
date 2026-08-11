@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "build:docker": "vite build",
+    "dev": "node server.js",
+    "dev:spa": "vite",
+    "build": "tsc -b && vite build --outDir dist/client",
+    "build:docker": "vite build --outDir dist/client && vite build --ssr src/entry-server.tsx --outDir dist/server",
     "typecheck": "tsc -b",
-    "start": "serve dist --single",
+    "start": "node server.js",
     "preview": "vite preview",
     "lint": "biome check ./src"
   },
@@ -30,7 +31,9 @@
     "react-dom": "^19.1.1",
     "react-i18next": "^15.0.0",
     "react-router": "^7.14.1",
-    "serve": "^14.2.4",
+    "compression": "^1.7.5",
+    "express": "^4.21.2",
+    "sirv": "^3.0.1",
     "ufo": "^1.6.1",
     "zustand": "^5.0.9"
   },

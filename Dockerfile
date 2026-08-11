@@ -74,6 +74,7 @@ COPY --from=prod-deps /app/apps/broadcasts/dist ./apps/broadcasts/dist
 COPY --from=prod-deps /app/apps/analytics/dist ./apps/analytics/dist
 COPY --from=prod-deps /app/apps/bot/dist ./apps/bot/dist
 COPY --from=prod-deps /app/apps/web/dist ./apps/web/dist
+COPY --from=prod-deps /app/apps/web/server.js ./apps/web/server.js
 COPY --from=prod-deps /app/apps/tma/dist ./apps/tma/dist
 COPY --from=prod-deps /app/packages/database/dist ./packages/database/dist
 COPY --from=prod-deps /app/packages/types/dist ./packages/types/dist

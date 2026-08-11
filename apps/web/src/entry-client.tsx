@@ -1,5 +1,5 @@
 import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, hydrateRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
 
 import '@workspace/core/core/i18n';
@@ -34,7 +34,9 @@ const appRoutes = {
   getSubscriptionPath: '/subscribe',
 };
 
-createRoot(document.getElementById('root')!).render(
+const rootEl = document.getElementById('root')!;
+
+const app = (
   <StrictMode>
     <AppRoutesProvider value={appRoutes}>
       <PaymentsApiProvider api={paymentsApi}>
@@ -49,5 +51,12 @@ createRoot(document.getElementById('root')!).render(
         </AnalyticsApiProvider>
       </PaymentsApiProvider>
     </AppRoutesProvider>
-  </StrictMode>,
+  </StrictMode>
 );
+
+// Use hydrateRoot when the SSR server pre-rendered HTML, createRoot otherwise (local vite dev).
+if (rootEl.querySelector('*')) {
+  hydrateRoot(rootEl, app);
+} else {
+  createRoot(rootEl).render(app);
+}

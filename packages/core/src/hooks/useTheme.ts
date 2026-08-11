@@ -5,12 +5,14 @@ type Theme = 'light' | 'dark';
 const STORAGE_KEY = 'jungleVPN-theme';
 
 function getInitialTheme(): Theme {
+  if (import.meta.env.SSR) return 'light';
   const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
   if (stored === 'light' || stored === 'dark') return stored;
   return 'light';
 }
 
 function applyTheme(theme: Theme) {
+  if (import.meta.env.SSR) return;
   const html = document.documentElement;
   html.setAttribute('data-no-transition', '');
   html.classList.remove('light', 'dark');
@@ -28,7 +30,7 @@ const listeners = new Set<() => void>();
 
 function setTheme(theme: Theme) {
   currentTheme = theme;
-  localStorage.setItem(STORAGE_KEY, theme);
+  if (!import.meta.env.SSR) localStorage.setItem(STORAGE_KEY, theme);
   applyTheme(theme);
   listeners.forEach((l) => l());
 }
@@ -44,8 +46,12 @@ function getSnapshot() {
 
 applyTheme(currentTheme);
 
+function getServerSnapshot(): Theme {
+  return 'light';
+}
+
 export function useTheme() {
-  const theme = useSyncExternalStore(subscribe, getSnapshot);
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const toggleTheme = useCallback(() => {
     setTheme(currentTheme === 'dark' ? 'light' : 'dark');

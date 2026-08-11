@@ -18,10 +18,13 @@ export default defineConfig({
   },
   server: {
     port: 7080,
-    allowedHosts: ['web.development-env.uk'],
+    allowedHosts: ['.development-env.uk'],
   },
   build: {
-    outDir: 'dist',
+    outDir: 'dist/client',
     sourcemap: process.env.WEB_BUILD_SOURCEMAP !== 'false',
+  },
+  ssr: {
+    noExternal: [/@heroui\//, /@react-aria\//, /@lottiefiles\//],
   },
 });
