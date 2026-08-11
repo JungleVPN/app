@@ -71,9 +71,9 @@ export function HeroSection() {
 
       <motion.div
         className='w-full lg:w-2/4'
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 0.8, ease: 'easeOut' }}
       >
         <Globe />
       </motion.div>

@@ -33,8 +33,10 @@ export function Globe() {
     if (!container) return;
 
     const canvas = document.createElement('canvas');
-    canvas.width = 1000;
-    canvas.height = 1000;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const SIZE = 1000;
+    canvas.width = SIZE * dpr;
+    canvas.height = SIZE * dpr;
     canvas.className = 'w-full h-full cursor-grab active:cursor-grabbing select-none';
     container.appendChild(canvas);
 
@@ -42,9 +44,9 @@ export function Globe() {
 
     const headChildCountBefore = document.head.childElementCount;
     const globe = createGlobe(canvas, {
-      devicePixelRatio: 2,
-      width: 1000,
-      height: 1000,
+      devicePixelRatio: dpr,
+      width: SIZE * dpr,
+      height: SIZE * dpr,
       phi: phiRef.current,
       theta: thetaRef.current,
       mapSamples: 16000,
