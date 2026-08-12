@@ -203,6 +203,27 @@ export class YookassaService {
       return;
     }
 
+    // Replay guard, keyed solely on `paidAt` — the stamp this handler writes
+    // once fulfilment has actually happened.
+    //
+    // `record.status` is deliberately not consulted. It answers "what did we
+    // last write down", not "did this payment succeed": that question was
+    // already settled by validateWebhookPayload, which confirms the status
+    // against YooKassa's API before we get here. A row still reading 'pending'
+    // is simply an ordinary first delivery, and an autopayment row already
+    // reads 'succeeded' the moment it is created — guarding on status swallowed
+    // every renewal, which is how this check came to be removed in the first
+    // place.
+    //
+    // Keying on the stamp alone also fails safe: were the two fields ever to
+    // drift apart, this skips rather than extends a second time.
+    // Truthiness rather than `!== null`: an absent column must read as unstamped,
+    // never as already-handled.
+    if (record.paidAt) {
+      this.logger.log(`Payment ${id} already processed — ignoring duplicate webhook`);
+      return;
+    }
+
     // Count prior succeeded payments before stamping this one — the current record
     // is still pending at this point, so a count of 0 means this is the first payment.
     const priorSucceeded = await this.yookassaPaymentRepo.count({

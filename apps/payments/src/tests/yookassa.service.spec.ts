@@ -253,6 +253,72 @@ describe('YookassaService', () => {
         );
       });
     });
+
+    // `paidAt` — not `status` — is the idempotency stamp. An autopayment row is
+    // written with status='succeeded' straight from YooKassa's synchronous
+    // response, but the subscription is only extended here, by the webhook.
+    // Guarding on status alone silently swallowed every renewal.
+    describe('idempotency stamp', () => {
+      it('extends the subscription for an autopayment already marked succeeded but unstamped', async () => {
+        mockYkFindOneBy.mockResolvedValue({
+          userId: 'user-1',
+          selectedPeriod: 1,
+          telegramId: 42,
+          status: 'succeeded',
+          paidAt: null,
+        });
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(mockHandleUserUpdates).toHaveBeenCalledTimes(1);
+      });
+
+      it('ignores a replay of a payment that was already stamped', async () => {
+        mockYkFindOneBy.mockResolvedValue({
+          userId: 'user-1',
+          selectedPeriod: 1,
+          telegramId: 42,
+          status: 'succeeded',
+          paidAt: new Date(),
+        });
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(mockHandleUserUpdates).not.toHaveBeenCalled();
+        expect(mockYkUpdate).not.toHaveBeenCalled();
+      });
+
+      // The stamp alone decides. Were status and paidAt ever to drift apart,
+      // skipping is the safe direction — a missed extension is recoverable on
+      // YooKassa's next retry, a double extension is not.
+      it('ignores a stamped record even when its status never reached succeeded', async () => {
+        mockYkFindOneBy.mockResolvedValue({
+          userId: 'user-1',
+          selectedPeriod: 1,
+          telegramId: 42,
+          status: 'pending',
+          paidAt: new Date(),
+        });
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(mockHandleUserUpdates).not.toHaveBeenCalled();
+      });
+
+      it('processes a pending record on first delivery', async () => {
+        mockYkFindOneBy.mockResolvedValue({
+          userId: 'user-1',
+          selectedPeriod: 1,
+          telegramId: 42,
+          status: 'pending',
+          paidAt: null,
+        });
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(mockHandleUserUpdates).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
   // ─────────────────────────────────────────────────────────

@@ -286,7 +286,10 @@ describe('AutopaymentService', () => {
       });
     });
 
-    it('persists record with paidAt on success', async () => {
+    // The charge has settled, but the subscription has not been extended yet —
+    // that is the webhook's job, and it uses `paidAt` as its replay guard.
+    // Stamping it here would make the renewal look like a duplicate delivery.
+    it('persists the record unstamped on success, leaving paidAt for the webhook', async () => {
       mockCreate.mockResolvedValue({
         id: 'pay_1',
         status: 'succeeded',
@@ -304,7 +307,7 @@ describe('AutopaymentService', () => {
           selectedPeriod: 1,
           telegramId: 42,
           description: 'Test payment',
-          paidAt: expect.any(Date),
+          paidAt: null,
         }),
       );
       expect(mockYkSave).toHaveBeenCalledTimes(1);
