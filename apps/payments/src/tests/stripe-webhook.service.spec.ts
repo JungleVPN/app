@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 import * as process from 'node:process';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
+import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { StripePayment } from '@workspace/database';
 import { WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { PaymentStatusService } from '../payment-status/payment-status.service';
 import { StripeClientService } from '../providers/stripe/stripe-client.service';
 import { StripeWebhookService } from '../providers/stripe/stripe-webhook.service';
@@ -262,10 +262,16 @@ describe('StripeWebhookService', () => {
         makeInvoiceEvent('invoice.payment_failed', { billing_reason: 'subscription_cycle' }),
       );
 
-      expect(mockSave).toHaveBeenCalledWith(expect.objectContaining({ id: 'in_1', status: 'failed' }));
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'in_1', status: 'failed' }),
+      );
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.canceled'],
-        expect.objectContaining({ userId: 'user-1', provider: 'stripe', reason: 'general_decline' }),
+        expect.objectContaining({
+          userId: 'user-1',
+          provider: 'stripe',
+          reason: 'general_decline',
+        }),
       );
     });
 

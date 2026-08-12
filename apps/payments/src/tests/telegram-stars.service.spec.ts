@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { BadRequestException } from '@nestjs/common';
+import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { Repository } from 'typeorm';
 import { describe, expect, it, vi } from 'vitest';
-import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { PaymentStatusService } from '../payment-status/payment-status.service';
 import { PromoInvalidError, type PromoService } from '../promo/promo.service';
 import { TelegramStarsService } from '../providers/telegram-stars/telegram-stars.service';

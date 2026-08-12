@@ -9,6 +9,7 @@ import { PaymentWebhookNotification, WebhookEventEnum } from '@workspace/types';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PaymentStatusService } from '../payment-status/payment-status.service';
+import type { ToltService } from '../tolt/tolt.service';
 
 vi.mock('@workspace/database', () => {
   return {
@@ -18,6 +19,8 @@ vi.mock('@workspace/database', () => {
     SavedPaymentMethod: class {},
     Promo: class {},
     PromoRedemption: class {},
+    ToltReferral: class {},
+    FxRate: class {},
   };
 });
 
@@ -75,6 +78,8 @@ describe('YookassaService', () => {
   let mockGetPayment: any;
   let mockEmit: any;
   let analyticsClient: AnalyticsClientService;
+  let mockReportConversion: any;
+  let toltService: ToltService;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -126,6 +131,11 @@ describe('YookassaService', () => {
       track: vi.fn().mockResolvedValue(undefined),
     } as unknown as AnalyticsClientService;
 
+    mockReportConversion = vi.fn().mockResolvedValue(undefined);
+    toltService = {
+      reportConversion: mockReportConversion,
+    } as unknown as ToltService;
+
     service = new YookassaService(
       yooKassaProvider,
       yookassaPaymentRepo,
@@ -135,6 +145,7 @@ describe('YookassaService', () => {
       {} as any,
       {} as any,
       analyticsClient,
+      toltService,
     );
   });
 
@@ -250,6 +261,72 @@ describe('YookassaService', () => {
         expect(mockEmit).toHaveBeenCalledWith(
           WebhookEventEnum['payment.succeeded'],
           expect.objectContaining({ isFirstPayment: true }),
+        );
+      });
+    });
+
+    // Tolt has no native YooKassa integration, so RUB conversions reach the
+    // affiliate program only by being reported from here.
+    describe('affiliate reporting', () => {
+      it('reports the settled charge to Tolt', async () => {
+        mockYkFindOneBy.mockResolvedValue({
+          userId: 'user-1',
+          selectedPeriod: 3,
+          telegramId: 42,
+          amount: '1500.00',
+          purpose: 'subscription',
+          paidAt: null,
+        });
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(mockReportConversion).toHaveBeenCalledWith({
+          userId: 'user-1',
+          provider: 'yookassa',
+          chargeId: 'pay_1',
+          amount: 1500,
+          currency: 'RUB',
+          periodMonths: 3,
+          purpose: 'subscription',
+        });
+      });
+
+      it('does not report when fulfilment failed — no subscription, no commission', async () => {
+        mockHandleUserUpdates.mockResolvedValue({ success: false });
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(mockReportConversion).not.toHaveBeenCalled();
+      });
+
+      it('does not report a replayed webhook, which would pay the partner twice', async () => {
+        mockYkFindOneBy.mockResolvedValue({
+          userId: 'user-1',
+          selectedPeriod: 1,
+          telegramId: 42,
+          amount: '599.00',
+          paidAt: new Date(),
+        });
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(mockReportConversion).not.toHaveBeenCalled();
+      });
+
+      it('forwards the record purpose so the reporter can apply its own rules', async () => {
+        mockYkFindOneBy.mockResolvedValue({
+          userId: 'user-1',
+          selectedPeriod: 1,
+          telegramId: 42,
+          amount: '599.00',
+          purpose: 'subscription',
+          paidAt: null,
+        });
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(mockReportConversion).toHaveBeenCalledWith(
+          expect.objectContaining({ purpose: 'subscription' }),
         );
       });
     });
@@ -449,6 +526,7 @@ describe('YookassaService', () => {
         {} as any,
         {} as any,
         analyticsClient,
+        toltService,
       );
     });
 

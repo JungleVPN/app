@@ -28,6 +28,7 @@ import {
 import { Repository } from 'typeorm';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
 import { PromoInvalidError, PromoService } from '../../promo/promo.service';
+import { ToltService } from '../../tolt/tolt.service';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const CIDRMatcher = require('cidr-matcher');
@@ -50,6 +51,7 @@ export class YookassaService {
     private readonly paymentsUtils: PaymentsUtils,
     private readonly promoService: PromoService,
     private readonly analyticsClient: AnalyticsClientService,
+    private readonly toltService: ToltService,
   ) {}
 
   // ── Query methods ────────────────────────────────────────────────────────
@@ -196,7 +198,7 @@ export class YookassaService {
       record = await this.yookassaPaymentRepo.findOneBy({ id });
     }
 
-    if (!record?.userId || !record?.selectedPeriod) {
+    if (!record?.userId || record?.selectedPeriod == null) {
       this.logger.error(
         `Payment ${id}: no DB record found after retry — possible orphaned payment, manual recovery needed`,
       );
@@ -269,6 +271,24 @@ export class YookassaService {
       if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {
         await this.activatePaymentMethod({ userId: record.userId, payment_method });
       }
+
+      // Report to the affiliate program. Tolt has no YooKassa integration, so
+      // RUB revenue reaches it only from here — including renewals, since
+      // autopayments settle through this same handler.
+      //
+      // Awaited rather than fired-and-forgotten so failures are logged in order
+      // and the behaviour stays testable. Safe to block on: the call never
+      // throws, and `paidAt` was stamped above, so even if YooKassa times out
+      // waiting for us and redelivers, the replay guard drops the retry.
+      await this.toltService.reportConversion({
+        userId: record.userId,
+        provider: 'yookassa',
+        chargeId: id,
+        amount: Number(record.amount),
+        currency: 'RUB',
+        periodMonths: record.selectedPeriod,
+        purpose: record.purpose,
+      });
     }
   }
 
