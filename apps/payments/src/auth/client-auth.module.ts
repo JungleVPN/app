@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
-import { RemnaUserResolverService } from './remna-user-resolver.service';
-import { ClientUserGuard } from './client-user.guard';
 import { AdminRoleGuard } from './admin-role.guard';
+import { ClientUserGuard } from './client-user.guard';
+import { RemnaUserResolverService } from './remna-user-resolver.service';
 
 @Global()
 @Module({
