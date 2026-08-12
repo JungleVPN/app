@@ -5,12 +5,14 @@ import { DataSource, type DataSourceOptions } from 'typeorm';
 import { AnalyticsEvent } from './entities/analytics-event.entity';
 import { Broadcast } from './entities/broadcast.entity';
 import { BroadcastMessage } from './entities/broadcast-message.entity';
+import { FxRate } from './entities/fx-rate.entity';
 import { Promo } from './entities/promo.entity';
 import { PromoRedemption } from './entities/promo-redemption.entity';
 import { Referral } from './entities/referral.entity';
 import { SavedPaymentMethod } from './entities/saved-payment-method.entity';
 import { StripePayment } from './entities/stripe-payment.entity';
 import { TelegramStarsPayment } from './entities/telegram-stars-payment.entity';
+import { ToltReferral } from './entities/tolt-referral.entity';
 import { UserAttribution } from './entities/user-attribution.entity';
 import { YookassaPayment } from './entities/yookassa-payment.entity';
 
@@ -40,6 +42,8 @@ export const dataSourceOptions: DataSourceOptions = {
     Broadcast,
     BroadcastMessage,
     UserAttribution,
+    ToltReferral,
+    FxRate,
   ],
   migrations: [migrationsDir],
   migrationsRun: false,
