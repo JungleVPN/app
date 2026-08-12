@@ -18,7 +18,7 @@ export default defineConfig({
   },
   server: {
     port: 7080,
-    allowedHosts: ['.development-env.uk'],
+    allowedHosts: ['.development-env.uk', '.thejungle.pro'],
   },
   build: {
     outDir: 'dist/client',

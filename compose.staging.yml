@@ -163,7 +163,7 @@ services:
   web:
     <<: *app-image
     container_name: stage-web
-    command: ["apps/web/node_modules/.bin/serve", "apps/web/dist", "--single", "--listen", "tcp://0.0.0.0:${WEB_PORT:-7080}"]
+    command: ["node", "apps/web/server.js"]
     networks:
       - jungle-stage-net
     env_file: .env
