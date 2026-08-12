@@ -21,7 +21,14 @@ export function LottieIcon({ src, loop = false, size = 110, className }: Props) 
       autoplay: true,
     });
 
+    const io = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? dotLottie.play() : dotLottie.pause()),
+      { threshold: 0 },
+    );
+    io.observe(canvasRef.current);
+
     return () => {
+      io.disconnect();
       dotLottie.destroy();
     };
   }, [src, loop]);

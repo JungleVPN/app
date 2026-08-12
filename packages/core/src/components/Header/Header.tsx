@@ -13,7 +13,6 @@ import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLi
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileDrawer } from './MobileDrawer';
-import { ThemeToggle } from './ThemeToggle';
 
 export function Header() {
   const { t } = useTranslation();
@@ -84,7 +83,7 @@ export function Header() {
         className={`${isLanding ? 'hidden sm:flex' : ''} flex items-center justify-between gap-2 ml-auto`}
       >
         {!isLanding && <SubscriptionLinkWidget />}
-        {platformType === 'web' && <ThemeToggle />}
+        {/*{platformType === 'web' && <ThemeToggle />}*/}
         <LanguageSwitcher />
         {platformType === 'web' && <AuthButtons />}
       </div>

@@ -90,7 +90,7 @@ export function Globe() {
       .slice(headChildCountBefore)
       .map((el) => el.remove());
 
-    let animId: number;
+    let animId = 0;
 
     function animate() {
       if (!pointerRef.current.dragging) {
@@ -105,7 +105,18 @@ export function Globe() {
       animId = requestAnimationFrame(animate);
     }
 
-    animId = requestAnimationFrame(animate);
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (animId === 0) animId = requestAnimationFrame(animate);
+        } else {
+          cancelAnimationFrame(animId);
+          animId = 0;
+        }
+      },
+      { threshold: 0 },
+    );
+    io.observe(container);
 
     let currentDark = isDark;
     const observer = new MutationObserver(() => {
@@ -150,6 +161,7 @@ export function Globe() {
     return () => {
       cancelAnimationFrame(animId);
       observer.disconnect();
+      io.disconnect();
       globe.destroy();
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointermove', onPointerMove);

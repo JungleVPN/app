@@ -106,10 +106,10 @@ function VerticalMarqueeColumn({
 
   return (
     <div className='relative flex-1 overflow-hidden' style={{ height: 660 }}>
-      <div className='pointer-events-none absolute inset-x-0 top-0 z-10 h-20 bg-gradient-to-b from-background to-transparent' />
-      <div className='pointer-events-none absolute inset-x-0 bottom-0 z-10 h-20 bg-gradient-to-t from-background to-transparent' />
+      <div className='pointer-events-none absolute inset-x-0 top-0 z-10 h-20 bg-linear-to-b from-background to-transparent' />
+      <div className='pointer-events-none absolute inset-x-0 bottom-0 z-10 h-20 bg-linear-to-t from-background to-transparent' />
       <div
-        className='flex flex-col gap-4 will-change-transform'
+        className='flex flex-col gap-4'
         style={{ animation: `${animName} ${duration}s linear infinite` }}
       >
         {doubled.map((t) => (

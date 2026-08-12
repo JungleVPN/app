@@ -21,7 +21,7 @@
   --accent-surface: oklch(0.32 0.04 195.45 / 1);
   --accent-light: oklch(0.62 0.04 195.45 / 1);
   --surface: oklch(0.9524 0.0013 286.37);
-  --surface-secondary: oklch(1 0 0 / 1);
+  --surface-secondary: oklch(0.98 0 0 / 1);
   --color-accent-soft-foreground: oklch(0.19 0 0 / 1);
   --button-confirm-color: #2da44e;
   --button-main-disabled-color: #d1d5db;

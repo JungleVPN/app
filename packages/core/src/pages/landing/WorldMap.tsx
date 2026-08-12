@@ -1,5 +1,5 @@
 import DottedMap from 'dotted-map';
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
 const PINS = [
   { lat: 60.1699, lng: 24.9384 }, // Finland (Helsinki)
@@ -11,7 +11,9 @@ const PINS = [
 ];
 
 export function WorldMap() {
-  const svgMap = useMemo(() => {
+  const [src, setSrc] = useState('');
+
+  useEffect(() => {
     const map = new DottedMap({ height: 100, grid: 'diagonal' });
 
     PINS.forEach(({ lat, lng }) => {
@@ -22,17 +24,21 @@ export function WorldMap() {
       });
     });
 
-    return map.getSVG({
+    const svg = map.getSVG({
       radius: 0.5,
-      color: '#b4b4b4',
+      color: '#999999',
       shape: 'circle',
       backgroundColor: 'transparent',
     });
+
+    setSrc(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
   }, []);
+
+  if (!src) return <div className='h-auto w-full aspect-[2/1]' />;
 
   return (
     <img
-      src={`data:image/svg+xml;utf8,${encodeURIComponent(svgMap)}`}
+      src={src}
       alt='World map showing VPN server locations'
       className='h-auto w-full opacity-90 mask-[linear-gradient(to_bottom,transparent,var(--background)_20%,var(--background)_80%,transparent)] select-none'
     />

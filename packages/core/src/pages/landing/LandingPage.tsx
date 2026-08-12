@@ -19,41 +19,28 @@ export default function LandingPage() {
   return (
     <>
       <HeroSection />
-
       <TrustSection />
       <CountriesMarquee />
-
       <HowItWorksSection />
-
       <FeaturesSection />
-
       <BentoSection />
-
       <div className='py-24 md:py-48'>
         <WorldMap />
         <Stats />
       </div>
-
       <ComparisonSection />
-
       <div id='pricing'>
         <PricingSection />
       </div>
-
       <TestimonialsSection />
-
       <FAQSection />
-
       <div id='partnership'>
         <PartnershipSection />
       </div>
-
       <InfoSection />
-
       <div className='mb-24'>
         <FreeTrialSection />
       </div>
-
       <FooterSection />
     </>
   );
