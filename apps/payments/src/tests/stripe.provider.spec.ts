@@ -16,6 +16,8 @@ vi.mock('@workspace/database', () => ({
   SavedPaymentMethod: class {},
   Promo: class {},
   PromoRedemption: class {},
+  ToltReferral: class {},
+  FxRate: class {},
 }));
 
 const makeProvider = (overrides: {

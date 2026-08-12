@@ -7,6 +7,7 @@ import { Payments, WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
 import { Repository } from 'typeorm';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
+import { ToltService } from '../../tolt/tolt.service';
 import type { StripeInvoicePayload } from './stripe.types';
 import {
   customerToId,
@@ -29,6 +30,7 @@ export class StripeWebhookService {
     @InjectRepository(SavedPaymentMethod)
     private readonly savedMethodRepo: Repository<SavedPaymentMethod>,
     private readonly analyticsClient: AnalyticsClientService,
+    private readonly toltService: ToltService,
   ) {}
 
   async handleWebhook(event: Stripe.Event) {
@@ -197,6 +199,22 @@ export class StripeWebhookService {
         isFirstPayment,
         isAutoPayment: invoice.billing_reason === 'subscription_cycle',
       });
+
+      // Renewals arrive here too — every cycle raises its own invoice — so this
+      // covers the recurring commission as well as the first payment.
+      // `amount` is nullable on the payload type; without one there is nothing
+      // meaningful to report, and a guessed figure would misstate a commission.
+      if (payload.amount !== null) {
+        await this.toltService.reportConversion({
+          userId: payload.userId,
+          provider: 'stripe',
+          chargeId: invoice.id,
+          amount: payload.amount,
+          currency: 'EUR',
+          periodMonths: selectedPeriod,
+          purpose: record?.purpose,
+        });
+      }
     }
   }
 

@@ -200,8 +200,7 @@ export class StripeProvider {
     const periodSpecificId = selectedPeriod
       ? process.env[`STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_${selectedPeriod}`]
       : undefined;
-    const priceId =
-      periodSpecificId || process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1 || '';
+    const priceId = periodSpecificId || process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1;
     if (!priceId) {
       throw new Error('Subscription price configuration missing');
     }
