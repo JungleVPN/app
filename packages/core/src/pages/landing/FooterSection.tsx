@@ -12,10 +12,11 @@ type FooterLinkDef =
   | { type: 'external'; href: string };
 
 const FOOTER_LINKS: Record<
-  'terms' | 'support' | 'affiliate' | 'referral' | 'pricing' | 'trial',
+  'terms' | 'privacy' | 'support' | 'affiliate' | 'referral' | 'pricing' | 'trial',
   FooterLinkDef
 > = {
   terms: { type: 'internal', to: '/terms' },
+  privacy: { type: 'internal', to: '/privacy' },
   support: { type: 'external', href: coreEnv.supportUrl },
   affiliate: { type: 'internal', to: '/affiliates' },
   referral: { type: 'internal', to: '/profile/referrals' },
@@ -23,7 +24,7 @@ const FOOTER_LINKS: Record<
   trial: { type: 'anchor', href: '#trial' },
 };
 
-const LINK_KEYS = ['terms', 'support', 'affiliate', 'referral', 'trial'] as const;
+const LINK_KEYS = ['terms', 'privacy', 'support', 'affiliate', 'referral', 'trial'] as const;
 
 const linkClass = 'text-sm text-muted transition-colors hover:text-foreground';
 

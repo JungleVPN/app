@@ -12,5 +12,6 @@ export { ProtectedTransactionDetailsPage } from './profile/menu/transactions/pro
 export { ProtectedPaymentPage } from './profile/payment/protected';
 export { ProtectedPlansPage } from './profile/plans/protected';
 export { ProtectedProfileSubscriptionPage } from './profile/subscription/protected';
+export { default as PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';
 export { default as SubscriptionPage } from './subscription/SubscriptionPage';
 export { default as TermsPage } from './terms/TermsPage';

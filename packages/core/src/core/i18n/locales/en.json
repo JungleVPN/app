@@ -216,7 +216,7 @@
       "agreementsTitle": "Agreements",
       "agreementsLead": "By subscribing to JungleVPN, you agree to the JungleVPN ",
       "termsOfServiceLink": "Terms of Service",
-      "agreementsMid": " and ",
+      "agreementsMid": " and our ",
       "privacyPolicyLink": "Privacy Policy",
       "agreementsTail": ".",
       "confirmButton": "Confirm"
@@ -355,6 +355,113 @@
       "i1": "The Service is not available to individuals or entities located in, or ordinarily resident in, countries or territories subject to comprehensive international sanctions, including those maintained by the European Union, the United Nations, and the Portuguese Republic.",
       "i2": "By using the Service, you represent and warrant that you are not located in, under the control of, or a national or resident of any sanctioned country or territory, and that you are not listed on any applicable sanctions or restricted-party list.",
       "i3": "The Administration reserves the right to immediately terminate access without refund if it determines that a User is in violation of this section."
+    }
+  },
+  "privacy": {
+    "pageTitle": "Privacy Policy",
+    "footer": "This Privacy Policy is part of the JungleVPN Terms of Use. By using the Service, you confirm that you have read this Policy and consent to the data practices described in it.",
+    "s1": {
+      "h": "1. Introduction",
+      "i1": "This Privacy Policy explains how the Administration collects, uses, discloses, and protects personal data in connection with JungleVPN's website, Telegram bot, and applications (together, the \"Service\").",
+      "i2": "By using the Service, you acknowledge that you have read and understood this Policy and consent to the data practices described here.",
+      "i3": "This Policy should be read together with our Terms of Use. Where the two documents overlap on data protection, this Policy governs."
+    },
+    "s2": {
+      "h": "2. Our No-Logs Commitment",
+      "i1": "JungleVPN does not monitor, log, or store your browsing history, DNS queries, connection destinations, or the content of your traffic while you are connected to our VPN servers.",
+      "i2": "We do not track which websites, apps, or services you access through the Service, and this information is never linked to your account.",
+      "i3": "The data described in this Policy is limited to what is required to operate your account, process payments, and keep the Service secure — never to what you do online while connected."
+    },
+    "s3": {
+      "h": "3. Information We Collect",
+      "i1_lead": "Account data:",
+      "i1_u1": "email address;",
+      "i1_u2": "Telegram user ID and username;",
+      "i1_u3": "language and interface preferences.",
+      "i2_lead": "Payment data:",
+      "i2_u1": "transaction amount and currency;",
+      "i2_u2": "last 4 digits of the payment card, where applicable;",
+      "i2_u3": "billing country;",
+      "i2_u4": "payment processor transaction identifiers — full card details are handled directly by our payment processors and are never stored by us.",
+      "i3_lead": "Communication data:",
+      "i3_u1": "messages you send our support team;",
+      "i3_u2": "device and app version details you share for troubleshooting.",
+      "i4_lead": "Technical & security data:",
+      "i4_u1": "IP address used to access our website, bot, and account systems (not your VPN browsing sessions);",
+      "i4_u2": "authentication and account-activity timestamps;",
+      "i4_u3": "device, operating system, and app version;",
+      "i4_u4": "aggregated crash reports and diagnostic data used to fix bugs."
+    },
+    "s4": {
+      "h": "4. How We Use Your Information",
+      "i1": "To create, authenticate, and manage your account.",
+      "i2": "To provide, maintain, and improve the Service, including connection reliability and app performance.",
+      "i3": "To process payments, prevent fraud, and detect abuse of the Service.",
+      "i4": "To respond to support requests and communicate essential service notices, such as changes to these policies or your subscription.",
+      "i5": "To comply with legal obligations and enforce our Terms of Use."
+    },
+    "s5": {
+      "h": "5. Information Sharing & Disclosure",
+      "i1": "We do not sell or trade your personal data.",
+      "i2_lead": "We share data only with:",
+      "i2_u1": "trusted service providers who help with payment processing, customer support, email delivery, analytics, and advertising. These providers are bound by strict confidentiality agreements;",
+      "i2_u3": "infrastructure, analytics, and support providers who are bound by confidentiality obligations and process data only on our instructions;",
+      "i2_u4": "competent authorities, where required by law or to protect our legitimate rights. We carefully review every request and provide only the minimum data necessary. We will only comply with requests from countries whose political regime is widely recognized as democratic, according to broadly accepted international standards and indices."
+    },
+    "s6": {
+      "h": "6. VPN Server Locations",
+      "i1": "JungleVPN offers servers in various countries around the world to give our users the best possible speed and connectivity. While we aim to select jurisdictions with strong privacy protections, some of our servers may be located in countries with a lower level of democracy according to widely recognized international standards and indices.",
+      "i2": "When you connect to servers in these locations, JungleVPN will display a warning to inform you of the potential risks. These risks include an increased likelihood that local governments may attempt to interfere with your internet traffic or request access to user data. JungleVPN does not recommend using these servers if you are concerned about possible government interference or surveillance.",
+      "i3": "To minimize risk, we recommend connecting to servers in countries with strong democratic institutions and robust privacy laws. JungleVPN does not work directly with governments in low-democracy countries and does not transfer any user data to them. However, JungleVPN is not responsible for any actions taken by local governments in such countries.",
+      "i4": "Please take this information into account when choosing a server location. If you have questions or concerns about privacy in a specific location, contact our support team for advice."
+    },
+    "s7": {
+      "h": "7. Data Retention",
+      "u1": "Account and billing data is retained for the duration of your account, or until you delete it yourself, consistent with our Terms of Use.",
+      "u2": "Support communications are retained for up to 3 years after the ticket is resolved.",
+      "u3": "Technical diagnostic data, such as crash reports, is retained for a maximum of 6 months."
+    },
+    "s8": {
+      "h": "8. Your Privacy Rights",
+      "i1": "You have rights over your personal data under the GDPR and other applicable data protection law.",
+      "i2_lead": "You may:",
+      "i2_u1": "access your personal data and obtain a copy (Art. 15 GDPR);",
+      "i2_u2": "rectify inaccurate or incomplete data (Art. 16 GDPR);",
+      "i2_u3": "request erasure of your data where no legal basis for retention exists (Art. 17 GDPR);",
+      "i2_u4": "receive your data in a portable format (Art. 20 GDPR);",
+      "i2_u5": "object to processing based on legitimate interests (Art. 21 GDPR);",
+      "i2_u6": "withdraw consent at any time where processing is consent-based (Art. 7 GDPR).",
+      "i3": "To exercise any of these rights, contact us via email or our Telegram bot. We will respond to verified requests within 30 days.",
+      "i4": "You have the right to lodge a complaint with the Portuguese data protection supervisory authority (CNPD — Comissão Nacional de Proteção de Dados, www.cnpd.pt) or with the supervisory authority of your EU country of residence."
+    },
+    "s9": {
+      "h": "9. Security Measures",
+      "i1": "We use industry-standard safeguards to protect your data, including encryption in transit and at rest, access controls, and monitoring for unauthorized access.",
+      "i2": "No method of transmission or storage is completely secure. If we become aware of a data breach affecting your personal data, we will notify you and the relevant authorities as required by law."
+    },
+    "s10": {
+      "h": "10. International Data Transfers",
+      "i1": "Your data may be processed in countries outside your country of residence, including outside the European Economic Area.",
+      "i2": "Where this occurs, we rely on appropriate safeguards, such as standard contractual clauses approved by the European Commission, to ensure your data receives an equivalent level of protection."
+    },
+    "s11": {
+      "h": "11. Children's Privacy",
+      "i1": "The Service is intended for individuals aged 18 or older, consistent with our Terms of Use.",
+      "i2": "We do not knowingly collect personal data from minors. If we become aware that we have done so, we will delete it promptly."
+    },
+    "s12": {
+      "h": "12. Changes to This Policy",
+      "i1": "We may update this Policy from time to time.",
+      "i2": "Material changes will be communicated by email or a prominent notice within the Service before they take effect.",
+      "i3": "Continued use of the Service after changes take effect means you accept the updated Policy."
+    },
+    "s13": {
+      "h": "13. Contact Us",
+      "i1_lead": "For any questions about this Policy or your personal data, contact our support team via the ",
+      "i1_botLink": "Telegram bot",
+      "i1_mid": " or by email at ",
+      "i1_emailLink": "support@jungle-vpn.com",
+      "i1_tail": "."
     }
   },
   "menu": {
@@ -529,6 +636,7 @@
     "footer": {
       "copyright": "© {{year}}. All rights reserved.",
       "terms": "Terms",
+      "privacy": "Privacy",
       "support": "Support",
       "affiliate": "Affiliate",
       "referral": "Referral",
