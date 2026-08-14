@@ -8,7 +8,7 @@ import { useAuthStore, usePlatformStore, useSubscriptionConfigStoreActions } fro
 const LANDING_DOMAINS: Record<string, string | undefined> = {
   ru: import.meta.env.PUBLIC_DOMAIN_RU ? `https://${import.meta.env.PUBLIC_DOMAIN_RU}` : undefined,
   en: import.meta.env.PUBLIC_DOMAIN_EU ? `https://${import.meta.env.PUBLIC_DOMAIN_EU}` : undefined,
-  ar: import.meta.env.PUBLIC_DOMAIN_AE ? `https://${import.meta.env.PUBLIC_DOMAIN_AE}` : undefined,
+  ar: import.meta.env.PUBLIC_DOMAIN_AR ? `https://${import.meta.env.PUBLIC_DOMAIN_AR}` : undefined,
 };
 
 export function LanguageSwitcher() {

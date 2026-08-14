@@ -5,7 +5,7 @@ const LOCATIONS = {
   us: [38.7509, -77.4753] as [number, number], // USA
   ru: [55.7558, 37.6176] as [number, number], // Russia (Moscow)
   de: [50.1109, 8.6821] as [number, number], // Germany (Frankfurt)
-  ae: [25.2048, 55.2708] as [number, number], // UAE (Dubai)
+  ar: [25.2048, 55.2708] as [number, number], // UAE (Dubai)
   cn: [31.2304, 121.4737] as [number, number], // China (Shanghai)
   br: [-23.5505, -46.6333] as [number, number], // Brazil (São Paulo)
 } as const;
@@ -26,7 +26,7 @@ function buildArcs(fromKey: LocationKey): Arc[] {
 function resolveFromKey(): LocationKey {
   const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
   if (hostname === import.meta.env.PUBLIC_DOMAIN_RU) return 'ru';
-  if (hostname === import.meta.env.PUBLIC_DOMAIN_AE) return 'ae';
+  if (hostname === import.meta.env.PUBLIC_DOMAIN_AR) return 'ar';
   return 'de'; // EU / default
 }
 

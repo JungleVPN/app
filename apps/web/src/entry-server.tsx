@@ -43,9 +43,9 @@ const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
 const DOMAIN_LOCALE: Record<string, string> = {};
 if (import.meta.env.PUBLIC_DOMAIN_RU) DOMAIN_LOCALE[import.meta.env.PUBLIC_DOMAIN_RU] = 'ru';
 if (import.meta.env.PUBLIC_DOMAIN_EU) DOMAIN_LOCALE[import.meta.env.PUBLIC_DOMAIN_EU] = 'en';
-if (import.meta.env.PUBLIC_DOMAIN_AE) DOMAIN_LOCALE[import.meta.env.PUBLIC_DOMAIN_AE] = 'ar';
+if (import.meta.env.PUBLIC_DOMAIN_AR) DOMAIN_LOCALE[import.meta.env.PUBLIC_DOMAIN_AR] = 'ar';
 
-const PREFIX_LOCALE: Record<string, string> = { ru: 'ru', eu: 'en', ae: 'ar' };
+const PREFIX_LOCALE: Record<string, string> = { ru: 'ru', eu: 'en', ar: 'ar' };
 
 function resolveConfig(hostname: string): DomainConfig {
   const prefix = hostname.split(/[-.]/, 1)[0];
