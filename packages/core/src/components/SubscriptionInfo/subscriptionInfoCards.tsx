@@ -6,11 +6,11 @@ import {
   IconUserScan,
   IconX,
 } from '@tabler/icons-react';
-import { useSubscription } from '../../stores';
 import type { ReactNode } from 'react';
-import { useTranslation } from '../../hooks/useTranslations';
-import { Block } from '../../ui/Block/Block';
-import { formatDate } from '../../utils/configParser';
+import { useTranslation } from '../../hooks';
+import { useSubscription } from '../../stores';
+import { Block } from '../../ui';
+import { formatDate } from '../../utils';
 import classes from './subscriptionInfoCards.module.css';
 
 type ColorVariant = 'blue' | 'cyan' | 'green' | 'orange' | 'red' | 'teal' | 'violet' | 'yellow';

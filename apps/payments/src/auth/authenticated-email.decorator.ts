@@ -9,8 +9,6 @@ import type { AuthenticatedRequest } from './client-user.guard';
  * legitimately have no email. Only valid on routes protected by
  * @UseGuards(ClientUserGuard).
  */
-export const AuthenticatedEmail = createParamDecorator(
-  (_: unknown, ctx: ExecutionContext): string | undefined => {
-    return ctx.switchToHttp().getRequest<AuthenticatedRequest>().authenticatedEmail;
-  },
-);
+export const AuthenticatedEmail = createParamDecorator((_: unknown, ctx: ExecutionContext) => {
+  return ctx.switchToHttp().getRequest<AuthenticatedRequest>().authenticatedEmail;
+});

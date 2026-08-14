@@ -1,7 +1,4 @@
-import type {
-  TSubscriptionPageBlockConfig,
-  TSubscriptionPageLanguageCode,
-} from '@workspace/types';
+import type { TSubscriptionPageBlockConfig, TSubscriptionPageLanguageCode } from '@workspace/types';
 
 /** Visual style for block action buttons (maps to HeroUI `Button` variants). */
 export type BlockButtonVariant = 'light' | 'subtle';

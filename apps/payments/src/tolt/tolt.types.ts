@@ -2,7 +2,8 @@
  * Types for the subset of the Tolt API this integration uses.
  *
  * Only the three endpoints on the attribution chain are modelled — clicks are
- * handled by `tlt.js` in the browser, and commissions are derived by the Tolt
+ * recorded when a visitor lands on an affiliate link, and commissions are
+ * derived by the Tolt
  * program flow rather than posted by us.
  */
 
@@ -33,9 +34,25 @@ export type ToltCreateCustomerInput = {
 export type ToltCustomer = {
   id: string;
   customer_id: string | null;
-  email: string | null;
+  email: string;
   status: ToltCustomerStatus | null;
   partner_id: string;
+  program_id: string;
+};
+
+export type ToltCreateClickInput = {
+  /** The tracking parameter name — `aff` for this program. */
+  param: string;
+  /** The partner's referral code, as it appeared in the URL. */
+  value: string;
+  page?: string;
+  referrer?: string;
+};
+
+export type ToltClick = {
+  id: string;
+  partner_id: string;
+  link_id: string | null;
   program_id: string;
 };
 

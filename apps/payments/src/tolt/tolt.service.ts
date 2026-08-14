@@ -25,8 +25,11 @@ export type CaptureReferralInput = {
   referralCode: string;
   partnerId: string;
   clickId?: string | null;
-  email?: string | null;
+  email: string;
 };
+
+/** The tracking parameter this program uses. */
+const AFF_PARAM = 'aff';
 
 /** Tolt accepts only these two; 3- and 6-month plans have no representation. */
 const INTERVAL_BY_MONTHS: Record<number, 'month' | 'year'> = { 1: 'month', 12: 'year' };
@@ -42,44 +45,41 @@ export class ToltService {
   ) {}
 
   /**
-   * Records a referred user as a Tolt lead and stores the attribution.
+   * Stores the affiliate attribution currently live in the user's browser.
    *
-   * Runs on the capture path rather than at payment time so partners see a
-   * click → lead → conversion funnel, and so the failure-prone registration
-   * call happens where retrying is free.
+   * Nothing is sent to Tolt here. A Tolt customer's `partner_id` is fixed at
+   * creation and cannot be moved, so registering one before the user pays would
+   * permanently award the sale to whoever referred them first — even if that
+   * link had long since expired by the time they bought.
    *
-   * Write-once: the first affiliate to refer a user keeps the credit, matching
-   * the "attribute only on a first-ever payment" rule the Stripe provider
-   * already enforces. Never throws — capture is an optional enrichment of a
-   * request that must succeed regardless.
+   * Until the user converts the row is simply overwritten, deferring the choice
+   * of partner to the browser's own cookie — which the landing flow replaces on
+   * every new affiliate link. Whoever is live when the payment lands is paid.
+   *
+   * After conversion the row is frozen — renewal commissions belong to the
+   * partner who made the sale.
+   *
+   * Never throws: capture is an optional enrichment of a request that must
+   * succeed regardless.
    */
   async captureReferral(input: CaptureReferralInput): Promise<void> {
     try {
       const existing = await this.repository.findOneBy({ userId: input.userId });
-      if (existing) {
+      if (existing?.convertedAt) {
         this.logger.log(
-          `User ${input.userId} already attributed to partner ${existing.partnerId} — ignoring capture for ${input.partnerId}`,
+          `User ${input.userId} already converted under partner ${existing.partnerId} — ignoring later referrals`,
         );
         return;
       }
-
-      // Registration is best-effort: a null customer id still persists the
-      // attribution, and reportConversion registers the customer on first
-      // payment rather than losing the commission.
-      const toltCustomerId = await this.registerCustomer({
-        userId: input.userId,
-        partnerId: input.partnerId,
-        clickId: input.clickId,
-        email: input.email,
-        status: 'lead',
-      });
 
       await this.repository.save({
         userId: input.userId,
         referralCode: input.referralCode,
         partnerId: input.partnerId,
         clickId: input.clickId ?? null,
-        toltCustomerId,
+        email: input.email,
+        toltCustomerId: null,
+        convertedAt: null,
       });
 
       this.logger.log(`Captured referral for user ${input.userId} from partner ${input.partnerId}`);
@@ -87,6 +87,38 @@ export class ToltService {
       this.logger.error(
         `Failed to capture referral for user ${input.userId}: ${(error as Error).message}`,
       );
+    }
+  }
+
+  /**
+   * Records a click on a partner's link and resolves the code to its partner.
+   *
+   * Called once per affiliate landing, from the public click endpoint, so the
+   * browser can store the resolved partner alongside the code. Doing it here
+   * rather than in the browser keeps the API key server-side.
+   *
+   * Null when Tolt does not recognise the code — someone following a mistyped
+   * or retired link — which the caller reports as "not found" rather than an
+   * error, since it is a visitor-facing path.
+   */
+  async recordClick(input: {
+    affCode: string;
+    page?: string | null;
+    referrer?: string | null;
+  }): Promise<{ partnerId: string; clickId: string } | null> {
+    try {
+      const click = await this.client.createClick({
+        param: AFF_PARAM,
+        value: input.affCode,
+        page: input.page ?? undefined,
+        referrer: input.referrer ?? undefined,
+      });
+      return { partnerId: click.partner_id, clickId: click.id };
+    } catch (error) {
+      this.logger.warn(
+        `Could not resolve aff code "${input.affCode}": ${(error as Error).message}`,
+      );
+      return null;
     }
   }
 
@@ -166,45 +198,52 @@ export class ToltService {
   }
 
   /**
-   * The stored Tolt customer id, registering one if lead capture had failed.
-   * Null when registration is still not possible.
+   * The Tolt customer for this user, created on their first payment.
+   *
+   * Creation and freezing happen together: the moment a customer exists in Tolt
+   * its partner is fixed, so the local row must stop accepting new referrals at
+   * the same instant or the two would disagree with no way to reconcile them.
+   *
+   * Null when creation failed, in which case nothing is reported — a
+   * transaction posted against no customer would be unattributable.
    */
   private async resolveCustomerId(referral: ToltReferral): Promise<string | null> {
     if (referral.toltCustomerId) return referral.toltCustomerId;
-
-    this.logger.warn(
-      `User ${referral.userId} has no Tolt customer — registering now before reporting`,
-    );
 
     const toltCustomerId = await this.registerCustomer({
       userId: referral.userId,
       partnerId: referral.partnerId,
       clickId: referral.clickId,
+      email: referral.email,
       status: 'active',
     });
     if (!toltCustomerId) return null;
 
-    await this.repository.update({ userId: referral.userId }, { toltCustomerId });
+    await this.repository.update(
+      { userId: referral.userId },
+      { toltCustomerId, convertedAt: new Date() },
+    );
+
+    this.logger.log(
+      `User ${referral.userId} converted under partner ${referral.partnerId} — attribution frozen`,
+    );
+
     return toltCustomerId;
   }
 
   /**
    * Creates the Tolt customer, returning null on failure rather than throwing.
-   *
-   * `email` is Tolt's identifier field and is documented as accepting "an email
-   * or a unique ID" — the remnawave userId is used when no email exists, which
-   * is the norm for Telegram-only signups.
    */
   private async registerCustomer(input: {
     userId: string;
     partnerId: string;
     clickId?: string | null;
-    email?: string | null;
+    email: string;
     status: 'lead' | 'active';
   }): Promise<string | null> {
     try {
       const customer = await this.client.createCustomer({
-        email: input.email || input.userId,
+        email: input.email,
         partner_id: input.partnerId,
         customer_id: input.userId,
         click_id: input.clickId ?? undefined,

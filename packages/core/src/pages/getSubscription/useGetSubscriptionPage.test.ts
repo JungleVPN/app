@@ -317,7 +317,9 @@ describe('useGetSubscriptionPage', () => {
       });
 
       expect(mockConnectEmail).toHaveBeenCalledWith('', { inviterId: undefined });
-      expect(mockSetRmnUser).toHaveBeenCalledWith(expect.objectContaining({ shortUuid: 'new-short' }));
+      expect(mockSetRmnUser).toHaveBeenCalledWith(
+        expect.objectContaining({ shortUuid: 'new-short' }),
+      );
       expect(mockNavigate).toHaveBeenCalledWith('/profile/subscription');
     });
 
@@ -386,7 +388,9 @@ describe('useGetSubscriptionPage', () => {
     it('calls connectEmail, sets the rmnUser, and navigates to the profile subscription page', async () => {
       setAuthState({ tgUser: createTgUser({ id: 777 }) });
       setPlatform('telegram');
-      mockConnectEmail.mockResolvedValue(createRemnaUser({ uuid: 'existing-uuid', telegramId: 777 }));
+      mockConnectEmail.mockResolvedValue(
+        createRemnaUser({ uuid: 'existing-uuid', telegramId: 777 }),
+      );
       mockGetAttribution.mockReturnValue(null);
       const { result } = renderHook(() => useGetSubscriptionPage());
 
@@ -419,7 +423,9 @@ describe('useGetSubscriptionPage', () => {
         await result.current.handleSubmit(submitEvent());
       });
 
-      expect(mockConnectEmail).toHaveBeenCalledWith('newtg@example.com', { inviterId: 'inviter-2' });
+      expect(mockConnectEmail).toHaveBeenCalledWith('newtg@example.com', {
+        inviterId: 'inviter-2',
+      });
       expect(mockSetRmnUser).toHaveBeenCalledWith(expect.objectContaining({ telegramId: 888 }));
       expect(mockTrackUserCreated).toHaveBeenCalledWith(
         expect.objectContaining({ telegramId: 888 }),

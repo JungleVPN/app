@@ -1,5 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type {
+  ToltClick,
+  ToltCreateClickInput,
   ToltCreateCustomerInput,
   ToltCreateTransactionInput,
   ToltCustomer,
@@ -68,7 +70,18 @@ export class ToltClient {
     this.baseUrl = config.baseUrl.replace(/\/+$/, '');
   }
 
-  /** Registers a customer against a partner. Also used to record a lead. */
+  /**
+   * Records a click and resolves a referral code to its partner.
+   *
+   * The only endpoint that maps a raw `?aff=` value to a partner without
+   * needing a program id, and it credits the partner with the click as a side
+   * effect — so callers must not use it merely to look a code up.
+   */
+  createClick(input: ToltCreateClickInput): Promise<ToltClick> {
+    return this.post<ToltClick>('/v1/clicks', input);
+  }
+
+  /** Registers a customer against a partner. */
   createCustomer(input: ToltCreateCustomerInput): Promise<ToltCustomer> {
     return this.post<ToltCustomer>('/v1/customers', input);
   }

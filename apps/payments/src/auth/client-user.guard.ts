@@ -6,7 +6,7 @@ import { parseTelegramInitData } from './telegram-init-data';
 
 export interface AuthenticatedRequest {
   authenticatedUserId: string;
-  authenticatedEmail?: string;
+  authenticatedEmail: string;
   authenticatedTelegramId?: number;
   headers: Record<string, string | string[] | undefined>;
 }

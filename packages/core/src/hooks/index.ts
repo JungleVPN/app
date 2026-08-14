@@ -8,6 +8,8 @@ export {
   useDeleteSavedMethod,
 } from './use-payment';
 export { usePlans } from './use-plans';
+export { useToltCapture } from './use-tolt-capture';
+export { useToltLanding } from './use-tolt-landing';
 export { useBackButton } from './useBackButton';
 export { useClipboard } from './useClipboard';
 export { useNavigation } from './useNavigation';

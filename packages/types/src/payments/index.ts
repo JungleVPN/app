@@ -11,4 +11,5 @@ export * from './common';
 export * from './promo';
 export * from './stripe';
 export * from './telegram-stars';
+export * from './tolt';
 export * from './yookassa';

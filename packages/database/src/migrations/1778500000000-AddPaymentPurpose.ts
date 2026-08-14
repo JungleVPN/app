@@ -15,9 +15,7 @@ export class AddPaymentPurpose1778500000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "yookassa_payments" DROP COLUMN IF EXISTS "purpose"`,
-    );
+    await queryRunner.query(`ALTER TABLE "yookassa_payments" DROP COLUMN IF EXISTS "purpose"`);
     await queryRunner.query(
       `ALTER TABLE "telegram_stars_payments" DROP COLUMN IF EXISTS "purpose"`,
     );

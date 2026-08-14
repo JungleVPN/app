@@ -3,11 +3,16 @@ import { describe, expect, it, vi } from 'vitest';
 import type { FxRateService } from './fx-rate.service';
 import { ToltApiError, type ToltClient } from './tolt.client';
 import { ToltService } from './tolt.service';
-import type { ToltCreateCustomerInput, ToltCreateTransactionInput } from './tolt.types';
+import type {
+  ToltCreateClickInput,
+  ToltCreateCustomerInput,
+  ToltCreateTransactionInput,
+} from './tolt.types';
 
 const PARTNER = 'part_xyz';
 const USER = 'user-uuid-1';
 
+/** A user who has already paid: customer created, attribution frozen. */
 function referralRow(overrides: Partial<ToltReferral> = {}): ToltReferral {
   return {
     userId: USER,
@@ -15,10 +20,16 @@ function referralRow(overrides: Partial<ToltReferral> = {}): ToltReferral {
     partnerId: PARTNER,
     clickId: 'clk_1',
     toltCustomerId: 'cus_abc',
+    convertedAt: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
   } as ToltReferral;
+}
+
+/** A referred user who has not paid yet: no Tolt customer, still overwritable. */
+function unconvertedRow(overrides: Partial<ToltReferral> = {}): ToltReferral {
+  return referralRow({ toltCustomerId: null, convertedAt: null, ...overrides });
 }
 
 function setup(
@@ -27,6 +38,7 @@ function setup(
     eurRubRate?: number | null;
     createCustomer?: (input: ToltCreateCustomerInput) => Promise<unknown>;
     createTransaction?: (input: ToltCreateTransactionInput) => Promise<unknown>;
+    createClick?: (input: ToltCreateClickInput) => Promise<unknown>;
   } = {},
 ) {
   const repository = {
@@ -45,6 +57,11 @@ function setup(
     createTransaction: vi.fn(
       opts.createTransaction ??
         ((_input: ToltCreateTransactionInput) => Promise.resolve({ id: 'txn_1' })),
+    ),
+    createClick: vi.fn(
+      opts.createClick ??
+        ((_input: ToltCreateClickInput) =>
+          Promise.resolve({ id: 'clk_resolved', partner_id: 'part_resolved' })),
     ),
   };
 
@@ -197,35 +214,52 @@ describe('ToltService.reportConversion — interval mapping', () => {
   });
 });
 
-describe('ToltService.reportConversion — self-healing customer registration', () => {
-  it('does not re-register a customer that already exists', async () => {
-    const { service, client } = setup();
-    await service.reportConversion(stripeConversion);
-    expect(client.createCustomer).not.toHaveBeenCalled();
-  });
-
-  it('registers the customer when lead capture had failed, then reports', async () => {
-    const { service, client, repository } = setup({
-      referral: referralRow({ toltCustomerId: null }),
-    });
+// The Tolt customer is created here, on the first payment — never earlier.
+// Tolt fixes a customer's partner at creation and cannot move them, so creating
+// one at signup would lock attribution to whoever referred the user first.
+describe('ToltService.reportConversion — customer creation on first payment', () => {
+  it('creates the Tolt customer against the partner who converted them', async () => {
+    const { service, client } = setup({ referral: unconvertedRow() });
 
     await service.reportConversion(stripeConversion);
 
     expect(client.createCustomer).toHaveBeenCalledWith(
-      expect.objectContaining({ partner_id: PARTNER, customer_id: USER }),
-    );
-    expect(repository.update).toHaveBeenCalledWith(
-      { userId: USER },
-      expect.objectContaining({ toltCustomerId: 'cus_new' }),
+      expect.objectContaining({ partner_id: PARTNER, customer_id: USER, status: 'active' }),
     );
     expect(client.createTransaction).toHaveBeenCalledWith(
       expect.objectContaining({ customer_id: 'cus_new' }),
     );
   });
 
-  it('does not post a transaction when the recovery registration fails', async () => {
+  it('freezes the attribution once the customer exists', async () => {
+    const { service, repository } = setup({ referral: unconvertedRow() });
+
+    await service.reportConversion(stripeConversion);
+
+    expect(repository.update).toHaveBeenCalledWith(
+      { userId: USER },
+      expect.objectContaining({ toltCustomerId: 'cus_new', convertedAt: expect.any(Date) }),
+    );
+  });
+
+  it('identifies the customer by the email captured at referral time', async () => {
+    const { service, client } = setup({ referral: unconvertedRow({ email: 'jim@example.com' }) });
+    await service.reportConversion(stripeConversion);
+    expect(client.createCustomer).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'jim@example.com' }),
+    );
+  });
+
+  it('reuses the customer on renewals rather than creating another', async () => {
+    const { service, client } = setup();
+    await service.reportConversion(stripeConversion);
+    expect(client.createCustomer).not.toHaveBeenCalled();
+    expect(client.createTransaction).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not post a transaction when customer creation fails', async () => {
     const { service, client } = setup({
-      referral: referralRow({ toltCustomerId: null }),
+      referral: unconvertedRow(),
       createCustomer: () => Promise.reject(new ToltApiError('boom', 500, false)),
     });
 
@@ -250,6 +284,44 @@ describe('ToltService.reportConversion — failure containment', () => {
   });
 });
 
+// Resolution lives here rather than in the browser so the API key stays on the
+// server. Called once per affiliate landing, before the visitor has an account.
+describe('ToltService.recordClick', () => {
+  it('records the click and returns the partner it resolved to', async () => {
+    const { service, client } = setup();
+
+    const result = await service.recordClick({
+      affCode: 'zaira',
+      page: 'https://jungle.vpn/?aff=zaira',
+      referrer: null,
+    });
+
+    expect(client.createClick).toHaveBeenCalledWith({
+      param: 'aff',
+      value: 'zaira',
+      page: 'https://jungle.vpn/?aff=zaira',
+      referrer: undefined,
+    });
+    expect(result).toEqual({ partnerId: 'part_resolved', clickId: 'clk_resolved' });
+  });
+
+  it('returns null for a code Tolt does not recognise', async () => {
+    const { service } = setup({
+      createClick: () => Promise.reject(new ToltApiError('Link not found', 404, false)),
+    });
+
+    await expect(service.recordClick({ affCode: 'mistyped' })).resolves.toBeNull();
+  });
+
+  it('never throws — a visitor landing must not see an error', async () => {
+    const { service } = setup({
+      createClick: () => Promise.reject(new Error('network down')),
+    });
+
+    await expect(service.recordClick({ affCode: 'zaira' })).resolves.toBeNull();
+  });
+});
+
 describe('ToltService.captureReferral', () => {
   const capture = {
     userId: USER,
@@ -259,52 +331,54 @@ describe('ToltService.captureReferral', () => {
     email: 'jim@example.com',
   };
 
-  it('registers a Tolt lead and stores the returned customer id', async () => {
-    const { service, client, repository } = setup({ referral: null });
+  it('stores the referral for a user who has none', async () => {
+    const { service, repository } = setup({ referral: null });
 
     await service.captureReferral(capture);
 
-    expect(client.createCustomer).toHaveBeenCalledWith(
+    expect(repository.save).toHaveBeenCalledWith(
       expect.objectContaining({
-        email: 'jim@example.com',
-        partner_id: PARTNER,
-        customer_id: USER,
-        status: 'lead',
+        userId: USER,
+        referralCode: 'jimhalpert',
+        partnerId: PARTNER,
+        clickId: 'clk_1',
       }),
     );
+  });
+
+  it('touches Tolt not at all — no customer exists until the user pays', async () => {
+    const { service, client } = setup({ referral: null });
+    await service.captureReferral(capture);
+    expect(client.createCustomer).not.toHaveBeenCalled();
+  });
+
+  // The browser cookie decides which partner is live, and the landing flow
+  // replaces it on every new affiliate link. Overwriting here lets that decision
+  // through, so whoever's link is current when the user pays gets the credit.
+  it('overwrites an earlier referral while the user has not paid', async () => {
+    const { service, repository } = setup({
+      referral: unconvertedRow({ referralCode: 'first', partnerId: 'part_first' }),
+    });
+
+    await service.captureReferral({
+      ...capture,
+      referralCode: 'second',
+      partnerId: 'part_second',
+    });
+
     expect(repository.save).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: USER, partnerId: PARTNER, toltCustomerId: 'cus_new' }),
+      expect.objectContaining({ userId: USER, referralCode: 'second', partnerId: 'part_second' }),
     );
   });
 
-  it('identifies the user by id when no email is available', async () => {
-    const { service, client } = setup({ referral: null });
-    await service.captureReferral({ ...capture, email: null });
-    expect(client.createCustomer).toHaveBeenCalledWith(expect.objectContaining({ email: USER }));
-  });
-
-  it('keeps the first affiliate — a later capture does not overwrite', async () => {
-    const { service, client, repository } = setup({
-      referral: referralRow({ partnerId: 'part_first' }),
+  it('leaves a converted attribution alone — renewals belong to the seller', async () => {
+    const { service, repository } = setup({
+      referral: referralRow({ partnerId: 'part_first', convertedAt: new Date() }),
     });
 
     await service.captureReferral({ ...capture, partnerId: 'part_second' });
 
     expect(repository.save).not.toHaveBeenCalled();
-    expect(client.createCustomer).not.toHaveBeenCalled();
-  });
-
-  it('still stores the referral when Tolt lead registration fails', async () => {
-    const { service, repository } = setup({
-      referral: null,
-      createCustomer: () => Promise.reject(new ToltApiError('down', 503, true)),
-    });
-
-    await service.captureReferral(capture);
-
-    expect(repository.save).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: USER, toltCustomerId: null }),
-    );
   });
 
   it('never throws, so capture cannot break the caller', async () => {

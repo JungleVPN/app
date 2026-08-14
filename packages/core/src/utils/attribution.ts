@@ -1,4 +1,5 @@
 import type { AttributionPayload } from '@workspace/types';
+import { readCookie } from './cookies';
 
 export type { AttributionPayload };
 
@@ -6,9 +7,7 @@ const STORAGE_KEY = 'jv_attribution';
 const COOKIE_NAME = 'jv_attr';
 
 function readLandingCookie(): URLSearchParams {
-  const match = document.cookie.split('; ').find((c) => c.startsWith(`${COOKIE_NAME}=`));
-  if (!match) return new URLSearchParams();
-  return new URLSearchParams(decodeURIComponent(match.split('=').slice(1).join('=')));
+  return new URLSearchParams(readCookie(COOKIE_NAME) ?? '');
 }
 
 export function captureAttribution(options: {

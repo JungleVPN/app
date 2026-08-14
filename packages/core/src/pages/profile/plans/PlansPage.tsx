@@ -18,9 +18,9 @@ const BASE_MONTHLY_PRICE_EUR = 6;
 
 const PLANS: Plan[] = [
   { months: 12, priceEur: 43.2, priceRub: 1440, discount: 40 },
-  { months: 6,  priceEur: 26.4, priceRub: 882,  discount: 27 },
-  { months: 3,  priceEur: 15,   priceRub: 501,  discount: 17 },
-  { months: 1,  priceEur: 6,    priceRub: 200,  discount: 0  },
+  { months: 6, priceEur: 26.4, priceRub: 882, discount: 27 },
+  { months: 3, priceEur: 15, priceRub: 501, discount: 17 },
+  { months: 1, priceEur: 6, priceRub: 200, discount: 0 },
 ];
 
 function formatPrice(price: number): string {
@@ -41,7 +41,9 @@ export default function PlansPage() {
   const handleSubmit = () => {
     const plan = PLANS.find((p) => p.months === selectedMonths) ?? PLANS[0];
     navigate(profilePaymentPath, {
-      state: { selectedPlan: { months: plan.months, priceEur: plan.priceEur, priceRub: plan.priceRub } },
+      state: {
+        selectedPlan: { months: plan.months, priceEur: plan.priceEur, priceRub: plan.priceRub },
+      },
     });
   };
 

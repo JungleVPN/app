@@ -4,7 +4,6 @@ import { Link } from '../../../../components';
 import { coreEnv } from '../../../../env';
 import { usePlatformStore, useTermsStore } from '../../../../stores';
 
-
 export function TermsDialog() {
   const { t } = useTranslation();
   const { platformType } = usePlatformStore();
@@ -54,11 +53,7 @@ export function TermsDialog() {
                 </p>
                 <p className='text-muted'>
                   {t('terms.dialog.agreementsLead')}
-                  <Link
-                    className='underline underline-offset-2'
-                    href='/terms'
-                    onClick={close}
-                  >
+                  <Link className='underline underline-offset-2' href='/terms' onClick={close}>
                     {t('terms.dialog.termsOfServiceLink')}
                   </Link>
                   {t('terms.dialog.agreementsTail')}

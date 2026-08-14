@@ -3,15 +3,16 @@ import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } fro
 /**
  * Affiliate attribution captured for a user, decoupled from the moment of payment.
  *
- * `tlt.js` resolves the `?aff=` link into a referral code and partner id in the
- * browser, but that context is gone by the time a provider webhook fires — which
+ * The `?aff=` link is resolved to a partner when the visitor lands, but that
+ * context is gone by the time a provider webhook fires — which
  * may be days later, on a different device, or (for renewals) months later with
  * no browser involved at all. Persisting it here is what lets any payment
  * provider report a conversion without knowing anything about Tolt.
  *
- * Write-once on `userId`: the first affiliate to refer a user keeps the credit,
- * matching the "attribute only on a user's first-ever payment" rule already
- * enforced in `stripe.provider.ts`. Later captures for the same user are ignored.
+ * Last click wins, until it doesn't: while `convertedAt` is null a newer
+ * referral replaces this row, so the partner whose link actually brought the
+ * user back is the one credited. Once they pay, the row is frozen for life —
+ * renewal commissions belong to whoever made the sale.
  */
 @Entity('tolt_referral')
 export class ToltReferral {
@@ -32,17 +33,36 @@ export class ToltReferral {
   clickId: string | null;
 
   /**
-   * Tolt's own customer id, set at capture time by registering the user as a
-   * `lead` — so partners see the full click → lead → conversion funnel rather
-   * than conversions appearing from nowhere.
+   * The user's email at capture time, used as Tolt's customer identifier when
+   * the customer is finally created.
+   */
+  @Column({ type: 'varchar', nullable: false })
+  email: string;
+
+  /**
+   * Tolt's own customer id, created on the user's first payment — never before.
    *
-   * Null therefore means lead registration did not succeed (Tolt unreachable,
-   * bad key), not "hasn't paid yet". `reportConversion` treats a null as a
-   * self-heal cue and registers the customer before posting the transaction,
-   * so a failed capture costs visibility but never a commission.
+   * Tolt fixes a customer's `partner_id` at creation and offers no way to move
+   * them, so creating one early would lock attribution to whoever happened to
+   * refer the user first. Deferring it until money actually moves means the
+   * partner who converted them is the one recorded, with nothing to reassign.
    */
   @Column({ type: 'varchar', nullable: true })
   toltCustomerId: string | null;
+
+  /**
+   * When the user first converted, freezing this attribution.
+   *
+   * Null means no payment yet, and the row is still overwritable: a later
+   * referral replaces it, so whoever's link is live when the user finally pays
+   * gets the credit. The browser cookie supplies the window: it is replaced on
+   * every new affiliate landing and expires after 30 days.
+   *
+   * Once set, the row never changes again: the commission on renewals belongs
+   * to the partner who made the sale.
+   */
+  @Column({ type: 'timestamptz', nullable: true })
+  convertedAt: Date | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
