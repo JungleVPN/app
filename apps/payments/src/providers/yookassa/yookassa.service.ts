@@ -18,12 +18,15 @@ import {
   type IGeneralPayMethod,
   type IPaymentMethod,
   isBankCardPaymentMethod,
+  isRefundNotification,
   isSavablePaymentMethod,
   type PaymentSession,
   Payments,
   type PaymentWebhookNotification,
+  type RefundWebhookNotification,
   WebhookEvent,
   WebhookEventEnum,
+  type YookassaWebhookNotification,
 } from '@workspace/types';
 import { Repository } from 'typeorm';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
@@ -172,17 +175,54 @@ export class YookassaService {
 
   // ── Webhook handling ────────────────────────────────────────────────────
 
-  async handleWebhook(payload: PaymentWebhookNotification, ip: string) {
+  async handleWebhook(payload: YookassaWebhookNotification, ip: string) {
     await this.validateWebhookPayload(payload, ip);
 
+    if (isRefundNotification(payload)) {
+      await this.handleRefundSucceeded(payload);
+      return;
+    }
+
+    const paymentPayload = payload as PaymentWebhookNotification;
     switch (payload.event) {
       case WebhookEventEnum['payment.succeeded']:
-        await this.handlePaymentSucceeded(payload);
+        await this.handlePaymentSucceeded(paymentPayload);
         break;
       case WebhookEventEnum['payment.canceled']:
-        await this.handlePaymentCanceled(payload);
+        await this.handlePaymentCanceled(paymentPayload);
         break;
     }
+  }
+
+  /**
+   * Reverses the affiliate commission when a charge is refunded.
+   *
+   * Only the affiliate side is touched — revoking the subscription time itself
+   * is a separate concern and deliberately not done here.
+   *
+   * Partial refunds are detected from the payment's own `refunded_amount`
+   * rather than this refund's amount, because several partial refunds can add
+   * up to a full one and only the running total says which case this is.
+   */
+  async handleRefundSucceeded(payload: RefundWebhookNotification): Promise<void> {
+    const { payment_id, id } = payload.object;
+
+    const record = await this.yookassaPaymentRepo.findOneBy({ id: payment_id });
+    if (!record?.userId) {
+      this.logger.warn(`Refund ${id}: no record for payment ${payment_id} — nothing to reverse`);
+      return;
+    }
+
+    const payment = await this.yooKassaProvider.getPayment(payment_id);
+    const paid = Number(payment.amount?.value ?? 0);
+    const refunded = Number(payment.refunded_amount?.value ?? 0);
+    const isPartial = refunded > 0 && paid > 0 && refunded < paid;
+
+    this.logger.log(
+      `Refund ${id} for payment ${payment_id}: ${refunded} of ${paid} ${payment.amount?.currency ?? 'RUB'} returned`,
+    );
+
+    await this.toltService.reportRefund({ chargeId: payment_id, isPartial });
   }
 
   async handlePaymentSucceeded(payload: PaymentWebhookNotification): Promise<void> {
@@ -437,7 +477,7 @@ export class YookassaService {
 
   // ── Webhook validation ──────────────────────────────────────────────────
 
-  async validateWebhookPayload(payload: PaymentWebhookNotification, ip: string): Promise<void> {
+  async validateWebhookPayload(payload: YookassaWebhookNotification, ip: string): Promise<void> {
     const isIPRangeValid = await this.isIPRangeValid(ip);
     if (!isIPRangeValid) {
       throw new BadRequestException(`Webhook request from unauthorized IP: ${ip}`);
@@ -447,8 +487,14 @@ export class YookassaService {
       throw new BadRequestException('Invalid webhook payload structure');
     }
 
-    const paymentId = payload.object.id;
-    const webhookStatus = payload.object.status;
+    // A refund's `object.id` is the refund, not a payment, so there is no
+    // payment to look up under it and no comparable status. The underlying
+    // payment is verified in the handler instead.
+    if (isRefundNotification(payload)) return;
+
+    const paymentPayload = payload as PaymentWebhookNotification;
+    const paymentId = paymentPayload.object.id;
+    const webhookStatus = paymentPayload.object.status;
 
     const { status } = await this.yooKassaProvider.getPayment(paymentId);
     if (status !== webhookStatus) {
@@ -480,7 +526,7 @@ export class YookassaService {
     ].includes(event);
   }
 
-  isValidWebhookPayload(payload: PaymentWebhookNotification): boolean {
+  isValidWebhookPayload(payload: YookassaWebhookNotification): boolean {
     return (
       !!payload.object &&
       payload.type === 'notification' &&

@@ -17,6 +17,7 @@ vi.mock('@workspace/database', () => ({
   Promo: class {},
   PromoRedemption: class {},
   ToltReferral: class {},
+  ToltTransaction: class {},
   FxRate: class {},
 }));
 

@@ -1,4 +1,4 @@
-import type { ToltReferral } from '@workspace/database';
+import type { ToltReferral, ToltTransaction } from '@workspace/database';
 import { describe, expect, it, vi } from 'vitest';
 import type { FxRateService } from './fx-rate.service';
 import { ToltApiError, type ToltClient } from './tolt.client';
@@ -39,6 +39,8 @@ function setup(
     createCustomer?: (input: ToltCreateCustomerInput) => Promise<unknown>;
     createTransaction?: (input: ToltCreateTransactionInput) => Promise<unknown>;
     createClick?: (input: ToltCreateClickInput) => Promise<unknown>;
+    refundTransaction?: (id: string) => Promise<unknown>;
+    existingTransaction?: Partial<ToltTransaction> | null;
   } = {},
 ) {
   const repository = {
@@ -63,6 +65,15 @@ function setup(
         ((_input: ToltCreateClickInput) =>
           Promise.resolve({ id: 'clk_resolved', partner_id: 'part_resolved' })),
     ),
+    refundTransaction: vi.fn(
+      opts.refundTransaction ?? ((_id: string) => Promise.resolve({ id: 'txn_1' })),
+    ),
+  };
+
+  const txRepository = {
+    findOneBy: vi.fn().mockResolvedValue(opts.existingTransaction ?? null),
+    save: vi.fn().mockResolvedValue(undefined),
+    update: vi.fn().mockResolvedValue(undefined),
   };
 
   const rate = opts.eurRubRate === undefined ? 95.1834 : opts.eurRubRate;
@@ -74,11 +85,12 @@ function setup(
 
   const service = new ToltService(
     repository as never,
+    txRepository as never,
     client as unknown as ToltClient,
     fx as unknown as FxRateService,
   );
 
-  return { service, repository, client, fx };
+  return { service, repository, txRepository, client, fx };
 }
 
 const stripeConversion = {
@@ -385,5 +397,107 @@ describe('ToltService.captureReferral', () => {
     const { service, repository } = setup({ referral: null });
     repository.save.mockRejectedValue(new Error('db down'));
     await expect(service.captureReferral(capture)).resolves.toBeUndefined();
+  });
+});
+
+describe('ToltService.reportConversion — transaction mapping', () => {
+  it('stores the Tolt transaction id, the only handle a refund can use', async () => {
+    const { service, txRepository } = setup();
+
+    await service.reportConversion(stripeConversion);
+
+    expect(txRepository.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        chargeId: 'in_123',
+        toltTransactionId: 'txn_1',
+        userId: USER,
+        provider: 'stripe',
+        amountCents: 360,
+      }),
+    );
+  });
+
+  it('does not report a charge already reported — the mapping is the guard', async () => {
+    const { service, client } = setup({ existingTransaction: { chargeId: 'in_123' } });
+
+    await service.reportConversion(stripeConversion);
+
+    expect(client.createTransaction).not.toHaveBeenCalled();
+  });
+});
+
+describe('ToltService.reportRefund', () => {
+  const mapping = {
+    chargeId: 'yk_123',
+    toltTransactionId: 'txn_1',
+    userId: USER,
+    provider: 'yookassa',
+    amountCents: 207,
+    refundedAt: null,
+  };
+
+  it('reverses the commission for the refunded charge', async () => {
+    const { service, client } = setup({ existingTransaction: mapping });
+
+    await service.reportRefund({ chargeId: 'yk_123' });
+
+    expect(client.refundTransaction).toHaveBeenCalledWith('txn_1');
+  });
+
+  it('stamps the reversal so a redelivered webhook cannot repeat it', async () => {
+    const { service, txRepository } = setup({ existingTransaction: mapping });
+
+    await service.reportRefund({ chargeId: 'yk_123' });
+
+    expect(txRepository.update).toHaveBeenCalledWith(
+      { chargeId: 'yk_123' },
+      expect.objectContaining({ refundedAt: expect.any(Date) }),
+    );
+  });
+
+  it('ignores a charge that was never reported — nothing to reverse', async () => {
+    const { service, client } = setup({ existingTransaction: null });
+
+    await service.reportRefund({ chargeId: 'never_reported' });
+
+    expect(client.refundTransaction).not.toHaveBeenCalled();
+  });
+
+  it('ignores a repeat refund webhook', async () => {
+    const { service, client } = setup({
+      existingTransaction: { ...mapping, refundedAt: new Date() },
+    });
+
+    await service.reportRefund({ chargeId: 'yk_123' });
+
+    expect(client.refundTransaction).not.toHaveBeenCalled();
+  });
+
+  // Tolt's refund takes no amount — it reverses the whole commission. Applying
+  // it to a partial refund would claw back more than was actually returned.
+  it('leaves the commission alone when only part of the charge was refunded', async () => {
+    const { service, client } = setup({ existingTransaction: mapping });
+
+    await service.reportRefund({ chargeId: 'yk_123', isPartial: true });
+
+    expect(client.refundTransaction).not.toHaveBeenCalled();
+  });
+
+  it('does not stamp the reversal when Tolt rejects it, so it can be retried', async () => {
+    const { service, txRepository } = setup({
+      existingTransaction: mapping,
+      refundTransaction: () => Promise.reject(new ToltApiError('boom', 500, false)),
+    });
+
+    await service.reportRefund({ chargeId: 'yk_123' });
+
+    expect(txRepository.update).not.toHaveBeenCalled();
+  });
+
+  it('never throws — a refund webhook must not fail on affiliate bookkeeping', async () => {
+    const { service, txRepository } = setup({ existingTransaction: mapping });
+    txRepository.findOneBy.mockRejectedValue(new Error('db down'));
+
+    await expect(service.reportRefund({ chargeId: 'yk_123' })).resolves.toBeUndefined();
   });
 });

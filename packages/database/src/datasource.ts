@@ -13,6 +13,7 @@ import { SavedPaymentMethod } from './entities/saved-payment-method.entity';
 import { StripePayment } from './entities/stripe-payment.entity';
 import { TelegramStarsPayment } from './entities/telegram-stars-payment.entity';
 import { ToltReferral } from './entities/tolt-referral.entity';
+import { ToltTransaction } from './entities/tolt-transaction.entity';
 import { UserAttribution } from './entities/user-attribution.entity';
 import { YookassaPayment } from './entities/yookassa-payment.entity';
 
@@ -43,6 +44,7 @@ export const dataSourceOptions: DataSourceOptions = {
     BroadcastMessage,
     UserAttribution,
     ToltReferral,
+    ToltTransaction,
     FxRate,
   ],
   migrations: [migrationsDir],

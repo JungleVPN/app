@@ -10,11 +10,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
-import {
-  type CreateYookassaSessionDto,
-  type PaymentSession,
-  type PaymentWebhookNotification,
-} from '@workspace/types';
+import type { YookassaWebhookNotification } from '@workspace/types';
+import { type CreateYookassaSessionDto, type PaymentSession } from '@workspace/types';
 import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
 import { ClientUserGuard } from '../../auth/client-user.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
@@ -31,7 +28,7 @@ export class YookassaController {
   @Post('webhook')
   @HttpCode(200)
   @UseGuards(InterServiceGuard)
-  async webhook(@Body() payload: PaymentWebhookNotification, @Ip() ip: string) {
+  async webhook(@Body() payload: YookassaWebhookNotification, @Ip() ip: string) {
     await this.yookassaService.handleWebhook(payload, ip);
     return { ok: true };
   }

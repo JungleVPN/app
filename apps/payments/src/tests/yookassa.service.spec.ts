@@ -20,6 +20,7 @@ vi.mock('@workspace/database', () => {
     Promo: class {},
     PromoRedemption: class {},
     ToltReferral: class {},
+    ToltTransaction: class {},
     FxRate: class {},
   };
 });
@@ -56,6 +57,19 @@ const makeSucceededPayload = (overrides: Partial<any> = {}): PaymentWebhookNotif
     },
   }) as unknown as PaymentWebhookNotification;
 
+const makeRefundPayload = (overrides: Partial<any> = {}): any => ({
+  type: 'notification',
+  event: 'refund.succeeded',
+  object: {
+    id: 'ref_1',
+    payment_id: 'pay_1',
+    status: 'succeeded',
+    amount: { value: '200.00', currency: 'RUB' },
+    created_at: '2026-01-02T00:00:00Z',
+    ...overrides,
+  },
+});
+
 describe('YookassaService', () => {
   let service: YookassaService;
 
@@ -79,6 +93,7 @@ describe('YookassaService', () => {
   let mockEmit: any;
   let analyticsClient: AnalyticsClientService;
   let mockReportConversion: any;
+  let mockReportRefund: any;
   let toltService: ToltService;
 
   beforeEach(() => {
@@ -132,8 +147,10 @@ describe('YookassaService', () => {
     } as unknown as AnalyticsClientService;
 
     mockReportConversion = vi.fn().mockResolvedValue(undefined);
+    mockReportRefund = vi.fn().mockResolvedValue(undefined);
     toltService = {
       reportConversion: mockReportConversion,
+      reportRefund: mockReportRefund,
     } as unknown as ToltService;
 
     service = new YookassaService(
@@ -540,6 +557,67 @@ describe('YookassaService', () => {
 
     it('returns false for an IP outside the allowed CIDR', async () => {
       expect(await service.isIPRangeValid('8.8.8.8')).toBe(false);
+    });
+  });
+
+  // Tolt has no YooKassa integration, so a refunded rouble charge only reverses
+  // its commission if we tell it to.
+  describe('refund.succeeded', () => {
+    beforeEach(() => {
+      mockYkFindOneBy.mockResolvedValue({
+        id: 'pay_1',
+        userId: 'user-1',
+        selectedPeriod: 1,
+        amount: '200.00',
+        paidAt: new Date(),
+      });
+      // The payment API is the authority on how much has been returned.
+      mockGetPayment.mockResolvedValue({
+        status: 'succeeded',
+        amount: { value: '200.00', currency: 'RUB' },
+        refunded_amount: { value: '200.00', currency: 'RUB' },
+      });
+    });
+
+    it('reverses the commission for the refunded charge', async () => {
+      await service.handleWebhook(makeRefundPayload(), '127.0.0.1');
+
+      expect(mockReportRefund).toHaveBeenCalledWith({ chargeId: 'pay_1', isPartial: false });
+    });
+
+    it('flags a partial refund, which must not void the whole commission', async () => {
+      mockGetPayment.mockResolvedValue({
+        status: 'succeeded',
+        amount: { value: '200.00', currency: 'RUB' },
+        refunded_amount: { value: '50.00', currency: 'RUB' },
+      });
+
+      await service.handleWebhook(makeRefundPayload({ amount: { value: '50.00' } }), '127.0.0.1');
+
+      expect(mockReportRefund).toHaveBeenCalledWith({ chargeId: 'pay_1', isPartial: true });
+    });
+
+    it('resolves the payment by payment_id, not the refund id', async () => {
+      await service.handleWebhook(makeRefundPayload(), '127.0.0.1');
+      expect(mockYkFindOneBy).toHaveBeenCalledWith({ id: 'pay_1' });
+    });
+
+    it('ignores a refund for a payment we have no record of', async () => {
+      mockYkFindOneBy.mockResolvedValue(null);
+
+      await service.handleWebhook(makeRefundPayload(), '127.0.0.1');
+
+      expect(mockReportRefund).not.toHaveBeenCalled();
+    });
+
+    it('does not extend or alter the subscription', async () => {
+      await service.handleWebhook(makeRefundPayload(), '127.0.0.1');
+      expect(mockHandleUserUpdates).not.toHaveBeenCalled();
+    });
+
+    it('still rejects a refund webhook from an unauthorized IP', async () => {
+      await expect(service.handleWebhook(makeRefundPayload(), '8.8.8.8')).rejects.toThrow();
+      expect(mockReportRefund).not.toHaveBeenCalled();
     });
   });
 });

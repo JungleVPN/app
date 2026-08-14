@@ -217,3 +217,30 @@ describe('ToltClient retries', () => {
     expect(fetchFn).toHaveBeenCalledTimes(2);
   });
 });
+
+describe('ToltClient.refundTransaction', () => {
+  it('PUTs to the refund path with no body', async () => {
+    const { client, fetchFn } = setup([
+      jsonResponse({ success: true, data: [{ id: 'txn_1', status: 'refunded' }] }),
+    ]);
+
+    await client.refundTransaction('txn_1');
+
+    const [url, init] = fetchFn.mock.calls[0];
+    expect(url).toBe('https://api.tolt.com/v1/transactions/txn_1/refund');
+    expect(init?.method).toBe('PUT');
+    expect(init?.body).toBeUndefined();
+    expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer sk_test_123');
+  });
+
+  it('returns the refunded transaction', async () => {
+    const refunded = { id: 'txn_1', status: 'refunded', amount: '629' };
+    const { client } = setup([jsonResponse({ success: true, data: [refunded] })]);
+    await expect(client.refundTransaction('txn_1')).resolves.toEqual(refunded);
+  });
+
+  it('throws when Tolt does not know the transaction', async () => {
+    const { client } = setup([jsonResponse({ success: false, message: 'Not found' }, 404)]);
+    await expect(client.refundTransaction('txn_missing')).rejects.toBeInstanceOf(ToltApiError);
+  });
+});

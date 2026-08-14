@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ToltReferral } from '@workspace/database';
+import { ToltReferral, ToltTransaction } from '@workspace/database';
 import { Repository } from 'typeorm';
 import { FxRateService } from './fx-rate.service';
 import { ToltClient } from './tolt.client';
@@ -40,6 +40,8 @@ export class ToltService {
 
   constructor(
     @InjectRepository(ToltReferral) private readonly repository: Repository<ToltReferral>,
+    @InjectRepository(ToltTransaction)
+    private readonly transactions: Repository<ToltTransaction>,
     private readonly client: ToltClient,
     private readonly fxRate: FxRateService,
   ) {}
@@ -144,6 +146,15 @@ export class ToltService {
         return;
       }
 
+      // A stored mapping means this charge was already reported. Cheaper and
+      // more durable than relying on the provider's replay guard alone, and it
+      // is the same row a refund later needs.
+      const reported = await this.transactions.findOneBy({ chargeId: input.chargeId });
+      if (reported) {
+        this.logger.log(`Charge ${input.chargeId} already reported to Tolt — skipping`);
+        return;
+      }
+
       const referral = await this.repository.findOneBy({ userId: input.userId });
       if (!referral) return;
 
@@ -158,7 +169,7 @@ export class ToltService {
         return;
       }
 
-      await this.client.createTransaction({
+      const transaction = await this.client.createTransaction({
         amount: amountCents,
         customer_id: customerId,
         billing_type: 'subscription',
@@ -170,6 +181,17 @@ export class ToltService {
           : {}),
       });
 
+      // Recorded after the fact: Tolt's transaction id is the only handle its
+      // refund endpoint accepts, and no endpoint can look one up by charge id.
+      await this.transactions.save({
+        chargeId: input.chargeId,
+        toltTransactionId: transaction.id,
+        userId: input.userId,
+        provider: input.provider,
+        amountCents,
+        refundedAt: null,
+      });
+
       this.logger.log(
         `Reported ${amountCents} EUR cents to Tolt for user ${input.userId} (charge ${input.chargeId}, partner ${referral.partnerId})`,
       );
@@ -177,6 +199,54 @@ export class ToltService {
       // Swallowed deliberately — see the method contract.
       this.logger.error(
         `Failed to report conversion for charge ${input.chargeId}: ${(error as Error).message}`,
+      );
+    }
+  }
+
+  /**
+   * Reverses the commission for a refunded charge.
+   *
+   * Provider-agnostic, like `reportConversion`: a provider hands over its charge
+   * id and this finds the Tolt transaction reported for it.
+   *
+   * Partial refunds are deliberately left alone. Tolt's refund endpoint takes no
+   * amount and reverses the whole commission, so applying it to a partial refund
+   * would claw back more than the customer actually got back. Those need a
+   * manual adjustment in the dashboard.
+   *
+   * Never throws — a refund must settle whether or not the affiliate side agrees.
+   */
+  async reportRefund(input: { chargeId: string; isPartial?: boolean }): Promise<void> {
+    try {
+      const reported = await this.transactions.findOneBy({ chargeId: input.chargeId });
+
+      // Not an affiliate sale, or never successfully reported — nothing to reverse.
+      if (!reported) return;
+
+      if (reported.refundedAt) {
+        this.logger.log(`Charge ${input.chargeId} already reversed in Tolt — ignoring duplicate`);
+        return;
+      }
+
+      if (input.isPartial) {
+        this.logger.warn(
+          `Charge ${input.chargeId} was partially refunded — commission ${reported.toltTransactionId} left intact, adjust manually if needed`,
+        );
+        return;
+      }
+
+      await this.client.refundTransaction(reported.toltTransactionId);
+
+      // Stamped only after Tolt confirms, so a failure can be retried by the
+      // provider's next redelivery rather than being silently marked done.
+      await this.transactions.update({ chargeId: input.chargeId }, { refundedAt: new Date() });
+
+      this.logger.log(
+        `Reversed commission ${reported.toltTransactionId} for refunded charge ${input.chargeId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to reverse commission for charge ${input.chargeId}: ${(error as Error).message}`,
       );
     }
   }

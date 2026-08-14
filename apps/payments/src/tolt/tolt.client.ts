@@ -94,12 +94,24 @@ export class ToltClient {
     return this.post<ToltTransaction>('/v1/transactions', input);
   }
 
-  private async post<T>(path: string, body: object): Promise<T> {
+  /**
+   * Reverses a commission. All-or-nothing — Tolt takes no amount, so a
+   * partially refunded charge cannot be partially clawed back.
+   */
+  refundTransaction(toltTransactionId: string): Promise<ToltTransaction> {
+    return this.request<ToltTransaction>('PUT', `/v1/transactions/${toltTransactionId}/refund`);
+  }
+
+  private post<T>(path: string, body: object): Promise<T> {
+    return this.request<T>('POST', path, body);
+  }
+
+  private async request<T>(method: 'POST' | 'PUT', path: string, body?: object): Promise<T> {
     let lastError: ToltApiError | null = null;
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       try {
-        return await this.attempt<T>(path, body);
+        return await this.attempt<T>(method, path, body);
       } catch (error) {
         lastError = error as ToltApiError;
         if (!lastError.retryable || attempt === MAX_ATTEMPTS) break;
@@ -117,8 +129,8 @@ export class ToltClient {
     throw lastError ?? new ToltApiError(`Tolt ${path} failed`, null, false);
   }
 
-  private async attempt<T>(path: string, body: object): Promise<T> {
-    const response = await this.send(path, body);
+  private async attempt<T>(method: string, path: string, body?: object): Promise<T> {
+    const response = await this.send(method, path, body);
     const payload = await this.readEnvelope<T>(response, path);
 
     if (!response.ok) {
@@ -146,17 +158,17 @@ export class ToltClient {
     return record;
   }
 
-  private async send(path: string, body: object): Promise<Response> {
+  private async send(method: string, path: string, body?: object): Promise<Response> {
     try {
       return await this.fetchFn(`${this.baseUrl}${path}`, {
-        method: 'POST',
+        method,
         headers: {
           Authorization: `Bearer ${this.config.apiKey}`,
           'Content-Type': 'application/json',
         },
         // Undefined values are dropped by JSON.stringify, so optional fields are
         // omitted rather than sent as nulls Tolt would persist.
-        body: JSON.stringify(body),
+        ...(body ? { body: JSON.stringify(body) } : {}),
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
     } catch (error) {

@@ -1,7 +1,7 @@
 import { Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
-import { FxRate, ToltReferral } from '@workspace/database';
+import { FxRate, ToltReferral, ToltTransaction } from '@workspace/database';
 import { Repository } from 'typeorm';
 import { FX_SOURCES, FxRateService, type RateSource } from './fx-rate.service';
 import { defaultRateSources } from './fx-rate.sources';
@@ -35,7 +35,7 @@ export function toltConfigFactory(
 }
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ToltReferral, FxRate])],
+  imports: [TypeOrmModule.forFeature([ToltReferral, ToltTransaction, FxRate])],
   controllers: [ToltController],
   providers: [
     { provide: TOLT_CONFIG, inject: [ConfigService], useFactory: toltConfigFactory },

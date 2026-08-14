@@ -10,5 +10,6 @@ export * from './entities/saved-payment-method.entity';
 export * from './entities/stripe-payment.entity';
 export * from './entities/telegram-stars-payment.entity';
 export * from './entities/tolt-referral.entity';
+export * from './entities/tolt-transaction.entity';
 export * from './entities/user-attribution.entity';
 export * from './entities/yookassa-payment.entity';
