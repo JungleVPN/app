@@ -44,3 +44,11 @@ export const subscriptionToId = (subscription: string | Stripe.Subscription | un
     return subscription.id;
   }
 };
+
+/** Narrows Stripe's `string | PaymentIntent | null` union to a plain id. */
+export const paymentIntentToId = (
+  paymentIntent: string | Stripe.PaymentIntent | null | undefined,
+): string | null => {
+  if (!paymentIntent) return null;
+  return typeof paymentIntent === 'string' ? paymentIntent : paymentIntent.id;
+};
