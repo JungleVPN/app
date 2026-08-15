@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url';
+import { FeaturesCard } from '../../../components';
 import { useNavigation } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { useNavbarStore, usePlatformStore } from '../../../stores';
@@ -117,26 +118,31 @@ export default function PaymentPage() {
           />
         </div>
       ) : (
-        <PaymentForm
-          selectedMethod={selectedMethod}
-          needsEmailInput={needsEmailInput}
-          buttonLabel={buttonLabel}
-          isPending={isPending}
-          starsError={starsError}
-          platformType={platformType}
-          enablePromo={selectedMethod !== 'stripe'}
-          onYookassaPayment={handleYookassaPayment}
-          onStripePayment={handleStripePayment}
-          onStarsPayment={handleStarsPayment}
-          onValidatePromo={validatePromo}
-        >
-          {/*<PaymentMethodSelector*/}
-          {/*  selectedMethod={selectedMethod}*/}
-          {/*  starsEnabled={starsEnabled}*/}
-          {/*  onSelectionChange={handleSelectionChange}*/}
-          {/*  isRuDomain={isRu}*/}
-          {/*/>*/}
-        </PaymentForm>
+        <>
+          <PaymentForm
+            selectedMethod={selectedMethod}
+            needsEmailInput={needsEmailInput}
+            buttonLabel={buttonLabel}
+            isPending={isPending}
+            starsError={starsError}
+            platformType={platformType}
+            enablePromo={selectedMethod !== 'stripe'}
+            onYookassaPayment={handleYookassaPayment}
+            onStripePayment={handleStripePayment}
+            onStarsPayment={handleStarsPayment}
+            onValidatePromo={validatePromo}
+          >
+            {/*<PaymentMethodSelector*/}
+            {/*  selectedMethod={selectedMethod}*/}
+            {/*  starsEnabled={starsEnabled}*/}
+            {/*  onSelectionChange={handleSelectionChange}*/}
+            {/*  isRuDomain={isRu}*/}
+            {/*/>*/}
+          </PaymentForm>
+          <div className={'mt-4'}>
+            <FeaturesCard title={t('common.features.title')} />
+          </div>
+        </>
       )}
 
       <StarsPaymentSuccessDrawer isOpen={successState.isOpen} onClose={successState.close} />

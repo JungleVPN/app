@@ -3,6 +3,7 @@ import { Page } from '@workspace/core';
 import type { Key } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FeaturesCard } from '../../../components';
 import { useNavigation, usePlans } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { usePlatformStore } from '../../../stores';
@@ -120,6 +121,9 @@ export default function PlansPage() {
           {t('plans.continueButton')}
         </Button>
       </Block>
+      <div className={'mt-4'}>
+        <FeaturesCard title={t('common.features.title')} />
+      </div>
     </Page>
   );
 }

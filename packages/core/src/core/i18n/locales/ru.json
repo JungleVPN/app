@@ -1,4 +1,9 @@
 {
+  "common": {
+    "features": {
+      "title": "Что входит в подписку:"
+    }
+  },
   "main": {
     "page": {
       "component": {

@@ -1,4 +1,9 @@
 {
+  "common": {
+    "features": {
+      "title": "إيه اللي في الاشتراك:"
+    }
+  },
   "main": {
     "page": {
       "component": {

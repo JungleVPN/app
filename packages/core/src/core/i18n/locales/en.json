@@ -1,4 +1,9 @@
 {
+  "common": {
+    "features": {
+      "title": "What's included in the subscription:"
+    }
+  },
   "main": {
     "page": {
       "component": {
