@@ -48,6 +48,10 @@
       "partnership": "الشراكة",
       "pricing": "الأسعار",
       "trial": "الأسعار"
+    },
+    "support": {
+      "telegram": "تيليجرام",
+      "email": "البريد الإلكتروني"
     }
   },
   "languages": {
@@ -188,7 +192,9 @@
     "deletePaymentMethod": "حذف طريقة الدفع",
     "removeCard": "إزالة الكارت",
     "language": "اللغة",
-    "appsTabs": "التطبيقات"
+    "appsTabs": "التطبيقات",
+    "support": "الدعم",
+    "copySupportEmail": "نسخ البريد الإلكتروني"
   },
   "errorBoundary": {
     "title": "في مشكلة حصلت",

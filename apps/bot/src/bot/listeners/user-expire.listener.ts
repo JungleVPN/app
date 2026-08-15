@@ -64,7 +64,7 @@ export class UserExpireListener {
     keyboard.row();
     keyboard.url(
       this.localService.i18n.t(locale, 'support-button-label'),
-      process.env.PUBLIC_SUPPORT_URL || 'https://t.me/JungleVPN_support',
+      process.env.PUBLIC_SUPPORT_TG_URL || 'https://t.me/JungleVPN_support',
     );
 
     const formattedDate = toDateString(payload.data.expireAt);

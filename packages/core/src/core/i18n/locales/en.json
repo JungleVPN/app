@@ -48,6 +48,10 @@
       "partnership": "Partnership",
       "pricing": "Prices",
       "trial": "Prices"
+    },
+    "support": {
+      "telegram": "Telegram",
+      "email": "Email"
     }
   },
   "languages": {
@@ -179,7 +183,9 @@
     "deletePaymentMethod": "Delete payment method",
     "removeCard": "Remove card",
     "language": "Language",
-    "appsTabs": "Apps"
+    "appsTabs": "Apps",
+    "support": "Support",
+    "copySupportEmail": "Copy email address"
   },
   "errorBoundary": {
     "title": "Something went wrong",

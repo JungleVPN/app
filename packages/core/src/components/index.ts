@@ -6,6 +6,7 @@ export { FeaturesCard } from './FeaturesCard/FeaturesCard';
 export { AuthButtons } from './Header/AuthButtons';
 export { Header } from './Header/Header';
 export { LanguageSwitcher } from './Header/LanguageSwitcher';
+export { SupportButton } from './Header/SupportButton';
 export { ThemeToggle } from './Header/ThemeToggle';
 export { InfoBlock } from './InfoBlock/InfoBlock';
 export { InstallationGuideConnector } from './InstallationGuide';

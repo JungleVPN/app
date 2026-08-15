@@ -47,6 +47,10 @@
       "partnership": "Партнёрство",
       "pricing": "Цены",
       "trial": "Цены"
+    },
+    "support": {
+      "telegram": "Telegram",
+      "email": "Email"
     }
   },
   "languages": {
@@ -181,7 +185,9 @@
     "deletePaymentMethod": "Удалить способ оплаты",
     "removeCard": "Удалить карту",
     "language": "Язык",
-    "appsTabs": "Приложения"
+    "appsTabs": "Приложения",
+    "support": "Поддержка",
+    "copySupportEmail": "Скопировать email"
   },
   "errorBoundary": {
     "title": "Что-то пошло не так",

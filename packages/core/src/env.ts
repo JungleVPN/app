@@ -18,7 +18,8 @@ export const coreEnv = {
 
   tmaAppUrl: (import.meta.env.PUBLIC_TMA_APP_URL ?? '') as string,
   webAppUrl: (import.meta.env.PUBLIC_WEB_APP_URL ?? '') as string,
-  supportUrl: (import.meta.env.PUBLIC_SUPPORT_URL ?? '') as string,
+  supportUrl: (import.meta.env.PUBLIC_SUPPORT_TG_URL ?? '') as string,
+  supportEmail: (import.meta.env.PUBLIC_SUPPORT_EMAIL ?? '') as string,
   botUrl: (import.meta.env.PUBLIC_BOT_URL ?? '') as string,
   paymentsUrl: (import.meta.env.PUBLIC_PAYMENTS_URL ?? '') as string,
   remnawaveUrl: (import.meta.env.PUBLIC_REMNAWAVE_URL ?? '') as string,

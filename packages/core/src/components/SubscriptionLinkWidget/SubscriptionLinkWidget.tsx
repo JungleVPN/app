@@ -1,19 +1,21 @@
 import { AlertDialog, Button, useOverlayState } from '@heroui/react';
-import { IconCopy, IconHelpCircle, IconLink } from '@tabler/icons-react';
+import { IconCopy, IconLink } from '@tabler/icons-react';
 import { useEffect } from 'react';
 import { renderSVG } from 'uqr';
-import { coreEnv } from '../../env';
 import { useClipboard, useTranslation } from '../../hooks';
-import { useNavbarStore, usePlatformStore, useSubscriptionInfoStoreInfo } from '../../stores';
-import { Link } from '../Link/Link';
+import {
+  useAuthStore,
+  useNavbarStore,
+  usePlatformStore,
+  useSubscriptionInfoStoreInfo,
+} from '../../stores';
 
 export const SubscriptionLinkWidget = () => {
   const { t, baseTranslations } = useTranslation();
   const { subscription } = useSubscriptionInfoStoreInfo();
   const { clientPlatform } = usePlatformStore();
-  const { supportUrl } = coreEnv;
   const { setNavbarVisible } = useNavbarStore();
-
+  const { authUser } = useAuthStore();
   const { copy, copied } = useClipboard({ timeout: 3000 });
   const qrState = useOverlayState();
 
@@ -45,19 +47,11 @@ export const SubscriptionLinkWidget = () => {
 
   return (
     <>
-      <div className='flex items-center gap-2'>
+      {authUser && (
         <Button isIconOnly size='md' variant='tertiary' onPress={qrState.open}>
           <IconLink />
         </Button>
-
-        {supportUrl && (
-          <Button isIconOnly size='md' variant='tertiary'>
-            <Link href={supportUrl} target='_blank' rel='noopener noreferrer'>
-              <IconHelpCircle />
-            </Link>
-          </Button>
-        )}
-      </div>
+      )}
 
       <AlertDialog.Backdrop
         isDismissable

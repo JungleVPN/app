@@ -2,17 +2,18 @@ import { Avatar, Button } from '@heroui/react';
 import { useAuthStore } from '@workspace/core';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
 import { useRemnawaveApi } from '../../api';
 import Logo from '../../assets/Logo_dark.svg?react';
 import LogoDark from '../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../hooks';
 import { usePlatformStore } from '../../stores';
-
+import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileDrawer } from './MobileDrawer';
+import { SupportButton } from './SupportButton';
 
 export function Header() {
   const { t } = useTranslation();
@@ -62,7 +63,7 @@ export function Header() {
 
   const inner = (
     <div className='flex items-center justify-between gap-4'>
-      <Link to={getLink()}>{logoNode}</Link>
+      <Link href={getLink()}>{logoNode}</Link>
 
       {isLanding && (
         <nav className='hidden sm:flex items-center gap-6'>
@@ -83,6 +84,7 @@ export function Header() {
         className={`${isLanding ? 'hidden sm:flex' : ''} flex items-center justify-between gap-2 ml-auto`}
       >
         {!isLanding && <SubscriptionLinkWidget />}
+        {!isLanding && <SupportButton />}
         {/*{platformType === 'web' && <ThemeToggle />}*/}
         <LanguageSwitcher />
         {platformType === 'web' && <AuthButtons />}

@@ -143,7 +143,7 @@ export class EmailNotificationService {
   }
 
   private get supportUrl(): string {
-    return process.env.PUBLIC_SUPPORT_URL ?? 'https://t.me';
+    return process.env.PUBLIC_SUPPORT_EMAIL ?? 'https://t.me';
   }
 
   async notifyExpiry(user: UserData, hoursRemaining: ExpiryHours): Promise<void> {
