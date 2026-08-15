@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { amountToMonths, getPriceForPeriod } from '../utils/amount';
+import { amountToMonths, buildPlanPricing, getPriceForPeriod } from '../utils/amount';
 
 describe('provider-agnostic amount config', () => {
   beforeEach(() => {
@@ -81,6 +81,44 @@ describe('provider-agnostic amount config', () => {
     it('throws when the price env var is not set', () => {
       delete process.env.PRICE_EUR_MONTH_1;
       expect(() => getPriceForPeriod('EUR', 1)).toThrow();
+    });
+  });
+
+  describe('buildPlanPricing', () => {
+    it('has no discount and a null fullTotal for the base (1-month) plan', () => {
+      const pricing = buildPlanPricing('EUR', 1, 6, 6);
+      expect(pricing).toEqual({
+        total: '6.00',
+        monthly: '6.00',
+        fullTotal: '6.00',
+        discountPercent: 0,
+      });
+    });
+
+    it('rounds EUR to 2 decimals and computes the discount vs. the base price', () => {
+      const pricing = buildPlanPricing('EUR', 12, 43.2, 6);
+      expect(pricing.total).toBe('43.20');
+      expect(pricing.monthly).toBe('3.60');
+      expect(pricing.fullTotal).toBe('72.00');
+      expect(pricing.discountPercent).toBe(40);
+    });
+
+    it('rounds RUB to 0 decimals and computes the discount vs. the base price', () => {
+      const pricing = buildPlanPricing('RUB', 6, 882, 200);
+      expect(pricing.total).toBe('882');
+      expect(pricing.monthly).toBe('147');
+      expect(pricing.fullTotal).toBe('1200');
+      expect(pricing.discountPercent).toBe(27);
+    });
+
+    it('returns a null fullTotal and zero discount when there is no base price', () => {
+      const pricing = buildPlanPricing('EUR', 6, 26.4, null);
+      expect(pricing).toEqual({
+        total: '26.40',
+        monthly: '4.40',
+        fullTotal: null,
+        discountPercent: 0,
+      });
     });
   });
 });

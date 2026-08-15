@@ -1,8 +1,10 @@
 import { IconBrandAppleFilled, IconBrandGoogleFilled } from '@tabler/icons-react';
+import type { SubscriptionPlanDto } from '@workspace/types';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { usePlans } from '../../hooks';
+import { formatPlanPrice, isRuDomain } from '../../utils';
 
 function PaymentMethods() {
   return (
@@ -59,30 +61,26 @@ type PriceCalculation = {
 };
 
 function calculatePricing(
-  plan: { months: number; priceEur: string },
-  monthlyPrice: number | null,
+  plan: SubscriptionPlanDto,
+  isRu: boolean,
   discountLabel: (percent: number) => string,
   noDiscountLabel: string,
 ): PriceCalculation {
-  const totalPrice = parseFloat(plan.priceEur);
-  const price = (totalPrice / plan.months).toFixed(2);
+  const pricing = isRu ? plan.rub : plan.eur;
 
   if (plan.months === 1) {
-    return { price, noDiscountLabel };
+    return { price: pricing.monthly, noDiscountLabel };
   }
 
-  if (monthlyPrice === null) {
-    return { price };
+  if (pricing.discountPercent <= 0 || !pricing.fullTotal) {
+    return { price: pricing.monthly };
   }
-
-  const originalTotalNum = monthlyPrice * plan.months;
-  const savedPct = Math.round((1 - totalPrice / originalTotalNum) * 100);
 
   return {
-    price,
-    discount: discountLabel(savedPct),
-    originalTotal: `€${originalTotalNum.toFixed(2)}`,
-    discountedTotal: `€${totalPrice.toFixed(2)}`,
+    price: pricing.monthly,
+    discount: discountLabel(pricing.discountPercent),
+    originalTotal: formatPlanPrice(pricing.fullTotal, isRu),
+    discountedTotal: formatPlanPrice(pricing.total, isRu),
   };
 }
 
@@ -94,14 +92,14 @@ export function PricingSection() {
   function formatMonths(months: number): string {
     if (months === 1) return t('landing.pricing.period');
     if (months === 12) return t('landing.pricing.yearlyPeriod');
-    if (months === 24) return t('landing.pricing.biennialPeriod');
     return t('landing.pricing.monthsPeriod', { count: months });
   }
 
   const handleCtaClick = () => navigate('/profile/plans');
+  const isRu = isRuDomain();
 
   const sharedProps = {
-    currency: '€',
+    currency: isRu ? '₽' : '€',
     interval: t('landing.pricing.interval'),
     guarantee: t('landing.pricing.guarantee'),
     cta: t('landing.pricing.cta'),
@@ -110,8 +108,6 @@ export function PricingSection() {
   };
 
   if (plans.length === 0) return null;
-
-  const monthlyPrice = parseFloat(plans.find((p) => p.months === 1)?.priceEur ?? '0') || null;
 
   return (
     <section className='py-36 px-0 sm:px-8 md:px-48 lg:px-0'>
@@ -128,7 +124,7 @@ export function PricingSection() {
             const isHighlighted = i === Math.floor(plans.length / 2) && plans.length > 1;
             const pricing = calculatePricing(
               plan,
-              monthlyPrice,
+              isRu,
               (percent) => t('landing.pricing.discount', { percent }),
               t('landing.pricing.noDiscount'),
             );

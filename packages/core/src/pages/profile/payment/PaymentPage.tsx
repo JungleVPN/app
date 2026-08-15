@@ -1,4 +1,4 @@
-import { Button, type Selection, Spinner } from '@heroui/react';
+import { Button, Spinner } from '@heroui/react';
 import { Page } from '@workspace/core';
 import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
 import type { PaymentMethod } from '@workspace/types';
@@ -8,10 +8,10 @@ import { useLocation } from 'react-router';
 import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url';
 import { useNavigation } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
-import { useNavbarStore } from '../../../stores';
+import { useNavbarStore, usePlatformStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
+import { isRuDomain } from '../../../utils';
 import { PaymentForm } from './components/PaymentForm';
-import { PaymentMethodSelector } from './components/PaymentMethodSelector';
 import { SavedMethod } from './components/SavedMethod';
 import { usePayment } from './hooks/usePayment';
 import { getButtonLabel } from './utils/getButtonLabel';
@@ -27,14 +27,12 @@ export default function PaymentPage() {
 
   const {
     savedMethods,
-    platformType,
     hasActiveMethod,
     hasStripeSubscription,
     needsEmailInput,
     isLoadingMethods,
     isLoading,
     isDeleting,
-    starsEnabled,
     starsError,
     isPaying,
     isStripePaying,
@@ -48,10 +46,15 @@ export default function PaymentPage() {
     isOpeningStripePortal,
     validatePromo,
   } = usePayment(selectedPlan?.months ?? 1);
+  const { platformType } = usePlatformStore();
   const { setNavbarVisible } = useNavbarStore();
   const navigate = useNavigation();
   const { profilePlansPath } = useAppRoutes();
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('yookassa');
+  const isRu = isRuDomain();
+
+  const [selectedMethod] = useState<PaymentMethod>(
+    isRu || platformType === 'telegram' ? 'yookassa' : 'stripe',
+  );
 
   useEffect(() => {
     setNavbarVisible(!successState.isOpen);
@@ -72,11 +75,11 @@ export default function PaymentPage() {
   };
   const isPending = isPendingByMethod[selectedMethod];
 
-  const handleSelectionChange = (keys: Selection) => {
-    if (keys === 'all') return;
-    const key = Array.from(keys)[0] as PaymentMethod | undefined;
-    if (key) setSelectedMethod(key);
-  };
+  // const handleSelectionChange = (keys: Selection) => {
+  //   if (keys === 'all') return;
+  //   const key = Array.from(keys)[0] as PaymentMethod | undefined;
+  //   if (key) setSelectedMethod(key);
+  // };
 
   return (
     <Page
@@ -127,11 +130,12 @@ export default function PaymentPage() {
           onStarsPayment={handleStarsPayment}
           onValidatePromo={validatePromo}
         >
-          <PaymentMethodSelector
-            selectedMethod={selectedMethod}
-            starsEnabled={starsEnabled}
-            onSelectionChange={handleSelectionChange}
-          />
+          {/*<PaymentMethodSelector*/}
+          {/*  selectedMethod={selectedMethod}*/}
+          {/*  starsEnabled={starsEnabled}*/}
+          {/*  onSelectionChange={handleSelectionChange}*/}
+          {/*  isRuDomain={isRu}*/}
+          {/*/>*/}
         </PaymentForm>
       )}
 

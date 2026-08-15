@@ -1,47 +1,42 @@
-import { Button, Chip, Tabs } from '@heroui/react';
+import { Button, Chip, Spinner, Tabs } from '@heroui/react';
 import { Page } from '@workspace/core';
 import type { Key } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '../../../hooks';
+import { useNavigation, usePlans } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
+import { usePlatformStore } from '../../../stores';
 import { Block } from '../../../ui';
-
-type Plan = {
-  months: number;
-  priceEur: number;
-  priceRub: number;
-  discount: number;
-};
-
-const BASE_MONTHLY_PRICE_EUR = 6;
-
-const PLANS: Plan[] = [
-  { months: 12, priceEur: 43.2, priceRub: 1440, discount: 40 },
-  { months: 6,  priceEur: 26.4, priceRub: 882,  discount: 27 },
-  { months: 3,  priceEur: 15,   priceRub: 501,  discount: 17 },
-  { months: 1,  priceEur: 6,    priceRub: 200,  discount: 0  },
-];
-
-function formatPrice(price: number): string {
-  if (Number.isInteger(price)) return `€${price}`;
-  return `€${price.toFixed(2)}`;
-}
+import { formatPlanPrice, isRuDomain } from '../../../utils';
 
 export default function PlansPage() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { profilePaymentPath } = useAppRoutes();
-  const [selectedMonths, setSelectedMonths] = useState(12);
+  const { platformType } = usePlatformStore();
+  const plans = usePlans();
+  const isRu = isRuDomain();
+  const isTelegram = platformType === 'telegram';
+  const [selectedMonths, setSelectedMonths] = useState<number | null>(null);
+
+  const sortedPlans = [...plans].sort((a, b) => b.months - a.months);
+  const activeMonths = selectedMonths ?? sortedPlans[0]?.months ?? null;
 
   const handleSelectionChange = (key: Key) => {
     setSelectedMonths(Number(key));
   };
 
   const handleSubmit = () => {
-    const plan = PLANS.find((p) => p.months === selectedMonths) ?? PLANS[0];
+    const plan = sortedPlans.find((p) => p.months === activeMonths) ?? sortedPlans[0];
+    if (!plan) return;
     navigate(profilePaymentPath, {
-      state: { selectedPlan: { months: plan.months, priceEur: plan.priceEur, priceRub: plan.priceRub } },
+      state: {
+        selectedPlan: {
+          months: plan.months,
+          priceEur: parseFloat(plan.priceEur),
+          priceRub: parseFloat(plan.priceRub),
+        },
+      },
     });
   };
 
@@ -52,63 +47,76 @@ export default function PlansPage() {
         variant={'default'}
         description={t('plans.pageDescription')}
       >
-        <Tabs
-          orientation='vertical'
-          selectedKey={String(selectedMonths)}
-          onSelectionChange={handleSelectionChange}
-          className='w-full'
-        >
-          <Tabs.ListContainer className='w-full'>
-            <Tabs.List aria-label={t('plans.tabsAriaLabel')} className='w-full gap-2 p-0'>
-              {PLANS.map((plan) => {
-                const monthlyPrice = plan.priceEur / plan.months;
-                const fullPrice = BASE_MONTHLY_PRICE_EUR * plan.months;
-                const label = t('plans.month', { count: plan.months });
+        {sortedPlans.length === 0 ? (
+          <div className='flex justify-center p-8'>
+            <Spinner color='accent' size='lg' />
+          </div>
+        ) : (
+          <Tabs
+            orientation='vertical'
+            selectedKey={activeMonths !== null ? String(activeMonths) : undefined}
+            onSelectionChange={handleSelectionChange}
+            className='w-full'
+          >
+            <Tabs.ListContainer className='w-full'>
+              <Tabs.List aria-label={t('plans.tabsAriaLabel')} className='w-full gap-2 p-0'>
+                {sortedPlans.map((plan) => {
+                  const pricing = isRu || isTelegram ? plan.rub : plan.eur;
+                  const label = t('plans.month', { count: plan.months });
 
-                return (
-                  <Tabs.Tab
-                    key={plan.months}
-                    id={String(plan.months)}
-                    className='h-auto w-full rounded-2xl px-4 py-3 text-left'
-                  >
-                    <div className='flex w-full items-center justify-between'>
-                      <div className='flex flex-col gap-1'>
-                        <div className='flex items-center gap-2'>
-                          <span className='font-semibold'>{label}</span>
-                          {plan.discount > 0 && (
-                            <Chip color='accent' size='sm' variant='soft'>
-                              <Chip.Label>-{plan.discount}%</Chip.Label>
-                            </Chip>
+                  return (
+                    <Tabs.Tab
+                      key={plan.months}
+                      id={String(plan.months)}
+                      className='h-auto w-full rounded-2xl px-4 py-3 text-left'
+                    >
+                      <div className='flex w-full items-center justify-between'>
+                        <div className='flex flex-col gap-1'>
+                          <div className='flex items-center gap-2'>
+                            <span className='font-semibold'>{label}</span>
+                            {pricing.discountPercent > 0 && (
+                              <Chip color='accent' size='sm' variant='soft'>
+                                <Chip.Label>-{pricing.discountPercent}%</Chip.Label>
+                              </Chip>
+                            )}
+                          </div>
+                          {pricing.discountPercent > 0 && pricing.fullTotal && (
+                            <div className='flex items-center gap-1.5 text-sm text-muted'>
+                              <span>{formatPlanPrice(pricing.total, isRu || isTelegram)}</span>
+                              <span className='line-through'>
+                                {formatPlanPrice(pricing.fullTotal, isRu || isTelegram)}
+                              </span>
+                            </div>
                           )}
                         </div>
-                        {plan.discount > 0 && (
-                          <div className='flex items-center gap-1.5 text-sm text-muted'>
-                            <span>{formatPrice(plan.priceEur)}</span>
-                            <span className='line-through'>{formatPrice(fullPrice)}</span>
+                        <div className='text-right'>
+                          <div className='text-lg font-bold text-primary'>
+                            {formatPlanPrice(pricing.monthly, isRu || isTelegram)}
                           </div>
-                        )}
-                      </div>
-                      <div className='text-right'>
-                        <div className='text-lg font-bold text-primary'>
-                          {formatPrice(parseFloat(monthlyPrice.toFixed(2)))}
+                          <div className='text-xs text-muted'>{t('plans.perMonth')}</div>
                         </div>
-                        <div className='text-xs text-muted'>{t('plans.perMonth')}</div>
                       </div>
-                    </div>
-                    <Tabs.Indicator />
-                  </Tabs.Tab>
-                );
-              })}
-            </Tabs.List>
-          </Tabs.ListContainer>
+                      <Tabs.Indicator />
+                    </Tabs.Tab>
+                  );
+                })}
+              </Tabs.List>
+            </Tabs.ListContainer>
 
-          {PLANS.map((plan) => (
-            <Tabs.Panel key={plan.months} id={String(plan.months)} className='hidden'>
-              {null}
-            </Tabs.Panel>
-          ))}
-        </Tabs>
-        <Button fullWidth size='lg' className='mt-4' onPress={handleSubmit}>
+            {sortedPlans.map((plan) => (
+              <Tabs.Panel key={plan.months} id={String(plan.months)} className='hidden'>
+                {null}
+              </Tabs.Panel>
+            ))}
+          </Tabs>
+        )}
+        <Button
+          fullWidth
+          size='lg'
+          className='mt-4'
+          onPress={handleSubmit}
+          isDisabled={sortedPlans.length === 0}
+        >
           {t('plans.continueButton')}
         </Button>
       </Block>

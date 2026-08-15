@@ -600,8 +600,6 @@
       "monthlySubtitle": "подходит для старта",
       "yearlyPeriod": "1 год",
       "yearlyDiscount": "скидка 50%",
-      "biennialPeriod": "2 года",
-      "biennialDiscount": "скидка 60%",
       "monthsPeriod": "{{count}} месяцев"
     },
     "faq": {

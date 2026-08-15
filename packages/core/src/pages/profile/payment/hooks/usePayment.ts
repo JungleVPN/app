@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { coreEnv } from '../../../../env';
-import { useAuthStoreInfo, usePlatformStore, useSavedMethodsStoreInfo } from '../../../../stores';
+import { useAuthStoreInfo, useSavedMethodsStoreInfo } from '../../../../stores';
 import { usePromoValidation } from './usePromoValidation';
 import { useStripePayment } from './useStripePayment';
 import { useTelegramStarsPayment } from './useTelegramStarsPayment';
@@ -10,7 +10,6 @@ import { useYookassaPayment } from './useYookassaPayment';
 export function usePayment(selectedPeriod: number) {
   const { t } = useTranslation();
   const { tgUser, rmnUser } = useAuthStoreInfo();
-  const { platformType } = usePlatformStore();
   const { supportUrl } = coreEnv;
   const rawMethods = useSavedMethodsStoreInfo();
 
@@ -35,7 +34,6 @@ export function usePayment(selectedPeriod: number) {
   return {
     savedMethods,
     supportUrl,
-    platformType,
     hasActiveMethod,
     hasStripeSubscription,
     needsEmailInput,

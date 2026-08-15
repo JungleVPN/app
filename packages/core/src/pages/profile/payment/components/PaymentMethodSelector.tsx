@@ -25,38 +25,50 @@ interface PaymentMethodSelectorProps {
   onSelectionChange: (keys: Selection) => void;
   isReccurring?: boolean;
   description?: string;
+  isRuDomain?: boolean;
 }
 
 export function PaymentMethodSelector(props: PaymentMethodSelectorProps) {
-  const { selectedMethod, starsEnabled, onSelectionChange, isReccurring = true } = props;
+  const {
+    selectedMethod,
+    starsEnabled,
+    onSelectionChange,
+    isReccurring = true,
+    isRuDomain,
+  } = props;
   const { t } = useTranslation();
 
   const methods: MethodDef[] = [
-    {
-      id: 'yookassa',
-      label: t('payment.methodYookassa'),
-      icons: (
-        <div className='flex shrink-0 items-center gap-2'>
-          <MirIcon className='size-6' aria-hidden='true' />
-          <SpbIcon className='size-4' aria-hidden='true' />
-        </div>
-      ),
-      trailing: isReccurring && (
-        <IconRotate size={18} stroke={1.5} className='ml-auto shrink-0 text-muted' />
-      ),
-    },
-    {
-      id: 'stripe',
-      label: t('payment.methodStripe'),
-      icons: (
-        <div className='flex shrink-0 items-center gap-2'>
-          <IconCreditCard className='size-5 text-muted' aria-hidden='true' />
-        </div>
-      ),
-      trailing: isReccurring && (
-        <IconRotate size={18} stroke={1.5} className='ml-auto shrink-0 text-muted' />
-      ),
-    },
+    ...(isRuDomain
+      ? [
+          {
+            id: 'yookassa' as PaymentMethod,
+            label: t('payment.methodYookassa'),
+            icons: (
+              <div className='flex shrink-0 items-center gap-2'>
+                <MirIcon className='size-6' aria-hidden='true' />
+                <SpbIcon className='size-4' aria-hidden='true' />
+              </div>
+            ),
+            trailing: isReccurring && (
+              <IconRotate size={18} stroke={1.5} className='ml-auto shrink-0 text-muted' />
+            ),
+          },
+        ]
+      : [
+          {
+            id: 'stripe' as PaymentMethod,
+            label: t('payment.methodStripe'),
+            icons: (
+              <div className='flex shrink-0 items-center gap-2'>
+                <IconCreditCard className='size-5 text-muted' aria-hidden='true' />
+              </div>
+            ),
+            trailing: isReccurring && (
+              <IconRotate size={18} stroke={1.5} className='ml-auto shrink-0 text-muted' />
+            ),
+          },
+        ]),
     ...(starsEnabled
       ? [
           {

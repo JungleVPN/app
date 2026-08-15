@@ -1,5 +1,5 @@
-import { type Selection } from '@heroui/react';
 import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
+import { type PaymentMethod } from '@workspace/types';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import deviceAnimation from '../../../assets/lottie/devicesPageIcon.lottie?url';
@@ -7,11 +7,8 @@ import { coreEnv, getTelegramStickerUrl } from '../../../env';
 import { useBackButton } from '../../../hooks';
 import { useNavbarStore, usePlatformStore } from '../../../stores';
 import { LottieIcon, Page, TgsSticker } from '../../../ui';
+import { isRuDomain } from '../../../utils';
 import { PaymentForm } from '../payment/components/PaymentForm';
-import {
-  type PaymentMethod,
-  PaymentMethodSelector,
-} from '../payment/components/PaymentMethodSelector';
 import { useExtraDevicePayment } from './hooks/useExtraDevicePayment';
 import { useExtraDeviceStarsPayment } from './hooks/useExtraDeviceStarsPayment';
 import { useExtraDeviceStripePayment } from './hooks/useExtraDeviceStripePayment';
@@ -20,10 +17,14 @@ export default function ExtraDevicePurchasePage() {
   const { t } = useTranslation();
   const { platformType } = usePlatformStore();
   const { setNavbarVisible } = useNavbarStore();
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('yookassa');
+  const isRu = isRuDomain();
+
+  const [selectedMethod] = useState<PaymentMethod>(
+    isRu || platformType === 'telegram' ? 'yookassa' : 'stripe',
+  );
 
   const { isPaying, handlePay } = useExtraDevicePayment();
-  const { starsEnabled, starsError, isStarsPaying, successState, handleStarsPayment } =
+  const { starsError, isStarsPaying, successState, handleStarsPayment } =
     useExtraDeviceStarsPayment();
   const { isStripePaying, handleStripePayment } = useExtraDeviceStripePayment();
 
@@ -42,12 +43,6 @@ export default function ExtraDevicePurchasePage() {
   }, [setNavbarVisible]);
 
   useBackButton();
-
-  const handleSelectionChange = (keys: Selection) => {
-    if (keys === 'all') return;
-    const key = Array.from(keys)[0] as PaymentMethod | undefined;
-    if (key) setSelectedMethod(key);
-  };
 
   const handleSuccessClose = () => {
     successState.close();
@@ -103,13 +98,13 @@ export default function ExtraDevicePurchasePage() {
         onStripePayment={handleStripePayment}
         onStarsPayment={handleStarsPayment}
       >
-        <PaymentMethodSelector
-          selectedMethod={selectedMethod}
-          starsEnabled={starsEnabled}
-          onSelectionChange={handleSelectionChange}
-          isReccurring={false}
-          description={t('devices.extraDevicePurchase.description')}
-        />
+        {/*<PaymentMethodSelector*/}
+        {/*  selectedMethod={selectedMethod}*/}
+        {/*  starsEnabled={starsEnabled}*/}
+        {/*  onSelectionChange={handleSelectionChange}*/}
+        {/*  isReccurring={false}*/}
+        {/*  description={t('devices.extraDevicePurchase.description')}*/}
+        {/*/>*/}
       </PaymentForm>
 
       <StarsPaymentSuccessDrawer

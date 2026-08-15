@@ -1,4 +1,9 @@
+import { type PlanPricing } from '@workspace/types';
+
 export type Currency = 'RUB' | 'EUR';
+
+/** Decimal places used when formatting a currency's prices for display. */
+const CURRENCY_DECIMALS: Record<Currency, number> = { RUB: 0, EUR: 2 };
 
 const PERIOD_KEYS = [
   { key: 'MONTH_1', months: 1 },
@@ -46,4 +51,32 @@ export function getPriceForPeriod(currency: Currency, months: number): string {
     throw new Error(`Missing price for ${currency} and ${months} month(s)`);
   }
   return price;
+}
+
+/**
+ * Ready-to-render pricing for a plan: formatted total/monthly price, the
+ * undiscounted total for comparison, and the percentage saved.
+ *
+ * `basePrice` is the 1-month price in the same currency (or null when no
+ * 1-month plan is configured) — the baseline every other period is compared
+ * against to compute the discount.
+ */
+export function buildPlanPricing(
+  currency: Currency,
+  months: number,
+  totalPrice: number,
+  basePrice: number | null,
+): PlanPricing {
+  const decimals = CURRENCY_DECIMALS[currency];
+  const monthly = totalPrice / months;
+  const fullTotal = basePrice !== null ? basePrice * months : null;
+  const discountPercent =
+    fullTotal !== null && fullTotal > 0 ? Math.round((1 - totalPrice / fullTotal) * 100) : 0;
+
+  return {
+    total: totalPrice.toFixed(decimals),
+    monthly: monthly.toFixed(decimals),
+    fullTotal: fullTotal !== null ? fullTotal.toFixed(decimals) : null,
+    discountPercent,
+  };
 }
