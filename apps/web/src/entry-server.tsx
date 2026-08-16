@@ -1,5 +1,5 @@
 import { AnalyticsApiProvider, ApiProvider } from '@workspace/core/api';
-import { i18n } from '@workspace/core/core/i18n';
+import { getDirection, i18n } from '@workspace/core/core/i18n';
 import { LandingPage } from '@workspace/core/pages';
 import { AppRoutesProvider, PaymentsApiProvider, SupabaseProvider } from '@workspace/core/runtime';
 import { type ComponentType, StrictMode } from 'react';
@@ -113,5 +113,5 @@ export async function render(request: Request, hostname: string) {
     console.warn('[SSR] render failed, serving CSR fallback:', (e as Error).message);
   }
 
-  return { html, head, lang: config.lang };
+  return { html, head, lang: config.lang, dir: getDirection(config.locale) };
 }

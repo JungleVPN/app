@@ -13,7 +13,7 @@ export function ExtraDeviceBlock() {
     <div className='mb-6'>
       <Button fullWidth size='lg' onPress={() => navigate(profileExtraDevicePurchasePath)}>
         {t('devices.extraDevice.openButton')}
-        <IconArrowRight size={20} stroke={2} />
+        <IconArrowRight size={20} stroke={2} className='rtl:-scale-x-100' />
       </Button>
       <p className='px-4 mt-1 text-xs text-muted'>{t('devices.extraDevice.description')}</p>
     </div>

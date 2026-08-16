@@ -14,25 +14,27 @@ export const Stats = () => {
   const { theme } = useTheme();
 
   return (
-    <Marquee className='py-6' speed={40} gradient={false}>
-      {[...SERVERS, ...SERVERS, ...SERVERS].map(({ flag, name, stableId }) => (
-        <div
-          key={name}
-          className='mx-3 flex items-start j gap-2 rounded-xl border border-violet-400/20 bg-violet-400/10 px-4 py-2'
-        >
-          <div className='flex items-center gap-1'>
-            <span className='text-xl'>{flag}</span>
-            <span className='text-sm font-medium text-foreground'>{name}</span>
+    <div dir='ltr'>
+      <Marquee className='py-6' speed={40} gradient={false}>
+        {[...SERVERS, ...SERVERS, ...SERVERS].map(({ flag, name, stableId }) => (
+          <div
+            key={name}
+            className='mx-3 flex items-start j gap-2 rounded-xl border border-violet-400/20 bg-violet-400/10 px-4 py-2'
+          >
+            <div className='flex items-center gap-1'>
+              <span className='text-xl'>{flag}</span>
+              <span className='text-sm font-medium text-foreground'>{name}</span>
+            </div>
+            <iframe
+              src={`https://health.thejungle.pro/?stableId=${stableId}&theme=${theme}&transparent=true&rounded=full&showName=false`}
+              width={100}
+              height={40}
+              title={name}
+              className='shrink-0'
+            />
           </div>
-          <iframe
-            src={`https://health.thejungle.pro/?stableId=${stableId}&theme=${theme}&transparent=true&rounded=full&showName=false`}
-            width={100}
-            height={40}
-            title={name}
-            className='shrink-0'
-          />
-        </div>
-      ))}
-    </Marquee>
+        ))}
+      </Marquee>
+    </div>
   );
 };

@@ -23,7 +23,7 @@ export default function GetSubscriptionPage() {
     <Form className={styles.form}>
       <div className='flex max-w-5xl flex-col gap-3'>
         <div className='flex flex-col gap-2'>
-          <p className='text-base font-medium ml-4'>{t('getSubscription.enter_email')}</p>
+          <p className='text-base font-medium ms-4'>{t('getSubscription.enter_email')}</p>
           <TextField isInvalid={hasError} isRequired name='email' id={'email'} type='email'>
             <div className='relative w-full'>
               <span className={styles.inputIcon}>
@@ -42,7 +42,7 @@ export default function GetSubscriptionPage() {
             {hasError ? (
               <FieldError>{error}</FieldError>
             ) : (
-              <Description className={'ml-4'}>{t('getSubscription.email_description')}</Description>
+              <Description className={'ms-4'}>{t('getSubscription.email_description')}</Description>
             )}
           </TextField>
         </div>
@@ -69,7 +69,7 @@ export default function GetSubscriptionPage() {
 
             <Button className={'w-full'} isPending={isLoading} type='submit' onClick={handleSubmit}>
               {t('getSubscription.submit_button')}
-              <IconArrowRight size={20} stroke={2} />
+              <IconArrowRight size={20} stroke={2} className='rtl:-scale-x-100' />
             </Button>
 
             <div className='flex flex-col gap-4'>

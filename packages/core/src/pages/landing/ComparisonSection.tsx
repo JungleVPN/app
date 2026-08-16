@@ -65,7 +65,7 @@ export function ComparisonSection() {
           </colgroup>
           <thead>
             <tr className='border-b border-default-200'>
-              <th className='px-6 py-5 text-left text-sm font-semibold text-foreground'>
+              <th className='px-6 py-5 text-start text-sm font-semibold text-foreground'>
                 {t('landing.comparison.header.feature')}
               </th>
               <th className='px-4 py-5 text-center'>

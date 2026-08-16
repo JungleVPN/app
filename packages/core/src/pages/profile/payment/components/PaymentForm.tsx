@@ -121,12 +121,12 @@ export function PaymentForm({
             type='email'
           >
             <div className='relative w-full'>
-              <span className='pointer-events-none absolute left-4 top-1/2 z-10 flex -translate-y-1/2 items-center text-muted'>
+              <span className='pointer-events-none absolute start-4 top-1/2 z-10 flex -translate-y-1/2 items-center text-muted'>
                 <IconMail size={20} stroke={1.5} />
               </span>
               <Input
                 autoComplete='email'
-                className='w-full pl-11'
+                className='w-full ps-11'
                 placeholder={t('getSubscription.email_placeholder')}
                 onBlur={() => {
                   mainButton.show();
@@ -155,9 +155,9 @@ export function PaymentForm({
       <div>
         <Button fullWidth isPending={isPending} size='lg' type='submit' ref={buttonRef}>
           {buttonLabel}
-          <IconArrowRight size={20} stroke={2} />
+          <IconArrowRight size={20} stroke={2} className='rtl:-scale-x-100' />
         </Button>
-        <p className='pl-4 mt-1 text-start text-xs text-muted'>
+        <p className='ps-4 mt-1 text-start text-xs text-muted'>
           {t('terms.paymentConsentLead')}
           <button
             className='cursor-pointer underline underline-offset-2'

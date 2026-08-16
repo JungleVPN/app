@@ -5,9 +5,9 @@ import { useBackButton, useNavigation } from '../../hooks';
 import { useNavbarStore } from '../../stores';
 
 const olClass =
-  'list-decimal list-outside space-y-2 pl-5 text-sm leading-relaxed text-muted marker:text-muted';
+  'list-decimal list-outside space-y-2 ps-5 text-sm leading-relaxed text-muted marker:text-muted';
 const ulClass =
-  'list-disc list-outside space-y-2 pl-5 text-sm leading-relaxed text-muted marker:text-muted';
+  'list-disc list-outside space-y-2 ps-5 text-sm leading-relaxed text-muted marker:text-muted';
 
 export default function TermsPage() {
   const { t } = useTranslation();

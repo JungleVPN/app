@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node server.js",
+    "dev": "node server.js --watch",
     "dev:spa": "vite",
     "build": "tsc -b && vite build --outDir dist/client",
     "build:docker": "vite build --outDir dist/client && vite build --ssr src/entry-server.tsx --outDir dist/server",

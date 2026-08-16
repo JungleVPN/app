@@ -66,10 +66,12 @@ app.use(async (req, res) => {
       return
     }
 
-    const { html, head, lang } = result
+    const { html, head, lang, dir } = result
 
     const fullHtml = template
       .replace(/(<html[^>]*)\slang="[^"]*"/, `$1 lang="${lang}"`)
+      .replace(/(<html[^>]*)\sdir="[^"]*"/, '$1')
+      .replace(/<html([^>]*)>/, `<html$1 dir="${dir}">`)
       .replace('<!--app-head-->', head ?? '')
       .replace('<!--app-html-->', html)
 

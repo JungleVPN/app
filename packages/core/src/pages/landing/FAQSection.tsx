@@ -35,7 +35,7 @@ export function FAQSection() {
             <Accordion.Item key={key}>
               <Accordion.Heading>
                 <Accordion.Trigger>
-                  <span className='mr-3 shrink-0 text-muted'>{FAQ_ICONS[index]}</span>
+                  <span className='me-3 shrink-0 text-muted'>{FAQ_ICONS[index]}</span>
                   {t(`landing.faq.${key}.question`)}
                   <Accordion.Indicator />
                 </Accordion.Trigger>

@@ -51,7 +51,7 @@ export default function MenuPage() {
             <Label className='flex-1 cursor-pointer text-sm font-medium'>
               {t('menu.transactionHistory')}
             </Label>
-            <IconChevronRight className='size-4 text-muted' stroke={2} />
+            <IconChevronRight className='size-4 text-muted rtl:-scale-x-100' stroke={2} />
           </ListBox.Item>
           <ListBox.Item id='referrals' textValue={t('menu.referrals')} className='px-4 py-2 gap-1'>
             <span className='flex size-8 items-center justify-center rounded-xl'>
@@ -60,7 +60,7 @@ export default function MenuPage() {
             <Label className='flex-1 cursor-pointer text-sm font-medium'>
               {t('menu.referrals')}
             </Label>
-            <IconChevronRight className='size-4 text-muted' stroke={2} />
+            <IconChevronRight className='size-4 text-muted rtl:-scale-x-100' stroke={2} />
           </ListBox.Item>
           {/*<ListBox.Item*/}
           {/*  id='affiliates'*/}
@@ -73,7 +73,7 @@ export default function MenuPage() {
           {/*  <Label className='flex-1 cursor-pointer text-sm font-medium'>*/}
           {/*    {t('menu.affiliates')}*/}
           {/*  </Label>*/}
-          {/*  <IconChevronRight className='size-4 text-muted' stroke={2} />*/}
+          {/*  <IconChevronRight className='size-4 text-muted rtl:-scale-x-100' stroke={2} />*/}
           {/*</ListBox.Item>*/}
         </ListBox>
       </Block>

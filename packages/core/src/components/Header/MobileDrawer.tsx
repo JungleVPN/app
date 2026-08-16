@@ -6,10 +6,9 @@ import { useLocation } from 'react-router';
 import { usePlatformStore } from '../../stores';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { ThemeToggle } from './ThemeToggle';
 
 export function MobileDrawer() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { platformType } = usePlatformStore();
   const { pathname } = useLocation();
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +33,7 @@ export function MobileDrawer() {
       </Button>
 
       <Drawer.Backdrop variant='blur' isOpen={isOpen} onOpenChange={setIsOpen}>
-        <Drawer.Content placement='right'>
+        <Drawer.Content placement={i18n.dir() === 'rtl' ? 'left' : 'right'}>
           <Drawer.Dialog>
             <Drawer.Header className='flex flex-row items-center justify-between'>
               <Drawer.Heading className='flex items-center gap-2'>
@@ -58,7 +57,7 @@ export function MobileDrawer() {
                     <button
                       key={id}
                       type='button'
-                      className='flex items-center px-3 py-2.5 rounded-xl text-sm text-foreground/70 hover:text-foreground hover:bg-default transition-colors text-left'
+                      className='flex items-center px-3 py-2.5 rounded-xl text-sm text-foreground/70 hover:text-foreground hover:bg-default transition-colors text-start'
                       onClick={() => scrollTo(id)}
                     >
                       {t(`header.nav.${id}`)}
@@ -70,7 +69,6 @@ export function MobileDrawer() {
               {platformType === 'web' && <AuthButtons />}
 
               <div className='flex items-center gap-2 px-3 py-2 mt-auto'>
-                <ThemeToggle />
                 <LanguageSwitcher />
               </div>
             </Drawer.Body>

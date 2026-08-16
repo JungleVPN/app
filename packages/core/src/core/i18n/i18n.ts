@@ -21,6 +21,20 @@ const resources = {
   fa: { translation: ar },
 } as const;
 
+/** RTL-ness of a language tag, e.g. `ar-EG` -> `rtl`. Backed by i18next's built-in language table. */
+export function getDirection(lang: string): 'rtl' | 'ltr' {
+  return i18n.dir(lang);
+}
+
+/** Keeps <html dir>/<html lang> in sync with the active i18next language. No-op during SSR. */
+function syncDocumentDirection(lang: string): void {
+  if (typeof document === 'undefined') return;
+  const html = document.documentElement;
+  const dir = getDirection(lang);
+  if (html.dir !== dir) html.dir = dir;
+  if (html.lang !== lang) html.lang = lang;
+}
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -36,6 +50,9 @@ i18n
       caches: ['localStorage'],
     },
   });
+
+i18n.on('languageChanged', syncDocumentDirection);
+if (i18n.language) syncDocumentDirection(i18n.language);
 
 /**
  * Applies a language from user metadata if it is supported.

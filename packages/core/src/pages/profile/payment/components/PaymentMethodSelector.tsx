@@ -51,7 +51,7 @@ export function PaymentMethodSelector(props: PaymentMethodSelectorProps) {
               </div>
             ),
             trailing: isReccurring && (
-              <IconRotate size={18} stroke={1.5} className='ml-auto shrink-0 text-muted' />
+              <IconRotate size={18} stroke={1.5} className='ms-auto shrink-0 text-muted' />
             ),
           },
         ]
@@ -65,7 +65,7 @@ export function PaymentMethodSelector(props: PaymentMethodSelectorProps) {
               </div>
             ),
             trailing: isReccurring && (
-              <IconRotate size={18} stroke={1.5} className='ml-auto shrink-0 text-muted' />
+              <IconRotate size={18} stroke={1.5} className='ms-auto shrink-0 text-muted' />
             ),
           },
         ]),

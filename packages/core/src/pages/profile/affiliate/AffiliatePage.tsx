@@ -75,7 +75,7 @@ export default function AffiliatePage() {
         onPress={() => navigate(coreEnv.affiliatePortalUrl, { target: 'blank' })}
       >
         {t('affiliate.actionLabel')}
-        <IconArrowRight size={20} stroke={2} />
+        <IconArrowRight size={20} stroke={2} className='rtl:-scale-x-100' />
       </Button>
       <Block title={t('affiliate.benefitsTitle')} description={t('affiliate.description')}>
         {benefits.map((benefit, index) => (

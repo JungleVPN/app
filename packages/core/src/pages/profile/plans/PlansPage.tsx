@@ -69,7 +69,7 @@ export default function PlansPage() {
                     <Tabs.Tab
                       key={plan.months}
                       id={String(plan.months)}
-                      className='h-auto w-full rounded-2xl px-4 py-3 text-left'
+                      className='h-auto w-full rounded-2xl px-4 py-3 text-start'
                     >
                       <div className='flex w-full items-center justify-between'>
                         <div className='flex flex-col gap-1'>
@@ -90,7 +90,7 @@ export default function PlansPage() {
                             </div>
                           )}
                         </div>
-                        <div className='text-right'>
+                        <div className='text-end'>
                           <div className='text-lg font-bold text-primary'>
                             {formatPlanPrice(pricing.monthly, isRu || isTelegram)}
                           </div>

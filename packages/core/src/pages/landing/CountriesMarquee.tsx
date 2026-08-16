@@ -27,11 +27,13 @@ export function CountriesMarquee() {
       <p className='mb-6 text-center text-sm font-medium uppercase tracking-widest text-muted'>
         {t('landing.countries.label')}
       </p>
-      <Marquee pauseOnHover>
-        {[...COUNTRIES, ...COUNTRIES, ...COUNTRIES, ...COUNTRIES].map(({ flag, name }) => (
-          <CountryBadge key={flag} flag={flag} name={name} />
-        ))}
-      </Marquee>
+      <div dir='ltr'>
+        <Marquee pauseOnHover>
+          {[...COUNTRIES, ...COUNTRIES, ...COUNTRIES, ...COUNTRIES].map(({ flag, name }) => (
+            <CountryBadge key={flag} flag={flag} name={name} />
+          ))}
+        </Marquee>
+      </div>
     </section>
   );
 }

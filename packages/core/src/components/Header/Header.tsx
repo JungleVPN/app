@@ -81,7 +81,7 @@ export function Header() {
 
       {/* Desktop controls */}
       <div
-        className={`${isLanding ? 'hidden sm:flex' : ''} flex items-center justify-between gap-2 ml-auto`}
+        className={`${isLanding ? 'hidden sm:flex' : ''} flex items-center justify-between gap-2 ms-auto`}
       >
         {!isLanding && <SubscriptionLinkWidget />}
         {!isLanding && <SupportButton />}
@@ -92,7 +92,7 @@ export function Header() {
 
       {/* Mobile: hamburger only */}
       {platformType === 'web' && isLanding && (
-        <div className={'flex sm:hidden items-center gap-2 ml-auto'}>
+        <div className={'flex sm:hidden items-center gap-2 ms-auto'}>
           {!isLanding && <SubscriptionLinkWidget />}
           <MobileDrawer />
         </div>
