@@ -5,7 +5,7 @@ import GlobeLottie from '../../assets/lottie/GlobeLottie.lottie?url';
 import ServersLottie from '../../assets/lottie/Servers.lottie?url';
 import UsersLottie from '../../assets/lottie/Users.lottie?url';
 import { ContentCard } from '../../components/ContentCard';
-import { LottieIcon } from '../../ui';
+import { Grid, GridItem, LottieIcon } from '../../ui';
 
 type StatKey = 'users' | 'countries' | 'servers';
 
@@ -31,7 +31,7 @@ export function TrustSection() {
   const { t } = useTranslation();
 
   return (
-    <section className='w-full  py-56 '>
+    <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>{t('landing.trust.chip')}</Chip.Label>
@@ -41,18 +41,18 @@ export function TrustSection() {
         </h2>
       </div>
 
-      <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+      <Grid>
         {STATS.map(({ key, metric, icon }, index) => (
-          <ContentCard
-            key={key}
-            variant='stat'
-            className={index === STATS.length - 1 ? 'sm:col-span-2' : ''}
-            title={metric}
-            description={t(`landing.trust.${key}`)}
-            icon={icon}
-          />
+          <GridItem key={key} size={{ base: 12, sm: index === STATS.length - 1 ? 12 : 6 }}>
+            <ContentCard
+              variant='stat'
+              title={metric}
+              description={t(`landing.trust.${key}`)}
+              icon={icon}
+            />
+          </GridItem>
         ))}
-      </div>
+      </Grid>
     </section>
   );
 }

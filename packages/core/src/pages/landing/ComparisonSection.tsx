@@ -40,7 +40,7 @@ export function ComparisonSection() {
   ];
 
   return (
-    <section className='w-full  py-36 '>
+    <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>{t('landing.comparison.chip')}</Chip.Label>

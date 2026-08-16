@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { ContentCard } from '../../components/ContentCard';
 import { coreEnv, getTelegramStickerUrl } from '../../env';
-import { TgsSticker } from '../../ui';
+import { Grid, GridItem, TgsSticker } from '../../ui';
 
 const PARTNERSHIP_KEYS = ['affiliate', 'referral'] as const;
 
@@ -14,7 +14,7 @@ export function PartnershipSection() {
   const { t } = useTranslation();
 
   return (
-    <section className='w-full  py-36 '>
+    <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl'>
           {t('landing.partnership.title')}
@@ -22,23 +22,24 @@ export function PartnershipSection() {
         <p className='text-muted text-base lg:text-lg'>{t('landing.partnership.subtitle')}</p>
       </div>
 
-      <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+      <Grid>
         {PARTNERSHIP_KEYS.map((key) => (
-          <ContentCard
-            key={key}
-            variant='stat'
-            title={t(`landing.partnership.${key}.title`)}
-            description={t(`landing.partnership.${key}.description`)}
-            learnMoreLabel={t('landing.partnership.learnMore')}
-            learnMoreHref={key === 'affiliate' ? '/affiliates' : '/profile/referrals'}
-            icon={
-              PARTNERSHIP_STICKERS[key] ? (
-                <TgsSticker src={PARTNERSHIP_STICKERS[key]!} className='h-full w-full' />
-              ) : undefined
-            }
-          />
+          <GridItem key={key} size={{ base: 12, sm: 6 }}>
+            <ContentCard
+              variant='stat'
+              title={t(`landing.partnership.${key}.title`)}
+              description={t(`landing.partnership.${key}.description`)}
+              learnMoreLabel={t('landing.partnership.learnMore')}
+              learnMoreHref={key === 'affiliate' ? '/affiliates' : '/profile/referrals'}
+              icon={
+                PARTNERSHIP_STICKERS[key] ? (
+                  <TgsSticker src={PARTNERSHIP_STICKERS[key]!} className='h-full w-full' />
+                ) : undefined
+              }
+            />
+          </GridItem>
         ))}
-      </div>
+      </Grid>
     </section>
   );
 }

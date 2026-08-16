@@ -13,6 +13,7 @@ import {
   IconWifi,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { Grid, GridItem } from '../../ui';
 
 const CONCEPT_CARDS = [
   {
@@ -66,7 +67,7 @@ export function InfoSection() {
   const { t } = useTranslation();
 
   return (
-    <section className='w-full py-24 '>
+    <section>
       {/* ── What is a VPN? ── */}
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
@@ -77,25 +78,26 @@ export function InfoSection() {
         </p>
       </div>
 
-      <div className='mb-24 grid grid-cols-1 gap-4 sm:grid-cols-3'>
+      <Grid className='mb-24'>
         {CONCEPT_CARDS.map(({ key, icon, color, bg, accent }) => (
-          <div
-            key={key}
-            className={`relative flex min-h-44 flex-col justify-between overflow-hidden rounded-3xl p-7 transition-transform duration-300 hover:-translate-y-1.5 ${bg}`}
-          >
-            <div className={`absolute -right-8 -top-8 h-32 w-32 rounded-full ${accent}`} />
-            <span className={`relative ${color}`}>{icon}</span>
-            <div className='relative'>
-              <h3 className='text-base font-bold text-foreground'>
-                {t(`landing.info.what.${key}.title`)}
-              </h3>
-              <p className='mt-1 text-sm leading-relaxed text-muted'>
-                {t(`landing.info.what.${key}.description`)}
-              </p>
+          <GridItem key={key} size={{ base: 12, sm: 6, lg: 4 }}>
+            <div
+              className={`relative flex min-h-44 flex-col justify-between overflow-hidden rounded-3xl p-7 transition-transform duration-300 hover:-translate-y-1.5 ${bg}`}
+            >
+              <div className={`absolute -right-8 -top-8 h-32 w-32 rounded-full ${accent}`} />
+              <span className={`relative ${color}`}>{icon}</span>
+              <div className='relative'>
+                <h3 className='text-base font-bold text-foreground'>
+                  {t(`landing.info.what.${key}.title`)}
+                </h3>
+                <p className='mt-1 text-sm leading-relaxed text-muted'>
+                  {t(`landing.info.what.${key}.description`)}
+                </p>
+              </div>
             </div>
-          </div>
+          </GridItem>
         ))}
-      </div>
+      </Grid>
 
       {/* ── Why you need a VPN ── */}
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
@@ -107,34 +109,37 @@ export function InfoSection() {
         </p>
       </div>
 
-      <div className='mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2'>
+      <Grid className='mb-4'>
         {USE_CASE_CARDS.map(({ key, icon, color }) => (
-          <div
-            key={key}
-            className='flex items-start gap-4 rounded-2xl border border-divider bg-surface-secondary p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md'
-          >
-            <span className={`mt-0.5 shrink-0 ${color}`}>{icon}</span>
-            <div>
-              <h3 className='font-semibold text-foreground'>
-                {t(`landing.info.why.${key}.title`)}
-              </h3>
-              <p className='mt-1 text-sm leading-relaxed text-muted'>
-                {t(`landing.info.why.${key}.description`)}
-              </p>
+          <GridItem key={key} size={{ base: 12, sm: 6 }}>
+            <div className='flex items-start gap-4 rounded-2xl border border-divider bg-surface-secondary p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md'>
+              <span className={`mt-0.5 shrink-0 ${color}`}>{icon}</span>
+              <div>
+                <h3 className='font-semibold text-foreground'>
+                  {t(`landing.info.why.${key}.title`)}
+                </h3>
+                <p className='mt-1 text-sm leading-relaxed text-muted'>
+                  {t(`landing.info.why.${key}.description`)}
+                </p>
+              </div>
             </div>
-          </div>
+          </GridItem>
         ))}
-      </div>
+      </Grid>
 
       {/* ── Stats strip ── */}
-      <div className='mb-24 grid grid-cols-2 gap-4 rounded-3xl border border-divider bg-surface-secondary p-8 lg:grid-cols-4'>
+      <Grid className='mb-24 rounded-3xl border border-divider bg-surface-secondary p-8'>
         {STATS.map(({ key, value }) => (
-          <div key={key} className='flex flex-col items-center gap-1 text-center'>
-            <span className='text-3xl font-bold text-foreground lg:text-4xl'>{value}</span>
-            <span className='text-xs text-muted lg:text-sm'>{t(`landing.info.stats.${key}`)}</span>
-          </div>
+          <GridItem key={key} size={{ base: 12, sm: 6, lg: 3 }}>
+            <div className='flex flex-col items-center gap-1 text-center'>
+              <span className='text-3xl font-bold text-foreground lg:text-4xl'>{value}</span>
+              <span className='text-xs text-muted lg:text-sm'>
+                {t(`landing.info.stats.${key}`)}
+              </span>
+            </div>
+          </GridItem>
         ))}
-      </div>
+      </Grid>
 
       {/* ── Device support ── */}
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>

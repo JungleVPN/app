@@ -133,7 +133,7 @@ const keyframesStyle = `
 
 export function TestimonialsSection() {
   return (
-    <section className='w-full overflow-hidden py-24'>
+    <section>
       <style>{keyframesStyle}</style>
 
       <div className='mb-16 flex flex-col items-center gap-4 px-6 text-center'>

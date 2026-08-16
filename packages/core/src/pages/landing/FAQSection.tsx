@@ -22,7 +22,7 @@ export function FAQSection() {
   const { t } = useTranslation();
 
   return (
-    <section className='w-full  py-36 '>
+    <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
           {t('landing.faq.title')}

@@ -6,11 +6,11 @@ import {
   IconUserScan,
   IconX,
 } from '@tabler/icons-react';
-import { useSubscription } from '../../stores';
 import type { ReactNode } from 'react';
-import { useTranslation } from '../../hooks/useTranslations';
-import { Block } from '../../ui/Block/Block';
-import { formatDate } from '../../utils/configParser';
+import { useTranslation } from '../../hooks';
+import { useSubscription } from '../../stores';
+import { Block, Grid, GridItem } from '../../ui';
+import { formatDate } from '../../utils';
 import classes from './subscriptionInfoCards.module.css';
 
 type ColorVariant = 'blue' | 'cyan' | 'green' | 'orange' | 'red' | 'teal' | 'violet' | 'yellow';
@@ -68,35 +68,43 @@ export const SubscriptionInfoCards = () => {
 
   return (
     <Block>
-      <div className='z-[3] grid grid-cols-1 gap-2 sm:grid-cols-2'>
-        <CardItem
-          color='blue'
-          icon={<IconUserScan size={18} />}
-          label={t(baseTranslations.name)}
-          value={user.username}
-        />
+      <Grid className='z-[3]'>
+        <GridItem size={{ base: 12, sm: 6 }}>
+          <CardItem
+            color='blue'
+            icon={<IconUserScan size={18} />}
+            label={t(baseTranslations.name)}
+            value={user.username}
+          />
+        </GridItem>
 
-        <CardItem
-          color={isActive ? 'green' : 'red'}
-          icon={isActive ? <IconCheck size={18} /> : <IconX size={18} />}
-          label={t(baseTranslations.status)}
-          value={statusText}
-        />
+        <GridItem size={{ base: 12, sm: 6 }}>
+          <CardItem
+            color={isActive ? 'green' : 'red'}
+            icon={isActive ? <IconCheck size={18} /> : <IconX size={18} />}
+            label={t(baseTranslations.status)}
+            value={statusText}
+          />
+        </GridItem>
 
-        <CardItem
-          color='orange'
-          icon={<IconCalendar size={18} />}
-          label={t(baseTranslations.expires)}
-          value={formatDate(user.expiresAt, currentLang, baseTranslations)}
-        />
+        <GridItem size={{ base: 12, sm: 6 }}>
+          <CardItem
+            color='orange'
+            icon={<IconCalendar size={18} />}
+            label={t(baseTranslations.expires)}
+            value={formatDate(user.expiresAt, currentLang, baseTranslations)}
+          />
+        </GridItem>
 
-        <CardItem
-          color='cyan'
-          icon={<IconArrowsUpDown size={18} />}
-          label={t(baseTranslations.bandwidth)}
-          value={bandwidthValue}
-        />
-      </div>
+        <GridItem size={{ base: 12, sm: 6 }}>
+          <CardItem
+            color='cyan'
+            icon={<IconArrowsUpDown size={18} />}
+            label={t(baseTranslations.bandwidth)}
+            value={bandwidthValue}
+          />
+        </GridItem>
+      </Grid>
     </Block>
   );
 };

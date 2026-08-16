@@ -1,5 +1,7 @@
 export { Block } from './Block/Block';
-export { LandingContainer } from './containers/LandingContainer';
+export { Container } from './Container/Container';
+export { Grid } from './Grid/Grid';
+export { GridItem } from './Grid/GridItem';
 export { LottieIcon } from './LottieIcon';
 export { Page } from './Page';
 export * from './savedMethodDisplay';

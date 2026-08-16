@@ -10,7 +10,7 @@ import support_dark from '../../assets/lottie/support_dark.lottie?url';
 import { ContentCard } from '../../components/ContentCard';
 import { coreEnv } from '../../env';
 import { useTheme } from '../../hooks';
-import { LottieIcon } from '../../ui';
+import { Grid, GridItem, LottieIcon } from '../../ui';
 
 const DARK_ICONS = [ready_dark, money_dark, globe_dark, support_dark];
 const LIGHT_ICONS = [ready, money, globe, support];
@@ -23,7 +23,7 @@ export function FeaturesSection() {
   const icons = theme === 'dark' ? DARK_ICONS : LIGHT_ICONS;
 
   return (
-    <section className='w-full py-48'>
+    <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
           {t('landing.features.titleStart')}{' '}
@@ -34,18 +34,19 @@ export function FeaturesSection() {
         <p className='text-muted text-base lg:text-lg'>{t('landing.features.subtitle')}</p>
       </div>
 
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2'>
+      <Grid>
         {FEATURE_KEYS.map((key, index) => (
-          <ContentCard
-            key={key}
-            icon={icons[index] ? <LottieIcon key={key} loop src={icons[index]} /> : undefined}
-            title={t(`landing.features.${key}.title`)}
-            description={t(`landing.features.${key}.description`, {
-              deviceLimit: coreEnv.deviceLimit,
-            })}
-          />
+          <GridItem key={key} size={{ base: 12, sm: 6 }}>
+            <ContentCard
+              icon={icons[index] ? <LottieIcon loop src={icons[index]} /> : undefined}
+              title={t(`landing.features.${key}.title`)}
+              description={t(`landing.features.${key}.description`, {
+                deviceLimit: coreEnv.deviceLimit,
+              })}
+            />
+          </GridItem>
         ))}
-      </div>
+      </Grid>
     </section>
   );
 }

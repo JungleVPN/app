@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { usePlans } from '../../hooks';
+import { Grid, GridItem } from '../../ui';
 import { formatPlanPrice, isRuDomain } from '../../utils';
 
 function PaymentMethods() {
@@ -110,7 +111,7 @@ export function PricingSection() {
   if (plans.length === 0) return null;
 
   return (
-    <section className='py-36 px-0 sm:px-8 md:px-48 lg:px-0'>
+    <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
           {t('landing.pricing.title')}
@@ -119,7 +120,7 @@ export function PricingSection() {
       </div>
 
       <div className='flex flex-col items-center gap-8'>
-        <div className='grid w-full max-w-5xl grid-cols-1 items-center gap-4 lg:grid-cols-4'>
+        <Grid>
           {plans.map((plan, i) => {
             const isHighlighted = i === Math.floor(plans.length / 2) && plans.length > 1;
             const pricing = calculatePricing(
@@ -130,8 +131,9 @@ export function PricingSection() {
             );
 
             return (
-              <div
+              <GridItem
                 key={plan.months}
+                size={{ base: 12, sm: 12, md: 6, lg: 3 }}
                 className={isHighlighted ? 'order-first lg:order-0' : 'rounded-t-2xl'}
               >
                 <PriceCard
@@ -141,10 +143,10 @@ export function PricingSection() {
                   highlighted={isHighlighted}
                   badge={isHighlighted ? t('landing.pricing.badge') : undefined}
                 />
-              </div>
+              </GridItem>
             );
           })}
-        </div>
+        </Grid>
 
         <PaymentMethods />
       </div>

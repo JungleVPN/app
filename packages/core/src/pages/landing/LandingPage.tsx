@@ -1,3 +1,4 @@
+import { Container } from '../../ui';
 import { BentoSection } from './BentoSection';
 import { ComparisonSection } from './ComparisonSection';
 import { CountriesMarquee } from './CountriesMarquee';
@@ -17,31 +18,53 @@ import { WorldMap } from './WorldMap';
 
 export default function LandingPage() {
   return (
-    <>
-      <HeroSection />
-      <TrustSection />
-      <CountriesMarquee />
-      <HowItWorksSection />
-      <FeaturesSection />
-      <BentoSection />
-      <div className='py-24 md:py-48'>
+    <div className='flex flex-col gap-32'>
+      <Container>
+        <HeroSection />
+      </Container>
+      <Container>
+        <TrustSection />
+      </Container>
+      <Container>
+        <CountriesMarquee />
+      </Container>
+      <Container>
+        <HowItWorksSection />
+      </Container>
+      <Container>
+        <FeaturesSection />
+      </Container>
+      <Container>
+        <BentoSection />
+      </Container>
+      <Container className='py-24 md:py-48'>
         <WorldMap />
         <Stats />
-      </div>
-      <ComparisonSection />
-      <div id='pricing'>
+      </Container>
+      <Container>
+        <ComparisonSection />
+      </Container>
+      <Container id='pricing'>
         <PricingSection />
-      </div>
-      <TestimonialsSection />
-      <FAQSection />
-      <div id='partnership'>
+      </Container>
+      <Container>
+        <TestimonialsSection />
+      </Container>
+      <Container>
+        <FAQSection />
+      </Container>
+      <Container id='partnership'>
         <PartnershipSection />
-      </div>
-      <InfoSection />
-      <div className='mb-24'>
+      </Container>
+      <Container>
+        <InfoSection />
+      </Container>
+      <Container>
         <FreeTrialSection />
-      </div>
-      <FooterSection />
-    </>
+      </Container>
+      <Container>
+        <FooterSection />
+      </Container>
+    </div>
   );
 }

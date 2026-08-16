@@ -9,6 +9,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from '../../hooks';
 import { useSubscription } from '../../stores';
+import { Grid, GridItem } from '../../ui';
 import { formatDate, getExpirationTextUtil } from '../../utils';
 import { InfoBlock } from '../InfoBlock/InfoBlock';
 
@@ -41,39 +42,47 @@ export const SubscriptionInfoCollapsed = () => {
       </Disclosure.Heading>
       <Disclosure.Content>
         <Disclosure.Body className='px-2 pb-2'>
-          <div className='grid grid-cols-2 gap-2'>
-            <InfoBlock
-              color='blue'
-              icon={<IconUserScan size={16} />}
-              title={t(baseTranslations.name)}
-              value={user.username}
-            />
+          <Grid>
+            <GridItem size={{ base: 12, sm: 6 }}>
+              <InfoBlock
+                color='blue'
+                icon={<IconUserScan size={16} />}
+                title={t(baseTranslations.name)}
+                value={user.username}
+              />
+            </GridItem>
 
-            <InfoBlock
-              color={user.userStatus === 'ACTIVE' ? 'green' : 'red'}
-              icon={user.userStatus === 'ACTIVE' ? <IconCheck size={16} /> : <IconX size={16} />}
-              title={t(baseTranslations.status)}
-              value={
-                user.userStatus === 'ACTIVE'
-                  ? t(baseTranslations.active)
-                  : t(baseTranslations.inactive)
-              }
-            />
+            <GridItem size={{ base: 12, sm: 6 }}>
+              <InfoBlock
+                color={user.userStatus === 'ACTIVE' ? 'green' : 'red'}
+                icon={user.userStatus === 'ACTIVE' ? <IconCheck size={16} /> : <IconX size={16} />}
+                title={t(baseTranslations.status)}
+                value={
+                  user.userStatus === 'ACTIVE'
+                    ? t(baseTranslations.active)
+                    : t(baseTranslations.inactive)
+                }
+              />
+            </GridItem>
 
-            <InfoBlock
-              color='red'
-              icon={<IconCalendar size={16} />}
-              title={t(baseTranslations.expires)}
-              value={formatDate(user.expiresAt, currentLang, baseTranslations)}
-            />
+            <GridItem size={{ base: 12, sm: 6 }}>
+              <InfoBlock
+                color='red'
+                icon={<IconCalendar size={16} />}
+                title={t(baseTranslations.expires)}
+                value={formatDate(user.expiresAt, currentLang, baseTranslations)}
+              />
+            </GridItem>
 
-            <InfoBlock
-              color='yellow'
-              icon={<IconArrowsUpDown size={16} />}
-              title={t(baseTranslations.bandwidth)}
-              value={`${user.trafficUsed} / ${user.trafficLimit === '0' ? '∞' : user.trafficLimit}`}
-            />
-          </div>
+            <GridItem size={{ base: 12, sm: 6 }}>
+              <InfoBlock
+                color='yellow'
+                icon={<IconArrowsUpDown size={16} />}
+                title={t(baseTranslations.bandwidth)}
+                value={`${user.trafficUsed} / ${user.trafficLimit === '0' ? '∞' : user.trafficLimit}`}
+              />
+            </GridItem>
+          </Grid>
         </Disclosure.Body>
       </Disclosure.Content>
     </Disclosure>
