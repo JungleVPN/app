@@ -7,6 +7,16 @@
   transition: none !important;
 }
 
+body {
+  font-family: "Montserrat", sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "MartianMono", sans-serif;
+}
+
 /* ─── Web light theme ────────────────────────────────────────────────────── */
 /* HeroUI's @heroui/styles already defines the full light palette as :root    */
 /* defaults. Only add brand-specific or component-level overrides here.       */

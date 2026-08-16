@@ -23,6 +23,18 @@
       href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Unbounded:wght@200..900&family=Vazirmatn:wght@100..900&display=swap"
       rel="stylesheet"
     />
+    <link rel="preload" href="/src/assets/fonts/MartianMono-StdRg.woff2" as="font" type="font/woff2" crossorigin />
+    <style>
+      @font-face {
+        font-family: "MartianMono";
+        src: url("/src/assets/fonts/MartianMono-StdRg.woff2") format("woff2"),
+             url("/src/assets/fonts/MartianMono-StdRg.ttf") format("ttf"),
+             url("/src/assets/fonts/MartianMono-StdRg.otf") format("otf");
+        font-weight: normal;
+        font-style: normal;
+        font-display: optional;
+      }
+    </style>
     <script>
       if ('%PUBLIC_GA_ENABLED%' !== 'false') {
         var s = document.createElement('script');
