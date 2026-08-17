@@ -5,7 +5,39 @@ import { useNavigate } from 'react-router';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { usePlans } from '../../hooks';
 import { Grid, GridItem } from '../../ui';
-import { formatPlanPrice, isRuDomain } from '../../utils';
+import { cn, formatPlanPrice, isRuDomain } from '../../utils';
+
+const HIGHLIGHTED_PLAN_MONTHS = 12;
+const HIGHLIGHTED_DESKTOP_POSITION = 2;
+
+const ORDER_CLASSES = ['order-0', 'order-1', 'order-2', 'order-3'] as const;
+const LG_ORDER_CLASSES = ['lg:order-0', 'lg:order-1', 'lg:order-2', 'lg:order-3'] as const;
+
+type PlanOrder = { mobile: number; desktop: number };
+
+function buildPlanOrders(plans: SubscriptionPlanDto[]): Map<number, PlanOrder> {
+  const highlighted = plans.find((plan) => plan.months === HIGHLIGHTED_PLAN_MONTHS);
+
+  if (!highlighted) {
+    return new Map(plans.map((plan, i) => [plan.months, { mobile: i, desktop: i }]));
+  }
+
+  const others = plans.filter((plan) => plan.months !== HIGHLIGHTED_PLAN_MONTHS);
+  const desktopOrder = [
+    ...others.slice(0, HIGHLIGHTED_DESKTOP_POSITION),
+    highlighted,
+    ...others.slice(HIGHLIGHTED_DESKTOP_POSITION),
+  ];
+  const mobileOrder = [highlighted, ...others];
+
+  const orders = new Map<number, PlanOrder>();
+  desktopOrder.map((plan, i) => orders.set(plan.months, { mobile: 0, desktop: i }));
+  mobileOrder.forEach((plan, i) => {
+    orders.set(plan.months, { ...orders.get(plan.months)!, mobile: i });
+  });
+
+  return orders;
+}
 
 function PaymentMethods() {
   return (
@@ -132,6 +164,8 @@ export function PricingSection() {
 
   if (plans.length === 0) return null;
 
+  const planOrders = buildPlanOrders(plans);
+
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
@@ -145,8 +179,8 @@ export function PricingSection() {
         <PlanIncludes />
 
         <Grid>
-          {plans.map((plan, i) => {
-            const isHighlighted = i === Math.floor(plans.length / 2) && plans.length > 1;
+          {plans.map((plan) => {
+            const isHighlighted = plan.months === HIGHLIGHTED_PLAN_MONTHS;
             const pricing = calculatePricing(
               plan,
               isRu,
@@ -158,18 +192,18 @@ export function PricingSection() {
             );
 
             const period = formatMonths(plan.months);
-            const badge =
-              plan.months === 12
-                ? t('landing.pricing.badgeValue')
-                : isHighlighted
-                  ? t('landing.pricing.badge')
-                  : undefined;
+            const badge = isHighlighted ? t('landing.pricing.badgeValue') : undefined;
+            const order = planOrders.get(plan.months)!;
 
             return (
               <GridItem
                 key={plan.months}
                 size={{ base: 12, sm: 12, md: 6, lg: 3 }}
-                className={isHighlighted ? 'order-first lg:order-0' : 'rounded-t-2xl'}
+                className={cn(
+                  !isHighlighted && 'rounded-t-2xl',
+                  ORDER_CLASSES[order.mobile],
+                  LG_ORDER_CLASSES[order.desktop],
+                )}
               >
                 <PriceCard
                   {...sharedProps}
