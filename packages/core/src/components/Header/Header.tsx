@@ -100,8 +100,20 @@ export function Header() {
     </div>
   );
 
+  const wrapperClass = () => {
+    if (isMobileTma) {
+      return 'sticky top-0 z-50 shrink-0 py-3 mt-24';
+    }
+
+    if (platformType === 'telegram') {
+      return 'relative';
+    }
+
+    return 'sticky top-0 z-50 shrink-0 py-3';
+  };
+
   return (
-    <div className={`${isMobileTma ? 'mt-28' : 'sticky top-0 z-50 shrink-0 py-3'}`}>
+    <div className={wrapperClass()}>
       <div
         className={`max-w-[90%] lg:max-w-[60%] xl:max-w-[40%] m-auto px-4 py-1 transition-all duration-300 ${
           scrolled && platformType !== 'telegram'

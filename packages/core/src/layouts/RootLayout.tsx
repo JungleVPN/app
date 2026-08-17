@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { Outlet } from 'react-router';
 import { AppAlert, ErrorBoundary } from '../components';
 import { usePlatformStore } from '../stores';
-import { ProfileContainer } from '../ui/containers/ProfileContainer';
 
 export function RootLayout() {
   const {
@@ -21,11 +20,9 @@ export function RootLayout() {
   return (
     <ErrorBoundary>
       <AppAlert />
-      <ProfileContainer>
-        <Surface variant='transparent' className='flex flex-col w-full'>
-          <Outlet />
-        </Surface>
-      </ProfileContainer>
+      <Surface variant='transparent' className='flex flex-col w-full'>
+        <Outlet />
+      </Surface>
     </ErrorBoundary>
   );
 }

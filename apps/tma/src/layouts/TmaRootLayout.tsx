@@ -7,8 +7,8 @@ export function TmaRootLayout() {
   return (
     <TmaAuthProvider>
       <TmaProvider>
-        <Header />
         <ScrollShadowComponent hideScrollBar>
+          <Header />
           <RootLayout />
         </ScrollShadowComponent>
       </TmaProvider>

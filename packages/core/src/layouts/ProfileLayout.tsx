@@ -9,7 +9,7 @@ import { useNavigation, useSavedMethodsData, useSubscriptionData, useToltCapture
 import { TermsDialog } from '../pages/profile/payment/components/TermsDialog';
 import { useAppRoutes, usePaymentsApi } from '../runtime';
 import { useAuthStore, useAuthStoreActions, useAuthStoreInfo } from '../stores';
-import { ProfileContainer } from '../ui/containers/ProfileContainer';
+import { Container } from '../ui';
 import { captureReferral } from '../utils';
 
 export function ProfileLayout() {
@@ -78,9 +78,9 @@ export function ProfileLayout() {
 
   return (
     <>
-      <ProfileContainer>
+      <Container maxWidth={'sm'} className={'pt-10 pb-22'}>
         <Outlet />
-      </ProfileContainer>
+      </Container>
       {rmnUser && <Navbar />}
       <SubscriptionLinkDialog />
       <TermsDialog />

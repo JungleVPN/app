@@ -26,7 +26,7 @@ export function Page(props: PageProps) {
   } = props;
 
   return (
-    <Surface variant={'transparent'} className={'w-full flex flex-col items-center justify-center'}>
+    <Surface variant={'transparent'} className={'flex flex-col items-center justify-center'}>
       {typeof icon === 'string' ? (
         <img src={icon} alt={title} className={'mx-auto h-25 w-25'} />
       ) : (
