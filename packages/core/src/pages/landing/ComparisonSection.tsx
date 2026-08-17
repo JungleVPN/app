@@ -37,7 +37,7 @@ export function ComparisonSection() {
               {t('landing.comparison.titleBrand')}
             </span>
           </h2>
-          <p className='text-base text-muted lg:text-lg'>{t('landing.comparison.subtitle')}</p>
+          <p className='text-base text-muted lg:text-md'>{t('landing.comparison.subtitle')}</p>
         </div>
         <LottieIcon
           loop

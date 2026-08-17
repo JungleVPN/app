@@ -59,7 +59,7 @@ export function HowItWorksSection() {
           </span>
         </h2>
 
-        <p className='text-muted max-w-xl text-base lg:text-lg'>
+        <p className='text-muted max-w-xl text-base lg:text-md'>
           {t('landing.howItWorks.subtitle')}
         </p>
       </div>

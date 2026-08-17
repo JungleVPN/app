@@ -19,7 +19,7 @@ export function PartnershipSection() {
         <h2 className='text-xl font-bold tracking-tight sm:text-3xl lg:text-4xl'>
           {t('landing.partnership.title')}
         </h2>
-        <p className='text-muted text-base lg:text-lg'>{t('landing.partnership.subtitle')}</p>
+        <p className='text-muted text-base lg:text-md'>{t('landing.partnership.subtitle')}</p>
       </div>
 
       <Grid>

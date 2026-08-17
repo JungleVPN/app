@@ -21,7 +21,7 @@ export function BentoSection() {
             {t('landing.bento.titleBrand')}
           </span>
         </h2>
-        <p className='text-muted text-base lg:text-lg'>{t('landing.bento.subtitle')}</p>
+        <p className='text-muted text-base lg:text-md'>{t('landing.bento.subtitle')}</p>
       </div>
 
       <div className='grid grid-cols-2 gap-4 lg:grid-cols-3 lg:grid-rows-[repeat(3,220px)]'>

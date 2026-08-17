@@ -73,7 +73,7 @@ export function InfoSection() {
         <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
           {t('landing.info.what.title')}
         </h2>
-        <p className='max-w-2xl text-base text-muted lg:text-lg'>
+        <p className='max-w-2xl text-base text-muted lg:text-md'>
           {t('landing.info.what.subtitle')}
         </p>
       </div>
@@ -104,7 +104,7 @@ export function InfoSection() {
         <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
           {t('landing.info.why.title')}
         </h2>
-        <p className='max-w-2xl text-base text-muted lg:text-lg'>
+        <p className='max-w-2xl text-base text-muted lg:text-md'>
           {t('landing.info.why.subtitle')}
         </p>
       </div>
@@ -146,7 +146,7 @@ export function InfoSection() {
         <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
           {t('landing.info.devices.title')}
         </h2>
-        <p className='max-w-2xl text-base text-muted lg:text-lg'>
+        <p className='max-w-2xl text-base text-muted lg:text-md'>
           {t('landing.info.devices.subtitle')}
         </p>
       </div>

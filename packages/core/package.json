@@ -40,6 +40,7 @@
     "framer-motion": "^12.0.0",
     "i18next": "^24.0.0",
     "i18next-browser-languagedetector": "^8.2.0",
+    "keen-slider": "^6.8.6",
     "lottie-web": "^5.13.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

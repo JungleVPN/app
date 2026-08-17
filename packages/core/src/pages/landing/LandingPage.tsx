@@ -39,9 +39,7 @@ export default function LandingPage() {
       <Container id='pricing'>
         <PricingSection />
       </Container>
-      <Container>
-        <TestimonialsSection />
-      </Container>
+      <TestimonialsSection />
       <Container>
         <FAQSection />
       </Container>

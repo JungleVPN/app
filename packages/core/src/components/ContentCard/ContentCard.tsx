@@ -55,7 +55,7 @@ export function ContentCard(props: ContentCardProps) {
       <div className='text-primary'>{icon}</div>
       <Card.Header className='flex-col items-center gap-1 p-0'>
         <Card.Title className='text-base font-bold'>{title}</Card.Title>
-        <Card.Description className='text-sm'>{description}</Card.Description>
+        <Card.Description className='text-xs'>{description}</Card.Description>
       </Card.Header>
     </Card>
   );

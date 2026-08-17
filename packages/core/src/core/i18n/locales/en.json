@@ -186,7 +186,9 @@
     "appsTabs": "Apps",
     "support": "Support",
     "copySupportEmail": "Copy email address",
-    "back": "Back"
+    "back": "Back",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right"
   },
   "errorBoundary": {
     "title": "Something went wrong",
@@ -569,6 +571,42 @@
       "users": "Trusted by users worldwide for private browsing, secure connections on public networks and reliable access while travelling.  ",
       "countries": "A distributed network of server locations gives you greater control over how and where you connect. Choose the location that best fits your needs while maintaining a secure connection wherever you are.",
       "servers": "High-speed infrastructure built for stable everyday performance across browsing, streaming, video calls and other data-intensive activity. Our network is continuously monitored to maintain reliability, capacity and consistent connection quality as demand grows. "
+    },
+    "testimonials": {
+      "chip": "Trusted by thousands",
+      "title": "Why customers love JungleVPN",
+      "setup": {
+        "quote": "Setup took about five minutes. I installed HAPP, imported the subscription link and it was already connected — no server settings to figure out.",
+        "name": "Bilal Ahmed"
+      },
+      "remote": {
+        "quote": "I work from cafés most days, so an encrypted connection on public Wi-Fi was the whole reason I subscribed. It just stays on and I stop thinking about it.",
+        "name": "Briana Patton"
+      },
+      "routing": {
+        "quote": "Smart routing is the part I did not expect to care about. Only what needs the VPN goes through it, so my banking and local apps keep working normally.",
+        "name": "Omar Raza"
+      },
+      "calls": {
+        "quote": "Video calls hold up on the evenings when everything else slows down. I have not had to switch locations to get a stable connection.",
+        "name": "Farhan Siddiqui"
+      },
+      "multiDevice": {
+        "quote": "One subscription across my phone, laptop and my partner's laptop. That was the deciding factor for us.",
+        "name": "Aliza Khan"
+      },
+      "support": {
+        "quote": "I had a question about my subscription and got an answer from an actual person in about ten minutes. No ticket loop, no bot.",
+        "name": "David Chen"
+      },
+      "dataCap": {
+        "quote": "No monthly data cap means I do not ration streaming or downloads any more. I used to hit the limit on my old free VPN in a week.",
+        "name": "Sara Mitchell"
+      },
+      "privacy": {
+        "quote": "What I wanted was a clear privacy policy and a connection that does not drop. That is what I got, and the trial let me check before paying.",
+        "name": "Priya Nair"
+      }
     },
     "features": {
       "title": "Why people choose JungleVPN",

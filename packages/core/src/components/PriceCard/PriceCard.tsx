@@ -40,22 +40,18 @@ export function PriceCard({
 }: PriceCardProps) {
   return (
     <div
-      className={`relative cursor-default flex flex-col ${highlighted ? 'z-10' : ''} rounded-b-3xl transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl`}
+      className={`relative h-full cursor-default flex flex-col ${highlighted ? 'z-10' : ''} rounded-b-3xl transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl`}
     >
       {badge &&
         (highlighted ? (
           <div className='rounded-t-2xl bg-linear-to-r from-purple-400 to-yellow-400 ring-2 ring-purple-400 py-2 text-center text-sm font-semibold text-white'>
             🔥 {badge}
           </div>
-        ) : (
-          <div className='rounded-t-2xl border border-b-0 border-purple-400 py-2 text-center text-sm font-semibold text-purple-400'>
-            {badge}
-          </div>
-        ))}
+        ) : null)}
 
       <Card
         variant='secondary'
-        className={`w-full p-6 shadow-md ${highlighted ? 'rounded-t-none ring-2 ring-purple-400' : ''} `}
+        className={`h-full w-full p-6 justify-between shadow-md ${highlighted ? 'rounded-t-none ring-2 ring-purple-400' : ''} `}
       >
         <div className='mb-4 flex flex-col gap-1'>
           <span className='text-lg font-bold text-foreground'>{period}</span>

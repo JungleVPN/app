@@ -31,7 +31,7 @@ export function FeaturesSection() {
             {t('landing.features.titleBrand')}
           </span>
         </h2>
-        <p className='text-muted text-base lg:text-lg'>{t('landing.features.subtitle')}</p>
+        <p className='text-muted text-base lg:text-md'>{t('landing.features.subtitle')}</p>
       </div>
 
       <Grid>

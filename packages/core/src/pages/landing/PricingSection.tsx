@@ -138,7 +138,7 @@ export function PricingSection() {
         <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
           {t('landing.pricing.title')}
         </h2>
-        <p className='text-muted text-base lg:text-lg'>{t('landing.pricing.subtitle')}</p>
+        <p className='text-muted text-base lg:text-md'>{t('landing.pricing.subtitle')}</p>
       </div>
 
       <div className='flex flex-col items-center gap-8'>
