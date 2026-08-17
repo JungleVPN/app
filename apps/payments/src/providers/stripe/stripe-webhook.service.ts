@@ -325,12 +325,26 @@ export class StripeWebhookService {
       this.logger.log(`Stripe subscription ${subscription.id} canceled — rows marked`);
     }
 
-    // Keep saved_payment_methods consistent: a deleted subscription is no longer
-    // an active method. Scoped to provider='stripe' so YooKassa rows are untouched.
-    await this.savedMethodRepo.update(
-      { provider: 'stripe', paymentMethodId: subscription.id },
-      { isActive: false },
-    );
+    // A canceled subscription can never be charged again, so the saved method is
+    // dead weight the user would still see listed. Delete the row outright rather
+    // than deactivating it — an inactive Stripe method has no later use, and a
+    // renewed subscription gets a new id and a fresh row via activatePaymentMethod.
+    // Scoped to provider='stripe' so YooKassa rows are untouched. Best-effort:
+    // a failure here must not stop Stripe's retry from re-running the cancel path.
+    try {
+      const deleted = await this.savedMethodRepo.delete({
+        provider: 'stripe',
+        paymentMethodId: subscription.id,
+      });
+      if (deleted.affected) {
+        this.logger.log(`Removed saved Stripe payment method for subscription ${subscription.id}`);
+      }
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete saved Stripe method for subscription ${subscription.id}`,
+        error,
+      );
+    }
   }
 
   // ── Saved payment methods ────────────────────────────────────────────────

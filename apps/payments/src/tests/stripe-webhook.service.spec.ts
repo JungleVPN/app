@@ -95,6 +95,7 @@ describe('StripeWebhookService', () => {
   let savedMethodRepo: Repository<any>;
   let mockSavedFindOneBy: any;
   let mockSavedUpdate: any;
+  let mockSavedDelete: any;
   let mockSavedSave: any;
   let mockSavedCreate: any;
   let analyticsClient: AnalyticsClientService;
@@ -142,11 +143,13 @@ describe('StripeWebhookService', () => {
 
     mockSavedFindOneBy = vi.fn().mockResolvedValue(null);
     mockSavedUpdate = vi.fn().mockResolvedValue({ affected: 0 });
+    mockSavedDelete = vi.fn().mockResolvedValue({ affected: 1 });
     mockSavedSave = vi.fn(async (v: any) => v);
     mockSavedCreate = vi.fn((data: any) => data);
     savedMethodRepo = {
       findOneBy: mockSavedFindOneBy,
       update: mockSavedUpdate,
+      delete: mockSavedDelete,
       save: mockSavedSave,
       create: mockSavedCreate,
     } as unknown as Repository<any>;
@@ -319,12 +322,36 @@ describe('StripeWebhookService', () => {
         data: { object: { id: 'sub_1' } },
       }) as unknown as Stripe.Event;
 
-    it('deactivates the matching Stripe saved method', async () => {
+    it('deletes the matching Stripe saved method', async () => {
       await service.handleWebhook(makeSubDeletedEvent());
 
-      expect(mockSavedUpdate).toHaveBeenCalledWith(
+      expect(mockSavedDelete).toHaveBeenCalledWith({
+        provider: 'stripe',
+        paymentMethodId: 'sub_1',
+      });
+      expect(mockSavedUpdate).not.toHaveBeenCalledWith(
         { provider: 'stripe', paymentMethodId: 'sub_1' },
         { isActive: false },
+      );
+    });
+
+    it('marks the subscription rows canceled', async () => {
+      await service.handleWebhook(makeSubDeletedEvent());
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { stripeSubscriptionId: 'sub_1' },
+        { status: 'canceled' },
+      );
+    });
+
+    it('still cancels the payment rows when deleting the saved method fails', async () => {
+      mockSavedDelete.mockRejectedValueOnce(new Error('db down'));
+
+      await expect(service.handleWebhook(makeSubDeletedEvent())).resolves.toBeUndefined();
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { stripeSubscriptionId: 'sub_1' },
+        { status: 'canceled' },
       );
     });
   });
