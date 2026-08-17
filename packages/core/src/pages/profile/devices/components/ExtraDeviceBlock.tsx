@@ -1,17 +1,23 @@
 import { Button } from '@heroui/react';
 import { IconArrowRight } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '../../../../hooks';
-import { useAppRoutes } from '../../../../runtime';
+import { useSubscriptionLinkDialogStore } from '../../../../stores';
 
 export function ExtraDeviceBlock() {
   const { t } = useTranslation();
-  const navigate = useNavigation();
-  const { profileExtraDevicePurchasePath } = useAppRoutes();
+  const { setOpen, close } = useSubscriptionLinkDialogStore();
+
+  const openDialog = () => {
+    setOpen(true);
+
+    return () => {
+      close();
+    };
+  };
 
   return (
     <div className='mb-6'>
-      <Button fullWidth size='lg' onPress={() => navigate(profileExtraDevicePurchasePath)}>
+      <Button fullWidth size='lg' onPress={openDialog}>
         {t('devices.extraDevice.openButton')}
         <IconArrowRight size={20} stroke={2} className='rtl:-scale-x-100' />
       </Button>

@@ -2,11 +2,7 @@ import { Card, Surface } from '@heroui/react';
 import type { TSubscriptionPagePlatformKey } from '@workspace/types';
 import { useTranslation } from 'react-i18next';
 import type { SubscriptionDataError } from '../../hooks';
-import {
-  useIsConfigLoaded,
-  useSubscriptionConfig,
-  useSubscriptionInfoStoreInfo,
-} from '../../stores';
+import { useIsConfigLoaded, useSubscriptionConfig, useSubscriptionInfoStore } from '../../stores';
 import '../../utils/initDayjs';
 import { detectOs } from '../../utils';
 import { InstallationGuideConnector } from '../InstallationGuide';
@@ -38,7 +34,7 @@ export function SubscriptionView({
 }) {
   const { t } = useTranslation();
   const config = useSubscriptionConfig();
-  const { subscription } = useSubscriptionInfoStoreInfo();
+  const subscription = useSubscriptionInfoStore((state) => state.subscription);
   const isConfigLoaded = useIsConfigLoaded();
 
   if (error) return <ErrorView errorCode={error} />;

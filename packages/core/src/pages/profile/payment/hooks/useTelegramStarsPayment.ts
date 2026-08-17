@@ -6,12 +6,7 @@ import { useRemnawaveApi } from '../../../../api';
 import { coreEnv } from '../../../../env';
 import { useCreateTelegramStarsInvoice } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
-import {
-  useAuthStoreInfo,
-  usePlatformStore,
-  useSubscriptionInfoStore,
-  useSubscriptionInfoStoreActions,
-} from '../../../../stores';
+import { useAuthStoreInfo, usePlatformStore, useSubscriptionInfoStore } from '../../../../stores';
 import { analytics } from '../../../../utils';
 
 export function useTelegramStarsPayment(selectedPeriod: number) {
@@ -21,7 +16,7 @@ export function useTelegramStarsPayment(selectedPeriod: number) {
   const { extraDevicePriceStars } = coreEnv;
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
-  const { setSubscriptionInfo } = useSubscriptionInfoStoreActions();
+  const { setSubscriptionInfo } = useSubscriptionInfoStore((state) => state.actions);
 
   const { isLoading: isStarsPaying, execute: createStarsInvoice } =
     useCreateTelegramStarsInvoice(paymentsApi);

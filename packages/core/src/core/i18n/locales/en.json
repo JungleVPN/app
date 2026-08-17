@@ -515,9 +515,18 @@
         "speed": "High speed and unlimited traffic"
       },
       "stats": {
-        "locations": { "value": "6+", "label": "locations" },
-        "traffic": { "value": "Unlimited", "label": "traffic" },
-        "devices": { "value": "All", "label": "devices" }
+        "locations": {
+          "value": "6+",
+          "label": "locations"
+        },
+        "traffic": {
+          "value": "Unlimited",
+          "label": "traffic"
+        },
+        "devices": {
+          "value": "All",
+          "label": "devices"
+        }
       },
       "bento": {
         "speed": {
@@ -573,7 +582,7 @@
       },
       "globe": {
         "title": "Works everywhere",
-        "description": "Your phone, laptop, tablet — we've got them all covered. Connect up to {{deviceLimit}} devices"
+        "description": "Your phone, laptop, tablet and even TV — we've got them all covered."
       },
       "support": {
         "title": "Friendly support",
@@ -615,7 +624,7 @@
       },
       "q3": {
         "question": "Can I use JungleVPN on more than one device?",
-        "answer": "Yes! One subscription works on all your devices at once. Connect your phone, laptop, tablet, and even your friend's phone. One plan covers 5 devices."
+        "answer": "Yes! One subscription works on all your devices at once. Connect your phone, laptop, tablet, and even your friend's phone. One plan covers an unlimited number of devices."
       },
       "q4": {
         "question": "What if I'm not satisfied?",
@@ -707,15 +716,15 @@
           "ours": "Unlimited",
           "theirs": "50 GB"
         },
+        "deviceLimit": {
+          "feature": "Number of connected devices",
+          "ours": "Unlimited",
+          "theirs": "Up to 5 devices"
+        },
         "support": {
           "feature": "Customer support",
           "ours": "24/7",
           "theirs": "No support"
-        },
-        "devices": {
-          "feature": "Supported devices",
-          "ours": "All your devices",
-          "theirs": "PC and Mobile"
         },
         "tracking": {
           "feature": "Tracks your online activity",
@@ -809,5 +818,16 @@
     "month_other": "{{count}} months",
     "perMonth": "per month",
     "continueButton": "Continue"
+  },
+  "subscriptionLinkWidget": {
+    "getLink": "Add new device",
+    "scanQrCode": "Scan the QR code",
+    "copyLink": "Copy link",
+    "linkCopied": "Copied",
+    "addToDeviceTitle": "Add to another device",
+    "addToDeviceSteps": {
+      "step1": "Scan the QR code from the app on another device or follow the link from QR.",
+      "step2": "Or simply copy the link and follow the instructions."
+    }
   }
 }

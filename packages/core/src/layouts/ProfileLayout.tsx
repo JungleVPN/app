@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Outlet } from 'react-router';
 import { useRemnawaveApi } from '../api';
 import { Navbar } from '../components';
+import { SubscriptionLinkDialog } from '../components/SubscriptionLinkWidget/SubscriptionLinkDialog';
 import { applyUserLang } from '../core/i18n';
 import { coreEnv } from '../env';
 import { useNavigation, useSavedMethodsData, useSubscriptionData } from '../hooks';
@@ -74,6 +75,7 @@ export function ProfileLayout() {
         <Outlet />
       </ProfileContainer>
       {rmnUser && <Navbar />}
+      <SubscriptionLinkDialog />
       <TermsDialog />
     </>
   );

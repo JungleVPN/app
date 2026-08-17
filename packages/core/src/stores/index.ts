@@ -38,10 +38,6 @@ export type {
   ISubscriptionInfoActions,
   ISubscriptionInfoState,
 } from './subscription-info';
-export {
-  useSubscription,
-  useSubscriptionInfoStore,
-  useSubscriptionInfoStoreActions,
-  useSubscriptionInfoStoreInfo,
-} from './subscription-info';
+export { useSubscription, useSubscriptionInfoStore } from './subscription-info';
+export { useSubscriptionLinkDialogStore } from './subscriptionLinkDialog';
 export { useTermsStore } from './terms';

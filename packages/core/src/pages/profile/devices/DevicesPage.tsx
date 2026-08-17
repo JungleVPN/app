@@ -11,16 +11,11 @@ export default function DevicesPage() {
     devices,
     isFetching,
     isDeleting,
-    deviceCount,
-    deviceLimit,
     confirmIsOpen,
     confirmSetOpen,
     handleDeleteRequest,
     handleConfirmDelete,
   } = useDevices();
-
-  const titleBadge =
-    deviceCount !== null && deviceLimit !== null ? `${deviceCount} / ${deviceLimit}` : undefined;
 
   return (
     <Page
@@ -33,7 +28,6 @@ export default function DevicesPage() {
         devices={devices}
         isFetching={isFetching}
         isDeleting={isDeleting}
-        titleBadge={titleBadge}
         confirmIsOpen={confirmIsOpen}
         confirmSetOpen={confirmSetOpen}
         onDeleteRequest={handleDeleteRequest}

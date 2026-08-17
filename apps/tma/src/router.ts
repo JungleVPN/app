@@ -10,7 +10,6 @@ import {
 } from '@workspace/core';
 import {
   ProtectedDevicesPage,
-  ProtectedExtraDevicePurchasePage,
   ProtectedMenuPage,
   ProtectedPlansPage,
   ProtectedReferralsPage,
@@ -74,10 +73,6 @@ export const router = createMemoryRouter(
             {
               path: 'devices',
               Component: ProtectedDevicesPage,
-            },
-            {
-              path: 'devices/extra',
-              Component: ProtectedExtraDevicePurchasePage,
             },
             {
               path: 'transactions',

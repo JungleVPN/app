@@ -39,11 +39,6 @@ export const useSubscriptionInfoStore = create<ISubscriptionInfoActions & ISubsc
   }),
 );
 
-export const useSubscriptionInfoStoreActions = () =>
-  useSubscriptionInfoStore((store) => store.actions);
-
-export const useSubscriptionInfoStoreInfo = () => useSubscriptionInfoStore((state) => state);
-
 export const useSubscription = (): GetSubscriptionInfoByShortUuidCommand.Response['response'] => {
   const subscription = useSubscriptionInfoStore((state) => state.subscription);
   if (!subscription) {

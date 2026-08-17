@@ -23,14 +23,14 @@ export function ComparisonSection() {
       theirs: t('landing.comparison.rows.dataLimit.theirs'),
     },
     {
+      feature: t('landing.comparison.rows.deviceLimit.feature'),
+      ours: t('landing.comparison.rows.deviceLimit.ours'),
+      theirs: t('landing.comparison.rows.deviceLimit.theirs'),
+    },
+    {
       feature: t('landing.comparison.rows.support.feature'),
       ours: t('landing.comparison.rows.support.ours'),
       theirs: t('landing.comparison.rows.support.theirs'),
-    },
-    {
-      feature: t('landing.comparison.rows.devices.feature'),
-      ours: t('landing.comparison.rows.devices.ours'),
-      theirs: t('landing.comparison.rows.devices.theirs'),
     },
     {
       feature: t('landing.comparison.rows.tracking.feature'),
