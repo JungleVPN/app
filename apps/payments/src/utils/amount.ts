@@ -35,6 +35,21 @@ export function amountToMonths(amount: number, currency: Currency): number {
 }
 
 /**
+ * The configured price of one extra device slot.
+ *
+ * A one-off purchase with its own price, unrelated to any subscription period —
+ * so it must never be recorded at a period price, which would misstate the sale
+ * in payment history and admin search. Throws when unconfigured.
+ */
+export function getExtraDevicePrice(currency: Currency): string {
+  const price = process.env[`PUBLIC_EXTRA_DEVICE_PRICE_${currency}`];
+  if (!price || Number(price) <= 0) {
+    throw new Error(`Missing extra device price for ${currency}`);
+  }
+  return price;
+}
+
+/**
  * The configured price (as string) for a given number of months.
  * Throws when the period is unknown or its price env var is not set.
  */

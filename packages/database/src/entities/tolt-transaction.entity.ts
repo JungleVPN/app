@@ -19,9 +19,16 @@ export class ToltTransaction {
   @PrimaryColumn({ type: 'varchar' })
   chargeId: string;
 
-  /** Tolt's transaction id, the handle its refund endpoint takes. */
-  @Column({ type: 'varchar' })
-  toltTransactionId: string;
+  /**
+   * Tolt's transaction id, the handle its refund endpoint takes.
+   *
+   * Null while the charge is only claimed: the row is written before the report
+   * is posted, so that a commission can never exist in Tolt without a local
+   * record of the charge it belongs to. A row still null after the fact means
+   * the report never confirmed and needs reconciling by hand.
+   */
+  @Column({ type: 'varchar', nullable: true })
+  toltTransactionId: string | null;
 
   @Column({ type: 'varchar' })
   userId: string;

@@ -15,9 +15,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getPriceForPeriod } from '@payments/utils/amount';
+import { getExtraDevicePrice, getPriceForPeriod } from '@payments/utils/amount';
 import { StripePayment } from '@workspace/database';
-import { type CreateStripeSessionDto } from '@workspace/types';
+import { type CreateStripeSessionDto, type PaymentPurpose } from '@workspace/types';
 import type Stripe from 'stripe';
 import { Repository } from 'typeorm';
 import { AdminRoleGuard } from '../../auth/admin-role.guard';
@@ -80,7 +80,13 @@ export class StripeController {
   @Post('create-session')
   async createSession(@Body() dto: CreateStripeSessionDto): Promise<Session> {
     const selectedPeriod = dto.selectedPeriod;
-    const amount = getPriceForPeriod('EUR', selectedPeriod);
+    const purpose = dto.purchaseType ?? 'subscription';
+
+    // A device slot is a one-off with its own price. Charging it through
+    // STRIPE_EXTRA_DEVICE_PRICE_ID but recording a subscription period price
+    // would misstate the sale in payment history and admin search.
+    const amount = this.resolveAmount(purpose, selectedPeriod);
+
     const session = await this.stripeProvider.createPayment({
       ...dto,
       selectedPeriod,
@@ -102,7 +108,7 @@ export class StripeController {
         amount: +amount,
         currency: 'EUR',
         userId: dto.userId,
-        purpose: dto.purchaseType ?? 'subscription',
+        purpose,
         paidAt: null,
         stripeSubscriptionId: null,
         invoiceUrl: null,
@@ -111,6 +117,24 @@ export class StripeController {
     }
 
     return session;
+  }
+
+  /**
+   * The EUR price this session records, by what is being bought.
+   *
+   * There is no ValidationPipe on this controller, so an unusable
+   * `selectedPeriod` arrives here as an ordinary value. A bad request is the
+   * client's fault and answered as one — the price lookup throwing would
+   * otherwise surface as a 500.
+   */
+  private resolveAmount(purpose: PaymentPurpose, selectedPeriod: number): string {
+    try {
+      return purpose === 'extra_device'
+        ? getExtraDevicePrice('EUR')
+        : getPriceForPeriod('EUR', selectedPeriod);
+    } catch (error) {
+      throw new BadRequestException((error as Error).message);
+    }
   }
 
   /**

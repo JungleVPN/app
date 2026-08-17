@@ -1,5 +1,6 @@
 import type { ToltReferral, ToltTransaction } from '@workspace/database';
 import { describe, expect, it, vi } from 'vitest';
+import type { AdminService } from '../admin/admin.service';
 import type { FxRateService } from './fx-rate.service';
 import { ToltApiError, type ToltClient } from './tolt.client';
 import { ToltService } from './tolt.service';
@@ -41,6 +42,8 @@ function setup(
     createClick?: (input: ToltCreateClickInput) => Promise<unknown>;
     refundTransaction?: (id: string) => Promise<unknown>;
     existingTransaction?: Partial<ToltTransaction> | null;
+    insert?: (row: Partial<ToltTransaction>) => Promise<unknown>;
+    hasEverPaid?: boolean;
   } = {},
 ) {
   const repository = {
@@ -72,7 +75,7 @@ function setup(
 
   const txRepository = {
     findOneBy: vi.fn().mockResolvedValue(opts.existingTransaction ?? null),
-    save: vi.fn().mockResolvedValue(undefined),
+    insert: vi.fn(opts.insert ?? (() => Promise.resolve(undefined))),
     update: vi.fn().mockResolvedValue(undefined),
   };
 
@@ -83,14 +86,19 @@ function setup(
     ),
   };
 
+  const admin = {
+    hasEverPaid: vi.fn().mockResolvedValue(opts.hasEverPaid ?? false),
+  };
+
   const service = new ToltService(
     repository as never,
     txRepository as never,
     client as unknown as ToltClient,
     fx as unknown as FxRateService,
+    admin as unknown as AdminService,
   );
 
-  return { service, repository, txRepository, client, fx };
+  return { service, repository, txRepository, client, fx, admin };
 }
 
 const stripeConversion = {
@@ -383,6 +391,45 @@ describe('ToltService.captureReferral', () => {
     );
   });
 
+  // A partner can only earn on a sale they actually made. Without this, any
+  // partner could farm the existing customer base by getting subscribers to
+  // open one link: the next renewal would register a brand-new Tolt customer
+  // under them and pay a first-payment commission on a sale they had no part in.
+  it('refuses a first referral for someone who was already a paying customer', async () => {
+    const { service, repository, admin } = setup({ referral: null, hasEverPaid: true });
+
+    await service.captureReferral(capture);
+
+    expect(admin.hasEverPaid).toHaveBeenCalledWith(USER);
+    expect(repository.save).not.toHaveBeenCalled();
+  });
+
+  // The same rule applied to a row that exists but was never frozen — a payment
+  // that went unreported (no FX rate, Tolt unreachable) still bought the first
+  // partner their permanence.
+  it('refuses to overwrite an unconverted referral once the user has paid', async () => {
+    const { service, repository } = setup({
+      referral: unconvertedRow({ partnerId: 'part_first' }),
+      hasEverPaid: true,
+    });
+
+    await service.captureReferral({ ...capture, partnerId: 'part_second' });
+
+    expect(repository.save).not.toHaveBeenCalled();
+  });
+
+  // The payment check is a best-effort guard on a best-effort path; if it
+  // cannot be answered, capture proceeds rather than dropping attribution for
+  // every genuinely new visitor.
+  it('still captures when the payment history cannot be read', async () => {
+    const { service, repository, admin } = setup({ referral: null });
+    admin.hasEverPaid.mockRejectedValue(new Error('db down'));
+
+    await service.captureReferral(capture);
+
+    expect(repository.save).toHaveBeenCalled();
+  });
+
   it('leaves a converted attribution alone — renewals belong to the seller', async () => {
     const { service, repository } = setup({
       referral: referralRow({ partnerId: 'part_first', convertedAt: new Date() }),
@@ -406,15 +453,66 @@ describe('ToltService.reportConversion — transaction mapping', () => {
 
     await service.reportConversion(stripeConversion);
 
-    expect(txRepository.save).toHaveBeenCalledWith(
+    expect(txRepository.insert).toHaveBeenCalledWith(
       expect.objectContaining({
         chargeId: 'in_123',
-        toltTransactionId: 'txn_1',
         userId: USER,
         provider: 'stripe',
         amountCents: 360,
       }),
     );
+    expect(txRepository.update).toHaveBeenCalledWith(
+      { chargeId: 'in_123' },
+      { toltTransactionId: 'txn_1' },
+    );
+  });
+
+  // The row has to exist before the money-bearing call, not after it. Written
+  // afterwards, a failed write would leave a live commission with no local
+  // handle: a later refund would find nothing and silently pay it out.
+  it('claims the charge before posting the transaction', async () => {
+    const order: string[] = [];
+    const { service } = setup({
+      insert: () => {
+        order.push('insert');
+        return Promise.resolve(undefined);
+      },
+      createTransaction: () => {
+        order.push('createTransaction');
+        return Promise.resolve({ id: 'txn_1' });
+      },
+    });
+
+    await service.reportConversion(stripeConversion);
+
+    expect(order).toEqual(['insert', 'createTransaction']);
+  });
+
+  // The primary key does the arbitrating: whoever inserts first reports, the
+  // loser stops. Two deliveries racing past the read-side guard would otherwise
+  // both post and pay the partner twice.
+  it('does not post when a concurrent delivery already claimed the charge', async () => {
+    const { service, client } = setup({
+      insert: () => Promise.reject(new Error('duplicate key value violates unique constraint')),
+    });
+
+    await service.reportConversion(stripeConversion);
+
+    expect(client.createTransaction).not.toHaveBeenCalled();
+  });
+
+  // Deliberately left behind: the transaction may have reached Tolt and only
+  // the response been lost, so the claim stands as an at-most-once guarantee
+  // and as the record an operator needs to reconcile by hand.
+  it('keeps the claim when Tolt rejects the transaction', async () => {
+    const { service, txRepository } = setup({
+      createTransaction: () => Promise.reject(new ToltApiError('rejected', 400, false)),
+    });
+
+    await service.reportConversion(stripeConversion);
+
+    expect(txRepository.insert).toHaveBeenCalled();
+    expect(txRepository.update).not.toHaveBeenCalled();
   });
 
   it('does not report a charge already reported — the mapping is the guard', async () => {
@@ -461,6 +559,20 @@ describe('ToltService.reportRefund', () => {
     await service.reportRefund({ chargeId: 'never_reported' });
 
     expect(client.refundTransaction).not.toHaveBeenCalled();
+  });
+
+  // A claim with no transaction id is a charge whose report never confirmed.
+  // Distinct from "never an affiliate sale": there may be a live commission in
+  // Tolt that only a human can find, so it must not pass silently.
+  it('does not silently pass over a claim whose transaction id was never recorded', async () => {
+    const { service, client, txRepository } = setup({
+      existingTransaction: { ...mapping, toltTransactionId: null },
+    });
+
+    await service.reportRefund({ chargeId: 'yk_123' });
+
+    expect(client.refundTransaction).not.toHaveBeenCalled();
+    expect(txRepository.update).not.toHaveBeenCalled();
   });
 
   it('ignores a repeat refund webhook', async () => {

@@ -156,15 +156,19 @@ describe('StripeProvider.createPayment', () => {
       );
     });
 
-    it('falls back to STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1 when period-specific ID is not set for the selected period', async () => {
+    // Falling back to the monthly price would sell the wrong plan without any
+    // signal: the user picks 6 months, Stripe opens a monthly subscription,
+    // `mapEURAmountToMonthsNumber` maps the charge back to 1 month, and they
+    // end up on a recurring monthly cycle believing they bought half a year.
+    // A missing price id is a misconfiguration and has to fail loudly.
+    it('refuses to sell a period whose price ID is not configured', async () => {
       process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_3 = 'price_3months';
       const { provider, mockCreateSession } = makeProvider({});
 
-      await provider.createPayment(subscriptionDto({ selectedPeriod: 6 }));
-
-      expect(mockCreateSession).toHaveBeenCalledWith(
-        expect.objectContaining({ line_items: [{ price: 'price_default', quantity: 1 }] }),
+      await expect(provider.createPayment(subscriptionDto({ selectedPeriod: 6 }))).rejects.toThrow(
+        /6 month/,
       );
+      expect(mockCreateSession).not.toHaveBeenCalled();
     });
 
     it('defaults to period 1 when selectedPeriod is not provided', async () => {

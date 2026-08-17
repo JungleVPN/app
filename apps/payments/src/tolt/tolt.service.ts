@@ -2,8 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ToltReferral, ToltTransaction } from '@workspace/database';
 import { Repository } from 'typeorm';
+import { AdminService } from '../admin/admin.service';
 import { FxRateService } from './fx-rate.service';
 import { ToltClient } from './tolt.client';
+import type { ToltCreateTransactionInput } from './tolt.types';
 
 export type ConversionCurrency = 'EUR' | 'RUB';
 
@@ -34,6 +36,56 @@ const AFF_PARAM = 'aff';
 /** Tolt accepts only these two; 3- and 6-month plans have no representation. */
 const INTERVAL_BY_MONTHS: Record<number, 'month' | 'year'> = { 1: 'month', 12: 'year' };
 
+/** Extra device slots are one-offs that earn no commission and are never reported. */
+const earnsCommission = (purpose?: string): boolean => purpose !== 'extra_device';
+
+/** Only a real, positive charge can be reported; anything else would misstate a commission. */
+const isReportableAmount = (amount: number): boolean => Number.isFinite(amount) && amount > 0;
+
+/**
+ * Tolt's interval vocabulary, or undefined where nothing expresses the plan.
+ *
+ * Sent only when exactly true. Omitting it leaves revenue and commission
+ * untouched, while a wrong interval would have Tolt project renewal dates that
+ * never arrive.
+ */
+const intervalFor = (periodMonths: number): 'month' | 'year' | undefined =>
+  INTERVAL_BY_MONTHS[periodMonths];
+
+/** The Tolt payload for one settled charge. */
+const transactionFor = (args: {
+  input: ReportConversionInput;
+  referral: ToltReferral;
+  customerId: string;
+  amountCents: number;
+}): ToltCreateTransactionInput => {
+  const interval = intervalFor(args.input.periodMonths);
+
+  return {
+    amount: args.amountCents,
+    customer_id: args.customerId,
+    // Always `subscription`: this is how Tolt knows later charges from the same
+    // customer are renewals, and therefore which rate applies to them.
+    billing_type: 'subscription',
+    charge_id: args.input.chargeId,
+    click_id: args.referral.clickId,
+    source: args.input.provider,
+    ...(interval ? { interval } : {}),
+  };
+};
+
+/**
+ * How an existing mapping reads in the log.
+ *
+ * The two states mean different things to whoever is reading: one is an
+ * ordinary duplicate delivery, the other a charge whose report never confirmed
+ * and which may owe a reconciliation in Tolt.
+ */
+const claimStateOf = (mapping: ToltTransaction): string =>
+  mapping.toltTransactionId
+    ? 'already reported to Tolt — skipping'
+    : 'was claimed but never confirmed — not retried, reconcile in Tolt';
+
 @Injectable()
 export class ToltService {
   private readonly logger = new Logger(ToltService.name);
@@ -44,6 +96,7 @@ export class ToltService {
     private readonly transactions: Repository<ToltTransaction>,
     private readonly client: ToltClient,
     private readonly fxRate: FxRateService,
+    private readonly admin: AdminService,
   ) {}
 
   /**
@@ -61,6 +114,14 @@ export class ToltService {
    * After conversion the row is frozen — renewal commissions belong to the
    * partner who made the sale.
    *
+   * A user who has already paid is off limits entirely, converted row or not.
+   * Otherwise any partner could farm the existing customer base: get a
+   * long-standing subscriber to open one link and their next renewal would
+   * register a brand-new Tolt customer under that partner, paying a
+   * first-payment commission on a sale they had no part in. `convertedAt` alone
+   * cannot catch this — a customer who paid before ever being attributed has no
+   * row to freeze.
+   *
    * Never throws: capture is an optional enrichment of a request that must
    * succeed regardless.
    */
@@ -70,6 +131,13 @@ export class ToltService {
       if (existing?.convertedAt) {
         this.logger.log(
           `User ${input.userId} already converted under partner ${existing.partnerId} — ignoring later referrals`,
+        );
+        return;
+      }
+
+      if (await this.hasAlreadyPaid(input.userId)) {
+        this.logger.log(
+          `User ${input.userId} has already paid — refusing to attribute them to partner ${input.partnerId}`,
         );
         return;
       }
@@ -89,6 +157,24 @@ export class ToltService {
       this.logger.error(
         `Failed to capture referral for user ${input.userId}: ${(error as Error).message}`,
       );
+    }
+  }
+
+  /**
+   * Whether this user settled a subscription payment before this referral.
+   *
+   * False on failure rather than true: the check guards against a partner
+   * claiming someone else's customer, but an unreadable payment history must
+   * not silently drop attribution for every genuinely new visitor.
+   */
+  private async hasAlreadyPaid(userId: string): Promise<boolean> {
+    try {
+      return await this.admin.hasEverPaid(userId);
+    } catch (error) {
+      this.logger.warn(
+        `Could not check the payment history of user ${userId}: ${(error as Error).message} — capturing anyway`,
+      );
+      return false;
     }
   }
 
@@ -137,23 +223,16 @@ export class ToltService {
    */
   async reportConversion(input: ReportConversionInput): Promise<void> {
     try {
-      if (input.purpose === 'extra_device') return;
+      if (!earnsCommission(input.purpose)) return;
 
-      if (!Number.isFinite(input.amount) || input.amount <= 0) {
+      if (!isReportableAmount(input.amount)) {
         this.logger.warn(
           `Refusing to report a non-positive amount (${input.amount}) for charge ${input.chargeId}`,
         );
         return;
       }
 
-      // A stored mapping means this charge was already reported. Cheaper and
-      // more durable than relying on the provider's replay guard alone, and it
-      // is the same row a refund later needs.
-      const reported = await this.transactions.findOneBy({ chargeId: input.chargeId });
-      if (reported) {
-        this.logger.log(`Charge ${input.chargeId} already reported to Tolt — skipping`);
-        return;
-      }
+      if (await this.alreadySeen(input.chargeId)) return;
 
       const referral = await this.repository.findOneBy({ userId: input.userId });
       if (!referral) return;
@@ -169,37 +248,92 @@ export class ToltService {
         return;
       }
 
-      const transaction = await this.client.createTransaction({
-        amount: amountCents,
-        customer_id: customerId,
-        billing_type: 'subscription',
-        charge_id: input.chargeId,
-        click_id: referral.clickId,
-        source: input.provider,
-        ...(INTERVAL_BY_MONTHS[input.periodMonths]
-          ? { interval: INTERVAL_BY_MONTHS[input.periodMonths] }
-          : {}),
-      });
+      await this.postTransaction({ input, referral, customerId, amountCents });
+    } catch (error) {
+      // Swallowed deliberately — see the method contract. Any claim already
+      // written is left in place: the transaction may have reached Tolt with
+      // only the response lost, and a duplicate commission is worse than a
+      // missing one. The unconfirmed row is what an operator reconciles from.
+      this.logger.error(
+        `Failed to report conversion for charge ${input.chargeId}: ${(error as Error).message}`,
+      );
+    }
+  }
 
-      // Recorded after the fact: Tolt's transaction id is the only handle its
-      // refund endpoint accepts, and no endpoint can look one up by charge id.
-      await this.transactions.save({
+  /**
+   * Whether this charge has already been through here.
+   *
+   * A stored mapping means it was claimed. Cheaper and more durable than
+   * relying on the provider's replay guard alone, and it is the same row a
+   * refund later needs. Only an optimisation, though — the insert in
+   * `claimCharge` is what actually arbitrates two simultaneous deliveries.
+   */
+  private async alreadySeen(chargeId: string): Promise<boolean> {
+    const mapping = await this.transactions.findOneBy({ chargeId });
+    if (!mapping) return false;
+
+    this.logger.log(`Charge ${chargeId} ${claimStateOf(mapping)}`);
+    return true;
+  }
+
+  /**
+   * Claims the charge, reports it, and records the id a refund will need.
+   *
+   * The claim comes before the money-bearing call, never after. Written
+   * afterwards, a failed insert would leave a live commission in Tolt with no
+   * local handle — and since a refund is matched by charge id, it would look
+   * like a charge that was never an affiliate sale and be paid out silently.
+   */
+  private async postTransaction(args: {
+    input: ReportConversionInput;
+    referral: ToltReferral;
+    customerId: string;
+    amountCents: number;
+  }): Promise<void> {
+    const { input, referral, amountCents } = args;
+
+    const claimed = await this.claimCharge(input, amountCents);
+    if (!claimed) {
+      this.logger.log(`Charge ${input.chargeId} claimed by a concurrent delivery — skipping`);
+      return;
+    }
+
+    const transaction = await this.client.createTransaction(transactionFor(args));
+
+    // Tolt's transaction id is the only handle its refund endpoint accepts, and
+    // no endpoint can look one up by charge id — so the claim is only useful
+    // once this lands.
+    await this.transactions.update(
+      { chargeId: input.chargeId },
+      { toltTransactionId: transaction.id },
+    );
+
+    this.logger.log(
+      `Reported ${amountCents} EUR cents to Tolt for user ${input.userId} (charge ${input.chargeId}, partner ${referral.partnerId})`,
+    );
+  }
+
+  /**
+   * Reserves this charge, returning false when someone else already holds it.
+   *
+   * `insert` rather than `save` on purpose: it fails on a duplicate primary key
+   * instead of overwriting, which is what makes two concurrent webhook
+   * deliveries resolve to exactly one report.
+   */
+  private async claimCharge(input: ReportConversionInput, amountCents: number): Promise<boolean> {
+    try {
+      await this.transactions.insert({
         chargeId: input.chargeId,
-        toltTransactionId: transaction.id,
+        toltTransactionId: null,
         userId: input.userId,
         provider: input.provider,
         amountCents,
         refundedAt: null,
       });
-
-      this.logger.log(
-        `Reported ${amountCents} EUR cents to Tolt for user ${input.userId} (charge ${input.chargeId}, partner ${referral.partnerId})`,
-      );
+      return true;
     } catch (error) {
-      // Swallowed deliberately — see the method contract.
-      this.logger.error(
-        `Failed to report conversion for charge ${input.chargeId}: ${(error as Error).message}`,
-      );
+      this.logger.warn(`Could not claim charge ${input.chargeId}: ${(error as Error).message}`);
+      return false;
     }
   }
 
@@ -225,6 +359,16 @@ export class ToltService {
 
       if (reported.refundedAt) {
         this.logger.log(`Charge ${input.chargeId} already reversed in Tolt — ignoring duplicate`);
+        return;
+      }
+
+      // Claimed but never confirmed: the report may or may not have landed, and
+      // the id its refund endpoint needs was never recorded. Loud rather than
+      // silent — there may be a live commission only a human can find.
+      if (!reported.toltTransactionId) {
+        this.logger.error(
+          `Charge ${input.chargeId} was claimed but has no Tolt transaction id — check Tolt for an unreversed commission`,
+        );
         return;
       }
 
