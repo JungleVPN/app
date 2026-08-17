@@ -1,15 +1,16 @@
 import 'reflect-metadata';
 import * as process from 'node:process';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
+import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { StripePayment } from '@workspace/database';
 import { WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { PaymentStatusService } from '../payment-status/payment-status.service';
 import { StripeClientService } from '../providers/stripe/stripe-client.service';
 import { StripeWebhookService } from '../providers/stripe/stripe-webhook.service';
+import type { ToltService } from '../tolt/tolt.service';
 
 vi.mock('@workspace/database', () => ({
   StripePayment: class {},
@@ -18,6 +19,9 @@ vi.mock('@workspace/database', () => ({
   SavedPaymentMethod: class {},
   Promo: class {},
   PromoRedemption: class {},
+  ToltReferral: class {},
+  ToltTransaction: class {},
+  FxRate: class {},
 }));
 
 const CUSTOMER = {
@@ -43,6 +47,22 @@ const makeInvoiceEvent = (
         hosted_invoice_url: 'https://stripe.test/invoice/in_1',
         billing_reason: 'subscription_cycle',
         parent: { subscription_details: { subscription: 'sub_1' } },
+        ...overrides,
+      },
+    },
+  }) as unknown as Stripe.Event;
+
+const makeRefundEvent = (overrides: Partial<any> = {}): Stripe.Event =>
+  ({
+    type: 'charge.refunded',
+    data: {
+      object: {
+        id: 'ch_1',
+        payment_intent: 'pi_1',
+        amount: 200,
+        amount_refunded: 200,
+        refunded: true,
+        currency: 'eur',
         ...overrides,
       },
     },
@@ -78,6 +98,10 @@ describe('StripeWebhookService', () => {
   let mockSavedSave: any;
   let mockSavedCreate: any;
   let analyticsClient: AnalyticsClientService;
+  let mockReportConversion: any;
+  let mockReportRefund: any;
+  let mockListInvoicePayments: any;
+  let toltService: ToltService;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -98,9 +122,14 @@ describe('StripeWebhookService', () => {
 
     mockRetrieveCustomer = vi.fn().mockResolvedValue(CUSTOMER);
     mockRetrieveSubscription = vi.fn().mockResolvedValue({ id: 'sub_1', metadata: {} });
+    // Stripe removed charge.invoice; the invoice is reached via InvoicePayments.
+    mockListInvoicePayments = vi.fn().mockResolvedValue({ data: [{ invoice: 'in_1' }] });
     stripeClient = {
       retrieveCustomer: mockRetrieveCustomer,
-      stripe: { subscriptions: { retrieve: mockRetrieveSubscription } },
+      stripe: {
+        subscriptions: { retrieve: mockRetrieveSubscription },
+        invoicePayments: { list: mockListInvoicePayments },
+      },
     } as unknown as StripeClientService;
 
     mockHandleUserUpdates = vi.fn().mockResolvedValue({ success: true });
@@ -126,6 +155,13 @@ describe('StripeWebhookService', () => {
       track: vi.fn().mockResolvedValue(undefined),
     } as unknown as AnalyticsClientService;
 
+    mockReportConversion = vi.fn().mockResolvedValue(undefined);
+    mockReportRefund = vi.fn().mockResolvedValue(undefined);
+    toltService = {
+      reportConversion: mockReportConversion,
+      reportRefund: mockReportRefund,
+    } as unknown as ToltService;
+
     service = new StripeWebhookService(
       stripeClient,
       paymentStatusService,
@@ -133,12 +169,49 @@ describe('StripeWebhookService', () => {
       repo,
       savedMethodRepo,
       analyticsClient,
+      toltService,
     );
   });
 
   afterEach(() => {
     delete process.env.PRICE_EUR_MONTH_1;
     delete process.env.ALLOWED_PERIOD;
+  });
+
+  // This is the only reporter of Stripe charges. Tolt's native Stripe
+  // integration reports the same charges, so it must stay disconnected in the
+  // dashboard — otherwise every partner is credited twice.
+  describe('affiliate reporting', () => {
+    it('reports the settled invoice', async () => {
+      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+      expect(mockReportConversion).toHaveBeenCalledWith({
+        userId: 'user-1',
+        provider: 'stripe',
+        chargeId: 'in_1',
+        // amount_paid is 200 cents; the service reports major units.
+        amount: 2,
+        currency: 'EUR',
+        periodMonths: 1,
+        purpose: undefined,
+      });
+    });
+
+    it('does not report when fulfilment failed', async () => {
+      mockHandleUserUpdates.mockResolvedValue({ success: false });
+
+      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+      expect(mockReportConversion).not.toHaveBeenCalled();
+    });
+
+    it('does not report a redelivered invoice, which would pay the partner twice', async () => {
+      mockFindOneBy.mockResolvedValue({ id: 'in_1', status: 'paid', paidAt: new Date() });
+
+      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+      expect(mockReportConversion).not.toHaveBeenCalled();
+    });
   });
 
   describe('invoice.payment_succeeded', () => {
@@ -262,10 +335,16 @@ describe('StripeWebhookService', () => {
         makeInvoiceEvent('invoice.payment_failed', { billing_reason: 'subscription_cycle' }),
       );
 
-      expect(mockSave).toHaveBeenCalledWith(expect.objectContaining({ id: 'in_1', status: 'failed' }));
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'in_1', status: 'failed' }),
+      );
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.canceled'],
-        expect.objectContaining({ userId: 'user-1', provider: 'stripe', reason: 'general_decline' }),
+        expect.objectContaining({
+          userId: 'user-1',
+          provider: 'stripe',
+          reason: 'general_decline',
+        }),
       );
     });
 
@@ -286,6 +365,50 @@ describe('StripeWebhookService', () => {
         { id: 'cs_1' },
         expect.objectContaining({ stripeSubscriptionId: 'sub_1', customer: 'cus_1' }),
       );
+    });
+  });
+
+  // Our Tolt transactions are keyed by invoice id, but a refund arrives against
+  // a charge — and this API version removed `charge.invoice`, so the link has to
+  // be resolved through InvoicePayments.
+  describe('charge.refunded', () => {
+    it('resolves the invoice from the payment intent and reverses the commission', async () => {
+      await service.handleWebhook(makeRefundEvent());
+
+      expect(mockListInvoicePayments).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payment: { type: 'payment_intent', payment_intent: 'pi_1' },
+        }),
+      );
+      expect(mockReportRefund).toHaveBeenCalledWith({ chargeId: 'in_1', isPartial: false });
+    });
+
+    it('flags a partial refund so the whole commission is not voided', async () => {
+      await service.handleWebhook(makeRefundEvent({ amount_refunded: 50, refunded: false }));
+
+      expect(mockReportRefund).toHaveBeenCalledWith({ chargeId: 'in_1', isPartial: true });
+    });
+
+    it('ignores a charge with no invoice — a one-off extra-device purchase', async () => {
+      mockListInvoicePayments.mockResolvedValue({ data: [] });
+
+      await service.handleWebhook(makeRefundEvent());
+
+      expect(mockReportRefund).not.toHaveBeenCalled();
+    });
+
+    it('ignores a charge that carries no payment intent', async () => {
+      await service.handleWebhook(makeRefundEvent({ payment_intent: null }));
+
+      expect(mockListInvoicePayments).not.toHaveBeenCalled();
+      expect(mockReportRefund).not.toHaveBeenCalled();
+    });
+
+    it('never throws when the invoice lookup fails', async () => {
+      mockListInvoicePayments.mockRejectedValue(new Error('stripe down'));
+
+      await expect(service.handleWebhook(makeRefundEvent())).resolves.toBeUndefined();
+      expect(mockReportRefund).not.toHaveBeenCalled();
     });
   });
 });

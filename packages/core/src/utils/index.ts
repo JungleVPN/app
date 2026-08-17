@@ -13,6 +13,15 @@ export {
   getLocalizedText,
 } from './configParser';
 export { constructSubscriptionUrl } from './constructSubscriptionUrl';
+export type { CookieOptions } from './cookies';
+export {
+  readCookie,
+  readJsonCookie,
+  registrableDomain,
+  removeCookie,
+  writeCookie,
+  writeJsonCookie,
+} from './cookies';
 export { formatPlanPrice } from './currency';
 export { toDateString } from './date';
 export { detectOs } from './detectOs';
@@ -24,6 +33,13 @@ export { captureReferral, clearReferral, getReferral } from './referral';
 export type { Storage } from './storage';
 export { createStorage } from './storage';
 export { TemplateEngine } from './templateEngine';
+export type { ToltAttribution } from './tolt';
+export {
+  isNewAffCode,
+  readLandingAffCode,
+  readToltAttribution,
+  writeToltAttribution,
+} from './tolt';
 export { validateEmail } from './validators';
 export type { PresetName } from './vibrate';
 export { canVibrate, VibrationPresets, vibrate, vibrateStop } from './vibrate';

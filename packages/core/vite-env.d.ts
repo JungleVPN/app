@@ -35,6 +35,17 @@ interface ImportMeta {
 }
 
 interface Window {
-  /** Set by the Tolt tracking script (`cdn.tolt.io/tolt.js`) once a referral is attributed. */
-  tolt_referral?: string;
+  /**
+   * Set by the Tolt tracking script (`files.tlt-cdn.com/tlt.js`) once a referral
+   * link has been resolved. Both are `null` until its `/clicks` call returns, so
+   * reading them synchronously on mount will usually see nothing.
+   */
+  tolt_referral?: string | null;
+  tolt_data?: {
+    partner_id?: string;
+    click_id?: string;
+    program_id?: string;
+    customer_id?: string | null;
+    cookie_duration?: number;
+  } | null;
 }

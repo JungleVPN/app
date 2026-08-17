@@ -111,7 +111,12 @@ export class AutopaymentService {
         paymentMethodId: savedMethod.paymentMethodId,
         telegramId,
         description: process.env.PAYMENT_DESCRIPTION,
-        paidAt: new Date(),
+        // Left unstamped even though YooKassa already reports 'succeeded': the
+        // charge has settled but the subscription has not been extended yet.
+        // `handlePaymentSucceeded` does that and stamps `paidAt` afterwards, so
+        // pre-stamping here would make the webhook mistake the renewal for a
+        // replay and skip it — leaving the customer charged but not extended.
+        paidAt: null,
       });
       await this.yookassaPaymentRepo.save(record);
     }

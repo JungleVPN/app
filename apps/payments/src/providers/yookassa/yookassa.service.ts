@@ -18,16 +18,20 @@ import {
   type IGeneralPayMethod,
   type IPaymentMethod,
   isBankCardPaymentMethod,
+  isRefundNotification,
   isSavablePaymentMethod,
   type PaymentSession,
   Payments,
   type PaymentWebhookNotification,
+  type RefundWebhookNotification,
   WebhookEvent,
   WebhookEventEnum,
+  type YookassaWebhookNotification,
 } from '@workspace/types';
 import { Repository } from 'typeorm';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
 import { PromoInvalidError, PromoService } from '../../promo/promo.service';
+import { ToltService } from '../../tolt/tolt.service';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const CIDRMatcher = require('cidr-matcher');
@@ -50,6 +54,7 @@ export class YookassaService {
     private readonly paymentsUtils: PaymentsUtils,
     private readonly promoService: PromoService,
     private readonly analyticsClient: AnalyticsClientService,
+    private readonly toltService: ToltService,
   ) {}
 
   // ── Query methods ────────────────────────────────────────────────────────
@@ -170,17 +175,54 @@ export class YookassaService {
 
   // ── Webhook handling ────────────────────────────────────────────────────
 
-  async handleWebhook(payload: PaymentWebhookNotification, ip: string) {
+  async handleWebhook(payload: YookassaWebhookNotification, ip: string) {
     await this.validateWebhookPayload(payload, ip);
 
+    if (isRefundNotification(payload)) {
+      await this.handleRefundSucceeded(payload);
+      return;
+    }
+
+    const paymentPayload = payload as PaymentWebhookNotification;
     switch (payload.event) {
       case WebhookEventEnum['payment.succeeded']:
-        await this.handlePaymentSucceeded(payload);
+        await this.handlePaymentSucceeded(paymentPayload);
         break;
       case WebhookEventEnum['payment.canceled']:
-        await this.handlePaymentCanceled(payload);
+        await this.handlePaymentCanceled(paymentPayload);
         break;
     }
+  }
+
+  /**
+   * Reverses the affiliate commission when a charge is refunded.
+   *
+   * Only the affiliate side is touched — revoking the subscription time itself
+   * is a separate concern and deliberately not done here.
+   *
+   * Partial refunds are detected from the payment's own `refunded_amount`
+   * rather than this refund's amount, because several partial refunds can add
+   * up to a full one and only the running total says which case this is.
+   */
+  async handleRefundSucceeded(payload: RefundWebhookNotification): Promise<void> {
+    const { payment_id, id } = payload.object;
+
+    const record = await this.yookassaPaymentRepo.findOneBy({ id: payment_id });
+    if (!record?.userId) {
+      this.logger.warn(`Refund ${id}: no record for payment ${payment_id} — nothing to reverse`);
+      return;
+    }
+
+    const payment = await this.yooKassaProvider.getPayment(payment_id);
+    const paid = Number(payment.amount?.value ?? 0);
+    const refunded = Number(payment.refunded_amount?.value ?? 0);
+    const isPartial = refunded > 0 && paid > 0 && refunded < paid;
+
+    this.logger.log(
+      `Refund ${id} for payment ${payment_id}: ${refunded} of ${paid} ${payment.amount?.currency ?? 'RUB'} returned`,
+    );
+
+    await this.toltService.reportRefund({ chargeId: payment_id, isPartial });
   }
 
   async handlePaymentSucceeded(payload: PaymentWebhookNotification): Promise<void> {
@@ -196,10 +238,31 @@ export class YookassaService {
       record = await this.yookassaPaymentRepo.findOneBy({ id });
     }
 
-    if (!record?.userId || !record?.selectedPeriod) {
+    if (!record?.userId || record?.selectedPeriod == null) {
       this.logger.error(
         `Payment ${id}: no DB record found after retry — possible orphaned payment, manual recovery needed`,
       );
+      return;
+    }
+
+    // Replay guard, keyed solely on `paidAt` — the stamp this handler writes
+    // once fulfilment has actually happened.
+    //
+    // `record.status` is deliberately not consulted. It answers "what did we
+    // last write down", not "did this payment succeed": that question was
+    // already settled by validateWebhookPayload, which confirms the status
+    // against YooKassa's API before we get here. A row still reading 'pending'
+    // is simply an ordinary first delivery, and an autopayment row already
+    // reads 'succeeded' the moment it is created — guarding on status swallowed
+    // every renewal, which is how this check came to be removed in the first
+    // place.
+    //
+    // Keying on the stamp alone also fails safe: were the two fields ever to
+    // drift apart, this skips rather than extends a second time.
+    // Truthiness rather than `!== null`: an absent column must read as unstamped,
+    // never as already-handled.
+    if (record.paidAt) {
+      this.logger.log(`Payment ${id} already processed — ignoring duplicate webhook`);
       return;
     }
 
@@ -248,6 +311,24 @@ export class YookassaService {
       if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {
         await this.activatePaymentMethod({ userId: record.userId, payment_method });
       }
+
+      // Report to the affiliate program. Tolt has no YooKassa integration, so
+      // RUB revenue reaches it only from here — including renewals, since
+      // autopayments settle through this same handler.
+      //
+      // Awaited rather than fired-and-forgotten so failures are logged in order
+      // and the behaviour stays testable. Safe to block on: the call never
+      // throws, and `paidAt` was stamped above, so even if YooKassa times out
+      // waiting for us and redelivers, the replay guard drops the retry.
+      await this.toltService.reportConversion({
+        userId: record.userId,
+        provider: 'yookassa',
+        chargeId: id,
+        amount: Number(record.amount),
+        currency: 'RUB',
+        periodMonths: record.selectedPeriod,
+        purpose: record.purpose,
+      });
     }
   }
 
@@ -396,7 +477,7 @@ export class YookassaService {
 
   // ── Webhook validation ──────────────────────────────────────────────────
 
-  async validateWebhookPayload(payload: PaymentWebhookNotification, ip: string): Promise<void> {
+  async validateWebhookPayload(payload: YookassaWebhookNotification, ip: string): Promise<void> {
     const isIPRangeValid = await this.isIPRangeValid(ip);
     if (!isIPRangeValid) {
       throw new BadRequestException(`Webhook request from unauthorized IP: ${ip}`);
@@ -406,8 +487,14 @@ export class YookassaService {
       throw new BadRequestException('Invalid webhook payload structure');
     }
 
-    const paymentId = payload.object.id;
-    const webhookStatus = payload.object.status;
+    // A refund's `object.id` is the refund, not a payment, so there is no
+    // payment to look up under it and no comparable status. The underlying
+    // payment is verified in the handler instead.
+    if (isRefundNotification(payload)) return;
+
+    const paymentPayload = payload as PaymentWebhookNotification;
+    const paymentId = paymentPayload.object.id;
+    const webhookStatus = paymentPayload.object.status;
 
     const { status } = await this.yooKassaProvider.getPayment(paymentId);
     if (status !== webhookStatus) {
@@ -439,7 +526,7 @@ export class YookassaService {
     ].includes(event);
   }
 
-  isValidWebhookPayload(payload: PaymentWebhookNotification): boolean {
+  isValidWebhookPayload(payload: YookassaWebhookNotification): boolean {
     return (
       !!payload.object &&
       payload.type === 'notification' &&

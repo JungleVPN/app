@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { amountToMonths, buildPlanPricing, getPriceForPeriod } from '../utils/amount';
+import { amountToMonths, buildPlanPricing, getExtraDevicePrice, getPriceForPeriod } from '../utils/amount';
 
 describe('provider-agnostic amount config', () => {
   beforeEach(() => {
@@ -81,6 +81,33 @@ describe('provider-agnostic amount config', () => {
     it('throws when the price env var is not set', () => {
       delete process.env.PRICE_EUR_MONTH_1;
       expect(() => getPriceForPeriod('EUR', 1)).toThrow();
+    });
+  });
+
+  // A device slot is a one-off purchase with its own price, unrelated to any
+  // subscription period. Recording it at a period price misstates the sale
+  // everywhere it is later read back — payment history and admin search.
+  describe('getExtraDevicePrice', () => {
+    afterEach(() => {
+      delete process.env.PUBLIC_EXTRA_DEVICE_PRICE_EUR;
+      delete process.env.PUBLIC_EXTRA_DEVICE_PRICE_RUB;
+    });
+
+    it('returns the configured price per currency', () => {
+      process.env.PUBLIC_EXTRA_DEVICE_PRICE_EUR = '1';
+      process.env.PUBLIC_EXTRA_DEVICE_PRICE_RUB = '100';
+
+      expect(getExtraDevicePrice('EUR')).toBe('1');
+      expect(getExtraDevicePrice('RUB')).toBe('100');
+    });
+
+    it('throws rather than falling back to a subscription price', () => {
+      expect(() => getExtraDevicePrice('EUR')).toThrow();
+    });
+
+    it('throws on a non-positive price', () => {
+      process.env.PUBLIC_EXTRA_DEVICE_PRICE_EUR = '0';
+      expect(() => getExtraDevicePrice('EUR')).toThrow();
     });
   });
 

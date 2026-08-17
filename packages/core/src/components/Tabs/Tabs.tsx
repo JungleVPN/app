@@ -145,7 +145,14 @@ export const Navbar = () => {
         devices: profileDevicesPath,
         menu: profileMenuPath,
       }) satisfies Record<TabValue, string>,
-    [profileSubscriptionPath, profilePaymentPath, profilePlansPath, hasActiveMethod, profileDevicesPath, profileMenuPath],
+    [
+      profileSubscriptionPath,
+      profilePaymentPath,
+      profilePlansPath,
+      hasActiveMethod,
+      profileDevicesPath,
+      profileMenuPath,
+    ],
   );
 
   const tabs = useMemo<TabDef[]>(

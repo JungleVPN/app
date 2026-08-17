@@ -1,12 +1,5 @@
 import * as process from 'node:process';
-import {
-  Body,
-  Controller,
-  Headers,
-  HttpCode,
-  Post,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Body, Controller, Headers, HttpCode, Post, UnauthorizedException } from '@nestjs/common';
 import type {
   CreateTelegramStarsInvoiceDto,
   TelegramStarsInvoiceResponse,

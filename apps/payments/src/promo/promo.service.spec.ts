@@ -1,7 +1,7 @@
+import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { Promo } from '@workspace/database';
 import type { AdminPaymentDto, PromoEffect } from '@workspace/types';
 import { describe, expect, it, vi } from 'vitest';
-import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { PromoInvalidError, PromoService } from './promo.service';
 
 const BONUS: PromoEffect = { type: 'bonus_months', months: 2 };

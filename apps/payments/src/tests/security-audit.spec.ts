@@ -20,6 +20,9 @@ vi.mock('@workspace/database', () => ({
   SavedPaymentMethod: class {},
   Promo: class {},
   PromoRedemption: class {},
+  ToltReferral: class {},
+  ToltTransaction: class {},
+  FxRate: class {},
 }));
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -105,6 +108,7 @@ describe('Security Audit', () => {
         {} as any,
         {} as any,
         { track: vi.fn() } as any,
+        { reportConversion: vi.fn() } as any,
       );
     });
 
@@ -168,6 +172,7 @@ describe('Security Audit', () => {
         {} as any,
         {} as any,
         { track: vi.fn() } as any,
+        { reportConversion: vi.fn() } as any,
       );
       (svc as any).isIPRangeValid = mockIsIPRangeValid;
 
@@ -248,6 +253,7 @@ describe('Security Audit', () => {
         {} as any,
         {} as any,
         { track: vi.fn() } as any,
+        { reportConversion: vi.fn() } as any,
       );
     });
 
@@ -287,6 +293,7 @@ describe('Security Audit', () => {
         {} as any,
         {} as any,
         { track: vi.fn() } as any,
+        { reportConversion: vi.fn() } as any,
       );
 
       const payload = makeSucceededPayload('pay_replay');

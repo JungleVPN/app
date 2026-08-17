@@ -11,6 +11,7 @@ import { CommonModule } from '@payments/providers/common/common.module';
 import { StripeModule } from '@payments/providers/stripe/stripe.module';
 import { TelegramStarsModule } from '@payments/providers/telegram-stars/telegram-stars.module';
 import { YookassaModule } from '@payments/providers/yookassa/yookassa.module';
+import { ToltModule } from '@payments/tolt/tolt.module';
 import { dataSourceOptions } from '@workspace/database';
 import { ClientAuthModule } from './auth/client-auth.module';
 
@@ -33,6 +34,7 @@ import { ClientAuthModule } from './auth/client-auth.module';
     AutopaymentModule,
     BotNotificationModule,
     PromoModule,
+    ToltModule,
   ],
 })
 export class AppModule {}

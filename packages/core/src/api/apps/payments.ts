@@ -1,10 +1,13 @@
 import {
   type AdminPaymentDto,
   apiRoutes,
+  type CaptureToltReferralDto,
   type CreateStripeSessionDto,
   type CreateTelegramStarsInvoiceDto,
   type CreateYookassaSessionDto,
   PaymentSession,
+  type RecordToltClickDto,
+  type RecordToltClickResponse,
   SavedMethodDto,
   type StripeSubscriptionStatusDto,
   type SubscriptionPlanDto,
@@ -56,6 +59,22 @@ export function createPaymentsApi(client: ApiClient) {
 
     async validatePromo(dto: ValidatePromoDto): Promise<ValidatePromoResponse> {
       return client.post<ValidatePromoResponse>(apiRoutes.payments.promoValidate, dto);
+    },
+
+    /**
+     * Persist the browser's affiliate attribution against the authenticated
+     * user, so it survives past the session that produced it.
+     */
+    async captureToltReferral(dto: CaptureToltReferralDto): Promise<{ ok: true }> {
+      return client.post<{ ok: true }>(apiRoutes.payments.toltReferral, dto);
+    },
+
+    /**
+     * Record an affiliate click and resolve its partner. Unauthenticated — the
+     * visitor has no account yet.
+     */
+    async recordToltClick(dto: RecordToltClickDto): Promise<RecordToltClickResponse> {
+      return client.post<RecordToltClickResponse>(apiRoutes.payments.toltClick, dto);
     },
 
     /** Payment history for the authenticated user across all providers. */

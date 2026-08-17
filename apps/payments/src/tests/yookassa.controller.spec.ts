@@ -11,6 +11,9 @@ vi.mock('@workspace/database', () => ({
   SavedPaymentMethod: class {},
   Promo: class {},
   PromoRedemption: class {},
+  ToltReferral: class {},
+  ToltTransaction: class {},
+  FxRate: class {},
 }));
 
 describe('YookassaController', () => {
@@ -96,6 +99,7 @@ describe('YookassaController', () => {
         amount: { value: '100.00', currency: 'RUB' },
         description: 'test',
         save_payment_method: true,
+        selectedPeriod: 1,
       };
       const session = { id: 'sess-1', url: 'https://yk/sess-1' };
       (yookassaService.createPaymentSession as any).mockResolvedValue(session);

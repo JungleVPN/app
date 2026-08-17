@@ -7,11 +7,13 @@ import { Payments, WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
 import { Repository } from 'typeorm';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
+import { ToltService } from '../../tolt/tolt.service';
 import type { StripeInvoicePayload } from './stripe.types';
 import {
   customerToId,
   mapEURAmountToMonthsNumber,
   mapToCorrectAmount,
+  paymentIntentToId,
   subscriptionToId,
 } from './stripe.utils';
 import { StripeClientService } from './stripe-client.service';
@@ -29,6 +31,7 @@ export class StripeWebhookService {
     @InjectRepository(SavedPaymentMethod)
     private readonly savedMethodRepo: Repository<SavedPaymentMethod>,
     private readonly analyticsClient: AnalyticsClientService,
+    private readonly toltService: ToltService,
   ) {}
 
   async handleWebhook(event: Stripe.Event) {
@@ -44,6 +47,9 @@ export class StripeWebhookService {
         break;
       case 'customer.subscription.deleted':
         await this.handleSubscriptionDeleted(event);
+        break;
+      case 'charge.refunded':
+        await this.handleChargeRefunded(event);
         break;
       default:
         this.logger.debug(`Unhandled Stripe event: ${event.type}`);
@@ -197,6 +203,22 @@ export class StripeWebhookService {
         isFirstPayment,
         isAutoPayment: invoice.billing_reason === 'subscription_cycle',
       });
+
+      // Renewals arrive here too — every cycle raises its own invoice — so this
+      // covers the recurring commission as well as the first payment.
+      // `amount` is nullable on the payload type; without one there is nothing
+      // meaningful to report, and a guessed figure would misstate a commission.
+      if (payload.amount !== null) {
+        await this.toltService.reportConversion({
+          userId: payload.userId,
+          provider: 'stripe',
+          chargeId: invoice.id,
+          amount: payload.amount,
+          currency: 'EUR',
+          periodMonths: selectedPeriod,
+          purpose: record?.purpose,
+        });
+      }
     }
   }
 
@@ -232,6 +254,64 @@ export class StripeWebhookService {
       paymentId: invoice.id,
       reason: 'general_decline',
     });
+  }
+
+  // ── charge.refunded ──────────────────────────────────────────────────────
+  /**
+   * Reverses the affiliate commission when a charge is refunded.
+   *
+   * Only the affiliate side is touched — revoking subscription time is a
+   * separate concern and deliberately not done here.
+   *
+   * Commissions are keyed by invoice id, but a refund arrives against a charge,
+   * and this API version no longer exposes `charge.invoice`. The link runs
+   * charge → payment intent → InvoicePayment → invoice, so it costs one lookup.
+   * Paid on the refund path rather than on every payment, since refunds are rare.
+   */
+  private async handleChargeRefunded(event: Stripe.Event) {
+    const charge = event.data.object as Stripe.Charge;
+
+    const paymentIntentId = paymentIntentToId(charge.payment_intent);
+    if (!paymentIntentId) {
+      this.logger.warn(`Refunded charge ${charge.id} has no payment intent — cannot resolve`);
+      return;
+    }
+
+    const invoiceId = await this.findInvoiceId(paymentIntentId);
+    if (!invoiceId) {
+      // A charge with no invoice is a one-off purchase (extra device), which
+      // never earned a commission in the first place.
+      this.logger.log(`Refunded charge ${charge.id} has no invoice — nothing to reverse`);
+      return;
+    }
+
+    // Stripe reports the running total refunded, so several partial refunds
+    // adding up to the full amount are correctly seen as a full refund.
+    const isPartial = charge.amount_refunded > 0 && charge.amount_refunded < charge.amount;
+
+    this.logger.log(
+      `Charge ${charge.id} refunded ${charge.amount_refunded} of ${charge.amount} — invoice ${invoiceId}`,
+    );
+
+    await this.toltService.reportRefund({ chargeId: invoiceId, isPartial });
+  }
+
+  /** The invoice a payment intent settled, or null if it was not an invoice payment. */
+  private async findInvoiceId(paymentIntentId: string): Promise<string | null> {
+    try {
+      const payments = await this.stripeClient.stripe.invoicePayments.list({
+        payment: { type: 'payment_intent', payment_intent: paymentIntentId },
+        limit: 1,
+      });
+
+      const invoice = payments.data[0]?.invoice;
+      return typeof invoice === 'string' ? invoice : (invoice?.id ?? null);
+    } catch (error) {
+      this.logger.error(
+        `Could not resolve an invoice for payment intent ${paymentIntentId}: ${(error as Error).message}`,
+      );
+      return null;
+    }
   }
 
   // ── customer.subscription.deleted ────────────────────────────────────────

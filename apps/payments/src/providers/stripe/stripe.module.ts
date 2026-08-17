@@ -13,6 +13,7 @@ import {
 } from '@workspace/database';
 import { PaymentStatusModule } from '../../payment-status/payment-status.module';
 import { PromoModule } from '../../promo/promo.module';
+import { ToltModule } from '../../tolt/tolt.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { PromoModule } from '../../promo/promo.module';
     PaymentStatusModule,
     PromoModule,
     AnalyticsClientModule,
+    ToltModule,
   ],
   controllers: [StripeController],
   exports: [StripeProvider, StripeWebhookService],

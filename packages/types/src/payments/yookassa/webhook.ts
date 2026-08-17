@@ -1,3 +1,4 @@
+import type { IAmount } from './general';
 import type { Payments } from './payment';
 
 /** События для вебхуков */
@@ -71,3 +72,38 @@ export interface IWebhookNotification<
 
 /** Webhook-уведомление о событиях платежа (payment.succeeded / canceled / waiting_for_capture). */
 export type PaymentWebhookNotification = IWebhookNotification<WebhookEvent, Payments.IPayment>;
+
+/**
+ * Возврат средств.
+ *
+ * `id` — идентификатор возврата, а не платежа: исходный платёж указан в
+ * `payment_id`. Возврат может быть частичным, поэтому `amount` нужно сравнивать
+ * с суммой платежа.
+ *
+ * @see https://yookassa.ru/developers/api#refund_object
+ */
+export interface IRefund {
+  readonly id: string;
+  /** Идентификатор платежа, по которому сделан возврат. */
+  readonly payment_id: string;
+  readonly status: 'pending' | 'succeeded' | 'canceled';
+  readonly amount: IAmount;
+  readonly created_at: string;
+  readonly description?: string;
+}
+
+/** Webhook-уведомление о возврате (refund.succeeded). */
+export type RefundWebhookNotification = IWebhookNotification<WebhookEvent, IRefund>;
+
+/** Любое уведомление ЮKassa — платёж или возврат. */
+export type YookassaWebhookNotification = PaymentWebhookNotification | RefundWebhookNotification;
+
+/** Отличает уведомление о возврате от платёжного по наличию `payment_id`. */
+export function isRefundNotification(
+  payload: YookassaWebhookNotification,
+): payload is RefundWebhookNotification {
+  return (
+    payload.event === WebhookEventEnum['refund.succeeded'] &&
+    typeof (payload.object as IRefund)?.payment_id === 'string'
+  );
+}

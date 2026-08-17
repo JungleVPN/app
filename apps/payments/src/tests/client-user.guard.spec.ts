@@ -1,9 +1,8 @@
 import { createHmac, createSign, generateKeyPairSync, type KeyObject } from 'node:crypto';
 import { UnauthorizedException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
-
-import { parseTelegramInitData } from '../auth/telegram-init-data';
 import { parseSupabaseJwt } from '../auth/supabase-jwt';
+import { parseTelegramInitData } from '../auth/telegram-init-data';
 
 const BOT_TOKEN = 'test-bot-token-1234567890';
 
@@ -91,9 +90,7 @@ describe('parseTelegramInitData', () => {
     const authDate = Math.floor(Date.now() / 1000);
     const params = { auth_date: String(authDate) };
     const secretKey = createHmac('sha256', 'WebAppData').update(BOT_TOKEN).digest();
-    const hash = createHmac('sha256', secretKey)
-      .update(`auth_date=${authDate}`)
-      .digest('hex');
+    const hash = createHmac('sha256', secretKey).update(`auth_date=${authDate}`).digest('hex');
     const raw = new URLSearchParams({ ...params, hash }).toString();
     expect(() => parseTelegramInitData(raw, BOT_TOKEN)).toThrow(UnauthorizedException);
   });
