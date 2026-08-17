@@ -1,12 +1,10 @@
 import { AlertDialog, Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import { Link } from '../../../../components';
-import { coreEnv } from '../../../../env';
-import { usePlatformStore, useTermsStore } from '../../../../stores';
+import { Link, SupportPopover } from '../../../../components';
+import { useTermsStore } from '../../../../stores';
 
 export function TermsDialog() {
   const { t } = useTranslation();
-  const { platformType } = usePlatformStore();
   const { isOpen, setOpen, close } = useTermsStore();
 
   return (
@@ -37,14 +35,16 @@ export function TermsDialog() {
                 </p>
                 <p className='text-muted'>
                   {t('terms.dialog.renewalCostLead')}
-                  <Link
-                    className='underline underline-offset-2'
-                    href={coreEnv.supportUrl}
-                    target={platformType === 'web' ? '_blank' : '_self'}
-                    rel='noopener noreferrer'
-                  >
-                    {t('terms.dialog.supportLink')}
-                  </Link>
+                  <SupportPopover
+                    trigger={
+                      <Button
+                        variant='tertiary'
+                        className='h-auto min-w-0 bg-transparent p-0 text-sm text-muted underline underline-offset-2'
+                      >
+                        {t('terms.dialog.supportLink')}
+                      </Button>
+                    }
+                  />
                 </p>
               </div>
               <div>

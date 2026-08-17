@@ -7,6 +7,7 @@ export { AuthButtons } from './Header/AuthButtons';
 export { Header } from './Header/Header';
 export { LanguageSwitcher } from './Header/LanguageSwitcher';
 export { SupportButton } from './Header/SupportButton';
+export { SupportPopover } from './Header/SupportPopover';
 export { ThemeToggle } from './Header/ThemeToggle';
 export { InfoBlock } from './InfoBlock/InfoBlock';
 export { InstallationGuideConnector } from './InstallationGuide';
