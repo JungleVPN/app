@@ -8,7 +8,7 @@ import {
 } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FreeTrialSection } from './FreeTrialSection';
+import { Container } from '../../ui';
 
 const FAQ_ICONS: ReactNode[] = [
   <IconDownload size={20} key={1} />,
@@ -26,13 +26,15 @@ export function FAQSection() {
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
+        <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
           {t('landing.faq.title')}
         </h2>
         <p className='max-w-2xl text-base text-muted lg:text-lg'>{t('landing.faq.subtitle')}</p>
       </div>
-      <div className='flex flex-col items-center justify-center gap-4 text-center md:flex-row'>
-        <FreeTrialSection />
+      <Container
+        maxWidth={'sm'}
+        className='flex flex-col items-center justify-center gap-4 text-center md:flex-row'
+      >
         <Accordion className='w-full bg-surface-secondary' variant='surface'>
           {FAQ_KEYS.map((key, index) => (
             <Accordion.Item key={key}>
@@ -51,7 +53,7 @@ export function FAQSection() {
             </Accordion.Item>
           ))}
         </Accordion>
-      </div>
+      </Container>
     </section>
   );
 }

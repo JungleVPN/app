@@ -20,7 +20,7 @@ export default function ConfirmPage() {
       <Form onSubmit={(e) => void handleConfirm(e)}>
         <Block className={'p-4'}>
           <div className='flex flex-col gap-4 items-center justify-center'>
-            <h1 className='text-center text-2xl font-semibold text-foreground'>
+            <h1 className='text-center text-xl font-semibold text-foreground'>
               {t('confirm.title')}
             </h1>
 

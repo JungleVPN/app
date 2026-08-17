@@ -547,7 +547,8 @@
     },
     "howItWorks": {
       "chip": "Get started",
-      "title": "Up and running in minutes",
+      "titleStart": "Just",
+      "titleBrand": "three simple steps",
       "subtitle": "A simple three-step setup designed to get you connected quickly and securely.",
       "install": {
         "title": "Install HAPP",

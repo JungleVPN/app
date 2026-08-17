@@ -30,10 +30,10 @@ export function ContentCard(props: ContentCardProps) {
     return (
       <Card
         variant='secondary'
-        className={`relative flex flex-col justify-between p-8 shadow-surface shadow-md min-h-64 ${className ?? ''}`}
+        className={`relative flex h-full flex-col justify-between p-8 shadow-surface shadow-md min-h-64 ${className ?? ''}`}
       >
         <div className={icon ? 'pe-32' : ''}>
-          <h3 className='mb-3 text-2xl font-bold'>{title}</h3>
+          <h3 className='mb-3 text-xl font-bold'>{title}</h3>
           {description && <p className='text-muted text-sm leading-relaxed'>{description}</p>}
         </div>
         {learnMoreLabel && (

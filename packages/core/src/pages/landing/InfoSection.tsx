@@ -70,7 +70,7 @@ export function InfoSection() {
     <section>
       {/* ── What is a VPN? ── */}
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
+        <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
           {t('landing.info.what.title')}
         </h2>
         <p className='max-w-2xl text-base text-muted lg:text-lg'>
@@ -101,7 +101,7 @@ export function InfoSection() {
 
       {/* ── Why you need a VPN ── */}
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
+        <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
           {t('landing.info.why.title')}
         </h2>
         <p className='max-w-2xl text-base text-muted lg:text-lg'>
@@ -132,7 +132,7 @@ export function InfoSection() {
         {STATS.map(({ key, value }) => (
           <GridItem key={key} size={{ base: 12, sm: 6, lg: 3 }}>
             <div className='flex flex-col items-center gap-1 text-center'>
-              <span className='text-3xl font-bold text-foreground lg:text-4xl'>{value}</span>
+              <span className='text-xl font-bold text-foreground lg:text-4xl'>{value}</span>
               <span className='text-xs text-muted lg:text-sm'>
                 {t(`landing.info.stats.${key}`)}
               </span>
@@ -143,7 +143,7 @@ export function InfoSection() {
 
       {/* ── Device support ── */}
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
+        <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
           {t('landing.info.devices.title')}
         </h2>
         <p className='max-w-2xl text-base text-muted lg:text-lg'>

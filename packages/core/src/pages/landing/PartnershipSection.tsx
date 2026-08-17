@@ -16,7 +16,7 @@ export function PartnershipSection() {
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl'>
+        <h2 className='text-xl font-bold tracking-tight sm:text-3xl lg:text-4xl'>
           {t('landing.partnership.title')}
         </h2>
         <p className='text-muted text-base lg:text-lg'>{t('landing.partnership.subtitle')}</p>

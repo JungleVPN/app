@@ -21,7 +21,7 @@ export default function LoginPage() {
     <div className='mt-24 w-full flex flex-col gap-3'>
       <Surface variant='transparent'>
         <Block className={'p-4'}>
-          <h1 className={`text-center text-2xl font-semibold ${css.title}`}>{t('login.title')}</h1>
+          <h1 className={`text-center text-xl font-semibold ${css.title}`}>{t('login.title')}</h1>
 
           <div className='mt-2 flex flex-col gap-4'>
             {(message || error) && (

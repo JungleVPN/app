@@ -25,7 +25,7 @@ export function FeaturesSection() {
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
+        <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
           {t('landing.features.titleStart')}{' '}
           <span className='bg-linear-to-r from-purple-400 to-yellow-400 bg-clip-text text-transparent'>
             {t('landing.features.titleBrand')}

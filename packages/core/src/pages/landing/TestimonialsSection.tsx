@@ -139,7 +139,7 @@ export function TestimonialsSection() {
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>Testimonials</Chip.Label>
         </Chip>
-        <h2 className='text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl'>
+        <h2 className='text-xl font-bold tracking-tight sm:text-3xl lg:text-4xl'>
           What our users say
         </h2>
         <p className='max-w-xl text-sm text-muted'>

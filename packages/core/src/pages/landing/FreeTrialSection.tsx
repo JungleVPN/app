@@ -19,7 +19,7 @@ export function FreeTrialSection() {
           </Chip>
 
           <div className='flex flex-col gap-3'>
-            <h2 className='text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl'>
+            <h2 className='text-xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl'>
               {t('landing.freeTrial.title', { days })}
             </h2>
             <p className='text-base text-white/80 lg:text-lg'>{t('landing.freeTrial.subtitle')}</p>

@@ -1,9 +1,9 @@
 import { Chip } from '@heroui/react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import GlobeLottie from '../../assets/lottie/GlobeLottie.lottie?url';
-import ServersLottie from '../../assets/lottie/Servers.lottie?url';
-import UsersLottie from '../../assets/lottie/Users.lottie?url';
+import UsersLottie from '../../assets/lottie/avatar.lottie?url';
+import GlobeLottie from '../../assets/lottie/globe.lottie?url';
+import ServersLottie from '../../assets/lottie/servers.lottie?url';
 import { ContentCard } from '../../components/ContentCard';
 import { Grid, GridItem, LottieIcon } from '../../ui';
 
@@ -36,7 +36,7 @@ export function TrustSection() {
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>{t('landing.trust.chip')}</Chip.Label>
         </Chip>
-        <h2 className='text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl'>
+        <h2 className='text-xl font-bold tracking-tight sm:text-3xl lg:text-4xl'>
           {t('landing.trust.title')}
         </h2>
       </div>

@@ -11,23 +11,19 @@ import { HowItWorksSection } from './HowItWorksSection';
 import { InfoSection } from './InfoSection';
 import { PartnershipSection } from './PartnershipSection';
 import { PricingSection } from './PricingSection';
-import { Stats } from './Stats';
 import { TestimonialsSection } from './TestimonialsSection';
 import { TrustSection } from './TrustSection';
-import { WorldMap } from './WorldMap';
 
 export default function LandingPage() {
   return (
-    <div className='flex flex-col gap-32'>
+    <div className='flex flex-col gap-48'>
       <Container>
         <HeroSection />
       </Container>
       <Container>
         <TrustSection />
       </Container>
-      <Container>
-        <CountriesMarquee />
-      </Container>
+      <CountriesMarquee />
       <Container>
         <HowItWorksSection />
       </Container>
@@ -36,10 +32,6 @@ export default function LandingPage() {
       </Container>
       <Container>
         <BentoSection />
-      </Container>
-      <Container className='py-24 md:py-48'>
-        <WorldMap />
-        <Stats />
       </Container>
       <Container>
         <ComparisonSection />
@@ -52,6 +44,9 @@ export default function LandingPage() {
       </Container>
       <Container>
         <FAQSection />
+      </Container>
+      <Container>
+        <FreeTrialSection />
       </Container>
       <Container id='partnership'>
         <PartnershipSection />
