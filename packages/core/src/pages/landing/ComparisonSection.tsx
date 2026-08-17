@@ -8,18 +8,7 @@ type Row = {
   theirs: string;
 };
 
-const ROW_KEYS = [
-  'traffic',
-  'locations',
-  'performance',
-  'devices',
-  'support',
-  'privacy',
-  'advertising',
-  'setup',
-  'smartRouting',
-  'bestFor',
-] as const;
+const ROW_KEYS = ['traffic', 'devices', 'support', 'privacy', 'advertising'] as const;
 
 export function ComparisonSection() {
   const { t } = useTranslation();
@@ -50,9 +39,9 @@ export function ComparisonSection() {
       <div className='overflow-hidden rounded-2xl border border-default-200 bg-content1'>
         <table className='w-full table-fixed'>
           <colgroup>
-            <col className='w-1/2 md:w-[45%]' />
-            <col className='w-1/4 md:w-[27.5%]' />
-            <col className='w-1/4 md:w-[27.5%]' />
+            <col className='w-1/3 md:w-[40%]' />
+            <col className='w-1/4 md:w-[30%]' />
+            <col className='w-1/4 md:w-[30%]' />
           </colgroup>
           <thead>
             <tr className='border-b border-default-200'>
@@ -83,10 +72,10 @@ export function ComparisonSection() {
                 className={i < rows.length - 1 ? 'border-b border-default-200' : undefined}
               >
                 <td className='px-6 py-4 text-sm text-foreground'>{row.feature}</td>
-                <td className='px-4 py-4 text-center text-sm font-semibold text-foreground'>
+                <td className='px-2 py-4 text-center text-sm font-semibold text-foreground'>
                   {row.ours}
                 </td>
-                <td className='px-4 py-4 text-center text-sm text-muted'>{row.theirs}</td>
+                <td className='px-2 py-4 text-center text-sm text-muted'>{row.theirs}</td>
               </tr>
             ))}
           </tbody>

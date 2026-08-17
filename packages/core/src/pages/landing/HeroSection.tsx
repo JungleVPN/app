@@ -28,9 +28,9 @@ export function HeroSection() {
   const navigate = useNavigate();
 
   const features = [
-    { Icon: IconShieldCheck, text: t('landing.hero.features.smartSplit') },
-    { Icon: IconRocket, text: t('landing.hero.features.russianServices') },
-    { Icon: IconBolt, text: t('landing.hero.features.speed') },
+    { Icon: IconShieldCheck, text: t('landing.hero.features.feature1') },
+    { Icon: IconRocket, text: t('landing.hero.features.feature2') },
+    { Icon: IconBolt, text: t('landing.hero.features.feature3') },
   ];
 
   const stats = [

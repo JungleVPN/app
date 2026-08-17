@@ -44,7 +44,9 @@ export function FAQSection() {
                 </Accordion.Trigger>
               </Accordion.Heading>
               <Accordion.Panel>
-                <Accordion.Body>{t(`landing.faq.${key}.answer`)}</Accordion.Body>
+                <Accordion.Body className={'text-start'}>
+                  {t(`landing.faq.${key}.answer`)}
+                </Accordion.Body>
               </Accordion.Panel>
             </Accordion.Item>
           ))}

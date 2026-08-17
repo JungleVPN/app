@@ -32,7 +32,7 @@ export function ContentCard(props: ContentCardProps) {
         variant='secondary'
         className={`relative flex flex-col justify-between p-8 shadow-surface shadow-md min-h-64 ${className ?? ''}`}
       >
-        <div className={icon ? 'pe-40' : ''}>
+        <div className={icon ? 'pe-32' : ''}>
           <h3 className='mb-3 text-2xl font-bold'>{title}</h3>
           {description && <p className='text-muted text-sm leading-relaxed'>{description}</p>}
         </div>

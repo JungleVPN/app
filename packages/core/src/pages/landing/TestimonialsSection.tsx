@@ -135,7 +135,7 @@ export function TestimonialsSection() {
     <section>
       <style>{keyframesStyle}</style>
 
-      <div className='mb-16 flex flex-col items-center gap-4 px-6 text-center'>
+      <div className='mb-16 flex flex-col items-center gap-4 text-center'>
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>Testimonials</Chip.Label>
         </Chip>

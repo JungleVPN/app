@@ -505,16 +505,16 @@
   },
   "landing": {
     "hero": {
-      "title": "Fast. Private. Secure. Wherever you go.",
+      "title": "JungleVPN",
       "subtitle": "Protect your connection, browse privately and stay secure on public Wi-Fi — with one VPN for all your devices.",
       "cta": "Try free for 3 days",
       "login": "Login",
       "trial": "No credit card required",
       "guarantee": "30-day money-back guarantee",
       "features": {
-        "smartSplit": "Smart routing — no constant VPN switching",
-        "russianServices": "Fast servers across multiple locations",
-        "speed": "Unlimited traffic on all your devices"
+        "feature1": "Unlimited traffic on all your devices",
+        "feature2": "Fast servers across multiple locations",
+        "feature3": "Caring support team 24/7"
       },
       "stats": {
         "locations": {
@@ -551,10 +551,10 @@
       "subtitle": "A simple three-step setup designed to get you connected quickly and securely.",
       "install": {
         "title": "Install HAPP",
-        "description": "Download and install the HAPP app on your device. Available for supported desktop and mobile platforms."
+        "description": "Download and install the HAPP app on your device. Supported on all platforms."
       },
       "subscribe": {
-        "title": "Add JungleVPN to HAPP",
+        "title": "Add your link to HAPP",
         "description": "Open your personal subscription link and import it into HAPP. Your connection settings are added automatically — no manual server setup required."
       },
       "connect": {
@@ -565,9 +565,9 @@
     "trust": {
       "chip": "Privacy-first",
       "title": "Trusted by thousands",
-      "users": "Trusted by users worldwide for private browsing, secure connections on public networks and reliable access while travelling. JungleVPN is designed to deliver a consistent experience across everyday use cases without unnecessary complexity. One subscription for all your devices.",
-      "countries": "A distributed network of server locations gives you greater control over how and where you connect. Choose the location that best fits your needs while maintaining a secure, encrypted connection wherever you are. Flexible access across multiple regions.",
-      "servers": "High-speed infrastructure built for stable everyday performance across browsing, streaming, video calls and other data-intensive activity. Our network is continuously monitored to maintain reliability, capacity and consistent connection quality as demand grows. Unlimited traffic with no monthly data cap."
+      "users": "Trusted by users worldwide for private browsing, secure connections on public networks and reliable access while travelling.  ",
+      "countries": "A distributed network of server locations gives you greater control over how and where you connect. Choose the location that best fits your needs while maintaining a secure connection wherever you are.",
+      "servers": "High-speed infrastructure built for stable everyday performance across browsing, streaming, video calls and other data-intensive activity. Our network is continuously monitored to maintain reliability, capacity and consistent connection quality as demand grows. "
     },
     "features": {
       "title": "Why people choose JungleVPN",
@@ -576,7 +576,7 @@
       "subtitle": "Simple setup, reliable everyday use and support when you need it.",
       "ready": {
         "title": "Ready in minutes",
-        "description": "Get started through HAPP with a simple subscription import — no manual server setup or technical configuration required. From installation to your first secure connection, the entire setup takes only a few minutes. No technical skills required."
+        "description": "Get started with a simple subscription import — no manual server setup or technical configuration required. From installation to your first secure connection, the entire setup takes only a few minutes."
       },
       "money": {
         "title": "30-day money-back guarantee",
@@ -631,7 +631,7 @@
       },
       "q2": {
         "question": "Which devices can I use JungleVPN on?",
-        "answer": "JungleVPN works through HAPP on supported desktop and mobile platforms. One subscription can be used across all your devices, so you can protect your phone, laptop and other supported devices with a single plan."
+        "answer": "JungleVPN works on all platforms. One subscription can be used across all your devices, so you can protect your phone, laptop and other supported devices with a single plan."
       },
       "q3": {
         "question": "What does the 3-day free trial include?",
@@ -653,18 +653,18 @@
       "learnMore": "Learn more",
       "affiliate": {
         "title": "Affiliate Program",
-        "description": "Best for creators & partners. Turn your audience into a recurring revenue stream. Share your unique JungleVPN partner link and earn commissions from qualifying subscriptions generated through your referrals. Track clicks, subscriptions and earnings from your partner dashboard.",
+        "description": "Best for creators & partners. Turn your audience into a recurring revenue stream. Share your unique JungleVPN partner link and earn commissions from qualifying subscriptions generated through your referrals.",
         "cta": "Become a partner →"
       },
       "referral": {
         "title": "Referral Program",
-        "description": "Best for JungleVPN users. Invite friends using your personal referral link. When they join through your invitation, both of you can receive the reward included in the current referral offer. Simple sharing, no partner account required.",
+        "description": "Best for JungleVPN users. Invite friends using your personal referral link. When they join through your invitation, both of you can receive the reward.",
         "cta": "Invite a friend →"
       }
     },
     "freeTrial": {
       "badge": "Free trial",
-      "title": "Try JungleVPN free for {{days}} days",
+      "title": "Try JungleVPN for Free",
       "subtitle": "Test the connection, available server locations and everyday performance before choosing a plan. No credit card required.",
       "cta": "Start your free trial",
       "disclaimer": "{{days}}-day free trial · No credit card required · 30-day money-back guarantee"
@@ -697,7 +697,7 @@
         "description": "Invite friends to JungleVPN using your personal referral link and receive rewards when they join. Simple sharing. Clear rewards."
       },
       "privacy": {
-        "title": "Privacy-first by design",
+        "title": "Privacy-first",
         "description": "JungleVPN is built to minimise unnecessary data collection and keep your connection private. No vague promises — just clear privacy practices."
       },
       "speed": {
@@ -705,8 +705,8 @@
         "description": "Browse, stream, make video calls and use online services without a monthly traffic allowance. No monthly traffic limit."
       },
       "smartRouting": {
-        "title": "Smart routing",
-        "description": "Route only the traffic that needs VPN protection while other connections continue directly. Less manual switching, more seamless everyday use."
+        "title": "One VPN for all your devices",
+        "description": "Install JungleVPN on any of your devices — we offer a wide range of compatible apps."
       }
     },
     "comparison": {
@@ -721,39 +721,39 @@
       },
       "rows": {
         "traffic": {
-          "feature": "Traffic allowance",
-          "ours": "Unlimited traffic with no monthly data cap",
-          "theirs": "Often limited by monthly or daily allowances"
+          "feature": "Traffic",
+          "ours": "Unlimited",
+          "theirs": "Often limited"
         },
         "locations": {
           "feature": "Server locations",
-          "ours": "Multiple locations across 6+ countries",
+          "ours": "Multiple locations across the world",
           "theirs": "Usually fewer locations and less choice"
         },
         "performance": {
           "feature": "Performance",
-          "ours": "High-speed infrastructure designed for browsing, streaming and calls",
-          "theirs": "Speeds may be restricted or reduced during busy periods"
+          "ours": "High-speed infrastructure",
+          "theirs": "Speeds may be restricted during busy periods"
         },
         "devices": {
           "feature": "Device support",
-          "ours": "One subscription across all your devices",
-          "theirs": "Device limits vary and may be more restrictive"
+          "ours": "All your devices",
+          "theirs": "Device limits vary"
         },
         "support": {
           "feature": "Customer support",
-          "ours": "Access to human support when you need help",
-          "theirs": "Often limited to FAQs or automated support"
+          "ours": "Human support 24/7",
+          "theirs": "Auto replies"
         },
         "privacy": {
-          "feature": "Privacy approach",
-          "ours": "Clear privacy practices and transparent information about data processing",
-          "theirs": "Privacy models vary significantly between providers"
+          "feature": "Tracks your online activity",
+          "ours": "Never",
+          "theirs": "Possible"
         },
         "advertising": {
           "feature": "Advertising",
-          "ours": "No in-app advertising from JungleVPN",
-          "theirs": "Some free services may rely on advertising"
+          "ours": "No ads",
+          "theirs": "Relies on advertising"
         },
         "setup": {
           "feature": "Connection setup",
