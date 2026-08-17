@@ -15,7 +15,8 @@ export class StripePayment {
   @Column({ nullable: true, type: 'varchar' })
   stripeSubscriptionId: string | null;
 
-  @Column({ type: 'int', nullable: true })
+  /** Amount in major currency units (e.g. EUR), so fractional values are expected. */
+  @Column({ type: 'double precision', nullable: true })
   amount: number | null;
 
   @Column({ type: 'varchar', default: 'EUR' })
