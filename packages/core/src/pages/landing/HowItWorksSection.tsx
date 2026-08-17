@@ -125,7 +125,7 @@ export function HowItWorksSection() {
   const { t } = useTranslation();
 
   return (
-    <section>
+    <section className={'mb-24'}>
       <div className='mb-20 flex flex-col items-center gap-3 text-center'>
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>{t('landing.howItWorks.chip')}</Chip.Label>

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url';
 import { FeaturesCard } from '../../../components';
-import { useNavigation } from '../../../hooks';
+import { useBackButton, useNavigation } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { useNavbarStore, usePlatformStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
@@ -56,6 +56,8 @@ export default function PaymentPage() {
   const [selectedMethod] = useState<PaymentMethod>(
     isRu || platformType === 'telegram' ? 'yookassa' : 'stripe',
   );
+
+  useBackButton(() => navigate(-1));
 
   useEffect(() => {
     setNavbarVisible(!successState.isOpen);

@@ -187,7 +187,8 @@
     "language": "Язык",
     "appsTabs": "Приложения",
     "support": "Поддержка",
-    "copySupportEmail": "Скопировать email"
+    "copySupportEmail": "Скопировать email",
+    "back": "Назад"
   },
   "errorBoundary": {
     "title": "Что-то пошло не так",

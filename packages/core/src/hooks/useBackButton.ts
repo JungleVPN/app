@@ -1,12 +1,16 @@
 import { backButton } from '@tma.js/sdk-react';
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
-import { usePlatformStore } from '../stores';
+import { useBackButtonStoreActions, usePlatformStore } from '../stores';
 import { useNavigation } from './useNavigation';
 
 /**
- * Shows the Telegram back button and wires up a click handler for the
- * duration of the component's lifetime.
+ * Registers a back action for the duration of the component's lifetime.
+ *
+ * On Telegram it drives the native Telegram back button; on web the same
+ * action is published to the back-button store, where `Page` picks it up and
+ * renders an in-page back button. Both platforms share one handler, so their
+ * behaviour cannot drift.
  *
  * Platform check and listener cleanup are handled internally — always safe
  * to call unconditionally:
@@ -20,13 +24,12 @@ import { useNavigation } from './useNavigation';
  *
  * This is reliable regardless of memory-router history depth, deep-links,
  * or how many times the user has switched tabs.
- *
- * On non-Telegram platforms the hook is a no-op.
  */
 export function useBackButton(onBack?: () => void) {
   const navigate = useNavigation();
   const { pathname } = useLocation();
   const { platformType } = usePlatformStore();
+  const { setOnBack, clearOnBack } = useBackButtonStoreActions();
 
   const onBackRef = useRef(onBack);
   onBackRef.current = onBack;
@@ -35,8 +38,6 @@ export function useBackButton(onBack?: () => void) {
   const parentPath = pathname.split('/').slice(0, -1).join('/') || '/';
 
   useEffect(() => {
-    if (platformType !== 'telegram') return;
-
     const handler = () => {
       if (onBackRef.current) {
         onBackRef.current();
@@ -45,11 +46,19 @@ export function useBackButton(onBack?: () => void) {
       }
     };
 
-    backButton.show();
-    backButton.onClick(handler);
+    setOnBack(handler);
+
+    if (platformType === 'telegram') {
+      backButton.show();
+      backButton.onClick(handler);
+    }
+
     return () => {
-      backButton.offClick(handler);
-      backButton.hide();
+      clearOnBack(handler);
+      if (platformType === 'telegram') {
+        backButton.offClick(handler);
+        backButton.hide();
+      }
     };
-  }, [platformType, navigate, parentPath]);
+  }, [platformType, navigate, parentPath, setOnBack, clearOnBack]);
 }

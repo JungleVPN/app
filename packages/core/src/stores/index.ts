@@ -1,6 +1,8 @@
 export type { AlertVariant, AppAlert } from './alert';
 export { useAlertStore } from './alert';
 export type { AuthUser, IAuthActions, IAuthState } from './auth';
+export type { IBackButtonActions, IBackButtonState } from './back-button';
+export { useBackButtonStore, useBackButtonStoreActions, useBackHandler } from './back-button';
 export { useAuthStore, useAuthStoreActions, useAuthStoreInfo } from './auth';
 export { useNavbarStore } from './navbar';
 // app-config is referenced here for backward compatibility but the file no longer exists.

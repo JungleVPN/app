@@ -5,7 +5,7 @@ import { Key, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBackButton, useNavigation } from '../../../../hooks';
 import { useAuthStoreInfo, useNavbarStore } from '../../../../stores';
-import { Block } from '../../../../ui';
+import { BackButton, Block } from '../../../../ui';
 import { isAdminUser } from '../../../../utils';
 import { PaymentRow } from './components/PaymentRow';
 import { useAdminSearch } from './hooks/useAdminSearch';
@@ -102,6 +102,10 @@ export default function TransactionsPage() {
       )}
 
       {searchError && <p className='mt-3 text-center text-sm text-red-400'>{searchError}</p>}
+
+      <div className={'flex w-full items-center gap-2 py-2 mb-4'}>
+        <BackButton />
+      </div>
 
       <Block className={'p-2'} title={t('transactions.pageTitle')}>
         {listContent}

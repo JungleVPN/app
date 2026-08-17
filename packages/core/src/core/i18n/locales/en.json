@@ -185,7 +185,8 @@
     "language": "Language",
     "appsTabs": "Apps",
     "support": "Support",
-    "copySupportEmail": "Copy email address"
+    "copySupportEmail": "Copy email address",
+    "back": "Back"
   },
   "errorBoundary": {
     "title": "Something went wrong",

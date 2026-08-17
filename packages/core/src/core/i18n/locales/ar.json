@@ -194,7 +194,8 @@
     "language": "اللغة",
     "appsTabs": "التطبيقات",
     "support": "الدعم",
-    "copySupportEmail": "نسخ البريد الإلكتروني"
+    "copySupportEmail": "نسخ البريد الإلكتروني",
+    "back": "رجوع"
   },
   "errorBoundary": {
     "title": "في مشكلة حصلت",
