@@ -11,62 +11,61 @@ type Testimonial = {
 const TESTIMONIALS: Testimonial[] = [
   {
     quote:
-      'Implementing this ERP was smooth and quick. The customizable, user-friendly interface made team training effortless.',
+      'Setup took about five minutes. I installed HAPP, imported the subscription link and it was already connected — no server settings to figure out.',
     name: 'Bilal Ahmed',
-    role: 'IT Manager',
+    role: 'Frequent traveller',
     avatar: 'https://i.pravatar.cc/48?img=12',
   },
   {
     quote:
-      'This ERP unified our operations, streamlining finance and inventory. The cloud-based platform keeps us productive, even remotely.',
+      'I work from cafés most days, so an encrypted connection on public Wi-Fi was the whole reason I subscribed. It just stays on and I stop thinking about it.',
     name: 'Briana Patton',
-    role: 'Operations Manager',
+    role: 'Remote worker',
     avatar: 'https://i.pravatar.cc/48?img=47',
   },
   {
     quote:
-      "This ERP's seamless integration enhanced our business operations and efficiency. Highly recommend for its intuitive interface.",
+      'Smart routing is the part I did not expect to care about. Only what needs the VPN goes through it, so my banking and local apps keep working normally.',
     name: 'Omar Raza',
-    role: 'CEO',
+    role: 'Everyday user',
     avatar: 'https://i.pravatar.cc/48?img=33',
   },
   {
     quote:
-      'Our business functions improved with a user-friendly design and positive customer feedback.',
+      'Video calls hold up on the evenings when everything else slows down. I have not had to switch locations to get a stable connection.',
     name: 'Farhan Siddiqui',
-    role: 'Marketing Director',
+    role: 'Freelancer',
     avatar: 'https://i.pravatar.cc/48?img=52',
   },
   {
     quote:
-      'They delivered a solution that exceeded expectations, understanding our needs and enhancing our operations.',
+      "One subscription across my phone, laptop and my partner's laptop. That was the deciding factor for us.",
     name: 'Aliza Khan',
-    role: 'Business Analyst',
+    role: 'Subscriber since 2024',
     avatar: 'https://i.pravatar.cc/48?img=25',
   },
   {
     quote:
-      'Its robust features and quick deployment helped us scale without disrupting our existing workflows.',
+      'I had a question about my subscription and got an answer from an actual person in about ten minutes. No ticket loop, no bot.',
     name: 'David Chen',
-    role: 'Product Manager',
+    role: 'Subscriber',
     avatar: 'https://i.pravatar.cc/48?img=8',
   },
   {
     quote:
-      'The reporting tools alone saved us hours every week. Our team adopted it with almost no friction.',
+      'No monthly data cap means I do not ration streaming or downloads any more. I used to hit the limit on my old free VPN in a week.',
     name: 'Sara Mitchell',
-    role: 'Finance Lead',
+    role: 'Student',
     avatar: 'https://i.pravatar.cc/48?img=45',
   },
   {
     quote:
-      'Excellent support team and a product that genuinely listens to user feedback. Updates keep getting better.',
+      'What I wanted was a clear privacy policy and a connection that does not drop. That is what I got, and the trial let me check before paying.',
     name: 'Priya Nair',
-    role: 'CTO',
+    role: 'Privacy-conscious user',
     avatar: 'https://i.pravatar.cc/48?img=38',
   },
 ];
-
 const COL_1 = [TESTIMONIALS[0], TESTIMONIALS[1], TESTIMONIALS[2], TESTIMONIALS[3]];
 const COL_2 = [TESTIMONIALS[4], TESTIMONIALS[5], TESTIMONIALS[6], TESTIMONIALS[7]];
 const COL_3 = [TESTIMONIALS[2], TESTIMONIALS[5], TESTIMONIALS[0], TESTIMONIALS[7]];
@@ -143,8 +142,9 @@ export function TestimonialsSection() {
         <h2 className='text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl'>
           What our users say
         </h2>
-        <p className='max-w-md text-sm text-muted'>
-          Discover how thousands of teams streamline their operations with our platform.
+        <p className='max-w-xl text-sm text-muted'>
+          Real experiences from people who use JungleVPN for privacy, travel and everyday online
+          security.
         </p>
       </div>
 

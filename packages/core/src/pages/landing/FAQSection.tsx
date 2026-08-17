@@ -1,22 +1,24 @@
 import { Accordion } from '@heroui/react';
 import {
   IconDevices,
+  IconDownload,
+  IconLock,
   IconReceiptRefund,
-  IconShieldCheck,
-  IconUsersGroup,
+  IconSparkles,
 } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FreeTrialSection } from './FreeTrialSection';
 
 const FAQ_ICONS: ReactNode[] = [
-  <IconShieldCheck size={20} key={1} />,
+  <IconDownload size={20} key={1} />,
   <IconDevices size={20} key={2} />,
-  <IconUsersGroup size={20} key={3} />,
+  <IconSparkles size={20} key={3} />,
   <IconReceiptRefund size={20} key={4} />,
+  <IconLock size={20} key={5} />,
 ];
 
-const FAQ_KEYS = ['q1', 'q2', 'q3', 'q4'] as const;
+const FAQ_KEYS = ['q1', 'q2', 'q3', 'q4', 'q5'] as const;
 
 export function FAQSection() {
   const { t } = useTranslation();
@@ -27,6 +29,7 @@ export function FAQSection() {
         <h2 className='text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
           {t('landing.faq.title')}
         </h2>
+        <p className='max-w-2xl text-base text-muted lg:text-lg'>{t('landing.faq.subtitle')}</p>
       </div>
       <div className='flex flex-col items-center justify-center gap-4 text-center md:flex-row'>
         <FreeTrialSection />

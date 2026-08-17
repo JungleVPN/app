@@ -1,4 +1,5 @@
 import {
+  IconArrowsExchange,
   IconBrandAndroid,
   IconBrandApple,
   IconBrandUbuntu,
@@ -9,7 +10,6 @@ import {
   IconGlobe,
   IconKey,
   IconNetwork,
-  IconShieldCheck,
   IconWifi,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -40,10 +40,10 @@ const CONCEPT_CARDS = [
 ] as const;
 
 const USE_CASE_CARDS = [
-  { key: 'blocked', icon: <IconGlobe size={24} />, color: 'text-emerald-500' },
   { key: 'wifi', icon: <IconWifi size={24} />, color: 'text-blue-500' },
   { key: 'privacy', icon: <IconFingerprint size={24} />, color: 'text-purple-500' },
-  { key: 'russian', icon: <IconShieldCheck size={24} />, color: 'text-orange-500' },
+  { key: 'travel', icon: <IconGlobe size={24} />, color: 'text-emerald-500' },
+  { key: 'smartRouting', icon: <IconArrowsExchange size={24} />, color: 'text-orange-500' },
 ] as const;
 
 const STATS = [

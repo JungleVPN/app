@@ -52,10 +52,10 @@ export function BentoSection() {
           <IconArrowsExchange size={36} className='text-amber-500' />
           <div>
             <h3 className='text-base font-bold text-amber-900 dark:text-amber-900'>
-              {t('landing.bento.reverseVpn.title')}
+              {t('landing.bento.smartRouting.title')}
             </h3>
             <p className='mt-1 text-xs leading-relaxed text-amber-700 dark:text-amber-900'>
-              {t('landing.bento.reverseVpn.description')}
+              {t('landing.bento.smartRouting.description')}
             </p>
           </div>
         </div>

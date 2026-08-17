@@ -71,8 +71,8 @@ export function HeroSection() {
         animate='show'
       >
         <motion.div variants={item} className='flex flex-col gap-3'>
-          <h1 className='text-6xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-7xl'>
-            Jungle VPN
+          <h1 className='max-w-xl text-balance text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl'>
+            {t('landing.hero.title')}
           </h1>
           <p className='max-w-xl text-base text-muted lg:text-lg'>{t('landing.hero.subtitle')}</p>
         </motion.div>

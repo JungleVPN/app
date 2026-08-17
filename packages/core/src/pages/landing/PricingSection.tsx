@@ -1,4 +1,4 @@
-import { IconBrandAppleFilled, IconBrandGoogleFilled } from '@tabler/icons-react';
+import { IconBrandAppleFilled, IconBrandGoogleFilled, IconCheck } from '@tabler/icons-react';
 import type { SubscriptionPlanDto } from '@workspace/types';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
@@ -53,6 +53,28 @@ function GooglePayIcon() {
   );
 }
 
+const INCLUDES_KEYS = ['includes1', 'includes2', 'includes3', 'includes4', 'includes5'] as const;
+
+function PlanIncludes() {
+  const { t } = useTranslation();
+
+  return (
+    <div className='flex flex-col items-center gap-3'>
+      <span className='text-sm font-semibold text-foreground'>
+        {t('landing.pricing.includesTitle')}
+      </span>
+      <ul className='flex flex-wrap items-center justify-center gap-x-5 gap-y-2'>
+        {INCLUDES_KEYS.map((key) => (
+          <li key={key} className='flex items-center gap-1.5 text-sm text-muted'>
+            <IconCheck size={16} className='shrink-0 text-success' strokeWidth={2.5} />
+            {t(`landing.pricing.${key}`)}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 type PriceCalculation = {
   price: string;
   discount?: string;
@@ -64,7 +86,7 @@ type PriceCalculation = {
 function calculatePricing(
   plan: SubscriptionPlanDto,
   isRu: boolean,
-  discountLabel: (percent: number) => string,
+  discountLabel: (percent: number, isBestValue: boolean) => string,
   noDiscountLabel: string,
 ): PriceCalculation {
   const pricing = isRu ? plan.rub : plan.eur;
@@ -79,7 +101,7 @@ function calculatePricing(
 
   return {
     price: pricing.monthly,
-    discount: discountLabel(pricing.discountPercent),
+    discount: discountLabel(pricing.discountPercent, plan.months === 12),
     originalTotal: formatPlanPrice(pricing.fullTotal, isRu),
     discountedTotal: formatPlanPrice(pricing.total, isRu),
   };
@@ -120,15 +142,28 @@ export function PricingSection() {
       </div>
 
       <div className='flex flex-col items-center gap-8'>
+        <PlanIncludes />
+
         <Grid>
           {plans.map((plan, i) => {
             const isHighlighted = i === Math.floor(plans.length / 2) && plans.length > 1;
             const pricing = calculatePricing(
               plan,
               isRu,
-              (percent) => t('landing.pricing.discount', { percent }),
+              (percent, isBestValue) =>
+                isBestValue
+                  ? t('landing.pricing.discountBest', { percent })
+                  : t('landing.pricing.discount', { percent }),
               t('landing.pricing.noDiscount'),
             );
+
+            const period = formatMonths(plan.months);
+            const badge =
+              plan.months === 12
+                ? t('landing.pricing.badgeValue')
+                : isHighlighted
+                  ? t('landing.pricing.badge')
+                  : undefined;
 
             return (
               <GridItem
@@ -139,9 +174,14 @@ export function PricingSection() {
                 <PriceCard
                   {...sharedProps}
                   {...pricing}
-                  period={formatMonths(plan.months)}
+                  period={period}
+                  cta={
+                    isHighlighted
+                      ? t('landing.pricing.ctaPlan', { period })
+                      : t('landing.pricing.cta')
+                  }
                   highlighted={isHighlighted}
-                  badge={isHighlighted ? t('landing.pricing.badge') : undefined}
+                  badge={badge}
                 />
               </GridItem>
             );

@@ -8,36 +8,27 @@ type Row = {
   theirs: string;
 };
 
+const ROW_KEYS = [
+  'traffic',
+  'locations',
+  'performance',
+  'devices',
+  'support',
+  'privacy',
+  'advertising',
+  'setup',
+  'smartRouting',
+  'bestFor',
+] as const;
+
 export function ComparisonSection() {
   const { t } = useTranslation();
 
-  const rows: Row[] = [
-    {
-      feature: t('landing.comparison.rows.speed.feature'),
-      ours: t('landing.comparison.rows.speed.ours'),
-      theirs: t('landing.comparison.rows.speed.theirs'),
-    },
-    {
-      feature: t('landing.comparison.rows.dataLimit.feature'),
-      ours: t('landing.comparison.rows.dataLimit.ours'),
-      theirs: t('landing.comparison.rows.dataLimit.theirs'),
-    },
-    {
-      feature: t('landing.comparison.rows.deviceLimit.feature'),
-      ours: t('landing.comparison.rows.deviceLimit.ours'),
-      theirs: t('landing.comparison.rows.deviceLimit.theirs'),
-    },
-    {
-      feature: t('landing.comparison.rows.support.feature'),
-      ours: t('landing.comparison.rows.support.ours'),
-      theirs: t('landing.comparison.rows.support.theirs'),
-    },
-    {
-      feature: t('landing.comparison.rows.tracking.feature'),
-      ours: t('landing.comparison.rows.tracking.ours'),
-      theirs: t('landing.comparison.rows.tracking.theirs'),
-    },
-  ];
+  const rows: Row[] = ROW_KEYS.map((key) => ({
+    feature: t(`landing.comparison.rows.${key}.feature`),
+    ours: t(`landing.comparison.rows.${key}.ours`),
+    theirs: t(`landing.comparison.rows.${key}.theirs`),
+  }));
 
   return (
     <section>

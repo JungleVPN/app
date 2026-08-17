@@ -29,7 +29,7 @@ export function PartnershipSection() {
               variant='stat'
               title={t(`landing.partnership.${key}.title`)}
               description={t(`landing.partnership.${key}.description`)}
-              learnMoreLabel={t('landing.partnership.learnMore')}
+              learnMoreLabel={t(`landing.partnership.${key}.cta`)}
               learnMoreHref={key === 'affiliate' ? '/affiliates' : '/profile/referrals'}
               icon={
                 PARTNERSHIP_STICKERS[key] ? (

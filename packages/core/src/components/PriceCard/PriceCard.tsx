@@ -42,11 +42,16 @@ export function PriceCard({
     <div
       className={`relative cursor-default flex flex-col ${highlighted ? 'z-10' : ''} rounded-b-3xl transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl`}
     >
-      {highlighted && badge && (
-        <div className='rounded-t-2xl bg-linear-to-r from-purple-400 to-yellow-400 ring-2 ring-purple-400 py-2 text-center text-sm font-semibold text-white'>
-          🔥 {badge}
-        </div>
-      )}
+      {badge &&
+        (highlighted ? (
+          <div className='rounded-t-2xl bg-linear-to-r from-purple-400 to-yellow-400 ring-2 ring-purple-400 py-2 text-center text-sm font-semibold text-white'>
+            🔥 {badge}
+          </div>
+        ) : (
+          <div className='rounded-t-2xl border border-b-0 border-purple-400 py-2 text-center text-sm font-semibold text-purple-400'>
+            {badge}
+          </div>
+        ))}
 
       <Card
         variant='secondary'
