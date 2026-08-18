@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { useRemnawaveApi } from '../../api';
 import { useAuthStore, usePlatformStore, useSubscriptionConfigStoreActions } from '../../stores';
+import { isRuDomain } from '../../utils';
 
 const LANDING_DOMAINS: Record<string, string | undefined> = {
   ru: import.meta.env.PUBLIC_DOMAIN_RU ? `https://${import.meta.env.PUBLIC_DOMAIN_RU}` : undefined,
@@ -54,9 +55,11 @@ export function LanguageSwitcher() {
             handleLanguageChange(String(key));
           }}
         >
-          <Dropdown.Item id='ru' textValue={t('languages.nativeRu')}>
-            <Label>{t('languages.nativeRu')}</Label>
-          </Dropdown.Item>
+          {isRuDomain() && (
+            <Dropdown.Item id='ru' textValue={t('languages.nativeRu')}>
+              <Label>{t('languages.nativeRu')}</Label>
+            </Dropdown.Item>
+          )}
           <Dropdown.Item id='en' textValue={t('languages.nativeEn')}>
             <Label>{t('languages.nativeEn')}</Label>
           </Dropdown.Item>

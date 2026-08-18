@@ -68,9 +68,11 @@ export function MobileDrawer() {
 
               {platformType === 'web' && <AuthButtons />}
 
-              <div className='flex items-center gap-2 px-3 py-2 mt-auto'>
-                <LanguageSwitcher />
-              </div>
+              {!isLanding && (
+                <div className='flex items-center gap-2 px-3 py-2 mt-auto'>
+                  <LanguageSwitcher />
+                </div>
+              )}
             </Drawer.Body>
           </Drawer.Dialog>
         </Drawer.Content>

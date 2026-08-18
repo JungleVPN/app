@@ -87,7 +87,7 @@ export function Header() {
         {!isLanding && <SubscriptionLinkWidget />}
         {!isLanding && <SupportButton />}
         {/*{platformType === 'web' && <ThemeToggle />}*/}
-        <LanguageSwitcher />
+        {!isLanding && <LanguageSwitcher />}
         {platformType === 'web' && <AuthButtons />}
       </div>
 

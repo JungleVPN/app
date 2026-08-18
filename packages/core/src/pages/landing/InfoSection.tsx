@@ -82,7 +82,7 @@ export function InfoSection() {
         {CONCEPT_CARDS.map(({ key, icon, color, bg, accent }) => (
           <GridItem key={key} size={{ base: 12, sm: 6, lg: 4 }}>
             <div
-              className={`relative flex min-h-44 flex-col justify-between overflow-hidden rounded-3xl p-7 transition-transform duration-300 hover:-translate-y-1.5 ${bg}`}
+              className={`relative flex h-full min-h-44 flex-col justify-between overflow-hidden rounded-3xl p-7 transition-transform duration-300 hover:-translate-y-1.5 ${bg}`}
             >
               <div className={`absolute -right-8 -top-8 h-32 w-32 rounded-full ${accent}`} />
               <span className={`relative ${color}`}>{icon}</span>

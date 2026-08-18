@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router';
 import { FeaturesCard } from '../../components';
 import { useAuthStore } from '../../stores';
-import { Block } from '../../ui';
+import { Block, Container } from '../../ui';
 import css from './login.module.css';
 import { useLogin } from './useLogin';
 
@@ -18,7 +18,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className='mt-24 w-full flex flex-col gap-3'>
+    <Container maxWidth={'sm'} className='mt-24 w-full flex flex-col gap-3'>
       <Surface variant='transparent'>
         <Block className={'p-4'}>
           <h1 className={`text-center text-xl font-semibold ${css.title}`}>{t('login.title')}</h1>
@@ -59,6 +59,6 @@ export default function LoginPage() {
           description={t('login.trial_card_description')}
         />
       </div>
-    </div>
+    </Container>
   );
 }
