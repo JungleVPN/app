@@ -786,7 +786,7 @@
         },
         "privacy": {
           "feature": "Tracks your online activity",
-          "ours": "Never",
+          "ours": "No logs policy",
           "theirs": "Possible"
         },
         "advertising": {

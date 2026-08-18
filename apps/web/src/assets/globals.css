@@ -7,6 +7,10 @@
   transition: none !important;
 }
 
+.font-secondary {
+  font-family: "Montserrat", sans-serif;
+}
+
 body {
   font-family: "Montserrat", sans-serif;
 }

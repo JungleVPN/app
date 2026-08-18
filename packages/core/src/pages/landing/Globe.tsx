@@ -17,7 +17,7 @@ function themeConfig(dark: boolean) {
     dark: dark ? 1 : 0,
     diffuse: dark ? 2 : 1.2,
     mapBrightness: dark ? 6 : 8,
-    baseColor: dark
+    baseColor: !dark
       ? ([0.3, 0.3, 0.3] as [number, number, number])
       : ([1, 1, 1] as [number, number, number]),
     glowColor: [1, 1, 1] as [number, number, number],

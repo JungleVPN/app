@@ -1,6 +1,6 @@
 import { Button, Card, Chip } from '@heroui/react';
 import { IconArrowLeft, IconArrowRight, IconStarFilled } from '@tabler/icons-react';
-import type { KeenSliderInstance, KeenSliderPlugin } from 'keen-slider/react';
+import type { KeenSliderInstance } from 'keen-slider/react';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 import { useTranslation } from 'react-i18next';
@@ -18,45 +18,12 @@ const TESTIMONIAL_KEYS = [
 ] as const;
 
 const STAR_RATING = [1, 2, 3, 4, 5] as const;
-const AUTOPLAY_DELAY_MS = 3000;
-
-const autoplay: KeenSliderPlugin = (slider) => {
-  let timeout: ReturnType<typeof setTimeout>;
-  let mouseOver = false;
-
-  function clearNextTimeout() {
-    clearTimeout(timeout);
-  }
-
-  function nextTimeout() {
-    clearNextTimeout();
-    if (mouseOver) return;
-    timeout = setTimeout(() => {
-      slider.next();
-    }, AUTOPLAY_DELAY_MS);
-  }
-
-  slider.on('created', () => {
-    slider.container.addEventListener('mouseover', () => {
-      mouseOver = true;
-      clearNextTimeout();
-    });
-    slider.container.addEventListener('mouseout', () => {
-      mouseOver = false;
-      nextTimeout();
-    });
-    nextTimeout();
-  });
-  slider.on('dragStarted', clearNextTimeout);
-  slider.on('animationEnded', nextTimeout);
-  slider.on('updated', nextTimeout);
-};
 
 function TestimonialCard({ quote, name }: { quote: string; name: string }) {
   return (
     <Card
       variant='secondary'
-      className='flex h-full flex-col justify-between gap-6 p-5 shadow-surface shadow-md'
+      className='flex h-full flex-col justify-between gap-6 p-5 border-gray-500 border border-solid'
     >
       <p className='text-sm leading-relaxed text-foreground'>{quote}</p>
       <div className='flex items-center justify-between gap-3'>
@@ -69,28 +36,25 @@ function TestimonialCard({ quote, name }: { quote: string; name: string }) {
 
 export function TestimonialsSection() {
   const { t } = useTranslation();
-  const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>(
-    {
-      loop: false,
-      slides: {
-        origin: 'auto',
-        perView: 2.5,
-        spacing: 16,
+  const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
+    loop: false,
+    slides: {
+      origin: 'auto',
+      perView: 2.5,
+      spacing: 16,
+    },
+    breakpoints: {
+      '(max-width: 440px)': {
+        slides: { origin: 'auto', perView: 1.5, spacing: 16 },
       },
-      breakpoints: {
-        '(max-width: 440px)': {
-          slides: { origin: 'auto', perView: 1.5, spacing: 16 },
-        },
-        '(min-width: 640px)': {
-          slides: { origin: 'auto', perView: 2.5, spacing: 16 },
-        },
-        '(min-width: 1024px)': {
-          slides: { origin: 'auto', perView: 3.5, spacing: 16 },
-        },
+      '(min-width: 640px)': {
+        slides: { origin: 'auto', perView: 2.5, spacing: 16 },
+      },
+      '(min-width: 1024px)': {
+        slides: { origin: 'auto', perView: 3.5, spacing: 16 },
       },
     },
-    [autoplay],
-  );
+  });
 
   const goTo = (direction: 'prev' | 'next') => {
     const instance = instanceRef.current as KeenSliderInstance | null;

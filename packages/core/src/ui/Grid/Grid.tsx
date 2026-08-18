@@ -12,5 +12,5 @@ export interface GridProps extends PropsWithChildren {
  * Pair with `GridItem`, which sets each child's column span per breakpoint.
  */
 export function Grid({ children, className }: GridProps) {
-  return <div className={`grid grid-cols-12 gap-4 w-full ${className ?? ''}`}>{children}</div>;
+  return <div className={`grid grid-cols-12 gap-4 w-full py-1 ${className ?? ''}`}>{children}</div>;
 }

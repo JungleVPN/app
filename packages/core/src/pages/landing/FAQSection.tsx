@@ -38,7 +38,7 @@ export function FAQSection() {
         <Accordion className='w-full bg-surface-secondary' variant='surface'>
           {FAQ_KEYS.map((key, index) => (
             <Accordion.Item key={key}>
-              <Accordion.Heading>
+              <Accordion.Heading className={'font-secondary'}>
                 <Accordion.Trigger>
                   <span className='me-3 shrink-0 text-muted'>{FAQ_ICONS[index]}</span>
                   {t(`landing.faq.${key}.question`)}

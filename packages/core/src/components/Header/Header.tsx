@@ -8,6 +8,7 @@ import Logo from '../../assets/Logo_dark.svg?react';
 import LogoDark from '../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../hooks';
 import { usePlatformStore } from '../../stores';
+import { Container } from '../../ui';
 import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { AuthButtons } from './AuthButtons';
@@ -70,7 +71,7 @@ export function Header() {
           {(['pricing', 'partnership'] as const).map((id) => (
             <Button
               key={id}
-              className='text-sm text-foreground/70 hover:text-foreground transition-colors cursor-pointer bg-transparent border-none p-0'
+              className='text-sm mix-blend-difference text-[white] hover:underline transition-colors cursor-pointer bg-transparent border-none p-0'
               onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
             >
               {t(`header.nav.${id}`)}
@@ -109,20 +110,22 @@ export function Header() {
       return 'relative';
     }
 
-    return 'sticky top-0 z-50 shrink-0 py-3';
+    if (!isLanding) return 'relative mt-4';
+
+    return 'w-fit fixed top-4 left-2/4 -translate-x-1/2 z-100';
   };
 
   return (
-    <div className={wrapperClass()}>
+    <Container className={wrapperClass()}>
       <div
-        className={`max-w-[90%] lg:max-w-[60%] xl:max-w-[40%] m-auto px-4 py-1 transition-all duration-300 ${
+        className={`w-full px-4 py-1 transition-all duration-300 rounded-2xl ${
           scrolled && platformType !== 'telegram'
-            ? 'shadow-lg backdrop-blur-md bg-background/80 rounded-2xl'
+            ? 'shadow-lg backdrop-blur-md bg-background/80'
             : ''
         }`}
       >
         {inner}
       </div>
-    </div>
+    </Container>
   );
 }

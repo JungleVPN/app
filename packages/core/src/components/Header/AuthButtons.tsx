@@ -71,7 +71,9 @@ export function AuthButtons() {
       <Button variant={'tertiary'} onPress={handleLogin}>
         {t('header.login')}
       </Button>
-      <Button onPress={handleTryNow}>{t('header.cta')}</Button>
+      <Button className={'bg-linear-to-r from-violet-500 to-amber-400'} onPress={handleTryNow}>
+        {t('header.cta')}
+      </Button>
     </div>
   );
 }

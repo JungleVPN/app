@@ -22,7 +22,9 @@ export function FreeTrialSection() {
             <h2 className='text-xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl'>
               {t('landing.freeTrial.title', { days })}
             </h2>
-            <p className='text-base text-white/80 lg:text-md'>{t('landing.freeTrial.subtitle')}</p>
+            <p className='text-base text-white/80 lg:text-md px-4 lg:px-48'>
+              {t('landing.freeTrial.subtitle')}
+            </p>
           </div>
 
           <Button

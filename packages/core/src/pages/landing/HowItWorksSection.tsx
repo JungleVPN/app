@@ -23,7 +23,7 @@ function StepCard({ step }: { step: Step }) {
   return (
     <Card
       variant='secondary'
-      className='relative h-full flex flex-col gap-5 overflow-hidden p-7 shadow-surface transition-shadow duration-300 hover:shadow-md'
+      className='relative border-gray-500  border border-solid h-full flex flex-col gap-5 overflow-hidden p-7 transition-shadow duration-300 hover:shadow-md'
     >
       <span className='pointer-events-none absolute right-0 -bottom-2 text-8xl font-bold text-violet-100 select-none'>
         {step.number}
@@ -47,7 +47,7 @@ export function HowItWorksSection() {
   const { t } = useTranslation();
 
   return (
-    <section className={'mb-24'}>
+    <section className={'mb-24 overflow-hidden'}>
       <div className='mb-14 flex flex-col items-center gap-3 text-center'>
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>{t('landing.howItWorks.chip')}</Chip.Label>
