@@ -79,8 +79,8 @@ export function HeroSection() {
           <div className='flex items-start gap-3'>
             <Button
               size='lg'
-              variant='secondary'
-              className='h-14 rounded-4xl'
+              variant='outline'
+              className='h-14 rounded-4xl text-white'
               onClick={() => navigate('/login')}
             >
               {t('landing.hero.login')}
@@ -94,7 +94,7 @@ export function HeroSection() {
               {t('landing.hero.cta')}
             </Button>
           </div>
-          <Chip color='default' variant='soft' className='w-fit'>
+          <Chip color='default' variant='tertiary' className='w-fit text-muted'>
             <IconRefresh size={14} />
             <Chip.Label>{t('landing.hero.trial')}</Chip.Label>
           </Chip>

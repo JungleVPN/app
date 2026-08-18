@@ -14,9 +14,9 @@ const MARKERS = Object.values(LOCATIONS).map((location) => ({ location, size: 0.
 
 function themeConfig(dark: boolean) {
   return {
-    dark: dark ? 1 : 0,
-    diffuse: dark ? 2 : 1.2,
-    mapBrightness: dark ? 6 : 8,
+    dark: !dark ? 1 : 0,
+    diffuse: !dark ? 2 : 1.2,
+    mapBrightness: 8,
     baseColor: !dark
       ? ([0.3, 0.3, 0.3] as [number, number, number])
       : ([1, 1, 1] as [number, number, number]),

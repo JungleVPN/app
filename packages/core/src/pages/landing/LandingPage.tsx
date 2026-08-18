@@ -1,4 +1,5 @@
 import { Container } from '../../ui';
+import Aurora from '../../ui/Background/Background';
 import { BentoSection } from './BentoSection';
 import { ComparisonSection } from './ComparisonSection';
 import { CountriesMarquee } from './CountriesMarquee';
@@ -16,12 +17,15 @@ import { TrustSection } from './TrustSection';
 
 export default function LandingPage() {
   return (
-    <div className='relative bg-[#212024] '>
-      <div
-        className={
-          'absolute top-0 left-0 w-screen h-screen pointer-events-none bg-[repeating-linear-gradient(to_right,rgba(255,255,255,0.035)_0,rgba(255,255,255,0.035)_1px,transparent_1px,transparent_42px)] inset-0;'
-        }
-      />
+    <div className='relative bg-[#1a1a1a]'>
+      <div className={'absolute top-0 left-0 w-screen h-screen pointer-events-none opacity-40'}>
+        <Aurora
+          colorStops={['#ffb900', '#8e51ff', '#E57575']}
+          blend={1}
+          amplitude={1.0}
+          speed={1}
+        />
+      </div>
       <Container className='sticky top-0 overflow-hidden mb-32'>
         <HeroSection />
       </Container>
