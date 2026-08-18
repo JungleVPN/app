@@ -568,9 +568,9 @@
     "trust": {
       "chip": "Privacy-first",
       "title": "Trusted by thousands",
-      "users": "Trusted by users worldwide for private browsing, secure connections on public networks and reliable access while travelling.  ",
-      "countries": "A distributed network of server locations gives you greater control over how and where you connect. Choose the location that best fits your needs while maintaining a secure connection wherever you are.",
-      "servers": "High-speed infrastructure built for stable everyday performance across browsing, streaming, video calls and other data-intensive activity. Our network is continuously monitored to maintain reliability, capacity and consistent connection quality as demand grows. "
+      "users": "Trusted worldwide for private browsing, secure connections on public networks and reliable access while travelling.",
+      "countries": "A distributed network of server locations gives you control over how and where you connect, so you can choose what fits your needs while staying secure.",
+      "servers": "High-speed infrastructure built for stable everyday performance across browsing, streaming, video calls and other data-intensive activity, continuously monitored for reliability and quality."
     },
     "testimonials": {
       "chip": "Trusted by thousands",
@@ -615,19 +615,19 @@
       "subtitle": "Simple setup, reliable everyday use and support when you need it.",
       "ready": {
         "title": "Ready in minutes",
-        "description": "Get started with a simple subscription import — no manual server setup or technical configuration required. From installation to your first secure connection, the entire setup takes only a few minutes."
+        "description": "Import your subscription and connect — no manual setup or technical configuration required."
       },
       "money": {
         "title": "30-day money-back guarantee",
-        "description": "Try JungleVPN with confidence. If the service is not right for you, contact us within 30 days of purchase to request a refund. Clear terms and a straightforward refund process — try it with less risk."
+        "description": "Not right for you? Contact us within 30 days of purchase for a straightforward refund."
       },
       "globe": {
         "title": "Use it across your devices",
-        "description": "One subscription works across all your supported devices, giving you one simple setup for your phone, laptop and other everyday devices. Stay connected at home, at work or while travelling."
+        "description": "One subscription covers all your devices, so you stay connected at home, at work or while travelling."
       },
       "support": {
         "title": "Human support",
-        "description": "Get help from a real support team with setup, subscriptions or connection issues. We aim to resolve questions quickly without unnecessary automated steps. Typical response time: around 10 minutes."
+        "description": "Get help from a real support team with setup, subscriptions or connection issues — typically within 10 minutes."
       }
     },
     "countries": {
@@ -725,23 +725,23 @@
       "learnMore": "Learn more",
       "affiliate": {
         "title": "Affiliate Program",
-        "description": "Earn commissions by introducing JungleVPN to your audience. Get a unique referral link, track conversions and receive rewards from qualifying subscriptions. Built-in tracking and transparent earnings."
+        "description": "Earn commissions by introducing JungleVPN to your audience, with a unique referral link and transparent tracking of conversions and rewards."
       },
       "security": {
         "title": "Secure by design",
-        "description": "Your connection is encrypted between your device and the JungleVPN server, helping protect your traffic on public and untrusted networks. Secure connection from the moment you connect."
+        "description": "Your connection is encrypted between your device and the JungleVPN server, protecting your traffic on public and untrusted networks."
       },
       "referral": {
         "title": "Referral Program",
-        "description": "Invite friends to JungleVPN using your personal referral link and receive rewards when they join. Simple sharing. Clear rewards."
+        "description": "Invite friends using your personal referral link and get rewarded when they join. Simple sharing, clear rewards."
       },
       "privacy": {
         "title": "Privacy-first",
-        "description": "JungleVPN is built to minimise unnecessary data collection and keep your connection private. No vague promises — just clear privacy practices."
+        "description": "JungleVPN is built to minimise unnecessary data collection and keep your connection private."
       },
       "speed": {
         "title": "Unlimited traffic",
-        "description": "Browse, stream, make video calls and use online services without a monthly traffic allowance. No monthly traffic limit."
+        "description": "Browse, stream, make video calls and use online services with no monthly traffic limit."
       },
       "smartRouting": {
         "title": "One VPN for all your devices",
