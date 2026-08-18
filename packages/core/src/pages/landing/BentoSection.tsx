@@ -121,7 +121,7 @@ export function BentoSection() {
               {t('landing.bento.referral.description')}
             </p>
             <a
-              href={coreEnv.tmaAppUrl}
+              href={'/profile/referrals'}
               target='_blank'
               rel='noopener noreferrer'
               className='mt-4 inline-flex items-center gap-1 text-sm font-semibold text-rose-600 underline underline-offset-2 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300'

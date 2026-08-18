@@ -1,5 +1,9 @@
-import { RootLayout } from '@workspace/core';
+import { Container, RootLayout } from '@workspace/core';
 
 export function WebRootLayout() {
-  return <RootLayout />;
+  return (
+    <Container maxWidth={'sm'} className={'mt-16'}>
+      <RootLayout />
+    </Container>
+  );
 }
