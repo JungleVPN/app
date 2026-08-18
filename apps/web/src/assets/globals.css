@@ -2,6 +2,8 @@
 @import "@heroui/styles";
 @source "../../../../packages/core/src";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 [data-no-transition],
 [data-no-transition] * {
   transition: none !important;
