@@ -9,6 +9,7 @@ import LogoDark from '../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../hooks';
 import { usePlatformStore } from '../../stores';
 import { Container } from '../../ui';
+import { isRuDomain } from '../../utils';
 import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { AuthButtons } from './AuthButtons';
@@ -27,6 +28,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
 
   const isLanding = pathname === '/';
+  const isRu = isRuDomain();
 
   useEffect(() => {
     if (platformType !== 'telegram' || !tgUser?.id) return;
@@ -87,7 +89,7 @@ export function Header() {
         {!isLanding && <SubscriptionLinkWidget />}
         {!isLanding && <SupportButton />}
         {/*{platformType === 'web' && <ThemeToggle />}*/}
-        {!isLanding && <LanguageSwitcher />}
+        {!isRu && <LanguageSwitcher />}
         {platformType === 'web' && <AuthButtons />}
       </div>
 
