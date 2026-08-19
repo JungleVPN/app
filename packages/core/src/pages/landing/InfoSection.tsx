@@ -20,22 +20,22 @@ const CONCEPT_CARDS = [
     key: 'encryption',
     icon: <IconKey size={32} />,
     color: 'text-sky-500',
-    bg: 'bg-sky-100 dark:bg-sky-950/60',
-    accent: 'bg-sky-200/60 dark:bg-sky-800/20',
+    bg: 'bg-sky-100',
+    accent: 'bg-sky-200/60',
   },
   {
     key: 'masking',
     icon: <IconEyeOff size={32} />,
     color: 'text-violet-500',
-    bg: 'bg-violet-100 dark:bg-violet-950/60',
-    accent: 'bg-violet-200/60 dark:bg-violet-800/20',
+    bg: 'bg-violet-100',
+    accent: 'bg-violet-200/60',
   },
   {
     key: 'tunnel',
     icon: <IconNetwork size={32} />,
     color: 'text-amber-500',
-    bg: 'bg-amber-100 dark:bg-amber-950/60',
-    accent: 'bg-amber-200/60 dark:bg-amber-800/20',
+    bg: 'bg-amber-100',
+    accent: 'bg-amber-200/60',
   },
 ] as const;
 
