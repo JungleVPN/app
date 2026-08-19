@@ -9,7 +9,7 @@ import LogoDark from '../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../hooks';
 import { usePlatformStore } from '../../stores';
 import { Container } from '../../ui';
-import { isRuDomain } from '../../utils';
+import { isRuDomain, scrollToTop } from '../../utils';
 import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { AuthButtons } from './AuthButtons';
@@ -66,7 +66,9 @@ export function Header() {
 
   const inner = (
     <div className='flex items-center justify-between gap-4'>
-      <Link href={getLink()}>{logoNode}</Link>
+      <Link href={getLink()} onClick={scrollToTop}>
+        {logoNode}
+      </Link>
 
       {isLanding && (
         <nav className='hidden sm:flex items-center gap-6'>

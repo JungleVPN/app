@@ -5,6 +5,7 @@ import Logo from '../../assets/Logo_dark.svg?react';
 import LogoDark from '../../assets/Logo_dark.svg?react';
 import { coreEnv } from '../../env';
 import { useTheme } from '../../hooks';
+import { scrollToTop } from '../../utils';
 
 type FooterLinkDef =
   | { type: 'internal'; to: string }
@@ -40,14 +41,18 @@ export function FooterSection() {
     <footer className='w-full border-t border-divider'>
       <div className='flex flex-col gap-8 py-12 '>
         <div className='flex flex-col items-start gap-6'>
-          <div className={'flex items-center gap-2'}>
+          <button
+            type='button'
+            onClick={scrollToTop}
+            className='flex items-center gap-2 cursor-pointer bg-transparent border-none p-0'
+          >
             {theme === 'dark' ? (
               <LogoDark aria-label={t('header.logoAlt')} width={56} height={56} />
             ) : (
               <Logo aria-label={t('header.logoAlt')} width={56} height={56} />
             )}
             <p className='text-lg'>JungleVPN</p>
-          </div>
+          </button>
           <p className='text-sm text-muted'>
             {t('landing.footer.copyright', { year: new Date().getFullYear() })}
           </p>

@@ -1,13 +1,14 @@
 import { useTranslation } from 'react-i18next';
+import affiliates from '../../assets/lottie/affiliate.lottie?url';
+import referrals from '../../assets/lottie/referrals.lottie?url';
 import { ContentCard } from '../../components/ContentCard';
-import { coreEnv, getTelegramStickerUrl } from '../../env';
-import { Grid, GridItem, TgsSticker } from '../../ui';
+import { Grid, GridItem, LottieIcon } from '../../ui';
 
 const PARTNERSHIP_KEYS = ['affiliate', 'referral'] as const;
 
 const PARTNERSHIP_STICKERS: Record<(typeof PARTNERSHIP_KEYS)[number], string | undefined> = {
-  affiliate: getTelegramStickerUrl(coreEnv.affiliateStickerFileId),
-  referral: getTelegramStickerUrl(coreEnv.referralsStickerFileId),
+  affiliate: affiliates,
+  referral: referrals,
 };
 
 export function PartnershipSection() {
@@ -33,7 +34,12 @@ export function PartnershipSection() {
               learnMoreHref={key === 'affiliate' ? '/affiliates' : '/profile/referrals'}
               icon={
                 PARTNERSHIP_STICKERS[key] ? (
-                  <TgsSticker src={PARTNERSHIP_STICKERS[key]!} className='h-full w-full' />
+                  <LottieIcon
+                    src={PARTNERSHIP_STICKERS[key]!}
+                    size={130}
+                    loop={true}
+                    className='h-full w-full'
+                  />
                 ) : undefined
               }
             />

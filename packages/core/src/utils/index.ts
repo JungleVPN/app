@@ -30,6 +30,7 @@ export { formatCurrency, truncate } from './format';
 export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';
 export { captureReferral, clearReferral, getReferral } from './referral';
+export { scrollToTop } from './scrollToTop';
 export type { Storage } from './storage';
 export { createStorage } from './storage';
 export { TemplateEngine } from './templateEngine';
