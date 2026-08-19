@@ -27,7 +27,6 @@
     "express": "^5.2.1",
     "grammy": "^1.42.0",
     "reflect-metadata": "^0.2.2",
-    "resend": "^4.8.0",
     "stripe": "^20.0.0",
     "typeorm": "^0.3.20",
     "vite-tsconfig-paths": "^6.1.1",

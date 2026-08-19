@@ -1,16 +1,26 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
-import { apiRoutes, RemnawebhookPayload } from '@workspace/types';
+import { OnEvent } from '@nestjs/event-emitter';
+import {
+  apiRoutes,
+  GetUserByUuidResponseDto,
+  Payments,
+  RemnawebhookPayload,
+  WebhookEventEnum,
+} from '@workspace/types';
 import axios, { isAxiosError } from 'axios';
+import {
+  buildExpiryEmailHtml,
+  buildExpirySubject,
+  buildPaymentIssueEmailHtml,
+  buildPaymentIssueSubject,
+  ExpiryEmailLocale,
+  PaymentIssueReason,
+} from './email-templates';
 
 type UserData = RemnawebhookPayload['data'];
-type SupportedLocale = 'en' | 'ru';
+type SupportedLocale = ExpiryEmailLocale;
 type ExpiryHours = 24 | 48;
-
-interface EmailContent {
-  subject: string;
-  html: string;
-}
 
 // ── Date formatting ───────────────────────────────────────────────────────────
 
@@ -26,116 +36,48 @@ function toDateString(value: Date | string): string {
   });
 }
 
-// ── Email templates ───────────────────────────────────────────────────────────
-
-function buildEmailHtml(
-  body: string,
-  paymentUrl: string,
-  ctaLabel: string,
-  supportUrl: string,
-): string {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr><td align="center" style="padding:40px 16px">
-      <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%">
-        <tr><td style="padding:32px;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;color:#111827;font-size:16px;line-height:1.6">
-          ${body}
-          <p style="margin:24px 0 0">
-            <a href="${paymentUrl}" style="display:inline-block;padding:12px 24px;background:#16a34a;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;font-size:15px">${ctaLabel}</a>
-          </p>
-          <p style="margin:24px 0 0;font-size:14px;color:#6b7280">
-            <a href="${supportUrl}" style="color:#6b7280">Support</a>
-          </p>
-        </td></tr>
-      </table>
-    </td></tr>
-  </table>
-</body>
-</html>`;
-}
-
-type TemplateFactory = (expireDate: string, paymentUrl: string, supportUrl: string) => EmailContent;
-
-const EMAIL_TEMPLATES: Record<SupportedLocale, Record<ExpiryHours, TemplateFactory>> = {
-  en: {
-    24: (expireDate, paymentUrl, supportUrl) => ({
-      subject: 'Your subscription expires in 1 day',
-      html: buildEmailHtml(
-        `<p style="margin:0 0 16px">Your subscription expires in <strong>1 day</strong> 🥲</p>
-         <p style="margin:0 0 8px">End date is</p>
-         <blockquote style="margin:0 0 16px;padding:12px 16px;background:#f3f4f6;border-left:4px solid #16a34a;border-radius:4px;font-weight:600">${expireDate}</blockquote>
-         <p style="margin:0 0 16px">Last chance — renew today to avoid losing access.</p>
-         <p style="margin:0">Jungle 🌴</p>`,
-        paymentUrl,
-        'Renew subscription',
-        supportUrl,
-      ),
-    }),
-    48: (expireDate, paymentUrl, supportUrl) => ({
-      subject: 'Your subscription expires in 2 days',
-      html: buildEmailHtml(
-        `<p style="margin:0 0 16px">Your subscription expires in <strong>2 days</strong> 🌴</p>
-         <p style="margin:0 0 8px">End date is</p>
-         <blockquote style="margin:0 0 16px;padding:12px 16px;background:#f3f4f6;border-left:4px solid #16a34a;border-radius:4px;font-weight:600">${expireDate}</blockquote>
-         <p style="margin:0 0 16px">Renew now to stay connected without interruption.</p>
-         <p style="margin:0">Jungle 🌴</p>`,
-        paymentUrl,
-        'Renew subscription',
-        supportUrl,
-      ),
-    }),
-  },
-  ru: {
-    24: (expireDate, paymentUrl, supportUrl) => ({
-      subject: 'Твоя подписка закончится через 1 день',
-      html: buildEmailHtml(
-        `<p style="margin:0 0 16px">Твоя подписка закончится через <strong>1 день</strong> 🥲</p>
-         <p style="margin:0 0 8px">Будет работать до</p>
-         <blockquote style="margin:0 0 16px;padding:12px 16px;background:#f3f4f6;border-left:4px solid #16a34a;border-radius:4px;font-weight:600">${expireDate}</blockquote>
-         <p style="margin:0 0 16px">Телеграм может быть недоступен — продли сегодня, чтобы не потерять доступ.</p>
-         <p style="margin:0">Jungle 🌴</p>`,
-        paymentUrl,
-        'Продлить подписку',
-        supportUrl,
-      ),
-    }),
-    48: (expireDate, paymentUrl, supportUrl) => ({
-      subject: 'Твоя подписка закончится через 2 дня',
-      html: buildEmailHtml(
-        `<p style="margin:0 0 16px">Твоя подписка закончится через <strong>2 дня</strong> 🌴</p>
-         <p style="margin:0 0 8px">Будет работать до</p>
-         <blockquote style="margin:0 0 16px;padding:12px 16px;background:#f3f4f6;border-left:4px solid #16a34a;border-radius:4px;font-weight:600">${expireDate}</blockquote>
-         <p style="margin:0 0 16px">Продли заранее, чтобы не терять доступ.</p>
-         <p style="margin:0">Jungle 🌴</p>`,
-        paymentUrl,
-        'Продлить подписку',
-        supportUrl,
-      ),
-    }),
-  },
-};
+const EXPIRY_DAYS: Record<ExpiryHours, number> = { 24: 1, 48: 2 };
 
 const DEFAULT_LOCALE: SupportedLocale = 'en';
 
 function isSupportedLocale(locale: string): locale is SupportedLocale {
-  return locale in EMAIL_TEMPLATES;
+  return locale === 'en' || locale === 'ru';
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
+interface ZohoAccessToken {
+  token: string;
+  expiresAt: number;
+}
+
 @Injectable()
 export class EmailNotificationService {
   private readonly logger = new Logger(EmailNotificationService.name);
+  private accessTokenCache: ZohoAccessToken | null = null;
 
-  private get apiKey(): string | undefined {
-    return process.env.RESEND_API_KEY;
+  private get clientId(): string | undefined {
+    return process.env.ZOHO_CLIENT_ID;
+  }
+
+  private get clientSecret(): string | undefined {
+    return process.env.ZOHO_CLIENT_SECRET;
+  }
+
+  private get refreshToken(): string | undefined {
+    return process.env.ZOHO_REFRESH_TOKEN;
+  }
+
+  private get accountId(): string | undefined {
+    return process.env.ZOHO_ACCOUNT_ID;
   }
 
   private get fromEmail(): string {
-    return process.env.RESEND_FROM_EMAIL ?? 'noreply@contact.thejungle.pro';
+    return process.env.ZOHO_FROM_EMAIL ?? 'notification@jungle-vpn.com';
+  }
+
+  private get apiDomain(): string {
+    return process.env.ZOHO_API_DOMAIN ?? 'zoho.eu';
   }
 
   private get paymentUrl(): string {
@@ -146,9 +88,13 @@ export class EmailNotificationService {
     return process.env.PUBLIC_SUPPORT_EMAIL ?? 'https://t.me';
   }
 
+  private get hasZohoCredentials(): boolean {
+    return Boolean(this.clientId && this.clientSecret && this.refreshToken && this.accountId);
+  }
+
   async notifyExpiry(user: UserData, hoursRemaining: ExpiryHours): Promise<void> {
-    if (!this.apiKey) {
-      this.logger.warn('RESEND_API_KEY is not set — skipping email notification');
+    if (!this.hasZohoCredentials) {
+      this.logger.warn('Zoho credentials not configured, skipping email notification');
       return;
     }
 
@@ -161,43 +107,165 @@ export class EmailNotificationService {
 
     const locale = await this.resolveLocale(user.uuid);
     const expireDate = toDateString(user.expireAt);
-    const { subject, html } = EMAIL_TEMPLATES[locale][hoursRemaining](
+    const days = EXPIRY_DAYS[hoursRemaining];
+    const subject = buildExpirySubject(locale, days);
+    const html = buildExpiryEmailHtml({
+      locale,
+      days,
       expireDate,
-      this.paymentUrl,
-      this.supportUrl,
-    );
+      paymentUrl: this.paymentUrl,
+      supportUrl: this.supportUrl,
+    });
 
     this.logger.log(
       `Sending ${hoursRemaining}h expiry email (locale=${locale}) to userId=${user.uuid}`,
     );
 
     try {
-      await axios.post(
-        'https://api.resend.com/emails',
-        { from: this.fromEmail, to: [user.email], subject, html },
-        {
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json',
-          },
-          timeout: 10_000,
-        },
-      );
+      await this.sendViaZoho(user.email, subject, html);
 
       this.logger.log(
         `Expiry email (${hoursRemaining}h) sent to userId=${user.uuid} email=${user.email}`,
       );
     } catch (err: unknown) {
-      const detail = isAxiosError(err)
-        ? `${err.message} ${err.response?.data != null ? JSON.stringify(err.response.data) : ''}`
-        : err instanceof Error
-          ? err.message
-          : String(err);
+      const detail = this.describeError(err);
 
       this.logger.error(
         `Failed to send expiry email (${hoursRemaining}h) to userId=${user.uuid} email=${user.email}: ${detail}`,
       );
     }
+  }
+
+  @OnEvent(WebhookEventEnum['payment.no_active_method'])
+  async onNoActiveMethod(event: Payments.PaymentFailedEventPayload): Promise<void> {
+    await this.notifyPaymentIssue(event.userId, 'no_active_method');
+  }
+
+  @OnEvent(WebhookEventEnum['payment.insufficient_funds'])
+  async onInsufficientFunds(event: Payments.PaymentFailedEventPayload): Promise<void> {
+    await this.notifyPaymentIssue(event.userId, 'insufficient_funds');
+  }
+
+  private async notifyPaymentIssue(userId: string, reason: PaymentIssueReason): Promise<void> {
+    if (!this.hasZohoCredentials) {
+      this.logger.warn('Zoho credentials not configured, skipping email notification');
+      return;
+    }
+
+    const user = await this.getUserByUuid(userId);
+    if (!user?.email) {
+      this.logger.log(`Skipping ${reason} email: no email address for userId=${userId}`);
+      return;
+    }
+
+    const locale = await this.resolveLocale(userId);
+    const expireDate = toDateString(user.expireAt);
+    const subject = buildPaymentIssueSubject(locale, reason);
+    const html = buildPaymentIssueEmailHtml({
+      locale,
+      reason,
+      expireDate,
+      paymentUrl: this.paymentUrl,
+      supportUrl: this.supportUrl,
+    });
+
+    this.logger.log(`Sending ${reason} email (locale=${locale}) to userId=${userId}`);
+
+    try {
+      await this.sendViaZoho(user.email, subject, html);
+
+      this.logger.log(`${reason} email sent to userId=${userId} email=${user.email}`);
+    } catch (err: unknown) {
+      const detail = this.describeError(err);
+
+      this.logger.error(`Failed to send ${reason} email to userId=${userId}: ${detail}`);
+    }
+  }
+
+  private async getUserByUuid(uuid: string): Promise<GetUserByUuidResponseDto | null> {
+    try {
+      const { data } = await axios.get<GetUserByUuidResponseDto>(
+        `${this.remnawaveBaseUrl}${apiRoutes.remnawave.userByUuid(uuid)}`,
+        {
+          headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
+          timeout: 5_000,
+        },
+      );
+      return data;
+    } catch (err: unknown) {
+      const detail = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Failed to fetch user by uuid ${uuid}: ${detail}`);
+      return null;
+    }
+  }
+
+  private async sendViaZoho(toEmail: string, subject: string, html: string): Promise<void> {
+    const accessToken = await this.getAccessToken();
+
+    try {
+      await this.postMessage(accessToken, toEmail, subject, html);
+    } catch (err: unknown) {
+      if (!isAxiosError(err) || err.response?.status !== 401) {
+        throw err;
+      }
+
+      this.accessTokenCache = null;
+      const refreshedToken = await this.getAccessToken();
+      await this.postMessage(refreshedToken, toEmail, subject, html);
+    }
+  }
+
+  private postMessage(
+    accessToken: string,
+    toEmail: string,
+    subject: string,
+    html: string,
+  ): Promise<unknown> {
+    return axios.post(
+      `https://mail.${this.apiDomain}/api/accounts/${this.accountId}/messages`,
+      { fromAddress: this.fromEmail, toAddress: toEmail, subject, content: html, askReceipt: 'no' },
+      {
+        headers: {
+          Authorization: `Zoho-oauthtoken ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        timeout: 10_000,
+      },
+    );
+  }
+
+  private async getAccessToken(): Promise<string> {
+    if (this.accessTokenCache && Date.now() < this.accessTokenCache.expiresAt - 60_000) {
+      return this.accessTokenCache.token;
+    }
+
+    const { data } = await axios.post<{ access_token: string; expires_in: number }>(
+      `https://accounts.${this.apiDomain}/oauth/v2/token`,
+      null,
+      {
+        params: {
+          refresh_token: this.refreshToken,
+          client_id: this.clientId,
+          client_secret: this.clientSecret,
+          grant_type: 'refresh_token',
+        },
+      },
+    );
+
+    this.accessTokenCache = {
+      token: data.access_token,
+      expiresAt: Date.now() + data.expires_in * 1000,
+    };
+    return this.accessTokenCache.token;
+  }
+
+  private describeError(err: unknown): string {
+    if (isAxiosError(err)) {
+      const zohoDetail =
+        err.response?.data?.data?.errorCode ?? err.response?.data?.status?.description;
+      return `${err.message} ${zohoDetail ?? ''}`.trim();
+    }
+    return err instanceof Error ? err.message : String(err);
   }
 
   private get remnawaveBaseUrl(): string {
