@@ -30,13 +30,15 @@ const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
     locale: 'en',
     lang: 'en',
     title: 'JungleVPN — Fast & Secure VPN',
-    description: 'Access any website without restrictions. High speed, full anonymity.',
+    description:
+      'Protect your connection, browse privately and stay secure on public Wi-Fi — with one VPN for all your devices.',
   },
   ar: {
     locale: 'ar',
     lang: 'ar',
     title: 'JungleVPN — VPN سريع وآمن',
-    description: 'الوصول إلى أي موقع بدون قيود. سرعة عالية وخصوصية تامة.',
+    description:
+      'احمِ اتصالك، وتصفّح بخصوصية، وابقَ آمنًا على شبكات الواي فاي العامة — بشبكة VPN واحدة تحمي جميع أجهزتك.',
   },
 };
 
