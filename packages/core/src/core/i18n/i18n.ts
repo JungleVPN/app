@@ -6,6 +6,7 @@ import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
+import { isRuDomain } from '../../utils/domain';
 import ar from './locales/ar.json';
 import en from './locales/en.json';
 import ru from './locales/ru.json';
@@ -51,6 +52,11 @@ i18n
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
     },
+  })
+  .then(() => {
+    // The RU domain is Russian-only: it must always render in Russian, regardless
+    // of what device detection or a previously cached selection landed on.
+    if (isRuDomain()) i18n.changeLanguage('ru');
   });
 
 i18n.on('languageChanged', syncDocumentDirection);
@@ -60,10 +66,12 @@ if (i18n.language) syncDocumentDirection(i18n.language);
  * Applies a language from user metadata if it is supported.
  * Mirrors the bot's localeNegotiator: metadata lang takes priority over the
  * device-level localStorage/navigator detection that runs at cold start.
+ * The RU domain overrides even a stored preference — it is Russian-only.
  */
 export function applyUserLang(lang: string): void {
-  if ((SUPPORTED_LOCALES as readonly string[]).includes(lang)) {
-    i18n.changeLanguage(lang);
+  const target = isRuDomain() ? 'ru' : lang;
+  if ((SUPPORTED_LOCALES as readonly string[]).includes(target)) {
+    i18n.changeLanguage(target);
   }
 }
 

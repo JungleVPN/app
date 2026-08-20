@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { usePlatformStore } from '../../stores';
+import { isRuDomain } from '../../utils';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
@@ -14,6 +15,7 @@ export function MobileDrawer() {
   const [isOpen, setIsOpen] = useState(false);
 
   const isLanding = pathname === '/';
+  const isRu = isRuDomain();
 
   const scrollTo = (id: string) => {
     setIsOpen(false);
@@ -32,7 +34,7 @@ export function MobileDrawer() {
         <IconMenu2 stroke={2} size={20} />
       </Button>
 
-      <Drawer.Backdrop variant='blur' isOpen={isOpen} onOpenChange={setIsOpen}>
+      <Drawer.Backdrop variant='blur' isOpen={isOpen} onOpenChange={setIsOpen} className={'z-100'}>
         <Drawer.Content placement={i18n.dir() === 'rtl' ? 'left' : 'right'}>
           <Drawer.Dialog>
             <Drawer.Header className='flex flex-row items-center justify-between'>
@@ -68,7 +70,7 @@ export function MobileDrawer() {
 
               {platformType === 'web' && <AuthButtons />}
 
-              {!isLanding && (
+              {!isRu && (
                 <div className='flex items-center gap-2 px-3 py-2 mt-auto'>
                   <LanguageSwitcher />
                 </div>
