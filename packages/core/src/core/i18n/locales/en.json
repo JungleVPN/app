@@ -553,16 +553,16 @@
       "titleBrand": "three simple steps",
       "subtitle": "A simple three-step setup designed to get you connected quickly and securely.",
       "install": {
-        "title": "Install HAPP",
-        "description": "Download and install the HAPP app on your device. Supported on all platforms."
+        "title": "Install the app",
+        "description": "Download and install the app on your device. Supported on all platforms."
       },
       "subscribe": {
-        "title": "Add your link to HAPP",
-        "description": "Open your personal subscription link and import it into HAPP. Your connection settings are added automatically — no manual server setup required."
+        "title": "Add your link",
+        "description": "Open your personal subscription link and import it into the app. Your connection settings are added automatically — no manual server setup required."
       },
       "connect": {
         "title": "Connect and use JungleVPN",
-        "description": "Open HAPP, select the required connection and tap Connect. Your VPN configuration is ready to use, with access to the server locations included in your JungleVPN subscription."
+        "description": "Open the app, select the required connection and tap Connect. Your VPN configuration is ready to use, with access to the server locations included in your JungleVPN subscription."
       }
     },
     "trust": {
