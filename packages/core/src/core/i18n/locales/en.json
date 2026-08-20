@@ -216,7 +216,7 @@
   "terms": {
     "pageTitle": "Terms of Use",
     "paymentConsentLead": "By completing your purchase, you agree to our ",
-    "paymentLinkLabel": "Terms of Use",
+    "paymentLinkLabel": "Terms of Use.",
     "footer": "By using the Service (including by starting the bot and/or sending the /start command), the User confirms that they have read this Agreement and accept its terms in full.",
     "dialog": {
       "title": "Subscription terms",

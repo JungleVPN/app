@@ -1,9 +1,11 @@
 import { Surface } from '@heroui/react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigationType } from 'react-router';
 import { useBackButton, useNavigation } from '../../hooks';
 import { useNavbarStore } from '../../stores';
 import { Page } from '../../ui';
+import { scrollToTop } from '../../utils';
 
 const olClass =
   'list-decimal list-outside space-y-2 ps-5 text-sm leading-relaxed text-muted marker:text-muted';
@@ -14,15 +16,19 @@ export default function TermsPage() {
   const { t } = useTranslation();
   const { setNavbarVisible } = useNavbarStore();
   const navigate = useNavigation();
+  const navigationType = useNavigationType();
 
   useBackButton(() => navigate(-1));
 
   useEffect(() => {
     setNavbarVisible(false);
+    if (navigationType !== 'POP') {
+      scrollToTop();
+    }
     return () => {
       setNavbarVisible(true);
     };
-  }, [setNavbarVisible]);
+  }, [setNavbarVisible, navigationType]);
 
   return (
     <Page title={t('terms.pageTitle')}>

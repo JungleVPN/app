@@ -38,7 +38,7 @@ export function FooterSection() {
   ];
 
   return (
-    <footer className='w-full border-t border-divider'>
+    <footer className='w-full'>
       <div className='flex flex-col gap-8 py-12 '>
         <div className='flex flex-col items-start gap-6'>
           <button
