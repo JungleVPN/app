@@ -115,7 +115,7 @@ export class YookassaService {
         return_url:
           dto.confirmation?.type === 'redirect'
             ? dto.confirmation.return_url
-            : process.env.RETURN_URL,
+            : process.env.RETURN_URL_BOT,
       },
     };
 

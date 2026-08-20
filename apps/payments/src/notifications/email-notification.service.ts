@@ -81,7 +81,7 @@ export class EmailNotificationService {
   }
 
   private get paymentUrl(): string {
-    return process.env.WEB_PAYMENT_URL ?? 'https://t.me';
+    return process.env.RETURN_URL_WEB ?? 'https://t.me';
   }
 
   private get supportUrl(): string {

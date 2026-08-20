@@ -101,8 +101,8 @@ export class StripeProvider {
         metadata,
         ...(!isExtraDevice && { subscription_data: { metadata } }),
         allow_promotion_codes: true,
-        success_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
-        cancel_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
+        success_url: process.env.RETURN_URL_WEB || 'https://jungle-vpn.com/profile/subscription',
+        cancel_url: process.env.RETURN_URL_WEB || 'https://jungle-vpn.com/profile/subscription',
         phone_number_collection: { enabled: false },
       });
     } catch (error) {
@@ -115,7 +115,7 @@ export class StripeProvider {
     try {
       const session = await this.stripe.billingPortal.sessions.create({
         customer,
-        return_url: process.env.APP_RETURN_URL || 'https://t.me/your_bot_username',
+        return_url: process.env.RETURN_URL_WEB || 'https://jungle-vpn.com/profile/subscription',
         configuration: process.env.STRIPE_CUSTOMER_PORTAL_CONFIG || '',
       });
 
