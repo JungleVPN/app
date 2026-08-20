@@ -29,6 +29,9 @@ import { Bot } from 'grammy';
 import { AnalyticsClientService } from '../analytics/analytics-client.service';
 import { RemnaPanelClient, RemnaPanelError } from '../common/remna-panel.client';
 
+// Used when REMNAWAVE_INTERNAL_SQUADS is unset/empty so new users still land in a squad.
+const DEFAULT_INTERNAL_SQUAD = '6f40164a-51d0-432a-8fa3-3e1311e13757';
+
 @Injectable()
 export class UserService implements OnModuleInit {
   readonly logger = new Logger(UserService.name);
@@ -100,9 +103,11 @@ export class UserService implements OnModuleInit {
     },
   ): Promise<CreateUserResponseDto> {
     const trialDays = Number(this.configService.get('TRIAL_PERIOD_IN_DAYS', '3'));
-    const activeInternalSquads = JSON.parse(
+    const configuredInternalSquads = JSON.parse(
       this.configService.get('REMNAWAVE_INTERNAL_SQUADS', '[]'),
     );
+    const activeInternalSquads =
+      configuredInternalSquads.length > 0 ? configuredInternalSquads : [DEFAULT_INTERNAL_SQUAD];
     const expireAt = addDays(new Date(), trialDays);
 
     const { inviterId, ...rest } = payload;
