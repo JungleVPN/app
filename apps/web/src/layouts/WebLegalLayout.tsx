@@ -1,5 +1,5 @@
 import { Container } from '@workspace/core';
-import { FooterSection } from '@workspace/core/pages';
+import { FooterSection } from '@workspace/core/components';
 import { Outlet } from 'react-router';
 
 export function WebLegalLayout() {

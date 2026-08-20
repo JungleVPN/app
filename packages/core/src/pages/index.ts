@@ -2,6 +2,7 @@ export { default as GetSubscriptionPage } from './getSubscription/GetSubscriptio
 export { default as LandingPage } from './landing/LandingPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';
 export { default as LoginPage } from './login/LoginPage';
+export { default as PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';
 export { default as AffiliatePage } from './profile/affiliate/AffiliatePage';
 export { ProtectedDevicesPage } from './profile/devices/protected';
 export { ProtectedExtraDevicePurchasePage } from './profile/devices/protected-extra-device';
@@ -12,6 +13,5 @@ export { ProtectedTransactionDetailsPage } from './profile/menu/transactions/pro
 export { ProtectedPaymentPage } from './profile/payment/protected';
 export { ProtectedPlansPage } from './profile/plans/protected';
 export { ProtectedProfileSubscriptionPage } from './profile/subscription/protected';
-export { default as PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';
 export { default as SubscriptionPage } from './subscription/SubscriptionPage';
 export { default as TermsPage } from './terms/TermsPage';

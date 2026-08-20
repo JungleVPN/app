@@ -1,3 +1,4 @@
+import { FooterSection } from '../../components';
 import { Container } from '../../ui';
 import Aurora from '../../ui/Background/Background';
 import { BentoSection } from './BentoSection';
@@ -5,7 +6,6 @@ import { ComparisonSection } from './ComparisonSection';
 import { CountriesMarquee } from './CountriesMarquee';
 import { FAQSection } from './FAQSection';
 import { FeaturesSection } from './FeaturesSection';
-import { FooterSection } from './FooterSection';
 import { FreeTrialSection } from './FreeTrialSection';
 import { HeroSection } from './HeroSection';
 import { HowItWorksSection } from './HowItWorksSection';

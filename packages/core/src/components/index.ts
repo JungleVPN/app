@@ -3,6 +3,7 @@ export { AuthGuard } from './AuthGuard/AuthGuard';
 export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorConnection } from './ErrorConnection/ErrorConnection';
 export { FeaturesCard } from './FeaturesCard/FeaturesCard';
+export { FooterSection } from './FooterSection';
 export { AuthButtons } from './Header/AuthButtons';
 export { Header } from './Header/Header';
 export { LanguageSwitcher } from './Header/LanguageSwitcher';
