@@ -22,7 +22,7 @@ export class MainKeyboardCallback extends Base {
 
   register(bot: Bot<BotContext>) {
     bot.filter(hears('connect-button-label'), async (ctx) => {
-      const tmaAppUrl = process.env.PUBLIC_TMA_APP_URL || 'https://miniapp.thejungle.pro';
+      const tmaAppUrl = process.env.TMA_APP_URL || 'https://miniapp.thejungle.pro';
       const connectUrl = withReferral(ctx, tmaAppUrl);
       await ctx.reply(ctx.t('connect-instruction-text'), {
         reply_markup: new InlineKeyboard().webApp(ctx.t('connect-button-label'), connectUrl),

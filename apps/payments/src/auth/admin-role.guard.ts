@@ -5,7 +5,7 @@ import type { AuthenticatedRequest } from './client-user.guard';
  * Must be composed after ClientUserGuard, which populates
  * `req.authenticatedEmail` and `req.authenticatedTelegramId`.
  *
- * Checks that the resolved identity appears in the PUBLIC_ADMINS env var
+ * Checks that the resolved identity appears in the ADMINS env var
  * (comma-separated telegramIds and/or email addresses).
  *
  * Replaces the old AdminGuard which accepted a client-controlled X-Admin-Id
@@ -16,7 +16,7 @@ export class AdminRoleGuard implements CanActivate {
   private readonly adminIds: Set<string>;
 
   constructor() {
-    const raw = process.env.PUBLIC_ADMINS ?? '';
+    const raw = process.env.ADMINS ?? '';
     this.adminIds = new Set(
       raw
         .split(',')

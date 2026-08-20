@@ -85,7 +85,7 @@ export class EmailNotificationService {
   }
 
   private get supportUrl(): string {
-    return process.env.PUBLIC_SUPPORT_EMAIL ?? 'https://t.me';
+    return process.env.SUPPORT_EMAIL ?? 'https://t.me';
   }
 
   private get hasZohoCredentials(): boolean {

@@ -52,7 +52,7 @@ export class UserExpireListener {
 
     const locale =
       (payload.data.uuid ? await this.remnaService.getUserLang(payload.data.uuid) : null) ||
-      process.env.PUBLIC_DEFAULT_LOCALE ||
+      process.env.DEFAULT_LOCALE ||
       'ru';
 
     const keyboard = new InlineKeyboard();
@@ -64,7 +64,7 @@ export class UserExpireListener {
     keyboard.row();
     keyboard.url(
       this.localService.i18n.t(locale, 'support-button-label'),
-      process.env.PUBLIC_SUPPORT_TG_URL || 'https://t.me/JungleVPN_support',
+      process.env.SUPPORT_TG_URL || 'https://t.me/JungleVPN_support',
     );
 
     const formattedDate = toDateString(payload.data.expireAt);

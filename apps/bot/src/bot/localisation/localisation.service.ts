@@ -11,7 +11,7 @@ export class LocalisationService {
 
   constructor(private readonly remnaService: RemnaService) {
     this.i18n = new I18n<BotContext>({
-      defaultLocale: process.env.PUBLIC_DEFAULT_LOCALE || 'en',
+      defaultLocale: process.env.DEFAULT_LOCALE || 'en',
       directory: path.join(__dirname, 'i18n'),
       localeNegotiator: async (ctx) => {
         if (ctx.session?.lang) return ctx.session.lang;

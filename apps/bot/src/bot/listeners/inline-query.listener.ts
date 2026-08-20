@@ -31,7 +31,7 @@ export class InlineQueryListener {
       const link = this.referralService.getUserReferralLink(rmnUser.uuid);
       const locale =
         (await this.remnaService.getUserLang(rmnUser.uuid)) ||
-        (process.env.PUBLIC_DEFAULT_LOCALE as LocaleId);
+        (process.env.DEFAULT_LOCALE as LocaleId);
 
       const keyboard = new InlineKeyboard().url(
         this.localService.i18n.t(locale, 'connect-button-label'),

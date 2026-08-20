@@ -29,7 +29,7 @@ export class UserRewardedListener {
     const expireAt = user?.[0].expireAt;
     const locale =
       (user?.[0]?.uuid ? await this.remnaService.getUserLang(user[0].uuid) : null) ||
-      (process.env.PUBLIC_DEFAULT_LOCALE as LocaleId);
+      (process.env.DEFAULT_LOCALE as LocaleId);
 
     const formattedDate = toDateString(expireAt!);
 

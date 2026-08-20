@@ -89,13 +89,13 @@ describe('provider-agnostic amount config', () => {
   // everywhere it is later read back — payment history and admin search.
   describe('getExtraDevicePrice', () => {
     afterEach(() => {
-      delete process.env.PUBLIC_EXTRA_DEVICE_PRICE_EUR;
-      delete process.env.PUBLIC_EXTRA_DEVICE_PRICE_RUB;
+      delete process.env.EXTRA_DEVICE_PRICE_EUR;
+      delete process.env.EXTRA_DEVICE_PRICE_RUB;
     });
 
     it('returns the configured price per currency', () => {
-      process.env.PUBLIC_EXTRA_DEVICE_PRICE_EUR = '1';
-      process.env.PUBLIC_EXTRA_DEVICE_PRICE_RUB = '100';
+      process.env.EXTRA_DEVICE_PRICE_EUR = '1';
+      process.env.EXTRA_DEVICE_PRICE_RUB = '100';
 
       expect(getExtraDevicePrice('EUR')).toBe('1');
       expect(getExtraDevicePrice('RUB')).toBe('100');
@@ -106,7 +106,7 @@ describe('provider-agnostic amount config', () => {
     });
 
     it('throws on a non-positive price', () => {
-      process.env.PUBLIC_EXTRA_DEVICE_PRICE_EUR = '0';
+      process.env.EXTRA_DEVICE_PRICE_EUR = '0';
       expect(() => getExtraDevicePrice('EUR')).toThrow();
     });
   });

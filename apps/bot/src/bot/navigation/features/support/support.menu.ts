@@ -35,7 +35,7 @@ export class SupportMenu extends Base {
                 ctx.t('connect-button-label'),
                 withReferral(
                   ctx,
-                  process.env.PUBLIC_TMA_APP_URL || 'https://miniapp.thejungle.pro',
+                  process.env.TMA_APP_URL || 'https://miniapp.thejungle.pro',
                 ),
               ),
             );
@@ -45,7 +45,7 @@ export class SupportMenu extends Base {
       .row()
       .url(
         (ctx) => ctx.t('support-button-label'),
-        process.env.PUBLIC_SUPPORT_TG_URL || 'https://t.me/JungleVPN_support_bot',
+        process.env.SUPPORT_TG_URL || 'https://t.me/JungleVPN_support_bot',
       )
       .row()
       .text(

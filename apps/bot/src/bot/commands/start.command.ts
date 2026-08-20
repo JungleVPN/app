@@ -34,7 +34,7 @@ export class StartCommand {
     const users = await this.remnaService.getUserByTgId(ctx.from.id);
     const rmnUser = users?.[0] ?? null;
 
-    const tmaAppUrl = process.env.PUBLIC_TMA_APP_URL || 'https://app.thejungle.pro';
+    const tmaAppUrl = process.env.TMA_APP_URL || 'https://app.thejungle.pro';
     void ctx.api.setChatMenuButton({
       chat_id: ctx.from?.id,
       menu_button: {

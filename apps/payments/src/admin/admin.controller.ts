@@ -34,7 +34,7 @@ export class AdminController {
 
   /**
    * Cross-user payment search — admin only.
-   * Identity is validated via credential; the caller must be in PUBLIC_ADMINS.
+   * Identity is validated via credential; the caller must be in ADMINS.
    * Replaces the old X-Admin-Id header approach which was trivially forgeable.
    */
   @Get('search')
