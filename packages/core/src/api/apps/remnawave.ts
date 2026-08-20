@@ -144,8 +144,11 @@ export function createRemnawaveApi(client: ApiClient) {
     async getMe(): Promise<GetUserByUuidResponseDto | null> {
       try {
         return await client.get<GetUserByUuidResponseDto>(apiRoutes.remnawave.me);
-      } catch {
-        return null;
+      } catch (err: unknown) {
+        if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
+          return null;
+        }
+        throw err;
       }
     },
 

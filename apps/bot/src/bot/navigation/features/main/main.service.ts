@@ -13,12 +13,14 @@ export class MainMenuService extends Base {
   }
 
   async init(ctx: BotContext, mainMenu: MainMenu, deleteOldMsg?: boolean, user?: UserDto | null) {
-    if (!user) {
+    const rmnUser = user ?? (await this.remnaService.getUserByTgId(ctx.from?.id || 0))?.[0];
+
+    if (!rmnUser) {
       return;
     }
-    ctx.session.userId = user.uuid;
+    ctx.session.userId = rmnUser.uuid;
 
-    const isExpired = Date.now() > new Date(user.expireAt).getTime();
+    const isExpired = Date.now() > new Date(rmnUser.expireAt).getTime();
 
     const username = isValidUsername(ctx.from?.username)
       ? ctx.from?.username
@@ -26,7 +28,7 @@ export class MainMenuService extends Base {
 
     const content = ctx.t('main-text', {
       username: username!,
-      expireAt: toDateString(user.expireAt),
+      expireAt: toDateString(rmnUser.expireAt),
       isExpired: isExpired ? 'true' : 'false',
       devicesLimit: process.env.HWID_LIMIT ? parseInt(process.env.HWID_LIMIT, 10) : 5,
     });
