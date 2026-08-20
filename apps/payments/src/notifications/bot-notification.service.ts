@@ -22,7 +22,7 @@ export class BotNotificationService {
   private readonly logger = new Logger(BotNotificationService.name);
 
   private get botBaseUrl(): string {
-    return process.env.PUBLIC_BOT_URL || 'http://localhost:7080/bot';
+    return process.env.BOT_URL || 'http://localhost:7080/bot';
   }
 
   private get botNotifySecret(): string {

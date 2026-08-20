@@ -13,10 +13,7 @@ export class AnalyticsClientService {
 
   constructor(@Optional() @Inject(ANALYTICS_HTTP_CLIENT) client?: AxiosInstance) {
     this.client =
-      client ??
-      createBackendClient(
-        process.env.PUBLIC_ANALYTICS_URL ?? 'http://localhost:3007/analytics',
-      );
+      client ?? createBackendClient(process.env.ANALYTICS_URL ?? 'http://localhost:3007/analytics');
   }
 
   async track(event: AnalyticsEvent): Promise<void> {
