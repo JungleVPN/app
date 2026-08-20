@@ -2,6 +2,7 @@ import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
+import { resolveReturnUrl } from '@payments/utils/return-origin';
 import { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
 import { CreateStripeSessionDto, StripeSubscriptionStatusDto } from '@workspace/types';
 import type Stripe from 'stripe';
@@ -9,6 +10,8 @@ import { In, Repository } from 'typeorm';
 import type { BillingPortalSession, CheckoutSession } from './stripe.types';
 import { StripeClientService } from './stripe-client.service';
 import { StripeWebhookService } from './stripe-webhook.service';
+
+const SUBSCRIPTION_RETURN_PATH = '/profile/subscription';
 
 @Injectable()
 export class StripeProvider {
@@ -31,7 +34,7 @@ export class StripeProvider {
     await this.stripeWebhookService.handleWebhook(payload);
   }
 
-  async createPayment(dto: CreateStripeSessionDto) {
+  async createPayment(dto: CreateStripeSessionDto, origin?: string) {
     const purchaseType = dto.purchaseType ?? 'subscription';
     const priceId = this.getPriceId(purchaseType, dto.selectedPeriod);
     const customerId = await this.getCustomerId(dto.userId);
@@ -47,7 +50,7 @@ export class StripeProvider {
       if (purchaseType === 'subscription') {
         const hasActiveSubscription = await this.hasActiveSubscription(customerId);
         if (hasActiveSubscription) {
-          return this.createPortalSession(customerId);
+          return this.createPortalSession(customerId, origin);
         }
       }
       return await this.createCheckoutSession(
@@ -56,6 +59,7 @@ export class StripeProvider {
         purchaseType,
         dto.userId,
         toltReferralId,
+        origin,
       );
     }
 
@@ -66,6 +70,7 @@ export class StripeProvider {
       purchaseType,
       dto.userId,
       toltReferralId,
+      origin,
     );
   }
 
@@ -85,6 +90,7 @@ export class StripeProvider {
     purchaseType: 'subscription' | 'extra_device',
     userId: string,
     toltReferralId?: string | null,
+    origin?: string,
   ): Promise<CheckoutSession> {
     const isExtraDevice = purchaseType === 'extra_device';
     const metadata = {
@@ -92,6 +98,7 @@ export class StripeProvider {
       purpose: purchaseType,
       tolt_referral: toltReferralId || null,
     };
+    const returnUrl = resolveReturnUrl(origin, SUBSCRIPTION_RETURN_PATH);
 
     try {
       return await this.stripe.checkout.sessions.create({
@@ -101,8 +108,8 @@ export class StripeProvider {
         metadata,
         ...(!isExtraDevice && { subscription_data: { metadata } }),
         allow_promotion_codes: true,
-        success_url: process.env.RETURN_URL_WEB || 'https://jungle-vpn.com/profile/subscription',
-        cancel_url: process.env.RETURN_URL_WEB || 'https://jungle-vpn.com/profile/subscription',
+        success_url: returnUrl,
+        cancel_url: returnUrl,
         phone_number_collection: { enabled: false },
       });
     } catch (error) {
@@ -111,11 +118,11 @@ export class StripeProvider {
     }
   }
 
-  async createPortalSession(customer: string): Promise<BillingPortalSession> {
+  async createPortalSession(customer: string, origin?: string): Promise<BillingPortalSession> {
     try {
       const session = await this.stripe.billingPortal.sessions.create({
         customer,
-        return_url: process.env.RETURN_URL_WEB || 'https://jungle-vpn.com/profile/subscription',
+        return_url: resolveReturnUrl(origin, SUBSCRIPTION_RETURN_PATH),
         configuration: process.env.STRIPE_CUSTOMER_PORTAL_CONFIG || '',
       });
 
@@ -147,7 +154,10 @@ export class StripeProvider {
    * Reports whether `userId` has an active/trialing Stripe subscription and,
    * if so, returns a fresh Billing Portal URL for self-service management.
    */
-  async getSubscriptionStatus(userId: string): Promise<StripeSubscriptionStatusDto> {
+  async getSubscriptionStatus(
+    userId: string,
+    origin?: string,
+  ): Promise<StripeSubscriptionStatusDto> {
     const customerId = await this.getCustomerId(userId);
     if (!customerId) return { active: false, portalUrl: null };
 
@@ -155,7 +165,7 @@ export class StripeProvider {
     if (!active) return { active: false, portalUrl: null };
 
     try {
-      const portal = await this.createPortalSession(customerId);
+      const portal = await this.createPortalSession(customerId, origin);
       return { active: true, portalUrl: portal.url };
     } catch (error) {
       this.logger.error(`Failed to create portal session for customer ${customerId}`, error);

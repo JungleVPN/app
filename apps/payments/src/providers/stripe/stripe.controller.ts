@@ -47,8 +47,11 @@ export class StripeController {
   /** Active-subscription status + Billing Portal URL for the authenticated user */
   @Get('subscription')
   @UseGuards(ClientUserGuard)
-  async getSubscriptionStatus(@AuthenticatedUserId() userId: string) {
-    return this.stripeProvider.getSubscriptionStatus(userId);
+  async getSubscriptionStatus(
+    @AuthenticatedUserId() userId: string,
+    @Headers('origin') origin?: string,
+  ) {
+    return this.stripeProvider.getSubscriptionStatus(userId, origin);
   }
 
   /** Get a single Stripe payment by id — internal use only */
@@ -78,7 +81,10 @@ export class StripeController {
 
   /** Create a checkout / portal session via Stripe */
   @Post('create-session')
-  async createSession(@Body() dto: CreateStripeSessionDto): Promise<Session> {
+  async createSession(
+    @Body() dto: CreateStripeSessionDto,
+    @Headers('origin') origin?: string,
+  ): Promise<Session> {
     const selectedPeriod = dto.selectedPeriod;
     const purpose = dto.purchaseType ?? 'subscription';
 
@@ -87,10 +93,13 @@ export class StripeController {
     // would misstate the sale in payment history and admin search.
     const amount = this.resolveAmount(purpose, selectedPeriod);
 
-    const session = await this.stripeProvider.createPayment({
-      ...dto,
-      selectedPeriod,
-    });
+    const session = await this.stripeProvider.createPayment(
+      {
+        ...dto,
+        selectedPeriod,
+      },
+      origin,
+    );
 
     const customer = typeof session.customer === 'string' ? session.customer : session.customer?.id;
 

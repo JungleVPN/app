@@ -182,4 +182,48 @@ describe('StripeProvider.createPayment', () => {
       );
     });
   });
+
+  describe('return URL', () => {
+    beforeEach(() => {
+      process.env.CORS_ORIGIN = 'https://jungle-vpn.com,https://jungle.community';
+    });
+
+    afterEach(() => {
+      delete process.env.CORS_ORIGIN;
+      delete process.env.RETURN_URL_WEB;
+    });
+
+    it('sends the user back to the domain the payment was started from', async () => {
+      const { provider, mockCreateSession } = makeProvider({});
+
+      await provider.createPayment(
+        subscriptionDto({ selectedPeriod: 1 }),
+        'https://jungle.community',
+      );
+
+      expect(mockCreateSession).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success_url: 'https://jungle.community/profile/subscription',
+          cancel_url: 'https://jungle.community/profile/subscription',
+        }),
+      );
+    });
+
+    it('falls back to RETURN_URL_WEB when the request origin is not one of the app domains', async () => {
+      process.env.RETURN_URL_WEB = 'https://fallback.example.com/profile/subscription';
+      const { provider, mockCreateSession } = makeProvider({});
+
+      await provider.createPayment(
+        subscriptionDto({ selectedPeriod: 1 }),
+        'https://evil.example.com',
+      );
+
+      expect(mockCreateSession).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success_url: 'https://fallback.example.com/profile/subscription',
+          cancel_url: 'https://fallback.example.com/profile/subscription',
+        }),
+      );
+    });
+  });
 });
