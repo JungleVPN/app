@@ -155,7 +155,7 @@ export class PaymentStatusListener {
     const text = i18n.t(locale, i18nKey);
     const menu = new InlineKeyboard().webApp(
       i18n.t(locale, 'pay-button-label'),
-      process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
+      process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/profile/payments',
     );
 
     if (user.telegramId) {
@@ -237,7 +237,7 @@ export class PaymentStatusListener {
     const successMenu = new InlineKeyboard()
       .webApp(
         this.localService.i18n.t(locale, 'profile-button-label'),
-        process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
+        process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/profile/payments',
       )
       .url(i18n.t(locale, 'invoice-button-label'), invoiceUrl || subscriptionUrl || '#')
       .row()

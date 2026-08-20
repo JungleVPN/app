@@ -59,7 +59,7 @@ export class UserExpireListener {
 
     keyboard.webApp(
       this.localService.i18n.t(locale, 'pay-button-label'),
-      process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
+      process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/profile/payments',
     );
     keyboard.row();
     keyboard.url(
