@@ -160,7 +160,10 @@ export function createRemnawaveApi(client: ApiClient) {
 
     async getMyMetadata(): Promise<Record<string, unknown> | null> {
       try {
-        return await client.get<Record<string, unknown>>(apiRoutes.remnawave.meMetadata);
+        const { metadata } = await client.get<{ metadata: Record<string, unknown> }>(
+          apiRoutes.remnawave.meMetadata,
+        );
+        return metadata ?? null;
       } catch {
         return null;
       }

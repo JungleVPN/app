@@ -46,7 +46,9 @@ i18n
       escapeValue: false,
     },
     detection: {
-      order: ['htmlTag', 'localStorage', 'navigator'],
+      // htmlTag excluded: index.html ships a static lang="en" attribute, which would
+      // win over a previously cached/selected language on every reload.
+      order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
     },
   });

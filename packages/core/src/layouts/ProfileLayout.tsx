@@ -8,7 +8,7 @@ import { coreEnv } from '../env';
 import { useNavigation, useSavedMethodsData, useSubscriptionData, useToltCapture } from '../hooks';
 import { TermsDialog } from '../pages/profile/payment/components/TermsDialog';
 import { useAppRoutes, usePaymentsApi } from '../runtime';
-import { useAuthStore, useAuthStoreActions, useAuthStoreInfo } from '../stores';
+import { useAuthStore, useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../stores';
 import { Container } from '../ui';
 import { captureReferral } from '../utils';
 
@@ -17,6 +17,7 @@ export function ProfileLayout() {
   const remnawaveApi = useRemnawaveApi();
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
+  const { platformType } = usePlatformStore();
   const { getSubscriptionPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
 
@@ -65,13 +66,20 @@ export function ProfileLayout() {
       .then((meta) => {
         if (meta?.lang) {
           applyUserLang(String(meta.lang));
-        } else {
-          const currentLang = navigator.language.split('-')[0];
-          remnawaveApi.upsertMyMetadata({ lang: currentLang }).catch(console.error);
+          return;
         }
+        // No stored preference yet: fall back to the Telegram system language in
+        // the TMA, or the browser language on the web — then persist it so the
+        // choice survives future refreshes without re-detecting.
+        const fallbackLang =
+          platformType === 'telegram' && tgUser?.language_code
+            ? tgUser.language_code
+            : navigator.language.split('-')[0];
+        applyUserLang(fallbackLang);
+        remnawaveApi.upsertMyMetadata({ lang: fallbackLang }).catch(console.error);
       })
       .catch(console.error);
-  }, [rmnUser?.uuid, remnawaveApi, rmnUser]);
+  }, [rmnUser?.uuid, remnawaveApi, rmnUser, platformType, tgUser?.language_code]);
 
   useSubscriptionData(rmnUser?.shortUuid, coreEnv.subpageConfigUuid);
   useSavedMethodsData(rmnUser?.uuid ?? '');
