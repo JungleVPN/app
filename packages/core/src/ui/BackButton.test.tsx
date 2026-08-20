@@ -70,10 +70,10 @@ describe('BackButton', () => {
     expect(backButton()).toBeNull();
   });
 
-  it('renders nothing outside the profile area', () => {
+  it('renders outside the profile area too, as long as the page configures useBackButton', () => {
     renderHarness({ path: '/terms' });
 
-    expect(backButton()).toBeNull();
+    expect(backButton()).toBeTruthy();
   });
 
   it('renders nothing on Telegram, where the native button is used', () => {
