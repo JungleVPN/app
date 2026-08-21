@@ -11,7 +11,7 @@ import type { BillingPortalSession, CheckoutSession } from './stripe.types';
 import { StripeClientService } from './stripe-client.service';
 import { StripeWebhookService } from './stripe-webhook.service';
 
-const SUBSCRIPTION_RETURN_PATH = '/profile/subscription';
+const SUBSCRIPTION_RETURN_PATH = '/profile/payments';
 
 @Injectable()
 export class StripeProvider {

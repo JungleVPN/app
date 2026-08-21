@@ -17,7 +17,7 @@ import { TrustSection } from './TrustSection';
 export default function LandingPage() {
   return (
     <div className='relative bg-[#1a1a1a]'>
-      <div className='sticky top-0 overflow-hidden py-32 md:py-56 lg:py-72'>
+      <div className='sticky top-0 overflow-hidden pt-42 pb-32 md:py-56 lg:py-72'>
         <div className='inset-0 pointer-events-none opacity-40 overflow-hidden'>
           <div
             className='absolute inset-0 blur-3xl'
@@ -35,7 +35,7 @@ export default function LandingPage() {
       </div>
       <div
         className={
-          'flex flex-col gap-48 relative z-10 bg-background rounded-t-[4rem] py-16 md:py-8 overflow-hidden'
+          'flex flex-col gap-48 relative z-10 bg-background rounded-t-[4rem] py-12 md:py-8 overflow-hidden'
         }
       >
         <Container>
