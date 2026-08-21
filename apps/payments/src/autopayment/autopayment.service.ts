@@ -205,7 +205,7 @@ export class AutopaymentService {
     paymentMethodId: string,
   ): Promise<{ payment: Payments.IPayment; selectedPeriod: number }> {
     const previousPayment = await this.yookassaPaymentRepo.findOne({
-      where: { paymentMethodId },
+      where: { id: paymentMethodId },
       order: { createdAt: 'DESC' },
     });
 
