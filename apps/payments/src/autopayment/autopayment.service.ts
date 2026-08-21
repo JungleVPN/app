@@ -74,7 +74,7 @@ export class AutopaymentService {
       return;
     }
 
-    const result = await this.attemptAutopaymentWithRetries(savedMethod.paymentMethodId);
+    const result = await this.attemptAutopaymentWithRetries(userId, savedMethod.paymentMethodId);
 
     if (result.status === 'error') {
       const eventByReason: Partial<Record<Payments.CancelReason, WebhookEventEnum>> = {
@@ -152,6 +152,7 @@ export class AutopaymentService {
   }
 
   private async attemptAutopaymentWithRetries(
+    userId: string,
     paymentMethodId: string,
   ): Promise<
     | { status: 'success'; reason: undefined; payment: Payments.IPayment; selectedPeriod: number }
@@ -165,7 +166,7 @@ export class AutopaymentService {
       );
 
       try {
-        const { payment, selectedPeriod } = await this.executeAutopayment(paymentMethodId);
+        const { payment, selectedPeriod } = await this.executeAutopayment(userId, paymentMethodId);
 
         if (payment.status === 'succeeded') {
           this.logger.log(
@@ -202,15 +203,16 @@ export class AutopaymentService {
   }
 
   private async executeAutopayment(
+    userId: string,
     paymentMethodId: string,
   ): Promise<{ payment: Payments.IPayment; selectedPeriod: number }> {
     const previousPayment = await this.yookassaPaymentRepo.findOne({
-      where: { paymentMethodId },
+      where: { userId },
       order: { createdAt: 'DESC' },
     });
 
     if (!previousPayment) {
-      throw new Error(`No previous payment found for paymentMethodId ${paymentMethodId}`);
+      throw new Error(`No previous payment found for user ${userId}`);
     }
 
     const { selectedPeriod, amount } = previousPayment;
