@@ -1,17 +1,9 @@
-import { Button, Chip, Surface } from '@heroui/react';
-import {
-  IconBolt,
-  IconDevices,
-  IconInfinity,
-  IconRefresh,
-  IconRocket,
-  IconShieldCheck,
-  IconWorld,
-} from '@tabler/icons-react';
+import { Button, Chip } from '@heroui/react';
+import { IconBolt, IconRefresh, IconRocket, IconShieldCheck } from '@tabler/icons-react';
 import { motion, Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { Globe } from './Globe';
+import { BrandTitle } from './BrandTitle';
 
 const container = {
   hidden: {},
@@ -33,97 +25,56 @@ export function HeroSection() {
     { Icon: IconBolt, text: t('landing.hero.features.feature3') },
   ];
 
-  const stats = [
-    {
-      Icon: IconWorld,
-      value: t('landing.hero.stats.locations.value'),
-      label: t('landing.hero.stats.locations.label'),
-    },
-    {
-      Icon: IconInfinity,
-      value: t('landing.hero.stats.traffic.value'),
-      label: t('landing.hero.stats.traffic.label'),
-    },
-    {
-      Icon: IconDevices,
-      value: t('landing.hero.stats.devices.value'),
-      label: t('landing.hero.stats.devices.label'),
-    },
-  ];
-
   return (
-    <section className=' flex flex-col pt-56 justify-center items-center lg:flex-row lg:items-center lg:gap-8'>
+    <section className='flex flex-col justify-center items-center lg:flex-row lg:items-center lg:gap-8'>
       <motion.div
-        className='flex flex-col gap-6 items-start lg:text-left lg:shrink-0'
+        className='flex flex-col gap-6 items-start w-full lg:text-left lg:shrink-0'
         variants={container}
         initial='hidden'
         animate='show'
       >
         <motion.div variants={item} className='flex flex-col gap-3'>
-          <h1 className='max-w-xl text-balance text-center sm:text-start text-5xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl'>
-            {t('landing.hero.title')}
+          <h1 className='text-balance'>
+            <BrandTitle />
           </h1>
-          <p className='max-w-xl text-base text-muted lg:text-md'>{t('landing.hero.subtitle')}</p>
+          <p className='text-base text-muted lg:text-md'>{t('landing.hero.subtitle')}</p>
         </motion.div>
 
-        <motion.ul variants={item} className='flex flex-col gap-2 items-start'>
-          {features.map(({ Icon, text }) => (
-            <li key={text} className='flex items-center gap-2 text-sm text-white'>
-              <Icon size={32} className='text-primary shrink-0 p-1 rounded-lg' />
-              <span className='text-start'>{text}</span>
-            </li>
-          ))}
-        </motion.ul>
+        <div className='flex flex-col md:flex-row gap-4'>
+          <motion.div variants={item} className='flex flex-col gap-3 lg:items-start'>
+            <div className='flex items-start gap-3'>
+              <Button
+                size='lg'
+                variant='outline'
+                className='h-14 rounded-4xl text-white'
+                onClick={() => navigate('/login')}
+              >
+                {t('landing.hero.login')}
+              </Button>
+              <Button
+                size='lg'
+                variant='ghost'
+                className='h-14 w-48 rounded-4xl bg-linear-to-r from-violet-500 to-amber-400 text-white hover:opacity-90'
+                onClick={() => navigate('/login')}
+              >
+                {t('landing.hero.cta')}
+              </Button>
+            </div>
+            <Chip color='default' variant='tertiary' className='w-fit text-muted'>
+              <IconRefresh size={14} />
+              <Chip.Label>{t('landing.hero.trial')}</Chip.Label>
+            </Chip>
+          </motion.div>
 
-        <motion.div variants={item} className='flex flex-col gap-3 lg:items-start'>
-          <div className='flex items-start gap-3'>
-            <Button
-              size='lg'
-              variant='outline'
-              className='h-14 rounded-4xl text-white'
-              onClick={() => navigate('/login')}
-            >
-              {t('landing.hero.login')}
-            </Button>
-            <Button
-              size='lg'
-              variant='ghost'
-              className='h-14 w-48 rounded-4xl bg-linear-to-r from-violet-500 to-amber-400 text-white hover:opacity-90'
-              onClick={() => navigate('/login')}
-            >
-              {t('landing.hero.cta')}
-            </Button>
-          </div>
-          <Chip color='default' variant='tertiary' className='w-fit text-muted'>
-            <IconRefresh size={14} />
-            <Chip.Label>{t('landing.hero.trial')}</Chip.Label>
-          </Chip>
-        </motion.div>
-
-        <motion.div variants={item}>
-          <Surface variant={'transparent'} className='flex items-center gap-8 p-4 rounded-2xl'>
-            {stats.map(({ Icon, value, label }) => (
-              <div key={label} className='flex items-center gap-4'>
-                <div className='flex items-center gap-2'>
-                  <Icon size={20} className='text-muted shrink-0' />
-                  <div className='flex flex-col text-start'>
-                    <span className='text-sm text-white font-semibold leading-tight'>{value}</span>
-                    <span className='text-xs text-white leading-tight'>{label}</span>
-                  </div>
-                </div>
-              </div>
+          <motion.ul variants={item} className='flex flex-col gap-2 items-start'>
+            {features.map(({ Icon, text }) => (
+              <li key={text} className='flex items-center gap-2 text-sm text-white'>
+                <Icon size={32} className='text-primary shrink-0 p-1 rounded-lg' />
+                <span className='text-start'>{text}</span>
+              </li>
             ))}
-          </Surface>
-        </motion.div>
-      </motion.div>
-
-      <motion.div
-        className='w-full lg:w-2/4'
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 0.8, ease: 'easeOut' }}
-      >
-        <Globe />
+          </motion.ul>
+        </div>
       </motion.div>
     </section>
   );

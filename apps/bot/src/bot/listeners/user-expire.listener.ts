@@ -52,19 +52,19 @@ export class UserExpireListener {
 
     const locale =
       (payload.data.uuid ? await this.remnaService.getUserLang(payload.data.uuid) : null) ||
-      process.env.PUBLIC_DEFAULT_LOCALE ||
+      process.env.DEFAULT_LOCALE ||
       'ru';
 
     const keyboard = new InlineKeyboard();
 
     keyboard.webApp(
       this.localService.i18n.t(locale, 'pay-button-label'),
-      process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/payment',
+      process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/profile/payments',
     );
     keyboard.row();
     keyboard.url(
       this.localService.i18n.t(locale, 'support-button-label'),
-      process.env.PUBLIC_SUPPORT_TG_URL || 'https://t.me/JungleVPN_support',
+      process.env.SUPPORT_TG_URL || 'https://t.me/JungleVPN_support',
     );
 
     const formattedDate = toDateString(payload.data.expireAt);

@@ -34,6 +34,14 @@ if (!isProduction) {
   app.use(sirv(resolve(__dirname, 'dist/client'), { extensions: [] }))
 }
 
+app.use(async (req, res, next) => {
+  if (/\.[a-zA-Z0-9]+$/.test(req.path) && !req.path.endsWith('.html')) {
+    res.status(404).end()
+    return
+  }
+  next()
+})
+
 app.use(async (req, res) => {
   try {
     const hostname = req.hostname

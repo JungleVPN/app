@@ -47,7 +47,7 @@ export function amountToMonths(amount: number, currency: Currency): number {
  * in payment history and admin search. Throws when unconfigured.
  */
 export function getExtraDevicePrice(currency: Currency): string {
-  const price = process.env[`PUBLIC_EXTRA_DEVICE_PRICE_${currency}`];
+  const price = process.env[`EXTRA_DEVICE_PRICE_${currency}`];
   if (!price || Number(price) <= 0) {
     throw new Error(`Missing extra device price for ${currency}`);
   }

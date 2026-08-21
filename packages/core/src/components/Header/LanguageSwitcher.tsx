@@ -3,11 +3,12 @@ import type { TSubscriptionPageLanguageCode } from '@remnawave/subscription-page
 import { IconWorld } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useRemnawaveApi } from '../../api';
-import { useAuthStore, useSubscriptionConfigStoreActions } from '../../stores';
+import { useAuthStore, usePlatformStore, useSubscriptionConfigStoreActions } from '../../stores';
 import { isRuDomain } from '../../utils';
 
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
+  const { platformType } = usePlatformStore();
   const { setLanguage } = useSubscriptionConfigStoreActions();
   const remnawaveApi = useRemnawaveApi();
   const rmnUser = useAuthStore((s) => s.rmnUser);
@@ -33,11 +34,12 @@ export function LanguageSwitcher() {
             handleLanguageChange(String(key));
           }}
         >
-          {isRu && (
-            <Dropdown.Item id='ru' textValue={t('languages.nativeRu')}>
-              <Label>{t('languages.nativeRu')}</Label>
-            </Dropdown.Item>
-          )}
+          {isRu ||
+            (platformType === 'telegram' && (
+              <Dropdown.Item id='ru' textValue={t('languages.nativeRu')}>
+                <Label>{t('languages.nativeRu')}</Label>
+              </Dropdown.Item>
+            ))}
           <Dropdown.Item id='en' textValue={t('languages.nativeEn')}>
             <Label>{t('languages.nativeEn')}</Label>
           </Dropdown.Item>

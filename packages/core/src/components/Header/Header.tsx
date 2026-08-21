@@ -12,10 +12,10 @@ import { Container } from '../../ui';
 import { isRuDomain, scrollToTop } from '../../utils';
 import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
+import { SupportButton } from '../SupportWidget/SupportButton';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileDrawer } from './MobileDrawer';
-import { SupportButton } from './SupportButton';
 
 export function Header() {
   const { t } = useTranslation();

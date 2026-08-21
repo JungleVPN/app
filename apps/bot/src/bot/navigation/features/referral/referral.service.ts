@@ -23,7 +23,7 @@ export class ReferralMenuService extends Base {
     ctx.session.userId = user?.[0].uuid;
     const locale =
       (user?.[0]?.uuid ? await this.remnaService.getUserLang(user[0].uuid) : null) ||
-      (process.env.PUBLIC_DEFAULT_LOCALE as LocaleId);
+      (process.env.DEFAULT_LOCALE as LocaleId);
 
     let menuToSend = menu;
     let content = this.localService.i18n.t(locale, 'referral-page-text', {
@@ -32,7 +32,7 @@ export class ReferralMenuService extends Base {
 
     if (!user) {
       content = this.localService.i18n.t(locale, 'referral-not-active-text');
-      const tmaAppUrl = process.env.PUBLIC_TMA_APP_URL || 'https://miniapp.thejungle.pro';
+      const tmaAppUrl = process.env.TMA_APP_URL || 'https://miniapp.thejungle.pro';
       const connectUrl = withReferral(ctx, tmaAppUrl);
       menuToSend = new InlineKeyboard().webApp(ctx.t('connect-button-label'), connectUrl);
     }

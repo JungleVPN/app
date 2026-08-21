@@ -58,8 +58,6 @@ main-text =
     { $isExpired ->
     [true]🆘🆘🆘 <b>Your subscription has expired 🥲</b>
     *[false]📅End date: <b>{ $expireAt } (MSK)</b>
-
-    📱Max devices: <b>{ $devicesLimit }</b>
     }
     </blockquote>
 

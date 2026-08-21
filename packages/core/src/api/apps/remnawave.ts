@@ -144,8 +144,11 @@ export function createRemnawaveApi(client: ApiClient) {
     async getMe(): Promise<GetUserByUuidResponseDto | null> {
       try {
         return await client.get<GetUserByUuidResponseDto>(apiRoutes.remnawave.me);
-      } catch {
-        return null;
+      } catch (err: unknown) {
+        if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
+          return null;
+        }
+        throw err;
       }
     },
 
@@ -157,7 +160,10 @@ export function createRemnawaveApi(client: ApiClient) {
 
     async getMyMetadata(): Promise<Record<string, unknown> | null> {
       try {
-        return await client.get<Record<string, unknown>>(apiRoutes.remnawave.meMetadata);
+        const { metadata } = await client.get<{ metadata: Record<string, unknown> }>(
+          apiRoutes.remnawave.meMetadata,
+        );
+        return metadata ?? null;
       } catch {
         return null;
       }

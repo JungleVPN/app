@@ -19,6 +19,7 @@ import {
 import type { ComponentType } from 'react';
 
 import { WebAppLayout } from '@/layouts/WebAppLayout';
+import { WebLegalLayout } from '@/layouts/WebLegalLayout';
 import { WebRootLayout } from '@/layouts/WebRootLayout';
 
 export function createRoutes(Landing: ComponentType) {
@@ -38,9 +39,14 @@ export function createRoutes(Landing: ComponentType) {
             { path: '/login', Component: LoginPage },
             { path: '/login/confirm', Component: ConfirmPage },
             { path: '/subscription/:shortUuid', Component: SubscriptionPage },
+            { path: '/affiliates', Component: AffiliatePage },
+          ],
+        },
+        {
+          Component: WebLegalLayout,
+          children: [
             { path: '/terms', Component: TermsPage },
             { path: '/privacy', Component: PrivacyPolicyPage },
-            { path: '/affiliates', Component: AffiliatePage },
           ],
         },
         {

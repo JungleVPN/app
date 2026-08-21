@@ -7,7 +7,6 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { coreEnv } from '../../env';
 
 export function BentoSection() {
   const { t } = useTranslation();
@@ -37,8 +36,7 @@ export function BentoSection() {
               {t('landing.bento.affiliate.description')}
             </p>
             <a
-              href={coreEnv.affiliatePortalUrl}
-              target='_blank'
+              href={'/affiliates'}
               rel='noopener noreferrer'
               className='mt-4 inline-flex items-center gap-1 text-sm font-semibold text-violet-600 underline underline-offset-2 hover:text-violet-700'
             >
@@ -92,9 +90,7 @@ export function BentoSection() {
           <div className='absolute -right-8 -top-8 h-36 w-36 rounded-full bg-cyan-200/60' />
           <IconBolt size={36} className='relative text-cyan-500' />
           <div className='relative'>
-            <h3 className='text-base font-bold text-cyan-900'>
-              {t('landing.bento.speed.title')}
-            </h3>
+            <h3 className='text-base font-bold text-cyan-900'>{t('landing.bento.speed.title')}</h3>
             <p className='mt-1 text-xs leading-relaxed text-cyan-700/80'>
               {t('landing.bento.speed.description')}
             </p>

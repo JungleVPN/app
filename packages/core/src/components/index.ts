@@ -3,11 +3,10 @@ export { AuthGuard } from './AuthGuard/AuthGuard';
 export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorConnection } from './ErrorConnection/ErrorConnection';
 export { FeaturesCard } from './FeaturesCard/FeaturesCard';
+export { FooterSection } from './FooterSection';
 export { AuthButtons } from './Header/AuthButtons';
 export { Header } from './Header/Header';
 export { LanguageSwitcher } from './Header/LanguageSwitcher';
-export { SupportButton } from './Header/SupportButton';
-export { SupportPopover } from './Header/SupportPopover';
 export { ThemeToggle } from './Header/ThemeToggle';
 export { InfoBlock } from './InfoBlock/InfoBlock';
 export { InstallationGuideConnector } from './InstallationGuide';
@@ -25,5 +24,7 @@ export {
   SubscriptionInfoExpanded,
 } from './SubscriptionInfo';
 export { SubscriptionView } from './SubscriptionView/SubscriptionView';
+export { SupportButton } from './SupportWidget/SupportButton';
+export { SupportPopover } from './SupportWidget/SupportPopover';
 export { Navbar } from './Tabs/Tabs';
 export { ThemeIconComponent } from './ThemeIcon/ThemeIcon';

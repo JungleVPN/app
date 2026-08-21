@@ -9,7 +9,7 @@ import { ANALYTICS_HTTP_CLIENT, AnalyticsClientService } from './analytics-clien
       provide: ANALYTICS_HTTP_CLIENT,
       useFactory: () =>
         axios.create({
-          baseURL: process.env.PUBLIC_ANALYTICS_URL ?? 'http://localhost:3007/analytics',
+          baseURL: process.env.ANALYTICS_URL ?? 'http://localhost:3007/analytics',
           timeout: 5_000,
           headers: {
             'Content-Type': 'application/json',

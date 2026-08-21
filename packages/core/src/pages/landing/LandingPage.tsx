@@ -1,11 +1,10 @@
+import { FooterSection } from '../../components';
 import { Container } from '../../ui';
-import Aurora from '../../ui/Background/Background';
 import { BentoSection } from './BentoSection';
 import { ComparisonSection } from './ComparisonSection';
 import { CountriesMarquee } from './CountriesMarquee';
 import { FAQSection } from './FAQSection';
 import { FeaturesSection } from './FeaturesSection';
-import { FooterSection } from './FooterSection';
 import { FreeTrialSection } from './FreeTrialSection';
 import { HeroSection } from './HeroSection';
 import { HowItWorksSection } from './HowItWorksSection';
@@ -18,17 +17,22 @@ import { TrustSection } from './TrustSection';
 export default function LandingPage() {
   return (
     <div className='relative bg-[#1a1a1a]'>
-      <div className={'absolute top-0 left-0 w-screen h-screen pointer-events-none opacity-40'}>
-        <Aurora
-          colorStops={['#ffb900', '#8e51ff', '#E57575']}
-          blend={1}
-          amplitude={1.0}
-          speed={1}
-        />
+      <div className='sticky top-0 overflow-hidden py-32 md:py-56 lg:py-72'>
+        <div className='inset-0 pointer-events-none opacity-40 overflow-hidden'>
+          <div
+            className='absolute inset-0 blur-3xl'
+            style={{
+              backgroundImage:
+                'radial-gradient(60% 60% at 20% 15%, #ffb900 0%, transparent 70%),' +
+                'radial-gradient(60% 60% at 80% 10%, #8e51ff 0%, transparent 70%),' +
+                'radial-gradient(60% 60% at 50% 55%, #E57575 0%, transparent 70%)',
+            }}
+          />
+        </div>
+        <Container maxWidth={'md'}>
+          <HeroSection />
+        </Container>
       </div>
-      <Container className='sticky top-0 overflow-hidden mb-32'>
-        <HeroSection />
-      </Container>
       <div
         className={
           'flex flex-col gap-48 relative z-10 bg-background rounded-t-[4rem] py-16 md:py-8 overflow-hidden'

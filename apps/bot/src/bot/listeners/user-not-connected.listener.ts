@@ -33,7 +33,7 @@ export class UserNotConnectedListener {
   }) {
     const locale =
       (payload.data.uuid ? await this.remnaService.getUserLang(payload.data.uuid) : null) ||
-      (process.env.PUBLIC_DEFAULT_LOCALE as LocaleId);
+      (process.env.DEFAULT_LOCALE as LocaleId);
     const createdAt = new Date(payload.data.createdAt);
     const timestamp = new Date(payload.timestamp);
     const diffHours = differenceInHours(timestamp, createdAt);
@@ -41,13 +41,13 @@ export class UserNotConnectedListener {
     const keyboard = new InlineKeyboard()
       .webApp(
         this.localService.i18n.t(locale, 'profile-button-label'),
-        process.env.PUBLIC_TMA_APP_URL || 'https://app.thejungle.pro',
+        process.env.TMA_APP_URL || 'https://app.thejungle.pro',
       )
       .text(this.localService.i18n.t(locale, 'home-button-label'), 'navigate_main')
       .row()
       .url(
         this.localService.i18n.t(locale, 'support-button-label'),
-        process.env.PUBLIC_SUPPORT_TG_URL || 'https://t.me/JungleVPN_support_bot',
+        process.env.SUPPORT_TG_URL || 'https://t.me/JungleVPN_support_bot',
       );
 
     if (!payload.data.telegramId) {
