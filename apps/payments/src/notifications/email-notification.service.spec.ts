@@ -36,6 +36,14 @@ const makeExpiryEvent = (
   ...overrides,
 });
 
+const makePaymentSucceededEvent = (
+  overrides: Partial<Payments.PaymentSucceededEventPayload> = {},
+): Payments.PaymentSucceededEventPayload => ({
+  userId: 'user-1',
+  provider: 'yookassa',
+  ...overrides,
+});
+
 const mockUserFetch = (userOverrides: Partial<typeof remnawaveUser> = {}) => {
   mockAxiosGet.mockImplementation(async (url: string) => {
     if (url.includes('/metadata')) return { data: {} };
@@ -235,6 +243,99 @@ describe('EmailNotificationService', () => {
         String(call[0]).includes('mail.zoho.eu'),
       );
       expect(sendCalls).toHaveLength(2);
+    });
+  });
+
+  describe('onPaymentSucceeded', () => {
+    it('skips sending when Zoho credentials are not configured', async () => {
+      delete process.env.ZOHO_CLIENT_ID;
+      mockUserFetch();
+
+      await service.onPaymentSucceeded(makePaymentSucceededEvent());
+
+      expect(mockAxiosPost).not.toHaveBeenCalled();
+    });
+
+    it('skips sending when the user has no email', async () => {
+      mockUserFetch({ email: undefined });
+
+      await service.onPaymentSucceeded(makePaymentSucceededEvent());
+
+      expect(mockAxiosPost).not.toHaveBeenCalled();
+    });
+
+    it('sends a payment success email to the user', async () => {
+      mockUserFetch();
+      mockAxiosPost.mockImplementation((url: string) => {
+        if (url.includes('accounts.zoho.eu')) {
+          return Promise.resolve({ data: { access_token: 'token-1', expires_in: 3600 } });
+        }
+        return Promise.resolve({ data: { status: { code: 200 } } });
+      });
+
+      await service.onPaymentSucceeded(makePaymentSucceededEvent());
+
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        'https://mail.zoho.eu/api/accounts/account-1/messages',
+        expect.objectContaining({
+          toAddress: 'user@example.com',
+          fromAddress: 'notification@jungle-vpn.com',
+        }),
+        expect.objectContaining({
+          headers: expect.objectContaining({ Authorization: 'Zoho-oauthtoken token-1' }),
+        }),
+      );
+    });
+
+    // Locale comes from the user's remnawave metadata, so a Russian-speaking
+    // customer is not mailed in English.
+    it('writes the email in the language the user has chosen', async () => {
+      mockAxiosPost.mockImplementation((url: string) => {
+        if (url.includes('accounts.zoho.eu')) {
+          return Promise.resolve({ data: { access_token: 'token-1', expires_in: 3600 } });
+        }
+        return Promise.resolve({ data: { status: { code: 200 } } });
+      });
+
+      const subjectsFor = async (lang: string) => {
+        mockAxiosPost.mockClear();
+        mockAxiosGet.mockImplementation(async (url: string) => {
+          if (url.includes('/metadata')) return { data: { lang } };
+          return { data: remnawaveUser };
+        });
+        mockAxiosPost.mockImplementation((url: string) => {
+          if (url.includes('accounts.zoho.eu')) {
+            return Promise.resolve({ data: { access_token: 'token-1', expires_in: 3600 } });
+          }
+          return Promise.resolve({ data: { status: { code: 200 } } });
+        });
+
+        await service.onPaymentSucceeded(makePaymentSucceededEvent());
+
+        const sendCall = mockAxiosPost.mock.calls.find((call) =>
+          String(call[0]).includes('mail.zoho.eu'),
+        );
+        return sendCall?.[1].subject as string;
+      };
+
+      const english = await subjectsFor('en');
+      const russian = await subjectsFor('ru');
+
+      expect(english).not.toEqual(russian);
+      expect(english).toMatch(/[a-z]/i);
+      expect(russian).toMatch(/[а-яё]/i);
+    });
+
+    it('logs and swallows a send failure without throwing', async () => {
+      mockUserFetch();
+      mockAxiosPost.mockImplementation((url: string) => {
+        if (url.includes('accounts.zoho.eu')) {
+          return Promise.resolve({ data: { access_token: 'token-1', expires_in: 3600 } });
+        }
+        return Promise.reject(makeAxiosError(500, { data: { errorCode: 'INTERNAL_ERROR' } }));
+      });
+
+      await expect(service.onPaymentSucceeded(makePaymentSucceededEvent())).resolves.toBeUndefined();
     });
   });
 });

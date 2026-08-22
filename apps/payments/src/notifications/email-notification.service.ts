@@ -13,6 +13,8 @@ import {
   buildExpirySubject,
   buildPaymentIssueEmailHtml,
   buildPaymentIssueSubject,
+  buildPaymentSuccessEmailHtml,
+  buildPaymentSuccessSubject,
   ExpiryEmailLocale,
   PaymentIssueReason,
 } from './email-templates';
@@ -127,6 +129,42 @@ export class EmailNotificationService {
       this.logger.error(
         `Failed to send expiry email (${hoursRemaining}h) to userId=${userId} email=${user.email}: ${detail}`,
       );
+    }
+  }
+
+  @OnEvent(WebhookEventEnum['payment.succeeded'])
+  async onPaymentSucceeded(event: Payments.PaymentSucceededEventPayload): Promise<void> {
+    const { userId } = event;
+
+    if (!this.hasZohoCredentials) {
+      this.logger.warn('Zoho credentials not configured, skipping email notification');
+      return;
+    }
+
+    const user = await this.getUserByUuid(userId);
+    if (!user?.email) {
+      this.logger.log(`Skipping payment success email: no email address for userId=${userId}`);
+      return;
+    }
+
+    const locale = await this.resolveLocale(userId);
+    const expireDate = toDateString(user.expireAt);
+    const subject = buildPaymentSuccessSubject(locale);
+    const html = buildPaymentSuccessEmailHtml({
+      locale,
+      expireDate,
+      paymentUrl: this.paymentUrl,
+      supportUrl: this.supportUrl,
+    });
+
+    try {
+      await this.sendViaZoho(user.email, subject, html);
+
+      this.logger.log(`Payment success email sent to userId=${userId} email=${user.email}`);
+    } catch (err: unknown) {
+      const detail = this.describeError(err);
+
+      this.logger.error(`Failed to send payment success email to userId=${userId}: ${detail}`);
     }
   }
 

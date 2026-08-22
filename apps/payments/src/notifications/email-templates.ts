@@ -248,6 +248,67 @@ export function buildPaymentIssueSubject(locale: EmailLocale, reason: PaymentIss
   return PAYMENT_ISSUE_COPY[locale][reason].subject;
 }
 
+// ── Payment success ──────────────────────────────────────────────────────────
+
+export interface PaymentSuccessEmailParams {
+  locale: EmailLocale;
+  expireDate: string;
+  paymentUrl: string;
+  supportUrl: string;
+}
+
+interface PaymentSuccessCopy {
+  subject: string;
+  kicker: string;
+  headline: string;
+  detailLabel: string;
+  bodyCopy: string;
+  ctaLabel: string;
+}
+
+const PAYMENT_SUCCESS_COPY: Record<EmailLocale, PaymentSuccessCopy> = {
+  en: {
+    subject: 'Payment received — your subscription is active',
+    kicker: 'Payment successful',
+    headline: 'Subscription is active',
+    detailLabel: 'Active until',
+    bodyCopy: 'Thanks for your payment! Your subscription is active and ready to use.',
+    ctaLabel: 'Manage subscription',
+  },
+  ru: {
+    subject: 'Оплата прошла — подписка активна',
+    kicker: 'Оплата прошла успешно',
+    headline: 'Подписка активна',
+    detailLabel: 'Действует до',
+    bodyCopy: 'Спасибо за оплату! Подписка активна и готова к использованию.',
+    ctaLabel: 'Управлять подпиской',
+  },
+};
+
+export function buildPaymentSuccessSubject(locale: EmailLocale): string {
+  return PAYMENT_SUCCESS_COPY[locale].subject;
+}
+
+export function buildPaymentSuccessEmailHtml(params: PaymentSuccessEmailParams): string {
+  const copy = PAYMENT_SUCCESS_COPY[params.locale];
+
+  return renderEmailShell({
+    locale: params.locale,
+    kicker: copy.kicker,
+    headline: copy.headline,
+    detailLabel: copy.detailLabel,
+    detailValue: params.expireDate,
+    bodyCopy: copy.bodyCopy,
+    ctaLabel: copy.ctaLabel,
+    ctaUrl: params.paymentUrl,
+    supportPrompt: SUPPORT_COPY[params.locale].prompt,
+    supportLinkLabel: SUPPORT_COPY[params.locale].linkLabel,
+    supportUrl: params.supportUrl,
+    signOff: SIGN_OFF[params.locale],
+    footerNotice: FOOTER_NOTICE[params.locale],
+  });
+}
+
 export function buildPaymentIssueEmailHtml(params: PaymentIssueEmailParams): string {
   const copy = PAYMENT_ISSUE_COPY[params.locale][params.reason];
 

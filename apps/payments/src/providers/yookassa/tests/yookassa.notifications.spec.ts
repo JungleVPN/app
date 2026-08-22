@@ -309,13 +309,12 @@ describe('YooKassa payment notifications', () => {
       expect(botNotifications()[0].payload).toMatchObject({ isFirstPayment: true });
     });
 
-    // A successful charge is good news the user already sees in Telegram;
-    // nothing is mailed, so a new success email would be a deliberate change.
-    it('sends no email — success is a bot-only notification', async () => {
+    it('emails the user a payment confirmation alongside the bot notification', async () => {
       await yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1');
       await settle();
 
-      expect(sentEmails()).toEqual([]);
+      expect(sentEmails()).toHaveLength(1);
+      expect(sentEmails()[0].toAddress).toBe('user@example.test');
     });
 
     // The user has no Telegram account to message; the flow must not blow up.
