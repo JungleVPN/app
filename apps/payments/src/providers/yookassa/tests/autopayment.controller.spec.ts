@@ -70,4 +70,51 @@ describe('AutopaymentController', () => {
     const result = await controller.handleRemnaEvent(makePayload(EXPIRATION, -24));
     expect(result).toEqual({ ok: true });
   });
+
+  it('delegates -48h even when the -24h flow would also match the event', async () => {
+    const payload = makePayload(EXPIRATION, -48);
+    await controller.handleRemnaEvent(payload);
+
+    expect(mockCheckAndNotifyExpiry48h).toHaveBeenCalledTimes(1);
+  });
+
+  // The 48h path is fire-and-forget too: an email or bot outage must not turn
+  // into a non-200 that makes Remnawave redeliver the event.
+  it('does not throw when the 48h handler rejects', async () => {
+    mockCheckAndNotifyExpiry48h.mockRejectedValue(new Error('smtp down'));
+
+    const result = await controller.handleRemnaEvent(makePayload(EXPIRATION, -48));
+
+    expect(result).toEqual({ ok: true });
+  });
+
+  // Only -24h and -48h are wired up; any other lead time is logged and dropped
+  // rather than charging the customer at an unexpected moment.
+  it.each([[-72], [-1], [24]])('ignores an expiration lead time of %i hours', async (hours) => {
+    const result = await controller.handleRemnaEvent(makePayload(EXPIRATION, hours));
+
+    expect(result).toEqual({ ok: true });
+    expect(mockInit).not.toHaveBeenCalled();
+    expect(mockCheckAndNotifyExpiry48h).not.toHaveBeenCalled();
+  });
+
+  it('ignores an expiration event that carries no meta at all', async () => {
+    const result = await controller.handleRemnaEvent(makePayload(EXPIRATION));
+
+    expect(result).toEqual({ ok: true });
+    expect(mockInit).not.toHaveBeenCalled();
+    expect(mockCheckAndNotifyExpiry48h).not.toHaveBeenCalled();
+  });
+
+  it('ignores an expiration event whose meta omits the expiration field', async () => {
+    const payload = {
+      ...makePayload(EXPIRATION),
+      meta: {},
+    } as unknown as RemnawebhookPayload;
+
+    const result = await controller.handleRemnaEvent(payload);
+
+    expect(result).toEqual({ ok: true });
+    expect(mockInit).not.toHaveBeenCalled();
+  });
 });
