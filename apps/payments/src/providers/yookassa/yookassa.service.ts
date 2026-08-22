@@ -140,7 +140,6 @@ export class YookassaService {
       description: payment.description ?? null,
       purpose,
       promoCode: validatedPromoCode,
-      paymentMethodId: null,
       paidAt: null,
     });
     await this.yookassaPaymentRepo.save(record);
@@ -285,7 +284,6 @@ export class YookassaService {
 
     await this.yookassaPaymentRepo.update(id, {
       status,
-      paymentMethodId: payment_method?.id,
       paidAt: captured_at ? new Date(captured_at) : new Date(),
       url: null,
     });

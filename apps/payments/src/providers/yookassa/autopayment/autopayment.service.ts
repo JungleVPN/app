@@ -6,7 +6,13 @@ import { AnalyticsClientService } from '@payments/analytics/analytics-client.ser
 import { EmailNotificationService } from '@payments/notifications/email-notification.service';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
-import { apiRoutes, Payments, RemnawebhookPayload, WebhookEventEnum } from '@workspace/types';
+import {
+  apiRoutes,
+  Payments,
+  RemnawebhookPayload,
+  UserDto,
+  WebhookEventEnum,
+} from '@workspace/types';
 import axios from 'axios';
 import { Repository } from 'typeorm';
 
@@ -47,30 +53,7 @@ export class AutopaymentService {
     });
 
     if (!savedMethod) {
-      const hasOtherMethod = await this.savedMethodRepo.findOneBy({ userId, isActive: true });
-
-      if (hasOtherMethod) {
-        this.logger.log(
-          `User ${userId} has ${hasOtherMethod.provider} saved method — skipping autopayment`,
-        );
-        return;
-      }
-
-      this.eventEmitter.emit(WebhookEventEnum['payment.no_active_method'], {
-        userId,
-        provider: 'yookassa',
-        reason: 'no_active_method',
-      } satisfies Payments.PaymentFailedEventPayload);
-
-      this.emailNotificationService.notifyExpiry(payload.data, 24).catch((err: unknown) => {
-        this.logger.error(`Unhandled error in 24h expiry email: ${err}`);
-      });
-
-      await this.analyticsClient.track({
-        event: 'expiry_reminder_sent',
-        userId,
-        hoursRemaining: 24,
-      });
+      await this.handleUnsavedPaymentMethod(payload.data);
       return;
     }
 
@@ -108,7 +91,6 @@ export class AutopaymentService {
         amount: payment.amount.value,
         userId,
         selectedPeriod,
-        paymentMethodId: savedMethod.paymentMethodId,
         telegramId,
         description: process.env.PAYMENT_DESCRIPTION,
         // Left unstamped even though YooKassa already reports 'succeeded': the
@@ -122,33 +104,34 @@ export class AutopaymentService {
     }
   }
 
-  async checkAndNotifyExpiry48h(payload: RemnawebhookPayload): Promise<void> {
-    const userId = payload.data.uuid;
+  private async handleUnsavedPaymentMethod(data: UserDto) {
+    const hasOtherMethod = await this.savedMethodRepo.findOneBy({
+      userId: data.uuid,
+      isActive: true,
+    });
 
-    const savedMethod = await this.savedMethodRepo.findOneBy({ userId, isActive: true });
-
-    if (savedMethod) {
-      this.logger.log(`User ${userId} has active autopayment — skipping 48h expiry notification`);
+    if (hasOtherMethod) {
+      this.logger.log(
+        `User ${data.uuid} has ${hasOtherMethod.provider} saved method — skipping autopayment`,
+      );
       return;
     }
 
-    await Promise.allSettled([
-      axios
-        .post(`${this.botBaseUrl}${apiRoutes.bot.notifyUserEvent}`, payload, {
-          headers: { 'x-bot-secret': this.botNotifySecret },
-          timeout: 10_000,
-        })
-        .catch((err: any) => {
-          this.logger.error(
-            `Failed to forward 48h expiry event to bot for user ${userId}: ${err.message}`,
-          );
-        }),
-      this.emailNotificationService.notifyExpiry(payload.data, 48).catch((err: unknown) => {
-        this.logger.error(`Unhandled error in 48h expiry email for user ${userId}: ${err}`);
-      }),
-    ]);
+    this.eventEmitter.emit(WebhookEventEnum['payment.no_active_method'], {
+      userId: data.uuid,
+      provider: 'yookassa',
+      reason: 'no_active_method',
+    } satisfies Payments.PaymentFailedEventPayload);
 
-    await this.analyticsClient.track({ event: 'expiry_reminder_sent', userId, hoursRemaining: 48 });
+    this.emailNotificationService.notifyExpiry(data, 24).catch((err: unknown) => {
+      this.logger.error(`Unhandled error in 24h expiry email: ${err}`);
+    });
+
+    await this.analyticsClient.track({
+      event: 'expiry_reminder_sent',
+      userId: data.uuid,
+      hoursRemaining: 24,
+    });
   }
 
   private async attemptAutopaymentWithRetries(
@@ -231,5 +214,34 @@ export class AutopaymentService {
 
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async checkAndNotifyExpiry48h(payload: RemnawebhookPayload): Promise<void> {
+    const userId = payload.data.uuid;
+
+    const savedMethod = await this.savedMethodRepo.findOneBy({ userId, isActive: true });
+
+    if (savedMethod) {
+      this.logger.log(`User ${userId} has active autopayment — skipping 48h expiry notification`);
+      return;
+    }
+
+    await Promise.allSettled([
+      axios
+        .post(`${this.botBaseUrl}${apiRoutes.bot.notifyUserEvent}`, payload, {
+          headers: { 'x-bot-secret': this.botNotifySecret },
+          timeout: 10_000,
+        })
+        .catch((err: any) => {
+          this.logger.error(
+            `Failed to forward 48h expiry event to bot for user ${userId}: ${err.message}`,
+          );
+        }),
+      this.emailNotificationService.notifyExpiry(payload.data, 48).catch((err: unknown) => {
+        this.logger.error(`Unhandled error in 48h expiry email for user ${userId}: ${err}`);
+      }),
+    ]);
+
+    await this.analyticsClient.track({ event: 'expiry_reminder_sent', userId, hoursRemaining: 48 });
   }
 }

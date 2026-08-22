@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { AutopaymentController } from '@payments/autopayment/autopayment.controller';
-import type { AutopaymentService } from '@payments/autopayment/autopayment.service';
+import { AutopaymentController } from '@payments/providers/yookassa/autopayment/autopayment.controller';
+import { AutopaymentService } from '@payments/providers/yookassa/autopayment/autopayment.service';
 import type { RemnawebhookPayload } from '@workspace/types';
 import { REMNAWAVE_EVENTS } from '@workspace/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
