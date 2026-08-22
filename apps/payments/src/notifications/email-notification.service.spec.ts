@@ -130,12 +130,35 @@ describe('EmailNotificationService', () => {
         'https://mail.zoho.eu/api/accounts/account-1/messages',
         expect.objectContaining({
           toAddress: 'user@example.com',
-          fromAddress: 'notification@jungle-vpn.com',
+          fromAddress: '"JungleVPN Subscription" <notification@jungle-vpn.com>',
         }),
         expect.objectContaining({
           headers: expect.objectContaining({ Authorization: 'Zoho-oauthtoken token-1' }),
         }),
       );
+    });
+
+    it('uses a custom sender display name when ZOHO_FROM_NAME is set', async () => {
+      process.env.ZOHO_FROM_NAME = 'Jungle Support';
+      mockUserFetch();
+      mockAxiosPost.mockImplementation((url: string) => {
+        if (url.includes('accounts.zoho.eu')) {
+          return Promise.resolve({ data: { access_token: 'token-1', expires_in: 3600 } });
+        }
+        return Promise.resolve({ data: { status: { code: 200 } } });
+      });
+
+      await service.onExpiryReminder(makeExpiryEvent());
+
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        'https://mail.zoho.eu/api/accounts/account-1/messages',
+        expect.objectContaining({
+          fromAddress: '"Jungle Support" <notification@jungle-vpn.com>',
+        }),
+        expect.anything(),
+      );
+
+      delete process.env.ZOHO_FROM_NAME;
     });
 
     it('uses a different Zoho data-center domain when ZOHO_API_DOMAIN is set', async () => {
@@ -279,7 +302,7 @@ describe('EmailNotificationService', () => {
         'https://mail.zoho.eu/api/accounts/account-1/messages',
         expect.objectContaining({
           toAddress: 'user@example.com',
-          fromAddress: 'notification@jungle-vpn.com',
+          fromAddress: '"JungleVPN Subscription" <notification@jungle-vpn.com>',
         }),
         expect.objectContaining({
           headers: expect.objectContaining({ Authorization: 'Zoho-oauthtoken token-1' }),

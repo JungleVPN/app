@@ -1,12 +1,7 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import {
-  apiRoutes,
-  GetUserByUuidResponseDto,
-  Payments,
-  WebhookEventEnum,
-} from '@workspace/types';
+import { apiRoutes, GetUserByUuidResponseDto, Payments, WebhookEventEnum } from '@workspace/types';
 import axios, { isAxiosError } from 'axios';
 import {
   buildExpiryEmailHtml,
@@ -76,6 +71,14 @@ export class EmailNotificationService {
     return process.env.ZOHO_FROM_EMAIL ?? 'notification@jungle-vpn.com';
   }
 
+  private get fromName(): string {
+    return process.env.ZOHO_FROM_NAME ?? 'JungleVPN Subscription';
+  }
+
+  private get fromAddress(): string {
+    return `"${this.fromName}" <${this.fromEmail}>`;
+  }
+
   private get apiDomain(): string {
     return process.env.ZOHO_API_DOMAIN ?? 'zoho.eu';
   }
@@ -103,7 +106,9 @@ export class EmailNotificationService {
 
     const user = await this.getUserByUuid(userId);
     if (!user?.email) {
-      this.logger.log(`Skipping expiry email: no email address for userId=${userId} (${hoursRemaining}h)`);
+      this.logger.log(
+        `Skipping expiry email: no email address for userId=${userId} (${hoursRemaining}h)`,
+      );
       return;
     }
 
@@ -122,7 +127,9 @@ export class EmailNotificationService {
     try {
       await this.sendViaZoho(user.email, subject, html);
 
-      this.logger.log(`Expiry email (${hoursRemaining}h) sent to userId=${userId} email=${user.email}`);
+      this.logger.log(
+        `Expiry email (${hoursRemaining}h) sent to userId=${userId} email=${user.email}`,
+      );
     } catch (err: unknown) {
       const detail = this.describeError(err);
 
@@ -253,7 +260,13 @@ export class EmailNotificationService {
   ): Promise<unknown> {
     return axios.post(
       `https://mail.${this.apiDomain}/api/accounts/${this.accountId}/messages`,
-      { fromAddress: this.fromEmail, toAddress: toEmail, subject, content: html, askReceipt: 'no' },
+      {
+        fromAddress: this.fromAddress,
+        toAddress: toEmail,
+        subject,
+        content: html,
+        askReceipt: 'no',
+      },
       {
         headers: {
           Authorization: `Zoho-oauthtoken ${accessToken}`,

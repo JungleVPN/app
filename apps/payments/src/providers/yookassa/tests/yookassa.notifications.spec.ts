@@ -420,7 +420,7 @@ describe('YooKassa payment notifications', () => {
       expect(sentEmails()).toHaveLength(1);
       expect(sentEmails()[0]).toMatchObject({
         toAddress: 'user@example.test',
-        fromAddress: 'notification@jungle-vpn.com',
+        fromAddress: '"JungleVPN Subscription" <notification@jungle-vpn.com>',
       });
     });
 
