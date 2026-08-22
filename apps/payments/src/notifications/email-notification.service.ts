@@ -167,7 +167,7 @@ export class EmailNotificationService {
     try {
       await this.sendViaZoho(user.email, subject, html);
 
-      this.logger.log(`Payment success email sent to userId=${userId} email=${user.email}`);
+      this.logger.log(`Email sent email=${user.email}, reason=payment.succeeded`);
     } catch (err: unknown) {
       const detail = this.describeError(err);
 
