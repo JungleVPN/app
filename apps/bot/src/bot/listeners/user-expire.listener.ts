@@ -33,10 +33,10 @@ export class UserExpireListener {
 
   @OnEvent('user.expired')
   async listenToUserExpiredEvent(payload: ExpirationPayload) {
-    if (payload.data.uuid) {
+    if (payload.data.id != null) {
       await this.analyticsClient.track({
         event: 'subscription_expired',
-        userId: payload.data.uuid,
+        userId: payload.data.id,
       });
     }
     await this.handleUserExpireEvent(payload);
@@ -51,7 +51,7 @@ export class UserExpireListener {
     const telegramId = payload.data.telegramId;
 
     const locale =
-      (payload.data.uuid ? await this.remnaService.getUserLang(payload.data.uuid) : null) ||
+      (payload.data.id != null ? await this.remnaService.getUserLang(payload.data.id) : null) ||
       process.env.DEFAULT_LOCALE ||
       'ru';
 

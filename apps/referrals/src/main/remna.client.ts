@@ -5,7 +5,7 @@ import axios from 'axios';
 
 /** Minimal user shape returned by the remnawave service. */
 export interface RemnaUser {
-  uuid: string;
+  id: number;
   telegramId: number | null;
   expireAt: string;
   subscriptionUrl: string;
@@ -26,10 +26,10 @@ export class RemnaClient {
     return process.env.REMNAWAVE_URL || 'http://localhost:3002';
   }
 
-  async getUserByUuid(uuid: string): Promise<RemnaUser | null> {
+  async getUserById(userId: number): Promise<RemnaUser | null> {
     try {
       const { data } = await axios.get<RemnaUser>(
-        `${this.baseUrl}${apiRoutes.remnawave.userByUuid(uuid)}`,
+        `${this.baseUrl}${apiRoutes.remnawave.userById(userId)}`,
         {
           headers: {
             'x-service-secret': process.env.INTER_SERVICE_SECRET,
@@ -40,13 +40,13 @@ export class RemnaClient {
       return data ?? null;
     } catch (err: any) {
       if (err.response?.status === 404) return null;
-      this.logger.error(`Failed to get user ${uuid}: ${err.message}`);
+      this.logger.error(`Failed to get user ${userId}: ${err.message}`);
       throw err;
     }
   }
 
   async updateUser(payload: {
-    uuid: string;
+    id: number;
     expireAt?: Date | string;
     [key: string]: unknown;
   }): Promise<RemnaUser> {

@@ -52,6 +52,19 @@ export class RemnaPanelClient implements OnModuleInit {
       if (res.status === 404) {
         throw new RemnaPanelError(`Remna panel endpoint not found: ${url}`, 404, res.data);
       }
+
+      // Panel v3 returns 204 No Content for DELETE and 202 Accepted for
+      // background operations — both have an empty body and no `{ response }`
+      // envelope, so an absent payload is success rather than a malformed reply.
+      if (res.status === 204 || res.status === 202) {
+        return undefined as Data;
+      }
+
+      if (res.status >= 400) {
+        this.logger.error(`Remna panel returned ${res.status} for ${url}`);
+        throw new RemnaPanelError(res.statusText, res.status, { ...res.data, url });
+      }
+
       const data: { response: Data } = res.data;
       if (!data || data.response === undefined) {
         this.logger.error(`Invalid response from Remna panel`);

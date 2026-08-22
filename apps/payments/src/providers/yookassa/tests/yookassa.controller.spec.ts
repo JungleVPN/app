@@ -50,9 +50,9 @@ describe('YookassaController', () => {
       const methods = [{ id: '1' }, { id: '2' }];
       (yookassaService.getActiveSavedMethods as any).mockResolvedValue(methods);
 
-      const result = await controller.getActiveSavedMethods('user-1');
+      const result = await controller.getActiveSavedMethods(2000);
 
-      expect(yookassaService.getActiveSavedMethods).toHaveBeenCalledWith('user-1');
+      expect(yookassaService.getActiveSavedMethods).toHaveBeenCalledWith(2000);
       expect(result).toBe(methods);
     });
   });
@@ -61,9 +61,9 @@ describe('YookassaController', () => {
     it('delegates to the service using method id and injected userId from credential', async () => {
       (yookassaService.deletePaymentMethod as any).mockResolvedValue(undefined);
 
-      const result = await controller.deleteSavedMethod('method-1', 'user-1');
+      const result = await controller.deleteSavedMethod('method-1', 2000);
 
-      expect(yookassaService.deletePaymentMethod).toHaveBeenCalledWith('method-1', 'user-1');
+      expect(yookassaService.deletePaymentMethod).toHaveBeenCalledWith('method-1', 2000);
       expect(result).toEqual({ ok: true });
     });
   });
@@ -95,7 +95,7 @@ describe('YookassaController', () => {
   describe('createPaymentSession', () => {
     it('delegates to the service', async () => {
       const dto: CreateYookassaSessionDto = {
-        userId: 'user-1',
+        userId: 1000,
         amount: { value: '100.00', currency: 'RUB' },
         description: 'test',
         save_payment_method: true,

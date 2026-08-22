@@ -78,7 +78,7 @@ function makePayment(overrides: Partial<AdminPaymentDto> = {}): AdminPaymentDto 
   return {
     paymentId: 'p1',
     provider: 'yookassa',
-    userId: 'u1',
+    userId: 1000,
     telegramId: null,
     status: 'succeeded',
     purpose: 'subscription',
@@ -93,44 +93,44 @@ describe('PromoService', () => {
   describe('PromoService.resolve', () => {
     it('returns the effect for a valid promo', async () => {
       const { service } = setup({ promo: makePromo() });
-      await expect(service.resolve('free2', { userId: 'u1' })).resolves.toEqual(BONUS);
+      await expect(service.resolve('free2', { userId: 1000 })).resolves.toEqual(BONUS);
     });
 
     it('normalizes the code (trim + uppercase)', async () => {
       const { service } = setup({ promo: makePromo() });
-      await service.resolve('  free2 ', { userId: 'u1' });
+      await service.resolve('  free2 ', { userId: 1000 });
       // findOneBy called with normalized code
       expect((service as any).promoRepo.findOneBy).toHaveBeenCalledWith({ code: 'FREE2' });
     });
 
     it('rejects unknown or inactive promos', async () => {
       await expect(
-        setup({ promo: null }).service.resolve('x', { userId: 'u1' }),
+        setup({ promo: null }).service.resolve('x', { userId: 1000 }),
       ).rejects.toBeInstanceOf(PromoInvalidError);
       await expect(
-        setup({ promo: makePromo({ active: false }) }).service.resolve('FREE2', { userId: 'u1' }),
+        setup({ promo: makePromo({ active: false }) }).service.resolve('FREE2', { userId: 1000 }),
       ).rejects.toBeInstanceOf(PromoInvalidError);
     });
 
     it('rejects outside the date window', async () => {
       const future = makePromo({ startsAt: new Date(Date.now() + 86_400_000) });
       await expect(
-        setup({ promo: future }).service.resolve('FREE2', { userId: 'u1' }),
+        setup({ promo: future }).service.resolve('FREE2', { userId: 1000 }),
       ).rejects.toThrow(/not active yet/);
 
       const past = makePromo({ endsAt: new Date(Date.now() - 86_400_000) });
       await expect(
-        setup({ promo: past }).service.resolve('FREE2', { userId: 'u1' }),
+        setup({ promo: past }).service.resolve('FREE2', { userId: 1000 }),
       ).rejects.toThrow(/expired/);
     });
 
     it('enforces expired_only eligibility', async () => {
       const promo = makePromo({ eligibility: 'expired_only' });
       await expect(
-        setup({ promo }).service.resolve('FREE2', { userId: 'u1', userStatus: 'ACTIVE' }),
+        setup({ promo }).service.resolve('FREE2', { userId: 1000, userStatus: 'ACTIVE' }),
       ).rejects.toThrow(/expired subscriptions/);
       await expect(
-        setup({ promo }).service.resolve('FREE2', { userId: 'u1', userStatus: 'EXPIRED' }),
+        setup({ promo }).service.resolve('FREE2', { userId: 1000, userStatus: 'EXPIRED' }),
       ).resolves.toEqual(BONUS);
     });
 
@@ -139,14 +139,14 @@ describe('PromoService', () => {
 
       // Has a settled payment on record -> rejected, even with no active subscription.
       const rejected = setup({ promo, payments: [makePayment()] }).service.resolve('FREE2', {
-        userId: 'u1',
+        userId: 1000,
       });
       await expect(rejected).rejects.toThrow(/only for new users/);
       await expect(rejected).rejects.toMatchObject({ code: 'not_new_user' });
 
       // Never paid -> eligible.
       await expect(
-        setup({ promo, payments: [] }).service.resolve('FREE2', { userId: 'u1' }),
+        setup({ promo, payments: [] }).service.resolve('FREE2', { userId: 1000 }),
       ).resolves.toEqual(BONUS);
     });
 
@@ -155,7 +155,7 @@ describe('PromoService', () => {
       const pending = makePayment({ paidAt: null });
 
       await expect(
-        setup({ promo, payments: [pending] }).service.resolve('FREE2', { userId: 'u1' }),
+        setup({ promo, payments: [pending] }).service.resolve('FREE2', { userId: 1000 }),
       ).resolves.toEqual(BONUS);
     });
 
@@ -166,13 +166,13 @@ describe('PromoService', () => {
       // A trial user who bought an extra device slot has never paid for a
       // subscription, so they're still eligible for a new-user promo.
       await expect(
-        setup({ promo, payments: [extraDevice] }).service.resolve('FREE2', { userId: 'u1' }),
+        setup({ promo, payments: [extraDevice] }).service.resolve('FREE2', { userId: 1000 }),
       ).resolves.toEqual(BONUS);
     });
 
     it('enforces the per-user limit', async () => {
       const { service } = setup({ promo: makePromo({ perUserLimit: 1 }), userRedemptions: 1 });
-      await expect(service.resolve('FREE2', { userId: 'u1' })).rejects.toThrow(/already used/);
+      await expect(service.resolve('FREE2', { userId: 1000 })).rejects.toThrow(/already used/);
     });
 
     it('enforces the global cap', async () => {
@@ -180,27 +180,27 @@ describe('PromoService', () => {
         promo: makePromo({ maxRedemptions: 100 }),
         totalRedemptions: 100,
       });
-      await expect(service.resolve('FREE2', { userId: 'u1' })).rejects.toThrow(/reached its limit/);
+      await expect(service.resolve('FREE2', { userId: 1000 })).rejects.toThrow(/reached its limit/);
     });
   });
 
   describe('PromoService.validate', () => {
     it('wraps resolve into a non-throwing response', async () => {
       const ok = setup({ promo: makePromo() }).service;
-      await expect(ok.validate({ code: 'FREE2', userId: 'u1' })).resolves.toEqual({
+      await expect(ok.validate({ code: 'FREE2', userId: 1000 })).resolves.toEqual({
         valid: true,
         effect: BONUS,
       });
 
       const bad = setup({ promo: null }).service;
-      const res = await bad.validate({ code: 'NOPE', userId: 'u1' });
+      const res = await bad.validate({ code: 'NOPE', userId: 1000 });
       expect(res.valid).toBe(false);
       expect(res.reason).toBeTruthy();
     });
   });
 
   describe('PromoService.applyToMonths', () => {
-    const ctx = { userId: 'u1', provider: 'yookassa' as const, paymentId: 'p1' };
+    const ctx = { userId: 1000, provider: 'yookassa' as const, paymentId: 'p1' };
 
     it('returns months unchanged when there is no code', async () => {
       const { service, insert } = setup({ promo: makePromo() });
@@ -214,7 +214,7 @@ describe('PromoService', () => {
       expect(insert).toHaveBeenCalledWith(
         expect.objectContaining({
           promoCode: 'FREE2',
-          userId: 'u1',
+          userId: 1000,
           provider: 'yookassa',
           paymentId: 'p1',
         }),

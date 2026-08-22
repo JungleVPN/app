@@ -15,7 +15,7 @@ export class AdminService {
     private readonly stripeRepo: Repository<StripePayment>,
   ) {}
 
-  async hasEverPaid(userId: string): Promise<boolean> {
+  async hasEverPaid(userId: number): Promise<boolean> {
     const settled = { purpose: 'subscription', paidAt: Not(IsNull()) } as const;
     const [yookassa, stars, stripe] = await Promise.all([
       this.yookassaRepo.exists({ where: { userId, ...settled } }),
@@ -45,14 +45,17 @@ export class AdminService {
   private async searchYookassa(q: string): Promise<AdminPaymentDto[]> {
     const qb = this.yookassaRepo.createQueryBuilder('p');
 
-    // Match on paymentId or userId
-    qb.where('p.id = :q OR p.userId = :q', { q }).andWhere('p.status != :pending', {
+    // Match on paymentId, and on userId/telegramId only when q is an integer —
+    // userId is an int column since panel v3, so a text comparison would error.
+    const numericQ = Number(q);
+    const isNumeric = q.trim() !== '' && Number.isInteger(numericQ);
+
+    qb.where('p.id = :q', { q }).andWhere('p.status != :pending', {
       pending: 'pending',
     });
 
-    // Also try matching on telegramId if q looks numeric
-    const numericQ = Number(q);
-    if (!isNaN(numericQ) && Number.isInteger(numericQ)) {
+    if (isNumeric) {
+      qb.orWhere('p.userId = :numQ', { numQ: numericQ });
       qb.orWhere('p.telegramId = :numQ', { numQ: numericQ });
     }
 
@@ -76,13 +79,16 @@ export class AdminService {
   }
 
   private async searchStars(q: string): Promise<AdminPaymentDto[]> {
+    const numericQ = Number(q);
+    const isNumeric = q.trim() !== '' && Number.isInteger(numericQ);
+
     const qb = this.starsRepo
       .createQueryBuilder('p')
-      .where('CAST(p.id AS text) = :q OR p.userId = :q', { q })
+      .where('CAST(p.id AS text) = :q', { q })
       .andWhere('p.status != :pending', { pending: 'pending' });
 
-    const numericQ = Number(q);
-    if (!isNaN(numericQ) && Number.isInteger(numericQ)) {
+    if (isNumeric) {
+      qb.orWhere('p.userId = :numQ', { numQ: numericQ });
       qb.orWhere('p.telegramId = :numQ', { numQ: numericQ });
     }
 
@@ -107,9 +113,17 @@ export class AdminService {
   private async searchStripe(q: string): Promise<AdminPaymentDto[]> {
     const selectedPeriod = Number(process.env.ALLOWED_PERIOD ?? 1);
 
+    const numericQ = Number(q);
+    const isNumeric = q.trim() !== '' && Number.isInteger(numericQ);
+
     const rows = await this.stripeRepo
       .createQueryBuilder('p')
-      .where('(p.id = :q OR p.userId = :q OR p.customer = :q)', { q })
+      .where(
+        isNumeric
+          ? '(p.id = :q OR p.customer = :q OR p.userId = :numQ)'
+          : '(p.id = :q OR p.customer = :q)',
+        { q, numQ: numericQ },
+      )
       // Drop the pre-checkout placeholder rows — only settled records are shown.
       .andWhere('p.status != :pending', { pending: 'pending' })
       .orderBy('p.createdAt', 'DESC')
@@ -119,7 +133,7 @@ export class AdminService {
       (p): AdminPaymentDto => ({
         paymentId: p.id,
         provider: 'stripe',
-        userId: p.userId ?? '',
+        userId: p.userId ?? 0,
         telegramId: null,
         status: p.status,
         purpose: p.purpose,

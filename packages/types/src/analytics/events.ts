@@ -1,4 +1,5 @@
 import { PaymentMethod } from '../payments';
+import type { RemnaUserId } from '../remnawave';
 
 export type BotStartedEvent = {
   event: 'bot_started';
@@ -11,20 +12,20 @@ export type BotStartedEvent = {
 export type TmaOpenedEvent = {
   event: 'tma_opened';
   telegramId: number;
-  userId: string | null;
+  userId: RemnaUserId | null;
   email: string | null;
 };
 
 export type UserCreatedEvent = {
   event: 'user_created';
-  userId: string;
+  userId: RemnaUserId;
   telegramId: number;
   email: string | null;
 };
 
 export type CheckoutStartedEvent = {
   event: 'checkout_started';
-  userId: string;
+  userId: RemnaUserId;
   provider: PaymentMethod;
   amount: string;
   currency: string;
@@ -32,7 +33,7 @@ export type CheckoutStartedEvent = {
 
 export type PaymentSucceededEvent = {
   event: 'payment_succeeded';
-  userId: string;
+  userId: RemnaUserId;
   provider: PaymentMethod;
   selectedPeriod: number;
   isFirstPayment: boolean;
@@ -41,7 +42,7 @@ export type PaymentSucceededEvent = {
 
 export type PaymentFailedEvent = {
   event: 'payment_failed';
-  userId: string;
+  userId: RemnaUserId;
   provider: 'yookassa' | 'stripe';
   paymentId: string;
   reason: string;
@@ -49,7 +50,7 @@ export type PaymentFailedEvent = {
 
 export type PaymentMethodSavedEvent = {
   event: 'payment_method_saved';
-  userId: string;
+  userId: RemnaUserId;
   provider: 'yookassa' | 'stripe';
   paymentId: string;
   methodType: string;
@@ -57,39 +58,39 @@ export type PaymentMethodSavedEvent = {
 
 export type AutopaymentInitiatedEvent = {
   event: 'autopayment_initiated';
-  userId: string;
+  userId: RemnaUserId;
   provider: 'yookassa' | 'stripe';
 };
 
 export type AutopaymentFailedEvent = {
   event: 'autopayment_failed';
-  userId: string;
+  userId: RemnaUserId;
   provider: 'yookassa' | 'stripe';
   reason: string;
 };
 
 export type PromoCodeAppliedEvent = {
   event: 'promo_code_applied';
-  userId: string;
+  userId: RemnaUserId;
   code: string;
   provider: PaymentMethod;
 };
 
 export type ReferralRewardGrantedEvent = {
   event: 'referral_reward_granted';
-  invitedUserId: string;
-  inviterUserId: string;
+  invitedUserId: RemnaUserId;
+  inviterUserId: RemnaUserId;
 };
 
 export type ExpiryReminderSentEvent = {
   event: 'expiry_reminder_sent';
-  userId: string;
+  userId: RemnaUserId;
   hoursRemaining: 48 | 24;
 };
 
 export type SubscriptionExpiredEvent = {
   event: 'subscription_expired';
-  userId: string;
+  userId: RemnaUserId;
 };
 
 export type AnalyticsEvent =

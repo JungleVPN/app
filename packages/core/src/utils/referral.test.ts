@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { captureReferral, clearReferral, getReferral } from './referral';
+import { captureReferral, clearReferral, getReferral, getReferralUserId } from './referral';
 
 function setUrlSearch(search: string) {
   window.history.pushState({}, '', search ? `/${search}` : '/');
@@ -84,5 +84,31 @@ describe('clearReferral', () => {
     captureReferral();
 
     expect(getReferral()).toBe('second');
+  });
+});
+
+describe('getReferralUserId', () => {
+  it('returns the stored code as a number when it is a valid user id', () => {
+    document.cookie = 'jv_referral=4821';
+    expect(getReferralUserId()).toBe(4821);
+  });
+
+  it('returns null when no referral is stored', () => {
+    expect(getReferralUserId()).toBeNull();
+  });
+
+  it('returns null for a legacy uuid captured before the panel v3 migration', () => {
+    document.cookie = 'jv_referral=a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+    expect(getReferralUserId()).toBeNull();
+  });
+
+  it('returns null for a non-numeric code rather than forwarding a bogus inviter', () => {
+    document.cookie = 'jv_referral=not-an-id';
+    expect(getReferralUserId()).toBeNull();
+  });
+
+  it('returns null for a non-positive id', () => {
+    document.cookie = 'jv_referral=0';
+    expect(getReferralUserId()).toBeNull();
   });
 });

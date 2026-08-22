@@ -75,7 +75,7 @@ export class StripeProvider {
   }
 
   /** Whether `userId` has any prior successful payment, across all payment providers. */
-  private async hasPriorSuccessfulPayment(userId: string): Promise<boolean> {
+  private async hasPriorSuccessfulPayment(userId: number): Promise<boolean> {
     const [stripePayment, yookassaPayment, starsPayment] = await Promise.all([
       this.repository.exists({ where: { userId, status: In(['paid', 'completed']) } }),
       this.yookassaRepository.exists({ where: { userId, status: 'succeeded' } }),
@@ -88,7 +88,7 @@ export class StripeProvider {
     priceId: string,
     customer: string,
     purchaseType: 'subscription' | 'extra_device',
-    userId: string,
+    userId: number,
     toltReferralId?: string | null,
     origin?: string,
   ): Promise<CheckoutSession> {
@@ -155,7 +155,7 @@ export class StripeProvider {
    * if so, returns a fresh Billing Portal URL for self-service management.
    */
   async getSubscriptionStatus(
-    userId: string,
+    userId: number,
     origin?: string,
   ): Promise<StripeSubscriptionStatusDto> {
     const customerId = await this.getCustomerId(userId);
@@ -173,7 +173,7 @@ export class StripeProvider {
     }
   }
 
-  async getCustomerId(userId: string): Promise<string | null> {
+  async getCustomerId(userId: number): Promise<string | null> {
     const lastPayment = await this.repository.findOne({
       where: { userId },
       order: { createdAt: 'DESC' },

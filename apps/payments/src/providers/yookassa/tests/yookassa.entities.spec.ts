@@ -157,7 +157,7 @@ describe('YookassaPayment entity', () => {
   it('holds a full session record on an instance', () => {
     const payment = new YookassaPayment();
     payment.id = 'pay_1';
-    payment.userId = 'user-1';
+    payment.userId = 1000;
     payment.amount = '599.00';
     payment.currency = 'RUB';
     payment.status = 'succeeded';
@@ -173,7 +173,7 @@ describe('YookassaPayment entity', () => {
 
     expect(payment).toMatchObject({
       id: 'pay_1',
-      userId: 'user-1',
+      userId: 1000,
       amount: '599.00',
       currency: 'RUB',
       status: 'succeeded',
@@ -294,7 +294,7 @@ describe('SavedPaymentMethod entity', () => {
   it('holds a full bank-card method on an instance', () => {
     const method = new SavedPaymentMethod();
     method.id = 'sm-1';
-    method.userId = 'user-1';
+    method.userId = 1000;
     method.provider = 'yookassa';
     method.paymentMethodId = 'pm_1';
     method.paymentMethodType = 'bank_card';
@@ -313,7 +313,7 @@ describe('SavedPaymentMethod entity', () => {
 
     expect(method).toMatchObject({
       id: 'sm-1',
-      userId: 'user-1',
+      userId: 1000,
       provider: 'yookassa',
       paymentMethodId: 'pm_1',
       paymentMethodType: 'bank_card',

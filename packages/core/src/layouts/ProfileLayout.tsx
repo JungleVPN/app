@@ -25,7 +25,7 @@ export function ProfileLayout() {
   // It lives only in this browser session, but the payment it should credit may
   // settle days later — or be a renewal with no browser involved at all.
   // Self-guarded: no-ops without a referral or once already captured.
-  useToltCapture(rmnUser?.uuid, paymentsApi);
+  useToltCapture(rmnUser?.id, paymentsApi);
 
   // Re-capture on every profile-route entry: an invited user can land here
   // after an auth redirect before they've created an account.
@@ -79,10 +79,10 @@ export function ProfileLayout() {
         remnawaveApi.upsertMyMetadata({ lang: fallbackLang }).catch(console.error);
       })
       .catch(console.error);
-  }, [rmnUser?.uuid, remnawaveApi, rmnUser, platformType, tgUser?.language_code]);
+  }, [rmnUser?.id, remnawaveApi, rmnUser, platformType, tgUser?.language_code]);
 
   useSubscriptionData(rmnUser?.shortUuid, coreEnv.subpageConfigUuid);
-  useSavedMethodsData(rmnUser?.uuid ?? '');
+  useSavedMethodsData(rmnUser?.id);
 
   return (
     <>

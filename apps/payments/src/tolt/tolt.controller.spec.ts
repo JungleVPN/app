@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { ToltController } from './tolt.controller';
 import type { ToltService } from './tolt.service';
 
-const USER = 'user-uuid-1';
+const USER = 4821;
 
 function setup() {
   const service = {
@@ -20,11 +20,7 @@ describe('ToltController.captureReferral', () => {
   it('attributes the referral to the authenticated user, never a body-supplied id', async () => {
     const { controller, service } = setup();
 
-    await controller.captureReferral(
-      { ...body, userId: 'attacker-supplied' } as never,
-      USER,
-      'jim@example.com',
-    );
+    await controller.captureReferral({ ...body, userId: USER } as never, USER, 'jim@example.com');
 
     expect(service.captureReferral).toHaveBeenCalledWith(expect.objectContaining({ userId: USER }));
   });

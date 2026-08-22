@@ -110,7 +110,7 @@ export class TelegramStarsService implements OnModuleInit {
   /** Validate a promo code at checkout; returns the normalized code or throws 400. */
   private async validatePromoOrThrow(
     code: string,
-    ctx: { userId: string; userStatus?: string; selectedPeriod: number },
+    ctx: { userId: number; userStatus?: string; selectedPeriod: number },
   ): Promise<string> {
     try {
       await this.promoService.resolve(code, ctx);

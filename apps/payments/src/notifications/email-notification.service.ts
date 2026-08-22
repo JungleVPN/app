@@ -1,7 +1,7 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { apiRoutes, GetUserByUuidResponseDto, Payments, WebhookEventEnum } from '@workspace/types';
+import { apiRoutes, GetUserByIdResponseDto, Payments, WebhookEventEnum } from '@workspace/types';
 import axios, { isAxiosError } from 'axios';
 import {
   buildExpiryEmailHtml,
@@ -104,7 +104,7 @@ export class EmailNotificationService {
       return;
     }
 
-    const user = await this.getUserByUuid(userId);
+    const user = await this.getUserById(userId);
     if (!user?.email) {
       this.logger.log(
         `Skipping expiry email: no email address for userId=${userId} (${hoursRemaining}h)`,
@@ -148,7 +148,7 @@ export class EmailNotificationService {
       return;
     }
 
-    const user = await this.getUserByUuid(userId);
+    const user = await this.getUserById(userId);
     if (!user?.email) {
       this.logger.log(`Skipping payment success email: no email address for userId=${userId}`);
       return;
@@ -185,13 +185,13 @@ export class EmailNotificationService {
     await this.notifyPaymentIssue(event.userId, 'insufficient_funds');
   }
 
-  private async notifyPaymentIssue(userId: string, reason: PaymentIssueReason): Promise<void> {
+  private async notifyPaymentIssue(userId: number, reason: PaymentIssueReason): Promise<void> {
     if (!this.hasZohoCredentials) {
       this.logger.warn('Zoho credentials not configured, skipping email notification');
       return;
     }
 
-    const user = await this.getUserByUuid(userId);
+    const user = await this.getUserById(userId);
     if (!user?.email) {
       this.logger.log(`Skipping ${reason} email: no email address for userId=${userId}`);
       return;
@@ -219,10 +219,10 @@ export class EmailNotificationService {
     }
   }
 
-  private async getUserByUuid(uuid: string): Promise<GetUserByUuidResponseDto | null> {
+  private async getUserById(userId: number): Promise<GetUserByIdResponseDto | null> {
     try {
-      const { data } = await axios.get<GetUserByUuidResponseDto>(
-        `${this.remnawaveBaseUrl}${apiRoutes.remnawave.userByUuid(uuid)}`,
+      const { data } = await axios.get<GetUserByIdResponseDto>(
+        `${this.remnawaveBaseUrl}${apiRoutes.remnawave.userById(userId)}`,
         {
           headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
           timeout: 5_000,
@@ -231,7 +231,7 @@ export class EmailNotificationService {
       return data;
     } catch (err: unknown) {
       const detail = err instanceof Error ? err.message : String(err);
-      this.logger.error(`Failed to fetch user by uuid ${uuid}: ${detail}`);
+      this.logger.error(`Failed to fetch user by id ${userId}: ${detail}`);
       return null;
     }
   }
@@ -315,10 +315,10 @@ export class EmailNotificationService {
     return process.env.REMNAWAVE_URL || 'http://localhost:3002/remnawave';
   }
 
-  private async resolveLocale(uuid: string): Promise<SupportedLocale> {
+  private async resolveLocale(userId: number): Promise<SupportedLocale> {
     try {
       const { data } = await axios.get<Record<string, unknown>>(
-        `${this.remnawaveBaseUrl}${apiRoutes.remnawave.userMetadata(uuid)}`,
+        `${this.remnawaveBaseUrl}${apiRoutes.remnawave.userMetadata(userId)}`,
         {
           headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
           timeout: 5_000,

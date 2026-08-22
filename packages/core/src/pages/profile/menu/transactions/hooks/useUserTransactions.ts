@@ -18,7 +18,7 @@ export function useUserTransactions(): UseUserTransactionsResult {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!rmnUser?.uuid) return;
+    if (!rmnUser?.id) return;
 
     setIsLoading(true);
     setError(null);
@@ -28,7 +28,7 @@ export function useUserTransactions(): UseUserTransactionsResult {
       .then(setTransactions)
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load transactions'))
       .finally(() => setIsLoading(false));
-  }, [rmnUser?.uuid, paymentsApi]);
+  }, [rmnUser?.id, paymentsApi]);
 
   return { transactions, isLoading, error };
 }

@@ -38,26 +38,26 @@ vi.mock('axios', () => ({
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const INVITER_UUID = 'uuid-inviter-100';
-const INVITED_UUID = 'uuid-invited-200';
+const INVITER_ID = 4821;
+const INVITED_ID = 1337;
 
 const makeReferral = (overrides: Partial<Referral> = {}): Referral =>
   ({
     id: 'ref-1',
-    inviterId: INVITER_UUID,
-    invitedId: INVITED_UUID,
+    inviterId: INVITER_ID,
+    invitedId: INVITED_ID,
     status: 'TRIAL',
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
   }) as Referral;
 
-const makeRemnaUser = (uuid: string) => ({
-  uuid,
+const makeRemnaUser = (id: number) => ({
+  id,
   telegramId: 200,
   status: 'ACTIVE',
   expireAt: new Date(Date.now() + 86_400_000).toISOString(),
-  subscriptionUrl: `https://vpn/sub/${uuid}`,
+  subscriptionUrl: `https://vpn/sub/${id}`,
   description: null,
 });
 
@@ -70,9 +70,9 @@ function makeReferralRepo(findOneResult: Referral | null = null): Repository<Ref
   } as unknown as Repository<Referral>;
 }
 
-function makeRemnaClient(uuid = INVITED_UUID): RemnaClient {
+function makeRemnaClient(userId = INVITED_ID): RemnaClient {
   return {
-    getUserByUuid: vi.fn().mockResolvedValue(makeRemnaUser(uuid)),
+    getUserById: vi.fn().mockResolvedValue(makeRemnaUser(userId)),
     updateUser: vi.fn().mockResolvedValue({}),
   } as unknown as RemnaClient;
 }
@@ -193,7 +193,7 @@ describe('Security Audit', () => {
         makeAnalyticsClient(),
       );
 
-      const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
+      const result = await service.handleInviterRewardAfterPayment(INVITED_ID);
 
       // CORRECT: confirmed payment present → reward is granted to both sides
       expect(result.rewarded).toBe(true);
@@ -216,7 +216,7 @@ describe('Security Audit', () => {
         makeAnalyticsClient(),
       );
 
-      const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
+      const result = await service.handleInviterRewardAfterPayment(INVITED_ID);
 
       expect(result.rewarded).toBe(false);
       expect(result.reason).toBe('already_completed');
@@ -263,8 +263,8 @@ describe('Security Audit', () => {
       );
 
       const [r1, r2] = await Promise.all([
-        service.handleInviterRewardAfterPayment(INVITED_UUID),
-        service.handleInviterRewardAfterPayment(INVITED_UUID),
+        service.handleInviterRewardAfterPayment(INVITED_ID),
+        service.handleInviterRewardAfterPayment(INVITED_ID),
       ]);
 
       // CORRECT: exactly one of the two concurrent calls must succeed
@@ -301,8 +301,8 @@ describe('Security Audit', () => {
         makeAnalyticsClient(),
       );
 
-      const r1 = await service.handleInviterRewardAfterPayment(INVITED_UUID);
-      const r2 = await service.handleInviterRewardAfterPayment(INVITED_UUID); // replay
+      const r1 = await service.handleInviterRewardAfterPayment(INVITED_ID);
+      const r2 = await service.handleInviterRewardAfterPayment(INVITED_ID); // replay
 
       // First call succeeds, second is a no-op
       expect(r1.rewarded).toBe(true);
@@ -341,7 +341,7 @@ describe('Security Audit', () => {
       );
 
       // First call fails mid-flight — should throw
-      await expect(service.handleInviterRewardAfterPayment(INVITED_UUID)).rejects.toThrow();
+      await expect(service.handleInviterRewardAfterPayment(INVITED_ID)).rejects.toThrow();
 
       // After fix: the failed call released the inFlight lock, so referral is
       // still TRIAL.  Simulate the rolled-back state:
@@ -350,7 +350,7 @@ describe('Security Audit', () => {
       );
 
       // A legitimate retry by the payments service succeeds exactly once
-      const result2 = await service.handleInviterRewardAfterPayment(INVITED_UUID);
+      const result2 = await service.handleInviterRewardAfterPayment(INVITED_ID);
       expect(result2.rewarded).toBe(true);
 
       // CORRECT: the failed first attempt only reaches the invited user's update

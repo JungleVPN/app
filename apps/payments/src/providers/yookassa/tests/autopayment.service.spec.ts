@@ -23,7 +23,7 @@ const makePayload = (telegramId?: number | null, event = 'user.expires_in_24_hou
     scope: 'user',
     event,
     data: {
-      uuid: 'user-1',
+      id: 1000,
       username: 'test',
       status: 'ACTIVE',
       telegramId: telegramId === undefined ? null : telegramId,
@@ -123,14 +123,14 @@ describe('AutopaymentService', () => {
       await service.init(makePayload(42));
 
       expect(mockSmFindOneBy).toHaveBeenCalledWith({
-        userId: 'user-1',
+        userId: 1000,
         isActive: true,
       });
       expect(mockCreate).not.toHaveBeenCalled();
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.no_active_method'],
         expect.objectContaining({
-          userId: 'user-1',
+          userId: 1000,
           provider: 'yookassa',
           reason: 'no_active_method',
         }),
@@ -139,7 +139,7 @@ describe('AutopaymentService', () => {
 
     it('attempts autopayment when saved method exists', async () => {
       mockSmFindOneBy.mockResolvedValue({
-        userId: '42',
+        userId: 1001,
         paymentMethodId: 'pm_1',
         isActive: true,
       });
@@ -160,7 +160,7 @@ describe('AutopaymentService', () => {
   describe('retry logic', () => {
     beforeEach(() => {
       mockSmFindOneBy.mockResolvedValue({
-        userId: '42',
+        userId: 1001,
         paymentMethodId: 'pm_1',
         isActive: true,
       });
@@ -192,7 +192,7 @@ describe('AutopaymentService', () => {
       expect(mockEmit).toHaveBeenCalledTimes(1);
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.insufficient_funds'],
-        expect.objectContaining({ userId: 'user-1', reason: 'insufficient_funds' }),
+        expect.objectContaining({ userId: 1000, reason: 'insufficient_funds' }),
       );
     });
 
@@ -209,7 +209,7 @@ describe('AutopaymentService', () => {
       expect(mockEmit).toHaveBeenCalledTimes(1);
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.general_decline'],
-        expect.objectContaining({ userId: 'user-1', reason: 'general_decline' }),
+        expect.objectContaining({ userId: 1000, reason: 'general_decline' }),
       );
     });
 
@@ -226,7 +226,7 @@ describe('AutopaymentService', () => {
       expect(mockEmit).toHaveBeenCalledTimes(1);
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.autopayment_exhausted'],
-        expect.objectContaining({ userId: 'user-1', reason: 'payment_method_restricted' }),
+        expect.objectContaining({ userId: 1000, reason: 'payment_method_restricted' }),
       );
     });
 
@@ -238,7 +238,7 @@ describe('AutopaymentService', () => {
       expect(mockCreate).toHaveBeenCalledTimes(3);
       expect(mockEmit).toHaveBeenCalledWith(
         'payment.autopayment_exhausted',
-        expect.objectContaining({ userId: 'user-1', provider: 'yookassa' }),
+        expect.objectContaining({ userId: 1000, provider: 'yookassa' }),
       );
     });
 
@@ -268,7 +268,7 @@ describe('AutopaymentService', () => {
   describe('payment record persistence', () => {
     beforeEach(() => {
       mockSmFindOneBy.mockResolvedValue({
-        userId: '42',
+        userId: 1001,
         paymentMethodId: 'pm_1',
         isActive: true,
       });
@@ -291,7 +291,7 @@ describe('AutopaymentService', () => {
           id: 'pay_1',
           status: 'succeeded',
           amount: '200',
-          userId: 'user-1',
+          userId: 1000,
           selectedPeriod: 1,
           telegramId: 42,
           description: 'Test payment',
@@ -326,7 +326,7 @@ describe('AutopaymentService', () => {
       expect(mockEmit).toHaveBeenCalledWith(
         'payment.no_active_method',
         expect.objectContaining({
-          userId: 'user-1',
+          userId: 1000,
           provider: 'yookassa',
           reason: 'no_active_method',
         }),
@@ -346,23 +346,23 @@ describe('AutopaymentService', () => {
 
       await service.checkAndNotifyExpiry48h(payload48h);
 
-      expect(mockSmFindOneBy).toHaveBeenCalledWith({ userId: 'user-1', isActive: true });
+      expect(mockSmFindOneBy).toHaveBeenCalledWith({ userId: 1000, isActive: true });
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.expiry_reminder'],
-        expect.objectContaining({ userId: 'user-1', remnawavePayload: payload48h }),
+        expect.objectContaining({ userId: 1000, remnawavePayload: payload48h }),
       );
     });
 
     it('skips the expiry_reminder event when user has an active saved method', async () => {
       mockSmFindOneBy.mockResolvedValue({
-        userId: 'user-1',
+        userId: 1000,
         paymentMethodId: 'pm_1',
         isActive: true,
       });
 
       await service.checkAndNotifyExpiry48h(payload48h);
 
-      expect(mockSmFindOneBy).toHaveBeenCalledWith({ userId: 'user-1', isActive: true });
+      expect(mockSmFindOneBy).toHaveBeenCalledWith({ userId: 1000, isActive: true });
       expect(mockEmit).not.toHaveBeenCalled();
     });
   });
@@ -376,12 +376,12 @@ describe('AutopaymentService', () => {
     it('skips silently when the only active method belongs to another provider', async () => {
       mockSmFindOneBy
         .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce({ userId: 'user-1', provider: 'stripe', isActive: true });
+        .mockResolvedValueOnce({ userId: 1000, provider: 'stripe', isActive: true });
 
       await service.init(makePayload(42));
 
       expect(mockSmFindOneBy).toHaveBeenNthCalledWith(1, {
-        userId: 'user-1',
+        userId: 1000,
         provider: 'yookassa',
         isActive: true,
       });
@@ -432,7 +432,7 @@ describe('AutopaymentService', () => {
   describe('charging the saved method', () => {
     beforeEach(() => {
       mockSmFindOneBy.mockResolvedValue({
-        userId: 'user-1',
+        userId: 1000,
         paymentMethodId: 'pm_1',
         isActive: true,
       });
@@ -449,7 +449,7 @@ describe('AutopaymentService', () => {
       await service.init(makePayload(42));
 
       expect(mockYkFindOne).toHaveBeenCalledWith({
-        where: { userId: 'user-1' },
+        where: { userId: 1000 },
         order: { createdAt: 'DESC' },
       });
       expect(mockCreate).toHaveBeenCalledWith({
@@ -481,7 +481,7 @@ describe('AutopaymentService', () => {
       expect(mockCreate).not.toHaveBeenCalled();
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.autopayment_exhausted'],
-        expect.objectContaining({ userId: 'user-1', reason: 'autopayment_exhausted' }),
+        expect.objectContaining({ userId: 1000, reason: 'autopayment_exhausted' }),
       );
     });
 
@@ -496,7 +496,7 @@ describe('AutopaymentService', () => {
 
       expect(analyticsClient.track).toHaveBeenCalledWith({
         event: 'autopayment_failed',
-        userId: 'user-1',
+        userId: 1000,
         provider: 'yookassa',
         reason: 'insufficient_funds',
       });
@@ -558,7 +558,7 @@ describe('AutopaymentService', () => {
       const setTimeoutSpy = vi.spyOn(globalThis, 'setTimeout');
 
       mockSmFindOneBy.mockResolvedValue({
-        userId: 'user-1',
+        userId: 1000,
         paymentMethodId: 'pm_1',
         isActive: true,
       });
@@ -597,7 +597,7 @@ describe('AutopaymentService', () => {
       await service.checkAndNotifyExpiry48h(payload48h);
 
       expect(mockEmit).toHaveBeenCalledWith(WebhookEventEnum['payment.expiry_reminder'], {
-        userId: 'user-1',
+        userId: 1000,
         provider: 'yookassa',
         hoursRemaining: 48,
         remnawavePayload: payload48h,
@@ -609,7 +609,7 @@ describe('AutopaymentService', () => {
 
       expect(analyticsClient.track).toHaveBeenCalledWith({
         event: 'expiry_reminder_sent',
-        userId: 'user-1',
+        userId: 1000,
         hoursRemaining: 48,
       });
     });

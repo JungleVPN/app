@@ -4,7 +4,14 @@
  */
 
 export type UserDevice = 'ios' | 'android' | 'macOS' | 'windows';
-export type StartPayload = {
-  type: 'referral' | 'ad';
-  value: string | null;
-} | null;
+export type StartPayload =
+  | {
+      type: 'referral';
+      /** Remnawave numeric userId of the inviter; null when the code is invalid. */
+      value: number | null;
+    }
+  | {
+      type: 'ad';
+      value: string | null;
+    }
+  | null;

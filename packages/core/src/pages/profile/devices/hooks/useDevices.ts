@@ -20,11 +20,11 @@ export function useDevices() {
   const { isLoading: isDeleting, execute: deleteDevice } = useDeleteDevice(remnawaveApi);
 
   useEffect(() => {
-    if (!rmnUser?.uuid) return;
+    if (!rmnUser?.id) return;
     fetchDevices().then((result) => {
       setDevices(result?.devices ?? []);
     });
-  }, [rmnUser?.uuid, fetchDevices]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [rmnUser?.id, fetchDevices]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDeleteRequest = (hwid: string) => {
     setDeviceToDelete(hwid);

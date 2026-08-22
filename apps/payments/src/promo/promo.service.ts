@@ -49,8 +49,8 @@ export class PromoService {
    * never makes a returning user look new again. Extra-device purchases don't
    * count — a trial user can buy a device slot without ever paying for a plan.
    */
-  private async hasEverPaid(userId: string): Promise<boolean> {
-    const payments = await this.adminService.search(userId);
+  private async hasEverPaid(userId: number): Promise<boolean> {
+    const payments = await this.adminService.search(String(userId));
     return payments.some(
       (payment) =>
         payment.userId === userId && payment.purpose === 'subscription' && !!payment.paidAt,
@@ -141,7 +141,7 @@ export class PromoService {
   async applyToMonths(
     code: string | null | undefined,
     months: number,
-    redemption: { userId: string; provider: PaymentMethod; paymentId: string },
+    redemption: { userId: number; provider: PaymentMethod; paymentId: string },
   ): Promise<number> {
     if (!code) return months;
     const normalized = PromoService.normalize(code);

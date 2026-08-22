@@ -7,16 +7,14 @@ import {
   CreateUserRequestDto,
   CreateUserResponseDto,
   DeleteUserCommand,
-  DeleteUserResponseDto,
-  GetAllUsersCommand,
-  GetUserByEmailCommand,
-  GetUserByTelegramIdCommand,
-  GetUserByTelegramIdResponseDto,
-  GetUserByUuidCommand,
-  GetUserByUuidResponseDto,
+  GetUserByIdCommand,
+  GetUserByIdResponseDto,
   GetUserMetadataCommand,
   GetUserMetadataResponseDto,
+  GetUsersStreamCommand,
+  type GetUsersStreamQuery,
   RevokeUserSubscriptionCommand,
+  type StreamedUserDto,
   UpdateUserCommand,
   UpdateUserRequestDto,
   UpdateUserResponseDto,
@@ -50,42 +48,62 @@ export class UserService implements OnModuleInit {
     this.bot = new Bot(token);
   }
 
-  async getAllUsers(): Promise<UserDto[]> {
+  /**
+   * Pages through `/api/users/stream`, the cursor-paginated endpoint that replaced
+   * the removed list and by-{telegram-id,email,tag} lookups in panel v3.
+   *
+   * `stopAfterFirstPage` short-circuits identity lookups, which only ever need the
+   * first match and would otherwise walk the whole user base.
+   */
+  private async streamUsers(
+    filters: Omit<GetUsersStreamQuery, 'cursor' | 'size'> = {},
+    { stopAfterFirstPage = false }: { stopAfterFirstPage?: boolean } = {},
+  ): Promise<StreamedUserDto[]> {
     const size = 1000;
-    const allUsers: UserDto[] = [];
-    let start = 0;
+    const collected: StreamedUserDto[] = [];
+    let cursor: string | null = null;
 
     for (;;) {
-      const { total, users } = await this.panelClient.request<{
-        total: number;
-        users: UserDto[];
+      const query = new URLSearchParams({ size: String(size) });
+      for (const [key, value] of Object.entries(filters)) {
+        if (value !== undefined && value !== null) query.set(key, String(value));
+      }
+      if (cursor) query.set('cursor', cursor);
+
+      const page = await this.panelClient.request<{
+        users: StreamedUserDto[];
+        nextCursor: string | null;
+        hasMore: boolean;
       }>({
-        url: `${GetAllUsersCommand.url}?start=${start}&size=${size}`,
-        method: GetAllUsersCommand.endpointDetails.REQUEST_METHOD,
+        url: `${GetUsersStreamCommand.url}?${query.toString()}`,
+        method: GetUsersStreamCommand.endpointDetails.REQUEST_METHOD,
       });
 
-      if (users.length === 0) break;
+      collected.push(...page.users);
 
-      allUsers.push(...users);
-      if (allUsers.length >= total) break;
-      if (users.length < size) break;
-
-      start += size;
+      if (stopAfterFirstPage) break;
+      if (!page.hasMore || !page.nextCursor) break;
+      cursor = page.nextCursor;
     }
-    return allUsers;
+
+    return collected;
+  }
+
+  async getAllUsers(): Promise<UserDto[]> {
+    return this.streamUsers();
   }
 
   async getUserByTgId(
     telegramId: CreateUserRequestDto['telegramId'],
-  ): Promise<GetUserByTelegramIdResponseDto | null> {
+  ): Promise<StreamedUserDto[] | null> {
     if (!telegramId) return null;
     try {
-      const users = await this.panelClient.request<GetUserByTelegramIdResponseDto>({
-        method: GetUserByTelegramIdCommand.endpointDetails.REQUEST_METHOD,
-        url: GetUserByTelegramIdCommand.url(telegramId.toString()),
-      });
+      const users = await this.streamUsers(
+        { telegramId: Number(telegramId) },
+        { stopAfterFirstPage: true },
+      );
 
-      if (!users || users.length === 0) return null;
+      if (users.length === 0) return null;
       return users;
     } catch (e: any) {
       if (e.status === 404) return null;
@@ -99,7 +117,7 @@ export class UserService implements OnModuleInit {
 
   async createUser(
     payload: Pick<CreateUserRequestDto, 'telegramId' | 'email' | 'description'> & {
-      inviterId?: string;
+      inviterId?: number;
     },
   ): Promise<CreateUserResponseDto> {
     const trialDays = Number(this.configService.get('TRIAL_PERIOD_IN_DAYS', '3'));
@@ -129,12 +147,12 @@ export class UserService implements OnModuleInit {
     });
 
     if (inviterId) {
-      await this.notifyReferral(inviterId, user.uuid);
+      await this.notifyReferral(inviterId, user.id);
     }
 
     await this.analyticsClient.track({
       event: 'user_created',
-      userId: user.uuid,
+      userId: user.id,
       telegramId: Number(user.telegramId),
       email: user.email ?? null,
     });
@@ -146,7 +164,7 @@ export class UserService implements OnModuleInit {
    * Records the referral once the invited user's account actually exists.
    * Best-effort: a referrals-service outage must not fail account creation.
    */
-  private async notifyReferral(inviterId: string, invitedId: string): Promise<void> {
+  private async notifyReferral(inviterId: number, invitedId: number): Promise<void> {
     try {
       await axios.post(
         `${this.referralsBaseUrl}${apiRoutes.referrals.collection}`,
@@ -168,19 +186,20 @@ export class UserService implements OnModuleInit {
     });
   }
 
-  async deleteUser(uuid: string): Promise<DeleteUserResponseDto> {
-    return this.panelClient.request<DeleteUserResponseDto>({
-      url: DeleteUserCommand.url(uuid),
+  /** Panel v3 answers DELETE with 204 No Content — there is no body to return. */
+  async deleteUser(userId: number): Promise<void> {
+    await this.panelClient.request<void>({
+      url: DeleteUserCommand.url(String(userId)),
       method: DeleteUserCommand.endpointDetails.REQUEST_METHOD,
     });
   }
 
-  async getUserByUuid(uuid: string): Promise<GetUserByUuidResponseDto | null> {
-    if (!uuid) return null;
+  async getUserById(userId: number): Promise<GetUserByIdResponseDto | null> {
+    if (userId == null) return null;
     try {
-      return await this.panelClient.request<GetUserByUuidResponseDto>({
-        method: GetUserByUuidCommand.endpointDetails.REQUEST_METHOD,
-        url: GetUserByUuidCommand.url(uuid),
+      return await this.panelClient.request<GetUserByIdResponseDto>({
+        method: GetUserByIdCommand.endpointDetails.REQUEST_METHOD,
+        url: GetUserByIdCommand.url(String(userId)),
       });
     } catch (e: any) {
       if (e.status === 404) return null;
@@ -188,38 +207,38 @@ export class UserService implements OnModuleInit {
     }
   }
 
-  async getUserByEmail(email: string): Promise<GetUserByEmailCommand.Response['response'] | null> {
+  async getUserByEmail(email: string): Promise<StreamedUserDto[] | null> {
     if (!email) return null;
     try {
-      return await this.panelClient.request<GetUserByEmailCommand.Response['response']>({
-        method: GetUserByEmailCommand.endpointDetails.REQUEST_METHOD,
-        url: GetUserByEmailCommand.url(email),
-      });
+      const users = await this.streamUsers({ email }, { stopAfterFirstPage: true });
+
+      if (users.length === 0) return null;
+      return users;
     } catch (e: any) {
       if (e.status === 404) return null;
       throw e;
     }
   }
 
-  async addExtraDevice(uuid: string): Promise<UpdateUserResponseDto> {
-    const user = await this.getUserByUuid(uuid);
-    if (!user) throw new NotFoundException(`User ${uuid} not found`);
+  async addExtraDevice(userId: number): Promise<UpdateUserResponseDto> {
+    const user = await this.getUserById(userId);
+    if (!user) throw new NotFoundException(`User ${userId} not found`);
 
     const current = user.hwidDeviceLimit ?? Number(process.env.HWID_LIMIT) ?? 5;
-    await this.updateUser({ uuid, hwidDeviceLimit: current + 1 });
+    await this.updateUser({ id: userId, hwidDeviceLimit: current + 1 });
 
     return user;
   }
 
-  async updateExpiry(uuid: string, months: number): Promise<UpdateUserResponseDto> {
-    const user = await this.getUserByUuid(uuid);
-    if (!user) throw new NotFoundException(`User ${uuid} not found`);
+  async updateExpiry(userId: number, months: number): Promise<UpdateUserResponseDto> {
+    const user = await this.getUserById(userId);
+    if (!user) throw new NotFoundException(`User ${userId} not found`);
 
     const base =
       user.expireAt && new Date(user.expireAt) > new Date() ? new Date(user.expireAt) : new Date();
     const expireAt = addMonths(base, months);
 
-    await this.updateUser({ uuid, expireAt });
+    await this.updateUser({ id: userId, expireAt });
 
     return user;
   }
@@ -245,10 +264,10 @@ export class UserService implements OnModuleInit {
     }
   }
 
-  async getUserMetadata(uuid: string): Promise<GetUserMetadataResponseDto | null> {
+  async getUserMetadata(userId: number): Promise<GetUserMetadataResponseDto | null> {
     try {
       return await this.panelClient.request<GetUserMetadataResponseDto>({
-        url: GetUserMetadataCommand.url(uuid),
+        url: GetUserMetadataCommand.url(String(userId)),
         method: GetUserMetadataCommand.endpointDetails.REQUEST_METHOD,
       });
     } catch (e) {
@@ -257,17 +276,17 @@ export class UserService implements OnModuleInit {
     }
   }
 
-  async upsertUserMetadata(uuid: string, metadata: Record<string, unknown>): Promise<void> {
+  async upsertUserMetadata(userId: number, metadata: Record<string, unknown>): Promise<void> {
     await this.panelClient.request({
-      url: UpsertUserMetadataCommand.url(uuid),
+      url: UpsertUserMetadataCommand.url(String(userId)),
       method: UpsertUserMetadataCommand.endpointDetails.REQUEST_METHOD,
       body: { metadata },
     });
   }
 
-  async revokeSubscription(uuid: string): Promise<string> {
+  async revokeSubscription(userId: number): Promise<string> {
     const data = await this.panelClient.request<UserDto>({
-      url: RevokeUserSubscriptionCommand.url(uuid),
+      url: RevokeUserSubscriptionCommand.url(String(userId)),
       method: RevokeUserSubscriptionCommand.endpointDetails.REQUEST_METHOD,
     });
 

@@ -78,7 +78,7 @@ const makeProvider = (overrides: {
 const subscriptionDto = (
   overrides: Partial<CreateStripeSessionDto> = {},
 ): CreateStripeSessionDto => ({
-  userId: 'user-1',
+  userId: 1000,
   purchaseType: 'subscription',
   selectedPeriod: 1,
   metadata: { email: 'test@example.com' },

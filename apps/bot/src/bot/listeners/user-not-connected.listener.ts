@@ -32,7 +32,7 @@ export class UserNotConnectedListener {
     timestamp: string;
   }) {
     const locale =
-      (payload.data.uuid ? await this.remnaService.getUserLang(payload.data.uuid) : null) ||
+      (payload.data.id != null ? await this.remnaService.getUserLang(payload.data.id) : null) ||
       (process.env.DEFAULT_LOCALE as LocaleId);
     const createdAt = new Date(payload.data.createdAt);
     const timestamp = new Date(payload.timestamp);

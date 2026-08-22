@@ -28,9 +28,9 @@ export class InlineQueryListener {
         return;
       }
 
-      const link = this.referralService.getUserReferralLink(rmnUser.uuid);
+      const link = this.referralService.getUserReferralLink(rmnUser.id);
       const locale =
-        (await this.remnaService.getUserLang(rmnUser.uuid)) ||
+        (await this.remnaService.getUserLang(rmnUser.id)) ||
         (process.env.DEFAULT_LOCALE as LocaleId);
 
       const keyboard = new InlineKeyboard().url(

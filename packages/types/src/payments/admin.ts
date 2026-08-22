@@ -1,3 +1,4 @@
+import type { RemnaUserId } from '../remnawave';
 import { PaymentPurpose } from './common';
 
 /** Payment provider identifier */
@@ -8,7 +9,7 @@ export interface AdminPaymentDto {
   /** Internal payment record id */
   paymentId: string;
   provider: AdminPaymentProvider;
-  userId: string;
+  userId: RemnaUserId;
   telegramId?: number | null;
   status: string;
   purpose: PaymentPurpose;

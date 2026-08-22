@@ -7,7 +7,7 @@ import { AxiosInstance } from 'axios';
 
 export interface ReferralRecord {
   id: string;
-  inviterId: string;
+  inviterId: number;
   invitedId: string;
   status: 'TRIAL' | 'COMPLETED';
   createdAt: string;
@@ -74,7 +74,7 @@ export class ReferralService {
     }
   }
 
-  getUserReferralLink(userId: string): string {
+  getUserReferralLink(userId: number): string {
     const secret = process.env.REFERRAL_CODE_SECRET ?? '';
     const code = generateReferralCode(userId, secret);
     return `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=ref_${code}`;
