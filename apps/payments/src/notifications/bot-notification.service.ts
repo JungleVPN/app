@@ -99,6 +99,25 @@ export class BotNotificationService {
     await this.notify('payment.general_decline', event);
   }
 
+  @OnEvent(WebhookEventEnum['payment.expiry_reminder'])
+  async onExpiryReminder(event: Payments.PaymentExpiryReminderEventPayload): Promise<void> {
+    try {
+      await axios.post(
+        `${this.botBaseUrl}${apiRoutes.bot.notifyUserEvent}`,
+        event.remnawavePayload,
+        {
+          headers: { 'x-bot-secret': this.botNotifySecret },
+          timeout: 10_000,
+        },
+      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error(
+        `Failed to forward ${event.hoursRemaining}h expiry event to bot for user ${event.userId}: ${message}`,
+      );
+    }
+  }
+
   /**
    * Sends payment notification to the bot's /notify/payment endpoint.
    * Loads the user from remnawave and includes it in the body. Throws if the user does not exist.

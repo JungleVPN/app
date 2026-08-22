@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import * as process from 'node:process';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
-import type { EmailNotificationService } from '@payments/notifications/email-notification.service';
 import { AutopaymentService } from '@payments/providers/yookassa/autopayment/autopayment.service';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
@@ -15,11 +14,6 @@ vi.mock('@workspace/database', () => ({
   YookassaPayment: class {},
   Promo: class {},
   PromoRedemption: class {},
-}));
-
-const mockAxiosPost = vi.fn();
-vi.mock('axios', () => ({
-  default: { post: (...args: any[]) => mockAxiosPost(...args) },
 }));
 
 // ── Helpers ──────────────────────────────────────────────────────────
@@ -52,7 +46,6 @@ describe('AutopaymentService', () => {
   let mockYkSave: ReturnType<typeof vi.fn>;
   let mockCreate: ReturnType<typeof vi.fn>;
   let mockEmit: ReturnType<typeof vi.fn>;
-  let emailNotificationService: EmailNotificationService;
   let analyticsClient: AnalyticsClientService;
 
   beforeEach(() => {
@@ -90,10 +83,6 @@ describe('AutopaymentService', () => {
     mockEmit = vi.fn();
     eventEmitter = { emit: mockEmit } as unknown as EventEmitter2;
 
-    emailNotificationService = {
-      notifyExpiry: vi.fn().mockResolvedValue(undefined),
-    } as unknown as EmailNotificationService;
-
     analyticsClient = {
       track: vi.fn().mockResolvedValue(undefined),
     } as unknown as AnalyticsClientService;
@@ -103,7 +92,6 @@ describe('AutopaymentService', () => {
       yookassaPaymentRepo,
       yookassaProvider,
       eventEmitter,
-      emailNotificationService,
       analyticsClient,
     );
 
@@ -351,23 +339,21 @@ describe('AutopaymentService', () => {
   describe('checkAndNotifyExpiry48h', () => {
     const payload48h = makePayload(42, 'user.expires_in_48_hours');
 
-    it('forwards event to bot when user has no saved method', async () => {
+    // The bot forward itself now lives in BotNotificationService's
+    // payment.expiry_reminder listener — this service only has to emit.
+    it('emits the expiry_reminder event when user has no saved method', async () => {
       mockSmFindOneBy.mockResolvedValue(null);
-      mockAxiosPost.mockResolvedValue({ status: 200 });
 
       await service.checkAndNotifyExpiry48h(payload48h);
 
       expect(mockSmFindOneBy).toHaveBeenCalledWith({ userId: 'user-1', isActive: true });
-      expect(mockAxiosPost).toHaveBeenCalledWith(
-        expect.stringContaining('/notify/user-event'),
-        payload48h,
-        expect.objectContaining({
-          headers: expect.objectContaining({ 'x-bot-secret': expect.any(String) }),
-        }),
+      expect(mockEmit).toHaveBeenCalledWith(
+        WebhookEventEnum['payment.expiry_reminder'],
+        expect.objectContaining({ userId: 'user-1', remnawavePayload: payload48h }),
       );
     });
 
-    it('skips bot notification when user has an active saved method', async () => {
+    it('skips the expiry_reminder event when user has an active saved method', async () => {
       mockSmFindOneBy.mockResolvedValue({
         userId: 'user-1',
         paymentMethodId: 'pm_1',
@@ -377,14 +363,7 @@ describe('AutopaymentService', () => {
       await service.checkAndNotifyExpiry48h(payload48h);
 
       expect(mockSmFindOneBy).toHaveBeenCalledWith({ userId: 'user-1', isActive: true });
-      expect(mockAxiosPost).not.toHaveBeenCalled();
-    });
-
-    it('logs error and does not throw when bot call fails', async () => {
-      mockSmFindOneBy.mockResolvedValue(null);
-      mockAxiosPost.mockRejectedValue(new Error('network error'));
-
-      await expect(service.checkAndNotifyExpiry48h(payload48h)).resolves.not.toThrow();
+      expect(mockEmit).not.toHaveBeenCalled();
     });
   });
 
@@ -407,49 +386,44 @@ describe('AutopaymentService', () => {
         isActive: true,
       });
       expect(mockEmit).not.toHaveBeenCalled();
-      expect(emailNotificationService.notifyExpiry).not.toHaveBeenCalled();
       expect(mockCreate).not.toHaveBeenCalled();
     });
   });
 
-  // ── 24h expiry email ───────────────────────────────────────────────
+  // ── no active payment method ────────────────────────────────────────
 
-  describe('24h expiry email', () => {
+  describe('no active payment method', () => {
     beforeEach(() => {
       mockSmFindOneBy.mockResolvedValue(null);
     });
 
-    it('emails the user 24 hours before expiry when nothing can be charged', async () => {
+    // The email's payment.no_active_method listener already handles this via
+    // the emitted event — emitting a separate expiry_reminder event here as
+    // well would double-email the user.
+    it('does not emit a 24h expiry_reminder event — the no_active_method event already covers it', async () => {
       await service.init(makePayload(42));
 
-      expect(emailNotificationService.notifyExpiry).toHaveBeenCalledWith(
-        expect.objectContaining({ uuid: 'user-1' }),
-        24,
+      expect(mockEmit).not.toHaveBeenCalledWith(
+        WebhookEventEnum['payment.expiry_reminder'],
+        expect.anything(),
       );
     });
 
-    it('records the reminder for analytics', async () => {
+    it('does not record an expiry_reminder_sent analytics event', async () => {
       await service.init(makePayload(42));
 
-      expect(analyticsClient.track).toHaveBeenCalledWith({
-        event: 'expiry_reminder_sent',
-        userId: 'user-1',
-        hoursRemaining: 24,
-      });
+      expect(analyticsClient.track).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event: 'expiry_reminder_sent' }),
+      );
     });
 
-    // The email is fired without awaiting so a slow mail provider cannot delay
-    // the bot notification; its rejection must still be swallowed.
-    it('does not fail the flow when the email cannot be sent', async () => {
-      (emailNotificationService.notifyExpiry as any).mockRejectedValue(new Error('smtp down'));
-
+    it('emits the no_active_method event without throwing', async () => {
       await expect(service.init(makePayload(42))).resolves.toBeUndefined();
 
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.no_active_method'],
         expect.anything(),
       );
-      await Promise.resolve();
     });
   });
 
@@ -613,13 +587,21 @@ describe('AutopaymentService', () => {
 
     beforeEach(() => {
       mockSmFindOneBy.mockResolvedValue(null);
-      mockAxiosPost.mockResolvedValue({ status: 200 });
     });
 
-    it('emails the user alongside the bot notification', async () => {
+    // Both the bot forward and the email are handled by their own
+    // payment.expiry_reminder listeners — this service only has to emit the
+    // event, and hands the raw payload along so the bot listener can forward
+    // it unchanged.
+    it('emits a 48h expiry_reminder event carrying the raw remnawave payload', async () => {
       await service.checkAndNotifyExpiry48h(payload48h);
 
-      expect(emailNotificationService.notifyExpiry).toHaveBeenCalledWith(payload48h.data, 48);
+      expect(mockEmit).toHaveBeenCalledWith(WebhookEventEnum['payment.expiry_reminder'], {
+        userId: 'user-1',
+        provider: 'yookassa',
+        hoursRemaining: 48,
+        remnawavePayload: payload48h,
+      });
     });
 
     it('records the 48h reminder for analytics', async () => {
@@ -630,53 +612,6 @@ describe('AutopaymentService', () => {
         userId: 'user-1',
         hoursRemaining: 48,
       });
-    });
-
-    it('gives the bot a 10 second timeout', async () => {
-      await service.checkAndNotifyExpiry48h(payload48h);
-
-      expect(mockAxiosPost).toHaveBeenCalledWith(
-        expect.any(String),
-        payload48h,
-        expect.objectContaining({ timeout: 10_000 }),
-      );
-    });
-
-    // The two notifications are independent: an email outage must not cost the
-    // user their Telegram reminder, and the analytics event still fires.
-    it('still notifies the bot and tracks when the email fails', async () => {
-      (emailNotificationService.notifyExpiry as any).mockRejectedValue(new Error('smtp down'));
-
-      await expect(service.checkAndNotifyExpiry48h(payload48h)).resolves.toBeUndefined();
-
-      expect(mockAxiosPost).toHaveBeenCalled();
-      expect(analyticsClient.track).toHaveBeenCalledWith(
-        expect.objectContaining({ event: 'expiry_reminder_sent', hoursRemaining: 48 }),
-      );
-    });
-
-    it('still emails and tracks when the bot call fails', async () => {
-      mockAxiosPost.mockRejectedValue(new Error('bot down'));
-
-      await expect(service.checkAndNotifyExpiry48h(payload48h)).resolves.toBeUndefined();
-
-      expect(emailNotificationService.notifyExpiry).toHaveBeenCalled();
-      expect(analyticsClient.track).toHaveBeenCalled();
-    });
-
-    // Local defaults keep the service bootable in a bare environment rather
-    // than posting to `undefined`.
-    it('falls back to local bot defaults when neither variable is configured', async () => {
-      delete process.env.BOT_URL;
-      delete process.env.BOT_NOTIFY_SECRET;
-
-      await service.checkAndNotifyExpiry48h(payload48h);
-
-      expect(mockAxiosPost).toHaveBeenCalledWith(
-        expect.stringContaining('http://localhost:7080/bot'),
-        payload48h,
-        expect.objectContaining({ headers: { 'x-bot-secret': '' } }),
-      );
     });
   });
 });

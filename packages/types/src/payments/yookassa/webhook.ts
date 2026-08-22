@@ -15,6 +15,7 @@ export enum WebhookEventEnum {
   'payment.insufficient_funds' = 'payment.insufficient_funds',
   'payment.general_decline' = 'payment.general_decline',
   'payment.no_active_method' = 'payment.no_active_method',
+  'payment.expiry_reminder' = 'payment.expiry_reminder',
   /** Возврат успешно завершён */
   'refund.succeeded' = 'refund.succeeded',
   /** Выплата успешно завершена */

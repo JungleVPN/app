@@ -244,7 +244,6 @@ describe('YooKassa payment notifications', () => {
       yookassaPaymentRepo,
       provider,
       emitter,
-      new EmailNotificationService(),
       analyticsClient,
     );
     // Keep the retry backoff out of the test's wall clock.
@@ -491,16 +490,14 @@ describe('YooKassa payment notifications', () => {
       ]);
     });
 
-    // Two separate emails, from two separate paths: the mailer's own
-    // `payment.no_active_method` listener explains why nothing was charged,
-    // while the service also sends the 24h expiry countdown directly.
-    it('sends both the no-method notice and the 24 hour expiry countdown', async () => {
+    // Only the mailer's `payment.no_active_method` listener should fire —
+    // sending the 24h expiry countdown on top would double-email the user.
+    it('sends only the no-method notice, not the 24 hour expiry countdown', async () => {
       await autopaymentService.init(remnaPayload());
       await settle();
 
       const subjects = sentEmails().map((email) => email.subject);
-      expect(subjects).toHaveLength(2);
-      expect(new Set(subjects).size).toBe(2);
+      expect(subjects).toHaveLength(1);
       expect(sentEmails().every((email) => email.toAddress === 'user@example.test')).toBe(true);
     });
 
@@ -522,8 +519,8 @@ describe('YooKassa payment notifications', () => {
       const english = await subjectsFor('en');
       const russian = await subjectsFor('ru');
 
-      expect(english).toHaveLength(2);
-      expect(russian).toHaveLength(2);
+      expect(english).toHaveLength(1);
+      expect(russian).toHaveLength(1);
       expect(russian).not.toEqual(english);
       expect(english.join(' ')).toMatch(/[a-z]/i);
       expect(russian.join(' ')).toMatch(/[а-яё]/i);

@@ -5,7 +5,6 @@ import {
   apiRoutes,
   GetUserByUuidResponseDto,
   Payments,
-  RemnawebhookPayload,
   WebhookEventEnum,
 } from '@workspace/types';
 import axios, { isAxiosError } from 'axios';
@@ -18,7 +17,6 @@ import {
   PaymentIssueReason,
 } from './email-templates';
 
-type UserData = RemnawebhookPayload['data'];
 type SupportedLocale = ExpiryEmailLocale;
 type ExpiryHours = 24 | 48;
 
@@ -92,20 +90,22 @@ export class EmailNotificationService {
     return Boolean(this.clientId && this.clientSecret && this.refreshToken && this.accountId);
   }
 
-  async notifyExpiry(user: UserData, hoursRemaining: ExpiryHours): Promise<void> {
+  @OnEvent(WebhookEventEnum['payment.expiry_reminder'])
+  async onExpiryReminder(event: Payments.PaymentExpiryReminderEventPayload): Promise<void> {
+    const { userId, hoursRemaining } = event;
+
     if (!this.hasZohoCredentials) {
       this.logger.warn('Zoho credentials not configured, skipping email notification');
       return;
     }
 
-    if (!user.email) {
-      this.logger.log(
-        `Skipping expiry email: no email address for userId=${user.uuid} (${hoursRemaining}h)`,
-      );
+    const user = await this.getUserByUuid(userId);
+    if (!user?.email) {
+      this.logger.log(`Skipping expiry email: no email address for userId=${userId} (${hoursRemaining}h)`);
       return;
     }
 
-    const locale = await this.resolveLocale(user.uuid);
+    const locale = await this.resolveLocale(userId);
     const expireDate = toDateString(user.expireAt);
     const days = EXPIRY_DAYS[hoursRemaining];
     const subject = buildExpirySubject(locale, days);
@@ -117,21 +117,15 @@ export class EmailNotificationService {
       supportUrl: this.supportUrl,
     });
 
-    this.logger.log(
-      `Sending ${hoursRemaining}h expiry email (locale=${locale}) to userId=${user.uuid}`,
-    );
-
     try {
       await this.sendViaZoho(user.email, subject, html);
 
-      this.logger.log(
-        `Expiry email (${hoursRemaining}h) sent to userId=${user.uuid} email=${user.email}`,
-      );
+      this.logger.log(`Expiry email (${hoursRemaining}h) sent to userId=${userId} email=${user.email}`);
     } catch (err: unknown) {
       const detail = this.describeError(err);
 
       this.logger.error(
-        `Failed to send expiry email (${hoursRemaining}h) to userId=${user.uuid} email=${user.email}: ${detail}`,
+        `Failed to send expiry email (${hoursRemaining}h) to userId=${userId} email=${user.email}: ${detail}`,
       );
     }
   }
@@ -169,12 +163,10 @@ export class EmailNotificationService {
       supportUrl: this.supportUrl,
     });
 
-    this.logger.log(`Sending ${reason} email (locale=${locale}) to userId=${userId}`);
-
     try {
       await this.sendViaZoho(user.email, subject, html);
 
-      this.logger.log(`${reason} email sent to userId=${userId} email=${user.email}`);
+      this.logger.log(`Email sent to email=${user.email}, reason=${reason ?? 'unknown'}`);
     } catch (err: unknown) {
       const detail = this.describeError(err);
 

@@ -3,17 +3,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
-import { EmailNotificationService } from '@payments/notifications/email-notification.service';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
-import {
-  apiRoutes,
-  Payments,
-  RemnawebhookPayload,
-  UserDto,
-  WebhookEventEnum,
-} from '@workspace/types';
-import axios from 'axios';
+import { Payments, RemnawebhookPayload, UserDto, WebhookEventEnum } from '@workspace/types';
 import { Repository } from 'typeorm';
 
 const MAX_RETRIES = 3;
@@ -30,17 +22,8 @@ export class AutopaymentService {
     private readonly yookassaPaymentRepo: Repository<YookassaPayment>,
     private readonly yookassaProvider: YooKassaProvider,
     private readonly eventEmitter: EventEmitter2,
-    private readonly emailNotificationService: EmailNotificationService,
     private readonly analyticsClient: AnalyticsClientService,
   ) {}
-
-  private get botBaseUrl(): string {
-    return process.env.BOT_URL ?? 'http://localhost:7080/bot';
-  }
-
-  private get botNotifySecret(): string {
-    return process.env.BOT_NOTIFY_SECRET ?? '';
-  }
 
   async init(payload: RemnawebhookPayload): Promise<void> {
     const userId = payload.data.uuid;
@@ -122,16 +105,6 @@ export class AutopaymentService {
       provider: 'yookassa',
       reason: 'no_active_method',
     } satisfies Payments.PaymentFailedEventPayload);
-
-    this.emailNotificationService.notifyExpiry(data, 24).catch((err: unknown) => {
-      this.logger.error(`Unhandled error in 24h expiry email: ${err}`);
-    });
-
-    await this.analyticsClient.track({
-      event: 'expiry_reminder_sent',
-      userId: data.uuid,
-      hoursRemaining: 24,
-    });
   }
 
   private async attemptAutopaymentWithRetries(
@@ -226,21 +199,12 @@ export class AutopaymentService {
       return;
     }
 
-    await Promise.allSettled([
-      axios
-        .post(`${this.botBaseUrl}${apiRoutes.bot.notifyUserEvent}`, payload, {
-          headers: { 'x-bot-secret': this.botNotifySecret },
-          timeout: 10_000,
-        })
-        .catch((err: any) => {
-          this.logger.error(
-            `Failed to forward 48h expiry event to bot for user ${userId}: ${err.message}`,
-          );
-        }),
-      this.emailNotificationService.notifyExpiry(payload.data, 48).catch((err: unknown) => {
-        this.logger.error(`Unhandled error in 48h expiry email for user ${userId}: ${err}`);
-      }),
-    ]);
+    this.eventEmitter.emit(WebhookEventEnum['payment.expiry_reminder'], {
+      userId,
+      provider: 'yookassa',
+      hoursRemaining: 48,
+      remnawavePayload: payload,
+    } satisfies Payments.PaymentExpiryReminderEventPayload);
 
     await this.analyticsClient.track({ event: 'expiry_reminder_sent', userId, hoursRemaining: 48 });
   }

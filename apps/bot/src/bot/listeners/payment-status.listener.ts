@@ -148,10 +148,6 @@ export class PaymentStatusListener {
 
     const i18nKey = this.resolveFailureI18nKey(payload.reason);
 
-    this.logger.log(
-      `Notifying telegramId=${user.telegramId}, reason=${payload.reason ?? 'unknown'}`,
-    );
-
     const text = i18n.t(locale, i18nKey);
     const menu = new InlineKeyboard().webApp(
       i18n.t(locale, 'pay-button-label'),
