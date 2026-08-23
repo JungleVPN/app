@@ -5,6 +5,13 @@ import type { ToltService } from './tolt.service';
 
 const USER = 4821;
 
+/**
+ * A different id, planted in the request body. It must never reach the service:
+ * the controller takes the user from the validated credential, and trusting the
+ * body would let anyone attribute someone else's payments to their partner code.
+ */
+const ATTACKER_SUPPLIED_ID = 9999;
+
 function setup() {
   const service = {
     captureReferral: vi.fn().mockResolvedValue(undefined),
@@ -20,9 +27,16 @@ describe('ToltController.captureReferral', () => {
   it('attributes the referral to the authenticated user, never a body-supplied id', async () => {
     const { controller, service } = setup();
 
-    await controller.captureReferral({ ...body, userId: USER } as never, USER, 'jim@example.com');
+    await controller.captureReferral(
+      { ...body, userId: ATTACKER_SUPPLIED_ID } as never,
+      USER,
+      'jim@example.com',
+    );
 
     expect(service.captureReferral).toHaveBeenCalledWith(expect.objectContaining({ userId: USER }));
+    expect(service.captureReferral).not.toHaveBeenCalledWith(
+      expect.objectContaining({ userId: ATTACKER_SUPPLIED_ID }),
+    );
   });
 
   it('passes the referral through to the service', async () => {

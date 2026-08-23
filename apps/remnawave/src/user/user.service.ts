@@ -269,6 +269,7 @@ export class UserService implements OnModuleInit {
     await this.panelClient.request<void>({
       url: DeleteUserCommand.url(String(userId)),
       method: DeleteUserCommand.endpointDetails.REQUEST_METHOD,
+      allowEmptyResponse: true,
     });
   }
 
