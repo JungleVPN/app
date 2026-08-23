@@ -18,14 +18,21 @@
  * Usage:
  *   REMNAWAVE_PANEL_URL=https://panel.example.com \
  *   REMNAWAVE_API_TOKEN=... \
- *   DATABASE_URL=postgres://... \
  *   pnpm --filter @workspace/database snapshot:remna-ids
+ *
+ * The database comes from the same POSTGRES_* variables (and the same .env
+ * files) the migrations use, so the snapshot cannot land in a different
+ * database from the one `migration:run` will read it back out of. A single
+ * DATABASE_URL still overrides them if you prefer one.
  *
  * The script is idempotent: re-running it refreshes the same rows.
  */
 
 import process from 'node:process';
 import { Client } from 'pg';
+import { describeDbConfig, loadEnvFiles, resolveDbConfig } from './db-config';
+
+loadEnvFiles();
 
 const PAGE_SIZE = 500;
 
@@ -72,9 +79,12 @@ async function fetchPage(
 async function main(): Promise<void> {
   const baseUrl = requireEnv('REMNAWAVE_PANEL_URL');
   const token = requireEnv('REMNAWAVE_API_TOKEN');
-  const databaseUrl = requireEnv('DATABASE_URL');
+  const dbConfig = resolveDbConfig();
 
-  const db = new Client({ connectionString: databaseUrl });
+  console.log(`Panel:    ${baseUrl.replace(/\/$/, '')}`);
+  console.log(`Database: ${describeDbConfig(dbConfig)}\n`);
+
+  const db = new Client(dbConfig);
   await db.connect();
 
   await db.query(`
