@@ -33,6 +33,72 @@ const USER_ID_COLUMNS: Array<[table: string, column: string, nullable: boolean]>
 /** Distinct tables, in the order their orphan rows should be quarantined. */
 const TABLES = [...new Set(USER_ID_COLUMNS.map(([table]) => table))];
 
+/**
+ * Indexes and constraints that ride on the columns being converted.
+ *
+ * DROP COLUMN silently takes them with it, so up() and down() both have to put
+ * them back. They live in one list because keeping two hand-written copies in
+ * step is precisely what fails: an earlier revision of this migration dropped
+ * three indexes in down() and recreated none of them, leaving every rolled-back
+ * database with no index on userId.
+ *
+ * The names are the ones the live schema carries. Several started life under
+ * friendlier names and were replaced by TypeORM's generated hashes when a later
+ * `migration:generate` ran (analytics_events in Migration1786035082291,
+ * promo_redemptions in Migration1783522434889, tolt_transaction in
+ * Migration1787402175473). Those migrations still DROP the hashes without
+ * IF EXISTS, so recreating these under any other name would abort a rollback
+ * that reaches them. The hashes derive from table and column names — unchanged
+ * by a varchar→int conversion — so they are also what `migration:generate`
+ * expects to find, and using them keeps it from churning.
+ */
+const DEPENDENT_OBJECTS: ReadonlyArray<{ name: string; create: string; drop: string }> = [
+  {
+    name: 'UQ_6de61a8c3f58b6f3597775b992f',
+    create: `ALTER TABLE "referrals" ADD CONSTRAINT "UQ_6de61a8c3f58b6f3597775b992f" UNIQUE ("invitedId")`,
+    drop: `ALTER TABLE "referrals" DROP CONSTRAINT IF EXISTS "UQ_6de61a8c3f58b6f3597775b992f"`,
+  },
+  {
+    name: 'PK_user_attribution',
+    create: `ALTER TABLE "user_attribution" ADD CONSTRAINT "PK_user_attribution" PRIMARY KEY ("userId")`,
+    drop: `ALTER TABLE "user_attribution" DROP CONSTRAINT IF EXISTS "PK_user_attribution"`,
+  },
+  {
+    name: 'PK_tolt_referral',
+    create: `ALTER TABLE "tolt_referral" ADD CONSTRAINT "PK_tolt_referral" PRIMARY KEY ("userId")`,
+    drop: `ALTER TABLE "tolt_referral" DROP CONSTRAINT IF EXISTS "PK_tolt_referral"`,
+  },
+  {
+    name: 'IDX_384834c1689d1015fdf634da28',
+    create: `CREATE INDEX "IDX_384834c1689d1015fdf634da28" ON "analytics_events" ("userId", "occurredAt")`,
+    drop: `DROP INDEX IF EXISTS "IDX_384834c1689d1015fdf634da28"`,
+  },
+  {
+    name: 'IDX_1f323da96215b4e73d112da7fd',
+    create: `CREATE INDEX "IDX_1f323da96215b4e73d112da7fd" ON "promo_redemptions" ("promoCode", "userId")`,
+    drop: `DROP INDEX IF EXISTS "IDX_1f323da96215b4e73d112da7fd"`,
+  },
+  {
+    name: 'IDX_3a6842e9e8827e486779c85ce7',
+    create: `CREATE INDEX "IDX_3a6842e9e8827e486779c85ce7" ON "tolt_transaction" ("userId")`,
+    drop: `DROP INDEX IF EXISTS "IDX_3a6842e9e8827e486779c85ce7"`,
+  },
+];
+
+/** Drops every dependent object, innermost last, before the columns move. */
+async function dropDependentObjects(queryRunner: QueryRunner): Promise<void> {
+  for (const object of [...DEPENDENT_OBJECTS].reverse()) {
+    await queryRunner.query(object.drop);
+  }
+}
+
+/** Restores every dependent object once the columns are in their new type. */
+async function createDependentObjects(queryRunner: QueryRunner): Promise<void> {
+  for (const object of DEPENDENT_OBJECTS) {
+    await queryRunner.query(object.create);
+  }
+}
+
 export class RemnawaveV3NumericUserId1791000000000 implements MigrationInterface {
   name = 'RemnawaveV3NumericUserId1791000000000';
 
@@ -92,6 +158,9 @@ export class RemnawaveV3NumericUserId1791000000000 implements MigrationInterface
     }
 
     // 2. Convert each column in place, resolving the uuid through the map.
+    //    DROP COLUMN would cascade to these anyway; dropping them by name first
+    //    keeps up() and down() doing the same thing in the same order.
+    await dropDependentObjects(queryRunner);
     for (const [table, column, nullable] of USER_ID_COLUMNS) {
       await queryRunner.query(`ALTER TABLE "${table}" ADD COLUMN "${column}_int" integer`);
       await queryRunner.query(
@@ -110,44 +179,14 @@ export class RemnawaveV3NumericUserId1791000000000 implements MigrationInterface
     }
 
     // 3. Restore the constraints and indexes that rode on the dropped columns.
-    await queryRunner.query(
-      `ALTER TABLE "referrals" ADD CONSTRAINT "UQ_referrals_invitedId" UNIQUE ("invitedId")`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "user_attribution" ADD CONSTRAINT "PK_user_attribution" PRIMARY KEY ("userId")`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "tolt_referral" ADD CONSTRAINT "PK_tolt_referral" PRIMARY KEY ("userId")`,
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_analytics_events_userId_occurredAt"
-         ON "analytics_events" ("userId", "occurredAt")`,
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_promo_redemptions_promoCode_userId"
-         ON "promo_redemptions" ("promoCode", "userId")`,
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_tolt_transaction_userId" ON "tolt_transaction" ("userId")`,
-    );
+    await createDependentObjects(queryRunner);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Reverses the column types using the same map. Rows quarantined in `up`
     // are NOT restored — re-insert them from the *_orphaned_v2 tables by hand
     // if you need them back.
-    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_tolt_transaction_userId"`);
-    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_promo_redemptions_promoCode_userId"`);
-    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_analytics_events_userId_occurredAt"`);
-    await queryRunner.query(
-      `ALTER TABLE "tolt_referral" DROP CONSTRAINT IF EXISTS "PK_tolt_referral"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "user_attribution" DROP CONSTRAINT IF EXISTS "PK_user_attribution"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "referrals" DROP CONSTRAINT IF EXISTS "UQ_referrals_invitedId"`,
-    );
+    await dropDependentObjects(queryRunner);
 
     for (const [table, column, nullable] of USER_ID_COLUMNS) {
       await queryRunner.query(
@@ -168,14 +207,6 @@ export class RemnawaveV3NumericUserId1791000000000 implements MigrationInterface
       }
     }
 
-    await queryRunner.query(
-      `ALTER TABLE "referrals" ADD CONSTRAINT "UQ_referrals_invitedId" UNIQUE ("invitedId")`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "user_attribution" ADD CONSTRAINT "PK_user_attribution" PRIMARY KEY ("userId")`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "tolt_referral" ADD CONSTRAINT "PK_tolt_referral" PRIMARY KEY ("userId")`,
-    );
+    await createDependentObjects(queryRunner);
   }
 }
