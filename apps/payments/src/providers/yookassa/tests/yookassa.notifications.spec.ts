@@ -76,7 +76,7 @@ const wireListeners = (emitter: EventEmitter2, service: object, inflight: Promis
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
 const remnawaveUser = {
-  uuid: 'user-1',
+  id: 1000,
   username: 'jungle-user',
   telegramId: 42,
   email: 'user@example.test',
@@ -181,7 +181,7 @@ describe('YooKassa payment notifications', () => {
 
     mockYkFindOneBy = vi.fn().mockResolvedValue({
       id: 'pay_1',
-      userId: 'user-1',
+      userId: 1000,
       selectedPeriod: 1,
       amount: '599.00',
       purpose: 'subscription',
@@ -278,7 +278,7 @@ describe('YooKassa payment notifications', () => {
         {
           eventType: 'payment.succeeded',
           payload: {
-            userId: 'user-1',
+            userId: 1000,
             provider: 'yookassa',
             selectedPeriod: 1,
             purpose: 'subscription',
@@ -366,7 +366,7 @@ describe('YooKassa payment notifications', () => {
         {
           eventType: 'payment.canceled',
           payload: {
-            userId: 'user-1',
+            userId: 1000,
             provider: 'yookassa',
             selectedPeriod: 1,
             reason: 'insufficient_funds',
@@ -393,7 +393,7 @@ describe('YooKassa payment notifications', () => {
   describe('when an autopayment cannot be charged', () => {
     beforeEach(() => {
       mockSmFindOneBy.mockResolvedValue({
-        userId: 'user-1',
+        userId: 1000,
         provider: 'yookassa',
         paymentMethodId: 'pm_1',
         isActive: true,
@@ -413,7 +413,7 @@ describe('YooKassa payment notifications', () => {
       expect(botNotifications()).toEqual([
         {
           eventType: 'payment.insufficient_funds',
-          payload: { userId: 'user-1', provider: 'yookassa', reason: 'insufficient_funds' },
+          payload: { userId: 1000, provider: 'yookassa', reason: 'insufficient_funds' },
           user: remnawaveUser,
         },
       ]);
@@ -483,7 +483,7 @@ describe('YooKassa payment notifications', () => {
       expect(botNotifications()).toEqual([
         {
           eventType: 'payment.no_active_method',
-          payload: { userId: 'user-1', provider: 'yookassa', reason: 'no_active_method' },
+          payload: { userId: 1000, provider: 'yookassa', reason: 'no_active_method' },
           user: remnawaveUser,
         },
       ]);

@@ -48,7 +48,7 @@ export class StripeController {
   @Get('subscription')
   @UseGuards(ClientUserGuard)
   async getSubscriptionStatus(
-    @AuthenticatedUserId() userId: string,
+    @AuthenticatedUserId() userId: number,
     @Headers('origin') origin?: string,
   ) {
     return this.stripeProvider.getSubscriptionStatus(userId, origin);

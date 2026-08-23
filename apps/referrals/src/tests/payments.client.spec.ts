@@ -7,7 +7,7 @@ vi.mock('axios', () => ({
   default: { get: (...args: unknown[]) => mockAxiosGet(...args) },
 }));
 
-const USER_ID = 'uuid-inviter-1';
+const USER_ID = 2000;
 
 describe('PaymentsClient.hasEverPaid', () => {
   beforeEach(() => {

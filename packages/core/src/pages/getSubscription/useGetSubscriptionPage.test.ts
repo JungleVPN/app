@@ -19,7 +19,7 @@ const {
   mockClearReferral,
   mockClearAttribution,
   mockGetAttribution,
-  mockGetReferral,
+  mockGetReferralUserId,
 } = vi.hoisted(() => ({
   mockBackButtonHide: vi.fn(),
   mockConnectEmail: vi.fn(),
@@ -36,7 +36,7 @@ const {
   mockClearReferral: vi.fn(),
   mockClearAttribution: vi.fn(),
   mockGetAttribution: vi.fn(),
-  mockGetReferral: vi.fn(),
+  mockGetReferralUserId: vi.fn(),
 }));
 
 vi.mock('@tma.js/sdk-react', () => ({
@@ -83,13 +83,12 @@ vi.mock('../../utils', async (importOriginal) => {
     clearReferral: mockClearReferral,
     clearAttribution: mockClearAttribution,
     getAttribution: mockGetAttribution,
-    getReferral: mockGetReferral,
+    getReferralUserId: mockGetReferralUserId,
   };
 });
 
 function createRemnaUser(overrides: Partial<CreateUserResponseDto> = {}): CreateUserResponseDto {
   return {
-    uuid: 'user-uuid-1',
     id: 1,
     shortUuid: 'short-uuid-1',
     username: 'user-1',
@@ -310,7 +309,7 @@ describe('useGetSubscriptionPage', () => {
       setPlatform('web');
       mockConnectEmail.mockResolvedValue(createRemnaUser({ shortUuid: 'new-short' }));
       mockGetAttribution.mockReturnValue(null);
-      mockGetReferral.mockReturnValue(null);
+      mockGetReferralUserId.mockReturnValue(null);
 
       await act(async () => {
         renderHook(() => useGetSubscriptionPage());
@@ -327,14 +326,14 @@ describe('useGetSubscriptionPage', () => {
       setAuthState({ authUser: { id: 'auth-1' } });
       setPlatform('web');
       mockGetAttribution.mockReturnValue({ platform: 'web' });
-      mockGetReferral.mockReturnValue('inviter-1');
+      mockGetReferralUserId.mockReturnValue(1001);
       mockConnectEmail.mockResolvedValue(createRemnaUser({ shortUuid: 'new-short' }));
 
       await act(async () => {
         renderHook(() => useGetSubscriptionPage());
       });
 
-      expect(mockConnectEmail).toHaveBeenCalledWith('', { inviterId: 'inviter-1' });
+      expect(mockConnectEmail).toHaveBeenCalledWith('', { inviterId: 1001 });
       expect(mockTrackUserCreated).toHaveBeenCalledWith(
         expect.objectContaining({ shortUuid: 'new-short' }),
         { platform: 'web' },
@@ -359,7 +358,7 @@ describe('useGetSubscriptionPage', () => {
       setAuthState({ authUser: { id: 'auth-1' } });
       setPlatform('web');
       mockConnectEmail.mockResolvedValue(null);
-      mockGetReferral.mockReturnValue(null);
+      mockGetReferralUserId.mockReturnValue(null);
 
       await act(async () => {
         renderHook(() => useGetSubscriptionPage());
@@ -373,7 +372,7 @@ describe('useGetSubscriptionPage', () => {
       setAuthState({ authUser: { id: 'auth-1' } });
       setPlatform('web');
       mockConnectEmail.mockRejectedValue(new Error('network down'));
-      mockGetReferral.mockReturnValue(null);
+      mockGetReferralUserId.mockReturnValue(null);
 
       await act(async () => {
         renderHook(() => useGetSubscriptionPage());
@@ -388,9 +387,7 @@ describe('useGetSubscriptionPage', () => {
     it('calls connectEmail, sets the rmnUser, and navigates to the profile subscription page', async () => {
       setAuthState({ tgUser: createTgUser({ id: 777 }) });
       setPlatform('telegram');
-      mockConnectEmail.mockResolvedValue(
-        createRemnaUser({ uuid: 'existing-uuid', telegramId: 777 }),
-      );
+      mockConnectEmail.mockResolvedValue(createRemnaUser({ id: 1003, telegramId: 777 }));
       mockGetAttribution.mockReturnValue(null);
       const { result } = renderHook(() => useGetSubscriptionPage());
 
@@ -403,7 +400,7 @@ describe('useGetSubscriptionPage', () => {
 
       expect(mockConnectEmail).toHaveBeenCalledWith('tg@example.com', { inviterId: undefined });
       expect(mockSetRmnUser).toHaveBeenCalledWith(
-        expect.objectContaining({ uuid: 'existing-uuid', telegramId: 777 }),
+        expect.objectContaining({ id: 1003, telegramId: 777 }),
       );
       expect(mockNavigate).toHaveBeenCalledWith('/profile/subscription');
     });
@@ -413,7 +410,7 @@ describe('useGetSubscriptionPage', () => {
       setPlatform('telegram');
       mockConnectEmail.mockResolvedValue(createRemnaUser({ telegramId: 888 }));
       mockGetAttribution.mockReturnValue({ platform: 'telegram' });
-      mockGetReferral.mockReturnValue('inviter-2');
+      mockGetReferralUserId.mockReturnValue(1001);
       const { result } = renderHook(() => useGetSubscriptionPage());
 
       act(() => {
@@ -424,7 +421,7 @@ describe('useGetSubscriptionPage', () => {
       });
 
       expect(mockConnectEmail).toHaveBeenCalledWith('newtg@example.com', {
-        inviterId: 'inviter-2',
+        inviterId: 1001,
       });
       expect(mockSetRmnUser).toHaveBeenCalledWith(expect.objectContaining({ telegramId: 888 }));
       expect(mockTrackUserCreated).toHaveBeenCalledWith(

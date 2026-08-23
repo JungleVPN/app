@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -29,7 +30,7 @@ export class UserController {
   @Get('by-telegram-id/:telegramId')
   async getUserByTelegramId(
     @Param('telegramId') telegramId: Remnawave.CreateUserRequestDto['telegramId'],
-  ): Promise<Remnawave.GetUserByTelegramIdResponseDto | null> {
+  ): Promise<Remnawave.StreamedUserDto[] | null> {
     return this.userService.getUserByTgId(telegramId);
   }
 
@@ -42,7 +43,7 @@ export class UserController {
   @HttpCode(HttpStatus.CREATED)
   async createUser(
     @Body() body: Pick<Remnawave.CreateUserRequestDto, 'telegramId' | 'email' | 'description'> & {
-      inviterId?: string;
+      inviterId?: number;
     },
   ): Promise<Remnawave.CreateUserResponseDto> {
     return this.userService.createUser(body);
@@ -62,48 +63,51 @@ export class UserController {
     return this.userService.getTelegramPhotoUrl(telegramId);
   }
 
-  @Get(':uuid')
-  async getUserByUuid(
-    @Param('uuid') uuid: string,
-  ): Promise<Remnawave.GetUserByUuidResponseDto | null> {
-    return this.userService.getUserByUuid(uuid);
+  @Get(':userId')
+  async getUserById(
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<Remnawave.GetUserByIdResponseDto | null> {
+    return this.userService.getUserById(userId);
   }
 
-  @Patch(':uuid/extra-device')
-  async addExtraDevice(@Param('uuid') uuid: string): Promise<UpdateUserResponseDto> {
-    return this.userService.addExtraDevice(uuid);
+  @Patch(':userId/extra-device')
+  async addExtraDevice(
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<UpdateUserResponseDto> {
+    return this.userService.addExtraDevice(userId);
   }
 
-  @Patch(':uuid/expiry')
+  @Patch(':userId/expiry')
   async updateExpiry(
-    @Param('uuid') uuid: string,
+    @Param('userId', ParseIntPipe) userId: number,
     @Body() body: {
       months: number;
     },
   ): Promise<UpdateUserResponseDto> {
-    return this.userService.updateExpiry(uuid, body.months);
+    return this.userService.updateExpiry(userId, body.months);
   }
 
-  @Get(':uuid/metadata')
-  async getUserMetadata(@Param('uuid') uuid: string) {
-    return this.userService.getUserMetadata(uuid);
+  @Get(':userId/metadata')
+  async getUserMetadata(@Param('userId', ParseIntPipe) userId: number) {
+    return this.userService.getUserMetadata(userId);
   }
 
-  @Put(':uuid/metadata')
+  @Put(':userId/metadata')
   async upsertUserMetadata(
-    @Param('uuid') uuid: string,
+    @Param('userId', ParseIntPipe) userId: number,
     @Body() body: { metadata: Record<string, unknown> },
   ): Promise<void> {
-    return this.userService.upsertUserMetadata(uuid, body.metadata);
+    return this.userService.upsertUserMetadata(userId, body.metadata);
   }
 
-  @Delete(':uuid')
-  async deleteUser(@Param('uuid') uuid: string): Promise<Remnawave.DeleteUserResponseDto> {
-    return this.userService.deleteUser(uuid);
+  @Delete(':userId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUser(@Param('userId', ParseIntPipe) userId: number): Promise<void> {
+    return this.userService.deleteUser(userId);
   }
 
-  @Post(':uuid/actions/revoke')
-  async revokeSubscription(@Param('uuid') uuid: string): Promise<string> {
-    return this.userService.revokeSubscription(uuid);
+  @Post(':userId/actions/revoke')
+  async revokeSubscription(@Param('userId', ParseIntPipe) userId: number): Promise<string> {
+    return this.userService.revokeSubscription(userId);
   }
 }

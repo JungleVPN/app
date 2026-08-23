@@ -22,7 +22,7 @@ export class PaymentsClient {
    * Extra-device add-on purchases don't count — a trial user can buy one
    * without ever paying for a base subscription.
    */
-  async hasEverPaid(userId: string): Promise<boolean> {
+  async hasEverPaid(userId: number): Promise<boolean> {
     try {
       const { data } = await axios.get<{ result: boolean }>(
         `${this.baseUrl}${apiRoutes.payments.hasEverPaid}`,

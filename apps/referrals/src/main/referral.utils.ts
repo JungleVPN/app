@@ -19,7 +19,7 @@ export type ExistingReferralConflict = 'user_is_invited' | 'referral_completed' 
 /** Classifies why a new referral can't be created when invitedId already has a record. */
 export function findExistingReferralConflict(
   referral: Referral | null,
-  inviterId: string,
+  inviterId: number,
 ): ExistingReferralConflict | null {
   if (!referral) return null;
   if (inviterId !== referral.inviterId) return 'user_is_invited';

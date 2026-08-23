@@ -49,7 +49,7 @@ export function useYookassaPayment(selectedPeriod: number) {
     }
 
     const session = await createSession({
-      userId: activeUser.uuid,
+      userId: activeUser.id,
       telegramId: tgUser?.id != null ? Number(tgUser.id) : null,
       save_payment_method: true,
       promoCode: promoCode || null,

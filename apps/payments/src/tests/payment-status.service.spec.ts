@@ -15,7 +15,7 @@ vi.mock('axios', () => ({
 
 describe('PaymentStatusService — referral reward uses userId, not telegramId', () => {
   let service: PaymentStatusService;
-  const USER_ID = 'uuid-user-1';
+  const USER_ID = 2000;
 
   beforeEach(() => {
     vi.clearAllMocks();

@@ -27,7 +27,7 @@ vi.mock('@workspace/database', () => ({
 const CUSTOMER = {
   id: 'cus_1',
   deleted: false,
-  metadata: { userId: 'user-1', email: 'a@b.c' },
+  metadata: { userId: 1000, email: 'a@b.c' },
 } as unknown as Stripe.Customer;
 
 const makeInvoiceEvent = (
@@ -189,7 +189,7 @@ describe('StripeWebhookService', () => {
       await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
 
       expect(mockReportConversion).toHaveBeenCalledWith({
-        userId: 'user-1',
+        userId: 1000,
         provider: 'stripe',
         chargeId: 'in_1',
         // amount_paid is 200 cents; the service reports major units.
@@ -224,16 +224,16 @@ describe('StripeWebhookService', () => {
       expect(mockHandleUserUpdates).toHaveBeenCalledWith(
         expect.objectContaining({
           selectedPeriod: 1,
-          userId: 'user-1',
+          userId: 1000,
           promo: { code: null, provider: 'stripe', paymentId: 'in_1' },
         }),
       );
       expect(mockSave).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'in_1', status: 'paid', userId: 'user-1' }),
+        expect.objectContaining({ id: 'in_1', status: 'paid', userId: 1000 }),
       );
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.succeeded'],
-        expect.objectContaining({ userId: 'user-1', provider: 'stripe', selectedPeriod: 1 }),
+        expect.objectContaining({ userId: 1000, provider: 'stripe', selectedPeriod: 1 }),
       );
     });
 
@@ -292,12 +292,12 @@ describe('StripeWebhookService', () => {
 
       // Deactivates any prior active Stripe method for the user, scoped to provider.
       expect(mockSavedUpdate).toHaveBeenCalledWith(
-        { userId: 'user-1', provider: 'stripe', isActive: true },
+        { userId: 1000, provider: 'stripe', isActive: true },
         { isActive: false },
       );
       expect(mockSavedSave).toHaveBeenCalledWith(
         expect.objectContaining({
-          userId: 'user-1',
+          userId: 1000,
           provider: 'stripe',
           paymentMethodId: 'sub_1',
           paymentMethodType: 'stripe',
@@ -368,7 +368,7 @@ describe('StripeWebhookService', () => {
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.canceled'],
         expect.objectContaining({
-          userId: 'user-1',
+          userId: 1000,
           provider: 'stripe',
           reason: 'general_decline',
         }),

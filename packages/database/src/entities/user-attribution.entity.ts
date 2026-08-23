@@ -2,8 +2,8 @@ import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('user_attribution')
 export class UserAttribution {
-  @PrimaryColumn({ type: 'varchar' })
-  userId: string;
+  @PrimaryColumn({ type: 'int' })
+  userId: number;
 
   @Column({ type: 'varchar' })
   platform: string;

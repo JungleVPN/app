@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useToltCapture } from './use-tolt-capture';
 
-const USER = 'user-uuid-1';
+const USER = 4821;
 
 function api() {
   return { captureToltReferral: vi.fn().mockResolvedValue({ ok: true }) };

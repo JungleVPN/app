@@ -60,13 +60,13 @@ export class StartCommand {
       );
     } else {
       ctx.session.user = initialSession().user;
-      ctx.session.userId = rmnUser.uuid;
+      ctx.session.userId = rmnUser.id;
 
       if (ctx.from.language_code) {
-        const existingLang = await this.remnaService.getUserLang(rmnUser.uuid);
+        const existingLang = await this.remnaService.getUserLang(rmnUser.id);
         const resolvedLang = existingLang ?? ctx.from.language_code;
         if (!existingLang) {
-          void this.remnaService.upsertUserLang(rmnUser.uuid, ctx.from.language_code);
+          void this.remnaService.upsertUserLang(rmnUser.id, ctx.from.language_code);
         }
         ctx.session.lang = resolvedLang;
       }

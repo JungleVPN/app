@@ -18,8 +18,8 @@ export class PromoRedemption {
   @Column()
   promoCode: string;
 
-  @Column()
-  userId: string;
+  @Column({ type: 'int' })
+  userId: number;
 
   /** Which provider's payment this redemption belongs to. */
   @Column({ type: 'varchar' })

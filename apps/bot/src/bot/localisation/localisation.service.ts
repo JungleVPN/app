@@ -16,9 +16,9 @@ export class LocalisationService {
       localeNegotiator: async (ctx) => {
         if (ctx.session?.lang) return ctx.session.lang;
 
-        const uuid = ctx.session?.userId;
-        if (uuid) {
-          const lang = await this.remnaService.getUserLang(uuid);
+        const userId = ctx.session?.userId;
+        if (userId != null) {
+          const lang = await this.remnaService.getUserLang(userId);
           if (lang) {
             ctx.session.lang = lang;
             return lang;

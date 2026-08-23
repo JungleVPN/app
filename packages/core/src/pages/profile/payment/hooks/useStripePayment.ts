@@ -41,7 +41,7 @@ export function useStripePayment(selectedPeriod: number) {
   // Mint a fresh Billing Portal URL on demand (an explicit user action), so we
   // never have to cache a portal URL that can expire.
   const handleOpenStripePortal = useCallback(async () => {
-    const uuid = rmnUser?.uuid;
+    const uuid = rmnUser?.id;
     if (!uuid) return;
     setIsOpeningStripePortal(true);
     try {
@@ -50,7 +50,7 @@ export function useStripePayment(selectedPeriod: number) {
     } finally {
       setIsOpeningStripePortal(false);
     }
-  }, [rmnUser?.uuid, paymentsApi, redirectTo]);
+  }, [rmnUser?.id, paymentsApi, redirectTo]);
 
   const handleStripePayment = async (email?: string) => {
     if (!rmnUser) return;
@@ -69,13 +69,13 @@ export function useStripePayment(selectedPeriod: number) {
     if (!payerEmail) return;
 
     const session = await createStripeSession({
-      userId: activeUser.uuid,
+      userId: activeUser.id,
       selectedPeriod,
       userStatus: activeUser.status,
       toltReferralId: window.tolt_referral ?? null,
       metadata: {
         email: payerEmail,
-        userId: activeUser.uuid,
+        userId: String(activeUser.id),
         ...(tgUser?.id != null ? { telegramId: String(tgUser.id) } : {}),
       },
     });

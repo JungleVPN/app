@@ -5,7 +5,7 @@ import { parseSupabaseJwt } from './supabase-jwt';
 import { parseTelegramInitData } from './telegram-init-data';
 
 export interface AuthenticatedRequest {
-  authenticatedUserId: string;
+  authenticatedUserId: number;
   authenticatedEmail?: string;
   authenticatedTelegramId?: number;
   headers: Record<string, string | string[] | undefined>;
@@ -50,10 +50,10 @@ export class ClientUserGuard implements CanActivate {
     const { telegramId } = parseTelegramInitData(raw, botToken, maxAge);
 
     const users = await this.userService.getUserByTgId(telegramId);
-    const uuid = Array.isArray(users) ? users[0]?.uuid : (users as { uuid?: string } | null)?.uuid;
-    if (!uuid) throw new UnauthorizedException('User not found');
+    const userId = users?.[0]?.id;
+    if (userId == null) throw new UnauthorizedException('User not found');
 
-    req.authenticatedUserId = uuid;
+    req.authenticatedUserId = userId;
     req.authenticatedTelegramId = telegramId;
     return true;
   }
@@ -64,10 +64,10 @@ export class ClientUserGuard implements CanActivate {
     const { email } = parseSupabaseJwt(token, publicKeyJwk);
 
     const users = await this.userService.getUserByEmail(email);
-    const uuid = Array.isArray(users) ? users[0]?.uuid : (users as { uuid?: string } | null)?.uuid;
-    if (!uuid) throw new UnauthorizedException('User not found');
+    const userId = users?.[0]?.id;
+    if (userId == null) throw new UnauthorizedException('User not found');
 
-    req.authenticatedUserId = uuid;
+    req.authenticatedUserId = userId;
     req.authenticatedEmail = email;
     return true;
   }

@@ -10,7 +10,7 @@ import type { ToltCreateTransactionInput } from './tolt.types';
 export type ConversionCurrency = 'EUR' | 'RUB';
 
 export type ReportConversionInput = {
-  userId: string;
+  userId: number;
   /** Which provider settled the charge. New providers need no Tolt-side work. */
   provider: string;
   /** The provider's charge id — invoice id, YooKassa payment id, etc. */
@@ -23,7 +23,7 @@ export type ReportConversionInput = {
 };
 
 export type CaptureReferralInput = {
-  userId: string;
+  userId: number;
   referralCode: string;
   partnerId: string;
   clickId?: string | null;
@@ -167,7 +167,7 @@ export class ToltService {
    * claiming someone else's customer, but an unreadable payment history must
    * not silently drop attribution for every genuinely new visitor.
    */
-  private async hasAlreadyPaid(userId: string): Promise<boolean> {
+  private async hasAlreadyPaid(userId: number): Promise<boolean> {
     try {
       return await this.admin.hasEverPaid(userId);
     } catch (error) {
@@ -449,7 +449,7 @@ export class ToltService {
    * Creates the Tolt customer, returning null on failure rather than throwing.
    */
   private async registerCustomer(input: {
-    userId: string;
+    userId: number;
     partnerId: string;
     clickId?: string | null;
     email: string;
@@ -459,7 +459,7 @@ export class ToltService {
       const customer = await this.client.createCustomer({
         email: input.email,
         partner_id: input.partnerId,
-        customer_id: input.userId,
+        customer_id: String(input.userId),
         click_id: input.clickId ?? undefined,
         status: input.status,
       });

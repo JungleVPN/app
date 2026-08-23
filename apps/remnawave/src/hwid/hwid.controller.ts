@@ -1,4 +1,13 @@
-import { Controller, Delete, Get, HttpCode, HttpStatus, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import {
   DeleteAllUserHwidDevicesCommand,
   DeleteUserHwidDeviceCommand,
@@ -7,32 +16,32 @@ import {
 import { InterServiceGuard } from '../guards/inter-service.guard';
 import { HwidService } from './hwid.service';
 
-@Controller('users/:userUuid/devices')
+@Controller('users/:userId/devices')
 @UseGuards(InterServiceGuard)
 export class HwidController {
   constructor(private readonly hwidService: HwidService) {}
 
   @Get()
   async getUserDevices(
-    @Param('userUuid') userUuid: string,
+    @Param('userId', ParseIntPipe) userId: number,
   ): Promise<GetUserHwidDevicesCommand.Response['response']> {
-    return this.hwidService.getUserDevices(userUuid);
+    return this.hwidService.getUserDevices(userId);
   }
 
   @Delete()
   @HttpCode(HttpStatus.OK)
   async deleteAllUserDevices(
-    @Param('userUuid') userUuid: string,
+    @Param('userId', ParseIntPipe) userId: number,
   ): Promise<DeleteAllUserHwidDevicesCommand.Response['response']> {
-    return this.hwidService.deleteAllUserDevices(userUuid);
+    return this.hwidService.deleteAllUserDevices(userId);
   }
 
   @Delete(':hwid')
   @HttpCode(HttpStatus.OK)
   async deleteUserDevice(
-    @Param('userUuid') userUuid: string,
+    @Param('userId', ParseIntPipe) userId: number,
     @Param('hwid') hwid: string,
   ): Promise<DeleteUserHwidDeviceCommand.Response['response']> {
-    return this.hwidService.deleteUserDevice(userUuid, hwid);
+    return this.hwidService.deleteUserDevice(userId, hwid);
   }
 }

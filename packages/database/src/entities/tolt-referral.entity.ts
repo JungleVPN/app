@@ -16,9 +16,9 @@ import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } fro
  */
 @Entity('tolt_referral')
 export class ToltReferral {
-  /** Remnawave user uuid. */
-  @PrimaryColumn({ type: 'varchar' })
-  userId: string;
+  /** Remnawave numeric userId. */
+  @PrimaryColumn({ type: 'int' })
+  userId: number;
 
   /** The partner's referral code — `window.tolt_referral`. */
   @Column({ type: 'varchar' })

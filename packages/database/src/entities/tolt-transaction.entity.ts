@@ -30,8 +30,8 @@ export class ToltTransaction {
   @Column({ type: 'varchar', nullable: true })
   toltTransactionId: string | null;
 
-  @Column({ type: 'varchar' })
-  userId: string;
+  @Column({ type: 'int' })
+  userId: number;
 
   /** Which provider settled the charge — `stripe`, `yookassa`, … */
   @Column({ type: 'varchar' })

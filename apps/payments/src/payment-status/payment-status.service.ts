@@ -35,7 +35,7 @@ export class PaymentStatusService {
     promo,
   }: {
     selectedPeriod: number;
-    userId: string;
+    userId: number;
     purpose?: PaymentPurpose;
     /** Set for subscription payments that may carry a promo code. */
     promo?: { code: string | null; provider: PaymentMethod; paymentId: string };
@@ -73,10 +73,10 @@ export class PaymentStatusService {
     return { success: true };
   }
 
-  private async addExtraDevice(uuid: string): Promise<{ telegramId: number | null } | null> {
+  private async addExtraDevice(userId: number): Promise<{ telegramId: number | null } | null> {
     try {
       const { data } = await axios.patch<{ telegramId: number | null }>(
-        `${this.remnawareBaseUrl}${apiRoutes.remnawave.userExtraDevice(uuid)}`,
+        `${this.remnawareBaseUrl}${apiRoutes.remnawave.userExtraDevice(userId)}`,
         {},
         {
           headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
@@ -86,7 +86,7 @@ export class PaymentStatusService {
       return data;
     } catch (err: any) {
       if (err.response?.status === 404) return null;
-      this.logger.error(`addExtraDevice failed for ${uuid}: ${err.message}`);
+      this.logger.error(`addExtraDevice failed for ${userId}: ${err.message}`);
       throw err;
     }
   }
@@ -96,7 +96,7 @@ export class PaymentStatusService {
   // if all attempts fail the error is intentionally rethrown so the caller can
   // propagate a non-200 back to YooKassa and let it retry the webhook later.
   private async extendUserExpiry(
-    uuid: string,
+    userId: number,
     months: number,
   ): Promise<{ telegramId: number | null } | null> {
     const MAX_ATTEMPTS = 3;
@@ -105,7 +105,7 @@ export class PaymentStatusService {
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       try {
         const { data } = await axios.patch<{ telegramId: number | null }>(
-          `${this.remnawareBaseUrl}${apiRoutes.remnawave.userExpiry(uuid)}`,
+          `${this.remnawareBaseUrl}${apiRoutes.remnawave.userExpiry(userId)}`,
           { months },
           {
             headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
@@ -117,12 +117,12 @@ export class PaymentStatusService {
         if (err.response?.status === 404) return null;
         if (attempt === MAX_ATTEMPTS) {
           this.logger.error(
-            `extendUserExpiry failed for ${uuid} after ${MAX_ATTEMPTS} attempts: ${err.message}`,
+            `extendUserExpiry failed for ${userId} after ${MAX_ATTEMPTS} attempts: ${err.message}`,
           );
           throw err;
         }
         this.logger.warn(
-          `extendUserExpiry attempt ${attempt}/${MAX_ATTEMPTS} failed for ${uuid}: ${err.message} — retrying in ${DELAY_MS}ms`,
+          `extendUserExpiry attempt ${attempt}/${MAX_ATTEMPTS} failed for ${userId}: ${err.message} — retrying in ${DELAY_MS}ms`,
         );
         await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
       }
@@ -131,7 +131,7 @@ export class PaymentStatusService {
     return null;
   }
 
-  private async triggerReferralReward(userId: string): Promise<boolean> {
+  private async triggerReferralReward(userId: number): Promise<boolean> {
     try {
       const { data } = await axios.post<{ rewarded: boolean }>(
         `${this.referralsBaseUrl}${apiRoutes.referrals.rewardAfterPayment}`,

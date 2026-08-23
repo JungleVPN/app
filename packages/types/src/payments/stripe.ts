@@ -1,3 +1,4 @@
+import type { RemnaUserId } from '../remnawave';
 import { PaymentPurpose } from './common';
 
 /**
@@ -9,7 +10,7 @@ import { PaymentPurpose } from './common';
  * the Stripe customer metadata.
  */
 export interface CreateStripeSessionDto {
-  userId: string;
+  userId: RemnaUserId;
   /** Defaults to 'subscription'. Use 'extra_device' for one-time device-slot purchases. */
   purchaseType?: PaymentPurpose;
 

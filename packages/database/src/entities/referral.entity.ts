@@ -7,13 +7,13 @@ export class Referral {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  /** Remnawave userId (uuid) of the inviter. */
-  @Column({ type: 'varchar', unique: false })
-  inviterId: string;
+  /** Remnawave numeric userId of the inviter. */
+  @Column({ type: 'int', unique: false })
+  inviterId: number;
 
-  /** Remnawave userId (uuid) of the invited user. */
-  @Column({ type: 'varchar', unique: true })
-  invitedId: string;
+  /** Remnawave numeric userId of the invited user. */
+  @Column({ type: 'int', unique: true })
+  invitedId: number;
 
   @Column({
     type: 'varchar',

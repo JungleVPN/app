@@ -39,7 +39,7 @@ export class YookassaController {
   /** List active saved payment methods for the authenticated user */
   @Get('saved-methods')
   @UseGuards(ClientUserGuard)
-  getActiveSavedMethods(@AuthenticatedUserId() userId: string) {
+  getActiveSavedMethods(@AuthenticatedUserId() userId: number) {
     return this.yookassaService.getActiveSavedMethods(userId);
   }
 
@@ -48,7 +48,7 @@ export class YookassaController {
   @UseGuards(ClientUserGuard)
   async deleteSavedMethod(
     @Param('id') id: string,
-    @AuthenticatedUserId() userId: string,
+    @AuthenticatedUserId() userId: number,
   ): Promise<{ ok: true }> {
     await this.yookassaService.deletePaymentMethod(id, userId);
     return { ok: true };

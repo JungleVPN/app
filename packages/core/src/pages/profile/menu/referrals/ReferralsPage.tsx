@@ -25,7 +25,7 @@ export default function ReferralsPage() {
   }, [setNavbarVisible]);
 
   const stickerUrl = getTelegramStickerUrl(coreEnv.referralsStickerFileId);
-  const referralLink = `${coreEnv.webAppUrl}/?ref=${rmnUser?.uuid}`;
+  const referralLink = `${coreEnv.webAppUrl}/?ref=${rmnUser?.id}`;
 
   return (
     <Page

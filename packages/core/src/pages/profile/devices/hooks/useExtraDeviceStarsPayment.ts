@@ -24,11 +24,11 @@ export function useExtraDeviceStarsPayment() {
   const starsEnabled = isTma && extraDevicePriceStars > 0;
 
   const handleStarsPayment = async () => {
-    if (!rmnUser?.uuid) return;
+    if (!rmnUser?.id) return;
     setStarsError(null);
 
     const result = await createStarsInvoice({
-      userId: rmnUser.uuid,
+      userId: rmnUser.id,
       telegramId: rmnUser.telegramId,
       selectedPeriod: 1,
       title: t('devices.extraDevicePurchase.starsInvoiceTitle'),

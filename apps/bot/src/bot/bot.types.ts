@@ -15,7 +15,7 @@ export interface ClientApp {
 }
 
 export interface SessionData {
-  userId: string | undefined;
+  userId: number | undefined;
   lang: string | undefined;
   paymentUrl: string | undefined;
   paymentId: string | undefined;
@@ -55,7 +55,7 @@ export const initialSession = (): SessionData => {
     activeSavedMethodId: undefined,
     startPayload: undefined,
     user: {
-      uuid: undefined,
+      id: undefined,
       telegramId: undefined,
       username: undefined,
       expireAt: undefined,

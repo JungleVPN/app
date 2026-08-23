@@ -18,8 +18,11 @@ export class AdminController {
   @Get('internal/has-ever-paid')
   @UseGuards(InterServiceGuard)
   async hasEverPaid(@Query('userId') userId: string): Promise<{ result: boolean }> {
-    if (!userId?.trim()) throw new BadRequestException('userId is required');
-    return { result: await this.adminService.hasEverPaid(userId.trim()) };
+    const parsed = Number(userId);
+    if (!userId?.trim() || !Number.isInteger(parsed)) {
+      throw new BadRequestException('userId is required and must be an integer');
+    }
+    return { result: await this.adminService.hasEverPaid(parsed) };
   }
 
   /**
@@ -28,8 +31,8 @@ export class AdminController {
    */
   @Get('my-transactions')
   @UseGuards(ClientUserGuard)
-  getMyTransactions(@AuthenticatedUserId() userId: string): Promise<AdminPaymentDto[]> {
-    return this.adminService.search(userId);
+  getMyTransactions(@AuthenticatedUserId() userId: number): Promise<AdminPaymentDto[]> {
+    return this.adminService.search(String(userId));
   }
 
   /**

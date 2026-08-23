@@ -27,11 +27,11 @@ export function useTelegramStarsPayment(selectedPeriod: number) {
   const starsEnabled = isTma && extraDevicePriceStars > 0;
 
   const handleStarsPayment = async (promoCode?: string) => {
-    if (!rmnUser?.uuid) return;
+    if (!rmnUser?.id) return;
     setStarsError(null);
 
     const result = await createStarsInvoice({
-      userId: rmnUser.uuid,
+      userId: rmnUser.id,
       telegramId: rmnUser.telegramId,
       selectedPeriod,
       title: t('payment.stars.invoiceTitle', { period: selectedPeriod }),

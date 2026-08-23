@@ -10,8 +10,8 @@ export class AnalyticsEvent {
   @Column({ type: 'text' })
   event: string;
 
-  @Column({ type: 'text', nullable: true })
-  userId: string | null;
+  @Column({ type: 'int', nullable: true })
+  userId: number | null;
 
   @Index({ where: '"telegramId" IS NOT NULL' })
   @Column({ type: 'bigint', nullable: true })

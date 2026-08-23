@@ -1,11 +1,11 @@
 /**
  * ReferralService — userId-based referral behavior.
  *
- * The referral table now keys inviterId/invitedId by the remnawave userId (uuid)
- * instead of the Telegram id. Referral records are created once the invited
- * user's remnawave account actually exists (at account-creation time), not at
- * the moment they click a /start ref_xxx link — a brand-new Telegram user has
- * no uuid yet at that point.
+ * The referral table keys inviterId/invitedId by the remnawave userId — a
+ * numeric panel id since v3 — instead of the Telegram id. Referral records are
+ * created once the invited user's remnawave account actually exists (at
+ * account-creation time), not at the moment they click a /start ref_xxx link —
+ * a brand-new Telegram user has no panel id yet at that point.
  */
 
 import 'reflect-metadata';
@@ -22,25 +22,25 @@ import type { RemnaClient } from '../main/remna.client';
 
 vi.mock('@workspace/database', () => ({ Referral: class {} }));
 
-const INVITER_UUID = 'uuid-inviter-1';
-const INVITED_UUID = 'uuid-invited-1';
+const INVITER_ID = 4821;
+const INVITED_ID = 1337;
 
 const makeReferral = (overrides: Partial<Referral> = {}): Referral =>
   ({
     id: 'ref-1',
-    inviterId: INVITER_UUID,
-    invitedId: INVITED_UUID,
+    inviterId: INVITER_ID,
+    invitedId: INVITED_ID,
     status: 'TRIAL',
     createdAt: new Date(),
     ...overrides,
   }) as Referral;
 
-const makeRemnaUser = (uuid: string, telegramId: number | null = 100, status = 'ACTIVE') => ({
-  uuid,
+const makeRemnaUser = (id: number, telegramId: number | null = 100, status = 'ACTIVE') => ({
+  id,
   telegramId,
   status,
   expireAt: new Date(Date.now() + 86_400_000).toISOString(),
-  subscriptionUrl: `https://vpn/sub/${uuid}`,
+  subscriptionUrl: `https://vpn/sub/${id}`,
   description: null,
 });
 
@@ -55,7 +55,7 @@ function makeReferralRepo(findOneResult: Referral | null = null): Repository<Ref
 
 function makeRemnaClient(status = 'ACTIVE'): RemnaClient {
   return {
-    getUserByUuid: vi.fn(async (uuid: string) => makeRemnaUser(uuid, 100, status)),
+    getUserById: vi.fn(async (userId: number) => makeRemnaUser(userId, 100, status)),
     updateUser: vi.fn().mockResolvedValue({}),
   } as unknown as RemnaClient;
 }
@@ -99,45 +99,45 @@ describe('ReferralService', () => {
     it('rejects self-referral when inviterId === invitedId', async () => {
       const service = makeService(makeReferralRepo(null), makeRemnaClient());
 
-      const result = await service.handleNewUser(INVITER_UUID, INVITER_UUID);
+      const result = await service.handleNewUser(INVITER_ID, INVITER_ID);
 
       expect(result).toEqual({ success: false, reason: 'self_referral' });
     });
 
-    it('creates a referral record keyed by remnawave userId (uuid), not telegramId', async () => {
+    it('creates a referral record keyed by remnawave userId, not telegramId', async () => {
       const referralRepo = makeReferralRepo(null);
       const remnaClient = makeRemnaClient();
       const service = makeService(referralRepo, remnaClient);
 
-      const result = await service.handleNewUser(INVITER_UUID, INVITED_UUID);
+      const result = await service.handleNewUser(INVITER_ID, INVITED_ID);
 
       expect(result).toEqual({ success: true, reason: 'new_user' });
       expect(referralRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ inviterId: INVITER_UUID, invitedId: INVITED_UUID }),
+        expect.objectContaining({ inviterId: INVITER_ID, invitedId: INVITED_ID }),
       );
-      // Values passed through must be the uuids, never numbers/telegramIds.
+      // Values passed through must be the remnawave user ids, never telegramIds.
       const created = (referralRepo.create as ReturnType<typeof vi.fn>).mock.calls[0][0];
-      expect(typeof created.inviterId).toBe('string');
-      expect(typeof created.invitedId).toBe('string');
+      expect(typeof created.inviterId).toBe('number');
+      expect(typeof created.invitedId).toBe('number');
     });
 
     it('does not reward the inviter at signup — reward only happens after the friend pays', async () => {
       const remnaClient = makeRemnaClient();
       const service = makeService(makeReferralRepo(null), remnaClient);
 
-      await service.handleNewUser(INVITER_UUID, INVITED_UUID);
+      await service.handleNewUser(INVITER_ID, INVITED_ID);
 
       expect(remnaClient.updateUser).not.toHaveBeenCalled();
     });
 
-    it('fails when the inviter uuid does not resolve to a remnawave user', async () => {
+    it('fails when the inviter id does not resolve to a remnawave user', async () => {
       const remnaClient = {
-        getUserByUuid: vi.fn().mockResolvedValue(null),
+        getUserById: vi.fn().mockResolvedValue(null),
         updateUser: vi.fn(),
       } as unknown as RemnaClient;
       const service = makeService(makeReferralRepo(null), remnaClient);
 
-      const result = await service.handleNewUser(INVITER_UUID, INVITED_UUID);
+      const result = await service.handleNewUser(INVITER_ID, INVITED_ID);
 
       expect(result).toEqual({ success: false, reason: 'inviter_not_found' });
       expect(remnaClient.updateUser).not.toHaveBeenCalled();
@@ -147,7 +147,7 @@ describe('ReferralService', () => {
       const referralRepo = makeReferralRepo(makeReferral());
       const service = makeService(referralRepo, makeRemnaClient());
 
-      const result = await service.handleNewUser(INVITER_UUID, INVITED_UUID);
+      const result = await service.handleNewUser(INVITER_ID, INVITED_ID);
 
       expect(result.success).toBe(false);
       expect(referralRepo.create).not.toHaveBeenCalled();
@@ -160,18 +160,18 @@ describe('ReferralService', () => {
       const remnaClient = makeRemnaClient();
       const service = makeService(referralRepo, remnaClient);
 
-      const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
+      const result = await service.handleInviterRewardAfterPayment(INVITED_ID);
 
       expect(result.rewarded).toBe(true);
-      expect(referralRepo.findOne).toHaveBeenCalledWith({ where: { invitedId: INVITED_UUID } });
-      // Both sides are resolved and extended via their remnawave uuid.
-      expect(remnaClient.getUserByUuid).toHaveBeenCalledWith(INVITER_UUID);
-      expect(remnaClient.getUserByUuid).toHaveBeenCalledWith(INVITED_UUID);
+      expect(referralRepo.findOne).toHaveBeenCalledWith({ where: { invitedId: INVITED_ID } });
+      // Both sides are resolved and extended via their remnawave user id.
+      expect(remnaClient.getUserById).toHaveBeenCalledWith(INVITER_ID);
+      expect(remnaClient.getUserById).toHaveBeenCalledWith(INVITED_ID);
       expect(remnaClient.updateUser).toHaveBeenCalledWith(
-        expect.objectContaining({ uuid: INVITER_UUID }),
+        expect.objectContaining({ id: INVITER_ID }),
       );
       expect(remnaClient.updateUser).toHaveBeenCalledWith(
-        expect.objectContaining({ uuid: INVITED_UUID }),
+        expect.objectContaining({ id: INVITED_ID }),
       );
       expect(result.inviterRewarded).toBe(true);
     });
@@ -182,14 +182,14 @@ describe('ReferralService', () => {
       const paymentsClient = makePaymentsClient(true);
       const service = makeService(referralRepo, remnaClient, paymentsClient);
 
-      const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
+      const result = await service.handleInviterRewardAfterPayment(INVITED_ID);
 
       expect(result).toEqual({ rewarded: true, inviterRewarded: false });
       expect(remnaClient.updateUser).toHaveBeenCalledWith(
-        expect.objectContaining({ uuid: INVITED_UUID }),
+        expect.objectContaining({ id: INVITED_ID }),
       );
       expect(remnaClient.updateUser).not.toHaveBeenCalledWith(
-        expect.objectContaining({ uuid: INVITER_UUID }),
+        expect.objectContaining({ id: INVITER_ID }),
       );
     });
 
@@ -201,12 +201,12 @@ describe('ReferralService', () => {
       const paymentsClient = makePaymentsClient(false);
       const service = makeService(referralRepo, remnaClient, paymentsClient);
 
-      const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
+      const result = await service.handleInviterRewardAfterPayment(INVITED_ID);
 
       expect(result).toEqual({ rewarded: true, inviterRewarded: false });
-      expect(paymentsClient.hasEverPaid).toHaveBeenCalledWith(INVITER_UUID);
+      expect(paymentsClient.hasEverPaid).toHaveBeenCalledWith(INVITER_ID);
       expect(remnaClient.updateUser).not.toHaveBeenCalledWith(
-        expect.objectContaining({ uuid: INVITER_UUID }),
+        expect.objectContaining({ id: INVITER_ID }),
       );
     });
 
@@ -214,7 +214,7 @@ describe('ReferralService', () => {
       const referralRepo = makeReferralRepo(makeReferral({ status: 'COMPLETED' }));
       const service = makeService(referralRepo, makeRemnaClient());
 
-      const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
+      const result = await service.handleInviterRewardAfterPayment(INVITED_ID);
 
       expect(result).toEqual({ rewarded: false, reason: 'already_completed' });
     });
@@ -223,7 +223,7 @@ describe('ReferralService', () => {
       const referralRepo = makeReferralRepo(null);
       const service = makeService(referralRepo, makeRemnaClient());
 
-      const result = await service.handleInviterRewardAfterPayment(INVITED_UUID);
+      const result = await service.handleInviterRewardAfterPayment(INVITED_ID);
 
       expect(result).toEqual({ rewarded: false, reason: 'no_referral' });
     });
@@ -234,35 +234,35 @@ describe('ReferralService', () => {
       const referralRepo = makeReferralRepo(makeReferral());
       const service = makeService(referralRepo, makeRemnaClient());
 
-      await service.getReferralByInvitedId(INVITED_UUID);
-      expect(referralRepo.findOne).toHaveBeenCalledWith({ where: { invitedId: INVITED_UUID } });
+      await service.getReferralByInvitedId(INVITED_ID);
+      expect(referralRepo.findOne).toHaveBeenCalledWith({ where: { invitedId: INVITED_ID } });
 
-      await service.deleteByInvitedId(INVITED_UUID);
-      expect(referralRepo.delete).toHaveBeenCalledWith({ invitedId: INVITED_UUID });
+      await service.deleteByInvitedId(INVITED_ID);
+      expect(referralRepo.delete).toHaveBeenCalledWith({ invitedId: INVITED_ID });
     });
   });
 });
 
 describe('findExistingReferralConflict', () => {
   it('returns null when there is no existing referral', () => {
-    expect(findExistingReferralConflict(null, INVITER_UUID)).toBeNull();
+    expect(findExistingReferralConflict(null, INVITER_ID)).toBeNull();
   });
 
   it('returns user_is_invited when the invited user was already invited by someone else', () => {
-    const referral = makeReferral({ inviterId: 'uuid-other-inviter' });
+    const referral = makeReferral({ inviterId: 1000 });
 
-    expect(findExistingReferralConflict(referral, INVITER_UUID)).toBe('user_is_invited');
+    expect(findExistingReferralConflict(referral, INVITER_ID)).toBe('user_is_invited');
   });
 
   it('returns referral_completed when the same inviter already completed the referral', () => {
-    const referral = makeReferral({ inviterId: INVITER_UUID, status: 'COMPLETED' });
+    const referral = makeReferral({ inviterId: INVITER_ID, status: 'COMPLETED' });
 
-    expect(findExistingReferralConflict(referral, INVITER_UUID)).toBe('referral_completed');
+    expect(findExistingReferralConflict(referral, INVITER_ID)).toBe('referral_completed');
   });
 
   it('returns already_exists when the same inviter has a non-completed referral record', () => {
-    const referral = makeReferral({ inviterId: INVITER_UUID, status: 'TRIAL' });
+    const referral = makeReferral({ inviterId: INVITER_ID, status: 'TRIAL' });
 
-    expect(findExistingReferralConflict(referral, INVITER_UUID)).toBe('already_exists');
+    expect(findExistingReferralConflict(referral, INVITER_ID)).toBe('already_exists');
   });
 });

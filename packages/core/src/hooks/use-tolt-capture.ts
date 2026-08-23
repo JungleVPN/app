@@ -9,7 +9,7 @@ const POLL_TIMEOUT_MS = 5_000;
  * Persists the browser's affiliate attribution against the authenticated user.
  */
 export function useToltCapture(
-  userId: string | undefined,
+  userId: number | undefined,
   paymentsApi: ReturnType<typeof createPaymentsApi>,
 ): void {
   useEffect(() => {

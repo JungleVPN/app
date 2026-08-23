@@ -1,3 +1,4 @@
+import type { RemnaUserId } from '../remnawave';
 /**
  * Promo (promotional code) domain types — shared between the database entities
  * and the payments service.
@@ -20,7 +21,7 @@ export type PromoEffect = { type: 'bonus_months'; months: number };
 
 /** Context resolution needs to decide whether a code is currently usable. */
 export interface PromoContext {
-  userId: string;
+  userId: RemnaUserId;
   /** Subscription status from remnawave, when known (for `expired_only`). */
   userStatus?: string;
   /** Months the user is paying for, when known (for min-period style rules). */
@@ -30,7 +31,7 @@ export interface PromoContext {
 /** Body for POST /promo/validate (live feedback on the payment page). */
 export interface ValidatePromoDto {
   code: string;
-  userId: string;
+  userId: RemnaUserId;
   userStatus?: string;
   selectedPeriod?: number;
 }

@@ -1,10 +1,11 @@
+import type { RemnaUserId } from '../../remnawave';
 /**
  * DTO returned by GET /api/payments/yookassa/saved-methods/:userId.
  * Shape mirrors the SavedPaymentMethod TypeORM entity.
  */
 export interface SavedMethodDto {
   id: string;
-  userId: string;
+  userId: RemnaUserId;
   provider: string;
   /** YooKassa payment_method.id used for recurring charges */
   paymentMethodId: string;

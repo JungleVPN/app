@@ -37,7 +37,7 @@ describe('AnalyticsClientService', () => {
     const { service } = buildService(buildClient(post));
 
     await expect(
-      service.track({ event: 'subscription_expired', userId: 'u1' }),
+      service.track({ event: 'subscription_expired', userId: 1000 }),
     ).resolves.toBeUndefined();
   });
 
@@ -46,7 +46,7 @@ describe('AnalyticsClientService', () => {
     const { service } = buildService(buildClient(post));
 
     await expect(
-      service.track({ event: 'subscription_expired', userId: 'u1' }),
+      service.track({ event: 'subscription_expired', userId: 1000 }),
     ).resolves.toBeUndefined();
   });
 });

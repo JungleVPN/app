@@ -3,7 +3,14 @@ import { describe, expect, it, vi } from 'vitest';
 import { ToltController } from './tolt.controller';
 import type { ToltService } from './tolt.service';
 
-const USER = 'user-uuid-1';
+const USER = 4821;
+
+/**
+ * A different id, planted in the request body. It must never reach the service:
+ * the controller takes the user from the validated credential, and trusting the
+ * body would let anyone attribute someone else's payments to their partner code.
+ */
+const ATTACKER_SUPPLIED_ID = 9999;
 
 function setup() {
   const service = {
@@ -21,12 +28,15 @@ describe('ToltController.captureReferral', () => {
     const { controller, service } = setup();
 
     await controller.captureReferral(
-      { ...body, userId: 'attacker-supplied' } as never,
+      { ...body, userId: ATTACKER_SUPPLIED_ID } as never,
       USER,
       'jim@example.com',
     );
 
     expect(service.captureReferral).toHaveBeenCalledWith(expect.objectContaining({ userId: USER }));
+    expect(service.captureReferral).not.toHaveBeenCalledWith(
+      expect.objectContaining({ userId: ATTACKER_SUPPLIED_ID }),
+    );
   });
 
   it('passes the referral through to the service', async () => {

@@ -5,11 +5,10 @@ import {
   DeleteUserHwidDeviceCommand,
   GetSubpageConfigByShortUuidCommand,
   GetSubscriptionInfoByShortUuidCommand,
-  GetSubscriptionPageConfigCommand,
-  GetUserByEmailCommand,
-  GetUserByTelegramIdCommand,
-  GetUserByUuidResponseDto,
+  GetSubpageConfigCommand,
+  GetUserByIdResponseDto,
   GetUserHwidDevicesCommand,
+  type StreamedUserDto,
   UpdateUserCommand,
   UpdateUserResponseDto,
 } from '@workspace/types';
@@ -17,13 +16,9 @@ import type { ApiClient } from '../client';
 
 export function createRemnawaveApi(client: ApiClient) {
   return {
-    async getUserByEmail(
-      body: GetUserByEmailCommand.Request,
-    ): Promise<GetUserByEmailCommand.Response['response'] | null> {
+    async getUserByEmail(body: { email: string }): Promise<StreamedUserDto[] | null> {
       try {
-        return await client.get<GetUserByEmailCommand.Response['response']>(
-          apiRoutes.remnawave.userByEmail(body.email),
-        );
+        return await client.get<StreamedUserDto[]>(apiRoutes.remnawave.userByEmail(body.email));
       } catch (err: unknown) {
         if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
           return null;
@@ -32,11 +27,9 @@ export function createRemnawaveApi(client: ApiClient) {
       }
     },
 
-    async getUserByTelegramId(
-      telegramId: string,
-    ): Promise<GetUserByTelegramIdCommand.Response['response'] | null> {
+    async getUserByTelegramId(telegramId: string): Promise<StreamedUserDto[] | null> {
       try {
-        const data = await client.get<GetUserByTelegramIdCommand.Response['response']>(
+        const data = await client.get<StreamedUserDto[]>(
           apiRoutes.remnawave.userByTelegramId(telegramId),
         );
         // Backend returns 200 with empty body when not found — treat as null.
@@ -52,7 +45,7 @@ export function createRemnawaveApi(client: ApiClient) {
 
     async createUser(
       params: Pick<CreateUserRequestDto, 'email' | 'telegramId'> & {
-        inviterId?: string;
+        inviterId?: number;
       },
     ): Promise<CreateUserResponseDto | null> {
       return client.post<CreateUserResponseDto>(apiRoutes.remnawave.users, {
@@ -79,22 +72,22 @@ export function createRemnawaveApi(client: ApiClient) {
 
     async getSubscriptionPageConfig(
       uuid: string,
-    ): Promise<GetSubscriptionPageConfigCommand.Response['response'] | null> {
-      return await client.get<GetSubscriptionPageConfigCommand.Response['response']>(
+    ): Promise<GetSubpageConfigCommand.Response['response'] | null> {
+      return await client.get<GetSubpageConfigCommand.Response['response']>(
         apiRoutes.remnawave.subscriptionPageConfig(uuid),
       );
     },
 
-    async updateUser(body: UpdateUserCommand.Request): Promise<UpdateUserResponseDto | null> {
+    async updateUser(body: UpdateUserCommand.RequestBody): Promise<UpdateUserResponseDto | null> {
       return client.patch<UpdateUserResponseDto>(apiRoutes.remnawave.users, body);
     },
 
     async getUserDevices(
-      userUuid: string,
+      userId: number,
     ): Promise<GetUserHwidDevicesCommand.Response['response'] | null> {
       try {
         return await client.get<GetUserHwidDevicesCommand.Response['response']>(
-          apiRoutes.remnawave.userDevices(userUuid),
+          apiRoutes.remnawave.userDevices(userId),
         );
       } catch (err: unknown) {
         if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
@@ -115,35 +108,35 @@ export function createRemnawaveApi(client: ApiClient) {
     },
 
     async deleteUserDevice(
-      userUuid: string,
+      userId: number,
       hwid: string,
     ): Promise<DeleteUserHwidDeviceCommand.Response['response'] | null> {
       return client.delete<DeleteUserHwidDeviceCommand.Response['response']>(
-        apiRoutes.remnawave.userDevice(userUuid, hwid),
+        apiRoutes.remnawave.userDevice(userId, hwid),
       );
     },
 
-    async getUserMetadata(uuid: string): Promise<Record<string, unknown> | null> {
+    async getUserMetadata(userId: number): Promise<Record<string, unknown> | null> {
       try {
-        return await client.get<Record<string, unknown>>(apiRoutes.remnawave.userMetadata(uuid));
+        return await client.get<Record<string, unknown>>(apiRoutes.remnawave.userMetadata(userId));
       } catch {
         return null;
       }
     },
 
-    async upsertUserMetadata(uuid: string, metadata: Record<string, unknown>): Promise<void> {
+    async upsertUserMetadata(userId: number, metadata: Record<string, unknown>): Promise<void> {
       try {
-        await client.put<void>(apiRoutes.remnawave.userMetadata(uuid), { metadata });
+        await client.put<void>(apiRoutes.remnawave.userMetadata(userId), { metadata });
       } catch {
         // best-effort; language preference loss is non-critical
       }
     },
 
-    // ── client-facing "me" methods (no UUID in path — derived from credential) ──
+    // ── client-facing "me" methods (no user id in path — derived from credential) ──
 
-    async getMe(): Promise<GetUserByUuidResponseDto | null> {
+    async getMe(): Promise<GetUserByIdResponseDto | null> {
       try {
-        return await client.get<GetUserByUuidResponseDto>(apiRoutes.remnawave.me);
+        return await client.get<GetUserByIdResponseDto>(apiRoutes.remnawave.me);
       } catch (err: unknown) {
         if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
           return null;
@@ -153,7 +146,7 @@ export function createRemnawaveApi(client: ApiClient) {
     },
 
     async updateMe(
-      body: Omit<UpdateUserCommand.Request, 'uuid'>,
+      body: Omit<UpdateUserCommand.RequestBody, 'id'>,
     ): Promise<UpdateUserResponseDto | null> {
       return client.patch<UpdateUserResponseDto>(apiRoutes.remnawave.me, body);
     },
@@ -223,7 +216,7 @@ export function createRemnawaveApi(client: ApiClient) {
      */
     async connectEmail(
       email: string,
-      options: { inviterId?: string } = {},
+      options: { inviterId?: number } = {},
     ): Promise<CreateUserResponseDto | UpdateUserResponseDto | null> {
       return client.post<CreateUserResponseDto>(apiRoutes.remnawave.connectEmail, {
         email,

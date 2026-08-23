@@ -4,7 +4,6 @@
 import { UserDto } from '@workspace/types';
 
 export const mockUserDto: UserDto = {
-  uuid: '123e4567-e89b-12d3-a456-426614174000',
   shortUuid: 'abc123',
   username: '575800239',
 
@@ -51,7 +50,7 @@ export const mockUserDto: UserDto = {
 export const mockBroadcastUserDto: UserDto[] = [
   {
     ...mockUserDto,
-    uuid: '504dbd6c-09e6-4fea-9a73-92974ef6185f',
+    id: 2,
     username: 'KOT',
     telegramId: 249609787,
     userTraffic: {
@@ -61,7 +60,7 @@ export const mockBroadcastUserDto: UserDto[] = [
   },
   {
     ...mockUserDto,
-    uuid: 'cab71e6c-5577-4ebb-8756-719a5edaf5d6',
+    id: 3,
     username: '5986698166',
     telegramId: 5986698166,
     email: '7683608743',
@@ -73,7 +72,7 @@ export const mockBroadcastUserDto: UserDto[] = [
   },
   {
     ...mockUserDto,
-    uuid: 'f0d2c3b4-1a2b-3c4d-5e6f-708192a3b4c5',
+    id: 4,
     username: '6123456789',
     telegramId: 6123456789,
     status: 'EXPIRED',

@@ -26,7 +26,7 @@ export class AutopaymentService {
   ) {}
 
   async init(payload: RemnawebhookPayload): Promise<void> {
-    const userId = payload.data.uuid;
+    const userId = payload.data.id;
     const telegramId = payload.data.telegramId;
 
     const savedMethod = await this.savedMethodRepo.findOneBy({
@@ -89,26 +89,26 @@ export class AutopaymentService {
 
   private async handleUnsavedPaymentMethod(data: UserDto) {
     const hasOtherMethod = await this.savedMethodRepo.findOneBy({
-      userId: data.uuid,
+      userId: data.id,
       isActive: true,
     });
 
     if (hasOtherMethod) {
       this.logger.log(
-        `User ${data.uuid} has ${hasOtherMethod.provider} saved method — skipping autopayment`,
+        `User ${data.id} has ${hasOtherMethod.provider} saved method — skipping autopayment`,
       );
       return;
     }
 
     this.eventEmitter.emit(WebhookEventEnum['payment.no_active_method'], {
-      userId: data.uuid,
+      userId: data.id,
       provider: 'yookassa',
       reason: 'no_active_method',
     } satisfies Payments.PaymentFailedEventPayload);
   }
 
   private async attemptAutopaymentWithRetries(
-    userId: string,
+    userId: number,
     paymentMethodId: string,
   ): Promise<
     | { status: 'success'; reason: undefined; payment: Payments.IPayment; selectedPeriod: number }
@@ -159,7 +159,7 @@ export class AutopaymentService {
   }
 
   private async executeAutopayment(
-    userId: string,
+    userId: number,
     paymentMethodId: string,
   ): Promise<{ payment: Payments.IPayment; selectedPeriod: number }> {
     const previousPayment = await this.yookassaPaymentRepo.findOne({
@@ -190,7 +190,7 @@ export class AutopaymentService {
   }
 
   async checkAndNotifyExpiry48h(payload: RemnawebhookPayload): Promise<void> {
-    const userId = payload.data.uuid;
+    const userId = payload.data.id;
 
     const savedMethod = await this.savedMethodRepo.findOneBy({ userId, isActive: true });
 

@@ -43,11 +43,8 @@ export class EventsService {
     user: CreateUserResponseDto,
     attribution: AttributionPayload,
   ): Promise<void> {
-    this.logger.log(`trackUserCreated called for user ${user.uuid}, adCode=${attribution.adCode}`);
-    await Promise.all([
-      this.saveToDb(user.uuid, attribution),
-      this.writeToSheets(user, attribution),
-    ]);
+    this.logger.log(`trackUserCreated called for user ${user.id}, adCode=${attribution.adCode}`);
+    await Promise.all([this.saveToDb(user.id, attribution), this.writeToSheets(user, attribution)]);
   }
 
   private async persist(event: AnalyticsEvent): Promise<void> {
@@ -76,7 +73,8 @@ export class EventsService {
     try {
       const userId = 'userId' in event ? event.userId : null;
       const telegramId = 'telegramId' in event ? event.telegramId : null;
-      const distinctId = userId ?? (telegramId != null ? `tg:${telegramId}` : null);
+      const distinctId =
+        userId != null ? String(userId) : telegramId != null ? `tg:${telegramId}` : null;
 
       if (!distinctId) {
         this.logger.warn(`No identity for PostHog capture: event=${event.event}`);
@@ -102,7 +100,7 @@ export class EventsService {
     }
   }
 
-  private async saveToDb(userId: string, attribution: AttributionPayload): Promise<void> {
+  private async saveToDb(userId: number, attribution: AttributionPayload): Promise<void> {
     try {
       await this.attributionRepo.save({
         userId,

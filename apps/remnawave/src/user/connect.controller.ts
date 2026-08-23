@@ -30,7 +30,7 @@ export class ConnectController {
   @UseGuards(AnyCredentialGuard)
   async connectEmail(
     @Req() req: AnyCredentialRequest,
-    @Body() body: { email?: string; inviterId?: string },
+    @Body() body: { email?: string; inviterId?: number },
   ): Promise<CreateUserResponseDto | UpdateUserResponseDto | null> {
     const { authenticatedTelegramId: telegramId, authenticatedEmail: jwtEmail } = req;
 
@@ -48,11 +48,11 @@ export class ConnectController {
 
   private async handleWebConnect(
     email: string,
-    inviterId?: string,
+    inviterId?: number,
   ): Promise<CreateUserResponseDto | UpdateUserResponseDto | null> {
     const emailUsers = await this.userService.getUserByEmail(email);
     const user = this.first(emailUsers);
-    if (user?.uuid) return user;
+    if (user) return user;
 
     return this.userService.createUser({ email, inviterId });
   }
@@ -60,26 +60,26 @@ export class ConnectController {
   private async handleTelegramConnect(
     telegramId: number,
     email: string,
-    inviterId?: string,
+    inviterId?: number,
   ): Promise<CreateUserResponseDto | UpdateUserResponseDto | null> {
     if (email) {
       const emailUsers = await this.userService.getUserByEmail(email);
       const emailUser = this.first(emailUsers);
-      if (emailUser?.uuid) {
-        return this.userService.updateUser({ uuid: emailUser.uuid, telegramId, email });
+      if (emailUser) {
+        return this.userService.updateUser({ id: emailUser.id, telegramId, email });
       }
     }
 
     const tgUsers = await this.userService.getUserByTgId(telegramId);
     const tgUser = this.first(tgUsers);
-    if (tgUser?.uuid) {
-      return email ? this.userService.updateUser({ uuid: tgUser.uuid, email }) : tgUser;
+    if (tgUser) {
+      return email ? this.userService.updateUser({ id: tgUser.id, email }) : tgUser;
     }
 
     return this.userService.createUser({ email: email || undefined, telegramId, inviterId });
   }
 
-  private first<T extends { uuid?: string }>(result: T | T[] | null): T | null {
+  private first<T>(result: T | T[] | null): T | null {
     if (!result) return null;
     return Array.isArray(result) ? (result[0] ?? null) : result;
   }

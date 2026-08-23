@@ -68,7 +68,7 @@ describe('EventsService.trackEvent()', () => {
 
       await service.trackEvent({
         event: 'payment_succeeded',
-        userId: 'user-uuid',
+        userId: 1000,
         provider: 'stripe',
         selectedPeriod: 30,
         isFirstPayment: true,
@@ -78,7 +78,7 @@ describe('EventsService.trackEvent()', () => {
       expect(save).toHaveBeenCalledWith(
         expect.objectContaining({
           event: 'payment_succeeded',
-          userId: 'user-uuid',
+          userId: 1000,
           telegramId: null,
           adCode: null,
         }),
@@ -90,7 +90,7 @@ describe('EventsService.trackEvent()', () => {
       const { service } = buildService({ repo: buildRepo(save) });
 
       await expect(
-        service.trackEvent({ event: 'subscription_expired', userId: 'u1' }),
+        service.trackEvent({ event: 'subscription_expired', userId: 1001 }),
       ).resolves.toBeUndefined();
     });
   });
@@ -102,14 +102,14 @@ describe('EventsService.trackEvent()', () => {
 
       await service.trackEvent({
         event: 'payment_succeeded',
-        userId: 'user-uuid',
+        userId: 1000,
         provider: 'yookassa',
         selectedPeriod: 30,
         isFirstPayment: false,
         isAutoPayment: true,
       });
 
-      expect(capture).toHaveBeenCalledWith('user-uuid', 'payment_succeeded', expect.any(Object));
+      expect(capture).toHaveBeenCalledWith('1000', 'payment_succeeded', expect.any(Object));
     });
 
     it('uses tg: prefix as distinctId when only telegramId is present', async () => {
@@ -133,8 +133,8 @@ describe('EventsService.trackEvent()', () => {
 
       await service.trackEvent({
         event: 'referral_reward_granted',
-        invitedUserId: 'u1',
-        inviterUserId: 'u2',
+        invitedUserId: 1001,
+        inviterUserId: 1002,
       });
 
       expect(capture).not.toHaveBeenCalled();
@@ -147,7 +147,7 @@ describe('EventsService.trackEvent()', () => {
       const { service } = buildService({ postHog: buildPostHog(capture) });
 
       await expect(
-        service.trackEvent({ event: 'subscription_expired', userId: 'u1' }),
+        service.trackEvent({ event: 'subscription_expired', userId: 1001 }),
       ).resolves.toBeUndefined();
     });
   });

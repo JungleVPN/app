@@ -6,7 +6,7 @@ export type Session = BillingPortalSession | CheckoutSession;
 
 export interface StripeInvoicePayload {
   id: string;
-  userId: string | null;
+  userId: number | null;
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
   amount: number | null;

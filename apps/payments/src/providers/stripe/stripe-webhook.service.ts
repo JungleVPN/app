@@ -80,9 +80,11 @@ export class StripeWebhookService {
     session: Stripe.Checkout.Session,
     customer: string | null,
   ) {
-    const userId = session.metadata?.userId;
+    // Stripe metadata values are always strings on the wire; the Remnawave
+    // user id is numeric since panel v3, so parse it back at this boundary.
+    const userId = parseRemnaUserId(session.metadata?.userId);
 
-    if (!userId) {
+    if (userId == null) {
       this.logger.warn(`Extra-device checkout ${session.id}: no userId in metadata — skipping`);
       return;
     }
@@ -450,11 +452,21 @@ export class StripeWebhookService {
       stripeCustomerId: customer.id,
       invoiceUrl: invoice.hosted_invoice_url || null,
       metadata: { ...customer.metadata },
-      // Remnawave uuid, stamped onto the customer at creation time.
-      userId: customer.metadata.userId || null,
+      // Remnawave user id, stamped onto the customer at creation time.
+      userId: parseRemnaUserId(customer.metadata.userId),
       currency: 'EUR',
       paidAt,
       url: null,
     };
   }
+}
+
+/**
+ * Parses a Remnawave numeric user id out of a Stripe metadata value.
+ * Returns null for absent, empty, or non-integer values.
+ */
+function parseRemnaUserId(raw: string | undefined | null): number | null {
+  if (raw == null || raw === '') return null;
+  const parsed = Number(raw);
+  return Number.isInteger(parsed) ? parsed : null;
 }

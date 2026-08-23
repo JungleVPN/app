@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   GetSubpageConfigByShortUuidCommand,
   GetSubscriptionInfoByShortUuidCommand,
-  GetSubscriptionPageConfigCommand,
+  GetSubpageConfigCommand,
 } from '@workspace/types';
 import { RemnaPanelClient } from '../common/remna-panel.client';
 
@@ -35,10 +35,10 @@ export class SubscriptionService {
 
   async getSubscriptionPageConfig(
     uuid: string,
-  ): Promise<GetSubscriptionPageConfigCommand.Response['response']> {
-    return this.panelClient.request<GetSubscriptionPageConfigCommand.Response['response']>({
-      method: GetSubscriptionPageConfigCommand.endpointDetails.REQUEST_METHOD,
-      url: GetSubscriptionPageConfigCommand.url(uuid),
+  ): Promise<GetSubpageConfigCommand.Response['response']> {
+    return this.panelClient.request<GetSubpageConfigCommand.Response['response']>({
+      method: GetSubpageConfigCommand.endpointDetails.REQUEST_METHOD,
+      url: GetSubpageConfigCommand.url(uuid),
     });
   }
 }

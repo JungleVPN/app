@@ -27,8 +27,24 @@ export function captureReferral(): void {
   writeCookie(COOKIE_NAME, inviterId);
 }
 
+/** The raw stored code, exactly as captured from the `ref` URL param. */
 export function getReferral(): string | null {
   return readCookie(COOKIE_NAME);
+}
+
+/**
+ * The stored referral as a Remnawave user id.
+ *
+ * Panel v3 keys users by a numeric id, so a stored code that is not a positive
+ * integer — notably a uuid captured before the migration — resolves to null
+ * rather than being forwarded as a bogus inviter.
+ */
+export function getReferralUserId(): number | null {
+  const raw = getReferral();
+  if (!raw) return null;
+
+  const inviterId = Number(raw);
+  return Number.isSafeInteger(inviterId) && inviterId > 0 ? inviterId : null;
 }
 
 /** Clears the referral once it has been used to attribute an account. */

@@ -59,7 +59,7 @@ export class YookassaService {
 
   // ── Query methods ────────────────────────────────────────────────────────
 
-  getActiveSavedMethods(userId: string): Promise<SavedPaymentMethod[]> {
+  getActiveSavedMethods(userId: number): Promise<SavedPaymentMethod[]> {
     return this.savedMethodRepo.find({
       where: { userId, isActive: true },
       order: { createdAt: 'DESC' },
@@ -159,7 +159,7 @@ export class YookassaService {
   /** Validate a promo code at checkout; returns the normalized code or throws 400. */
   private async validatePromoOrThrow(
     code: string,
-    ctx: { userId: string; userStatus?: string; selectedPeriod: number },
+    ctx: { userId: number; userStatus?: string; selectedPeriod: number },
   ): Promise<string> {
     try {
       await this.promoService.resolve(code, ctx);
@@ -399,7 +399,7 @@ export class YookassaService {
 
   // ── Saved payment methods ───────────────────────────────────────────────
 
-  async deletePaymentMethod(id: string, userId: string): Promise<void> {
+  async deletePaymentMethod(id: string, userId: number): Promise<void> {
     const method = await this.savedMethodRepo.findOneBy({ id, userId });
     if (!method) {
       throw new NotFoundException(`Saved payment method ${id} not found for user ${userId}`);
@@ -420,7 +420,7 @@ export class YookassaService {
     userId,
     payment_method,
   }: {
-    userId: string;
+    userId: number;
     payment_method: IPaymentMethod & IGeneralPayMethod;
   }): Promise<void> {
     try {

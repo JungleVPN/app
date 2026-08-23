@@ -19,7 +19,7 @@ export function useExtraDevicePayment() {
     if (!rmnUser) return;
 
     const session = await createSession({
-      userId: rmnUser.uuid,
+      userId: rmnUser.id,
       telegramId: tgUser?.id != null ? Number(tgUser.id) : null,
       purpose: 'extra_device',
       save_payment_method: false,

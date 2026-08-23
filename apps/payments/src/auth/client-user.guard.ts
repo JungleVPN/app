@@ -5,7 +5,7 @@ import { parseSupabaseJwt } from './supabase-jwt';
 import { parseTelegramInitData } from './telegram-init-data';
 
 export interface AuthenticatedRequest {
-  authenticatedUserId: string;
+  authenticatedUserId: number;
   authenticatedEmail: string;
   authenticatedTelegramId?: number;
   headers: Record<string, string | string[] | undefined>;

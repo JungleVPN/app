@@ -11,7 +11,7 @@ import type {
 } from './tolt.types';
 
 const PARTNER = 'part_xyz';
-const USER = 'user-uuid-1';
+const USER = 4821;
 
 /** A user who has already paid: customer created, attribution frozen. */
 function referralRow(overrides: Partial<ToltReferral> = {}): ToltReferral {
@@ -244,7 +244,9 @@ describe('ToltService.reportConversion — customer creation on first payment', 
     await service.reportConversion(stripeConversion);
 
     expect(client.createCustomer).toHaveBeenCalledWith(
-      expect.objectContaining({ partner_id: PARTNER, customer_id: USER, status: 'active' }),
+      // Tolt's customer_id is a string field on their API, so the numeric
+      // remnawave user id is stringified on the way out.
+      expect.objectContaining({ partner_id: PARTNER, customer_id: String(USER), status: 'active' }),
     );
     expect(client.createTransaction).toHaveBeenCalledWith(
       expect.objectContaining({ customer_id: 'cus_new' }),

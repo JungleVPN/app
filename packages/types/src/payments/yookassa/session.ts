@@ -1,3 +1,4 @@
+import type { RemnaUserId } from '../../remnawave';
 import { PaymentPurpose } from '../common';
 import type { Payments } from './payment';
 
@@ -14,7 +15,7 @@ export interface PaymentSession {
  */
 export interface CreateYookassaSessionDto
   extends Omit<Payments.CreatePaymentRequest, 'metadata' | 'capture'> {
-  userId: string;
+  userId: RemnaUserId;
   /** Telegram user id of the payer — stored on the DB record for admin lookups. */
   telegramId?: number | null;
   /** What this payment is for. Defaults to 'subscription'. */

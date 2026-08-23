@@ -5,7 +5,7 @@ import { createBackendClient } from '@utils/http-client';
 import {
   apiRoutes,
   CreateUserRequestDto,
-  GetUserByTelegramIdResponseDto,
+  type StreamedUserDto,
   GetUserMetadataResponseDto,
   UserDto,
 } from '@workspace/types';
@@ -71,10 +71,10 @@ export class RemnaService {
 
   async getUserByTgId(
     telegramId: CreateUserRequestDto['telegramId'],
-  ): Promise<GetUserByTelegramIdResponseDto | null> {
+  ): Promise<StreamedUserDto[] | null> {
     if (!telegramId) return null;
     try {
-      const users = await this.fetch<GetUserByTelegramIdResponseDto>({
+      const users = await this.fetch<StreamedUserDto[]>({
         method: 'GET',
         url: apiRoutes.remnawave.userByTelegramId(telegramId),
       });
@@ -87,11 +87,11 @@ export class RemnaService {
     }
   }
 
-  async getUserLang(uuid: string): Promise<string | null> {
+  async getUserLang(userId: number): Promise<string | null> {
     try {
       const { metadata } = await this.fetch<GetUserMetadataResponseDto>({
         method: 'GET',
-        url: apiRoutes.remnawave.userMetadata(uuid),
+        url: apiRoutes.remnawave.userMetadata(userId),
       });
       const lang = metadata?.lang;
       return typeof lang === 'string' ? lang : null;
@@ -100,21 +100,21 @@ export class RemnaService {
     }
   }
 
-  async upsertUserLang(uuid: string, lang: string): Promise<void> {
+  async upsertUserLang(userId: number, lang: string): Promise<void> {
     try {
       await this.fetch<unknown>({
         method: 'PUT',
-        url: apiRoutes.remnawave.userMetadata(uuid),
+        url: apiRoutes.remnawave.userMetadata(userId),
         body: { metadata: { lang } },
       });
     } catch (e: any) {
-      this.logger.warn(`Failed to upsert lang metadata for ${uuid}: ${e?.message}`);
+      this.logger.warn(`Failed to upsert lang metadata for ${userId}: ${e?.message}`);
     }
   }
 
-  async revokeSub(uuid: string) {
+  async revokeSub(userId: number) {
     return await this.fetch<string>({
-      url: apiRoutes.remnawave.revokeUserSubscription(uuid),
+      url: apiRoutes.remnawave.revokeUserSubscription(userId),
     });
   }
 
@@ -135,7 +135,7 @@ export class RemnaService {
       errorMessage.toLowerCase().includes(pattern),
     );
 
-    if (isInvalid && user.uuid) {
+    if (isInvalid && user.id != null) {
       try {
         this.logger.log(`Removed invalid user ${user.telegramId} (${errorMessage})`);
         return true;
