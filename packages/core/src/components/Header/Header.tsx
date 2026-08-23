@@ -41,10 +41,13 @@ export function Header() {
 
   useEffect(() => {
     const root = document.getElementById('root');
-    if (!root) return;
-    const onScroll = () => setScrolled(root.scrollTop > 0);
-    root.addEventListener('scroll', onScroll, { passive: true });
-    return () => root.removeEventListener('scroll', onScroll);
+    const onScroll = () => setScrolled(window.scrollY > 0 || (root?.scrollTop ?? 0) > 0);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    root?.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      root?.removeEventListener('scroll', onScroll);
+    };
   }, []);
 
   const getLink = () => {

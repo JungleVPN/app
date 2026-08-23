@@ -120,6 +120,25 @@ body {
   background-color: var(--background);
   background-size: 60px 60px;
   background-attachment: fixed;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  position: relative;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  width: 100%;
+}
+
+/* Moves scrolling from html/body into #root instead. Needed by ProfileLayout,
+   whose fixed bottom tab bar (Tabs.module.css) jumps/flickers during iOS
+   rubber-band scrolling if body itself scrolls. Toggled by ProfileLayout on
+   mount/unmount so every other route scrolls natively and keeps Safari's
+   compact-toolbar behavior. */
+html.scroll-lock,
+html.scroll-lock body {
   inset: 0;
   position: fixed;
   transform: translateZ(0);
@@ -128,16 +147,10 @@ body {
   touch-action: none;
 }
 
-#root {
-  display: flex;
-  flex-direction: column;
+html.scroll-lock #root {
   height: 100%;
   overflow: clip auto;
   overscroll-behavior-x: none;
-  position: relative;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-  width: 100%;
 }
 
 input:-webkit-autofill,

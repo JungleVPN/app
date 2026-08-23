@@ -1,7 +1,9 @@
 const positions = new Map<string, number>();
 
 function getScrollElement(): HTMLElement {
-  return document.getElementById('root') ?? document.documentElement;
+  const root = document.getElementById('root');
+  if (root && root.scrollHeight > root.clientHeight) return root;
+  return document.scrollingElement as HTMLElement;
 }
 
 export function saveScrollPosition(key: string) {

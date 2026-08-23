@@ -35,6 +35,14 @@ export function ProfileLayout() {
     captureReferral();
   }, []);
 
+  // Locks html/body scroll in favor of an inner #root scroll container — see
+  // the `.scroll-lock` rule in globals.css for why the fixed bottom
+  // tab bar needs this. Scoped to this layout so other routes scroll natively.
+  useEffect(() => {
+    document.documentElement.classList.add('scroll-lock');
+    return () => document.documentElement.classList.remove('scroll-lock');
+  }, []);
+
   // Resolve the remnawave user from the available auth identity.
   //
   // Web:  looks up by email (authUser.email); redirects to getSubscriptionPath if not found.
