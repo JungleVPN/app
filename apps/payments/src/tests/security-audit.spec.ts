@@ -49,7 +49,7 @@ const makeSucceededPayload = (
 
 const makeDbPayment = (overrides: Record<string, unknown> = {}) => ({
   id: 'pay_test',
-  userId: 'user-uuid-1',
+  userId: 1000,
   selectedPeriod: 1,
   telegramId: 42,
   status: 'pending' as Payments.PaymentStatus,

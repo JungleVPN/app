@@ -3,7 +3,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import {
   apiRoutes,
-  GetUserByUuidResponseDto,
+  GetUserByIdResponseDto,
   Payments,
   WebhookEvent,
   WebhookEventEnum,
@@ -33,14 +33,14 @@ export class BotNotificationService {
     return process.env.REMNAWAVE_URL || 'http://localhost:3002/remnawave';
   }
 
-  private async getUserByUuid(uuid: string): Promise<GetUserByUuidResponseDto> {
-    if (!uuid) {
+  private async getUserById(userId: number): Promise<GetUserByIdResponseDto> {
+    if (userId == null) {
       throw new NotFoundException('User id is required to notify bot');
     }
 
     try {
-      const { data } = await axios.get<GetUserByUuidResponseDto | null>(
-        `${this.remnawareBaseUrl}${apiRoutes.remnawave.userByUuid(uuid)}`,
+      const { data } = await axios.get<GetUserByIdResponseDto | null>(
+        `${this.remnawareBaseUrl}${apiRoutes.remnawave.userById(userId)}`,
         {
           headers: {
             'x-service-secret': process.env.INTER_SERVICE_SECRET,
@@ -48,7 +48,7 @@ export class BotNotificationService {
         },
       );
       if (!data) {
-        throw new NotFoundException(`User not found: ${uuid}`);
+        throw new NotFoundException(`User not found: ${userId}`);
       }
       return data;
     } catch (err: unknown) {
@@ -56,10 +56,10 @@ export class BotNotificationService {
         throw err;
       }
       if (isAxiosError(err) && err.response?.status === 404) {
-        throw new NotFoundException(`User not found: ${uuid}`);
+        throw new NotFoundException(`User not found: ${userId}`);
       }
       const message = err instanceof Error ? err.message : String(err);
-      this.logger.error(`Failed to fetch user by uuid ${uuid}: ${message}`);
+      this.logger.error(`Failed to fetch user by id ${userId}: ${message}`);
       throw err;
     }
   }
@@ -127,7 +127,7 @@ export class BotNotificationService {
     eventType: WebhookEvent,
     payload: Payments.PaymentSucceededEventPayload | Payments.PaymentFailedEventPayload,
   ): Promise<void> {
-    const user = await this.getUserByUuid(payload.userId);
+    const user = await this.getUserById(payload.userId);
 
     if (!user.telegramId) {
       this.logger.warn(

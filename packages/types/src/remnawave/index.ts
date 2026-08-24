@@ -6,16 +6,15 @@ export {
   DeleteUserHwidDeviceCommand,
   EVENTS as REMNAWAVE_EVENTS,
   EVENTS_SCOPES as REMNAWAVE_EVENTS_SCOPES,
-  GetAllUsersCommand,
-  GetMetadataCommand,
   GetSubpageConfigByShortUuidCommand,
+  GetSubpageConfigCommand,
   GetSubscriptionInfoByShortUuidCommand,
-  GetSubscriptionPageConfigCommand,
-  GetUserByEmailCommand,
-  GetUserByTelegramIdCommand,
-  GetUserByUuidCommand,
+  GetUserByIdCommand,
   GetUserHwidDevicesCommand,
   GetUserMetadataCommand,
+  GetUsersCommand,
+  GetUsersStreamCommand,
+  ResolveUserCommand,
   RevokeUserSubscriptionCommand,
   type TRemnawaveWebhookEvent,
   UpdateUserCommand,
@@ -35,26 +34,38 @@ export {
 
 import {
   CreateUserCommand,
-  DeleteUserCommand,
-  GetUserByEmailCommand,
-  GetUserByTelegramIdCommand,
-  GetUserByUuidCommand,
+  GetUserByIdCommand,
   GetUserHwidDevicesCommand,
   GetUserMetadataCommand,
+  GetUsersStreamCommand,
   UpdateUserCommand,
 } from '@remnawave/backend-contract';
 
-export type CreateUserRequestDto = CreateUserCommand.Request;
-export type UpdateUserRequestDto = UpdateUserCommand.Request;
+/**
+ * Remnawave panel user identifier.
+ *
+ * Panel v3 dropped the `uuid` field entirely: users are keyed by a numeric `id`,
+ * with `shortUuid` retained only as the subscription-link identifier. Everything
+ * in this monorepo that used to pass a v2 uuid string now passes a `RemnaUserId`.
+ */
+export type RemnaUserId = number;
+
+export type CreateUserRequestDto = CreateUserCommand.RequestBody;
+export type UpdateUserRequestDto = UpdateUserCommand.RequestBody;
 
 export type UserDto = CreateUserCommand.Response['response'];
 
-// by-telegram-id and by-email return arrays of users inside `response`
-export type GetUserByTelegramIdResponseDto = GetUserByTelegramIdCommand.Response['response'];
-export type GetUserByEmailCommandDto = GetUserByEmailCommand.Response['response'];
-export type GetUserByUuidResponseDto = GetUserByUuidCommand.Response['response'];
+export type GetUserByIdResponseDto = GetUserByIdCommand.Response['response'];
 export type CreateUserResponseDto = CreateUserCommand.Response['response'];
 export type UpdateUserResponseDto = UpdateUserCommand.Response['response'];
-export type DeleteUserResponseDto = DeleteUserCommand.Response['response'];
 export type HwidDeviceDto = GetUserHwidDevicesCommand.Response['response']['devices'][number];
 export type GetUserMetadataResponseDto = GetUserMetadataCommand.Response['response'];
+
+/**
+ * `/api/users/stream` replaced the removed by-telegram-id / by-email / by-tag
+ * lookup endpoints in panel v3. It is the only remaining way to find a user by
+ * a platform identity rather than by panel id.
+ */
+export type GetUsersStreamQuery = GetUsersStreamCommand.RequestQuery;
+export type GetUsersStreamResponseDto = GetUsersStreamCommand.Response['response'];
+export type StreamedUserDto = GetUsersStreamResponseDto['users'][number];

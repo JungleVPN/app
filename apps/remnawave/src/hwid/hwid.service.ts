@@ -10,31 +10,31 @@ import { RemnaPanelClient } from '../common/remna-panel.client';
 export class HwidService {
   constructor(private readonly panelClient: RemnaPanelClient) {}
 
-  async getUserDevices(userUuid: string): Promise<GetUserHwidDevicesCommand.Response['response']> {
+  async getUserDevices(userId: number): Promise<GetUserHwidDevicesCommand.Response['response']> {
     return this.panelClient.request<GetUserHwidDevicesCommand.Response['response']>({
       method: GetUserHwidDevicesCommand.endpointDetails.REQUEST_METHOD,
-      url: GetUserHwidDevicesCommand.url(userUuid),
+      url: GetUserHwidDevicesCommand.url(String(userId)),
     });
   }
 
   async deleteUserDevice(
-    userUuid: string,
+    userId: number,
     hwid: string,
   ): Promise<DeleteUserHwidDeviceCommand.Response['response']> {
     return this.panelClient.request<DeleteUserHwidDeviceCommand.Response['response']>({
       method: DeleteUserHwidDeviceCommand.endpointDetails.REQUEST_METHOD,
       url: DeleteUserHwidDeviceCommand.url,
-      body: { userUuid, hwid } satisfies DeleteUserHwidDeviceCommand.Request,
+      body: { userId, hwid } satisfies DeleteUserHwidDeviceCommand.RequestBody,
     });
   }
 
   async deleteAllUserDevices(
-    userUuid: string,
+    userId: number,
   ): Promise<DeleteAllUserHwidDevicesCommand.Response['response']> {
     return this.panelClient.request<DeleteAllUserHwidDevicesCommand.Response['response']>({
       method: DeleteAllUserHwidDevicesCommand.endpointDetails.REQUEST_METHOD,
       url: DeleteAllUserHwidDevicesCommand.url,
-      body: { userUuid } satisfies DeleteAllUserHwidDevicesCommand.Request,
+      body: { userId } satisfies DeleteAllUserHwidDevicesCommand.RequestBody,
     });
   }
 }

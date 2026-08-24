@@ -1,4 +1,4 @@
-import type { GetUserByUuidResponseDto } from '@workspace/types';
+import type { GetUserByIdResponseDto } from '@workspace/types';
 import { create } from 'zustand';
 import { AuthSource, User } from '../types/tma';
 
@@ -16,7 +16,7 @@ export interface IAuthState {
   /** Authenticated web user. Null on TMA or before web auth resolves. */
   authUser: AuthUser | null;
   /** Remnawave backend user — the shared identity across all platforms. */
-  rmnUser: GetUserByUuidResponseDto | null;
+  rmnUser: GetUserByIdResponseDto | null;
   /** True while initial auth resolution is still in progress. */
   loading: boolean;
   /** Which auth mechanism resolved the current session. */
@@ -30,7 +30,7 @@ export interface IAuthState {
 export interface IAuthActions {
   actions: {
     setAuthUser: (user: AuthUser | null) => void;
-    setRmnUser: (user: GetUserByUuidResponseDto | null) => void;
+    setRmnUser: (user: GetUserByIdResponseDto | null) => void;
     setLoading: (loading: boolean) => void;
     setAuthSource: (source: AuthSource | null) => void;
     setTgUser: (user: User | null) => void;

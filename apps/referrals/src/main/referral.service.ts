@@ -11,7 +11,6 @@ import { PaymentsClient } from './payments.client';
 import { type ExistingReferralConflict, findExistingReferralConflict } from './referral.utils';
 import { RemnaClient } from './remna.client';
 
-
 @Injectable()
 export class ReferralService {
   private readonly logger = new Logger(ReferralService.name);
@@ -23,7 +22,7 @@ export class ReferralService {
    * this in-memory guard is a fast-path defence against duplicate async calls within
    * the same process.
    */
-  private readonly inFlight = new Set<string>();
+  private readonly inFlight = new Set<number>();
 
   constructor(
     @InjectRepository(Referral)
@@ -34,11 +33,11 @@ export class ReferralService {
     private readonly analyticsClient: AnalyticsClientService,
   ) {}
 
-  async getReferralByInvitedId(invitedId: string): Promise<Referral | null> {
+  async getReferralByInvitedId(invitedId: number): Promise<Referral | null> {
     return this.referralRepository.findOne({ where: { invitedId } });
   }
 
-  async createReferralRecord(inviterId: string, invitedId: string): Promise<Referral> {
+  async createReferralRecord(inviterId: number, invitedId: number): Promise<Referral> {
     const referral = this.referralRepository.create({
       inviterId,
       invitedId,
@@ -54,8 +53,8 @@ export class ReferralService {
    * from there rather than at the initial /start ref_xxx click.
    */
   async handleNewUser(
-    inviterId: string,
-    invitedId: string,
+    inviterId: number,
+    invitedId: number,
   ): Promise<{ success: boolean; reason?: string }> {
     if (inviterId === invitedId) {
       this.logger.warn(`User ${invitedId} tried to refer themselves.`);
@@ -70,7 +69,7 @@ export class ReferralService {
       return { success: false, reason: conflict };
     }
 
-    const inviter = await this.remnaClient.getUserByUuid(inviterId);
+    const inviter = await this.remnaClient.getUserById(inviterId);
     if (!inviter) {
       this.logger.warn(`Inviter ${inviterId} not found.`);
       return { success: false, reason: 'inviter_not_found' };
@@ -95,7 +94,7 @@ export class ReferralService {
    *    reward is issued (Finding #6)
    */
   async handleInviterRewardAfterPayment(
-    invitedId: string,
+    invitedId: number,
   ): Promise<{ rewarded: boolean; reason?: string; inviterRewarded?: boolean }> {
     if (this.inFlight.has(invitedId)) {
       return { rewarded: false, reason: 'already_processing' };
@@ -110,7 +109,7 @@ export class ReferralService {
   }
 
   private async rewardInviterForCompletedReferral(
-    invitedId: string,
+    invitedId: number,
   ): Promise<{ rewarded: boolean; reason?: string; inviterRewarded?: boolean }> {
     const referral = await this.referralRepository.findOne({
       where: { invitedId },
@@ -151,7 +150,7 @@ export class ReferralService {
     return { rewarded: true, inviterRewarded: inviterEligible };
   }
 
-  async deleteByInvitedId(invitedId: string): Promise<void> {
+  async deleteByInvitedId(invitedId: number): Promise<void> {
     await this.referralRepository.delete({ invitedId });
   }
 
@@ -161,30 +160,30 @@ export class ReferralService {
    * on their initial trial. Require an ACTIVE subscription *and* at least one
    * settled subscription payment ever recorded.
    */
-  private async isInviterEligibleForBonus(inviterId: string): Promise<boolean> {
-    const inviter = await this.remnaClient.getUserByUuid(inviterId);
+  private async isInviterEligibleForBonus(inviterId: number): Promise<boolean> {
+    const inviter = await this.remnaClient.getUserById(inviterId);
     if (!inviter || inviter.status !== 'ACTIVE') return false;
 
     return this.paymentsClient.hasEverPaid(inviterId);
   }
 
   private async rewardUser(
-    userId: string,
+    userId: number,
     days: number,
     role: 'inviter' | 'invited',
   ): Promise<void> {
-    const user = await this.remnaClient.getUserByUuid(userId);
+    const user = await this.remnaClient.getUserById(userId);
     if (!user) return;
 
     const newExpireAt = add(new Date(user.expireAt), { days });
 
     await this.remnaClient.updateUser({
-      uuid: user.uuid,
+      id: user.id,
       expireAt: newExpireAt,
     });
 
     const payload: ReferralRewardedEvent = {
-      userId: user.uuid,
+      userId: user.id,
       telegramId: user.telegramId,
       role,
     };
@@ -193,7 +192,7 @@ export class ReferralService {
     this.logger.log(`Rewarded ${role} ${userId} with ${days} day(s)`);
   }
 
-  private logReferralConflict(conflict: ExistingReferralConflict, invitedId: string): void {
+  private logReferralConflict(conflict: ExistingReferralConflict, invitedId: number): void {
     switch (conflict) {
       case 'user_is_invited':
         this.logger.warn('Someone has already invited: ', invitedId);

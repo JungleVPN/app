@@ -29,7 +29,7 @@ export { isRuDomain } from './domain';
 export { formatCurrency, truncate } from './format';
 export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';
-export { captureReferral, clearReferral, getReferral } from './referral';
+export { captureReferral, clearReferral, getReferral, getReferralUserId } from './referral';
 export { scrollToTop } from './scrollToTop';
 export type { Storage } from './storage';
 export { createStorage } from './storage';

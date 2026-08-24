@@ -11,7 +11,7 @@ import {
   clearAttribution,
   clearReferral,
   getAttribution,
-  getReferral,
+  getReferralUserId,
   validateEmail,
 } from '../../utils';
 
@@ -74,7 +74,7 @@ export function useGetSubscriptionPage() {
     connectingRef.current = true;
 
     remnawaveApi
-      .connectEmail('', { inviterId: getReferral() ?? undefined })
+      .connectEmail('', { inviterId: getReferralUserId() ?? undefined })
       .then((user) => {
         if (!user) return;
         setRmnUser(user);
@@ -120,7 +120,7 @@ export function useGetSubscriptionPage() {
   // can access their subscription from both Telegram and the web.
   const submitTelegramUser = async (tgUser: User) => {
     const user = await remnawaveApi.connectEmail(email, {
-      inviterId: getReferral() ?? undefined,
+      inviterId: getReferralUserId() ?? undefined,
     });
 
     setRmnUser(user ?? null);

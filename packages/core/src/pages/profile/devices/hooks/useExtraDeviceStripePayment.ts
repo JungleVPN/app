@@ -21,12 +21,12 @@ export function useExtraDeviceStripePayment() {
     if (!payerEmail) return;
 
     const session = await createStripeSession({
-      userId: rmnUser.uuid,
+      userId: rmnUser.id,
       purchaseType: 'extra_device',
       selectedPeriod: 1,
       metadata: {
         email: payerEmail,
-        userId: rmnUser.uuid,
+        userId: String(rmnUser.id),
         ...(tgUser?.id != null ? { telegramId: String(tgUser.id) } : {}),
       },
     });

@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import type { GetSubscriptionPageConfigCommand } from '@workspace/types';
+import type { GetSubpageConfigCommand } from '@workspace/types';
 import { SubscriptionService } from './subscription.service';
 
 @Controller('subscription-page-configs')
@@ -9,7 +9,7 @@ export class SubscriptionPageConfigController {
   @Get(':uuid')
   async getSubscriptionPageConfig(
     @Param('uuid') uuid: string,
-  ): Promise<GetSubscriptionPageConfigCommand.Response['response']> {
+  ): Promise<GetSubpageConfigCommand.Response['response']> {
     return this.subscriptionService.getSubscriptionPageConfig(uuid);
   }
 }

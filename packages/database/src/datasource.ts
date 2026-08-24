@@ -22,7 +22,10 @@ config({ path: path.resolve(process.cwd(), '../../.env.development') });
 config({ path: path.resolve(process.cwd(), '.env') });
 config({ path: path.resolve(process.cwd(), '../../.env') });
 
-const migrationsDir = path.join(__dirname, 'migrations', '*.js');
+// Anything this glob matches is require()d and run as a migration, so it must
+// not reach test files: a compiled *.spec.js here crashes the migration
+// container at startup (vitest cannot be require()d from CommonJS).
+const migrationsDir = path.join(__dirname, 'migrations', '!(*.spec|*.test).js');
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',

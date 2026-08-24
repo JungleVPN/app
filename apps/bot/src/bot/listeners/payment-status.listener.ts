@@ -62,7 +62,7 @@ export class PaymentStatusListener {
   }
 
   private async resolveLocale(user: UserDto): Promise<string> {
-    const lang = user.uuid ? await this.remnaService.getUserLang(user.uuid) : null;
+    const lang = user.id != null ? await this.remnaService.getUserLang(user.id) : null;
     return lang || (process.env.DEFAULT_LOCALE as LocaleId);
   }
 

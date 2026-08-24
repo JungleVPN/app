@@ -23,7 +23,7 @@ const makeRemnawavePayload = (): RemnawebhookPayload =>
     scope: 'user',
     event: 'user.expires_in_48_hours',
     data: {
-      uuid: 'user-1',
+      id: 1000,
       username: 'test',
       status: 'ACTIVE',
       telegramId: 42,
@@ -35,7 +35,7 @@ const makeRemnawavePayload = (): RemnawebhookPayload =>
 const makeExpiryEvent = (
   overrides: Partial<Payments.PaymentExpiryReminderEventPayload> = {},
 ): Payments.PaymentExpiryReminderEventPayload => ({
-  userId: 'user-1',
+  userId: 1000,
   provider: 'yookassa',
   hoursRemaining: 48,
   remnawavePayload: makeRemnawavePayload(),

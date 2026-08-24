@@ -69,7 +69,7 @@ describe('StartCommand.handle — bot_started tracking', () => {
 
   it('records a returning user with isReturningUser true', async () => {
     const { command, analyticsService } = buildCommand({
-      getUserByTgIdResult: { uuid: 'user-uuid-123' },
+      getUserByTgIdResult: { id: 1000 },
     });
 
     await command.handle(buildCtx());

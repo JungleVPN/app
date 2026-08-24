@@ -38,10 +38,21 @@ export class RemnaPanelClient implements OnModuleInit {
     method = 'post',
     url,
     body,
+    allowEmptyResponse = false,
   }: {
     url: string;
     method: 'delete' | 'get' | 'post' | 'put' | 'patch';
     body?: unknown;
+    /**
+     * Whether a reply with no `{ response }` envelope is success.
+     *
+     * Panel v3 answers DELETE /users/:id with 204 No Content and background
+     * operations with 202 Accepted, neither of which carries a payload. Only a
+     * caller that expects nothing may opt in: `DeleteUserCommand` is the sole
+     * endpoint this codebase calls that declares no ResponseSchema, so for
+     * everyone else an absent body is a failure worth reporting.
+     */
+    allowEmptyResponse?: boolean;
   }): Promise<Data> {
     try {
       const res = await this.client.request({
@@ -52,13 +63,32 @@ export class RemnaPanelClient implements OnModuleInit {
       if (res.status === 404) {
         throw new RemnaPanelError(`Remna panel endpoint not found: ${url}`, 404, res.data);
       }
-      const data: { response: Data } = res.data;
-      if (!data || data.response === undefined) {
-        this.logger.error(`Invalid response from Remna panel`);
+
+      if (res.status >= 400) {
+        this.logger.error(`Remna panel returned ${res.status} for ${url}`);
         throw new RemnaPanelError(res.statusText, res.status, { ...res.data, url });
       }
 
-      return data.response;
+      // Unwrap before looking at the status: a 202 may still carry a payload,
+      // and treating every 202 as empty would silently throw it away.
+      const envelope = res.data as { response?: Data } | null | undefined;
+      if (envelope && envelope.response !== undefined) {
+        return envelope.response;
+      }
+
+      if (allowEmptyResponse) {
+        return undefined as Data;
+      }
+
+      // Returning `undefined as Data` here would satisfy the compiler and then
+      // fail as a TypeError several frames away, with nothing naming the call
+      // that produced it.
+      this.logger.error(`Remna panel returned no response body for ${url} (status ${res.status})`);
+      throw new RemnaPanelError(
+        `Remna panel returned no response body for ${url} (status ${res.status})`,
+        res.status,
+        { url, status: res.status },
+      );
     } catch (e: any) {
       if (e instanceof RemnaPanelError) throw e;
 

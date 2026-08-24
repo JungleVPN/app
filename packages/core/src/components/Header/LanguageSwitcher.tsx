@@ -18,7 +18,7 @@ export function LanguageSwitcher() {
   const handleLanguageChange = async (newLocale: string) => {
     await i18n.changeLanguage(newLocale);
     setLanguage(newLocale as TSubscriptionPageLanguageCode);
-    if (rmnUser?.uuid) {
+    if (rmnUser?.id) {
       await remnawaveApi.upsertMyMetadata({ lang: newLocale });
     }
   };

@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import type {
   DeleteUserHwidDeviceCommand,
-  GetUserByUuidResponseDto,
+  GetUserByIdResponseDto,
   GetUserHwidDevicesCommand,
   GetUserMetadataResponseDto,
   UpdateUserResponseDto,
@@ -48,7 +48,7 @@ export class MeController {
 
   @Get()
   @UseGuards(AnyCredentialGuard)
-  async getMe(@Req() req: AnyCredentialRequest): Promise<GetUserByUuidResponseDto | null> {
+  async getMe(@Req() req: AnyCredentialRequest): Promise<GetUserByIdResponseDto | null> {
     if (req.authenticatedTelegramId != null) {
       const users = await this.userService.getUserByTgId(req.authenticatedTelegramId);
       const user = Array.isArray(users) ? users[0] : users;
@@ -67,16 +67,16 @@ export class MeController {
   @Patch()
   @UseGuards(ClientUserGuard)
   async updateMe(
-    @AuthenticatedUserId() userId: string,
+    @AuthenticatedUserId() userId: number,
     @Body() body: Record<string, unknown>,
   ): Promise<UpdateUserResponseDto | null> {
-    return this.userService.updateUser({ ...body, uuid: userId });
+    return this.userService.updateUser({ ...body, id: userId });
   }
 
   @Get('metadata')
   @UseGuards(ClientUserGuard)
   async getMetadata(
-    @AuthenticatedUserId() userId: string,
+    @AuthenticatedUserId() userId: number,
   ): Promise<GetUserMetadataResponseDto | null> {
     return this.userService.getUserMetadata(userId);
   }
@@ -85,7 +85,7 @@ export class MeController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(ClientUserGuard)
   async upsertMetadata(
-    @AuthenticatedUserId() userId: string,
+    @AuthenticatedUserId() userId: number,
     @Body() body: { metadata: Record<string, unknown> },
   ): Promise<void> {
     return this.userService.upsertUserMetadata(userId, body.metadata);
@@ -94,9 +94,9 @@ export class MeController {
   @Get('telegram-photo')
   @UseGuards(ClientUserGuard)
   async getTelegramPhoto(
-    @AuthenticatedUserId() userId: string,
+    @AuthenticatedUserId() userId: number,
   ): Promise<{ photoUrl: string | null }> {
-    const user = await this.userService.getUserByUuid(userId);
+    const user = await this.userService.getUserById(userId);
     const telegramId = (user as unknown as { telegramId?: string | number } | null)?.telegramId;
     if (!telegramId) return { photoUrl: null };
     return this.userService.getTelegramPhotoUrl(String(telegramId));
@@ -105,7 +105,7 @@ export class MeController {
   @Get('devices')
   @UseGuards(ClientUserGuard)
   async getDevices(
-    @AuthenticatedUserId() userId: string,
+    @AuthenticatedUserId() userId: number,
   ): Promise<GetUserHwidDevicesCommand.Response['response'] | null> {
     return this.hwidService.getUserDevices(userId);
   }
@@ -114,7 +114,7 @@ export class MeController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(ClientUserGuard)
   async deleteDevice(
-    @AuthenticatedUserId() userId: string,
+    @AuthenticatedUserId() userId: number,
     @Param('hwid') hwid: string,
   ): Promise<DeleteUserHwidDeviceCommand.Response['response'] | null> {
     return this.hwidService.deleteUserDevice(userId, hwid);
@@ -132,21 +132,19 @@ export class MeController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(ClientUserGuard)
   async linkEmail(
-    @AuthenticatedUserId() userId: string,
+    @AuthenticatedUserId() userId: number,
     @Body() body: { email: string },
     @Req() req: AuthenticatedRequest,
   ): Promise<UpdateUserResponseDto | null> {
     const telegramId = req.authenticatedTelegramId;
 
     const emailUsers = await this.userService.getUserByEmail(body.email);
-    const emailUser = Array.isArray(emailUsers)
-      ? emailUsers[0]
-      : (emailUsers as { uuid?: string } | null);
+    const emailUser = emailUsers?.[0] ?? null;
 
-    if (emailUser?.uuid && emailUser.uuid !== userId && telegramId) {
-      return this.userService.updateUser({ uuid: emailUser.uuid, telegramId });
+    if (emailUser && emailUser.id !== userId && telegramId) {
+      return this.userService.updateUser({ id: emailUser.id, telegramId });
     }
 
-    return this.userService.updateUser({ uuid: userId, email: body.email });
+    return this.userService.updateUser({ id: userId, email: body.email });
   }
 }

@@ -8,9 +8,9 @@ import { useSavedMethodsStore } from '../stores';
  * (e.g. ProfileLayout + PaymentPage) never fire duplicate requests for
  * the same user.
  */
-const pendingUserIds = new Set<string>();
+const pendingUserIds = new Set<number>();
 
-export function useSavedMethodsData(userId: string): void {
+export function useSavedMethodsData(userId: number | undefined): void {
   const paymentsApi = usePaymentsApi();
 
   useEffect(() => {

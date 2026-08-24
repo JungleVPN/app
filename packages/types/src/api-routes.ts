@@ -44,19 +44,19 @@ export const apiRoutes = {
     users: '/users',
     userByTelegramId: (telegramId: number | string) => `/users/by-telegram-id/${telegramId}`,
     userByEmail: (email: string) => `/users/by-email/${encodeURIComponent(email)}`,
-    userByUuid: (uuid: string) => `/users/${uuid}`,
-    revokeUserSubscription: (uuid: string) => `/users/${uuid}/actions/revoke`,
+    userById: (userId: number) => `/users/${userId}`,
+    revokeUserSubscription: (userId: number) => `/users/${userId}/actions/revoke`,
     subscriptionSubpageConfig: (shortUuid: string) => `/subscriptions/subpage-config/${shortUuid}`,
     subscriptionInfoByShortUuid: (shortUuid: string) => `/sub/${shortUuid}/info`,
     subscriptionPageConfig: (uuid: string) => `/subscription-page-configs/${uuid}`,
-    userDevices: (userUuid: string) => `/users/${userUuid}/devices`,
-    userDevice: (userUuid: string, hwid: string) =>
-      `/users/${userUuid}/devices/${encodeURIComponent(hwid)}`,
+    userDevices: (userId: number) => `/users/${userId}/devices`,
+    userDevice: (userId: number, hwid: string) =>
+      `/users/${userId}/devices/${encodeURIComponent(hwid)}`,
     telegramPhoto: (telegramId: number | string) => `/users/telegram-photo/${telegramId}`,
-    userExtraDevice: (uuid: string) => `/users/${uuid}/extra-device`,
-    userExpiry: (uuid: string) => `/users/${uuid}/expiry`,
-    userMetadata: (uuid: string) => `/users/${uuid}/metadata`,
-    // ── client-facing (ClientUserGuard — no UUID in path) ─────────────────
+    userExtraDevice: (userId: number) => `/users/${userId}/extra-device`,
+    userExpiry: (userId: number) => `/users/${userId}/expiry`,
+    userMetadata: (userId: number) => `/users/${userId}/metadata`,
+    // ── client-facing (ClientUserGuard — no user id in path) ──────────────
     me: '/users/me',
     meMetadata: '/users/me/metadata',
     meDevices: '/users/me/devices',

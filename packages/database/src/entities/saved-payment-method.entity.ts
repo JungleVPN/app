@@ -11,9 +11,9 @@ export class SavedPaymentMethod {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  /** uuid stored as string, consistent with YookassaPayment.userId */
-  @Column({ nullable: false, unique: false })
-  userId: string;
+  /** Remnawave numeric userId, consistent with YookassaPayment.userId */
+  @Column({ type: 'int', nullable: false, unique: false })
+  userId: number;
 
   @Column({ type: 'varchar', default: 'yookassa' })
   provider: string;

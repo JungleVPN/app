@@ -41,7 +41,7 @@ export function usePromoValidation() {
       try {
         const result = await paymentsApi.validatePromo({
           code,
-          userId: rmnUser.uuid,
+          userId: rmnUser.id,
           userStatus: rmnUser.status,
         });
 

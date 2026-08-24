@@ -29,7 +29,7 @@ describe('AutopaymentController', () => {
     ({
       scope: 'user',
       event,
-      data: { uuid: 'u-1', username: 'test', status: 'ACTIVE', telegramId: 42 },
+      data: { id: 1000, username: 'test', status: 'ACTIVE', telegramId: 42 },
       timestamp: new Date(),
       meta: expirationHours !== null ? { expiration: expirationHours } : null,
     }) as unknown as RemnawebhookPayload;

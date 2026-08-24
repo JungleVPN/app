@@ -18,7 +18,7 @@ export const withReferral = (ctx: BotContext, url: string): string => {
   switch (ctx.session.startPayload?.type) {
     case 'referral':
       if (!ctx.session.startPayload.value) return url;
-      params.set('ref', ctx.session.startPayload.value);
+      params.set('ref', String(ctx.session.startPayload.value));
       break;
     case 'ad':
       params.set('adCode', ctx.session.startPayload.value);

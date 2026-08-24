@@ -52,7 +52,7 @@ export default function TransactionDetailsPage() {
           />
           <DetailRow
             label={t('transactions.details.userId')}
-            value={payment.userId}
+            value={String(payment.userId)}
             showSeparatorAbove
             copyable
           />

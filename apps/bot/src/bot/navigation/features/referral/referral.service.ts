@@ -20,9 +20,9 @@ export class ReferralMenuService extends Base {
 
   async init(ctx: BotContext, menu: Menu | InlineKeyboard, deleteOldMsg?: boolean) {
     const user = await this.remnaService.getUserByTgId(ctx.from?.id || 0);
-    ctx.session.userId = user?.[0].uuid;
+    ctx.session.userId = user?.[0].id;
     const locale =
-      (user?.[0]?.uuid ? await this.remnaService.getUserLang(user[0].uuid) : null) ||
+      (user?.[0]?.id ? await this.remnaService.getUserLang(user[0].id) : null) ||
       (process.env.DEFAULT_LOCALE as LocaleId);
 
     let menuToSend = menu;

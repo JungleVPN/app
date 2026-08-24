@@ -59,7 +59,7 @@ function makeService(promoResolve?: () => Promise<unknown>) {
 }
 
 const baseInvoiceDto = {
-  userId: 'u1',
+  userId: 1000,
   telegramId: 42,
   selectedPeriod: 1,
   starsAmount: 500,
@@ -73,7 +73,7 @@ describe('TelegramStarsService.createInvoice (promo)', () => {
 
     await service.createInvoice({ ...baseInvoiceDto, promoCode: ' free2 ', userStatus: 'EXPIRED' });
 
-    expect(resolve).toHaveBeenCalledWith(' free2 ', expect.objectContaining({ userId: 'u1' }));
+    expect(resolve).toHaveBeenCalledWith(' free2 ', expect.objectContaining({ userId: 1000 }));
     expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ promoCode: 'FREE2' }));
   });
 
@@ -106,7 +106,7 @@ describe('TelegramStarsService.handlePaymentSucceeded (promo)', () => {
     const { service, repo, handleUserUpdates } = makeService();
     (repo.findOneBy as any).mockResolvedValue({
       id: 'rec-1',
-      userId: 'u1',
+      userId: 1000,
       selectedPeriod: 1,
       status: 'pending',
       purpose: 'subscription',
@@ -120,7 +120,7 @@ describe('TelegramStarsService.handlePaymentSucceeded (promo)', () => {
 
     expect(handleUserUpdates).toHaveBeenCalledWith(
       expect.objectContaining({
-        userId: 'u1',
+        userId: 1000,
         selectedPeriod: 1,
         promo: { code: 'FREE2', provider: 'stars', paymentId: 'rec-1' },
       }),

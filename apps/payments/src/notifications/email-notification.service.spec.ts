@@ -18,7 +18,7 @@ vi.mock('axios', () => ({
 }));
 
 const remnawaveUser = {
-  uuid: 'user-1',
+  id: 1000,
   username: 'test',
   status: 'ACTIVE',
   email: 'user@example.com',
@@ -29,7 +29,7 @@ const remnawaveUser = {
 const makeExpiryEvent = (
   overrides: Partial<Payments.PaymentExpiryReminderEventPayload> = {},
 ): Payments.PaymentExpiryReminderEventPayload => ({
-  userId: 'user-1',
+  userId: 1000,
   provider: 'yookassa',
   hoursRemaining: 24,
   remnawavePayload: {} as Payments.PaymentExpiryReminderEventPayload['remnawavePayload'],
@@ -39,7 +39,7 @@ const makeExpiryEvent = (
 const makePaymentSucceededEvent = (
   overrides: Partial<Payments.PaymentSucceededEventPayload> = {},
 ): Payments.PaymentSucceededEventPayload => ({
-  userId: 'user-1',
+  userId: 1000,
   provider: 'yookassa',
   ...overrides,
 });
@@ -358,7 +358,9 @@ describe('EmailNotificationService', () => {
         return Promise.reject(makeAxiosError(500, { data: { errorCode: 'INTERNAL_ERROR' } }));
       });
 
-      await expect(service.onPaymentSucceeded(makePaymentSucceededEvent())).resolves.toBeUndefined();
+      await expect(
+        service.onPaymentSucceeded(makePaymentSucceededEvent()),
+      ).resolves.toBeUndefined();
     });
   });
 });

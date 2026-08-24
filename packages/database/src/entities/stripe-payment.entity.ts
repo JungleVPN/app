@@ -6,8 +6,8 @@ export class StripePayment {
   @PrimaryColumn()
   id: string;
 
-  @Column({ nullable: true, type: 'varchar' })
-  userId: string | null;
+  @Column({ nullable: true, type: 'int' })
+  userId: number | null;
 
   @Column({ nullable: true, type: 'varchar' })
   customer: string | null;

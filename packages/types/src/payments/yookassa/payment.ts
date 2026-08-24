@@ -1,3 +1,4 @@
+import type { RemnaUserId } from '../../remnawave';
 import { PaymentPurpose } from '../common';
 import type { RemnawebhookPayload } from '../../remnawave';
 import type { IConfirmation } from './confirmation';
@@ -61,7 +62,7 @@ export namespace Payments {
   };
 
   interface PaymentResultEventPayload {
-    userId: string;
+    userId: RemnaUserId;
     provider: 'stripe' | 'yookassa';
     invoiceUrl?: string;
     selectedPeriod?: number;
@@ -77,7 +78,7 @@ export namespace Payments {
   }
 
   export interface PaymentExpiryReminderEventPayload {
-    userId: string;
+    userId: RemnaUserId;
     provider: 'stripe' | 'yookassa';
     hoursRemaining: 24 | 48;
     /** Raw remnawave webhook payload, forwarded to the bot as-is. */

@@ -13,8 +13,8 @@ export class TelegramStarsPayment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false })
-  userId: string;
+  @Column({ type: 'int', nullable: false })
+  userId: number;
 
   @Column({ type: 'bigint', nullable: true, transformer: bigintTransformer })
   telegramId: number | null;

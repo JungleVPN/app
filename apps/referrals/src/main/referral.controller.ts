@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { InterServiceGuard } from '../guards/inter-service.guard';
 import { ReferralService } from './referral.service';
 
@@ -9,25 +18,25 @@ export class ReferralController {
 
   /** GET /referrals/by-invited/:userId */
   @Get('by-invited/:userId')
-  async getByInvitedId(@Param('userId') userId: string) {
+  async getByInvitedId(@Param('userId', ParseIntPipe) userId: number) {
     return this.referralService.getReferralByInvitedId(userId);
   }
 
   /** POST /referrals — create the referral record once the invited user's account exists */
   @Post()
-  async handleNewUser(@Body() body: { inviterId: string; invitedId: string }) {
+  async handleNewUser(@Body() body: { inviterId: number; invitedId: number }) {
     return this.referralService.handleNewUser(body.inviterId, body.invitedId);
   }
 
   /** POST /referrals/reward-after-payment — reward inviter when invited user pays */
   @Post('reward-after-payment')
-  async rewardAfterPayment(@Body() body: { invitedId: string }) {
+  async rewardAfterPayment(@Body() body: { invitedId: number }) {
     return this.referralService.handleInviterRewardAfterPayment(body.invitedId);
   }
 
   /** DELETE /referrals/by-invited/:userId */
   @Delete('by-invited/:userId')
-  async deleteByInvitedId(@Param('userId') userId: string) {
+  async deleteByInvitedId(@Param('userId', ParseIntPipe) userId: number) {
     await this.referralService.deleteByInvitedId(userId);
     return { deleted: true };
   }

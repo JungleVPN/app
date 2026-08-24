@@ -132,7 +132,7 @@ describe('YookassaService', () => {
 
     mockYkUpdate = vi.fn();
     mockYkFindOneBy = vi.fn().mockResolvedValue({
-      userId: 'user-1',
+      userId: 1000,
       selectedPeriod: 1,
       telegramId: 42,
     });
@@ -233,13 +233,13 @@ describe('YookassaService', () => {
       expect(mockHandleUserUpdates).toHaveBeenCalledWith(
         expect.objectContaining({
           selectedPeriod: 1,
-          userId: 'user-1',
+          userId: 1000,
           promo: expect.objectContaining({ provider: 'yookassa' }),
         }),
       );
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.succeeded'],
-        expect.objectContaining({ userId: 'user-1', provider: 'yookassa', selectedPeriod: 1 }),
+        expect.objectContaining({ userId: 1000, provider: 'yookassa', selectedPeriod: 1 }),
       );
     });
 
@@ -329,7 +329,7 @@ describe('YookassaService', () => {
     describe('affiliate reporting', () => {
       it('reports the settled charge to Tolt', async () => {
         mockYkFindOneBy.mockResolvedValue({
-          userId: 'user-1',
+          userId: 1000,
           selectedPeriod: 3,
           telegramId: 42,
           amount: '1500.00',
@@ -340,7 +340,7 @@ describe('YookassaService', () => {
         await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
 
         expect(mockReportConversion).toHaveBeenCalledWith({
-          userId: 'user-1',
+          userId: 1000,
           provider: 'yookassa',
           chargeId: 'pay_1',
           amount: 1500,
@@ -360,7 +360,7 @@ describe('YookassaService', () => {
 
       it('does not report a replayed webhook, which would pay the partner twice', async () => {
         mockYkFindOneBy.mockResolvedValue({
-          userId: 'user-1',
+          userId: 1000,
           selectedPeriod: 1,
           telegramId: 42,
           amount: '599.00',
@@ -374,7 +374,7 @@ describe('YookassaService', () => {
 
       it('forwards the record purpose so the reporter can apply its own rules', async () => {
         mockYkFindOneBy.mockResolvedValue({
-          userId: 'user-1',
+          userId: 1000,
           selectedPeriod: 1,
           telegramId: 42,
           amount: '599.00',
@@ -397,7 +397,7 @@ describe('YookassaService', () => {
     describe('idempotency stamp', () => {
       it('extends the subscription for an autopayment already marked succeeded but unstamped', async () => {
         mockYkFindOneBy.mockResolvedValue({
-          userId: 'user-1',
+          userId: 1000,
           selectedPeriod: 1,
           telegramId: 42,
           status: 'succeeded',
@@ -411,7 +411,7 @@ describe('YookassaService', () => {
 
       it('ignores a replay of a payment that was already stamped', async () => {
         mockYkFindOneBy.mockResolvedValue({
-          userId: 'user-1',
+          userId: 1000,
           selectedPeriod: 1,
           telegramId: 42,
           status: 'succeeded',
@@ -429,7 +429,7 @@ describe('YookassaService', () => {
       // YooKassa's next retry, a double extension is not.
       it('ignores a stamped record even when its status never reached succeeded', async () => {
         mockYkFindOneBy.mockResolvedValue({
-          userId: 'user-1',
+          userId: 1000,
           selectedPeriod: 1,
           telegramId: 42,
           status: 'pending',
@@ -443,7 +443,7 @@ describe('YookassaService', () => {
 
       it('processes a pending record on first delivery', async () => {
         mockYkFindOneBy.mockResolvedValue({
-          userId: 'user-1',
+          userId: 1000,
           selectedPeriod: 1,
           telegramId: 42,
           status: 'pending',
@@ -468,13 +468,13 @@ describe('YookassaService', () => {
 
       // Previous active methods deactivated
       expect(mockSmUpdate).toHaveBeenCalledWith(
-        { userId: 'user-1', isActive: true },
+        { userId: 1000, isActive: true },
         { isActive: false },
       );
 
       expect(mockSmCreate).toHaveBeenCalledWith(
         expect.objectContaining({
-          userId: 'user-1',
+          userId: 1000,
           provider: 'yookassa',
           paymentMethodId: 'pm_1',
           paymentMethodType: 'bank_card',
@@ -492,7 +492,7 @@ describe('YookassaService', () => {
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.succeeded'],
         expect.objectContaining({
-          userId: 'user-1',
+          userId: 1000,
           provider: 'yookassa',
           selectedPeriod: 1,
         }),
@@ -598,7 +598,7 @@ describe('YookassaService', () => {
     beforeEach(() => {
       mockYkFindOneBy.mockResolvedValue({
         id: 'pay_1',
-        userId: 'user-1',
+        userId: 1000,
         selectedPeriod: 1,
         amount: '200.00',
         paidAt: new Date(),
@@ -683,9 +683,9 @@ describe('YookassaService', () => {
       const methods = [{ id: 'sm-2' }, { id: 'sm-1' }];
       mockSmFind.mockResolvedValue(methods);
 
-      await expect(service.getActiveSavedMethods('user-1')).resolves.toBe(methods);
+      await expect(service.getActiveSavedMethods(1000)).resolves.toBe(methods);
       expect(mockSmFind).toHaveBeenCalledWith({
-        where: { userId: 'user-1', isActive: true },
+        where: { userId: 1000, isActive: true },
         order: { createdAt: 'DESC' },
       });
     });
@@ -693,7 +693,7 @@ describe('YookassaService', () => {
     it('returns an empty list for a user who has saved nothing', async () => {
       mockSmFind.mockResolvedValue([]);
 
-      await expect(service.getActiveSavedMethods('user-nobody')).resolves.toEqual([]);
+      await expect(service.getActiveSavedMethods(999999)).resolves.toEqual([]);
     });
   });
 
@@ -731,7 +731,7 @@ describe('YookassaService', () => {
   // ─────────────────────────────────────────────────────────
   describe('createPaymentSession', () => {
     const baseDto = (overrides: Partial<any> = {}): any => ({
-      userId: 'user-1',
+      userId: 1000,
       telegramId: 42,
       selectedPeriod: 1,
       ...overrides,
@@ -821,7 +821,7 @@ describe('YookassaService', () => {
         status: 'pending',
         amount: '599',
         currency: 'RUB',
-        userId: 'user-1',
+        userId: 1000,
         telegramId: 42,
         selectedPeriod: 1,
         description: 'Jungle VPN',
@@ -855,7 +855,7 @@ describe('YookassaService', () => {
 
       expect(analyticsClient.track).toHaveBeenCalledWith({
         event: 'checkout_started',
-        userId: 'user-1',
+        userId: 1000,
         provider: 'yookassa',
         amount: '599',
         currency: 'RUB',
@@ -901,7 +901,7 @@ describe('YookassaService', () => {
         );
 
         expect(mockPromoResolve).toHaveBeenCalledWith('welcome', {
-          userId: 'user-1',
+          userId: 1000,
           userStatus: 'ACTIVE',
           selectedPeriod: 3,
         });
@@ -1025,7 +1025,7 @@ describe('YookassaService', () => {
     it('finds the record on a second lookup and fulfils the payment', async () => {
       mockYkFindOneBy
         .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce({ userId: 'user-1', selectedPeriod: 1, paidAt: null });
+        .mockResolvedValueOnce({ userId: 1000, selectedPeriod: 1, paidAt: null });
 
       await runWithRetryPause();
 
@@ -1058,7 +1058,7 @@ describe('YookassaService', () => {
     // Without a period there is nothing to extend by; 0 is a valid period
     // (extra device) and must not be confused with a missing one.
     it('does not fulfil a record with no selectedPeriod', async () => {
-      mockYkFindOneBy.mockResolvedValue({ userId: 'user-1', selectedPeriod: null, paidAt: null });
+      mockYkFindOneBy.mockResolvedValue({ userId: 1000, selectedPeriod: null, paidAt: null });
 
       await runWithRetryPause();
 
@@ -1067,7 +1067,7 @@ describe('YookassaService', () => {
 
     it('fulfils an extra-device record whose period is legitimately zero', async () => {
       mockYkFindOneBy.mockResolvedValue({
-        userId: 'user-1',
+        userId: 1000,
         selectedPeriod: 0,
         purpose: 'extra_device',
         amount: '150',
@@ -1108,7 +1108,7 @@ describe('YookassaService', () => {
       expect(analyticsClient.track).toHaveBeenCalledWith(
         expect.objectContaining({
           event: 'payment_succeeded',
-          userId: 'user-1',
+          userId: 1000,
           provider: 'yookassa',
           isAutoPayment: false,
         }),
@@ -1163,7 +1163,7 @@ describe('YookassaService', () => {
 
       expect(analyticsClient.track).toHaveBeenCalledWith({
         event: 'payment_method_saved',
-        userId: 'user-1',
+        userId: 1000,
         provider: 'yookassa',
         paymentId: 'pm_1',
         methodType: 'bank_card',
@@ -1198,7 +1198,7 @@ describe('YookassaService', () => {
       mockGetPayment.mockResolvedValue({ status: 'canceled' });
       mockYkFindOneBy.mockResolvedValue({
         id: 'pay_1',
-        userId: 'user-1',
+        userId: 1000,
         selectedPeriod: 1,
         status: 'pending',
         paidAt: null,
@@ -1212,14 +1212,14 @@ describe('YookassaService', () => {
       await service.handleWebhook(makeCanceledPayload(), '127.0.0.1');
 
       expect(mockEmit).toHaveBeenCalledWith(WebhookEventEnum['payment.canceled'], {
-        userId: 'user-1',
+        userId: 1000,
         provider: 'yookassa',
         selectedPeriod: 1,
         reason: 'insufficient_funds',
       });
       expect(analyticsClient.track).toHaveBeenCalledWith({
         event: 'payment_failed',
-        userId: 'user-1',
+        userId: 1000,
         provider: 'yookassa',
         paymentId: 'pay_1',
         reason: 'insufficient_funds',
@@ -1229,7 +1229,7 @@ describe('YookassaService', () => {
     it('reports the period as 0 when the record carries none', async () => {
       mockYkFindOneBy.mockResolvedValue({
         id: 'pay_1',
-        userId: 'user-1',
+        userId: 1000,
         selectedPeriod: null,
         status: 'pending',
         paidAt: null,
@@ -1265,7 +1265,7 @@ describe('YookassaService', () => {
     it('ignores a late cancel for a payment that already succeeded', async () => {
       mockYkFindOneBy.mockResolvedValue({
         id: 'pay_1',
-        userId: 'user-1',
+        userId: 1000,
         selectedPeriod: 1,
         status: 'succeeded',
         paidAt: new Date(),
@@ -1280,7 +1280,7 @@ describe('YookassaService', () => {
     it('ignores a late cancel that names no reason', async () => {
       mockYkFindOneBy.mockResolvedValue({
         id: 'pay_1',
-        userId: 'user-1',
+        userId: 1000,
         selectedPeriod: 1,
         status: 'succeeded',
         paidAt: new Date(),
@@ -1300,7 +1300,7 @@ describe('YookassaService', () => {
     it('acts on a cancel for a succeeded row that was never stamped', async () => {
       mockYkFindOneBy.mockResolvedValue({
         id: 'pay_1',
-        userId: 'user-1',
+        userId: 1000,
         selectedPeriod: 1,
         status: 'succeeded',
         paidAt: null,
@@ -1361,11 +1361,11 @@ describe('YookassaService', () => {
     // AutopaymentService will retry against the saved method and emit its own
     // failure event only once every retry is exhausted.
     it('stays silent while the user still has an active saved method to retry', async () => {
-      mockSmFindOneBy.mockResolvedValue({ id: 'sm-1', userId: 'user-1', isActive: true });
+      mockSmFindOneBy.mockResolvedValue({ id: 'sm-1', userId: 1000, isActive: true });
 
       await service.handleWebhook(makeCanceledPayload(), '127.0.0.1');
 
-      expect(mockSmFindOneBy).toHaveBeenCalledWith({ userId: 'user-1', isActive: true });
+      expect(mockSmFindOneBy).toHaveBeenCalledWith({ userId: 1000, isActive: true });
       expect(mockEmit).not.toHaveBeenCalled();
     });
 
@@ -1377,7 +1377,7 @@ describe('YookassaService', () => {
       await service.handleWebhook(makeCanceledPayload(), '127.0.0.1');
 
       expect(mockYkCount).toHaveBeenCalledWith({
-        where: { userId: 'user-1', status: 'succeeded' },
+        where: { userId: 1000, status: 'succeeded' },
       });
       expect(mockEmit).not.toHaveBeenCalled();
     });
@@ -1388,11 +1388,11 @@ describe('YookassaService', () => {
   // ─────────────────────────────────────────────────────────
   describe('deletePaymentMethod', () => {
     it('deletes a method belonging to the user', async () => {
-      mockSmFindOneBy.mockResolvedValue({ id: 'sm-1', userId: 'user-1' });
+      mockSmFindOneBy.mockResolvedValue({ id: 'sm-1', userId: 1000 });
 
-      await expect(service.deletePaymentMethod('sm-1', 'user-1')).resolves.toBeUndefined();
+      await expect(service.deletePaymentMethod('sm-1', 1000)).resolves.toBeUndefined();
 
-      expect(mockSmDelete).toHaveBeenCalledWith({ id: 'sm-1', userId: 'user-1' });
+      expect(mockSmDelete).toHaveBeenCalledWith({ id: 'sm-1', userId: 1000 });
     });
 
     // Scoping the lookup by userId is what stops one user deleting another's
@@ -1400,10 +1400,8 @@ describe('YookassaService', () => {
     it('raises 404 for a method that is not the user’s, and deletes nothing', async () => {
       mockSmFindOneBy.mockResolvedValue(null);
 
-      await expect(service.deletePaymentMethod('sm-1', 'user-2')).rejects.toThrow(
-        NotFoundException,
-      );
-      expect(mockSmFindOneBy).toHaveBeenCalledWith({ id: 'sm-1', userId: 'user-2' });
+      await expect(service.deletePaymentMethod('sm-1', 1001)).rejects.toThrow(NotFoundException);
+      expect(mockSmFindOneBy).toHaveBeenCalledWith({ id: 'sm-1', userId: 1001 });
       expect(mockSmDelete).not.toHaveBeenCalled();
     });
   });

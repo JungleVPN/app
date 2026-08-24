@@ -1,8 +1,9 @@
+import type { RemnaUserId } from '../../remnawave';
 import { PaymentPurpose } from '../common';
 
 /** Request body for POST /telegram-stars/create-invoice (TMA → payments service) */
 export interface CreateTelegramStarsInvoiceDto {
-  userId: string;
+  userId: RemnaUserId;
   telegramId?: number | null;
   selectedPeriod: number;
   /** Number of Telegram Stars to charge */

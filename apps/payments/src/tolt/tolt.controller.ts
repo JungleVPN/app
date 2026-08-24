@@ -43,7 +43,7 @@ export class ToltController {
     // Taken from the validated credential — a client-supplied userId in the
     // body would let anyone attribute someone else's payments to their own
     // partner code.
-    @AuthenticatedUserId() userId: string,
+    @AuthenticatedUserId() userId: number,
     @AuthenticatedEmail() email: string,
   ): Promise<{ ok: true }> {
     await this.toltService.captureReferral({

@@ -28,7 +28,7 @@ export class UserRewardedListener {
     const user = await this.remnaService.getUserByTgId(telegramId);
     const expireAt = user?.[0].expireAt;
     const locale =
-      (user?.[0]?.uuid ? await this.remnaService.getUserLang(user[0].uuid) : null) ||
+      (user?.[0]?.id ? await this.remnaService.getUserLang(user[0].id) : null) ||
       (process.env.DEFAULT_LOCALE as LocaleId);
 
     const formattedDate = toDateString(expireAt!);

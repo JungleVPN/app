@@ -17,7 +17,7 @@ describe('AnalyticsClientService', () => {
 
     await service.track({
       event: 'payment_succeeded',
-      userId: 'u1',
+      userId: 1000,
       provider: 'stripe',
       selectedPeriod: 30,
       isFirstPayment: true,
@@ -26,7 +26,7 @@ describe('AnalyticsClientService', () => {
 
     expect(post).toHaveBeenCalledWith('/events', {
       event: 'payment_succeeded',
-      userId: 'u1',
+      userId: 1000,
       provider: 'stripe',
       selectedPeriod: 30,
       isFirstPayment: true,
@@ -39,7 +39,7 @@ describe('AnalyticsClientService', () => {
     const { service } = buildService(buildClient(post));
 
     await expect(
-      service.track({ event: 'subscription_expired', userId: 'u1' }),
+      service.track({ event: 'subscription_expired', userId: 1000 }),
     ).resolves.toBeUndefined();
   });
 
@@ -48,7 +48,7 @@ describe('AnalyticsClientService', () => {
     const { service } = buildService(buildClient(post));
 
     await expect(
-      service.track({ event: 'subscription_expired', userId: 'u1' }),
+      service.track({ event: 'subscription_expired', userId: 1000 }),
     ).resolves.toBeUndefined();
   });
 });
