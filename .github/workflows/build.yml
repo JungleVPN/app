@@ -88,8 +88,6 @@ jobs:
       - name: Deploy via SSH
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-          GHCR_USER: ${{ secrets.GHCR_USER }}
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         run: |
           echo "$DEPLOY_KEY" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
@@ -97,5 +95,5 @@ jobs:
             -o StrictHostKeyChecking=no \
             -p ${{ secrets.DEPLOY_PORT }} \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "echo '$GHCR_TOKEN' | docker login ghcr.io -u '$GHCR_USER' --password-stdin && cd ${{ secrets.STAGING_DEPLOY_PATH }} && docker compose -f compose.staging.yml pull && docker compose -f compose.staging.yml up -d && docker image prune -f && docker compose -f compose.staging.yml ps"
+            "cd ${{ secrets.STAGING_DEPLOY_PATH }} && docker compose -f compose.staging.yml pull && docker compose -f compose.staging.yml up -d && docker image prune -f && docker compose -f compose.staging.yml ps"
           rm -f /tmp/deploy_key
