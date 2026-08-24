@@ -2,7 +2,7 @@ name: Build & Deploy
 
 on:
   push:
-    branches: [main, stage, CI-CD]
+    branches: [main, stage]
   workflow_dispatch:
 
 env:
@@ -55,7 +55,7 @@ jobs:
             --secret id=env,src=/tmp/build.env \
             --cache-from type=gha \
             --cache-to type=gha,mode=max \
-            --build-arg TURBO_CONCURRENCY=4 \
+            --build-arg TURBO_CONCURRENCY=7 \
             .
 
   deploy:
@@ -64,6 +64,8 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main'
 
+    # DEPLOY_* are production's. Staging has its own STAGING_DEPLOY_* set below —
+    # do not reuse these there, or a stage push lands on this host.
     steps:
       - name: Deploy via SSH
         env:
@@ -85,17 +87,72 @@ jobs:
     if: github.ref == 'refs/heads/stage'
 
     steps:
+      # The staging host must be addressed by its own secrets. Sharing DEPLOY_*
+      # with the production job means `if:` only picks which job runs, never
+      # where it lands — a push to stage then deploys onto production, reads
+      # production's compose file, and pulls :latest instead of :stage-latest.
+      #
+      # No fallback to the production secrets on purpose: an unset value must
+      # stop the deploy, not quietly redirect it.
+      - name: Require staging deploy targets
+        env:
+          HOST: ${{ secrets.STAGING_DEPLOY_HOST }}
+          USER: ${{ secrets.STAGING_DEPLOY_USER }}
+          PATH_: ${{ secrets.STAGING_DEPLOY_PATH }}
+          PORT: ${{ secrets.STAGING_DEPLOY_PORT }}
+          KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+        run: |
+          missing=""
+          [ -n "$HOST" ]  || missing="$missing STAGING_DEPLOY_HOST"
+          [ -n "$USER" ]  || missing="$missing STAGING_DEPLOY_USER"
+          [ -n "$PATH_" ] || missing="$missing STAGING_DEPLOY_PATH"
+          [ -n "$PORT" ]  || missing="$missing STAGING_DEPLOY_PORT"
+          [ -n "$KEY" ]   || missing="$missing STAGING_DEPLOY_KEY"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing staging secrets:$missing — refusing to deploy in case it lands on production."
+            exit 1
+          fi
+
       - name: Deploy via SSH
         env:
-          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-          GHCR_USER: ${{ secrets.GHCR_USER }}
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+          HOST: ${{ secrets.STAGING_DEPLOY_HOST }}
+          USER: ${{ secrets.STAGING_DEPLOY_USER }}
+          DIR: ${{ secrets.STAGING_DEPLOY_PATH }}
+          PORT: ${{ secrets.STAGING_DEPLOY_PORT }}
         run: |
-          echo "$DEPLOY_KEY" > /tmp/deploy_key
+          echo "STAGING_DEPLOY_KEY" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
           ssh -i /tmp/deploy_key \
             -o StrictHostKeyChecking=no \
-            -p ${{ secrets.DEPLOY_PORT }} \
-            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "echo '$GHCR_TOKEN' | docker login ghcr.io -u '$GHCR_USER' --password-stdin && cd ${{ secrets.STAGING_DEPLOY_PATH }} && docker compose -f compose.staging.yml pull && docker compose -f compose.staging.yml up -d && docker image prune -f && docker compose -f compose.staging.yml ps"
+            -p "$PORT" "$USER@$HOST" \
+            "cd '$DIR' && docker compose pull && docker compose up -d && docker image prune -f && docker compose ps"
           rm -f /tmp/deploy_key
+
+      # COMPOSE_FILE=compose.staging.yml in the deploy directory's .env is what
+      # selects the staging stack, and nothing upstream verifies it is still
+      # there. Assert on the result instead — a deploy that silently resolved to
+      # the production image should fail the run, not look green.
+      - name: Verify the staging stack was the one deployed
+        env:
+          DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+          HOST: ${{ secrets.STAGING_DEPLOY_HOST }}
+          USER: ${{ secrets.STAGING_DEPLOY_USER }}
+          DIR: ${{ secrets.STAGING_DEPLOY_PATH }}
+          PORT: ${{ secrets.STAGING_DEPLOY_PORT }}
+          IMAGE: ${{ env.IMAGE }}
+        run: |
+          echo "STAGING_DEPLOY_KEY" > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+          images=$(ssh -i /tmp/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -p "$PORT" "$USER@$HOST" \
+            "cd '$DIR' && docker compose config --images")
+          rm -f /tmp/deploy_key
+          echo "$images"
+          if echo "$images" | grep -qx "$IMAGE:latest"; then
+            echo "::error::Staging resolved to the production image. Check COMPOSE_FILE in $DIR/.env."
+            exit 1
+          fi
+          echo "$images" | grep -qx "$IMAGE:stage-latest" \
+            || { echo "::error::Expected $IMAGE:stage-latest among the resolved images."; exit 1; }

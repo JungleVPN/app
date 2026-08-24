@@ -17,11 +17,16 @@
  *
  * These tests drive the migration against a recording QueryRunner — no database
  * — and assert on the SQL it produces.
+ *
+ * They live in __tests__/ rather than beside the migration because datasource.ts
+ * globs `dist/migrations/*.js` and executes everything it finds as a migration.
+ * A compiled spec sitting in that directory gets require()d at startup and takes
+ * the migration container down with it.
  */
 
 import type { QueryRunner } from 'typeorm';
 import { describe, expect, it } from 'vitest';
-import { RemnawaveV3NumericUserId1791000000000 } from './1791000000000-RemnawaveV3NumericUserId';
+import { RemnawaveV3NumericUserId1791000000000 } from '../1791000000000-RemnawaveV3NumericUserId';
 
 /** Names the live schema uses, per the latest migration that created each. */
 const LIVE_NAMES = {
