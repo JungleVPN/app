@@ -4,6 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
+import { getPriceForPeriod } from '@payments/utils/amount';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { Payments, RemnawebhookPayload, UserDto, WebhookEventEnum } from '@workspace/types';
 import { Repository } from 'typeorm';
@@ -66,12 +67,12 @@ export class AutopaymentService {
       });
       return;
     } else {
-      const { payment, selectedPeriod } = result;
+      const { payment, selectedPeriod, amount } = result;
 
       const record = this.yookassaPaymentRepo.create({
         id: payment.id,
         status: payment.status,
-        amount: payment.amount.value,
+        amount,
         userId,
         selectedPeriod,
         telegramId,
@@ -111,10 +112,26 @@ export class AutopaymentService {
     userId: number,
     paymentMethodId: string,
   ): Promise<
-    | { status: 'success'; reason: undefined; payment: Payments.IPayment; selectedPeriod: number }
+    | {
+        status: 'success';
+        reason: undefined;
+        payment: Payments.IPayment;
+        selectedPeriod: number;
+        amount: string;
+      }
     | { status: 'error'; reason: Payments.CancelReason | undefined; payment: null }
   > {
     let lastReason: Payments.CancelReason | undefined;
+
+    let charge: { selectedPeriod: number; amount: string };
+    try {
+      charge = await this.resolveRenewalCharge(userId);
+    } catch (err: any) {
+      // A missing plan or an unpriceable period is not transient — retrying
+      // cannot make a defensible charge appear, so fail without calling YooKassa.
+      this.logger.error(`Cannot renew user ${userId}: ${err.message}`);
+      return { status: 'error', reason: undefined, payment: null };
+    }
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       this.logger.log(
@@ -122,13 +139,13 @@ export class AutopaymentService {
       );
 
       try {
-        const { payment, selectedPeriod } = await this.executeAutopayment(userId, paymentMethodId);
+        const payment = await this.executeAutopayment(paymentMethodId, charge.amount);
 
         if (payment.status === 'succeeded') {
           this.logger.log(
             `Autopayment succeeded! PaymentMethodId=${paymentMethodId} (attempt ${attempt})`,
           );
-          return { status: 'success', reason: undefined, payment, selectedPeriod };
+          return { status: 'success', reason: undefined, payment, ...charge };
         }
 
         const reason = payment.cancellation_details?.reason;
@@ -158,20 +175,35 @@ export class AutopaymentService {
     return { status: 'error', reason: lastReason, payment: null };
   }
 
-  private async executeAutopayment(
+  /**
+   * The period being renewed and today's price for it.
+   *
+   * The period comes from the last *settled subscription* payment: a device-slot
+   * purchase or an abandoned checkout says nothing about the customer's plan.
+   * The price comes from configuration, never from the previous row — copying
+   * the old amount forward would renew a since-changed price (or a one-off
+   * device charge) for the life of the subscription.
+   */
+  private async resolveRenewalCharge(
     userId: number,
-    paymentMethodId: string,
-  ): Promise<{ payment: Payments.IPayment; selectedPeriod: number }> {
+  ): Promise<{ selectedPeriod: number; amount: string }> {
     const previousPayment = await this.yookassaPaymentRepo.findOne({
-      where: { userId },
+      where: { userId, purpose: 'subscription', status: 'succeeded' },
       order: { createdAt: 'DESC' },
     });
 
     if (!previousPayment) {
-      throw new Error(`No previous payment found for user ${userId}`);
+      throw new Error(`No previous subscription payment found for user ${userId}`);
     }
 
-    const { selectedPeriod, amount } = previousPayment;
+    const { selectedPeriod } = previousPayment;
+    return { selectedPeriod, amount: getPriceForPeriod('RUB', selectedPeriod) };
+  }
+
+  private async executeAutopayment(
+    paymentMethodId: string,
+    amount: string,
+  ): Promise<Payments.IPayment> {
     const description = process.env.PAYMENT_DESCRIPTION || 'Happy to see you in the JUNGLE 🌴';
 
     const request: Payments.CreatePaymentRequest = {
@@ -181,8 +213,7 @@ export class AutopaymentService {
       description,
     };
 
-    const payment = await this.yookassaProvider.create(request);
-    return { payment, selectedPeriod };
+    return this.yookassaProvider.create(request);
   }
 
   private delay(ms: number): Promise<void> {

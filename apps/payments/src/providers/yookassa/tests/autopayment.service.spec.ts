@@ -449,7 +449,7 @@ describe('AutopaymentService', () => {
       await service.init(makePayload(42));
 
       expect(mockYkFindOne).toHaveBeenCalledWith({
-        where: { userId: 1000 },
+        where: { userId: 1000, purpose: 'subscription', status: 'succeeded' },
         order: { createdAt: 'DESC' },
       });
       expect(mockCreate).toHaveBeenCalledWith({
@@ -459,6 +459,60 @@ describe('AutopaymentService', () => {
         description: 'Test payment',
       });
       expect(mockCreate.mock.calls[0][0]).not.toHaveProperty('confirmation');
+    });
+
+    // The renewal price is the configured price of the renewed period, never
+    // the amount of the previous row: a device-slot purchase, a promo price or
+    // a since-changed price would otherwise be charged forever.
+    it('charges the configured price for the renewed period, not the previous amount', async () => {
+      mockYkFindOne.mockResolvedValue({ selectedPeriod: 1, amount: '100' });
+
+      await service.init(makePayload(42));
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ amount: { value: '200', currency: 'RUB' } }),
+      );
+    });
+
+    // A device-slot purchase or an abandoned checkout says nothing about which
+    // plan the customer is on, so neither may seed a renewal.
+    it('renews from the last succeeded subscription payment only', async () => {
+      await service.init(makePayload(42));
+
+      expect(mockYkFindOne).toHaveBeenCalledWith({
+        where: { userId: 1000, purpose: 'subscription', status: 'succeeded' },
+        order: { createdAt: 'DESC' },
+      });
+    });
+
+    // An unpriceable period (a legacy row, or a plan withdrawn from sale) has
+    // no defensible charge, so no charge is made.
+    it('gives up without charging when the renewed period has no configured price', async () => {
+      mockYkFindOne.mockResolvedValue({ selectedPeriod: 0, amount: '100' });
+
+      await service.init(makePayload(42));
+
+      expect(mockCreate).not.toHaveBeenCalled();
+      // Nothing is retried: a config gap cannot resolve itself between attempts.
+      expect(service['delay']).not.toHaveBeenCalled();
+      expect(mockEmit).toHaveBeenCalledWith(
+        WebhookEventEnum['payment.autopayment_exhausted'],
+        expect.objectContaining({ userId: 1000, reason: 'autopayment_exhausted' }),
+      );
+    });
+
+    // YooKassa echoes amounts as '200.00'; storing that would make renewal rows
+    // read differently from checkout rows for the very same plan.
+    it('records the price it charged rather than the provider formatting', async () => {
+      mockCreate.mockResolvedValue({
+        id: 'pay_1',
+        status: 'succeeded',
+        amount: { value: '200.00', currency: 'RUB' },
+      });
+
+      await service.init(makePayload(42));
+
+      expect(mockYkCreate).toHaveBeenCalledWith(expect.objectContaining({ amount: '200' }));
     });
 
     it('falls back to a default description when none is configured', async () => {
