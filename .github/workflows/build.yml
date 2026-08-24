@@ -121,18 +121,21 @@ jobs:
           DIR: ${{ secrets.STAGING_DEPLOY_PATH }}
           PORT: ${{ secrets.STAGING_DEPLOY_PORT }}
         run: |
-          echo "STAGING_DEPLOY_KEY" > /tmp/deploy_key
+          echo "$DEPLOY_KEY" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
           ssh -i /tmp/deploy_key \
             -o StrictHostKeyChecking=no \
             -p "$PORT" "$USER@$HOST" \
-            "cd '$DIR' && docker compose pull && docker compose up -d && docker image prune -f && docker compose ps"
+              "cd '$DIR' \
+              && docker compose -f compose.staging.yml pull \
+              && docker compose -f compose.staging.yml up -d \
+              && docker image prune -f \
+              && docker compose -f compose.staging.yml ps"
           rm -f /tmp/deploy_key
 
-      # COMPOSE_FILE=compose.staging.yml in the deploy directory's .env is what
-      # selects the staging stack, and nothing upstream verifies it is still
-      # there. Assert on the result instead — a deploy that silently resolved to
-      # the production image should fail the run, not look green.
+      # Staging and production share a host, so -f above is the only thing
+      # separating the two stacks. Assert on the outcome as well: a deploy that
+      # resolved to the production image must fail the run, not look green.
       - name: Verify the staging stack was the one deployed
         env:
           DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
@@ -142,12 +145,12 @@ jobs:
           PORT: ${{ secrets.STAGING_DEPLOY_PORT }}
           IMAGE: ${{ env.IMAGE }}
         run: |
-          echo "STAGING_DEPLOY_KEY" > /tmp/deploy_key
+          echo "$DEPLOY_KEY" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
           images=$(ssh -i /tmp/deploy_key \
             -o StrictHostKeyChecking=no \
             -p "$PORT" "$USER@$HOST" \
-            "cd '$DIR' && docker compose config --images")
+            "cd '$DIR' && docker compose -f compose.staging.yml config --images")
           rm -f /tmp/deploy_key
           echo "$images"
           if echo "$images" | grep -qx "$IMAGE:latest"; then
