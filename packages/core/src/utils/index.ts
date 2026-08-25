@@ -28,6 +28,7 @@ export { detectOs } from './detectOs';
 export {
   configuredDomains,
   isRuDomain,
+  localePolicyForHost,
   normalizeHostname,
   parseDomains,
   resolveLocaleForHost,

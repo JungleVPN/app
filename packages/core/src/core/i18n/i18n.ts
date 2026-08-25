@@ -6,7 +6,7 @@ import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
-import { isRuDomain } from '../../utils/domain';
+import { configuredDomains, isRuDomain, localePolicyForHost } from '../../utils';
 import ar from './locales/ar.json';
 import en from './locales/en.json';
 import ru from './locales/ru.json';
@@ -36,13 +36,31 @@ function syncDocumentDirection(lang: string): void {
   if (html.lang !== lang) html.lang = lang;
 }
 
+/**
+ * Languages this host may serve. Detection (localStorage, then navigator) is otherwise
+ * free to pick any supported language, which is how a ru-RU browser ended up seeing
+ * Russian on the global domain a few ms after SSR had rendered English.
+ * `null` on the Mini App and previews, where every language stays available.
+ */
+const allowedLocales =
+  typeof window === 'undefined'
+    ? null
+    : localePolicyForHost(window.location.hostname, configuredDomains());
+
+const activeLocales = allowedLocales ?? [...SUPPORTED_LOCALES];
+
+/** Anything the host disallows falls back to the host's own first language. */
+export function isLocaleAllowed(lang: string): boolean {
+  return activeLocales.includes(lang);
+}
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: DEFAULT_LOCALE,
-    supportedLngs: [...SUPPORTED_LOCALES],
+    fallbackLng: allowedLocales?.[0] ?? DEFAULT_LOCALE,
+    supportedLngs: activeLocales,
     interpolation: {
       escapeValue: false,
     },
@@ -70,7 +88,7 @@ if (i18n.language) syncDocumentDirection(i18n.language);
  */
 export function applyUserLang(lang: string): void {
   const target = isRuDomain() ? 'ru' : lang;
-  if ((SUPPORTED_LOCALES as readonly string[]).includes(target)) {
+  if (isLocaleAllowed(target)) {
     i18n.changeLanguage(target);
   }
 }

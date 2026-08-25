@@ -39,6 +39,31 @@ export function resolveLocaleForHost(
   return PREFIX_LOCALE[prefix] ?? fallback;
 }
 
+const RU_ONLY: readonly string[] = ['ru'];
+const GLOBAL: readonly string[] = ['en', 'ar'];
+
+/**
+ * The languages a host is allowed to serve, or `null` when the host is not one of the
+ * configured landing domains (Mini App, previews, localhost) and may serve any language.
+ *
+ * Without this, browser detection runs unconstrained: a ru-RU browser on the global
+ * domain resolves to Russian after hydration even though SSR rendered English.
+ */
+export function localePolicyForHost(
+  hostname: string,
+  domains: DomainLocales,
+): readonly string[] | null {
+  const host = normalizeHostname(hostname);
+  if (parseDomains(domains.ru).includes(host)) return RU_ONLY;
+  if (parseDomains(domains.en).includes(host) || parseDomains(domains.ar).includes(host)) {
+    return GLOBAL;
+  }
+  const prefix = host.split(/[-.]/, 1)[0] ?? '';
+  if (prefix === 'ru') return RU_ONLY;
+  if (prefix === 'eu' || prefix === 'ar') return GLOBAL;
+  return null;
+}
+
 /** Reads the domain lists the app was built with. */
 export function configuredDomains(): DomainLocales {
   return {

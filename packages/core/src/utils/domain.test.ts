@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { isRuDomain, normalizeHostname, parseDomains, resolveLocaleForHost } from './domain';
+import {
+  isRuDomain,
+  localePolicyForHost,
+  normalizeHostname,
+  parseDomains,
+  resolveLocaleForHost,
+} from './domain';
 
 const domains = {
   ru: 'jungle.community,thejungle.pro,web.thejungle.pro',
@@ -69,5 +75,37 @@ describe('isRuDomain', () => {
     vi.stubEnv('PUBLIC_DOMAIN_RU', domains.ru);
     vi.stubGlobal('window', { location: { hostname: 'jungle-vpn.com' } });
     expect(isRuDomain()).toBe(false);
+  });
+});
+
+describe('localePolicyForHost', () => {
+  it.each([
+    'thejungle.pro',
+    'www.thejungle.pro',
+    'jungle.community',
+  ])('allows only Russian on %s', (hostname) => {
+    expect(localePolicyForHost(hostname, domains)).toEqual(['ru']);
+  });
+
+  it.each([
+    'jungle-vpn.com',
+    'ar-jungle-vpn.com',
+  ])('allows only the global languages on %s, so a ru-RU browser cannot force Russian', (hostname) => {
+    expect(localePolicyForHost(hostname, domains)).toEqual(['en', 'ar']);
+  });
+
+  it('applies the Russian policy to prefix-matched staging hosts', () => {
+    expect(localePolicyForHost('ru-stage-web.thejungle.pro', domains)).toEqual(['ru']);
+  });
+
+  it('applies the global policy to prefix-matched staging hosts', () => {
+    expect(localePolicyForHost('ar-stage-web.thejungle.pro', domains)).toEqual(['en', 'ar']);
+  });
+
+  it.each([
+    'app.thejungle.pro',
+    'localhost',
+  ])('leaves %s unrestricted, so the Mini App keeps every language', (hostname) => {
+    expect(localePolicyForHost(hostname, domains)).toBeNull();
   });
 });

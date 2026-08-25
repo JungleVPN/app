@@ -3,17 +3,14 @@ import type { TSubscriptionPageLanguageCode } from '@remnawave/subscription-page
 import { IconWorld } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useRemnawaveApi } from '../../api';
-import { useAuthStore, usePlatformStore, useSubscriptionConfigStoreActions } from '../../stores';
-import { isRuDomain } from '../../utils';
+import { isLocaleAllowed } from '../../core/i18n';
+import { useAuthStore, useSubscriptionConfigStoreActions } from '../../stores';
 
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
-  const { platformType } = usePlatformStore();
   const { setLanguage } = useSubscriptionConfigStoreActions();
   const remnawaveApi = useRemnawaveApi();
   const rmnUser = useAuthStore((s) => s.rmnUser);
-
-  const isRu = isRuDomain();
 
   const handleLanguageChange = async (newLocale: string) => {
     await i18n.changeLanguage(newLocale);
@@ -34,17 +31,21 @@ export function LanguageSwitcher() {
             handleLanguageChange(String(key));
           }}
         >
-          {(isRu || platformType === 'telegram') && (
+          {isLocaleAllowed('ru') && (
             <Dropdown.Item id='ru' textValue={t('languages.nativeRu')}>
               <Label>{t('languages.nativeRu')}</Label>
             </Dropdown.Item>
           )}
-          <Dropdown.Item id='en' textValue={t('languages.nativeEn')}>
-            <Label>{t('languages.nativeEn')}</Label>
-          </Dropdown.Item>
-          <Dropdown.Item id='ar' textValue={t('languages.nativeAr')}>
-            <Label>{t('languages.nativeAr')}</Label>
-          </Dropdown.Item>
+          {isLocaleAllowed('en') && (
+            <Dropdown.Item id='en' textValue={t('languages.nativeEn')}>
+              <Label>{t('languages.nativeEn')}</Label>
+            </Dropdown.Item>
+          )}
+          {isLocaleAllowed('ar') && (
+            <Dropdown.Item id='ar' textValue={t('languages.nativeAr')}>
+              <Label>{t('languages.nativeAr')}</Label>
+            </Dropdown.Item>
+          )}
         </Dropdown.Menu>
       </Dropdown.Popover>
     </Dropdown>
