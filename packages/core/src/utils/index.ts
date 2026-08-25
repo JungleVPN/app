@@ -25,7 +25,13 @@ export {
 export { formatPlanPrice } from './currency';
 export { toDateString } from './date';
 export { detectOs } from './detectOs';
-export { isRuDomain } from './domain';
+export {
+  configuredDomains,
+  isRuDomain,
+  normalizeHostname,
+  parseDomains,
+  resolveLocaleForHost,
+} from './domain';
 export { formatCurrency, truncate } from './format';
 export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';

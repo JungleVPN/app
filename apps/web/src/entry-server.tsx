@@ -2,6 +2,7 @@ import { AnalyticsApiProvider, ApiProvider } from '@workspace/core/api';
 import { getDirection, i18n } from '@workspace/core/core/i18n';
 import { LandingPage } from '@workspace/core/pages';
 import { AppRoutesProvider, PaymentsApiProvider, SupabaseProvider } from '@workspace/core/runtime';
+import { configuredDomains, resolveLocaleForHost } from '@workspace/core/utils';
 import { type ComponentType, StrictMode } from 'react';
 import { renderToString } from 'react-dom/server';
 import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'react-router';
@@ -42,16 +43,8 @@ const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
   },
 };
 
-const DOMAIN_LOCALE: Record<string, string> = {};
-if (import.meta.env.PUBLIC_DOMAIN_RU) DOMAIN_LOCALE[import.meta.env.PUBLIC_DOMAIN_RU] = 'ru';
-if (import.meta.env.PUBLIC_DOMAIN_EU) DOMAIN_LOCALE[import.meta.env.PUBLIC_DOMAIN_EU] = 'en';
-if (import.meta.env.PUBLIC_DOMAIN_AR) DOMAIN_LOCALE[import.meta.env.PUBLIC_DOMAIN_AR] = 'ar';
-
-const PREFIX_LOCALE: Record<string, string> = { ru: 'ru', eu: 'en', ar: 'ar' };
-
 function resolveConfig(hostname: string): DomainConfig {
-  const prefix = hostname.split(/[-.]/, 1)[0];
-  const localeKey = DOMAIN_LOCALE[hostname] ?? PREFIX_LOCALE[prefix] ?? 'en';
+  const localeKey = resolveLocaleForHost(hostname, configuredDomains());
   const base = LOCALE_CONFIGS[localeKey] ?? LOCALE_CONFIGS['en']!;
   return { ...base, Landing: LandingPage };
 }

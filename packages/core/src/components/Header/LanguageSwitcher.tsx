@@ -34,12 +34,11 @@ export function LanguageSwitcher() {
             handleLanguageChange(String(key));
           }}
         >
-          {isRu ||
-            (platformType === 'telegram' && (
-              <Dropdown.Item id='ru' textValue={t('languages.nativeRu')}>
-                <Label>{t('languages.nativeRu')}</Label>
-              </Dropdown.Item>
-            ))}
+          {(isRu || platformType === 'telegram') && (
+            <Dropdown.Item id='ru' textValue={t('languages.nativeRu')}>
+              <Label>{t('languages.nativeRu')}</Label>
+            </Dropdown.Item>
+          )}
           <Dropdown.Item id='en' textValue={t('languages.nativeEn')}>
             <Label>{t('languages.nativeEn')}</Label>
           </Dropdown.Item>
