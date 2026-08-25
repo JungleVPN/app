@@ -46,12 +46,13 @@ const USE_CASE_CARDS = [
   { key: 'smartRouting', icon: <IconArrowsExchange size={24} />, color: 'text-orange-500' },
 ] as const;
 
-const STATS = [
+/** `valueKey` is for values that carry a translated unit, e.g. "30-day" / "30 дней". */
+const STATS: readonly { key: string; value?: string; valueKey?: string }[] = [
   { key: 'speed', value: '5 Gbps' },
   { key: 'countries', value: '6+' },
-  { key: 'guarantee', value: '30' },
-  { key: 'support', value: '~10m' },
-] as const;
+  { key: 'guarantee', valueKey: 'landing.info.stats.guarantee_value' },
+  { key: 'support', valueKey: 'landing.info.stats.support_value' },
+];
 
 const DEVICES = [
   { key: 'ios', icon: <IconBrandApple size={32} /> },
@@ -129,10 +130,12 @@ export function InfoSection() {
 
       {/* ── Stats strip ── */}
       <Grid className='mb-24 rounded-3xl border border-divider bg-surface-secondary p-8'>
-        {STATS.map(({ key, value }) => (
+        {STATS.map(({ key, value, valueKey }) => (
           <GridItem key={key} size={{ base: 12, sm: 6, lg: 3 }}>
             <div className='flex flex-col items-center gap-1 text-center'>
-              <span className='text-xl font-bold text-foreground lg:text-4xl'>{value}</span>
+              <span className='text-xl font-bold text-foreground lg:text-4xl'>
+                {valueKey ? t(valueKey) : value}
+              </span>
               <span className='text-xs text-muted lg:text-sm'>
                 {t(`landing.info.stats.${key}`)}
               </span>

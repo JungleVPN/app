@@ -2,13 +2,18 @@ import Marquee from 'react-fast-marquee';
 import { useTranslation } from 'react-i18next';
 
 const COUNTRIES = [
-  { flag: '🇺🇸', name: 'United States' },
-  { flag: '🇩🇪', name: 'Germany' },
-  { flag: '🇳🇱', name: 'Netherlands' },
-  { flag: '🇦🇹', name: 'Austria' },
-  { flag: '🇫🇮', name: 'Finland' },
-  { flag: '🇷🇺', name: 'Russia' },
+  { flag: '🇺🇸', code: 'us' },
+  { flag: '🇩🇪', code: 'de' },
+  { flag: '🇳🇱', code: 'nl' },
+  { flag: '🇦🇹', code: 'at' },
+  { flag: '🇫🇮', code: 'fi' },
+  { flag: '🇷🇺', code: 'ru' },
 ];
+
+/** The marquee shows the list four times; ids keep React keys unique across passes. */
+const MARQUEE_COUNTRIES = ['a', 'b', 'c', 'd'].flatMap((pass) =>
+  COUNTRIES.map((country) => ({ ...country, id: `${country.code}-${pass}` })),
+);
 
 function CountryBadge({ flag, name }: { flag: string; name: string }) {
   return (
@@ -29,8 +34,8 @@ export function CountriesMarquee() {
       </p>
       <div dir='ltr'>
         <Marquee pauseOnHover>
-          {[...COUNTRIES, ...COUNTRIES, ...COUNTRIES, ...COUNTRIES].map(({ flag, name }) => (
-            <CountryBadge key={flag} flag={flag} name={name} />
+          {MARQUEE_COUNTRIES.map(({ flag, code, id }) => (
+            <CountryBadge key={id} flag={flag} name={t(`landing.countries.names.${code}`)} />
           ))}
         </Marquee>
       </div>

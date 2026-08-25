@@ -30,7 +30,7 @@
   },
   "confirm": {
     "title": "Enter the code you received",
-    "submit": "Login",
+    "submit": "Log in",
     "resend_in": "Resend in {{timer}}s",
     "resend_otp": "Resend OTP",
     "hint": "You will receive an email with the code to enter",
@@ -40,7 +40,7 @@
     "title": "JungleVPN",
     "profile": "Profile",
     "logout": "Logout",
-    "login": "Log In",
+    "login": "Log in",
     "cta": "Try Now",
     "menu": "Menu",
     "logoAlt": "JungleVPN logo",
@@ -206,7 +206,7 @@
     "error_failed_to_create": "Failed to create subscription. Please try again.",
     "order_summary": "Your order",
     "item_name": "JungleVPN subscription",
-    "discount": "3 days trial period",
+    "discount": "3-day trial period",
     "submit_button": "Get Subscription",
     "features_title": "Included in the subscription",
     "feature_devices": "VPN for all your devices",
@@ -510,7 +510,7 @@
       "title": "JungleVPN",
       "subtitle": "Protect your connection, browse privately and stay secure on public Wi-Fi — with one VPN for all your devices.",
       "cta": "Try free for 3 days",
-      "login": "Login",
+      "login": "Log in",
       "trial": "No credit card required",
       "guarantee": "30-day money-back guarantee",
       "features": {
@@ -542,7 +542,7 @@
           "description": "Brows as much as you want!"
         },
         "devices": {
-          "title": "No logs policy",
+          "title": "No-logs policy",
           "description": "Everything you do online is yours"
         }
       }
@@ -588,7 +588,7 @@
         "name": "Omar Raza"
       },
       "calls": {
-        "quote": "Video calls hold up on the evenings when everything else slows down. I have not had to switch locations to get a stable connection.",
+        "quote": "Video calls hold up in the evenings when everything else slows down. I have not had to switch locations to get a stable connection.",
         "name": "Farhan Siddiqui"
       },
       "multiDevice": {
@@ -631,7 +631,15 @@
       }
     },
     "countries": {
-      "label": "Servers in 6+ countries"
+      "label": "Servers in 6+ countries",
+      "names": {
+        "us": "United States",
+        "de": "Germany",
+        "nl": "Netherlands",
+        "at": "Austria",
+        "fi": "Finland",
+        "ru": "Russia"
+      }
     },
     "pricing": {
       "title": "Simple pricing. No hidden fees.",
@@ -786,7 +794,7 @@
         },
         "privacy": {
           "feature": "Tracks your online activity",
-          "ours": "No logs policy",
+          "ours": "No-logs policy",
           "theirs": "Possible"
         },
         "advertising": {
@@ -851,7 +859,9 @@
       "stats": {
         "speed": "Max server speed",
         "countries": "Server countries",
-        "guarantee": "Day money-back guarantee",
+        "guarantee_value": "30-day",
+        "guarantee": "Money-back guarantee",
+        "support_value": "~10m",
         "support": "Avg. support reply time"
       },
       "devices": {
