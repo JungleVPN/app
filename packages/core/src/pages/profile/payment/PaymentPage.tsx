@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url';
-import { FeaturesCard } from '../../../components';
+import { FeaturesCard, Loading } from '../../../components';
 import { useBackButton, useNavigation } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { useNavbarStore, usePlatformStore } from '../../../stores';
@@ -15,6 +15,7 @@ import { isRuDomain } from '../../../utils';
 import { PaymentForm } from './components/PaymentForm';
 import { SavedMethod } from './components/SavedMethod';
 import { usePayment } from './hooks/usePayment';
+import { useSavedPayment } from './hooks/useSavedPayment';
 import { getButtonLabel } from './utils/getButtonLabel';
 
 export default function PaymentPage() {
@@ -27,12 +28,7 @@ export default function PaymentPage() {
   };
 
   const {
-    savedMethods,
-    hasActiveMethod,
-    hasStripeSubscription,
     needsEmailInput,
-    isLoadingMethods,
-    isLoading,
     isDeleting,
     starsError,
     isPaying,
@@ -47,11 +43,16 @@ export default function PaymentPage() {
     isOpeningStripePortal,
     validatePromo,
   } = usePayment(selectedPlan?.months ?? 1);
+
+  const { savedMethods, hasActiveMethod, hasStripeSubscription } = useSavedPayment();
+
   const { platformType } = usePlatformStore();
   const { setNavbarVisible } = useNavbarStore();
   const navigate = useNavigation();
   const { profilePlansPath } = useAppRoutes();
   const isRu = isRuDomain();
+
+  const isLoading = savedMethods === null;
 
   const [selectedMethod] = useState<PaymentMethod>(
     isRu || platformType === 'telegram' ? 'yookassa' : 'stripe',
@@ -86,14 +87,13 @@ export default function PaymentPage() {
 
   return (
     <Page
+      showBackButton={!hasActiveMethod && !isLoading}
       icon={<LottieIcon src={paymentAnimation} />}
       title={t('payment.pageTitle')}
       subtitle={t('payment.pageSubtitle')}
     >
       {isLoading ? (
-        <div className='flex justify-center p-8'>
-          <Spinner color='accent' size='lg' />
-        </div>
+        <Loading />
       ) : hasActiveMethod ? (
         <div className='flex flex-col gap-3'>
           {hasStripeSubscription ? (
@@ -113,8 +113,9 @@ export default function PaymentPage() {
             </Button>
           ) : null}
           <SavedMethod
+            hasStripeSubscription={hasStripeSubscription}
             savedMethods={savedMethods}
-            isLoadingMethods={isLoadingMethods}
+            isLoadingMethods={isLoading}
             isDeleting={isDeleting}
             onDelete={handleDelete}
           />

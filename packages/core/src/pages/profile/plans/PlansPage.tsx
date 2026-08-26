@@ -1,14 +1,14 @@
 import { Button, Chip, Spinner, Tabs } from '@heroui/react';
 import { Page } from '@workspace/core';
-import type { Key } from 'react';
-import { useState } from 'react';
+import { Key, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FeaturesCard } from '../../../components';
+import { FeaturesCard, Loading } from '../../../components';
 import { useNavigation, usePlans } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { usePlatformStore } from '../../../stores';
 import { Block } from '../../../ui';
 import { formatPlanPrice, isRuDomain } from '../../../utils';
+import { useSavedPayment } from '../payment/hooks/useSavedPayment';
 
 export default function PlansPage() {
   const { t } = useTranslation();
@@ -19,6 +19,15 @@ export default function PlansPage() {
   const isRu = isRuDomain();
   const isTelegram = platformType === 'telegram';
   const [selectedMonths, setSelectedMonths] = useState<number | null>(null);
+
+  const { hasActiveMethod, savedMethods } = useSavedPayment();
+  const isLoading = savedMethods === null;
+
+  useEffect(() => {
+    if (hasActiveMethod) {
+      navigate(profilePaymentPath);
+    }
+  });
 
   const sortedPlans = [...plans].sort((a, b) => b.months - a.months);
   const activeMonths = selectedMonths ?? sortedPlans[0]?.months ?? null;
@@ -40,6 +49,8 @@ export default function PlansPage() {
       },
     });
   };
+
+  if (hasActiveMethod || isLoading) return <Loading />;
 
   return (
     <Page title={t('plans.pageTitle')}>

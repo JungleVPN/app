@@ -11,6 +11,7 @@ interface SavedMethodProps {
   isLoadingMethods: boolean;
   isDeleting?: boolean;
   onDelete?: (id: string) => void;
+  hasStripeSubscription?: boolean;
 }
 
 export function SavedMethod({
@@ -18,6 +19,7 @@ export function SavedMethod({
   isLoadingMethods,
   isDeleting,
   onDelete,
+  hasStripeSubscription,
 }: SavedMethodProps) {
   const { t } = useTranslation();
   const { open: openTerms, isOpen: isTermsOpen } = useTermsStore();
@@ -29,8 +31,10 @@ export function SavedMethod({
 
   const description = (
     <>
-      {t('payment.savedMethodsDescription')}
-      <p className='mt-3 text-start text-xs text-muted'>
+      {!hasStripeSubscription && (
+        <span className={'mb-3'}>{t('payment.savedMethodsDescription')}</span>
+      )}
+      <p className='text-start text-xs text-muted'>
         {t('terms.paymentConsentLead')}
         <button
           className='cursor-pointer underline underline-offset-2'
@@ -44,12 +48,17 @@ export function SavedMethod({
   );
 
   return (
-    <Block title={t('payment.methodsHeading')} description={description} variant='secondary'>
+    <Block
+      title={!hasStripeSubscription ? t('payment.methodsHeading') : undefined}
+      description={description}
+      variant='secondary'
+    >
       {isLoadingMethods ? (
-        <div className='flex min-h-[120px] items-center justify-center py-8'>
+        <div className='flex min-h-30 items-center justify-center py-8'>
           <Spinner color='accent' size='sm' />
         </div>
       ) : (
+        !hasStripeSubscription &&
         savedMethods?.map((method, index) => (
           <Fragment key={method.id}>
             <SavedMethodRow
