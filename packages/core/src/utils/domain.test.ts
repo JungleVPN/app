@@ -89,7 +89,7 @@ describe('localePolicyForHost', () => {
   });
 
   it('allows the global languages on jungle-vpn.com, so a ru-RU browser cannot force Russian', () => {
-    expect(localePolicyForHost('jungle-vpn.com', domains)).toEqual(['en', 'ar']);
+    expect(localePolicyForHost('jungle-vpn.com', domains)).toEqual(['en', 'ar', 'tr']);
   });
 
   it('applies the Russian policy to prefix-matched staging hosts', () => {
@@ -97,7 +97,7 @@ describe('localePolicyForHost', () => {
   });
 
   it('applies the global policy to prefix-matched staging hosts', () => {
-    expect(localePolicyForHost('eu-stage-web.thejungle.pro', domains)).toEqual(['en', 'ar']);
+    expect(localePolicyForHost('eu-stage-web.thejungle.pro', domains)).toEqual(['en', 'ar', 'tr']);
   });
 
   it.each([
@@ -109,7 +109,7 @@ describe('localePolicyForHost', () => {
 });
 
 describe('isLandingPath', () => {
-  it.each(['/', '/en', '/ar'])('is true for the landing path %s', (pathname) => {
+  it.each(['/', '/en', '/ar', '/tr'])('is true for the landing path %s', (pathname) => {
     expect(isLandingPath(pathname)).toBe(true);
   });
 
@@ -129,6 +129,10 @@ describe('resolveLocaleForRequest', () => {
 
   it('serves Arabic on the global domain /ar path', () => {
     expect(resolveLocaleForRequest('jungle-vpn.com', '/ar', domains)).toBe('ar');
+  });
+
+  it('serves Turkish on the global domain /tr path', () => {
+    expect(resolveLocaleForRequest('jungle-vpn.com', '/tr', domains)).toBe('tr');
   });
 
   it('falls back to English on the global domain for an unknown path segment', () => {

@@ -11,6 +11,7 @@ import { isLandingPath } from '../../utils';
 const LANGUAGE_FLAGS: Record<string, string> = {
   ar: '🇦🇪',
   en: '🇬🇧',
+  tr: '🇹🇷',
 };
 
 /** `en` has no prefix (`/`), every other supported language routes as `/<lang>`. */
@@ -60,6 +61,12 @@ export function LanguageSwitcher() {
             <Dropdown.Item id='ar' textValue={t('languages.nativeAr')}>
               <span aria-hidden='true'>{LANGUAGE_FLAGS.ar}</span>
               <Label>{t('languages.nativeAr')}</Label>
+            </Dropdown.Item>
+          )}
+          {isLocaleAllowed('tr') && (
+            <Dropdown.Item id='tr' textValue={t('languages.nativeTr')}>
+              <span aria-hidden='true'>{LANGUAGE_FLAGS.tr}</span>
+              <Label>{t('languages.nativeTr')}</Label>
             </Dropdown.Item>
           )}
         </Dropdown.Menu>

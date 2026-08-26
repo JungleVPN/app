@@ -10,15 +10,17 @@ import { configuredDomains, isRuDomain, localePolicyForHost } from '../../utils'
 import ar from './locales/ar.json';
 import en from './locales/en.json';
 import ru from './locales/ru.json';
+import tr from './locales/tr.json';
 
 export const DEFAULT_LOCALE = import.meta.env.PUBLIC_DEFAULT_LOCALE || 'en';
-export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'fa'] as const;
+export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'tr', 'fa'] as const;
 
 /** zh/fa reuse English until dedicated files exist */
 const resources = {
   ru: { translation: ru },
   en: { translation: en },
   ar: { translation: ar },
+  tr: { translation: tr },
   fa: { translation: ar },
 } as const;
 
@@ -67,10 +69,10 @@ i18n
     detection: {
       // htmlTag excluded: index.html ships a static lang="en" attribute, which would
       // win over a previously cached/selected language on every reload.
-      // path goes first everywhere: /en and /ar route the language explicitly and
+      // path goes first everywhere: /en, /ar and /tr route the language explicitly and
       // should win over a stale cached choice. It only ever matches a segment that's
       // in supportedLngs, so RU-only hosts (locked below anyway) and hosts without
-      // an /en or /ar path are unaffected.
+      // an /en, /ar or /tr path are unaffected.
       order: ['path', 'localStorage', 'navigator'],
       lookupFromPathIndex: 0,
       caches: ['localStorage'],

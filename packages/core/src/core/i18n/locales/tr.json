@@ -57,7 +57,8 @@
   "languages": {
     "nativeRu": "Русский",
     "nativeEn": "English",
-    "nativeAr": "العربية"
+    "nativeAr": "العربية",
+    "nativeTr": "Türkçe"
   },
   "profileTabs": {
     "ariaLabel": "Profil bölümleri",

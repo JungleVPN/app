@@ -54,7 +54,7 @@ export function HeroSection() {
               <Button
                 size='lg'
                 variant='ghost'
-                className='h-14 w-48 rounded-4xl bg-linear-to-r from-violet-500 to-amber-400 text-white hover:opacity-90'
+                className='h-14 w-48 text-wrap px-2 rounded-4xl bg-linear-to-r from-violet-500 to-amber-400 text-white hover:opacity-90'
                 onClick={() => navigate('/login')}
               >
                 {t('landing.hero.cta')}

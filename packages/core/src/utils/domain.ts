@@ -37,8 +37,8 @@ export function resolveLocaleForHost(
 }
 
 const RU_ONLY: readonly string[] = ['ru'];
-/** Languages a global host may serve. Arabic has no domain of its own, but stays selectable. */
-const GLOBAL: readonly string[] = ['en', 'ar'];
+/** Languages a global host may serve. None besides English has a domain of its own. */
+const GLOBAL: readonly string[] = ['en', 'ar', 'tr'];
 
 /**
  * The languages a host is allowed to serve, or `null` when the host is not one of the
@@ -78,13 +78,20 @@ export function isRuDomain(): boolean {
   return resolveLocaleForHost(window.location.hostname, configuredDomains()) === 'ru';
 }
 
+/** Non-English global languages that route as `/<lang>`. English is the unprefixed `/`. */
+const GLOBAL_PATH_LOCALES: readonly string[] = GLOBAL.filter((locale) => locale !== 'en');
+
 /**
  * The landing-page paths that mirror a language in the URL: `/` and `/en` are
- * English, `/ar` is Arabic. Shared by SSR locale resolution, the header's
- * landing-page layout check, and the language switcher's URL sync — see
+ * English, `/ar` is Arabic, `/tr` is Turkish. Shared by SSR locale resolution, the
+ * header's landing-page layout check, and the language switcher's URL sync — see
  * resolveLocaleForRequest, Header.tsx, AuthButtons.tsx and LanguageSwitcher.tsx.
  */
-export const LANDING_PATHS: ReadonlySet<string> = new Set(['/', '/en', '/ar']);
+export const LANDING_PATHS: ReadonlySet<string> = new Set([
+  '/',
+  '/en',
+  ...GLOBAL_PATH_LOCALES.map((locale) => `/${locale}`),
+]);
 
 /** True for the exact paths in LANDING_PATHS. */
 export function isLandingPath(pathname: string): boolean {
@@ -92,10 +99,10 @@ export function isLandingPath(pathname: string): boolean {
 }
 
 /**
- * The language to render for a given host + path. An exact `/en` or `/ar` landing
- * path wins on the global domain and on any unrestricted host (Mini App, previews,
- * localhost during development); `/` and every other path fall back to the host's
- * normal resolution. RU-only hosts always render Russian, path or not.
+ * The language to render for a given host + path. An exact `/en`, `/ar` or `/tr`
+ * landing path wins on the global domain and on any unrestricted host (Mini App,
+ * previews, localhost during development); `/` and every other path fall back to
+ * the host's normal resolution. RU-only hosts always render Russian, path or not.
  *
  * Used by SSR, which otherwise resolved language from the hostname alone and always
  * rendered English on jungle-vpn.com/ar even though the client-side i18n path
@@ -110,8 +117,8 @@ export function resolveLocaleForRequest(
   const allowed = localePolicyForHost(hostname, domains);
   if (allowed === RU_ONLY) return 'ru';
 
-  if (pathname === '/en') return 'en';
-  if (pathname === '/ar') return 'ar';
+  const segment = pathname.slice(1);
+  if (segment === 'en' || GLOBAL_PATH_LOCALES.includes(segment)) return segment;
 
   return allowed?.[0] ?? resolveLocaleForHost(hostname, domains, fallback);
 }

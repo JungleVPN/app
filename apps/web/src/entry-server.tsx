@@ -27,7 +27,7 @@ const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
     lang: 'ru',
     title: 'JungleVPN — Быстрый и надёжный VPN',
     description:
-      'JungleVPN откроет доступ к свободному и безопасному интернету. Высокая скорость, безлимитный трафик и большое количество устройств. Безопасный VPN-сервис для всей семьи.',
+      'JungleVPN — быстрое и защищённое подключение дома, в поездках и в публичных сетях. Безлимитный трафик и поддержка всех ваших устройств. Надёжный VPN-сервис для всей семьи.',
     ogLocale: 'ru_RU',
   },
   en: {
@@ -43,13 +43,25 @@ const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
     lang: 'ar',
     title: 'JungleVPN — VPN سريع وآمن',
     description:
-      'احمِ اتصالك، وتصفّح بخصوصية، وابقَ آمنًا على شبكات الواي فاي العامة — بشبكة VPN واحدة تحمي جميع أجهزتك.',
+      'احمِ اتصالك، وتصفّح بخصوصية، وابقَ آمنًا على شبكات Wi-Fi العامة — بخدمة VPN واحدة لجميع أجهزتك.',
     ogLocale: 'ar_AR',
+  },
+  tr: {
+    locale: 'tr',
+    lang: 'tr',
+    title: 'JungleVPN — Hızlı ve Güvenli VPN',
+    description:
+      'Bağlantınızı güvence altına alın, gizliliğinizi koruyarak gezinin ve tüm cihazlarınız için tek bir VPN ile herkese açık Wi-Fi ağlarında güvende kalın.',
+    ogLocale: 'tr_TR',
   },
 };
 
 /** Landing-page paths per language, for the SSR head's hreflang alternates. */
-const LANDING_PATH_BY_LOCALE: Record<'en' | 'ar', string> = { en: '/en', ar: '/ar' };
+const LANDING_PATH_BY_LOCALE: Record<'en' | 'ar' | 'tr', string> = {
+  en: '/en',
+  ar: '/ar',
+  tr: '/tr',
+};
 
 function resolveConfig(hostname: string, pathname: string): DomainConfig {
   const localeKey = resolveLocaleForRequest(hostname, pathname, configuredDomains());
