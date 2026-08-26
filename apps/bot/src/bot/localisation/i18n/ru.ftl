@@ -55,11 +55,8 @@ main-text =
     </blockquote>
 
 
-    My contacts:
     <blockquote>
-        <code>Telegram</code>: @Ramazzaniii
         <code>Channel</code>: @In_The_Jungle
-        <code>LinkedIn</code>: <a href="https://www.linkedin.com/in/ramazan-ittiev/">Link</a>
     </blockquote>
 
 
