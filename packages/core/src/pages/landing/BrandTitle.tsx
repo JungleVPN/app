@@ -36,6 +36,7 @@ export function BrandTitle() {
     <motion.div
       role='img'
       aria-label='JungleVPN'
+      dir='ltr'
       className='flex items-end'
       variants={container}
       initial='hidden'
