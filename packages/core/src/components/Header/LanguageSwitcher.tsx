@@ -1,10 +1,14 @@
 import { Button, Dropdown, Label } from '@heroui/react';
 import type { TSubscriptionPageLanguageCode } from '@remnawave/subscription-page-types';
-import { IconWorld } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useRemnawaveApi } from '../../api';
 import { isLocaleAllowed } from '../../core/i18n';
 import { useAuthStore, useSubscriptionConfigStoreActions } from '../../stores';
+
+const LANGUAGE_FLAGS: Record<string, string> = {
+  ar: '🇦🇪',
+  en: '🇬🇧',
+};
 
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
@@ -22,8 +26,8 @@ export function LanguageSwitcher() {
 
   return (
     <Dropdown>
-      <Button className='min-w-10 uppercase' variant='tertiary' size='md'>
-        <IconWorld stroke={1.5} />
+      <Button className='min-w-10 text-lg p-0 uppercase' variant='tertiary' size='md'>
+        <span aria-hidden='true'>{LANGUAGE_FLAGS[i18n.language] ?? LANGUAGE_FLAGS.en}</span>
       </Button>
       <Dropdown.Popover>
         <Dropdown.Menu
@@ -31,18 +35,15 @@ export function LanguageSwitcher() {
             handleLanguageChange(String(key));
           }}
         >
-          {isLocaleAllowed('ru') && (
-            <Dropdown.Item id='ru' textValue={t('languages.nativeRu')}>
-              <Label>{t('languages.nativeRu')}</Label>
-            </Dropdown.Item>
-          )}
           {isLocaleAllowed('en') && (
             <Dropdown.Item id='en' textValue={t('languages.nativeEn')}>
+              <span aria-hidden='true'>{LANGUAGE_FLAGS.en}</span>
               <Label>{t('languages.nativeEn')}</Label>
             </Dropdown.Item>
           )}
           {isLocaleAllowed('ar') && (
             <Dropdown.Item id='ar' textValue={t('languages.nativeAr')}>
+              <span aria-hidden='true'>{LANGUAGE_FLAGS.ar}</span>
               <Label>{t('languages.nativeAr')}</Label>
             </Dropdown.Item>
           )}
