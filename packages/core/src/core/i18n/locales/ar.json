@@ -884,6 +884,7 @@
     "noPaymentsFound": "لم يتم العثور على مدفوعات",
     "searchAriaLabel": "بحث",
     "details": {
+      "pageTitle": "تفاصيل المعاملة",
       "title": "تفاصيل الدفع",
       "paymentId": "معرّف الدفعة",
       "userId": "معرّف المستخدم",

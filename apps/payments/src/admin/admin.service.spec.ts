@@ -42,7 +42,15 @@ beforeAll(async () => {
  * builder is interrogated for its SQL afterwards.
  */
 async function whereClausesFor(query: string): Promise<Record<string, string>> {
+  return (await runSearch(query)).clauses;
+}
+
+/** As `whereClausesFor`, but also returns the bound parameters per entity. */
+async function runSearch(
+  query: string,
+): Promise<{ clauses: Record<string, string>; parameters: Record<string, ObjectLiteral> }> {
   const clauses: Record<string, string> = {};
+  const parameters: Record<string, ObjectLiteral> = {};
 
   const repoFor = <T extends ObjectLiteral>(entity: new () => T): Repository<T> =>
     ({
@@ -50,6 +58,7 @@ async function whereClausesFor(query: string): Promise<Record<string, string>> {
         const qb = dataSource.createQueryBuilder(entity, alias) as SelectQueryBuilder<T>;
         qb.getMany = async () => {
           clauses[entity.name] = qb.getSql().split(' WHERE ')[1]?.split(' ORDER BY ')[0].trim();
+          parameters[entity.name] = qb.getParameters();
           return [];
         };
         return qb;
@@ -63,16 +72,19 @@ async function whereClausesFor(query: string): Promise<Record<string, string>> {
   );
 
   await service.search(query);
-  return clauses;
+  return { clauses, parameters };
 }
 
+/** The trailing ` AND "p"."status" NOT IN ($n, $m)` conjunct, anchored to the end. */
+const STATUS_TAIL = /\s*AND\s*"p"\."status" NOT IN \((?:\$\d+(?:, )?)+\)$/;
+
 /**
- * Everything before the ` AND "p"."status" != $n` tail, with CAST(...) calls
- * flattened to a bare placeholder. The tests below assert on where the OR
- * group's brackets close, so a cast's own closing paren would read as one.
+ * Everything before the status tail, with CAST(...) calls flattened to a bare
+ * placeholder. The tests below assert on where the OR group's brackets close,
+ * so a cast's own closing paren would read as one.
  */
 const orGroupOf = (where: string) =>
-  where.replace(/\s*AND\s*"p"\."status" != \$\d+\s*$/, '').replace(/CAST\([^()]*\)/g, '$CAST');
+  where.replace(STATUS_TAIL, '').replace(/CAST\([^()]*\)/g, '$CAST');
 
 describe('AdminService.search — the pending filter must survive every OR branch', () => {
   const providers = [
@@ -85,7 +97,7 @@ describe('AdminService.search — the pending filter must survive every OR branc
     const where = (await whereClausesFor('4821'))[key];
 
     // The status predicate is the final conjunct, applied to the whole group…
-    expect(where).toMatch(/\)\s*AND\s*"p"\."status" != \$\d+$/);
+    expect(where).toMatch(new RegExp(`\\)${STATUS_TAIL.source}`));
     // …and no OR alternative may sit outside those brackets.
     expect(orGroupOf(where)).not.toMatch(/\)\s*OR\s/);
   });
@@ -93,7 +105,7 @@ describe('AdminService.search — the pending filter must survive every OR branc
   it.each(providers)('%s still filters on status for a text query', async (_label, key) => {
     const where = (await whereClausesFor('pay_abc'))[key];
 
-    expect(where).toMatch(/"p"\."status" != \$\d+$/);
+    expect(where).toMatch(STATUS_TAIL);
     expect(orGroupOf(where)).not.toMatch(/\)\s*OR\s/);
   });
 
@@ -102,14 +114,14 @@ describe('AdminService.search — the pending filter must survive every OR branc
 
     expect(where).toBe(
       '("p"."id" = $1 OR "p"."userId" = CAST($2 AS bigint) OR ' +
-        '"p"."telegramId" = CAST($2 AS bigint)) AND "p"."status" != $3',
+        '"p"."telegramId" = CAST($2 AS bigint)) AND "p"."status" NOT IN ($3, $4)',
     );
   });
 
   it('omits the numeric branches entirely for a non-numeric query', async () => {
     const where = (await whereClausesFor('pay_abc')).YookassaPayment;
 
-    expect(where).toBe('("p"."id" = $1) AND "p"."status" != $2');
+    expect(where).toBe('("p"."id" = $1) AND "p"."status" NOT IN ($2, $3)');
     expect(where).not.toContain('userId');
     expect(where).not.toContain('telegramId');
   });
@@ -147,6 +159,26 @@ describe('AdminService.search — numeric branches must not be pinned to int32',
       for (const branch of numericBranches) {
         expect(branch).toMatch(/= CAST\(\$\d+ AS bigint\)$/);
       }
+    }
+  });
+});
+
+describe('AdminService.search — unsettled placeholder rows are never returned', () => {
+  /**
+   * A Stripe purchase writes two rows. `checkout.session.completed` marks the
+   * session row `completed` with a null paidAt, and the money only lands later
+   * on `invoice.payment_succeeded`, which writes a separate `paid` row. Both
+   * carry the same userId, so leaving `completed` in put one purchase in the
+   * caller's history twice — once as a transaction that never settled.
+   */
+  it.each(['4821', 'pay_abc'])('excludes both pending and completed for %s', async (query) => {
+    const { clauses, parameters } = await runSearch(query);
+
+    for (const key of Object.keys(clauses)) {
+      const bound = Object.values(parameters[key]).flat();
+
+      expect(bound).toContain('pending');
+      expect(bound).toContain('completed');
     }
   });
 });

@@ -884,6 +884,7 @@
     "noPaymentsFound": "No payments found",
     "searchAriaLabel": "Search",
     "details": {
+      "pageTitle": "Transaction Details",
       "title": "Payment Details",
       "paymentId": "Payment ID",
       "userId": "User ID",

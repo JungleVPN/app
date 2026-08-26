@@ -54,6 +54,18 @@ export class AdminService {
   }
 
   /**
+   * Statuses that are not a settled payment, and so never belong in a result.
+   *
+   * `pending` is the placeholder written before checkout. `completed` is
+   * Stripe-only and just as provisional: `checkout.session.completed` fires
+   * when the session finishes, but the money lands on a later
+   * `invoice.payment_succeeded`, which writes its own `paid` row. Both rows
+   * carry the same userId, so leaving `completed` in showed one purchase twice
+   * in the caller's history — once with a null paidAt.
+   */
+  private static readonly UNSETTLED_STATUSES = ['pending', 'completed'];
+
+  /**
    * The OR group of a free-text search, wrapped in Brackets.
    *
    * Brackets is load-bearing: TypeORM concatenates conditions with no
@@ -100,8 +112,9 @@ export class AdminService {
           numeric: ['p.userId', 'p.telegramId'],
         }),
       )
-      // Drop the pre-checkout placeholder rows — only settled records are shown.
-      .andWhere('p.status != :pending', { pending: 'pending' })
+      .andWhere('p.status NOT IN (:...unsettled)', {
+        unsettled: AdminService.UNSETTLED_STATUSES,
+      })
       .orderBy('p.createdAt', 'DESC')
       .getMany();
 
@@ -131,7 +144,9 @@ export class AdminService {
           numeric: ['p.userId', 'p.telegramId'],
         }),
       )
-      .andWhere('p.status != :pending', { pending: 'pending' })
+      .andWhere('p.status NOT IN (:...unsettled)', {
+        unsettled: AdminService.UNSETTLED_STATUSES,
+      })
       .orderBy('p.createdAt', 'DESC')
       .getMany();
 
@@ -162,8 +177,9 @@ export class AdminService {
           numeric: ['p.userId'],
         }),
       )
-      // Drop the pre-checkout placeholder rows — only settled records are shown.
-      .andWhere('p.status != :pending', { pending: 'pending' })
+      .andWhere('p.status NOT IN (:...unsettled)', {
+        unsettled: AdminService.UNSETTLED_STATUSES,
+      })
       .orderBy('p.createdAt', 'DESC')
       .getMany();
 

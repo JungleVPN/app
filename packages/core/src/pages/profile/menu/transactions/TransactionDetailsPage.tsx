@@ -3,8 +3,9 @@ import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBackButton, useNavigation } from '../../../../hooks';
-import { useNavbarStore } from '../../../../stores';
-import { Block } from '../../../../ui';
+import { useAuthStore, useNavbarStore } from '../../../../stores';
+import { Block, Page } from '../../../../ui';
+import { isAdminUser } from '../../../../utils';
 import { DetailRow } from './components/DetailRow';
 import { useTransactionDetails } from './hooks/useTransactionDetails';
 
@@ -25,6 +26,9 @@ export default function TransactionDetailsPage() {
   const navigate = useNavigation();
   const { payment, isLoading, error } = useTransactionDetails();
   const { setNavbarVisible } = useNavbarStore();
+  const { tgUser, authUser } = useAuthStore();
+
+  const isAdmin = isAdminUser(tgUser, authUser);
 
   useEffect(() => {
     setNavbarVisible(false);
@@ -34,9 +38,9 @@ export default function TransactionDetailsPage() {
   useBackButton(() => navigate(-1));
 
   return (
-    <>
+    <Page title={t('transactions.details.pageTitle')}>
       {isLoading && (
-        <div className='flex min-h-[120px] items-center justify-center py-8'>
+        <div className='flex min-h-30 items-center justify-center py-8'>
           <Spinner color='accent' size='md' />
         </div>
       )}
@@ -45,11 +49,13 @@ export default function TransactionDetailsPage() {
 
       {payment && !isLoading && (
         <Block variant='secondary' title={t('transactions.details.title')}>
-          <DetailRow
-            label={t('transactions.details.paymentId')}
-            value={payment.paymentId}
-            copyable
-          />
+          {!isAdmin && (
+            <DetailRow
+              label={t('transactions.details.paymentId')}
+              value={payment.paymentId}
+              copyable
+            />
+          )}
           <DetailRow
             label={t('transactions.details.userId')}
             value={String(payment.userId)}
@@ -102,6 +108,6 @@ export default function TransactionDetailsPage() {
           />
         </Block>
       )}
-    </>
+    </Page>
   );
 }

@@ -884,6 +884,7 @@
     "noPaymentsFound": "Ödeme bulunamadı",
     "searchAriaLabel": "Ara",
     "details": {
+      "pageTitle": "İşlem Detayları",
       "title": "Ödeme Detayları",
       "paymentId": "Ödeme Kimliği",
       "userId": "Kullanıcı Kimliği",

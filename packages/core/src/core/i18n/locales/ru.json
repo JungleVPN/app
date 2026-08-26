@@ -909,6 +909,7 @@
     "noPaymentsFound": "Ничего не нашлось",
     "searchAriaLabel": "Поиск",
     "details": {
+      "pageTitle": "Детали транзакции",
       "title": "Детали платежа",
       "paymentId": "ID платежа",
       "userId": "ID пользователя",
