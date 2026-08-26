@@ -11,7 +11,7 @@
         "no-sub": "You don't have a subscription",
         "podpiska": "Subscription",
         "error-connect": "Connection error",
-        "error-parse-appconfig": "Ошибка обработки App-config",
+        "error-parse-appconfig": "App configuration processing error",
         "ERR_FATCH_USER": "Error getting user",
         "ERR_GET_SUB_LINK": "Error getting subscription link",
         "ERR_PARSE_APPCONFIG": "Error parsing app configuration",
@@ -272,7 +272,7 @@
       "i2": "The User undertakes to use the Service only in compliance with applicable law and third-party rules.",
       "i3": "Responsibility for the lawful use of the Service’s materials and services rests entirely with the User.",
       "i4_lead": "The following uses of the Service are strictly prohibited:",
-      "i4_u1": "circumventing government-mandated content restrictions or internet censorship in jurisdictions where such circumvention is illegal;",
+      "i4_u1": "using the Service in any jurisdiction where its use is prohibited or requires a licence the User does not hold;",
       "i4_u2": "accessing, transmitting, or distributing illegal content, including but not limited to child sexual abuse material, content promoting terrorism, or material that infringes third-party rights;",
       "i4_u3": "unauthorized access to computer systems, networks, or data;",
       "i4_u4": "distribution of malware, viruses, or other malicious code;",
@@ -362,7 +362,7 @@
       "i3_u1": "countries where VPN use is prohibited or subject to licensing requirements;",
       "i3_u2": "countries or territories subject to international sanctions;",
       "i3_u3": "regions where the Administration has determined that operating the Service creates unacceptable legal or compliance risk.",
-      "i4": "The Administration does not encourage or facilitate the circumvention of lawful government content restrictions. The User bears full and sole responsibility for any violation of local law resulting from their use of the Service."
+      "i4": "The Administration does not encourage or facilitate any unlawful use of the Service. The User bears full and sole responsibility for any violation of local law resulting from their use of the Service."
     },
     "s15": {
       "h": "15. Sanctions & Export Controls",
@@ -650,7 +650,7 @@
       "cta": "Choose plan",
       "advantage1": "Unlimited speed & data",
       "advantage2": "Works on all your devices",
-      "advantage3": "Access any website, anywhere",
+      "advantage3": "Secure access wherever you are",
       "advantage4": "Support whenever you need it",
       "badge": "Best choice",
       "totalLabel": "Total",
