@@ -10,7 +10,6 @@ import {
 const domains = {
   ru: 'jungle.community,thejungle.pro,web.thejungle.pro',
   en: 'jungle-vpn.com',
-  ar: 'ar-jungle-vpn.com',
 };
 
 describe('normalizeHostname', () => {
@@ -46,12 +45,12 @@ describe('resolveLocaleForHost', () => {
     expect(resolveLocaleForHost('jungle-vpn.com', domains)).toBe('en');
   });
 
-  it('serves Arabic on the Arabic domain', () => {
-    expect(resolveLocaleForHost('ar-jungle-vpn.com', domains)).toBe('ar');
+  it('falls back to the language prefix for unlisted hosts', () => {
+    expect(resolveLocaleForHost('ru-stage-web.thejungle.pro', domains)).toBe('ru');
   });
 
-  it('falls back to the language prefix for unlisted hosts', () => {
-    expect(resolveLocaleForHost('ar-stage-web.thejungle.pro', domains)).toBe('ar');
+  it('serves English on a host whose prefix is not a known language', () => {
+    expect(resolveLocaleForHost('ar-stage-web.thejungle.pro', domains)).toBe('en');
   });
 
   it('falls back to English for hosts with no listing and no known prefix', () => {
@@ -87,11 +86,8 @@ describe('localePolicyForHost', () => {
     expect(localePolicyForHost(hostname, domains)).toEqual(['ru']);
   });
 
-  it.each([
-    'jungle-vpn.com',
-    'ar-jungle-vpn.com',
-  ])('allows only the global languages on %s, so a ru-RU browser cannot force Russian', (hostname) => {
-    expect(localePolicyForHost(hostname, domains)).toEqual(['en', 'ar']);
+  it('allows the global languages on jungle-vpn.com, so a ru-RU browser cannot force Russian', () => {
+    expect(localePolicyForHost('jungle-vpn.com', domains)).toEqual(['en', 'ar']);
   });
 
   it('applies the Russian policy to prefix-matched staging hosts', () => {
@@ -99,7 +95,7 @@ describe('localePolicyForHost', () => {
   });
 
   it('applies the global policy to prefix-matched staging hosts', () => {
-    expect(localePolicyForHost('ar-stage-web.thejungle.pro', domains)).toEqual(['en', 'ar']);
+    expect(localePolicyForHost('eu-stage-web.thejungle.pro', domains)).toEqual(['en', 'ar']);
   });
 
   it.each([

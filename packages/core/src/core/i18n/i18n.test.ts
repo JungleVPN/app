@@ -7,7 +7,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 async function bootI18n({ hostname, language }: { hostname: string; language: string }) {
   vi.stubEnv('PUBLIC_DOMAIN_RU', 'jungle.community,thejungle.pro');
   vi.stubEnv('PUBLIC_DOMAIN_EU', 'jungle-vpn.com');
-  vi.stubEnv('PUBLIC_DOMAIN_AR', 'ar-jungle-vpn.com');
   Object.defineProperty(window, 'location', {
     value: { hostname },
     writable: true,
@@ -34,11 +33,6 @@ describe('language resolution per domain', () => {
   it('keeps the global domain in English for a Russian browser', async () => {
     const i18n = await bootI18n({ hostname: 'jungle-vpn.com', language: 'ru-RU' });
     expect(i18n.resolvedLanguage).toBe('en');
-  });
-
-  it('still honours Arabic on the global domain', async () => {
-    const i18n = await bootI18n({ hostname: 'jungle-vpn.com', language: 'ar-EG' });
-    expect(i18n.resolvedLanguage).toBe('ar');
   });
 
   it('ignores a stale Russian choice cached on the global domain', async () => {

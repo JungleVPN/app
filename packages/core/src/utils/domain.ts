@@ -20,11 +20,9 @@ export function parseDomains(value: string | undefined): readonly string[] {
 export interface DomainLocales {
   ru?: string;
   en?: string;
-  ar?: string;
 }
 
-/** Staging hosts encode their language as a leading label, e.g. `ar-stage-web.thejungle.pro`. */
-const PREFIX_LOCALE: Record<string, string> = { ru: 'ru', eu: 'en', ar: 'ar' };
+const PREFIX_LOCALE: Record<string, string> = { ru: 'ru', eu: 'en' };
 
 export function resolveLocaleForHost(
   hostname: string,
@@ -34,12 +32,12 @@ export function resolveLocaleForHost(
   const host = normalizeHostname(hostname);
   if (parseDomains(domains.ru).includes(host)) return 'ru';
   if (parseDomains(domains.en).includes(host)) return 'en';
-  if (parseDomains(domains.ar).includes(host)) return 'ar';
   const prefix = host.split(/[-.]/, 1)[0] ?? '';
   return PREFIX_LOCALE[prefix] ?? fallback;
 }
 
 const RU_ONLY: readonly string[] = ['ru'];
+/** Languages a global host may serve. Arabic has no domain of its own, but stays selectable. */
 const GLOBAL: readonly string[] = ['en', 'ar'];
 
 /**
@@ -55,12 +53,11 @@ export function localePolicyForHost(
 ): readonly string[] | null {
   const host = normalizeHostname(hostname);
   if (parseDomains(domains.ru).includes(host)) return RU_ONLY;
-  if (parseDomains(domains.en).includes(host) || parseDomains(domains.ar).includes(host)) {
-    return GLOBAL;
-  }
+  if (parseDomains(domains.en).includes(host)) return GLOBAL;
+
   const prefix = host.split(/[-.]/, 1)[0] ?? '';
   if (prefix === 'ru') return RU_ONLY;
-  if (prefix === 'eu' || prefix === 'ar') return GLOBAL;
+  if (prefix === 'eu') return GLOBAL;
   return null;
 }
 
@@ -69,7 +66,6 @@ export function configuredDomains(): DomainLocales {
   return {
     ru: import.meta.env.PUBLIC_DOMAIN_RU,
     en: import.meta.env.PUBLIC_DOMAIN_EU,
-    ar: import.meta.env.PUBLIC_DOMAIN_AR,
   };
 }
 
