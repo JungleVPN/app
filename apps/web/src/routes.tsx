@@ -32,6 +32,19 @@ export function createRoutes(Landing: ComponentType) {
           Component: LandingLayout,
           children: [{ index: true, Component: Landing }],
         },
+        // Global-domain language routing (jungle-vpn.com): /en and /ar serve the
+        // same landing page, with the active language picked up by i18n's path
+        // detector — see packages/core/src/core/i18n/i18n.ts.
+        {
+          path: '/en',
+          Component: LandingLayout,
+          children: [{ index: true, Component: Landing }],
+        },
+        {
+          path: '/ar',
+          Component: LandingLayout,
+          children: [{ index: true, Component: Landing }],
+        },
         {
           Component: WebRootLayout,
           children: [

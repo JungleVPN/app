@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  isLandingPath,
   isRuDomain,
   localePolicyForHost,
   normalizeHostname,
   parseDomains,
   resolveLocaleForHost,
+  resolveLocaleForRequest,
 } from './domain';
 
 const domains = {
@@ -103,5 +105,51 @@ describe('localePolicyForHost', () => {
     'localhost',
   ])('leaves %s unrestricted, so the Mini App keeps every language', (hostname) => {
     expect(localePolicyForHost(hostname, domains)).toBeNull();
+  });
+});
+
+describe('isLandingPath', () => {
+  it.each(['/', '/en', '/ar'])('is true for the landing path %s', (pathname) => {
+    expect(isLandingPath(pathname)).toBe(true);
+  });
+
+  it.each(['/subscribe', '/en/nested', '/login'])('is false for %s', (pathname) => {
+    expect(isLandingPath(pathname)).toBe(false);
+  });
+});
+
+describe('resolveLocaleForRequest', () => {
+  it('serves English at the global domain root', () => {
+    expect(resolveLocaleForRequest('jungle-vpn.com', '/', domains)).toBe('en');
+  });
+
+  it('serves English on the global domain /en path', () => {
+    expect(resolveLocaleForRequest('jungle-vpn.com', '/en', domains)).toBe('en');
+  });
+
+  it('serves Arabic on the global domain /ar path', () => {
+    expect(resolveLocaleForRequest('jungle-vpn.com', '/ar', domains)).toBe('ar');
+  });
+
+  it('falls back to English on the global domain for an unknown path segment', () => {
+    expect(resolveLocaleForRequest('jungle-vpn.com', '/subscribe', domains)).toBe('en');
+  });
+
+  it('ignores the path on the RU domain, which is always Russian', () => {
+    expect(resolveLocaleForRequest('www.thejungle.pro', '/ar', domains)).toBe('ru');
+  });
+
+  it('applies /en and /ar path routing on unrestricted hosts too (e.g. localhost)', () => {
+    expect(resolveLocaleForRequest('localhost', '/ar', domains)).toBe('ar');
+    expect(resolveLocaleForRequest('localhost', '/en', domains)).toBe('en');
+  });
+
+  it('falls back to the hostname resolution on unrestricted hosts with no /en or /ar path', () => {
+    expect(resolveLocaleForRequest('app.thejungle.pro', '/', domains)).toBe('en');
+    expect(resolveLocaleForRequest('localhost', '/login', domains)).toBe('en');
+  });
+
+  it('only matches the exact /en and /ar landing paths, not a leading segment on a deeper route', () => {
+    expect(resolveLocaleForRequest('jungle-vpn.com', '/ar/nested', domains)).toBe('en');
   });
 });

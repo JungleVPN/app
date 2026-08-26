@@ -5,6 +5,7 @@ import { useLocation } from 'react-router';
 import { useNavigation } from '../../hooks';
 import { useSupabaseClient } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo } from '../../stores';
+import { isLandingPath } from '../../utils';
 
 export function AuthButtons() {
   const supabase = useSupabaseClient();
@@ -38,7 +39,7 @@ export function AuthButtons() {
     if (key === 'logout') await handleLogout();
   };
 
-  if (authUser && location.pathname !== '/') {
+  if (authUser && !isLandingPath(location.pathname)) {
     return (
       <Dropdown>
         <Button isIconOnly size='md' variant='outline'>

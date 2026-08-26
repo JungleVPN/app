@@ -2,7 +2,7 @@ import { AnalyticsApiProvider, ApiProvider } from '@workspace/core/api';
 import { getDirection, i18n } from '@workspace/core/core/i18n';
 import { LandingPage } from '@workspace/core/pages';
 import { AppRoutesProvider, PaymentsApiProvider, SupabaseProvider } from '@workspace/core/runtime';
-import { configuredDomains, resolveLocaleForHost } from '@workspace/core/utils';
+import { configuredDomains, isLandingPath, resolveLocaleForRequest } from '@workspace/core/utils';
 import { type ComponentType, StrictMode } from 'react';
 import { renderToString } from 'react-dom/server';
 import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'react-router';
@@ -18,6 +18,7 @@ interface DomainConfig {
   lang: string;
   title: string;
   description: string;
+  ogLocale: string;
 }
 
 const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
@@ -27,6 +28,7 @@ const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
     title: 'JungleVPN — Быстрый и надёжный VPN',
     description:
       'JungleVPN откроет доступ к свободному и безопасному интернету. Высокая скорость, безлимитный трафик и большое количество устройств. Безопасный VPN-сервис для всей семьи.',
+    ogLocale: 'ru_RU',
   },
   en: {
     locale: 'en',
@@ -34,6 +36,7 @@ const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
     title: 'JungleVPN — Fast & Secure VPN',
     description:
       'Protect your connection, browse privately and stay secure on public Wi-Fi — with one VPN for all your devices.',
+    ogLocale: 'en_US',
   },
   ar: {
     locale: 'ar',
@@ -41,13 +44,32 @@ const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
     title: 'JungleVPN — VPN سريع وآمن',
     description:
       'احمِ اتصالك، وتصفّح بخصوصية، وابقَ آمنًا على شبكات الواي فاي العامة — بشبكة VPN واحدة تحمي جميع أجهزتك.',
+    ogLocale: 'ar_AR',
   },
 };
 
-function resolveConfig(hostname: string): DomainConfig {
-  const localeKey = resolveLocaleForHost(hostname, configuredDomains());
+/** Landing-page paths per language, for the SSR head's hreflang alternates. */
+const LANDING_PATH_BY_LOCALE: Record<'en' | 'ar', string> = { en: '/en', ar: '/ar' };
+
+function resolveConfig(hostname: string, pathname: string): DomainConfig {
+  const localeKey = resolveLocaleForRequest(hostname, pathname, configuredDomains());
   const base = LOCALE_CONFIGS[localeKey] ?? LOCALE_CONFIGS['en']!;
   return { ...base, Landing: LandingPage };
+}
+
+/**
+ * hreflang alternates for the global domain's landing languages, plus an x-default.
+ * RU-only hosts don't offer /en or /ar, so they get none of these.
+ */
+function landingAlternateLinks(config: DomainConfig, hostname: string, pathname: string): string {
+  if (config.locale === 'ru' || !isLandingPath(pathname)) return '';
+
+  const origin = `https://${hostname}`;
+  const links = (Object.entries(LANDING_PATH_BY_LOCALE) as [string, string][]).map(
+    ([lang, path]) => `<link rel="alternate" hreflang="${lang}" href="${origin}${path}">`,
+  );
+  links.push(`<link rel="alternate" hreflang="x-default" href="${origin}/">`);
+  return links.join('\n    ');
 }
 
 const appRoutes = {
@@ -66,7 +88,8 @@ const appRoutes = {
 };
 
 export async function render(request: Request, hostname: string) {
-  const config = resolveConfig(hostname);
+  const pathname = new URL(request.url).pathname;
+  const config = resolveConfig(hostname, pathname);
 
   await i18n.changeLanguage(config.locale);
 
@@ -75,7 +98,11 @@ export async function render(request: Request, hostname: string) {
     `<meta name="description" content="${config.description}">`,
     `<meta property="og:title" content="${config.title}">`,
     `<meta property="og:description" content="${config.description}">`,
-  ].join('\n    ');
+    `<meta property="og:locale" content="${config.ogLocale}">`,
+    landingAlternateLinks(config, hostname, pathname),
+  ]
+    .filter(Boolean)
+    .join('\n    ');
 
   const routes = createRoutes(config.Landing);
   const handler = createStaticHandler(routes);

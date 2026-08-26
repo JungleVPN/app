@@ -9,7 +9,7 @@ import LogoDark from '../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../hooks';
 import { usePlatformStore } from '../../stores';
 import { Container } from '../../ui';
-import { isRuDomain, scrollToTop } from '../../utils';
+import { isLandingPath, isRuDomain, scrollToTop } from '../../utils';
 import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { SupportButton } from '../SupportWidget/SupportButton';
@@ -27,7 +27,7 @@ export function Header() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
 
-  const isLanding = pathname === '/';
+  const isLanding = isLandingPath(pathname);
   const isRu = isRuDomain();
 
   useEffect(() => {

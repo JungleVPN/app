@@ -65,7 +65,7 @@ export function localePolicyForHost(
 export function configuredDomains(): DomainLocales {
   return {
     ru: import.meta.env.PUBLIC_DOMAIN_RU,
-    en: import.meta.env.PUBLIC_DOMAIN_EU,
+    en: import.meta.env.PUBLIC_DOMAIN_GLOBAL,
   };
 }
 
@@ -76,4 +76,42 @@ export function configuredDomains(): DomainLocales {
 export function isRuDomain(): boolean {
   if (typeof window === 'undefined') return false;
   return resolveLocaleForHost(window.location.hostname, configuredDomains()) === 'ru';
+}
+
+/**
+ * The landing-page paths that mirror a language in the URL: `/` and `/en` are
+ * English, `/ar` is Arabic. Shared by SSR locale resolution, the header's
+ * landing-page layout check, and the language switcher's URL sync — see
+ * resolveLocaleForRequest, Header.tsx, AuthButtons.tsx and LanguageSwitcher.tsx.
+ */
+export const LANDING_PATHS: ReadonlySet<string> = new Set(['/', '/en', '/ar']);
+
+/** True for the exact paths in LANDING_PATHS. */
+export function isLandingPath(pathname: string): boolean {
+  return LANDING_PATHS.has(pathname);
+}
+
+/**
+ * The language to render for a given host + path. An exact `/en` or `/ar` landing
+ * path wins on the global domain and on any unrestricted host (Mini App, previews,
+ * localhost during development); `/` and every other path fall back to the host's
+ * normal resolution. RU-only hosts always render Russian, path or not.
+ *
+ * Used by SSR, which otherwise resolved language from the hostname alone and always
+ * rendered English on jungle-vpn.com/ar even though the client-side i18n path
+ * detector picked up Arabic after hydration.
+ */
+export function resolveLocaleForRequest(
+  hostname: string,
+  pathname: string,
+  domains: DomainLocales,
+  fallback = 'en',
+): string {
+  const allowed = localePolicyForHost(hostname, domains);
+  if (allowed === RU_ONLY) return 'ru';
+
+  if (pathname === '/en') return 'en';
+  if (pathname === '/ar') return 'ar';
+
+  return allowed?.[0] ?? resolveLocaleForHost(hostname, domains, fallback);
 }

@@ -67,7 +67,12 @@ i18n
     detection: {
       // htmlTag excluded: index.html ships a static lang="en" attribute, which would
       // win over a previously cached/selected language on every reload.
-      order: ['localStorage', 'navigator'],
+      // path goes first everywhere: /en and /ar route the language explicitly and
+      // should win over a stale cached choice. It only ever matches a segment that's
+      // in supportedLngs, so RU-only hosts (locked below anyway) and hosts without
+      // an /en or /ar path are unaffected.
+      order: ['path', 'localStorage', 'navigator'],
+      lookupFromPathIndex: 0,
       caches: ['localStorage'],
     },
   })

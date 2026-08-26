@@ -27,11 +27,14 @@ export { toDateString } from './date';
 export { detectOs } from './detectOs';
 export {
   configuredDomains,
+  isLandingPath,
   isRuDomain,
+  LANDING_PATHS,
   localePolicyForHost,
   normalizeHostname,
   parseDomains,
   resolveLocaleForHost,
+  resolveLocaleForRequest,
 } from './domain';
 export { formatCurrency, truncate } from './format';
 export { initDayjs } from './initDayjs';
