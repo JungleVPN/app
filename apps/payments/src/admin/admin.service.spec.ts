@@ -66,8 +66,13 @@ async function whereClausesFor(query: string): Promise<Record<string, string>> {
   return clauses;
 }
 
-/** Everything before the ` AND "p"."status" != $n` tail. */
-const orGroupOf = (where: string) => where.replace(/\s*AND\s*"p"\."status" != \$\d+\s*$/, '');
+/**
+ * Everything before the ` AND "p"."status" != $n` tail, with CAST(...) calls
+ * flattened to a bare placeholder. The tests below assert on where the OR
+ * group's brackets close, so a cast's own closing paren would read as one.
+ */
+const orGroupOf = (where: string) =>
+  where.replace(/\s*AND\s*"p"\."status" != \$\d+\s*$/, '').replace(/CAST\([^()]*\)/g, '$CAST');
 
 describe('AdminService.search — the pending filter must survive every OR branch', () => {
   const providers = [
@@ -96,7 +101,8 @@ describe('AdminService.search — the pending filter must survive every OR branc
     const where = (await whereClausesFor('4821')).YookassaPayment;
 
     expect(where).toBe(
-      '("p"."id" = $1 OR "p"."userId" = $2 OR "p"."telegramId" = $2) AND "p"."status" != $3',
+      '("p"."id" = $1 OR "p"."userId" = CAST($2 AS bigint) OR ' +
+        '"p"."telegramId" = CAST($2 AS bigint)) AND "p"."status" != $3',
     );
   });
 
@@ -121,5 +127,26 @@ describe('AdminService.search — the pending filter must survive every OR branc
     const where = (await whereClausesFor('   ')).YookassaPayment;
 
     expect(where).not.toContain('userId');
+  });
+});
+
+describe('AdminService.search — numeric branches must not be pinned to int32', () => {
+  /**
+   * `userId` (int) and `telegramId` (bigint) share one parameter. Postgres
+   * resolves an untyped parameter once, from its first use, so an uncast `$n`
+   * becomes `integer` at the userId branch — and every modern Telegram id is
+   * above 2^31, so the whole search then dies with "value out of range for
+   * type integer" before a single row is read.
+   */
+  it('casts the numeric parameter to bigint on every numeric column', async () => {
+    for (const where of Object.values(await whereClausesFor('7123456789'))) {
+      const numericBranches =
+        where.match(/"p"\."(?:userId|telegramId)" = \S+(?: AS bigint\))?/g) ?? [];
+
+      expect(numericBranches.length).toBeGreaterThan(0);
+      for (const branch of numericBranches) {
+        expect(branch).toMatch(/= CAST\(\$\d+ AS bigint\)$/);
+      }
+    }
   });
 });

@@ -77,7 +77,13 @@ export class AdminService {
       });
       if (numQ !== null) {
         for (const column of columns.numeric) {
-          where.orWhere(`${column} = :numQ`, { numQ });
+          // CAST is load-bearing: `userId` is int and `telegramId` is bigint,
+          // and both branches share one parameter. Postgres resolves an untyped
+          // parameter once, from its first use, so an uncast placeholder is
+          // pinned to integer by the userId branch — and every modern Telegram
+          // id is above 2^31, which then fails the whole query with "value out
+          // of range for type integer" before a row is read.
+          where.orWhere(`${column} = CAST(:numQ AS bigint)`, { numQ });
         }
       }
     });
