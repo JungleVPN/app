@@ -9,6 +9,7 @@ import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'r
 import { analyticsClient } from '@/api/analytics';
 import { paymentsApi } from '@/api/payments';
 import { backendClient } from '@/api/remnawave';
+import { resolveRenderStatus } from './render-status';
 import { createRoutes } from './routes';
 
 interface DomainConfig {
@@ -82,6 +83,15 @@ export async function render(request: Request, hostname: string) {
 
   if (context instanceof Response) return context;
 
+  const status = resolveRenderStatus(context);
+
+  // Unmatched URL or unsupported method: there is no page to build, so skip the
+  // render entirely and let the caller answer with the status. Rendering here
+  // would burn an SSR pass to produce an error boundary served as 200.
+  if (status >= 400) {
+    return { html: '', head, lang: config.lang, dir: getDirection(config.locale), status };
+  }
+
   let html = '';
   try {
     const router = createStaticRouter(handler.dataRoutes, context);
@@ -108,5 +118,5 @@ export async function render(request: Request, hostname: string) {
     console.warn('[SSR] render failed, serving CSR fallback:', (e as Error).message);
   }
 
-  return { html, head, lang: config.lang, dir: getDirection(config.locale) };
+  return { html, head, lang: config.lang, dir: getDirection(config.locale), status };
 }

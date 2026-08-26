@@ -11,7 +11,9 @@
     "typecheck": "tsc -b",
     "start": "node server.js",
     "preview": "vite preview",
-    "lint": "biome check ./src"
+    "lint": "biome check ./src",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@heroui/react": "^3.0.3",
@@ -49,6 +51,7 @@
     "tailwindcss": "^4.2.4",
     "typescript": "^5",
     "vite": "^6.0.0",
-    "vite-plugin-svgr": "^5.2.0"
+    "vite-plugin-svgr": "^5.2.0",
+    "vitest": "^4.1.2"
   }
 }

@@ -74,7 +74,15 @@ app.use(async (req, res) => {
       return
     }
 
-    const { html, head, lang, dir } = result
+    const { html, head, lang, dir, status } = result
+
+    if (status >= 400) {
+      // No page was matched, so there is nothing to send a body for. Answering
+      // with the real status is what lets webhook providers retry a misrouted
+      // delivery instead of recording a phantom success.
+      res.status(status).end()
+      return
+    }
 
     const fullHtml = template
       .replace(/(<html[^>]*)\slang="[^"]*"/, `$1 lang="${lang}"`)
@@ -83,7 +91,7 @@ app.use(async (req, res) => {
       .replace('<!--app-head-->', head ?? '')
       .replace('<!--app-html-->', html)
 
-    res.status(200).set({ 'Content-Type': 'text/html' }).send(fullHtml)
+    res.status(status).set({ 'Content-Type': 'text/html' }).send(fullHtml)
   } catch (e) {
     vite?.ssrFixStacktrace(e)
     console.error(e.stack)
