@@ -226,4 +226,40 @@ describe('StripeProvider.createPayment', () => {
       );
     });
   });
+
+  // "No subscription" is the unsafe answer to a failed lookup: it is what routes
+  // an existing subscriber into a second subscription and bills them twice.
+  describe('when the subscription lookup fails', () => {
+    beforeEach(() => {
+      process.env.ALLOWED_PERIOD = '1,3,6,12';
+      process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1 = 'price_month_1';
+    });
+
+    it('surfaces the failure instead of reporting no subscription', async () => {
+      const { provider } = makeProvider({
+        mockSubscriptionsList: vi.fn().mockRejectedValue(new Error('rate limited')),
+      });
+
+      await expect(provider.hasActiveSubscription('cus_1')).rejects.toThrow('rate limited');
+    });
+
+    it('never opens a second checkout for a customer who may already be subscribed', async () => {
+      const { provider, mockCreateSession } = makeProvider({
+        mockRepoFindOne: vi.fn().mockResolvedValue({ customer: 'cus_1' }),
+        mockSubscriptionsList: vi.fn().mockRejectedValue(new Error('rate limited')),
+      });
+
+      await expect(provider.createPayment(subscriptionDto())).rejects.toThrow('rate limited');
+      expect(mockCreateSession).not.toHaveBeenCalled();
+    });
+
+    it('never tells a payer their subscription does not exist', async () => {
+      const { provider } = makeProvider({
+        mockRepoFindOne: vi.fn().mockResolvedValue({ customer: 'cus_1' }),
+        mockSubscriptionsList: vi.fn().mockRejectedValue(new Error('rate limited')),
+      });
+
+      await expect(provider.getSubscriptionStatus(1000)).rejects.toThrow('rate limited');
+    });
+  });
 });

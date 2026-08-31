@@ -203,7 +203,9 @@ describe('StripeWebhookService', () => {
     it('does not report when fulfilment failed', async () => {
       mockHandleUserUpdates.mockResolvedValue({ success: false });
 
-      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+      await expect(
+        service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded')),
+      ).rejects.toThrow();
 
       expect(mockReportConversion).not.toHaveBeenCalled();
     });
@@ -278,13 +280,38 @@ describe('StripeWebhookService', () => {
       expect(mockHandleUserUpdates).not.toHaveBeenCalled();
     });
 
-    it('does not emit success when the subscription extension fails', async () => {
+    it('records the charge but withholds the paid stamp when the extension fails', async () => {
       mockHandleUserUpdates.mockResolvedValue({ success: false });
+
+      // Non-2xx is what asks Stripe to redeliver, and the un-stamped row is what
+      // lets the redelivery re-enter instead of being dismissed as a duplicate.
+      await expect(
+        service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded')),
+      ).rejects.toThrow(/in_1/);
+
+      const persisted = mockSave.mock.calls[0][0];
+      expect(persisted.status).not.toBe('paid');
+      expect(persisted.paidAt).toBeNull();
+      expect(mockEmit).not.toHaveBeenCalled();
+    });
+
+    it('re-extends a redelivered invoice that was charged but never granted', async () => {
+      mockHandleUserUpdates.mockResolvedValue({ success: false });
+      await expect(
+        service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded')),
+      ).rejects.toThrow();
+
+      mockFindOneBy.mockResolvedValue(mockSave.mock.calls[0][0]);
+      mockHandleUserUpdates.mockResolvedValue({ success: true });
+      mockHandleUserUpdates.mockClear();
 
       await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
 
-      expect(mockSave).toHaveBeenCalled(); // still persisted
-      expect(mockEmit).not.toHaveBeenCalled();
+      expect(mockHandleUserUpdates).toHaveBeenCalledTimes(1);
+      expect(mockEmit).toHaveBeenCalledWith(
+        WebhookEventEnum['payment.succeeded'],
+        expect.objectContaining({ userId: 1000 }),
+      );
     });
 
     it('persists a Stripe saved payment method keyed by subscription id', async () => {
@@ -392,6 +419,54 @@ describe('StripeWebhookService', () => {
         { id: 'cs_1' },
         expect.objectContaining({ stripeSubscriptionId: 'sub_1', customer: 'cus_1' }),
       );
+    });
+
+    describe('extra device', () => {
+      const makeExtraDeviceEvent = () =>
+        makeCheckoutEvent({
+          mode: 'payment',
+          subscription: null,
+          metadata: { purpose: 'extra_device', userId: '1000' },
+        });
+
+      beforeEach(() => {
+        mockFindOneBy.mockResolvedValue({ id: 'cs_1', status: 'pending', paidAt: null });
+      });
+
+      it('grants the slot, stamps the session paid, and emits payment.succeeded', async () => {
+        await service.handleWebhook(makeExtraDeviceEvent());
+
+        expect(mockHandleUserUpdates).toHaveBeenCalledWith(
+          expect.objectContaining({ userId: 1000, purpose: 'extra_device' }),
+        );
+        expect(mockUpdate).toHaveBeenCalledWith(
+          { id: 'cs_1' },
+          expect.objectContaining({ status: 'paid' }),
+        );
+        expect(mockEmit).toHaveBeenCalledWith(
+          WebhookEventEnum['payment.succeeded'],
+          expect.objectContaining({ userId: 1000, purpose: 'extra_device' }),
+        );
+      });
+
+      it('withholds the paid stamp when the device slot was never granted', async () => {
+        mockHandleUserUpdates.mockResolvedValue({ success: false });
+
+        await expect(service.handleWebhook(makeExtraDeviceEvent())).rejects.toThrow(/cs_1/);
+
+        const [, changes] = mockUpdate.mock.calls[0];
+        expect(changes.status).not.toBe('paid');
+        expect(changes.paidAt ?? null).toBeNull();
+        expect(mockEmit).not.toHaveBeenCalled();
+      });
+
+      it('ignores a redelivery of a slot that was already granted', async () => {
+        mockFindOneBy.mockResolvedValue({ id: 'cs_1', status: 'paid', paidAt: new Date() });
+
+        await service.handleWebhook(makeExtraDeviceEvent());
+
+        expect(mockHandleUserUpdates).not.toHaveBeenCalled();
+      });
     });
   });
 

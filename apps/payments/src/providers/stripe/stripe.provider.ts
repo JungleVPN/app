@@ -190,7 +190,7 @@ export class StripeProvider {
       return subscriptions.data.some((sub) => sub.status === 'active' || sub.status === 'trialing');
     } catch (error) {
       this.logger.error(`Error checking subscription for customer ${customerId}`, error);
-      return false;
+      throw error;
     }
   }
 

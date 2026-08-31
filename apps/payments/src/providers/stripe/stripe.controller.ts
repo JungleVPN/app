@@ -23,6 +23,7 @@ import { Repository } from 'typeorm';
 import { AdminRoleGuard } from '../../auth/admin-role.guard';
 import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
 import { ClientUserGuard } from '../../auth/client-user.guard';
+import { ClientOrServiceGuard } from '../../guards/client-or-service.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
 import { StripeProvider } from './stripe.provider';
 import type { Session } from './stripe.types';
@@ -79,12 +80,14 @@ export class StripeController {
     return this.stripePaymentRepo.save(payment);
   }
 
-  /** Create a checkout / portal session via Stripe */
   @Post('create-session')
+  @UseGuards(ClientOrServiceGuard)
   async createSession(
     @Body() dto: CreateStripeSessionDto,
+    @AuthenticatedUserId() authenticatedUserId: number | undefined,
     @Headers('origin') origin?: string,
   ): Promise<Session> {
+    const userId = authenticatedUserId ?? dto.userId;
     const selectedPeriod = dto.selectedPeriod;
     const purpose = dto.purchaseType ?? 'subscription';
 
@@ -96,6 +99,7 @@ export class StripeController {
     const session = await this.stripeProvider.createPayment(
       {
         ...dto,
+        userId,
         selectedPeriod,
       },
       origin,
@@ -110,7 +114,7 @@ export class StripeController {
       status: 'pending',
       amount: +amount,
       currency: 'EUR',
-      userId: dto.userId,
+      userId,
       purpose,
       paidAt: null,
       stripeSubscriptionId: null,

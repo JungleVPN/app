@@ -18,6 +18,25 @@ import {
 } from './stripe.utils';
 import { StripeClientService } from './stripe-client.service';
 
+/**
+ * Status for a charge Stripe settled that we could not turn into the thing the
+ * customer bought. Deliberately not 'paid': the idempotency guards key on
+ * `status === 'paid' && paidAt !== null`, so this leaves the row open for a
+ * retry while still making the stuck charge visible in payment history.
+ */
+const UNFULFILLED_STATUS = 'unfulfilled';
+
+/**
+ * Thrown when a settled Stripe charge could not be fulfilled. Propagates out of
+ * the webhook handler so the endpoint answers non-2xx and Stripe redelivers.
+ */
+export class UnfulfilledPaymentError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UnfulfilledPaymentError';
+  }
+}
+
 @Injectable()
 export class StripeWebhookService {
   private readonly logger = new Logger(StripeWebhookService.name);
@@ -101,20 +120,28 @@ export class StripeWebhookService {
       purpose: 'extra_device',
     });
 
+    if (!result.success) {
+      await this.stripePaymentRepo.update(
+        { id: session.id },
+        { status: UNFULFILLED_STATUS, customer: customer ?? undefined, url: null },
+      );
+      throw new UnfulfilledPaymentError(
+        `Extra-device checkout ${session.id}: device slot was not granted for user ${userId}`,
+      );
+    }
+
     await this.stripePaymentRepo.update(
       { id: session.id },
       { status: 'paid', customer: customer ?? undefined, paidAt: new Date(), url: null },
     );
 
-    if (result.success) {
-      this.logger.log(`Extra device granted for user ${userId} via session ${session.id}`);
-      this.eventEmitter.emit(WebhookEventEnum['payment.succeeded'], {
-        userId,
-        provider: 'stripe',
-        selectedPeriod: 0,
-        purpose: 'extra_device',
-      } satisfies Payments.PaymentSucceededEventPayload);
-    }
+    this.logger.log(`Extra device granted for user ${userId} via session ${session.id}`);
+    this.eventEmitter.emit(WebhookEventEnum['payment.succeeded'], {
+      userId,
+      provider: 'stripe',
+      selectedPeriod: 0,
+      purpose: 'extra_device',
+    } satisfies Payments.PaymentSucceededEventPayload);
   }
 
   // ── invoice.payment_succeeded ────────────────────────────────────────────
@@ -145,26 +172,6 @@ export class StripeWebhookService {
     // Strict amount → period validation (security finding #12) on the success path.
     const selectedPeriod = mapEURAmountToMonthsNumber(invoice.subtotal.toString());
 
-    // Promo rides on the subscription's metadata (set via `subscription_data` at
-    // checkout), so it reaches every invoice. Resolve it from the subscription
-    // itself — the invoice's own snapshot of subscription metadata isn't reliably
-    // populated in the webhook payload. The per-user cap ensures only the first
-    // invoice grants the bonus; renewals re-read the code but redeem nothing.
-    const subscriptionId = subscriptionToId(invoice.parent?.subscription_details?.subscription);
-    let promoCode =
-      (invoice.parent?.subscription_details?.metadata as Record<string, string> | undefined)
-        ?.promoCode ?? null;
-    if (!promoCode && subscriptionId) {
-      try {
-        const subscription = await this.stripeClient.stripe.subscriptions.retrieve(subscriptionId);
-        promoCode = subscription.metadata?.promoCode ?? null;
-      } catch (err) {
-        this.logger.warn(
-          `Promo lookup: could not retrieve subscription ${subscriptionId} for invoice ${invoice.id}: ${err}`,
-        );
-      }
-    }
-
     // Count prior paid invoices before stamping this one — the current row is
     // still un-stamped at this point, so a count of 0 means first payment.
     const priorPaid = await this.stripePaymentRepo.count({
@@ -179,8 +186,15 @@ export class StripeWebhookService {
       selectedPeriod,
       userId: payload.userId,
       purpose: record?.purpose,
-      promo: { code: promoCode, provider: 'stripe', paymentId: invoice.id },
     });
+
+    // ToDo: add it to admin error notifications
+    if (!result.success) {
+      await this.persistInvoice({ ...payload, paidAt: null }, UNFULFILLED_STATUS);
+      throw new UnfulfilledPaymentError(
+        `Stripe invoice ${invoice.id}: subscription was not extended for user ${payload.userId}`,
+      );
+    }
 
     await this.persistInvoice(payload, 'paid');
 
@@ -188,39 +202,37 @@ export class StripeWebhookService {
     // reusable payment method, so it must surface in saved_payment_methods.
     await this.activatePaymentMethod(payload);
 
-    if (result.success) {
-      this.eventEmitter.emit(WebhookEventEnum['payment.succeeded'], {
-        userId: payload.userId,
-        provider: 'stripe',
-        selectedPeriod,
-        invoiceUrl: payload.invoiceUrl ?? undefined,
-        isFirstPayment,
-      } satisfies Payments.PaymentSucceededEventPayload);
+    this.eventEmitter.emit(WebhookEventEnum['payment.succeeded'], {
+      userId: payload.userId,
+      provider: 'stripe',
+      selectedPeriod,
+      invoiceUrl: payload.invoiceUrl ?? undefined,
+      isFirstPayment,
+    } satisfies Payments.PaymentSucceededEventPayload);
 
-      await this.analyticsClient.track({
-        event: 'payment_succeeded',
+    await this.analyticsClient.track({
+      event: 'payment_succeeded',
+      userId: payload.userId,
+      provider: 'stripe',
+      selectedPeriod,
+      isFirstPayment,
+      isAutoPayment: invoice.billing_reason === 'subscription_cycle',
+    });
+
+    // Renewals arrive here too — every cycle raises its own invoice — so this
+    // covers the recurring commission as well as the first payment.
+    // `amount` is nullable on the payload type; without one there is nothing
+    // meaningful to report, and a guessed figure would misstate a commission.
+    if (payload.amount !== null) {
+      await this.toltService.reportConversion({
         userId: payload.userId,
         provider: 'stripe',
-        selectedPeriod,
-        isFirstPayment,
-        isAutoPayment: invoice.billing_reason === 'subscription_cycle',
+        chargeId: invoice.id,
+        amount: payload.amount,
+        currency: 'EUR',
+        periodMonths: selectedPeriod,
+        purpose: record?.purpose,
       });
-
-      // Renewals arrive here too — every cycle raises its own invoice — so this
-      // covers the recurring commission as well as the first payment.
-      // `amount` is nullable on the payload type; without one there is nothing
-      // meaningful to report, and a guessed figure would misstate a commission.
-      if (payload.amount !== null) {
-        await this.toltService.reportConversion({
-          userId: payload.userId,
-          provider: 'stripe',
-          chargeId: invoice.id,
-          amount: payload.amount,
-          currency: 'EUR',
-          periodMonths: selectedPeriod,
-          purpose: record?.purpose,
-        });
-      }
     }
   }
 
