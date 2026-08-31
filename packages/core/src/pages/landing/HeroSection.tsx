@@ -33,12 +33,12 @@ export function HeroSection() {
         initial='hidden'
         animate='show'
       >
-        <motion.div variants={item} className='flex flex-col gap-3'>
+        <div className='flex flex-col gap-3'>
           <h1 className='text-balance'>
             <BrandTitle />
           </h1>
           <p className='text-base text-muted lg:text-md'>{t('landing.hero.subtitle')}</p>
-        </motion.div>
+        </div>
 
         <div className='flex flex-col md:flex-row gap-4'>
           <motion.div variants={item} className='flex flex-col gap-3 lg:items-start'>
