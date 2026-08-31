@@ -12,6 +12,12 @@ import { StripeWebhookService } from './stripe-webhook.service';
 
 const SUBSCRIPTION_RETURN_PATH = '/profile/subscription';
 
+/** The subscription statuses that count as "this customer is currently subscribed". */
+const LIVE_SUBSCRIPTION_STATUSES = [
+  'active',
+  'trialing',
+] as const satisfies readonly Stripe.SubscriptionListParams.Status[];
+
 @Injectable()
 export class StripeProvider {
   readonly stripe: Stripe;
@@ -182,12 +188,20 @@ export class StripeProvider {
 
   async hasActiveSubscription(customerId: string): Promise<boolean> {
     try {
-      const subscriptions = await this.stripe.subscriptions.list({
-        customer: customerId,
-        status: 'all',
-      });
+      // Ask Stripe for each live status directly rather than filtering an
+      // unfiltered listing. `status: 'all'` returns every subscription the
+      // customer has ever had — cancellations are kept forever — against a
+      // default page size of 10, so a customer who has churned and resubscribed
+      // enough times pushes their live subscription off the only page we read,
+      // and the answer silently flips to "not subscribed". One row per status is
+      // all this question needs, and it cannot be thrown off by page ordering.
+      const pages = await Promise.all(
+        LIVE_SUBSCRIPTION_STATUSES.map((status) =>
+          this.stripe.subscriptions.list({ customer: customerId, status, limit: 1 }),
+        ),
+      );
 
-      return subscriptions.data.some((sub) => sub.status === 'active' || sub.status === 'trialing');
+      return pages.some((page) => page.data.length > 0);
     } catch (error) {
       this.logger.error(`Error checking subscription for customer ${customerId}`, error);
       throw error;

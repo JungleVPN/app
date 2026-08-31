@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import * as process from 'node:process';
-import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
 import { CreateStripeSessionDto } from '@workspace/types';
 import type { Repository } from 'typeorm';
@@ -61,15 +60,12 @@ const makeProvider = (overrides: {
     exists: vi.fn().mockResolvedValue(false),
   } as unknown as Repository<TelegramStarsPayment>;
 
-  const analyticsClient = { track: mockTrack } as unknown as AnalyticsClientService;
-
   const provider = new StripeProvider(
     {} as unknown as StripeWebhookService,
     stripeClient,
     stripeRepo,
     yookassaRepo,
     starsRepo,
-    analyticsClient,
   );
 
   return { provider, mockCreateSession, mockTrack, mockRepoFindOne, mockRepoExists };
@@ -203,8 +199,8 @@ describe('StripeProvider.createPayment', () => {
 
       expect(mockCreateSession).toHaveBeenCalledWith(
         expect.objectContaining({
-          success_url: 'https://jungle.community/profile/payments',
-          cancel_url: 'https://jungle.community/profile/payments',
+          success_url: 'https://jungle.community/profile/subscription',
+          cancel_url: 'https://jungle.community/profile/subscription',
         }),
       );
     });
@@ -224,6 +220,68 @@ describe('StripeProvider.createPayment', () => {
           cancel_url: 'https://fallback.example.com/profile/subscription',
         }),
       );
+    });
+  });
+
+  describe('hasActiveSubscription', () => {
+    /**
+     * Stands in for Stripe's list endpoint: filters by the requested status and
+     * returns at most one page, so a listing that relies on page ordering to
+     * find the active subscription behaves here as it would in production.
+     */
+    const stripeListOf = (subscriptions: { status: string }[]) =>
+      vi.fn(async ({ status, limit }: { status: string; limit?: number }) => {
+        const matching =
+          status === 'all' ? subscriptions : subscriptions.filter((s) => s.status === status);
+        return { data: matching.slice(0, limit ?? 10) };
+      });
+
+    it('finds an active subscription', async () => {
+      const { provider } = makeProvider({
+        mockSubscriptionsList: stripeListOf([{ status: 'active' }]),
+      });
+
+      await expect(provider.hasActiveSubscription('cus_1')).resolves.toBe(true);
+    });
+
+    it('finds a trialing subscription', async () => {
+      const { provider } = makeProvider({
+        mockSubscriptionsList: stripeListOf([{ status: 'trialing' }]),
+      });
+
+      await expect(provider.hasActiveSubscription('cus_1')).resolves.toBe(true);
+    });
+
+    it('reports none for a customer whose subscriptions have all ended', async () => {
+      const { provider } = makeProvider({
+        mockSubscriptionsList: stripeListOf([{ status: 'canceled' }, { status: 'incomplete' }]),
+      });
+
+      await expect(provider.hasActiveSubscription('cus_1')).resolves.toBe(false);
+    });
+
+    it('finds the active subscription of a customer with a long churn history', async () => {
+      // Every cancellation leaves a permanent subscription object behind, so a
+      // customer who has resubscribed often pushes the live one past the first
+      // page of an unfiltered listing.
+      const history = [
+        ...Array.from({ length: 12 }, () => ({ status: 'canceled' })),
+        { status: 'active' },
+      ];
+      const { provider } = makeProvider({ mockSubscriptionsList: stripeListOf(history) });
+
+      await expect(provider.hasActiveSubscription('cus_1')).resolves.toBe(true);
+    });
+
+    it('never pages through a customer’s canceled history to answer', async () => {
+      const list = stripeListOf([{ status: 'active' }]);
+      const { provider } = makeProvider({ mockSubscriptionsList: list });
+
+      await provider.hasActiveSubscription('cus_1');
+
+      for (const [params] of list.mock.calls) {
+        expect(params.status).not.toBe('all');
+      }
     });
   });
 
