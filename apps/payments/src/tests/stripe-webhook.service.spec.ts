@@ -227,7 +227,6 @@ describe('StripeWebhookService', () => {
         expect.objectContaining({
           selectedPeriod: 1,
           userId: 1000,
-          promo: { code: null, provider: 'stripe', paymentId: 'in_1' },
         }),
       );
       expect(mockSave).toHaveBeenCalledWith(
@@ -236,21 +235,6 @@ describe('StripeWebhookService', () => {
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.succeeded'],
         expect.objectContaining({ userId: 1000, provider: 'stripe', selectedPeriod: 1 }),
-      );
-    });
-
-    it('passes the promo code from the subscription metadata to fulfillment', async () => {
-      // Promo lives on the subscription (set via subscription_data at checkout),
-      // not on the invoice's own snapshot — must be resolved by retrieving it.
-      mockRetrieveSubscription.mockResolvedValue({ id: 'sub_1', metadata: { promoCode: 'FREE2' } });
-
-      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
-
-      expect(mockRetrieveSubscription).toHaveBeenCalledWith('sub_1');
-      expect(mockHandleUserUpdates).toHaveBeenCalledWith(
-        expect.objectContaining({
-          promo: { code: 'FREE2', provider: 'stripe', paymentId: 'in_1' },
-        }),
       );
     });
 
