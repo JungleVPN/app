@@ -49,7 +49,7 @@ export default function TransactionDetailsPage() {
 
       {payment && !isLoading && (
         <Block variant='secondary' title={t('transactions.details.title')}>
-          {!isAdmin && (
+          {isAdmin && (
             <DetailRow
               label={t('transactions.details.paymentId')}
               value={payment.paymentId}
