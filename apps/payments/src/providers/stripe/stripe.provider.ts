@@ -1,7 +1,6 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { resolveReturnUrl } from '@payments/utils/return-origin';
 import { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
 import { CreateStripeSessionDto, StripeSubscriptionStatusDto } from '@workspace/types';
@@ -11,7 +10,7 @@ import type { BillingPortalSession, CheckoutSession } from './stripe.types';
 import { StripeClientService } from './stripe-client.service';
 import { StripeWebhookService } from './stripe-webhook.service';
 
-const SUBSCRIPTION_RETURN_PATH = '/profile/payments';
+const SUBSCRIPTION_RETURN_PATH = '/profile/subscription';
 
 @Injectable()
 export class StripeProvider {
@@ -25,7 +24,6 @@ export class StripeProvider {
     @InjectRepository(YookassaPayment) private yookassaRepository: Repository<YookassaPayment>,
     @InjectRepository(TelegramStarsPayment)
     private telegramStarsRepository: Repository<TelegramStarsPayment>,
-    private readonly analyticsClient: AnalyticsClientService,
   ) {
     this.stripe = stripeClientService.stripe;
   }

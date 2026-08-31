@@ -103,27 +103,20 @@ export class StripeController {
 
     const customer = typeof session.customer === 'string' ? session.customer : session.customer?.id;
 
-    const existing = await this.stripePaymentRepo.findOne({
-      where: { customer },
-      order: { createdAt: 'DESC' },
+    const record = this.stripePaymentRepo.create({
+      id: session.id,
+      url: session.url,
+      customer: customer,
+      status: 'pending',
+      amount: +amount,
+      currency: 'EUR',
+      userId: dto.userId,
+      purpose,
+      paidAt: null,
+      stripeSubscriptionId: null,
+      invoiceUrl: null,
     });
-
-    if (!existing) {
-      const record = this.stripePaymentRepo.create({
-        id: session.id,
-        url: session.url,
-        customer: customer,
-        status: 'pending',
-        amount: +amount,
-        currency: 'EUR',
-        userId: dto.userId,
-        purpose,
-        paidAt: null,
-        stripeSubscriptionId: null,
-        invoiceUrl: null,
-      });
-      await this.stripePaymentRepo.save(record);
-    }
+    await this.stripePaymentRepo.save(record);
 
     return session;
   }

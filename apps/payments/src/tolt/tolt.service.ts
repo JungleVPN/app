@@ -223,6 +223,9 @@ export class ToltService {
    */
   async reportConversion(input: ReportConversionInput): Promise<void> {
     try {
+      const referral = await this.repository.findOneBy({ userId: input.userId });
+      if (!referral) return;
+
       if (!earnsCommission(input.purpose)) return;
 
       if (!isReportableAmount(input.amount)) {
@@ -233,9 +236,6 @@ export class ToltService {
       }
 
       if (await this.alreadySeen(input.chargeId)) return;
-
-      const referral = await this.repository.findOneBy({ userId: input.userId });
-      if (!referral) return;
 
       const amountCents = await this.toEurCents(input);
       if (amountCents === null) return;
