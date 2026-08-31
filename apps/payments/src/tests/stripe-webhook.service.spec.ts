@@ -421,6 +421,24 @@ describe('StripeWebhookService', () => {
       );
     });
 
+    // The stored customer id is what getCustomerId reads to recognise a
+    // returning payer. Clearing it splits their billing history across two
+    // Stripe customers and hides the subscription they already have.
+    it('leaves the stored customer alone when the event carries none', async () => {
+      await service.handleWebhook(makeCheckoutEvent({ customer: null }));
+
+      const [, changes] = mockUpdate.mock.calls[0];
+      expect(changes.customer).toBeUndefined();
+      expect(changes.stripeSubscriptionId).toBe('sub_1');
+    });
+
+    it('leaves the stored customer alone when the event names a deleted one', async () => {
+      await service.handleWebhook(makeCheckoutEvent({ customer: { id: 'cus_1', deleted: true } }));
+
+      const [, changes] = mockUpdate.mock.calls[0];
+      expect(changes.customer).toBeUndefined();
+    });
+
     describe('extra device', () => {
       const makeExtraDeviceEvent = () =>
         makeCheckoutEvent({

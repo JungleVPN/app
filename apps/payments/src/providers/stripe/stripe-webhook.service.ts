@@ -87,7 +87,17 @@ export class StripeWebhookService {
     const subscriptionId = subscriptionToId(session.subscription ?? undefined);
     const result = await this.stripePaymentRepo.update(
       { id: session.id },
-      { status: 'completed', stripeSubscriptionId: subscriptionId, customer, url: null },
+      {
+        status: 'completed',
+        stripeSubscriptionId: subscriptionId,
+        // `undefined` leaves the column untouched, `null` clears it. An event
+        // that names no customer (or a deleted one) is no reason to forget the
+        // id already stored: getCustomerId reads it to recognise a returning
+        // payer, so clearing it would open a duplicate Stripe customer on their
+        // next payment and hide the subscription they already have.
+        customer: customer ?? undefined,
+        url: null,
+      },
     );
 
     if (result.affected) {
