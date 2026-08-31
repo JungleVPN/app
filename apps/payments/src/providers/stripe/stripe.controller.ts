@@ -26,7 +26,7 @@ import { ClientUserGuard } from '../../auth/client-user.guard';
 import { ClientOrServiceGuard } from '../../guards/client-or-service.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
 import { StripeProvider } from './stripe.provider';
-import type { Session } from './stripe.types';
+import { isCheckoutSession, type Session } from './stripe.types';
 
 @Controller('stripe')
 export class StripeController {
@@ -104,6 +104,12 @@ export class StripeController {
       },
       origin,
     );
+
+    // An existing subscriber is answered with a Billing Portal session, which is
+    // not a sale: nothing was bought, and no webhook ever references a `bps_…`
+    // id. Recording one would strand a 'pending' row at full price on every
+    // visit to the portal, inflating payment history and admin search.
+    if (!isCheckoutSession(session)) return session;
 
     const customer = typeof session.customer === 'string' ? session.customer : session.customer?.id;
 

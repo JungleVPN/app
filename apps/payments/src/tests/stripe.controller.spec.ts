@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { ClientOrServiceGuard } from '@payments/guards/client-or-service.guard';
 import { StripeController } from '@payments/providers/stripe/stripe.controller';
 import type { CreateStripeSessionDto } from '@workspace/types';
@@ -63,6 +63,7 @@ describe('StripeController.createSession', () => {
     };
     stripeProvider = {
       createPayment: vi.fn().mockResolvedValue({
+        object: 'checkout.session',
         id: 'cs_1',
         url: 'https://checkout',
         customer: 'cus_1',
@@ -89,5 +90,43 @@ describe('StripeController.createSession', () => {
       expect.objectContaining({ userId: 999 }),
       'https://app.test',
     );
+  });
+
+  it('records the pending sale for a checkout session', async () => {
+    await controller.createSession(dto(), 42, 'https://app.test');
+
+    expect(stripePaymentRepo.save).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'cs_1', status: 'pending', amount: 10 }),
+    );
+  });
+
+  describe('when the subscriber is sent to the billing portal instead', () => {
+    beforeEach(() => {
+      stripeProvider.createPayment.mockResolvedValue({
+        object: 'billing_portal.session',
+        id: 'bps_1',
+        url: 'https://portal',
+        customer: 'cus_1',
+      });
+    });
+
+    it('records no sale, because opening the portal buys nothing', async () => {
+      await controller.createSession(dto(), 42, 'https://app.test');
+
+      expect(stripePaymentRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('still returns the portal session to the caller', async () => {
+      const session = await controller.createSession(dto(), 42, 'https://app.test');
+
+      expect(session).toMatchObject({ id: 'bps_1', url: 'https://portal' });
+    });
+
+    it('still rejects an unusable period before reaching Stripe', async () => {
+      await expect(
+        controller.createSession(dto({ selectedPeriod: 7 }), 42, 'https://app.test'),
+      ).rejects.toThrow(BadRequestException);
+      expect(stripeProvider.createPayment).not.toHaveBeenCalled();
+    });
   });
 });
