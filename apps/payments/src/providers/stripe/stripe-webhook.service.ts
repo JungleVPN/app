@@ -184,8 +184,14 @@ export class StripeWebhookService {
 
     // Count prior paid invoices before stamping this one — the current row is
     // still un-stamped at this point, so a count of 0 means first payment.
+    //
+    // Scoped to subscriptions: an extra-device slot is a one-off that never
+    // reaches the payment_succeeded funnel this flag belongs to, so letting one
+    // count here would silently demote a user's genuine first subscription to a
+    // renewal and drop them out of first-purchase onboarding and conversion
+    // figures.
     const priorPaid = await this.stripePaymentRepo.count({
-      where: { userId: payload.userId, status: 'paid' },
+      where: { userId: payload.userId, status: 'paid', purpose: 'subscription' },
     });
     const isFirstPayment = priorPaid === 0;
 

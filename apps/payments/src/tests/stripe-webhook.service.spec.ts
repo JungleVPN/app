@@ -280,6 +280,45 @@ describe('StripeWebhookService', () => {
       expect(mockHandleUserUpdates).not.toHaveBeenCalled();
     });
 
+    // `isFirstPayment` rides on payment_succeeded, an event extra-device
+    // purchases never emit — so within that funnel it can only mean "first
+    // subscription payment", and a one-off device slot must not consume it.
+    describe('isFirstPayment', () => {
+      /** Counts against a stand-in table, so the query's own criteria decide. */
+      const tableOf = (rows: Record<string, unknown>[]) =>
+        vi.fn(
+          async ({ where }: { where: Record<string, unknown> }) =>
+            rows.filter((row) => Object.entries(where).every(([key, val]) => row[key] === val))
+              .length,
+        );
+
+      const firstPaymentFlag = () => mockEmit.mock.calls[0][1].isFirstPayment;
+
+      it('is set for a payer with no history at all', async () => {
+        repo.count = tableOf([]);
+
+        await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+        expect(firstPaymentFlag()).toBe(true);
+      });
+
+      it('is set despite an earlier one-off device purchase', async () => {
+        repo.count = tableOf([{ userId: 1000, status: 'paid', purpose: 'extra_device' }]);
+
+        await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+        expect(firstPaymentFlag()).toBe(true);
+      });
+
+      it('is cleared once a subscription invoice has been paid', async () => {
+        repo.count = tableOf([{ userId: 1000, status: 'paid', purpose: 'subscription' }]);
+
+        await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+        expect(firstPaymentFlag()).toBe(false);
+      });
+    });
+
     it('records the charge but withholds the paid stamp when the extension fails', async () => {
       mockHandleUserUpdates.mockResolvedValue({ success: false });
 
