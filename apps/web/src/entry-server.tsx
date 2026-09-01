@@ -208,6 +208,7 @@ export async function render(request: Request, hostname: string) {
     `<meta property="og:title" content="${config.title}">`,
     `<meta property="og:description" content="${config.description}">`,
     `<meta property="og:locale" content="${config.ogLocale}">`,
+    `<meta name="google-site-verification" content="${config.locale === 'ru' ? 'jHrpO_dMqnu6IiN8vkunSJldaq0n6RRePzH64f2ByVk' : 'Tth6c3fgzSXFLQHz2UJMhfsnr1yulyUhOLOMc50ULuI'}">`,
     landingAlternateLinks(config, hostname, pathname),
     markdownAlternateLink(hostname, pathname),
   ]
