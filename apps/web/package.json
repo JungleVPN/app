@@ -7,6 +7,7 @@
     "dev": "node server.js --watch",
     "dev:spa": "vite",
     "build": "tsc -b && vite build --outDir dist/client",
+    "build:docker": "vite build --outDir dist/client && vite build --ssr src/entry-server.tsx --outDir dist/server",
     "prod:run": "vite build --outDir dist/client && NODE_ENV=production vite build --ssr src/entry-server.tsx --outDir dist/server && NODE_ENV=production WEB_PORT=7082 node server.js",
     "typecheck": "tsc -b",
     "start": "node server.js",
