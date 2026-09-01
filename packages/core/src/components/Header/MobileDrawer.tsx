@@ -16,6 +16,7 @@ export function MobileDrawer() {
 
   const isLanding = pathname === '/';
   const isRu = isRuDomain();
+  const isTelegram = platformType === 'telegram';
 
   const scrollTo = (id: string) => {
     setIsOpen(false);
@@ -70,7 +71,7 @@ export function MobileDrawer() {
 
               {platformType === 'web' && <AuthButtons />}
 
-              {!isRu && (
+              {!isRu && !isTelegram && (
                 <div className='flex items-center gap-2 px-3 py-2 mt-auto'>
                   <LanguageSwitcher />
                 </div>

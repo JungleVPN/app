@@ -1,3 +1,4 @@
+import type { TSubscriptionPageLanguageCode } from '@workspace/types';
 import { useEffect } from 'react';
 import { Outlet } from 'react-router';
 import { useRemnawaveApi } from '../api';
@@ -8,7 +9,13 @@ import { coreEnv } from '../env';
 import { useNavigation, useSavedMethodsData, useSubscriptionData, useToltCapture } from '../hooks';
 import { TermsDialog } from '../pages/profile/payment/components/TermsDialog';
 import { useAppRoutes, usePaymentsApi } from '../runtime';
-import { useAuthStore, useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../stores';
+import {
+  useAuthStore,
+  useAuthStoreActions,
+  useAuthStoreInfo,
+  usePlatformStore,
+  useSubscriptionConfigStoreActions,
+} from '../stores';
 import { Container } from '../ui';
 import { captureReferral } from '../utils';
 
@@ -20,7 +27,7 @@ export function ProfileLayout() {
   const { platformType } = usePlatformStore();
   const { getSubscriptionPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
-
+  const { setLanguage } = useSubscriptionConfigStoreActions();
   // Hand any affiliate attribution to the backend as soon as the user is known.
   // It lives only in this browser session, but the payment it should credit may
   // settle days later — or be a renewal with no browser involved at all.
@@ -55,31 +62,36 @@ export function ProfileLayout() {
         .catch(console.error);
     }
   }, [authUser?.email, remnawaveApi, setRmnUser, tgUser?.id, navigate, getSubscriptionPath]);
-  // Pre-fetch both subscription and saved payment methods as soon as rmnUser
-  // is known so child routes render immediately without a loading flash on
-  // subsequent navigations.
 
   useEffect(() => {
     if (!rmnUser) return;
     remnawaveApi
       .getMyMetadata()
       .then((meta) => {
-        if (meta?.lang) {
-          applyUserLang(String(meta.lang));
-          return;
-        }
-        // No stored preference yet: fall back to the Telegram system language in
-        // the TMA, or the browser language on the web — then persist it so the
-        // choice survives future refreshes without re-detecting.
-        const fallbackLang =
+        const currentLang = (
           platformType === 'telegram' && tgUser?.language_code
             ? tgUser.language_code
-            : navigator.language.split('-')[0];
-        applyUserLang(fallbackLang);
-        remnawaveApi.upsertMyMetadata({ lang: fallbackLang }).catch(console.error);
+            : (meta?.lang ?? navigator.language.split('-')[0])
+        ) as TSubscriptionPageLanguageCode;
+        console.log(tgUser?.language_code);
+        console.log(platformType === 'telegram' && tgUser?.language_code);
+
+        applyUserLang(currentLang);
+        setLanguage(currentLang);
+
+        if (currentLang !== meta?.lang) {
+          remnawaveApi.upsertMyMetadata({ lang: currentLang }).catch(console.error);
+        }
       })
       .catch(console.error);
-  }, [rmnUser?.id, remnawaveApi, rmnUser, platformType, tgUser?.language_code]);
+  }, [
+    platformType,
+    remnawaveApi.getMyMetadata,
+    remnawaveApi.upsertMyMetadata,
+    rmnUser,
+    setLanguage,
+    tgUser?.language_code,
+  ]);
 
   useSubscriptionData(rmnUser?.shortUuid, coreEnv.subpageConfigUuid);
   useSavedMethodsData(rmnUser?.id);

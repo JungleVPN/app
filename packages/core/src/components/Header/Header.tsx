@@ -29,6 +29,7 @@ export function Header() {
 
   const isLanding = isLandingPath(pathname);
   const isRu = isRuDomain();
+  const isTelegram = platformType === 'telegram';
 
   useEffect(() => {
     if (platformType !== 'telegram' || !tgUser?.id) return;
@@ -90,8 +91,7 @@ export function Header() {
       >
         {!isLanding && <SubscriptionLinkWidget />}
         {!isLanding && <SupportButton />}
-        {/*{platformType === 'web' && <ThemeToggle />}*/}
-        {!isRu && <LanguageSwitcher />}
+        {!isRu && !isTelegram && <LanguageSwitcher />}
         {platformType === 'web' && <AuthButtons />}
       </div>
 
