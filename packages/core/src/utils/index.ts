@@ -26,11 +26,14 @@ export { formatPlanPrice } from './currency';
 export { toDateString } from './date';
 export { detectOs } from './detectOs';
 export {
+  CRAWLABLE_PATHS,
   configuredDomains,
+  isCrawlablePath,
   isLandingPath,
   isRuDomain,
   LANDING_PATHS,
   localePolicyForHost,
+  markdownPathFor,
   normalizeHostname,
   parseDomains,
   resolveLocaleForHost,
@@ -39,6 +42,8 @@ export {
 export { formatCurrency, truncate } from './format';
 export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';
+export type { LlmsTxtOptions } from './llmsTxt';
+export { buildLlmsTxt } from './llmsTxt';
 export { captureReferral, clearReferral, getReferral, getReferralUserId } from './referral';
 export { scrollToTop } from './scrollToTop';
 export type { Storage } from './storage';

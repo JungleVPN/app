@@ -78,7 +78,7 @@ export default function AffiliatePage() {
         {t('affiliate.actionLabel')}
         <IconArrowRight size={20} stroke={2} className='rtl:-scale-x-100' />
       </Button>
-      <Block title={t('affiliate.benefitsTitle')} description={t('affiliate.description')}>
+      <Block title={t('affiliate.benefitsTitle')}>
         {benefits.map((benefit, index) => (
           <div key={benefit.id}>
             <div className='flex min-h-15 items-center gap-3 px-4 py-3'>

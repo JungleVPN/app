@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  isCrawlablePath,
   isLandingPath,
   isRuDomain,
   localePolicyForHost,
+  markdownPathFor,
   normalizeHostname,
   parseDomains,
   resolveLocaleForHost,
@@ -115,6 +117,43 @@ describe('isLandingPath', () => {
 
   it.each(['/subscribe', '/en/nested', '/login'])('is false for %s', (pathname) => {
     expect(isLandingPath(pathname)).toBe(false);
+  });
+});
+
+describe('isCrawlablePath', () => {
+  it.each([
+    '/',
+    '/en',
+    '/ar',
+    '/tr',
+    '/terms',
+    '/privacy',
+    '/affiliates',
+    '/subscribe',
+    '/login',
+  ])('is true for the public path %s', (pathname) => {
+    expect(isCrawlablePath(pathname)).toBe(true);
+  });
+
+  it.each([
+    '/profile',
+    '/profile/plans',
+    '/login/confirm',
+    '/subscription/abc123',
+    '/en/nested',
+  ])('is false for the authenticated or dynamic path %s', (pathname) => {
+    expect(isCrawlablePath(pathname)).toBe(false);
+  });
+});
+
+describe('markdownPathFor', () => {
+  it('maps the root landing path to /index.md, the llms.txt convention', () => {
+    expect(markdownPathFor('/')).toBe('/index.md');
+  });
+
+  it('appends .md to every other crawlable path', () => {
+    expect(markdownPathFor('/terms')).toBe('/terms.md');
+    expect(markdownPathFor('/en')).toBe('/en.md');
   });
 });
 

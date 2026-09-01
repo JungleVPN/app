@@ -120,16 +120,18 @@ export function Header() {
   };
 
   return (
-    <Container className={wrapperClass()}>
-      <div
-        className={`w-full px-4 py-1 transition-all duration-300 rounded-2xl ${
-          scrolled && platformType !== 'telegram'
-            ? 'shadow-lg backdrop-blur-md bg-background/80'
-            : ''
-        }`}
-      >
-        {inner}
-      </div>
-    </Container>
+    <header>
+      <Container className={wrapperClass()}>
+        <div
+          className={`w-full px-4 py-1 transition-all duration-300 rounded-2xl ${
+            scrolled && platformType !== 'telegram'
+              ? 'shadow-lg backdrop-blur-md bg-background/80'
+              : ''
+          }`}
+        >
+          {inner}
+        </div>
+      </Container>
+    </header>
   );
 }

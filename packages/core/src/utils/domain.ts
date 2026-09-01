@@ -99,6 +99,30 @@ export function isLandingPath(pathname: string): boolean {
 }
 
 /**
+ * Public, unauthenticated marketing/legal paths safe to expose as Markdown
+ * alternates to AI crawlers and agents. Excludes `/profile/*` (authenticated),
+ * `/login/confirm` and `/subscription/:shortUuid` (single-use / personal).
+ */
+export const CRAWLABLE_PATHS: ReadonlySet<string> = new Set([
+  ...LANDING_PATHS,
+  '/terms',
+  '/privacy',
+  '/affiliates',
+  '/subscribe',
+  '/login',
+]);
+
+/** True for the exact paths in CRAWLABLE_PATHS. */
+export function isCrawlablePath(pathname: string): boolean {
+  return CRAWLABLE_PATHS.has(pathname);
+}
+
+/** The Markdown-alternate URL for a crawlable path, following the `/index.md` convention for `/`. */
+export function markdownPathFor(pathname: string): string {
+  return pathname === '/' ? '/index.md' : `${pathname}.md`;
+}
+
+/**
  * The language to render for a given host + path. An exact `/en`, `/ar` or `/tr`
  * landing path wins on the global domain and on any unrestricted host (Mini App,
  * previews, localhost during development); `/` and every other path fall back to

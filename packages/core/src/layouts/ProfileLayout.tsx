@@ -73,8 +73,6 @@ export function ProfileLayout() {
             ? tgUser.language_code
             : (meta?.lang ?? navigator.language.split('-')[0])
         ) as TSubscriptionPageLanguageCode;
-        console.log(tgUser?.language_code);
-        console.log(platformType === 'telegram' && tgUser?.language_code);
 
         applyUserLang(currentLang);
         setLanguage(currentLang);

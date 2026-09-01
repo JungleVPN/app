@@ -1,5 +1,20 @@
-import Marquee from 'react-fast-marquee';
+import type { FC } from 'react';
+import * as MarqueeModule from 'react-fast-marquee';
 import { useTranslation } from 'react-i18next';
+
+/**
+ * react-fast-marquee is CJS (`exports.default = Component`, `__esModule: true`, no
+ * `exports` map). Vite's dev-mode SSR sometimes evaluates it via Node's native
+ * CJS/ESM interop, which resolves `.default` to the whole `module.exports` object
+ * rather than the component — renderToString then throws "Element type is invalid
+ * ... got: object". The client (esbuild) bundle always unwraps it correctly, so
+ * `.default` there is already the real component and this optional-chain is a
+ * no-op. Normalizing both shapes here keeps SSR and the client bundle in sync
+ * without depending on bundler-specific interop behavior.
+ */
+const Marquee: FC<MarqueeModule.MarqueeProps> =
+  (MarqueeModule.default as unknown as { default?: FC<MarqueeModule.MarqueeProps> })?.default ??
+  MarqueeModule.default;
 
 const COUNTRIES = [
   { flag: '🇺🇸', code: 'us' },
