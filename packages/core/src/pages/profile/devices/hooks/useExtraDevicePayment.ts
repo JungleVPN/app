@@ -3,6 +3,7 @@ import { coreEnv } from '../../../../env';
 import { useCreatePaymentSession } from '../../../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreInfo, usePlatformStore } from '../../../../stores';
+import { phCapture } from '../../../../utils';
 
 export function useExtraDevicePayment() {
   const { rmnUser, tgUser } = useAuthStoreInfo();
@@ -34,6 +35,7 @@ export function useExtraDevicePayment() {
 
     if (!session?.url) return;
 
+    phCapture('extra_device_checkout_started', { payment_provider: 'yookassa' });
     if (isNativeApp) {
       openLink(session.url);
     } else {

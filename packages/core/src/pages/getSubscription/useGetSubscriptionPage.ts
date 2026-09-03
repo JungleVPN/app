@@ -6,12 +6,13 @@ import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../stores';
 import {
-  analytics,
   captureReferral,
   clearAttribution,
   clearReferral,
   getAttribution,
   getReferralUserId,
+  phCapture,
+  phIdentify,
   validateEmail,
 } from '../../utils';
 
@@ -82,6 +83,7 @@ export function useGetSubscriptionPage() {
         if (attribution) analyticsApi.trackUserCreated(user, attribution);
         clearReferral();
         clearAttribution();
+        phIdentify(String(user.id));
         navigate(`/profile/subscription`);
       })
       .catch((err) => {
@@ -93,7 +95,9 @@ export function useGetSubscriptionPage() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentional fire-once
   useEffect(() => {
     if (!rmnUser) {
-      analytics.initialPageViewed(platformType === 'telegram' ? 'telegram' : 'web');
+      phCapture('initial_page_viewed', {
+        platform: platformType === 'telegram' ? 'telegram' : 'web',
+      });
     }
   }, []);
 
@@ -133,6 +137,7 @@ export function useGetSubscriptionPage() {
       if (attribution) analyticsApi.trackUserCreated(user, attribution);
       clearReferral();
       clearAttribution();
+      phIdentify(String(user.id));
     }
 
     navigate(profileSubscriptionPath);

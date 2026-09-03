@@ -7,7 +7,6 @@ import { coreEnv } from '../../../../env';
 import { useCreateTelegramStarsInvoice } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreInfo, usePlatformStore, useSubscriptionInfoStore } from '../../../../stores';
-import { analytics } from '../../../../utils';
 
 export function useTelegramStarsPayment(selectedPeriod: number) {
   const { t } = useTranslation();
@@ -46,10 +45,8 @@ export function useTelegramStarsPayment(selectedPeriod: number) {
     }
 
     try {
-      analytics.beginCheckout('stars');
       const status = await invoice.openUrl(result.invoiceLink);
       if (status === 'paid') {
-        analytics.purchase('stars');
         successState.open();
         const originalExpireAt = useSubscriptionInfoStore.getState().subscription?.user.expiresAt;
         // Poll until the backend webhook updates the expiry, up to ~5s total.

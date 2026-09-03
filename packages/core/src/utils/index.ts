@@ -1,5 +1,4 @@
 export { getAdminId, isAdminUser } from './admin';
-export { analytics } from './analytics';
 export type { AttributionPayload } from './attribution';
 export { captureAttribution, clearAttribution, getAttribution } from './attribution';
 export { cn } from './classnames';
@@ -44,6 +43,7 @@ export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';
 export type { LlmsTxtOptions } from './llmsTxt';
 export { buildLlmsTxt } from './llmsTxt';
+export { phCapture, phIdentify, phReset, posthog } from './posthog';
 export { captureReferral, clearReferral, getReferral, getReferralUserId } from './referral';
 export { scrollToTop } from './scrollToTop';
 export type { Storage } from './storage';

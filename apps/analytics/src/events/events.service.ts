@@ -44,7 +44,28 @@ export class EventsService {
     attribution: AttributionPayload,
   ): Promise<void> {
     this.logger.log(`trackUserCreated called for user ${user.id}, adCode=${attribution.adCode}`);
+    this.identifyAttribution(user.id, attribution);
     await Promise.all([this.saveToDb(user.id, attribution), this.writeToSheets(user, attribution)]);
+  }
+
+  private identifyAttribution(userId: number, attribution: AttributionPayload): void {
+    try {
+      const properties: Record<string, string> = {
+        attribution_platform: attribution.platform,
+      };
+      if (attribution.source != null) properties.attribution_source = attribution.source;
+      if (attribution.medium != null) properties.attribution_medium = attribution.medium;
+      if (attribution.campaign != null) properties.attribution_campaign = attribution.campaign;
+      if (attribution.adset != null) properties.attribution_adset = attribution.adset;
+      if (attribution.ad != null) properties.attribution_ad = attribution.ad;
+      if (attribution.clickId != null) properties.attribution_click_id = attribution.clickId;
+      if (attribution.adCode != null) properties.attribution_ad_code = attribution.adCode;
+
+      this.postHog.identify(String(userId), { $set_once: properties });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`Failed to identify attribution for user ${userId}: ${message}`);
+    }
   }
 
   private async persist(event: AnalyticsEvent): Promise<void> {

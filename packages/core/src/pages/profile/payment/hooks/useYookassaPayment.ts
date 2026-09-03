@@ -9,7 +9,7 @@ import {
   usePlatformStore,
   useSavedMethodsStoreActions,
 } from '../../../../stores';
-import { analytics } from '../../../../utils';
+import { phCapture } from '../../../../utils';
 
 export function useYookassaPayment(selectedPeriod: number) {
   const { rmnUser, tgUser } = useAuthStoreInfo();
@@ -28,6 +28,7 @@ export function useYookassaPayment(selectedPeriod: number) {
 
   const handleDelete = async (id: string) => {
     await deleteMethod(id);
+    phCapture('payment_method_deleted');
     const list = await paymentsApi.getSavedMethods();
     setSavedMethods(list);
     if (!list?.some((m) => m.isActive)) {
@@ -65,7 +66,7 @@ export function useYookassaPayment(selectedPeriod: number) {
 
     if (!session?.url) return;
 
-    analytics.beginCheckout('yookassa');
+    phCapture('checkout_started', { payment_provider: 'yookassa', months: selectedPeriod });
     if (isNativeApp) {
       openLink(session.url);
     } else {

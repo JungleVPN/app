@@ -7,7 +7,7 @@ import { useNavigation, usePlans } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { usePlatformStore } from '../../../stores';
 import { Block } from '../../../ui';
-import { formatPlanPrice, isRuDomain } from '../../../utils';
+import { formatPlanPrice, isRuDomain, phCapture } from '../../../utils';
 import { useSavedPayment } from '../payment/hooks/useSavedPayment';
 
 export default function PlansPage() {
@@ -39,6 +39,7 @@ export default function PlansPage() {
   const handleSubmit = () => {
     const plan = sortedPlans.find((p) => p.months === activeMonths) ?? sortedPlans[0];
     if (!plan) return;
+    phCapture('plan_selected', { months: plan.months });
     navigate(profilePaymentPath, {
       state: {
         selectedPlan: {

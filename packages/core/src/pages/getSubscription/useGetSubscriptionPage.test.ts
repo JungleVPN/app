@@ -13,7 +13,7 @@ const {
   mockAuthStoreInfo,
   mockSetRmnUser,
   mockPlatformStore,
-  mockAnalytics,
+  mockPhCapture,
   mockTrackUserCreated,
   mockCaptureReferral,
   mockClearReferral,
@@ -28,9 +28,7 @@ const {
   mockAuthStoreInfo: vi.fn(),
   mockSetRmnUser: vi.fn(),
   mockPlatformStore: vi.fn(),
-  mockAnalytics: {
-    initialPageViewed: vi.fn(),
-  },
+  mockPhCapture: vi.fn(),
   mockTrackUserCreated: vi.fn(),
   mockCaptureReferral: vi.fn(),
   mockClearReferral: vi.fn(),
@@ -78,7 +76,7 @@ vi.mock('../../utils', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../utils')>();
   return {
     ...actual,
-    analytics: mockAnalytics,
+    phCapture: mockPhCapture,
     captureReferral: mockCaptureReferral,
     clearReferral: mockClearReferral,
     clearAttribution: mockClearAttribution,
@@ -163,7 +161,7 @@ describe('useGetSubscriptionPage', () => {
 
     renderHook(() => useGetSubscriptionPage());
 
-    expect(mockAnalytics.initialPageViewed).toHaveBeenCalledWith('web');
+    expect(mockPhCapture).toHaveBeenCalledWith('initial_page_viewed', { platform: 'web' });
   });
 
   it('fires the initial page view analytics event for telegram when no rmnUser is resolved yet', () => {
@@ -172,7 +170,7 @@ describe('useGetSubscriptionPage', () => {
 
     renderHook(() => useGetSubscriptionPage());
 
-    expect(mockAnalytics.initialPageViewed).toHaveBeenCalledWith('telegram');
+    expect(mockPhCapture).toHaveBeenCalledWith('initial_page_viewed', { platform: 'telegram' });
   });
 
   it('does not fire the initial page view analytics event once a rmnUser is already resolved', () => {
@@ -181,7 +179,7 @@ describe('useGetSubscriptionPage', () => {
 
     renderHook(() => useGetSubscriptionPage());
 
-    expect(mockAnalytics.initialPageViewed).not.toHaveBeenCalled();
+    expect(mockPhCapture).not.toHaveBeenCalled();
   });
 
   it('redirects to the subscription page when a web user is already resolved', () => {

@@ -2,6 +2,7 @@ import { type SyntheticEvent, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useNavigation } from '../../hooks';
 import { useSupabaseClient } from '../../runtime';
+import { phCapture } from '../../utils';
 
 export function useLogin() {
   const supabase = useSupabaseClient();
@@ -28,6 +29,8 @@ export function useLogin() {
       setLoading(false);
       return;
     }
+
+    phCapture('login_otp_requested');
 
     const to = searchParams.get('to');
     const confirmUrl = `/login/confirm?email=${encodeURIComponent(email)}&message=Enter OTP${to ? `&to=${encodeURIComponent(to)}` : ''}`;

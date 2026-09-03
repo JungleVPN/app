@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import type { AnalyticsEvent as AnalyticsEventEntity } from '@workspace/database';
+import type { CreateUserResponseDto } from '@workspace/types';
 import type { Repository } from 'typeorm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PostHogService } from '../posthog/posthog.service';
@@ -25,12 +26,15 @@ function buildPostHog(capture = vi.fn(), identify = vi.fn()) {
   return { capture, identify } as unknown as PostHogService;
 }
 
-function buildService({ repo = buildRepo(), postHog = buildPostHog() } = {}) {
-  const attributionRepo = { save: vi.fn() } as unknown as Repository<any>;
+function buildService({
+  repo = buildRepo(),
+  postHog = buildPostHog(),
+  attributionRepo = { save: vi.fn().mockResolvedValue(undefined) } as unknown as Repository<any>,
+} = {}) {
   process.env.GOOGLE_API_KEY = 'test-key';
   process.env.GOOGLE_EMAIL = 'test@example.com';
   const service = new EventsService(attributionRepo, repo, postHog);
-  return { service, repo, postHog };
+  return { service, repo, postHog, attributionRepo };
 }
 
 describe('EventsService.trackEvent()', () => {
@@ -150,5 +154,74 @@ describe('EventsService.trackEvent()', () => {
         service.trackEvent({ event: 'subscription_expired', userId: 1001 }),
       ).resolves.toBeUndefined();
     });
+  });
+});
+
+describe('EventsService.trackUserCreated()', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const user = { id: 2000, telegramId: 555, email: 'u@test.com' } as CreateUserResponseDto;
+
+  it('identifies the user by their id with the full attribution as $set_once', async () => {
+    const identify = vi.fn();
+    const { service } = buildService({ postHog: buildPostHog(undefined, identify) });
+
+    await service.trackUserCreated(user, {
+      platform: 'web',
+      source: 'google',
+      medium: 'cpc',
+      campaign: 'summer24',
+      adset: 'adset-1',
+      ad: 'ad-1',
+      clickId: 'gclid-123',
+      adCode: 'promo-1',
+    });
+
+    expect(identify).toHaveBeenCalledWith('2000', {
+      $set_once: {
+        attribution_platform: 'web',
+        attribution_source: 'google',
+        attribution_medium: 'cpc',
+        attribution_campaign: 'summer24',
+        attribution_adset: 'adset-1',
+        attribution_ad: 'ad-1',
+        attribution_click_id: 'gclid-123',
+        attribution_ad_code: 'promo-1',
+      },
+    });
+  });
+
+  it('omits attribution fields that were never captured', async () => {
+    const identify = vi.fn();
+    const { service } = buildService({ postHog: buildPostHog(undefined, identify) });
+
+    await service.trackUserCreated(user, { platform: 'telegram', adCode: 'promo-1' });
+
+    expect(identify).toHaveBeenCalledWith('2000', {
+      $set_once: {
+        attribution_platform: 'telegram',
+        attribution_ad_code: 'promo-1',
+      },
+    });
+  });
+
+  it('still persists attribution to the db and sheets when PostHog identify throws', async () => {
+    const identify = vi.fn().mockImplementation(() => {
+      throw new Error('posthog down');
+    });
+    const save = vi.fn().mockResolvedValue(undefined);
+    const attributionRepo = { save } as unknown as Repository<any>;
+    const { service } = buildService({
+      postHog: buildPostHog(undefined, identify),
+      attributionRepo,
+    });
+
+    await expect(
+      service.trackUserCreated(user, { platform: 'web' }),
+    ).resolves.toBeUndefined();
+
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ userId: 2000 }));
   });
 });
