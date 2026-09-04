@@ -39,6 +39,7 @@ export {
   resolveLocaleForRequest,
 } from './domain';
 export { formatCurrency, truncate } from './format';
+export { trackLoginConversion } from './gtag';
 export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';
 export type { LlmsTxtOptions } from './llmsTxt';
