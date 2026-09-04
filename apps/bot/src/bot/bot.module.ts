@@ -8,6 +8,7 @@ import { PaymentStatusListener } from '@bot/listeners/payment-status.listener';
 import { TelegramStarsListener } from '@bot/listeners/telegram-stars.listener';
 import { UserRewardedListener } from '@bot/listeners/user.rewarded.listener';
 import { UserExpireListener } from '@bot/listeners/user-expire.listener';
+import { UserFirstConnectedListener } from '@bot/listeners/user-first-connected.listener';
 import { UserNotConnectedListener } from '@bot/listeners/user-not-connected.listener';
 import { LocalisationService } from '@bot/localisation/localisation.service';
 import { MainMenu } from '@bot/navigation/features/main/main.menu';
@@ -49,6 +50,7 @@ import { BotService } from './bot.service';
     // HANDLERS
     UserExpireListener,
     UserNotConnectedListener,
+    UserFirstConnectedListener,
     PaymentStatusListener,
     TelegramStarsListener,
     UserRewardedListener,

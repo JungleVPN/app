@@ -124,6 +124,12 @@ export type SubscriptionExpiredEvent = {
   userId: RemnaUserId;
 };
 
+/** Fired the first time a user's device actually connects to a node (Remnawave `user.first_connected`). */
+export type UserFirstConnectedEvent = {
+  event: 'user_first_connected';
+  userId: RemnaUserId;
+};
+
 export type AnalyticsEvent =
   | BotStartedEvent
   | TmaOpenedEvent
@@ -140,4 +146,5 @@ export type AnalyticsEvent =
   | ReferralLinkedEvent
   | ReferralRewardGrantedEvent
   | ExpiryReminderSentEvent
-  | SubscriptionExpiredEvent;
+  | SubscriptionExpiredEvent
+  | UserFirstConnectedEvent;

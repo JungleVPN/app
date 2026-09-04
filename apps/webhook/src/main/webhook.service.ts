@@ -49,7 +49,11 @@ export class WebhookService {
       return;
     }
 
-    if (event === REMNAWAVE_EVENTS.USER.EXPIRED || event === REMNAWAVE_EVENTS.USER.NOT_CONNECTED) {
+    if (
+      event === REMNAWAVE_EVENTS.USER.EXPIRED ||
+      event === REMNAWAVE_EVENTS.USER.NOT_CONNECTED ||
+      event === REMNAWAVE_EVENTS.USER.FIRST_CONNECTED
+    ) {
       await this.forwardRemnaEventToBot(payload);
     }
   }
