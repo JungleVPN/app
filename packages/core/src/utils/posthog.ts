@@ -12,11 +12,15 @@
  *   VITE_PUBLIC_POSTHOG_HOST
  */
 import posthog from 'posthog-js';
+import { normalizeHostname } from './domain';
 
 const token = import.meta.env.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN as string | undefined;
 const host = import.meta.env.VITE_PUBLIC_POSTHOG_HOST as string | undefined;
 
 const isEnabled = typeof window !== 'undefined' && !!token && !!host;
+
+/** The only hostnames whose traffic counts as real production usage. Everything else — dev, staging, and legacy domain aliases — is tagged below. */
+const PRODUCTION_HOSTNAMES: ReadonlySet<string> = new Set(['jungle-vpn.com', 'jungle.community']);
 
 if (typeof window !== 'undefined' && (!token || !host) && import.meta.env.DEV) {
   console.error(
@@ -36,6 +40,10 @@ if (isEnabled) {
     // instead of disabling capture outright. See CookieConsent.tsx.
     cookieless_mode: 'on_reject',
   });
+
+  if (!PRODUCTION_HOSTNAMES.has(normalizeHostname(window.location.hostname))) {
+    posthog.setPersonProperties({ $internal_or_test_user: true });
+  }
 }
 
 export { posthog };

@@ -9,10 +9,16 @@ const mockedPosthog = posthog as unknown as {
   opt_in_capturing: ReturnType<typeof vi.fn>;
   opt_out_capturing: ReturnType<typeof vi.fn>;
   get_explicit_consent_status: ReturnType<typeof vi.fn>;
+  setPersonProperties: ReturnType<typeof vi.fn>;
 };
 
-async function loadPosthogModule() {
+async function loadPosthogModule(hostname = 'localhost') {
   vi.resetModules();
+  Object.defineProperty(window, 'location', {
+    value: { hostname },
+    writable: true,
+    configurable: true,
+  });
   return import('./posthog');
 }
 
@@ -136,6 +142,31 @@ describe('posthog utils', () => {
       const { phConsentStatus } = await loadPosthogModule();
 
       expect(phConsentStatus()).toBe('pending');
+    });
+
+    it.each(['jungle-vpn.com', 'jungle.community'])(
+      'does not tag %s as an internal/test user',
+      async (hostname) => {
+        await loadPosthogModule(hostname);
+
+        expect(mockedPosthog.setPersonProperties).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each([
+      'localhost',
+      'ru-web.development-env.uk',
+      'eu-web.development-env.uk',
+      'thejungle.pro',
+      'www.thejungle.pro',
+      'web.thejungle.pro',
+      'app.thejungle.pro',
+    ])('tags %s traffic as an internal/test user', async (hostname) => {
+      await loadPosthogModule(hostname);
+
+      expect(mockedPosthog.setPersonProperties).toHaveBeenCalledWith({
+        $internal_or_test_user: true,
+      });
     });
   });
 });
