@@ -484,6 +484,84 @@
       "i1_tail": "."
     }
   },
+  "cookies": {
+    "pageTitle": "Cookie Policy",
+    "footer": "This Cookie Policy is part of the JungleVPN Terms of Use and Privacy Policy. By continuing to use the Service, you acknowledge that you have read and understood how we use cookies.",
+    "s1": {
+      "h": "1. Introduction",
+      "i1": "This Cookie Policy explains how JungleVPN uses cookies and similar tracking technologies across our website, Telegram bot, and applications (together, the \"Service\"), and how you can control them.",
+      "i2": "Cookies are small files stored on your device that let a site or app remember information about your visit. We use cookies set directly by us (\"first-party\") and cookies set by services we rely on (\"third-party\").",
+      "i3": "Wherever we rely on your consent, you can withdraw it at any time — see Section 5, Managing Your Preferences."
+    },
+    "s2": {
+      "h": "2. How We Use Cookies",
+      "i1_lead": "Necessary cookies — required for the Service to work and always active:",
+      "i1_u1": "keeping you signed in and remembering your language and interface preferences;",
+      "i1_u2": "recognizing a referral code or marketing link you arrived with, so it can be credited correctly.",
+      "i2_lead": "Measurement cookies — used only once you accept them, to understand how the Service is used and to find and fix problems:",
+      "i2_u1": "page views, feature usage, and error and crash diagnostics, collected through PostHog (see Section 3)."
+    },
+    "s3": {
+      "h": "3. Third-Party Services",
+      "i1": "PostHog is the analytics and tracking service we use across the Service. It provides product analytics, session replay, and error tracking so we can understand usage and fix bugs.",
+      "i2_lead": "Through PostHog we may collect:",
+      "i2_u1": "pages viewed, features used, and buttons clicked;",
+      "i2_u2": "a replay of on-screen interactions — clicks, scrolling, and typing activity; text typed into input fields is masked and never captured;",
+      "i2_u3": "device and browser type, approximate location derived from your IP address, and console error logs.",
+      "i3": "PostHog processes this data in the European Union. Before you respond to the cookie banner, it is collected without a persistent identifier (\"cookieless mode\"); once you accept, your activity across visits is linked to build a fuller picture of how the Service is used."
+    },
+    "s4": {
+      "h": "4. Cookies We Set",
+      "lead": "The table below lists the cookies our website currently sets.",
+      "table": {
+        "name": "Cookie",
+        "purpose": "Purpose",
+        "duration": "Duration"
+      },
+      "rows": {
+        "jvReferral": {
+          "name": "jv_referral",
+          "purpose": "Remembers the referral code you arrived with, so the referring user can be credited.",
+          "duration": "30 days"
+        },
+        "jvAttr": {
+          "name": "jv_attr",
+          "purpose": "Remembers which campaign or link brought you to the site, for marketing attribution.",
+          "duration": "30 days"
+        },
+        "postHog": {
+          "name": "ph_*_posthog",
+          "purpose": "Set only after you accept measurement cookies; links your activity across visits to the same PostHog profile.",
+          "duration": "1 year"
+        }
+      }
+    },
+    "s5": {
+      "h": "5. Managing Your Preferences",
+      "i1": "When you first visit, a banner lets you accept or decline measurement cookies. Declining does not stop the Service from measuring anonymous usage — it only prevents PostHog from linking that activity to a persistent identifier.",
+      "i2": "You can change your choice at any time by clearing your browser's cookies and site data for our domain, which brings the banner back.",
+      "i3": "Most browsers also let you view, block, or delete cookies directly in their settings (for example, Chrome, Firefox, Safari, and Edge each have a \"Cookies and site data\" section). Blocking necessary cookies may prevent parts of the Service from working."
+    },
+    "s6": {
+      "h": "6. Related Policy",
+      "i1_lead": "This Cookie Policy should be read together with our ",
+      "i1_link": "Privacy Policy",
+      "i1_tail": ", which covers what personal data we collect, why, and your rights over it."
+    },
+    "s7": {
+      "h": "7. Changes to This Policy",
+      "i1": "We may update this Cookie Policy from time to time to reflect changes in the cookies and services we use.",
+      "i2": "Material changes will be communicated by email or a prominent notice within the Service before they take effect."
+    },
+    "s8": {
+      "h": "8. Contact Us",
+      "i1_lead": "For any questions about this Policy, contact our support team via the ",
+      "i1_botLink": "Telegram bot",
+      "i1_mid": " or by email at ",
+      "i1_emailLink": "support@jungle-vpn.com",
+      "i1_tail": "."
+    }
+  },
   "menu": {
     "pageTitle": "Menu",
     "transactionHistory": "Transaction History",
@@ -726,6 +804,7 @@
       "copyright": "© {{year}}. All rights reserved.",
       "terms": "Terms",
       "privacy": "Privacy",
+      "cookies": "Cookies",
       "support": "Support",
       "affiliate": "Affiliate",
       "referral": "Referral",

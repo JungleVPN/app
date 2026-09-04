@@ -1,5 +1,6 @@
 import {
   AffiliatePage,
+  CookiePolicyPage,
   GetSubscriptionPage,
   PrivacyPolicyPage,
   ProfileLayout,
@@ -30,6 +31,7 @@ import { TmaRootLayout } from '@/layouts/TmaRootLayout';
  *   /subscription/:shortUuid  — public subscription view
  *   /terms                    — terms page
  *   /privacy                  — privacy policy page
+ *   /cookies                  — cookie policy page
  *   /affiliates               — public affiliate program page
  *
  * initialEntries: deep-links (e.g. tma.domain.com/profile/payments) are
@@ -103,6 +105,10 @@ export const router = createMemoryRouter(
         {
           path: 'privacy',
           Component: PrivacyPolicyPage,
+        },
+        {
+          path: 'cookies',
+          Component: CookiePolicyPage,
         },
         {
           path: 'affiliates',

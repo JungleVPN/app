@@ -107,6 +107,7 @@ export const CRAWLABLE_PATHS: ReadonlySet<string> = new Set([
   ...LANDING_PATHS,
   '/terms',
   '/privacy',
+  '/cookies',
   '/affiliates',
   '/subscribe',
   '/login',

@@ -484,6 +484,84 @@
       "i1_tail": " adresinden e-posta yoluyla iletişime geçebilirsiniz."
     }
   },
+  "cookies": {
+    "pageTitle": "Çerez Politikası",
+    "footer": "Bu Çerez Politikası, JungleVPN Kullanım Koşulları ve Gizlilik Politikasının bir parçasıdır. Hizmeti kullanmaya devam ederek çerezleri nasıl kullandığımızı okuyup anladığınızı kabul edersiniz.",
+    "s1": {
+      "h": "1. Giriş",
+      "i1": "Bu Çerez Politikası, JungleVPN'in web sitesi, Telegram botu ve uygulamaları (birlikte \"Hizmet\") genelinde çerezleri ve benzer izleme teknolojilerini nasıl kullandığını ve bunları nasıl kontrol edebileceğinizi açıklar.",
+      "i2": "Çerezler, bir sitenin veya uygulamanın ziyaretiniz hakkındaki bilgileri hatırlamasını sağlayan, cihazınızda saklanan küçük dosyalardır. Hem doğrudan bizim tarafımızdan ayarlanan çerezleri (\"birinci taraf\") hem de kullandığımız hizmetler tarafından ayarlanan çerezleri (\"üçüncü taraf\") kullanırız.",
+      "i3": "Onayınıza dayandığımız durumlarda, onayınızı istediğiniz zaman geri çekebilirsiniz — bkz. Bölüm 5, Tercihlerinizi Yönetme."
+    },
+    "s2": {
+      "h": "2. Çerezleri Nasıl Kullanıyoruz",
+      "i1_lead": "Gerekli çerezler — Hizmetin çalışması için zorunludur ve her zaman etkindir:",
+      "i1_u1": "oturumunuzu açık tutmak ve dil ile arayüz tercihlerinizi hatırlamak;",
+      "i1_u2": "hesabınıza doğru şekilde yansıtılabilmesi için geldiğiniz referans kodunu veya pazarlama bağlantısını tanımak.",
+      "i2_lead": "Ölçüm çerezleri — yalnızca kabul ettiğinizde kullanılır, Hizmetin nasıl kullanıldığını anlamak ve sorunları bulup çözmek içindir:",
+      "i2_u1": "PostHog aracılığıyla toplanan sayfa görüntülemeleri, özellik kullanımı ile hata ve çökme tanılamaları (bkz. Bölüm 3)."
+    },
+    "s3": {
+      "h": "3. Üçüncü Taraf Hizmetler",
+      "i1": "PostHog, Hizmet genelinde kullandığımız analiz ve izleme hizmetidir. Kullanımı anlayabilmemiz ve hataları düzeltebilmemiz için ürün analizi, oturum kaydı ve hata izleme sağlar.",
+      "i2_lead": "PostHog aracılığıyla şunları toplayabiliriz:",
+      "i2_u1": "görüntülenen sayfalar, kullanılan özellikler ve tıklanan düğmeler;",
+      "i2_u2": "ekran üzerindeki etkileşimlerin kaydı — tıklamalar, kaydırma ve yazma etkinliği; giriş alanlarına yazılan metinler gizlenir ve asla kaydedilmez;",
+      "i2_u3": "cihaz ve tarayıcı türü, IP adresinizden türetilen yaklaşık konum ve konsol hata günlükleri.",
+      "i3": "PostHog bu verileri Avrupa Birliği'nde işler. Çerez banner'ına yanıt vermeden önce veriler kalıcı bir tanımlayıcı olmadan toplanır (\"çerezsiz mod\"); kabul ettiğinizde, Hizmetin nasıl kullanıldığına dair daha eksiksiz bir tablo oluşturmak için ziyaretleriniz arasındaki etkinliğiniz ilişkilendirilir."
+    },
+    "s4": {
+      "h": "4. Ayarladığımız Çerezler",
+      "lead": "Aşağıdaki tabloda web sitemizin şu anda ayarladığı çerezler listelenmiştir.",
+      "table": {
+        "name": "Çerez",
+        "purpose": "Amaç",
+        "duration": "Süre"
+      },
+      "rows": {
+        "jvReferral": {
+          "name": "jv_referral",
+          "purpose": "Yönlendirmeyi yapan kullanıcıya doğru şekilde yansıtılabilmesi için geldiğiniz referans kodunu hatırlar.",
+          "duration": "30 gün"
+        },
+        "jvAttr": {
+          "name": "jv_attr",
+          "purpose": "Pazarlama atfı için sizi siteye getiren kampanyayı veya bağlantıyı hatırlar.",
+          "duration": "30 gün"
+        },
+        "postHog": {
+          "name": "ph_*_posthog",
+          "purpose": "Yalnızca ölçüm çerezlerini kabul ettikten sonra ayarlanır; ziyaretleriniz arasındaki etkinliğinizi aynı PostHog profiline bağlar.",
+          "duration": "1 yıl"
+        }
+      }
+    },
+    "s5": {
+      "h": "5. Tercihlerinizi Yönetme",
+      "i1": "İlk ziyaretinizde bir banner, ölçüm çerezlerini kabul etmenize veya reddetmenize olanak tanır. Reddetmek, Hizmetin anonim kullanımı ölçmesini durdurmaz — yalnızca PostHog'un bu etkinliği kalıcı bir tanımlayıcıyla ilişkilendirmesini engeller.",
+      "i2": "Tercihinizi, tarayıcınızda alanımıza ait çerezleri ve site verilerini temizleyerek istediğiniz zaman değiştirebilirsiniz; bu, banner'ın yeniden görünmesini sağlar.",
+      "i3": "Çoğu tarayıcı ayrıca çerezleri doğrudan ayarlarından görüntülemenize, engellemenize veya silmenize olanak tanır (örneğin Chrome, Firefox, Safari ve Edge'de bir \"Çerezler ve site verileri\" bölümü bulunur). Gerekli çerezleri engellemek, Hizmetin bazı bölümlerinin çalışmamasına neden olabilir."
+    },
+    "s6": {
+      "h": "6. İlgili Politika",
+      "i1_lead": "Bu Çerez Politikası, hangi kişisel verileri neden topladığımızı ve bunlar üzerindeki haklarınızı açıklayan ",
+      "i1_link": "Gizlilik Politikamız",
+      "i1_tail": " ile birlikte okunmalıdır."
+    },
+    "s7": {
+      "h": "7. Bu Politikadaki Değişiklikler",
+      "i1": "Kullandığımız çerezler ve hizmetlerdeki değişiklikleri yansıtmak için bu Çerez Politikasını zaman zaman güncelleyebiliriz.",
+      "i2": "Önemli değişiklikler, yürürlüğe girmeden önce e-posta veya Hizmet içinde belirgin bir bildirimle duyurulacaktır."
+    },
+    "s8": {
+      "h": "8. Bize Ulaşın",
+      "i1_lead": "Bu Politikayla ilgili sorularınız için destek ekibimizle ",
+      "i1_botLink": "Telegram botu",
+      "i1_mid": " üzerinden veya e-posta ile ",
+      "i1_emailLink": "support@jungle-vpn.com",
+      "i1_tail": " adresinden iletişime geçin."
+    }
+  },
   "menu": {
     "pageTitle": "Menü",
     "transactionHistory": "İşlem Geçmişi",
@@ -726,6 +804,7 @@
       "copyright": "© {{year}}. Tüm hakları saklıdır.",
       "terms": "Koşullar",
       "privacy": "Gizlilik",
+      "cookies": "Çerezler",
       "support": "Destek",
       "affiliate": "Ortaklık",
       "referral": "Davet",

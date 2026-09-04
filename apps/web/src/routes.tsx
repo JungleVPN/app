@@ -56,6 +56,7 @@ export function createRoutes(Landing: ComponentType) {
           children: [
             { path: '/terms', lazy: () => pages().then((m) => ({ Component: m.TermsPage })) },
             { path: '/privacy', lazy: () => pages().then((m) => ({ Component: m.PrivacyPolicyPage })) },
+            { path: '/cookies', lazy: () => pages().then((m) => ({ Component: m.CookiePolicyPage })) },
           ],
         },
         {

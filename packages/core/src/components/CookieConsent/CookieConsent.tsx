@@ -33,7 +33,7 @@ export function CookieConsent() {
               i18nKey='cookieConsent.description'
               components={{
                 policyLink: (
-                  <Link href='/privacy' className='font-semibold underline underline-offset-2' />
+                  <Link href='/cookies' className='font-semibold underline underline-offset-2' />
                 ),
               }}
             />

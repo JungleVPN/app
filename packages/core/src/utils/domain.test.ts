@@ -128,6 +128,7 @@ describe('isCrawlablePath', () => {
     '/tr',
     '/terms',
     '/privacy',
+    '/cookies',
     '/affiliates',
     '/subscribe',
     '/login',

@@ -14,18 +14,19 @@ type FooterLinkDef =
   | { type: 'external'; href: string };
 
 const FOOTER_LINKS: Record<
-  'terms' | 'privacy' | 'affiliate' | 'referral' | 'pricing' | 'trial',
+  'terms' | 'privacy' | 'cookies' | 'affiliate' | 'referral' | 'pricing' | 'trial',
   FooterLinkDef
 > = {
   terms: { type: 'internal', to: '/terms' },
   privacy: { type: 'internal', to: '/privacy' },
+  cookies: { type: 'internal', to: '/cookies' },
   affiliate: { type: 'internal', to: '/affiliates' },
   referral: { type: 'internal', to: '/profile/referrals' },
   pricing: { type: 'anchor', href: '#pricing' },
   trial: { type: 'anchor', href: '#trial' },
 };
 
-const LINK_KEYS = ['terms', 'privacy', 'affiliate', 'referral', 'trial'] as const;
+const LINK_KEYS = ['terms', 'privacy', 'cookies', 'affiliate', 'referral', 'trial'] as const;
 
 const linkClass = 'text-sm text-muted transition-colors hover:text-foreground';
 

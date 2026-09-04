@@ -1,3 +1,4 @@
+export { default as CookiePolicyPage } from './cookies/CookiePolicyPage';
 export { default as GetSubscriptionPage } from './getSubscription/GetSubscriptionPage';
 export { default as LandingPage } from './landing/LandingPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';
