@@ -2,12 +2,13 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CookieConsent } from './CookieConsent';
 
-const { readCookie, writeCookie } = vi.hoisted(() => ({
-  readCookie: vi.fn(),
-  writeCookie: vi.fn(),
+const { phConsentStatus, phOptIn, phOptOut } = vi.hoisted(() => ({
+  phConsentStatus: vi.fn(),
+  phOptIn: vi.fn(),
+  phOptOut: vi.fn(),
 }));
 
-vi.mock('../../utils', () => ({ readCookie, writeCookie }));
+vi.mock('../../utils', () => ({ phConsentStatus, phOptIn, phOptOut }));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -20,42 +21,52 @@ vi.mock('../../assets/Logo_dark.svg?react', () => ({
 
 describe('CookieConsent', () => {
   beforeEach(() => {
-    readCookie.mockReturnValue(null);
+    phConsentStatus.mockReturnValue('pending');
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('shows the banner when no consent choice has been recorded yet', () => {
+  it('shows the banner while consent is pending', () => {
     render(<CookieConsent />);
 
     expect(screen.getByRole('button', { name: 'cookieConsent.accept' })).toBeDefined();
   });
 
-  it('stays hidden when a consent choice was already recorded', () => {
-    readCookie.mockReturnValue('accepted');
+  it('stays hidden when consent was already granted', () => {
+    phConsentStatus.mockReturnValue('granted');
 
     render(<CookieConsent />);
 
     expect(screen.queryByRole('button', { name: 'cookieConsent.accept' })).toBeNull();
   });
 
-  it('records acceptance and hides the banner when Accept is pressed', () => {
+  it('stays hidden when consent was already denied', () => {
+    phConsentStatus.mockReturnValue('denied');
+
+    render(<CookieConsent />);
+
+    expect(screen.queryByRole('button', { name: 'cookieConsent.accept' })).toBeNull();
+  });
+
+  it('opts in to full tracking and hides the banner when Accept is pressed', () => {
     render(<CookieConsent />);
 
     fireEvent.click(screen.getByRole('button', { name: 'cookieConsent.accept' }));
 
-    expect(writeCookie).toHaveBeenCalledWith('cookie_consent', 'accepted', { maxAgeDays: 365 });
+    expect(phOptIn).toHaveBeenCalled();
+    expect(phOptOut).not.toHaveBeenCalled();
     expect(screen.queryByRole('button', { name: 'cookieConsent.accept' })).toBeNull();
   });
 
-  it('records denial and hides the banner when Deny is pressed', () => {
+  it('opts out of full tracking and hides the banner when Deny is pressed', () => {
     render(<CookieConsent />);
 
     fireEvent.click(screen.getByRole('button', { name: 'cookieConsent.deny' }));
 
-    expect(writeCookie).toHaveBeenCalledWith('cookie_consent', 'denied', { maxAgeDays: 365 });
+    expect(phOptOut).toHaveBeenCalled();
+    expect(phOptIn).not.toHaveBeenCalled();
     expect(screen.queryByRole('button', { name: 'cookieConsent.deny' })).toBeNull();
   });
 });

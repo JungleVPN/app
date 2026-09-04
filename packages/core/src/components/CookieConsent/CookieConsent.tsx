@@ -3,25 +3,24 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import Logo from '../../assets/Logo_dark.svg?react';
-import { readCookie, writeCookie } from '../../utils';
+import { phConsentStatus, phOptIn, phOptOut } from '../../utils';
 import { Link } from '../Link/Link';
-
-const COOKIE_NAME = 'cookie_consent';
-const COOKIE_MAX_AGE_DAYS = 365;
-
-type Consent = 'accepted' | 'denied';
 
 export function CookieConsent() {
   const { t } = useTranslation();
-  const [consent, setConsent] = useState<Consent | null>(
-    () => readCookie(COOKIE_NAME) as Consent | null,
-  );
+  const [pending, setPending] = useState(() => phConsentStatus() === 'pending');
 
-  if (consent) return null;
+  if (!pending) return null;
 
-  const choose = (value: Consent) => {
-    writeCookie(COOKIE_NAME, value, { maxAgeDays: COOKIE_MAX_AGE_DAYS });
-    setConsent(value);
+  const choose = (accept: boolean) => {
+    // Declining doesn't stop capture — PostHog falls back to anonymous,
+    // cookieless tracking (no persistent identifiers) instead of full opt-out.
+    if (accept) {
+      phOptIn();
+    } else {
+      phOptOut();
+    }
+    setPending(false);
   };
 
   return createPortal(
@@ -41,10 +40,10 @@ export function CookieConsent() {
           </p>
         </div>
         <div className='flex justify-end gap-2'>
-          <Button variant='outline' onPress={() => choose('denied')}>
+          <Button variant='outline' onPress={() => choose(false)}>
             {t('cookieConsent.deny')}
           </Button>
-          <Button variant='primary' onPress={() => choose('accepted')}>
+          <Button variant='primary' onPress={() => choose(true)}>
             {t('cookieConsent.accept')}
           </Button>
         </div>

@@ -31,6 +31,10 @@ if (isEnabled) {
     api_host: host as string,
     defaults: '2026-01-30',
     tracing_headers: [window.location.hostname],
+    // Capture stays cookieless (no persistent identifiers) until the user
+    // explicitly opts in via phOptIn(); opting out keeps it cookieless
+    // instead of disabling capture outright. See CookieConsent.tsx.
+    cookieless_mode: 'on_reject',
   });
 }
 
@@ -60,4 +64,24 @@ export function phIdentify(
 export function phReset(): void {
   if (!isEnabled) return;
   posthog.reset();
+}
+
+export type PostHogConsentStatus = 'granted' | 'denied' | 'pending';
+
+/** Current consent decision. 'granted' when PostHog is not configured at all. */
+export function phConsentStatus(): PostHogConsentStatus {
+  if (!isEnabled) return 'granted';
+  return posthog.get_explicit_consent_status();
+}
+
+/** Grant consent: switches capture from cookieless to full (persistent) tracking. */
+export function phOptIn(): void {
+  if (!isEnabled) return;
+  posthog.opt_in_capturing();
+}
+
+/** Deny consent: capture stays cookieless rather than stopping outright. */
+export function phOptOut(): void {
+  if (!isEnabled) return;
+  posthog.opt_out_capturing();
 }

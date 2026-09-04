@@ -6,6 +6,9 @@ const mockedPosthog = posthog as unknown as {
   capture: ReturnType<typeof vi.fn>;
   identify: ReturnType<typeof vi.fn>;
   reset: ReturnType<typeof vi.fn>;
+  opt_in_capturing: ReturnType<typeof vi.fn>;
+  opt_out_capturing: ReturnType<typeof vi.fn>;
+  get_explicit_consent_status: ReturnType<typeof vi.fn>;
 };
 
 async function loadPosthogModule() {
@@ -45,6 +48,19 @@ describe('posthog utils', () => {
       expect(mockedPosthog.identify).not.toHaveBeenCalled();
       expect(mockedPosthog.reset).not.toHaveBeenCalled();
     });
+
+    it('phOptIn and phOptOut are no-ops, and consent is reported as granted', async () => {
+      vi.stubEnv('VITE_PUBLIC_POSTHOG_PROJECT_TOKEN', '');
+      vi.stubEnv('VITE_PUBLIC_POSTHOG_HOST', '');
+      const { phOptIn, phOptOut, phConsentStatus } = await loadPosthogModule();
+
+      phOptIn();
+      phOptOut();
+
+      expect(mockedPosthog.opt_in_capturing).not.toHaveBeenCalled();
+      expect(mockedPosthog.opt_out_capturing).not.toHaveBeenCalled();
+      expect(phConsentStatus()).toBe('granted');
+    });
   });
 
   describe('when both the token and host are configured', () => {
@@ -59,6 +75,15 @@ describe('posthog utils', () => {
       expect(mockedPosthog.init).toHaveBeenCalledWith(
         'phc_test_token',
         expect.objectContaining({ api_host: 'https://eu.i.posthog.com' }),
+      );
+    });
+
+    it('initialises with cookieless_mode "on_reject" so capture stays anonymous until consent', async () => {
+      await loadPosthogModule();
+
+      expect(mockedPosthog.init).toHaveBeenCalledWith(
+        'phc_test_token',
+        expect.objectContaining({ cookieless_mode: 'on_reject' }),
       );
     });
 
@@ -88,6 +113,29 @@ describe('posthog utils', () => {
       phReset();
 
       expect(mockedPosthog.reset).toHaveBeenCalled();
+    });
+
+    it('phOptIn calls posthog.opt_in_capturing', async () => {
+      const { phOptIn } = await loadPosthogModule();
+
+      phOptIn();
+
+      expect(mockedPosthog.opt_in_capturing).toHaveBeenCalled();
+    });
+
+    it('phOptOut calls posthog.opt_out_capturing', async () => {
+      const { phOptOut } = await loadPosthogModule();
+
+      phOptOut();
+
+      expect(mockedPosthog.opt_out_capturing).toHaveBeenCalled();
+    });
+
+    it('phConsentStatus forwards posthog.get_explicit_consent_status', async () => {
+      mockedPosthog.get_explicit_consent_status.mockReturnValue('pending');
+      const { phConsentStatus } = await loadPosthogModule();
+
+      expect(phConsentStatus()).toBe('pending');
     });
   });
 });
