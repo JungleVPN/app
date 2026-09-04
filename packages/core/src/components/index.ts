@@ -1,5 +1,6 @@
 export { AppAlert } from './AppAlert';
 export { AuthGuard } from './AuthGuard/AuthGuard';
+export { CookieConsent } from './CookieConsent/CookieConsent';
 export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorConnection } from './ErrorConnection/ErrorConnection';
 export { FeaturesCard } from './FeaturesCard/FeaturesCard';

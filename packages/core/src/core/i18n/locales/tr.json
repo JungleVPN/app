@@ -54,6 +54,11 @@
       "email": "E-posta"
     }
   },
+  "cookieConsent": {
+    "description": "Biz ve seçili üçüncü taraflar, çerezleri yalnızca deneyim iyileştirme ve ölçüm amaçlarıyla kullanır. Kişisel bilgilerinizi satmıyoruz. Onayınızı istediğiniz zaman reddedebilir veya geri çekebilirsiniz. Bu durumda bazı özellikler çalışmayabilir. Lütfen <policyLink>Çerez Politikamızı</policyLink> okuyun.",
+    "accept": "Çerezleri kabul et",
+    "deny": "Reddet"
+  },
   "languages": {
     "nativeRu": "Русский",
     "nativeEn": "English",
