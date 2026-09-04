@@ -809,7 +809,10 @@
       "affiliate": "Affiliate",
       "referral": "Referral",
       "pricing": "Pricing",
-      "trial": "Pricing"
+      "trial": "Pricing",
+      "partnership": "Partnership",
+      "howItWorks": "How It Works",
+      "faq": "FAQ"
     },
     "bento": {
       "titleStart": "Everything you need,",

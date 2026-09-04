@@ -818,7 +818,10 @@
       "affiliate": "Партнёрство",
       "referral": "Рефералы",
       "pricing": "Цены",
-      "trial": "Цены"
+      "trial": "Цены",
+      "partnership": "Партнёрство",
+      "howItWorks": "Как это работает",
+      "faq": "Вопросы"
     },
     "bento": {
       "titleStart": "Всё, что нужно,",

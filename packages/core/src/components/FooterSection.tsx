@@ -14,7 +14,16 @@ type FooterLinkDef =
   | { type: 'external'; href: string };
 
 const FOOTER_LINKS: Record<
-  'terms' | 'privacy' | 'cookies' | 'affiliate' | 'referral' | 'pricing' | 'trial',
+  | 'terms'
+  | 'privacy'
+  | 'cookies'
+  | 'affiliate'
+  | 'referral'
+  | 'pricing'
+  | 'trial'
+  | 'partnership'
+  | 'howItWorks'
+  | 'faq',
   FooterLinkDef
 > = {
   terms: { type: 'internal', to: '/terms' },
@@ -24,9 +33,22 @@ const FOOTER_LINKS: Record<
   referral: { type: 'internal', to: '/profile/referrals' },
   pricing: { type: 'anchor', href: '#pricing' },
   trial: { type: 'anchor', href: '#trial' },
+  partnership: { type: 'anchor', href: '#partnership' },
+  howItWorks: { type: 'anchor', href: '#how-it-works' },
+  faq: { type: 'anchor', href: '#faq' },
 };
 
-const LINK_KEYS = ['terms', 'privacy', 'cookies', 'affiliate', 'referral', 'trial'] as const;
+const LINK_KEYS = [
+  'terms',
+  'privacy',
+  'cookies',
+  'affiliate',
+  'referral',
+  'pricing',
+  'partnership',
+  'howItWorks',
+  'faq',
+] as const;
 
 const linkClass = 'text-sm text-muted transition-colors hover:text-foreground';
 

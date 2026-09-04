@@ -51,7 +51,7 @@ export default function LandingPage() {
           <TrustSection />
         </Container>
         <CountriesMarquee />
-        <Container>
+        <Container id='how-it-works'>
           <HowItWorksSection />
         </Container>
         <Container>
@@ -68,8 +68,10 @@ export default function LandingPage() {
         <Container id='pricing'>
           <PricingSection />
         </Container>
-        <TestimonialsSection />
-        <Container>
+        <div id='testimonials'>
+          <TestimonialsSection />
+        </div>
+        <Container id='faq'>
           <FAQSection />
         </Container>
         <Container>

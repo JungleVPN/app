@@ -809,7 +809,10 @@
       "affiliate": "الشراكة",
       "referral": "الإحالة",
       "pricing": "الأسعار",
-      "trial": "الأسعار"
+      "trial": "الأسعار",
+      "partnership": "الشراكة",
+      "howItWorks": "كيف يعمل",
+      "faq": "الأسئلة الشائعة"
     },
     "bento": {
       "titleStart": "كل ما تحتاجه،",

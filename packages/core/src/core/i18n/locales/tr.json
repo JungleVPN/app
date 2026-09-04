@@ -809,7 +809,10 @@
       "affiliate": "Ortaklık",
       "referral": "Davet",
       "pricing": "Fiyatlandırma",
-      "trial": "Fiyatlandırma"
+      "trial": "Fiyatlandırma",
+      "partnership": "İş Ortaklığı",
+      "howItWorks": "Nasıl Çalışır",
+      "faq": "SSS"
     },
     "bento": {
       "titleStart": "İhtiyacınız olan her şey,",
