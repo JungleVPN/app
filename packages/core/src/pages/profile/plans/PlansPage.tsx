@@ -24,6 +24,10 @@ export default function PlansPage() {
   const isLoading = savedMethods === null;
 
   useEffect(() => {
+    phCapture('plans_viewed');
+  }, []);
+
+  useEffect(() => {
     if (hasActiveMethod) {
       navigate(profilePaymentPath);
     }

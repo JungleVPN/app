@@ -9,7 +9,7 @@ import LogoDark from '../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../hooks';
 import { usePlatformStore } from '../../stores';
 import { Container } from '../../ui';
-import { isLandingPath, isRuDomain, scrollToTop } from '../../utils';
+import { isLandingPath, isRuDomain, phCapture, scrollToTop } from '../../utils';
 import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { SupportButton } from '../SupportWidget/SupportButton';
@@ -26,10 +26,14 @@ export function Header() {
   const remnawaveApi = useRemnawaveApi();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [isRu, setIsRu] = useState(false);
 
   const isLanding = isLandingPath(pathname);
-  const isRu = isRuDomain();
   const isTelegram = platformType === 'telegram';
+
+  useEffect(() => {
+    setIsRu(isRuDomain());
+  }, []);
 
   useEffect(() => {
     if (platformType !== 'telegram' || !tgUser?.id) return;
@@ -77,7 +81,10 @@ export function Header() {
             <Button
               key={id}
               className='text-sm mix-blend-difference text-[white] hover:underline transition-colors cursor-pointer bg-transparent border-none p-0'
-              onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => {
+                phCapture(`landing_${id}_link_clicked`);
+                document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
               {t(`header.nav.${id}`)}
             </Button>

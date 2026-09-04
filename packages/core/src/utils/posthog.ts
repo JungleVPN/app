@@ -39,6 +39,7 @@ export { posthog };
 /** Capture a PostHog event. No-op when PostHog is not initialised. */
 export function phCapture(event: string, properties?: Record<string, unknown>): void {
   if (!isEnabled) return;
+  console.log('capture', event, properties);
   posthog.capture(event, properties);
 }
 

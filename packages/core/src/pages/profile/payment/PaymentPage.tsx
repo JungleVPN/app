@@ -11,7 +11,7 @@ import { useBackButton, useNavigation } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { useNavbarStore, usePlatformStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
-import { isRuDomain } from '../../../utils';
+import { isRuDomain, phCapture } from '../../../utils';
 import { PaymentForm } from './components/PaymentForm';
 import { SavedMethod } from './components/SavedMethod';
 import { usePayment } from './hooks/usePayment';
@@ -43,6 +43,10 @@ export default function PaymentPage() {
     isOpeningStripePortal,
     validatePromo,
   } = usePayment(selectedPlan?.months ?? 1);
+
+  useEffect(() => {
+    phCapture('payments_viewed');
+  }, []);
 
   const { savedMethods, hasActiveMethod, hasStripeSubscription } = useSavedPayment();
 
