@@ -30,7 +30,7 @@ describe('LandingPage', () => {
   it('captures landing_viewed once on mount', () => {
     render(<LandingPage />);
 
-    expect(phCapture).toHaveBeenCalledWith('landing_viewed');
+    expect(phCapture).toHaveBeenCalledWith('landing_viewed', { userId: undefined });
     expect(phCapture).toHaveBeenCalledTimes(1);
   });
 });
