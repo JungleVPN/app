@@ -153,6 +153,37 @@ describe('AutopaymentService', () => {
 
       expect(mockCreate).toHaveBeenCalledTimes(1);
     });
+
+    it('records the start of the autopayment attempt for analytics', async () => {
+      mockSmFindOneBy.mockResolvedValue({
+        userId: 1000,
+        paymentMethodId: 'pm_1',
+        isActive: true,
+      });
+      mockCreate.mockResolvedValue({
+        id: 'pay_1',
+        status: 'succeeded',
+        amount: { value: '200', currency: 'RUB' },
+      });
+
+      await service.init(makePayload(42));
+
+      expect(analyticsClient.track).toHaveBeenCalledWith({
+        event: 'autopayment_initiated',
+        userId: 1000,
+        provider: 'yookassa',
+      });
+    });
+
+    it('does not record autopayment_initiated when there is no saved method to charge', async () => {
+      mockSmFindOneBy.mockResolvedValue(null);
+
+      await service.init(makePayload(42));
+
+      expect(analyticsClient.track).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event: 'autopayment_initiated' }),
+      );
+    });
   });
 
   // ── Retry logic ────────────────────────────────────────────────────

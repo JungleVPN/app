@@ -15,6 +15,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { getExtraDevicePrice, getPriceForPeriod } from '@payments/utils/amount';
 import { StripePayment } from '@workspace/database';
 import { type CreateStripeSessionDto, type PaymentPurpose } from '@workspace/types';
@@ -36,6 +37,7 @@ export class StripeController {
     @InjectRepository(StripePayment)
     private readonly stripePaymentRepo: Repository<StripePayment>,
     private readonly stripeProvider: StripeProvider,
+    private readonly analyticsClient: AnalyticsClientService,
   ) {}
 
   /** List all Stripe payments, newest first — internal use only */
@@ -127,6 +129,15 @@ export class StripeController {
       invoiceUrl: null,
     });
     await this.stripePaymentRepo.save(record);
+
+    await this.analyticsClient.track({
+      event: 'checkout_started',
+      userId,
+      provider: 'stripe',
+      purpose,
+      amount,
+      currency: 'EUR',
+    });
 
     return session;
   }

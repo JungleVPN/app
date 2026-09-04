@@ -148,6 +148,7 @@ export class YookassaService {
       event: 'checkout_started',
       userId,
       provider: 'yookassa',
+      purpose,
       amount: amountValue,
       currency: 'RUB',
     });
@@ -221,6 +222,15 @@ export class YookassaService {
       `Refund ${id} for payment ${payment_id}: ${refunded} of ${paid} ${payment.amount?.currency ?? 'RUB'} returned`,
     );
 
+    await this.analyticsClient.track({
+      event: 'payment_refunded',
+      userId: record.userId,
+      provider: 'yookassa',
+      isPartial,
+      amount: payment.refunded_amount?.value,
+      currency: payment.amount?.currency ?? 'RUB',
+    });
+
     await this.toltService.reportRefund({ chargeId: payment_id, isPartial });
   }
 
@@ -268,7 +278,7 @@ export class YookassaService {
     // Count prior succeeded payments before stamping this one — the current record
     // is still pending at this point, so a count of 0 means this is the first payment.
     const priorSucceeded = await this.yookassaPaymentRepo.count({
-      where: { userId: record.userId, status: 'succeeded' },
+      where: { userId: record.userId, status: 'succeeded', purpose: 'subscription' },
     });
     const isFirstPayment = priorSucceeded === 0;
 
@@ -301,9 +311,12 @@ export class YookassaService {
         event: 'payment_succeeded',
         userId: record.userId,
         provider: 'yookassa',
+        purpose: record.purpose,
         selectedPeriod: record.selectedPeriod,
         isFirstPayment,
         isAutoPayment: false,
+        amount: record.amount,
+        currency: 'RUB',
       });
 
       if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {
@@ -457,7 +470,7 @@ export class YookassaService {
 
       await this.savedMethodRepo.save(method);
 
-      this.analyticsClient.track({
+      await this.analyticsClient.track({
         event: 'payment_method_saved',
         userId,
         provider: 'yookassa',

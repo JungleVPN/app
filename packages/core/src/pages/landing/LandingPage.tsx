@@ -1,5 +1,8 @@
+import { useEffect } from 'react';
 import { FooterSection } from '../../components';
+import { useAuthStore } from '../../stores';
 import { Container } from '../../ui';
+import { phCapture } from '../../utils';
 import { BentoSection } from './BentoSection';
 import { ComparisonSection } from './ComparisonSection';
 import { CountriesMarquee } from './CountriesMarquee';
@@ -15,6 +18,12 @@ import { TestimonialsSection } from './TestimonialsSection';
 import { TrustSection } from './TrustSection';
 
 export default function LandingPage() {
+  const { rmnUser } = useAuthStore();
+
+  useEffect(() => {
+    phCapture('landing_viewed', { userId: rmnUser?.id });
+  }, [rmnUser]);
+
   return (
     <div className='relative bg-[#1a1a1a]'>
       <div className='sticky top-0 overflow-hidden pt-42 pb-32 md:py-56 lg:py-72'>

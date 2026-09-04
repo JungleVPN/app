@@ -52,6 +52,7 @@ describe('ClientOrServiceGuard', () => {
 describe('StripeController.createSession', () => {
   let stripePaymentRepo: Record<string, ReturnType<typeof vi.fn>>;
   let stripeProvider: { createPayment: ReturnType<typeof vi.fn> };
+  let analyticsClient: { track: ReturnType<typeof vi.fn> };
   let controller: StripeController;
 
   beforeEach(() => {
@@ -69,8 +70,13 @@ describe('StripeController.createSession', () => {
         customer: 'cus_1',
       }),
     };
+    analyticsClient = { track: vi.fn().mockResolvedValue(undefined) };
 
-    controller = new StripeController(stripePaymentRepo as never, stripeProvider as never);
+    controller = new StripeController(
+      stripePaymentRepo as never,
+      stripeProvider as never,
+      analyticsClient as never,
+    );
   });
 
   it('bills the authenticated user, never the user id in the request body', async () => {
@@ -98,6 +104,31 @@ describe('StripeController.createSession', () => {
     expect(stripePaymentRepo.save).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'cs_1', status: 'pending', amount: 10 }),
     );
+  });
+
+  it('records the start of checkout for analytics, tagged with its purpose', async () => {
+    await controller.createSession(dto(), 42, 'https://app.test');
+
+    expect(analyticsClient.track).toHaveBeenCalledWith({
+      event: 'checkout_started',
+      userId: 42,
+      provider: 'stripe',
+      purpose: 'subscription',
+      amount: '10',
+      currency: 'EUR',
+    });
+  });
+
+  it('tags an extra-device checkout with its purpose', async () => {
+    process.env.EXTRA_DEVICE_PRICE_EUR = '5';
+
+    await controller.createSession(dto({ purchaseType: 'extra_device' }), 42, 'https://app.test');
+
+    expect(analyticsClient.track).toHaveBeenCalledWith(
+      expect.objectContaining({ event: 'checkout_started', purpose: 'extra_device' }),
+    );
+
+    delete process.env.EXTRA_DEVICE_PRICE_EUR;
   });
 
   describe('when the subscriber is sent to the billing portal instead', () => {

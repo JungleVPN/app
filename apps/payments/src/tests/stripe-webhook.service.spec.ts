@@ -238,6 +238,19 @@ describe('StripeWebhookService', () => {
       );
     });
 
+    it('records the purpose and settled amount for analytics', async () => {
+      await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
+
+      expect(analyticsClient.track).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: 'payment_succeeded',
+          purpose: undefined,
+          amount: '2',
+          currency: 'EUR',
+        }),
+      );
+    });
+
     it('ignores a duplicate webhook for an already-paid invoice (idempotency)', async () => {
       mockFindOneBy.mockResolvedValue({ id: 'in_1', status: 'paid', paidAt: new Date() });
 
@@ -490,6 +503,41 @@ describe('StripeWebhookService', () => {
         );
       });
 
+      // Previously this purchase was completely invisible to PostHog — neither
+      // checkout_started nor payment_succeeded ever fired for it.
+      it('records the sale for analytics, since a one-off device slot never raises a Stripe invoice', async () => {
+        mockFindOneBy.mockResolvedValue({
+          id: 'cs_1',
+          status: 'pending',
+          paidAt: null,
+          amount: 5,
+        });
+
+        await service.handleWebhook(makeExtraDeviceEvent());
+
+        expect(analyticsClient.track).toHaveBeenCalledWith(
+          expect.objectContaining({
+            event: 'payment_succeeded',
+            userId: 1000,
+            provider: 'stripe',
+            purpose: 'extra_device',
+            selectedPeriod: 0,
+            amount: '5',
+            currency: 'EUR',
+          }),
+        );
+      });
+
+      it('does not report analytics when the device slot was never granted', async () => {
+        mockHandleUserUpdates.mockResolvedValue({ success: false });
+
+        await expect(service.handleWebhook(makeExtraDeviceEvent())).rejects.toThrow();
+
+        expect(analyticsClient.track).not.toHaveBeenCalledWith(
+          expect.objectContaining({ event: 'payment_succeeded' }),
+        );
+      });
+
       it('withholds the paid stamp when the device slot was never granted', async () => {
         mockHandleUserUpdates.mockResolvedValue({ success: false });
 
@@ -524,6 +572,31 @@ describe('StripeWebhookService', () => {
         }),
       );
       expect(mockReportRefund).toHaveBeenCalledWith({ chargeId: 'in_1', isPartial: false });
+    });
+
+    it('records the refund for analytics, keyed to the invoice’s user', async () => {
+      mockFindOneBy.mockResolvedValue({ id: 'in_1', userId: 1000 });
+
+      await service.handleWebhook(makeRefundEvent());
+
+      expect(analyticsClient.track).toHaveBeenCalledWith({
+        event: 'payment_refunded',
+        userId: 1000,
+        provider: 'stripe',
+        isPartial: false,
+        amount: '2',
+        currency: 'EUR',
+      });
+    });
+
+    it('does not report analytics when the invoice carries no userId we can attribute it to', async () => {
+      mockFindOneBy.mockResolvedValue(null);
+
+      await service.handleWebhook(makeRefundEvent());
+
+      expect(analyticsClient.track).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event: 'payment_refunded' }),
+      );
     });
 
     it('flags a partial refund so the whole commission is not voided', async () => {

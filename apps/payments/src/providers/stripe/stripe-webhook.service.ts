@@ -152,6 +152,23 @@ export class StripeWebhookService {
       selectedPeriod: 0,
       purpose: 'extra_device',
     } satisfies Payments.PaymentSucceededEventPayload);
+
+    // A one-off device slot never raises a Stripe invoice, so
+    // `invoice.payment_succeeded` never fires for it — this is the only place
+    // the sale reaches analytics.
+    await this.analyticsClient.track({
+      event: 'payment_succeeded',
+      userId,
+      provider: 'stripe',
+      purpose: 'extra_device',
+      selectedPeriod: 0,
+      // Not meaningful for a one-off purchase — isFirstPayment belongs to the
+      // subscription funnel.
+      isFirstPayment: false,
+      isAutoPayment: false,
+      amount: existing?.amount != null ? String(existing.amount) : undefined,
+      currency: 'EUR',
+    });
   }
 
   // ── invoice.payment_succeeded ────────────────────────────────────────────
@@ -230,9 +247,12 @@ export class StripeWebhookService {
       event: 'payment_succeeded',
       userId: payload.userId,
       provider: 'stripe',
+      purpose: record?.purpose,
       selectedPeriod,
       isFirstPayment,
       isAutoPayment: invoice.billing_reason === 'subscription_cycle',
+      amount: payload.amount != null ? String(payload.amount) : undefined,
+      currency: 'EUR',
     });
 
     // Renewals arrive here too — every cycle raises its own invoice — so this
@@ -322,6 +342,22 @@ export class StripeWebhookService {
     this.logger.log(
       `Charge ${charge.id} refunded ${charge.amount_refunded} of ${charge.amount} — invoice ${invoiceId}`,
     );
+
+    const record = await this.stripePaymentRepo.findOneBy({ id: invoiceId });
+    if (record?.userId != null) {
+      await this.analyticsClient.track({
+        event: 'payment_refunded',
+        userId: record.userId,
+        provider: 'stripe',
+        isPartial,
+        amount: String(mapToCorrectAmount(charge.amount_refunded)),
+        currency: charge.currency?.toUpperCase() ?? 'EUR',
+      });
+    } else {
+      this.logger.warn(
+        `Refunded charge ${charge.id}: invoice ${invoiceId} has no userId to attribute it to`,
+      );
+    }
 
     await this.toltService.reportRefund({ chargeId: invoiceId, isPartial });
   }

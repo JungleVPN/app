@@ -33,10 +33,22 @@ export class EventsService {
     this.sheets = google.sheets({ version: 'v4', auth });
   }
 
+  private static readonly REVENUE_CRITICAL_EVENTS: ReadonlySet<AnalyticsEvent['event']> = new Set([
+    'payment_succeeded',
+    'payment_refunded',
+  ]);
+
   async trackEvent(event: AnalyticsEvent): Promise<void> {
     this.logger.log(`event=${event.event} ${JSON.stringify(event)}`);
     await this.persist(event);
     this.captureToPostHog(event);
+
+    // Buffered capture can be lost if the process exits before the next flush
+    // tick (flushInterval: 10s) — force it out now for events where that loss
+    // is unacceptable, rather than relying solely on graceful shutdown.
+    if (EventsService.REVENUE_CRITICAL_EVENTS.has(event.event)) {
+      await this.postHog.flush();
+    }
   }
 
   async trackUserCreated(
@@ -112,6 +124,13 @@ export class EventsService {
             first_seen: new Date().toISOString(),
           },
         });
+
+        // Merges pre-signup events (bot_started, tma_opened — captured under
+        // `tg:{telegramId}` before an account exists) onto this same PostHog
+        // person, so the acquisition → payment funnel spans one identity.
+        if (event.telegramId != null) {
+          this.postHog.alias(`tg:${event.telegramId}`, distinctId);
+        }
       }
 
       this.postHog.capture(distinctId, event.event, event as unknown as Record<string, unknown>);

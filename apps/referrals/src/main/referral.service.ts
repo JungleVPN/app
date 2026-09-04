@@ -79,6 +79,12 @@ export class ReferralService {
 
     this.logger.log(`Referral created: ${invitedId}`);
 
+    await this.analyticsClient.track({
+      event: 'referral_linked',
+      invitedUserId: invitedId,
+      inviterUserId: inviterId,
+    });
+
     return { success: true, reason: 'new_user' };
   }
 

@@ -22,8 +22,13 @@ function buildRepo(save = vi.fn().mockResolvedValue(undefined)) {
   return { save } as unknown as Repository<AnalyticsEventEntity>;
 }
 
-function buildPostHog(capture = vi.fn(), identify = vi.fn()) {
-  return { capture, identify } as unknown as PostHogService;
+function buildPostHog(
+  capture = vi.fn(),
+  identify = vi.fn(),
+  alias = vi.fn(),
+  flush = vi.fn().mockResolvedValue(undefined),
+) {
+  return { capture, identify, alias, flush } as unknown as PostHogService;
 }
 
 function buildService({
@@ -74,6 +79,7 @@ describe('EventsService.trackEvent()', () => {
         event: 'payment_succeeded',
         userId: 1000,
         provider: 'stripe',
+        purpose: 'subscription',
         selectedPeriod: 30,
         isFirstPayment: true,
         isAutoPayment: false,
@@ -108,6 +114,7 @@ describe('EventsService.trackEvent()', () => {
         event: 'payment_succeeded',
         userId: 1000,
         provider: 'yookassa',
+        purpose: 'subscription',
         selectedPeriod: 30,
         isFirstPayment: false,
         isAutoPayment: true,
@@ -153,6 +160,67 @@ describe('EventsService.trackEvent()', () => {
       await expect(
         service.trackEvent({ event: 'subscription_expired', userId: 1001 }),
       ).resolves.toBeUndefined();
+    });
+
+    describe('revenue-critical flush', () => {
+      it('flushes immediately after capturing payment_succeeded', async () => {
+        const flush = vi.fn().mockResolvedValue(undefined);
+        const { service } = buildService({ postHog: buildPostHog(undefined, undefined, undefined, flush) });
+
+        await service.trackEvent({
+          event: 'payment_succeeded',
+          userId: 1000,
+          provider: 'stripe',
+          purpose: 'subscription',
+          selectedPeriod: 30,
+          isFirstPayment: true,
+          isAutoPayment: false,
+        });
+
+        expect(flush).toHaveBeenCalledOnce();
+      });
+
+      it('does not flush for non-revenue-critical events', async () => {
+        const flush = vi.fn().mockResolvedValue(undefined);
+        const { service } = buildService({ postHog: buildPostHog(undefined, undefined, undefined, flush) });
+
+        await service.trackEvent({
+          event: 'bot_started',
+          telegramId: 999,
+          email: null,
+          adCode: null,
+          isReturningUser: true,
+        });
+
+        expect(flush).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('identity merge on user_created', () => {
+      it('aliases the pre-signup tg: distinct id into the canonical userId', async () => {
+        const alias = vi.fn();
+        const { service } = buildService({ postHog: buildPostHog(undefined, undefined, alias) });
+
+        await service.trackEvent({
+          event: 'user_created',
+          userId: 2000,
+          telegramId: 999,
+          email: null,
+        });
+
+        expect(alias).toHaveBeenCalledWith('tg:999', '2000');
+      });
+
+      it('does not throw when PostHog alias throws', async () => {
+        const alias = vi.fn().mockImplementation(() => {
+          throw new Error('posthog down');
+        });
+        const { service } = buildService({ postHog: buildPostHog(undefined, undefined, alias) });
+
+        await expect(
+          service.trackEvent({ event: 'user_created', userId: 2000, telegramId: 999, email: null }),
+        ).resolves.toBeUndefined();
+      });
     });
   });
 });
@@ -218,9 +286,7 @@ describe('EventsService.trackUserCreated()', () => {
       attributionRepo,
     });
 
-    await expect(
-      service.trackUserCreated(user, { platform: 'web' }),
-    ).resolves.toBeUndefined();
+    await expect(service.trackUserCreated(user, { platform: 'web' })).resolves.toBeUndefined();
 
     expect(save).toHaveBeenCalledWith(expect.objectContaining({ userId: 2000 }));
   });

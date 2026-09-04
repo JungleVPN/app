@@ -99,6 +99,7 @@ export class TelegramStarsService implements OnModuleInit {
       event: 'checkout_started',
       userId,
       provider: 'stars',
+      purpose,
       amount: starsAmount.toString(),
       currency: 'XTR',
     });
@@ -168,9 +169,12 @@ export class TelegramStarsService implements OnModuleInit {
         event: 'payment_succeeded',
         userId: record.userId,
         provider: 'stars',
+        purpose: record.purpose,
         selectedPeriod: record.selectedPeriod,
         isFirstPayment,
         isAutoPayment: false,
+        amount: record.starsAmount?.toString(),
+        currency: 'XTR',
       });
 
       this.logger.log(

@@ -17,7 +17,7 @@ import {
   useSubscriptionConfigStoreActions,
 } from '../stores';
 import { Container } from '../ui';
-import { captureReferral } from '../utils';
+import { captureReferral, phIdentify } from '../utils';
 
 export function ProfileLayout() {
   const navigate = useNavigation();
@@ -57,7 +57,14 @@ export function ProfileLayout() {
         .getMe()
         .then((user) => {
           setRmnUser(user ?? null);
-          if (!user) navigate(getSubscriptionPath);
+          if (user) {
+            // Ties this browser's anonymous distinct_id to the canonical userId, so
+            // client-side events (plan_selected, subscription_viewed, ...) merge into
+            // the same PostHog person as backend-dispatched events (payment_succeeded).
+            phIdentify(String(user.id));
+          } else {
+            navigate(getSubscriptionPath);
+          }
         })
         .catch(console.error);
     }

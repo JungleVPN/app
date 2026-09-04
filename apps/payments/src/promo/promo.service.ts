@@ -124,6 +124,12 @@ export class PromoService {
       return { valid: true, effect };
     } catch (err) {
       if (err instanceof PromoInvalidError) {
+        await this.analyticsClient.track({
+          event: 'promo_code_rejected',
+          userId: dto.userId,
+          code: PromoService.normalize(dto.code),
+          reason: err.code,
+        });
         return { valid: false, reason: err.message, code: err.code };
       }
       throw err;

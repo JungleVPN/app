@@ -41,6 +41,12 @@ export class AutopaymentService {
       return;
     }
 
+    await this.analyticsClient.track({
+      event: 'autopayment_initiated',
+      userId,
+      provider: 'yookassa',
+    });
+
     const result = await this.attemptAutopaymentWithRetries(userId, savedMethod.paymentMethodId);
 
     if (result.status === 'error') {

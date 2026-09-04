@@ -1,4 +1,4 @@
-import { PaymentMethod } from '../payments';
+import { PaymentMethod, PaymentPurpose, PromoErrorCode } from '../payments';
 import type { RemnaUserId } from '../remnawave';
 
 export type BotStartedEvent = {
@@ -27,6 +27,7 @@ export type CheckoutStartedEvent = {
   event: 'checkout_started';
   userId: RemnaUserId;
   provider: PaymentMethod;
+  purpose: PaymentPurpose;
   amount: string;
   currency: string;
 };
@@ -35,9 +36,24 @@ export type PaymentSucceededEvent = {
   event: 'payment_succeeded';
   userId: RemnaUserId;
   provider: PaymentMethod;
+  /** Omitted when the settling row could not be matched back to a session (should not normally happen). */
+  purpose?: PaymentPurpose;
   selectedPeriod: number;
   isFirstPayment: boolean;
   isAutoPayment: boolean;
+  /** Omitted when the provider settlement carries no reliable amount (e.g. a Stripe invoice with no resolvable total). */
+  amount?: string;
+  currency?: string;
+};
+
+/** Fired when a charge (subscription or extra device) is refunded, in full or in part. */
+export type PaymentRefundedEvent = {
+  event: 'payment_refunded';
+  userId: RemnaUserId;
+  provider: PaymentMethod;
+  isPartial: boolean;
+  amount?: string;
+  currency?: string;
 };
 
 export type PaymentFailedEvent = {
@@ -82,6 +98,21 @@ export type ReferralRewardGrantedEvent = {
   inviterUserId: RemnaUserId;
 };
 
+/** Fired once a new user's inviterId is recorded — before any reward is granted. */
+export type ReferralLinkedEvent = {
+  event: 'referral_linked';
+  invitedUserId: RemnaUserId;
+  inviterUserId: RemnaUserId;
+};
+
+/** Fired when a promo code fails checkout-time validation (not a fulfillment-time rejection). */
+export type PromoCodeRejectedEvent = {
+  event: 'promo_code_rejected';
+  userId: RemnaUserId;
+  code: string;
+  reason: PromoErrorCode;
+};
+
 export type ExpiryReminderSentEvent = {
   event: 'expiry_reminder_sent';
   userId: RemnaUserId;
@@ -100,10 +131,13 @@ export type AnalyticsEvent =
   | CheckoutStartedEvent
   | PaymentSucceededEvent
   | PaymentFailedEvent
+  | PaymentRefundedEvent
   | PaymentMethodSavedEvent
   | AutopaymentInitiatedEvent
   | AutopaymentFailedEvent
   | PromoCodeAppliedEvent
+  | PromoCodeRejectedEvent
+  | ReferralLinkedEvent
   | ReferralRewardGrantedEvent
   | ExpiryReminderSentEvent
   | SubscriptionExpiredEvent;
