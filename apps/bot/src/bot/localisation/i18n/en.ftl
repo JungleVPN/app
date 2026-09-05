@@ -173,19 +173,16 @@ subscription-text =
 
 
 user-not-connected-24 =
-    🌴🐵🌴
+    I can see that you haven't connected yet
 
-    Psst... You haven't connected yet
-    Keep your data safe in the <code>Jungle</code>
-
-    Connect and enjoy 🙂
+    Running into any difficulties setting up? Let me know and I'll help you get online 🙂
 
 
 
-user-not-connected-72 =
-    You are still not connected
+user-not-connected-48 =
+    Still not connected 👀
 
-    Let me help you, it will take less then a minute 🙂
+    It's been 48 hours — is something not working? Tell me what's going on, I'll help you fix it, it takes less than a minute 🙂
 
 
 expires-in-48-hours-subscription-text =

@@ -16,6 +16,7 @@ import { MainMenuService } from '@bot/navigation/features/main/main.service';
 import { MainKeyboardCallback } from '@bot/navigation/features/main/main-keyboard.callback';
 import { RevokeSubMenuService } from '@bot/navigation/features/subscription/revokeSub.service';
 import { MenuModule } from '@bot/navigation/menu.module';
+import { ZohoEmailService } from '@bot/notifications/zoho-email.service';
 import { PollService } from '@bot/poll/poll.service';
 import { BroadcastsModule } from '@broadcasts/broadcasts.module';
 import { Module } from '@nestjs/common';
@@ -47,6 +48,7 @@ import { BotService } from './bot.service';
     MainMenu,
     LocalisationService,
     CurrencyService,
+    ZohoEmailService,
     // HANDLERS
     UserExpireListener,
     UserNotConnectedListener,
