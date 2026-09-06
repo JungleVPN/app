@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import * as process from 'node:process';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { UserNotConnectedListener } from './user-not-connected.listener';
 
 const mockSendMessage = vi.fn().mockResolvedValue(undefined);
@@ -17,7 +18,9 @@ function buildLocalService() {
 }
 
 function buildRemnaService(lang: string | null = 'en') {
-  return { getUserLang: vi.fn().mockResolvedValue(lang) };
+  return {
+    getUserLang: vi.fn().mockResolvedValue(lang),
+  };
 }
 
 function buildZohoEmailService() {
@@ -152,5 +155,62 @@ describe('UserNotConnectedListener', () => {
     const [, subject48] = zohoEmailService.sendEmail.mock.calls[0];
 
     expect(subject24).not.toEqual(subject48);
+  });
+
+  describe('email site URL from metadata.lang', () => {
+    beforeEach(() => {
+      process.env.PUBLIC_DOMAIN_RU = 'ru-jungle.example';
+      process.env.PUBLIC_DOMAIN_GLOBAL = 'jungle-vpn.com';
+    });
+
+    afterEach(() => {
+      delete process.env.PUBLIC_DOMAIN_RU;
+      delete process.env.PUBLIC_DOMAIN_GLOBAL;
+    });
+
+    it('links to the RU domain for a "ru" lang user', async () => {
+      const zohoEmailService = buildZohoEmailService();
+      const listener = new UserNotConnectedListener(
+        buildBotService() as any,
+        buildLocalService() as any,
+        buildRemnaService('ru') as any,
+        zohoEmailService as any,
+      );
+
+      await listener.listenToUserNotConnectedEvent(basePayload({}, 24) as any);
+
+      const [, , html] = zohoEmailService.sendEmail.mock.calls[0];
+      expect(html).toContain('https://ru-jungle.example');
+    });
+
+    it('links to the global domain for an "en" lang user', async () => {
+      const zohoEmailService = buildZohoEmailService();
+      const listener = new UserNotConnectedListener(
+        buildBotService() as any,
+        buildLocalService() as any,
+        buildRemnaService('en') as any,
+        zohoEmailService as any,
+      );
+
+      await listener.listenToUserNotConnectedEvent(basePayload({}, 24) as any);
+
+      const [, , html] = zohoEmailService.sendEmail.mock.calls[0];
+      expect(html).toContain('https://jungle-vpn.com');
+    });
+
+    it('defaults to the global domain when lang is unknown', async () => {
+      const zohoEmailService = buildZohoEmailService();
+      const listener = new UserNotConnectedListener(
+        buildBotService() as any,
+        buildLocalService() as any,
+        buildRemnaService(null) as any,
+        zohoEmailService as any,
+      );
+
+      await listener.listenToUserNotConnectedEvent(basePayload({}, 24) as any);
+
+      const [, , html] = zohoEmailService.sendEmail.mock.calls[0];
+      expect(html).toContain('https://jungle-vpn.com');
+    });
   });
 });

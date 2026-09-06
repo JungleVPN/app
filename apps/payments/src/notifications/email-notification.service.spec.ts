@@ -363,4 +363,71 @@ describe('EmailNotificationService', () => {
       ).resolves.toBeUndefined();
     });
   });
+
+  describe('site URL from metadata.lang', () => {
+    beforeEach(() => {
+      process.env.PUBLIC_DOMAIN_RU = 'ru-jungle.example';
+      process.env.PUBLIC_DOMAIN_GLOBAL = 'jungle-vpn.com';
+      mockAxiosPost.mockImplementation((url: string) => {
+        if (url.includes('accounts.zoho.eu')) {
+          return Promise.resolve({ data: { access_token: 'token-1', expires_in: 3600 } });
+        }
+        return Promise.resolve({ data: { status: { code: 200 } } });
+      });
+    });
+
+    afterEach(() => {
+      delete process.env.PUBLIC_DOMAIN_RU;
+      delete process.env.PUBLIC_DOMAIN_GLOBAL;
+    });
+
+    const ctaUrlFor = async (metadata: Record<string, unknown>) => {
+      mockAxiosGet.mockImplementation(async (url: string) => {
+        // The real endpoint wraps fields as `{ metadata: {...} }`.
+        if (url.includes('/metadata')) return { data: { metadata } };
+        return { data: remnawaveUser };
+      });
+
+      await service.onPaymentSucceeded(makePaymentSucceededEvent());
+
+      const sendCall = mockAxiosPost.mock.calls.find((call) =>
+        String(call[0]).includes('mail.zoho.eu'),
+      );
+      return sendCall?.[1].content as string;
+    };
+
+    it('links to the RU domain for a "ru" lang user', async () => {
+      const html = await ctaUrlFor({ lang: 'ru' });
+
+      expect(html).toContain('https://ru-jungle.example/profile/subscription');
+    });
+
+    it('links to the global domain for an "en" lang user', async () => {
+      const html = await ctaUrlFor({ lang: 'en' });
+
+      expect(html).toContain('https://jungle-vpn.com/profile/subscription');
+    });
+
+    it('defaults to the global domain when lang metadata is missing', async () => {
+      const html = await ctaUrlFor({});
+
+      expect(html).toContain('https://jungle-vpn.com/profile/subscription');
+    });
+
+    it('also accepts a flat (unwrapped) metadata response', async () => {
+      mockAxiosGet.mockImplementation(async (url: string) => {
+        if (url.includes('/metadata')) return { data: { lang: 'ru' } };
+        return { data: remnawaveUser };
+      });
+
+      await service.onPaymentSucceeded(makePaymentSucceededEvent());
+
+      const sendCall = mockAxiosPost.mock.calls.find((call) =>
+        String(call[0]).includes('mail.zoho.eu'),
+      );
+      expect(sendCall?.[1].content as string).toContain(
+        'https://ru-jungle.example/profile/subscription',
+      );
+    });
+  });
 });

@@ -1,5 +1,11 @@
-export type EmailLocale = 'en' | 'ru';
+export type EmailLocale = 'en' | 'ru' | 'ar' | 'tr';
 export type ExpiryEmailLocale = EmailLocale;
+
+const RTL_LOCALES: ReadonlySet<EmailLocale> = new Set(['ar']);
+
+export function isSupportedEmailLocale(locale: string): locale is EmailLocale {
+  return locale === 'en' || locale === 'ru' || locale === 'ar' || locale === 'tr';
+}
 
 // ── Shared shell ──────────────────────────────────────────────────────────────
 
@@ -20,14 +26,15 @@ interface EmailShellParams {
 }
 
 function renderEmailShell(params: EmailShellParams): string {
+  const dir = RTL_LOCALES.has(params.locale) ? 'rtl' : 'ltr';
   return `<!DOCTYPE html>
-<html lang="${params.locale}">
+<html lang="${params.locale}" dir="${dir}">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr><td align="center" style="padding:32px 16px">
 
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;" dir="${dir}">
 
 <tr>
 <td style="padding:0 8px 16px;">
@@ -105,16 +112,22 @@ ${params.footerNotice}<br>
 const SIGN_OFF: Record<EmailLocale, string> = {
   en: '— JungleVPN 🌴',
   ru: '— JungleVPN 🌴',
+  ar: '— JungleVPN 🌴',
+  tr: '— JungleVPN 🌴',
 };
 
 const SUPPORT_COPY: Record<EmailLocale, { prompt: string; linkLabel: string }> = {
   en: { prompt: 'Questions about your account?', linkLabel: 'Contact support' },
   ru: { prompt: 'Вопросы по аккаунту?', linkLabel: 'Написать в поддержку' },
+  ar: { prompt: 'أسئلة بخصوص حسابك؟', linkLabel: 'تواصل مع الدعم' },
+  tr: { prompt: 'Hesabınla ilgili sorun mu var?', linkLabel: 'Destek ile iletişime geç' },
 };
 
 const FOOTER_NOTICE: Record<EmailLocale, string> = {
   en: "You're receiving this because you have a Jungle VPN account.",
   ru: 'Ты получил это письмо, потому что у тебя есть аккаунт Jungle VPN.',
+  ar: 'تصلك هذه الرسالة لأن لديك حسابًا في Jungle VPN.',
+  tr: 'Bu e-postayı bir Jungle VPN hesabın olduğu için alıyorsun.',
 };
 
 // ── Expiry reminder ──────────────────────────────────────────────────────────
@@ -153,6 +166,22 @@ const EXPIRY_COPY: Record<EmailLocale, ExpiryEmailCopy> = {
     bodyCopy:
       'Продли подписку до этой даты, чтобы все серверы и устройства остались подключены без перерыва.',
     ctaLabel: 'Продлить подписку',
+  },
+  ar: {
+    subject: (days) => `تنتهي صلاحية اشتراكك خلال ${days} ${days === 1 ? 'يوم' : 'أيام'}`,
+    kicker: 'حالة الاشتراك',
+    headline: (days) => `ينتهي خلال ${days} ${days === 1 ? 'يوم' : 'أيام'}`,
+    planEndsLabel: 'ينتهي الاشتراك في',
+    bodyCopy: 'جدد اشتراكك قبل هذا التاريخ لتبقى متصلًا دون انقطاع.',
+    ctaLabel: 'تجديد الاشتراك',
+  },
+  tr: {
+    subject: (days) => `Aboneliğin ${days} gün içinde sona eriyor`,
+    kicker: 'Abonelik durumu',
+    headline: (days) => `${days} gün içinde sona eriyor`,
+    planEndsLabel: 'Bitiş tarihi',
+    bodyCopy: 'Kesintisiz bağlı kalmak için bu tarihten önce aboneliğini yenile.',
+    ctaLabel: 'Aboneliği yenile',
   },
 };
 
@@ -242,6 +271,46 @@ const PAYMENT_ISSUE_COPY: Record<EmailLocale, Record<PaymentIssueReason, Payment
       ctaLabel: 'Обновить способ оплаты',
     },
   },
+  ar: {
+    no_active_method: {
+      subject: 'تعذر تجديد اشتراكك — لا توجد وسيلة دفع نشطة',
+      kicker: 'فشل الدفع',
+      headline: 'لا توجد وسيلة دفع محفوظة',
+      detailLabel: 'ينتهي الوصول في',
+      bodyCopy:
+        'لا توجد لديك وسيلة دفع محفوظة، لذا لم نتمكن من تجديد اشتراكك تلقائيًا. جدد اشتراكك لتجنب فقدان الوصول.',
+      ctaLabel: 'تجديد الاشتراك',
+    },
+    insufficient_funds: {
+      subject: 'تعذر تجديد اشتراكك — رصيد غير كافٍ',
+      kicker: 'فشل الدفع',
+      headline: 'فشلت عملية الدفع للتجديد',
+      detailLabel: 'ينتهي الوصول في',
+      bodyCopy:
+        'حاولنا الخصم من وسيلة الدفع المحفوظة لكن الرصيد لم يكن كافيًا. حدّث رصيدك أو وسيلة الدفع قبل التاريخ أدناه لتجنب فقدان الوصول.',
+      ctaLabel: 'تحديث وسيلة الدفع',
+    },
+  },
+  tr: {
+    no_active_method: {
+      subject: 'Aboneliğin yenilenemedi — aktif bir ödeme yöntemin yok',
+      kicker: 'Ödeme başarısız',
+      headline: 'Kayıtlı ödeme yöntemi yok',
+      detailLabel: 'Erişim sona eriyor',
+      bodyCopy:
+        'Kayıtlı bir ödeme yöntemin olmadığı için aboneliğini otomatik olarak yenileyemedik. Erişimini kaybetmemek için aboneliğini yenile.',
+      ctaLabel: 'Aboneliği yenile',
+    },
+    insufficient_funds: {
+      subject: 'Aboneliğin yenilenemedi — yetersiz bakiye',
+      kicker: 'Ödeme başarısız',
+      headline: 'Yenileme ödemesi başarısız oldu',
+      detailLabel: 'Erişim sona eriyor',
+      bodyCopy:
+        'Kayıtlı ödeme yöntemini tahsil etmeye çalıştık ama yeterli bakiye yoktu. Erişimini kaybetmemek için aşağıdaki tarihten önce bakiyeni veya ödeme yöntemini güncelle.',
+      ctaLabel: 'Ödeme yöntemini güncelle',
+    },
+  },
 };
 
 export function buildPaymentIssueSubject(locale: EmailLocale, reason: PaymentIssueReason): string {
@@ -282,6 +351,22 @@ const PAYMENT_SUCCESS_COPY: Record<EmailLocale, PaymentSuccessCopy> = {
     detailLabel: 'Действует до',
     bodyCopy: 'Спасибо за оплату! Подписка активна и готова к использованию.',
     ctaLabel: 'Управлять подпиской',
+  },
+  ar: {
+    subject: 'تم استلام الدفع — اشتراكك نشط',
+    kicker: 'تمت عملية الدفع بنجاح',
+    headline: 'الاشتراك نشط',
+    detailLabel: 'نشط حتى',
+    bodyCopy: 'شكرًا لدفعتك! اشتراكك نشط وجاهز للاستخدام.',
+    ctaLabel: 'إدارة الاشتراك',
+  },
+  tr: {
+    subject: 'Ödeme alındı — aboneliğin aktif',
+    kicker: 'Ödeme başarılı',
+    headline: 'Abonelik aktif',
+    detailLabel: 'Şu tarihe kadar aktif',
+    bodyCopy: 'Ödemen için teşekkürler! Aboneliğin aktif ve kullanıma hazır.',
+    ctaLabel: 'Aboneliği yönet',
   },
 };
 

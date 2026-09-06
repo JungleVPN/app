@@ -1,5 +1,17 @@
-export type NotConnectedEmailLocale = 'en' | 'ru';
+export type NotConnectedEmailLocale = 'en' | 'ru' | 'ar' | 'tr';
 export type NotConnectedEmailStage = 24 | 48;
+
+const RTL_LOCALES: ReadonlySet<NotConnectedEmailLocale> = new Set(['ar']);
+const SUPPORT_LINK_LABEL: Record<NotConnectedEmailLocale, string> = {
+  en: 'Contact support',
+  ru: 'Написать в поддержку',
+  ar: 'تواصل مع الدعم',
+  tr: 'Destek ile iletişime geç',
+};
+
+export function isSupportedNotConnectedLocale(locale: string): locale is NotConnectedEmailLocale {
+  return locale === 'en' || locale === 'ru' || locale === 'ar' || locale === 'tr';
+}
 
 interface NotConnectedEmailCopy {
   subject: string;
@@ -49,6 +61,42 @@ const COPY: Record<
       ctaLabel: 'Получить помощь',
     },
   },
+  ar: {
+    24: {
+      subject: 'تواجه صعوبة في الاتصال بـ Jungle؟ نحن هنا للمساعدة',
+      kicker: 'لم يتم الاتصال بعد',
+      headline: 'لم تتصل بعد؟',
+      bodyCopy:
+        'لاحظنا أنك لم تتصل بـ Jungle بعد. هل تواجه أي صعوبة في الإعداد؟ رد على هذا البريد أو تواصل مع الدعم وسنساعدك على الاتصال.',
+      ctaLabel: 'فتح التطبيق',
+    },
+    48: {
+      subject: 'مرت 48 ساعة وما زلت غير متصل — دعنا نحل ذلك',
+      kicker: 'تحتاج مساعدة؟',
+      headline: 'لا يزال غير متصل',
+      bodyCopy:
+        'مرت 48 ساعة وحسابك لا يزال غير متصل. إذا كان هناك شيء لا يعمل، أخبرنا بما يحدث — سنحله معك، عادة يستغرق أقل من دقيقة.',
+      ctaLabel: 'احصل على المساعدة الآن',
+    },
+  },
+  tr: {
+    24: {
+      subject: "Jungle'a bağlanmakta zorlanıyor musun? Yardıma hazırız",
+      kicker: 'Henüz bağlanmadın',
+      headline: 'Henüz bağlanmadın mı?',
+      bodyCopy:
+        "Jungle'a henüz bağlanmadığını fark ettik. Kuruluşta bir sorun mu yaşıyorsun? Bu e-postayı yanıtla ya da destek ile iletişime geç, bağlanmana yardımcı olalım.",
+      ctaLabel: 'Uygulamayı aç',
+    },
+    48: {
+      subject: 'Aradan 48 saat geçti ve hâlâ bağlı değilsin — hadi çözelim',
+      kicker: 'Yardıma mı ihtiyacın var?',
+      headline: 'Hâlâ bağlı değil',
+      bodyCopy:
+        'Aradan 48 saat geçti ve hesabın hâlâ bağlı değil. Bir şey çalışmıyorsa bize ne olduğunu anlat — birlikte çözeriz, genellikle bir dakikadan az sürer.',
+      ctaLabel: 'Şimdi yardım al',
+    },
+  },
 };
 
 function renderEmailHtml(params: {
@@ -60,13 +108,14 @@ function renderEmailHtml(params: {
   ctaUrl: string;
   supportUrl: string;
 }): string {
+  const dir = RTL_LOCALES.has(params.locale) ? 'rtl' : 'ltr';
   return `<!DOCTYPE html>
-<html lang="${params.locale}">
+<html lang="${params.locale}" dir="${dir}">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr><td align="center" style="padding:32px 16px">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;" dir="${dir}">
 <tr>
 <td style="padding:0 8px 16px;">
 <span style="font-family:'Archivo',Arial,sans-serif;font-weight:800;font-size:18px;color:#201e1d;letter-spacing:0.01em;">JUNGLE&nbsp;🌴</span>
@@ -101,7 +150,7 @@ ${params.bodyCopy}
 <tr><td style="padding:0 8px;"><div style="height:2px;line-height:2px;font-size:0;background:#a6a5a5;">&nbsp;</div></td></tr>
 <tr>
 <td style="padding:24px 8px 24px;font-size:14px;color:#201e1d;">
-<a href="${params.supportUrl}" style="color:#ae1800;text-decoration:underline;">${params.locale === 'ru' ? 'Написать в поддержку' : 'Contact support'}</a>
+<a href="${params.supportUrl}" style="color:#ae1800;text-decoration:underline;">${SUPPORT_LINK_LABEL[params.locale]}</a>
 </td>
 </tr>
 </table>

@@ -11,11 +11,13 @@ import {
   buildPaymentSuccessEmailHtml,
   buildPaymentSuccessSubject,
   ExpiryEmailLocale,
+  isSupportedEmailLocale,
   PaymentIssueReason,
 } from './email-templates';
 
 type SupportedLocale = ExpiryEmailLocale;
 type ExpiryHours = 24 | 48;
+const PROFILE_SUBSCRIPTION_PATH = '/profile/subscription';
 
 // ── Date formatting ───────────────────────────────────────────────────────────
 
@@ -34,10 +36,6 @@ function toDateString(value: Date | string): string {
 const EXPIRY_DAYS: Record<ExpiryHours, number> = { 24: 1, 48: 2 };
 
 const DEFAULT_LOCALE: SupportedLocale = 'en';
-
-function isSupportedLocale(locale: string): locale is SupportedLocale {
-  return locale === 'en' || locale === 'ru';
-}
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
@@ -83,12 +81,21 @@ export class EmailNotificationService {
     return process.env.ZOHO_API_DOMAIN ?? 'zoho.eu';
   }
 
-  private get paymentUrl(): string {
+  /**
+   * The subscription-management page, on the domain matching the user's
+   * `metadata.lang` — RU for a Russian-speaking user, the global domain
+   * otherwise. Never derived from PUBLIC_WEB_APP_URL/TMA_APP_URL, which
+   * don't identify which storefront a user belongs to.
+   */
+  private siteUrlFor(locale: SupportedLocale): string {
+    const domain =
+      locale === 'ru' ? process.env.PUBLIC_DOMAIN_RU : process.env.PUBLIC_DOMAIN_GLOBAL;
+    if (domain) return `https://${domain}${PROFILE_SUBSCRIPTION_PATH}`;
     return process.env.RETURN_URL_WEB ?? 'https://t.me';
   }
 
   private get supportUrl(): string {
-    return process.env.SUPPORT_EMAIL ?? 'https://t.me';
+    return `mailto:${process.env.SUPPORT_EMAIL}`;
   }
 
   private get hasZohoCredentials(): boolean {
@@ -120,7 +127,7 @@ export class EmailNotificationService {
       locale,
       days,
       expireDate,
-      paymentUrl: this.paymentUrl,
+      paymentUrl: this.siteUrlFor(locale),
       supportUrl: this.supportUrl,
     });
 
@@ -160,7 +167,7 @@ export class EmailNotificationService {
     const html = buildPaymentSuccessEmailHtml({
       locale,
       expireDate,
-      paymentUrl: this.paymentUrl,
+      paymentUrl: this.siteUrlFor(locale),
       supportUrl: this.supportUrl,
     });
 
@@ -204,7 +211,7 @@ export class EmailNotificationService {
       locale,
       reason,
       expireDate,
-      paymentUrl: this.paymentUrl,
+      paymentUrl: this.siteUrlFor(locale),
       supportUrl: this.supportUrl,
     });
 
@@ -324,8 +331,10 @@ export class EmailNotificationService {
           timeout: 5_000,
         },
       );
-      const lang = (data as any)?.lang;
-      if (typeof lang === 'string' && isSupportedLocale(lang)) return lang;
+
+      const metadata = (data as any)?.metadata ?? data;
+      const lang = (metadata as any)?.lang;
+      if (typeof lang === 'string' && isSupportedEmailLocale(lang)) return lang;
     } catch {
       // fall through to default
     }

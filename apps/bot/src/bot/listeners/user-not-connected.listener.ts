@@ -5,6 +5,7 @@ import { LocalisationService } from '@bot/localisation/localisation.service';
 import {
   buildNotConnectedEmailHtml,
   buildNotConnectedEmailSubject,
+  isSupportedNotConnectedLocale,
   NotConnectedEmailLocale,
   NotConnectedEmailStage,
 } from '@bot/notifications/user-not-connected-email-templates';
@@ -19,6 +20,7 @@ import { UserDto } from '@workspace/types';
 import { Bot, InlineKeyboard } from 'grammy';
 
 const SECOND_STAGE_HOURS = 48;
+const DEFAULT_EMAIL_LOCALE: NotConnectedEmailLocale = 'en';
 
 type NotConnectedPayload = {
   event: WebHookEvent;
@@ -77,6 +79,18 @@ export class UserNotConnectedListener {
     return expirationHours !== null && expirationHours >= SECOND_STAGE_HOURS ? 48 : 24;
   }
 
+  /**
+   * Which site to link to, from the user's `metadata.lang` — RU for a
+   * Russian-speaking user, the global domain otherwise. Never from
+   * PUBLIC_WEB_APP_URL/TMA_APP_URL, which don't identify which storefront the
+   * user belongs to.
+   */
+  private siteUrlFor(locale: NotConnectedEmailLocale): string {
+    const domain =
+      locale === 'ru' ? process.env.PUBLIC_DOMAIN_RU : process.env.PUBLIC_DOMAIN_GLOBAL;
+    return domain ? `https://${domain}` : process.env.PUBLIC_WEB_APP_URL || 'https://thejungle.pro';
+  }
+
   async handle48Hours(telegramId: number, locale: LocaleId, keyboard: InlineKeyboard) {
     const text = this.localService.i18n.t(locale, 'user-not-connected-48');
 
@@ -111,13 +125,15 @@ export class UserNotConnectedListener {
       return;
     }
 
-    const emailLocale: NotConnectedEmailLocale = locale === 'en' ? 'en' : 'ru';
+    const emailLocale: NotConnectedEmailLocale = isSupportedNotConnectedLocale(locale)
+      ? locale
+      : DEFAULT_EMAIL_LOCALE;
     const subject = buildNotConnectedEmailSubject(emailLocale, stage);
     const html = buildNotConnectedEmailHtml({
       locale: emailLocale,
       stage,
-      appUrl: process.env.PUBLIC_WEB_APP_URL || 'https://thejungle.pro',
-      supportUrl: process.env.SUPPORT_EMAIL || 'support@jungle-vpn.com',
+      appUrl: this.siteUrlFor(emailLocale),
+      supportUrl: `mailto:${process.env.SUPPORT_EMAIL}` || 'support@jungle-vpn.com',
     });
 
     try {
