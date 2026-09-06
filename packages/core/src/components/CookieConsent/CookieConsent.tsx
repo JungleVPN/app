@@ -24,7 +24,7 @@ export function CookieConsent() {
   };
 
   return createPortal(
-    <div className='fixed bottom-2 right-2 w-[90%] max-w-106.25' style={{ zIndex: 9999 }}>
+    <div className='fixed bottom-2 right-2 w-[90%] max-w-xs' style={{ zIndex: 9999 }}>
       <Surface variant='tertiary' className='flex flex-col gap-4 rounded-3xl p-5'>
         <div className='flex items-start gap-3'>
           <Logo aria-hidden width={32} height={32} className='shrink-0' />

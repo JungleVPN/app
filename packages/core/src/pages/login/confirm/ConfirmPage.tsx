@@ -5,6 +5,7 @@ import {
   InputOTP,
   Label,
   REGEXP_ONLY_DIGITS,
+  Spinner,
   Surface,
 } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
@@ -13,7 +14,7 @@ import { useConfirm } from './useConfirm';
 
 export default function ConfirmPage() {
   const { t } = useTranslation();
-  const { otp, timer, error, setOtp, handleConfirm, handleResend } = useConfirm();
+  const { otp, timer, error, loading, setOtp, handleConfirm, handleResend } = useConfirm();
 
   return (
     <Container maxWidth={'sm'}>
@@ -50,9 +51,15 @@ export default function ConfirmPage() {
                 fullWidth
                 className='max-w-xs'
                 isDisabled={!otp || otp.length < 6}
+                isPending={loading}
                 type='submit'
               >
-                {t('confirm.submit')}
+                {({ isPending }) => (
+                  <>
+                    {isPending ? <Spinner color='current' size='sm' /> : null}
+                    {t('confirm.submit')}
+                  </>
+                )}
               </Button>
               <Button
                 className='max-w-xs'

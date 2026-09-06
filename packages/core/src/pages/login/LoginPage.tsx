@@ -1,4 +1,4 @@
-import { Alert, Button, Form, Input, Label, Surface, TextField } from '@heroui/react';
+import { Alert, Button, Form, Input, Label, Spinner, Surface, TextField } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router';
 import { FeaturesCard } from '../../components';
@@ -45,7 +45,12 @@ export default function LoginPage() {
                 />
               </TextField>
               <Button fullWidth isPending={loading} type='submit'>
-                {t('login.submit')}
+                {({ isPending }) => (
+                  <>
+                    {isPending ? <Spinner color='current' size='sm' /> : null}
+                    {t('login.submit')}
+                  </>
+                )}
               </Button>
             </Form>
           </div>
