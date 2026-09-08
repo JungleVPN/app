@@ -953,15 +953,16 @@
         "support": "Avg. support reply time"
       },
       "devices": {
-        "title": "Works on Every Device You Own",
+        "title": "Works on every device",
         "subtitle": "One subscription covers all your devices — no extra fees, no limits.",
-        "ios": "iPhone & iPad",
+        "ios": "IOS",
         "android": "Android",
         "macos": "macOS",
         "windows": "Windows",
         "linux": "Linux",
         "appleTv": "Apple TV",
-        "androidTv": "Android TV"
+        "androidTv": "Android TV",
+        "cta": "Connect"
       }
     }
   },

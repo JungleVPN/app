@@ -955,13 +955,14 @@
       "devices": {
         "title": "Sahip Olduğunuz Her Cihazda Çalışır",
         "subtitle": "Tek bir abonelik tüm cihazlarınızı kapsar — ek ücret yok, limit yok.",
-        "ios": "iPhone ve iPad",
+        "ios": "IOS",
         "android": "Android",
         "macos": "macOS",
         "windows": "Windows",
         "linux": "Linux",
         "appleTv": "Apple TV",
-        "androidTv": "Android TV"
+        "androidTv": "Android TV",
+        "cta": "Bağlan"
       }
     }
   },

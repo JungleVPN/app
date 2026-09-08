@@ -955,13 +955,14 @@
       "devices": {
         "title": "يعمل على كل جهاز تملكه",
         "subtitle": "اشتراك واحد يغطي جميع أجهزتك — بدون رسوم إضافية، بدون حدود.",
-        "ios": "آيفون وآيباد",
+        "ios": "IOS",
         "android": "أندرويد",
         "macos": "macOS",
         "windows": "ويندوز",
         "linux": "لينكس",
         "appleTv": "Apple TV",
-        "androidTv": "Android TV"
+        "androidTv": "Android TV",
+        "cta": "اتصال"
       }
     }
   },

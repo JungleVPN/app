@@ -40,7 +40,7 @@ export function PriceCard({
 }: PriceCardProps) {
   return (
     <div
-      className={`relative h-full cursor-default flex flex-col ${highlighted ? 'z-10' : ''} rounded-b-3xl transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl`}
+      className={`relative  h-full cursor-default flex flex-col ${highlighted ? 'z-10' : ''} rounded-b-3xl transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl`}
     >
       {badge &&
         (highlighted ? (
@@ -51,7 +51,7 @@ export function PriceCard({
 
       <Card
         variant='secondary'
-        className={`h-full w-full p-6 justify-between shadow-md ${highlighted ? 'rounded-t-none ring-2 ring-purple-400' : ''} `}
+        className={`h-full w-full p-6 justify-between bg-white shadow-md ${highlighted ? 'rounded-t-none ring-2 ring-purple-400' : ''} `}
       >
         <div className='mb-4 flex flex-col gap-1'>
           <span className='text-lg font-bold text-foreground'>{period}</span>

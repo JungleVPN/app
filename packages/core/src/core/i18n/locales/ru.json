@@ -980,13 +980,14 @@
       "devices": {
         "title": "Работает на всех ваших устройствах",
         "subtitle": "Одна подписка покрывает все устройства одновременно — без доплат и ограничений.",
-        "ios": "iPhone и iPad",
+        "ios": "IOS",
         "android": "Android",
         "macos": "macOS",
         "windows": "Windows",
         "linux": "Linux",
         "appleTv": "Apple TV",
-        "androidTv": "Android TV"
+        "androidTv": "Android TV",
+        "cta": "Подключиться"
       }
     }
   },

@@ -35,7 +35,7 @@ export function FAQSection() {
         maxWidth={'sm'}
         className='flex flex-col items-center justify-center gap-4 text-center md:flex-row'
       >
-        <Accordion className='w-full bg-surface-secondary' variant='surface'>
+        <Accordion className='w-full bg-white' variant='surface'>
           {FAQ_KEYS.map((key, index) => (
             <Accordion.Item key={key}>
               <Accordion.Heading className={'font-secondary'}>

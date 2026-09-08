@@ -1,10 +1,5 @@
 import {
   IconArrowsExchange,
-  IconBrandAndroid,
-  IconBrandApple,
-  IconBrandUbuntu,
-  IconBrandWindows,
-  IconDeviceLaptop,
   IconEyeOff,
   IconFingerprint,
   IconGlobe,
@@ -54,52 +49,11 @@ const STATS: readonly { key: string; value?: string; valueKey?: string }[] = [
   { key: 'support', valueKey: 'landing.info.stats.support_value' },
 ];
 
-const DEVICES = [
-  { key: 'ios', icon: <IconBrandApple size={32} /> },
-  { key: 'android', icon: <IconBrandAndroid size={32} /> },
-  { key: 'macos', icon: <IconDeviceLaptop size={32} /> },
-  { key: 'windows', icon: <IconBrandWindows size={32} /> },
-  { key: 'linux', icon: <IconBrandUbuntu size={32} /> },
-  { key: 'appleTv', icon: <IconBrandApple size={32} /> },
-  { key: 'androidTv', icon: <IconBrandAndroid size={32} /> },
-] as const;
-
 export function InfoSection() {
   const { t } = useTranslation();
 
   return (
     <section>
-      {/* ── What is a VPN? ── */}
-      <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
-          {t('landing.info.what.title')}
-        </h2>
-        <p className='max-w-2xl text-base text-muted lg:text-md'>
-          {t('landing.info.what.subtitle')}
-        </p>
-      </div>
-
-      <Grid className='mb-24'>
-        {CONCEPT_CARDS.map(({ key, icon, color, bg, accent }) => (
-          <GridItem key={key} size={{ base: 12, sm: 6, lg: 4 }}>
-            <div
-              className={`relative flex h-full min-h-44 flex-col justify-between overflow-hidden rounded-3xl p-7 transition-transform duration-300 hover:-translate-y-1.5 ${bg}`}
-            >
-              <div className={`absolute -right-8 -top-8 h-32 w-32 rounded-full ${accent}`} />
-              <span className={`relative ${color}`}>{icon}</span>
-              <div className='relative'>
-                <h3 className='text-base font-bold text-foreground'>
-                  {t(`landing.info.what.${key}.title`)}
-                </h3>
-                <p className='mt-1 text-sm leading-relaxed text-muted'>
-                  {t(`landing.info.what.${key}.description`)}
-                </p>
-              </div>
-            </div>
-          </GridItem>
-        ))}
-      </Grid>
-
       {/* ── Why you need a VPN ── */}
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
@@ -144,29 +98,36 @@ export function InfoSection() {
         ))}
       </Grid>
 
-      {/* ── Device support ── */}
+      {/* ── What is a VPN? ── */}
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
-          {t('landing.info.devices.title')}
+          {t('landing.info.what.title')}
         </h2>
         <p className='max-w-2xl text-base text-muted lg:text-md'>
-          {t('landing.info.devices.subtitle')}
+          {t('landing.info.what.subtitle')}
         </p>
       </div>
 
-      <div className='flex flex-wrap items-center gap-4 justify-around'>
-        {DEVICES.map(({ key, icon }) => (
-          <div
-            key={key}
-            className='w-fit flex flex-col items-center gap-3 rounded-2xl py-6 px-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1'
-          >
-            <span className='text-muted'>{icon}</span>
-            <h3 className='text-sm font-semibold text-foreground'>
-              {t(`landing.info.devices.${key}`)}
-            </h3>
-          </div>
+      <Grid>
+        {CONCEPT_CARDS.map(({ key, icon, color, bg, accent }) => (
+          <GridItem key={key} size={{ base: 12, sm: 6, lg: 4 }}>
+            <div
+              className={`relative flex h-full min-h-44 flex-col justify-between overflow-hidden rounded-3xl p-7 transition-transform duration-300 hover:-translate-y-1.5 ${bg}`}
+            >
+              <div className={`absolute -right-8 -top-8 h-32 w-32 rounded-full ${accent}`} />
+              <span className={`relative ${color}`}>{icon}</span>
+              <div className='relative'>
+                <h3 className='text-base font-bold text-foreground'>
+                  {t(`landing.info.what.${key}.title`)}
+                </h3>
+                <p className='mt-1 text-sm leading-relaxed text-muted'>
+                  {t(`landing.info.what.${key}.description`)}
+                </p>
+              </div>
+            </div>
+          </GridItem>
         ))}
-      </div>
+      </Grid>
     </section>
   );
 }
