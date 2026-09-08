@@ -1,5 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { coreEnv } from '../env';
 import { useSubscriptionConfigStore, useSubscriptionInfoStore } from '../stores';
 import { useSubscriptionData } from './useSubscriptionData';
 
@@ -32,9 +33,19 @@ vi.mock('../api', () => ({
   },
 }));
 
+function setSubpageConfigUuidFallback(value: string) {
+  (coreEnv as { subpageConfigUuid: string }).subpageConfigUuid = value;
+}
+
 const RU_CONFIG_UUID = 'ru-config-uuid';
 const GLOBAL_CONFIG_UUID = 'global-config-uuid';
 const FALLBACK_CONFIG_UUID = 'fallback-config-uuid';
+
+vi.mock('../env', () => ({
+  coreEnv: {
+    subpageConfigUuid: '',
+  },
+}));
 
 function rawConfig(locales: string[] = ['ru']) {
   return { locales };
@@ -43,6 +54,7 @@ function rawConfig(locales: string[] = ['ru']) {
 describe('useSubscriptionData', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setSubpageConfigUuidFallback('');
     useSubscriptionInfoStore.getState().actions.resetState();
     useSubscriptionConfigStore.getState().actions.resetState();
 
@@ -75,6 +87,7 @@ describe('useSubscriptionData', () => {
   });
 
   it('falls back to the provided default when the panel resolves no config uuid', async () => {
+    setSubpageConfigUuidFallback(FALLBACK_CONFIG_UUID);
     mockGetSubpageConfigByShortUuid.mockResolvedValue({
       subpageConfigUuid: null,
       webpageAllowed: true,

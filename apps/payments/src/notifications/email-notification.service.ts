@@ -91,7 +91,7 @@ export class EmailNotificationService {
     const domain =
       locale === 'ru' ? process.env.PUBLIC_DOMAIN_RU : process.env.PUBLIC_DOMAIN_GLOBAL;
     if (domain) return `https://${domain}${PROFILE_SUBSCRIPTION_PATH}`;
-    return process.env.RETURN_URL_WEB ?? 'https://t.me';
+    return process.env.PUBLIC_DOMAIN_GLOBAL ?? '';
   }
 
   private get supportUrl(): string {
