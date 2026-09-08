@@ -1,7 +1,7 @@
-import { Card, Surface } from '@heroui/react';
+import { Button, Card, Surface } from '@heroui/react';
 import type { TSubscriptionPagePlatformKey } from '@workspace/types';
 import { useTranslation } from 'react-i18next';
-import type { SubscriptionDataError } from '../../hooks';
+import { SubscriptionDataError, useNavigation } from '../../hooks';
 import { useIsConfigLoaded, useSubscriptionConfig, useSubscriptionInfoStore } from '../../stores';
 import '../../utils/initDayjs';
 import { detectOs } from '../../utils';
@@ -33,6 +33,7 @@ export function SubscriptionView({
   error?: SubscriptionDataError | null;
 }) {
   const { t } = useTranslation();
+  const navigate = useNavigation();
   const config = useSubscriptionConfig();
   const subscription = useSubscriptionInfoStore((state) => state.subscription);
   const isConfigLoaded = useIsConfigLoaded();
@@ -83,7 +84,11 @@ export function SubscriptionView({
           hasPlatformApps={hasPlatformApps}
           platform={OS_TO_PLATFORM[detectOs()]}
         />
-      ) : null}
+      ) : (
+        <Button fullWidth onClick={() => navigate('/profile/plans')}>
+          Extend
+        </Button>
+      )}
     </Surface>
   );
 }
