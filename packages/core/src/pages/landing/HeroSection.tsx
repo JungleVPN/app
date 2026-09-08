@@ -28,29 +28,21 @@ export function HeroSection() {
   return (
     <section className='flex flex-col justify-center items-center lg:flex-row lg:items-center lg:gap-8'>
       <motion.div
-        className='flex flex-col gap-6 items-start w-full lg:text-left lg:shrink-0'
+        className='flex flex-col gap-6 items-center w-full lg:text-left lg:shrink-0'
         variants={container}
         initial='hidden'
         animate='show'
       >
         <div className='flex flex-col gap-3'>
-          <h1 className='text-balance'>
+          <h1 className='text-balance items-center'>
             <BrandTitle />
           </h1>
-          <p className='text-base text-muted lg:text-md'>{t('landing.hero.subtitle')}</p>
+          <p className='text-base text-white lg:text-md'>{t('landing.hero.subtitle')}</p>
         </div>
 
         <div className='flex flex-col md:flex-row gap-4'>
           <motion.div variants={item} className='flex flex-col gap-3 lg:items-start'>
             <div className='flex items-start gap-3'>
-              <Button
-                size='lg'
-                variant='outline'
-                className='h-14 rounded-4xl text-white'
-                onClick={() => navigate('/login')}
-              >
-                {t('landing.hero.login')}
-              </Button>
               <Button
                 size='lg'
                 variant='ghost'

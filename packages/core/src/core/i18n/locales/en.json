@@ -55,7 +55,7 @@
     }
   },
   "cookieConsent": {
-    "description": "We and selected third parties use cookies for experience enhancement and measurement purposes only. We don't sell your personal information. You can deny, or withdraw your consent at any time. In such case, some features may not work. Please read our <policyLink>Cookie Policy</policyLink>.",
+    "description": "We and selected third parties use cookies for experience enhancement and measurement purposes only and never sell your personal information. For more info please read our <policyLink>Cookie Policy</policyLink>.",
     "accept": "Accept cookies",
     "deny": "Deny"
   },

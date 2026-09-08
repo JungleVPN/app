@@ -33,15 +33,17 @@ export function ContentCard(props: ContentCardProps) {
         className={`relative border-gray-500 border border-solid flex h-full flex-col justify-between p-8 shadow-surface shadow-md min-h-64 ${className ?? ''}`}
       >
         <div className={icon ? 'pe-32' : ''}>
-          <h3 className='mb-3 text-xl font-bold'>{title}</h3>
-          {description && <p className='text-muted text-sm leading-relaxed'>{description}</p>}
+          <h3 className='mb-3 text-3xl font-bold'>{title}</h3>
+          {description && (
+            <p className='text-muted text-sm leading-relaxed max-w-md'>{description}</p>
+          )}
         </div>
         {learnMoreLabel && (
           <Link to={learnMoreHref} className='mt-10 text-sm font-medium underline'>
             {learnMoreLabel}
           </Link>
         )}
-        {icon && <div className='absolute end-10 bottom-10 h-32 w-32'>{icon}</div>}
+        {icon && <div className='absolute inset-e-10 bottom-10 h-32 w-32'>{icon}</div>}
       </Card>
     );
   }

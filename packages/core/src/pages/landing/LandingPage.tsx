@@ -51,16 +51,17 @@ export default function LandingPage() {
           <TrustSection />
         </Container>
         <CountriesMarquee />
-        <Container id='how-it-works'>
-          <HowItWorksSection />
+        <Container>
+          <BentoSection />
         </Container>
+
         <Container>
           <FeaturesSection />
         </Container>
       </div>
       <div className={'flex flex-col gap-56 relative bg-background -mt-24 pt-64 overflow-hidden'}>
-        <Container>
-          <BentoSection />
+        <Container id='how-it-works'>
+          <HowItWorksSection />
         </Container>
         <Container>
           <ComparisonSection />
@@ -71,20 +72,17 @@ export default function LandingPage() {
         <div id='testimonials'>
           <TestimonialsSection />
         </div>
-        <Container id='faq'>
-          <FAQSection />
-        </Container>
         <Container>
           <FreeTrialSection />
         </Container>
         <Container id='partnership'>
           <PartnershipSection />
         </Container>
-        <Container>
-          <InfoSection />
+        <Container id='faq'>
+          <FAQSection />
         </Container>
         <Container>
-          <FreeTrialSection />
+          <InfoSection />
         </Container>
         <Container>
           <FooterSection />

@@ -133,7 +133,7 @@ export function Header() {
           className={`w-full px-4 py-1 transition-all duration-300 rounded-2xl ${
             scrolled && platformType !== 'telegram'
               ? 'shadow-lg backdrop-blur-md bg-background/80'
-              : ''
+              : 'md:shadow-lg md:backdrop-blur-md md:bg-background/80'
           }`}
         >
           {inner}

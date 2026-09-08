@@ -44,7 +44,7 @@ export function CountriesMarquee() {
 
   return (
     <section>
-      <p className='mb-6 text-center text-sm font-medium uppercase tracking-widest text-muted'>
+      <p className='mb-6 text-center text-lg font-medium uppercase tracking-widest text-muted'>
         {t('landing.countries.label')}
       </p>
       <div dir='ltr'>

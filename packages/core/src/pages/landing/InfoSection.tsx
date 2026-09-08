@@ -113,7 +113,7 @@ export function InfoSection() {
       <Grid className='mb-4'>
         {USE_CASE_CARDS.map(({ key, icon, color }) => (
           <GridItem key={key} size={{ base: 12, sm: 6 }}>
-            <div className='flex items-start gap-4 rounded-2xl border border-divider bg-surface-secondary p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md'>
+            <div className='flex items-start gap-4 rounded-2xl h-full border border-divider bg-surface-secondary p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md'>
               <span className={`mt-0.5 shrink-0 ${color}`}>{icon}</span>
               <div>
                 <h3 className='font-semibold text-foreground'>
@@ -129,7 +129,7 @@ export function InfoSection() {
       </Grid>
 
       {/* ── Stats strip ── */}
-      <Grid className='mb-24 rounded-3xl border border-divider bg-surface-secondary p-8'>
+      <Grid className='mb-24 rounded-3xl border border-divider bg-surface-secondary py-8 p-8'>
         {STATS.map(({ key, value, valueKey }) => (
           <GridItem key={key} size={{ base: 12, sm: 6, lg: 3 }}>
             <div className='flex flex-col items-center gap-1 text-center'>

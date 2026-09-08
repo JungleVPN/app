@@ -55,7 +55,7 @@
     }
   },
   "cookieConsent": {
-    "description": "Biz ve seçili üçüncü taraflar, çerezleri yalnızca deneyim iyileştirme ve ölçüm amaçlarıyla kullanır. Kişisel bilgilerinizi satmıyoruz. Onayınızı istediğiniz zaman reddedebilir veya geri çekebilirsiniz. Bu durumda bazı özellikler çalışmayabilir. Lütfen <policyLink>Çerez Politikamızı</policyLink> okuyun.",
+    "description": "Biz ve seçili üçüncü taraflar, çerezleri yalnızca deneyim iyileştirme ve ölçüm amaçlarıyla kullanır ve kişisel bilgilerinizi asla satmayız. Daha fazla bilgi için lütfen <policyLink>Çerez Politikamızı</policyLink> okuyun.",
     "accept": "Çerezleri kabul et",
     "deny": "Reddet"
   },
