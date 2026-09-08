@@ -33,34 +33,42 @@ export class ConnectController {
     @Body() body: { email?: string; inviterId?: number },
   ): Promise<CreateUserResponseDto | UpdateUserResponseDto | null> {
     const { authenticatedTelegramId: telegramId, authenticatedEmail: jwtEmail } = req;
+    const origin = this.header(req, 'origin');
 
     if (jwtEmail) {
-      return this.handleWebConnect(jwtEmail, body.inviterId);
+      return this.handleWebConnect(jwtEmail, body.inviterId, origin);
     }
 
     if (telegramId) {
       const email = body.email ?? '';
-      return this.handleTelegramConnect(telegramId, email, body.inviterId);
+      return this.handleTelegramConnect(telegramId, email, body.inviterId, origin);
     }
 
     return null;
   }
 
+  private header(req: AnyCredentialRequest, name: string): string | undefined {
+    const val = req.headers[name];
+    return Array.isArray(val) ? val[0] : val;
+  }
+
   private async handleWebConnect(
     email: string,
     inviterId?: number,
+    origin?: string,
   ): Promise<CreateUserResponseDto | UpdateUserResponseDto | null> {
     const emailUsers = await this.userService.getUserByEmail(email);
     const user = this.first(emailUsers);
     if (user) return user;
 
-    return this.userService.createUser({ email, inviterId });
+    return this.userService.createUser({ email, inviterId, origin });
   }
 
   private async handleTelegramConnect(
     telegramId: number,
     email: string,
     inviterId?: number,
+    origin?: string,
   ): Promise<CreateUserResponseDto | UpdateUserResponseDto | null> {
     if (email) {
       const emailUsers = await this.userService.getUserByEmail(email);
@@ -76,7 +84,12 @@ export class ConnectController {
       return email ? this.userService.updateUser({ id: tgUser.id, email }) : tgUser;
     }
 
-    return this.userService.createUser({ email: email || undefined, telegramId, inviterId });
+    return this.userService.createUser({
+      email: email || undefined,
+      telegramId,
+      inviterId,
+      origin,
+    });
   }
 
   private first<T>(result: T | T[] | null): T | null {

@@ -15,7 +15,8 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "lint": "biome lint ./src",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest run"
   },
   "dependencies": {
     "@remnawave/backend-contract": "3.4.2",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@workspace/shared-config": "workspace:*",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^4.1.2"
   }
 }

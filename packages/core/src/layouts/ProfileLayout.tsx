@@ -5,7 +5,6 @@ import { useRemnawaveApi } from '../api';
 import { Navbar } from '../components';
 import { SubscriptionLinkDialog } from '../components/SubscriptionLinkWidget/SubscriptionLinkDialog';
 import { applyUserLang } from '../core/i18n';
-import { coreEnv } from '../env';
 import { useNavigation, useSavedMethodsData, useSubscriptionData, useToltCapture } from '../hooks';
 import { TermsDialog } from '../pages/profile/payment/components/TermsDialog';
 import { useAppRoutes, usePaymentsApi } from '../runtime';
@@ -98,7 +97,7 @@ export function ProfileLayout() {
     tgUser?.language_code,
   ]);
 
-  useSubscriptionData(rmnUser?.shortUuid, coreEnv.subpageConfigUuid);
+  useSubscriptionData(rmnUser?.shortUuid);
   useSavedMethodsData(rmnUser?.id);
 
   return (

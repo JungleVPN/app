@@ -51,7 +51,7 @@ export class ClientUserGuard implements CanActivate {
 
     const users = await this.userService.getUserByTgId(telegramId);
     const userId = users?.[0]?.id;
-    if (userId == null) throw new UnauthorizedException('User not found');
+    if (userId == null) return false;
 
     req.authenticatedUserId = userId;
     req.authenticatedTelegramId = telegramId;
@@ -65,7 +65,7 @@ export class ClientUserGuard implements CanActivate {
 
     const users = await this.userService.getUserByEmail(email);
     const userId = users?.[0]?.id;
-    if (userId == null) throw new UnauthorizedException('User not found');
+    if (userId == null) return false;
 
     req.authenticatedUserId = userId;
     req.authenticatedEmail = email;

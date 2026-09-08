@@ -3,6 +3,7 @@ import { TSubscriptionPageRawConfig } from '@remnawave/subscription-page-types';
 import type { TSubscriptionPagePlatformKey } from '@workspace/types';
 import { useTranslation } from '../../hooks';
 import { useSubscriptionConfig } from '../../stores';
+import { isRuDomain } from '../../utils';
 import { AppTabs } from './components/AppTabs/AppTabs';
 import {
   AccordionBlockRenderer,
@@ -40,6 +41,7 @@ function renderBlocks(
 
 export function InstallationGuideConnector({ hasPlatformApps, platform, type }: IProps) {
   const { t, baseTranslations } = useTranslation();
+  const isRu = isRuDomain();
   const { svgLibrary } = useSubscriptionConfig();
   const {
     selectedPlatformId,
@@ -66,13 +68,15 @@ export function InstallationGuideConnector({ hasPlatformApps, platform, type }: 
           />
         </div>
 
-        <AppTabs
-          platformApps={platformApps}
-          platformId={selectedPlatformId}
-          selectedAppIndex={selectedAppIndex}
-          svgLibrary={svgLibrary}
-          onAppChange={setSelectedAppIndex}
-        />
+        {isRu && (
+          <AppTabs
+            platformApps={platformApps}
+            platformId={selectedPlatformId}
+            selectedAppIndex={selectedAppIndex}
+            svgLibrary={svgLibrary}
+            onAppChange={setSelectedAppIndex}
+          />
+        )}
 
         {selectedApp ? (
           <div className='mt-4'>
