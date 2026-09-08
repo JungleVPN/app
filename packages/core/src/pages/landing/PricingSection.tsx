@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { usePlans } from '../../hooks';
 import { Grid, GridItem } from '../../ui';
-import { cn, formatPlanPrice, isRuDomain } from '../../utils';
+import { cn, formatPlanPrice, isGlobalOrigin } from '../../utils';
 
 const HIGHLIGHTED_PLAN_MONTHS = 12;
 const HIGHLIGHTED_DESKTOP_POSITION = 2;
@@ -151,7 +151,7 @@ export function PricingSection() {
   }
 
   const handleCtaClick = () => navigate('/profile/plans');
-  const isRu = isRuDomain();
+  const isRu = !isGlobalOrigin();
 
   const sharedProps = {
     currency: isRu ? '₽' : '€',

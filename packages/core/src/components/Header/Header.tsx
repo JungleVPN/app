@@ -9,7 +9,7 @@ import LogoDark from '../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../hooks';
 import { usePlatformStore } from '../../stores';
 import { Container } from '../../ui';
-import { isLandingPath, isRuDomain, phCapture, scrollToTop } from '../../utils';
+import { isGlobalOrigin, isLandingPath, phCapture, scrollToTop } from '../../utils';
 import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { SupportButton } from '../SupportWidget/SupportButton';
@@ -32,7 +32,7 @@ export function Header() {
   const isTelegram = platformType === 'telegram';
 
   useEffect(() => {
-    setIsRu(isRuDomain());
+    setIsRu(!isGlobalOrigin());
   }, []);
 
   useEffect(() => {

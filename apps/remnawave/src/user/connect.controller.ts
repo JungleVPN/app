@@ -41,7 +41,7 @@ export class ConnectController {
 
     if (telegramId) {
       const email = body.email ?? '';
-      return this.handleTelegramConnect(telegramId, email, body.inviterId, origin);
+      return this.handleTelegramConnect(telegramId, email, body.inviterId);
     }
 
     return null;
@@ -68,7 +68,6 @@ export class ConnectController {
     telegramId: number,
     email: string,
     inviterId?: number,
-    origin?: string,
   ): Promise<CreateUserResponseDto | UpdateUserResponseDto | null> {
     if (email) {
       const emailUsers = await this.userService.getUserByEmail(email);
@@ -88,7 +87,6 @@ export class ConnectController {
       email: email || undefined,
       telegramId,
       inviterId,
-      origin,
     });
   }
 

@@ -7,7 +7,7 @@ import { useNavigation, usePlans } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { usePlatformStore } from '../../../stores';
 import { Block } from '../../../ui';
-import { formatPlanPrice, isRuDomain, phCapture } from '../../../utils';
+import { formatPlanPrice, isGlobalOrigin, phCapture } from '../../../utils';
 import { useSavedPayment } from '../payment/hooks/useSavedPayment';
 
 export default function PlansPage() {
@@ -16,7 +16,7 @@ export default function PlansPage() {
   const { profilePaymentPath } = useAppRoutes();
   const { platformType } = usePlatformStore();
   const plans = usePlans();
-  const isRu = isRuDomain();
+  const isRu = !isGlobalOrigin();
   const isTelegram = platformType === 'telegram';
   const [selectedMonths, setSelectedMonths] = useState<number | null>(null);
 

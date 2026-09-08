@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { usePlatformStore } from '../stores';
 import {
   isCrawlablePath,
+  isGlobalOrigin,
   isLandingPath,
-  isRuDomain,
   localePolicyForHost,
   markdownPathFor,
   normalizeHostname,
@@ -62,22 +63,30 @@ describe('resolveLocaleForHost', () => {
   });
 });
 
-describe('isRuDomain', () => {
+describe('isGlobalOrigin', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
+    usePlatformStore.getState().actions.setPlatformType('web');
   });
 
-  it('is true for every configured Russian domain, including the www host', () => {
+  it('is false for every configured Russian domain, including the www host', () => {
     vi.stubEnv('PUBLIC_DOMAIN_RU', domains.ru);
     vi.stubGlobal('window', { location: { hostname: 'www.thejungle.pro' } });
-    expect(isRuDomain()).toBe(true);
+    expect(isGlobalOrigin()).toBe(false);
   });
 
-  it('is false on the global domain', () => {
+  it('is true on the global domain', () => {
     vi.stubEnv('PUBLIC_DOMAIN_RU', domains.ru);
     vi.stubGlobal('window', { location: { hostname: 'jungle-vpn.com' } });
-    expect(isRuDomain()).toBe(false);
+    expect(isGlobalOrigin()).toBe(true);
+  });
+
+  it('is false inside the Telegram Mini App regardless of hostname', () => {
+    vi.stubEnv('PUBLIC_DOMAIN_RU', domains.ru);
+    vi.stubGlobal('window', { location: { hostname: 'jungle-vpn.com' } });
+    usePlatformStore.getState().actions.setPlatformType('telegram');
+    expect(isGlobalOrigin()).toBe(false);
   });
 });
 

@@ -201,7 +201,7 @@ export class UserService implements OnModuleInit {
       origin?: string | null;
     },
   ): Promise<CreateUserResponseDto> {
-    const isGlobal = isGlobalOrigin(payload.origin);
+    const isGlobal = isGlobalOrigin(payload.origin, this.configService.get('PUBLIC_DOMAIN_RU'));
 
     const trialDays = Number(this.configService.get('TRIAL_PERIOD_IN_DAYS', '3'));
     const ruInternalSquad = this.configService.get('RU_INTERNAL_SQUAD', RU_INTERNAL_SQUAD);

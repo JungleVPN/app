@@ -11,7 +11,7 @@ import { useBackButton, useNavigation } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { useNavbarStore, usePlatformStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
-import { isRuDomain, phCapture } from '../../../utils';
+import { isGlobalOrigin, phCapture } from '../../../utils';
 import { PaymentForm } from './components/PaymentForm';
 import { SavedMethod } from './components/SavedMethod';
 import { usePayment } from './hooks/usePayment';
@@ -54,7 +54,7 @@ export default function PaymentPage() {
   const { setNavbarVisible } = useNavbarStore();
   const navigate = useNavigation();
   const { profilePlansPath } = useAppRoutes();
-  const isRu = isRuDomain();
+  const isRu = !isGlobalOrigin();
 
   const isLoading = savedMethods === null;
 

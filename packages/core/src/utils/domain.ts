@@ -3,19 +3,14 @@
  * host falls back to the global languages (en, ar).
  */
 
-/** Lowercases, drops any port and strips a leading `www.` so apex and www hosts resolve alike. */
-export function normalizeHostname(hostname: string): string {
-  const withoutPort = hostname.trim().toLowerCase().split(':', 1)[0] ?? '';
-  return withoutPort.startsWith('www.') ? withoutPort.slice(4) : withoutPort;
-}
+import {
+  normalizeHostname,
+  parseDomains,
+  isGlobalOrigin as resolveIsGlobalOrigin,
+} from '@workspace/types';
+import { usePlatformStore } from '../stores';
 
-/** Splits a comma-separated domain env value into normalized hostnames. */
-export function parseDomains(value: string | undefined): readonly string[] {
-  return (value ?? '')
-    .split(',')
-    .map((entry) => normalizeHostname(entry))
-    .filter((entry) => entry.length > 0);
-}
+export { normalizeHostname, parseDomains };
 
 export interface DomainLocales {
   ru?: string;
@@ -70,12 +65,19 @@ export function configuredDomains(): DomainLocales {
 }
 
 /**
- * True when the app is being served from one of the RU domains (PUBLIC_DOMAIN_RU).
- * Used to force Russian and to switch pricing/payment UI to RUB-only behavior.
+ * True unless the app is being served from one of the RU domains (PUBLIC_DOMAIN_RU),
+ * or is running inside the Telegram Mini App. The Mini App has no domain of its own
+ * to route on (see `localePolicyForHost`'s "unrestricted host" case), and every
+ * Telegram signup is treated as RU regardless of client-supplied Origin — see
+ * `apps/remnawave/src/user/connect.controller.ts`. Delegates the actual RU/global
+ * decision to `isGlobalOrigin` in `@workspace/types`, the single source of truth
+ * shared with the backend. Used to force Russian and to switch pricing/payment UI
+ * to RUB-only behavior.
  */
-export function isRuDomain(): boolean {
+export function isGlobalOrigin(): boolean {
   if (typeof window === 'undefined') return false;
-  return resolveLocaleForHost(window.location.hostname, configuredDomains()) === 'ru';
+  if (usePlatformStore.getState().platformType === 'telegram') return false;
+  return resolveIsGlobalOrigin(`https://${window.location.hostname}`, configuredDomains().ru);
 }
 
 /** Non-English global languages that route as `/<lang>`. English is the unprefixed `/`. */
