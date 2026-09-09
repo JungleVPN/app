@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { FooterSection } from '../../components';
 import { useAuthStore } from '../../stores';
 import { Container } from '../../ui';
-import { phCapture } from '../../utils';
+import { isGlobalOrigin, phCapture } from '../../utils';
 import { BentoSection } from './BentoSection';
 import { ComparisonSection } from './ComparisonSection';
 import { CountriesMarquee } from './CountriesMarquee';
@@ -20,6 +20,7 @@ import { TrustSection } from './TrustSection';
 
 export default function LandingPage() {
   const { rmnUser } = useAuthStore();
+  const isRu = !isGlobalOrigin();
 
   useEffect(() => {
     phCapture('landing_viewed', { userId: rmnUser?.id });
@@ -81,9 +82,11 @@ export default function LandingPage() {
         <Container id='pricing'>
           <PricingSection />
         </Container>
-        <Container>
-          <FreeTrialSection />
-        </Container>
+        {isRu && (
+          <Container>
+            <FreeTrialSection />
+          </Container>
+        )}
         <div id='testimonials'>
           <TestimonialsSection />
         </div>

@@ -7,7 +7,13 @@ import { useSupabaseClient } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo } from '../../stores';
 import { isLandingPath } from '../../utils';
 
-export function AuthButtons() {
+interface AuthButtonsProps {
+  isRu?: boolean;
+}
+
+export function AuthButtons(props: AuthButtonsProps) {
+  const { isRu } = props;
+
   const supabase = useSupabaseClient();
   const { authUser, loading } = useAuthStoreInfo();
   const { setAuthUser, setRmnUser } = useAuthStoreActions();
@@ -24,7 +30,11 @@ export function AuthButtons() {
   };
 
   const handleTryNow = () => {
-    navigate('/login');
+    if (isRu) {
+      navigate('/login');
+    } else {
+      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const handleLogout = async () => {

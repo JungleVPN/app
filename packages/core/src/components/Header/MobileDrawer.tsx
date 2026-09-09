@@ -69,7 +69,7 @@ export function MobileDrawer() {
                 </nav>
               )}
 
-              {platformType === 'web' && <AuthButtons />}
+              {platformType === 'web' && <AuthButtons isRu={isRu} />}
 
               {!isRu && !isTelegram && (
                 <div className='flex items-center gap-2 px-3 py-2 mt-auto'>

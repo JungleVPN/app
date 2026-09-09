@@ -1,8 +1,10 @@
 import { Button, Chip } from '@heroui/react';
 import { IconBolt, IconRefresh, IconRocket, IconShieldCheck } from '@tabler/icons-react';
 import { motion, Variants } from 'framer-motion';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
+import { isGlobalOrigin } from '../../utils';
 import { BrandTitle } from './BrandTitle';
 
 const container = {
@@ -18,12 +20,21 @@ const item: Variants | undefined = {
 export function HeroSection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const isRu = !isGlobalOrigin();
 
   const features = [
     { Icon: IconShieldCheck, text: t('landing.hero.features.feature1') },
     { Icon: IconRocket, text: t('landing.hero.features.feature2') },
     { Icon: IconBolt, text: t('landing.hero.features.feature3') },
   ];
+
+  const handleClick = useCallback(() => {
+    if (isRu) {
+      navigate('/login');
+    } else {
+      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isRu, navigate]);
 
   return (
     <section className='flex flex-col justify-center items-center lg:flex-row lg:items-center lg:gap-8'>
@@ -47,7 +58,7 @@ export function HeroSection() {
                 size='lg'
                 variant='ghost'
                 className='h-14 w-48 text-wrap px-2 rounded-4xl bg-linear-to-r from-violet-500 to-amber-400 text-white hover:opacity-90'
-                onClick={() => navigate('/login')}
+                onClick={handleClick}
               >
                 {t('landing.hero.cta')}
               </Button>

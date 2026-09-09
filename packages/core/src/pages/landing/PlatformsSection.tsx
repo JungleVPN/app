@@ -1,5 +1,6 @@
 import { Button } from '@heroui/react';
 import { IconBrandAppleFilled, IconBrandWindowsFilled } from '@tabler/icons-react';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import IconAndroid from '../../assets/icons/android-icon.svg?react';
 import IconAndroidTv from '../../assets/icons/androidTv-icon.svg?react';
@@ -8,6 +9,7 @@ import IconMacOS from '../../assets/icons/macOs-icon.svg?react';
 import GlobeLottie from '../../assets/lottie/globe.lottie?url';
 import { useNavigation } from '../../hooks';
 import { LottieIcon } from '../../ui';
+import { isGlobalOrigin } from '../../utils';
 
 const PLATFORMS = [
   { key: 'ios', icon: <IconBrandAppleFilled size={32} /> },
@@ -21,6 +23,15 @@ const PLATFORMS = [
 export function PlatformsSection() {
   const { t } = useTranslation();
   const navigate = useNavigation();
+  const isRu = !isGlobalOrigin();
+
+  const handleClick = useCallback(() => {
+    if (isRu) {
+      navigate('/profile/subscription');
+    } else {
+      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isRu, navigate]);
 
   return (
     <section
@@ -37,7 +48,7 @@ export function PlatformsSection() {
           <Button
             size='lg'
             variant='primary'
-            onClick={() => navigate('/profile/subscription')}
+            onClick={handleClick}
             className='h-14 min-w-full sm:min-w-xs w-fit px-8 rounded-4xl bg-linear-to-r from-violet-500 to-amber-400 text-white hover:opacity-90'
           >
             {t('landing.info.devices.cta')}
