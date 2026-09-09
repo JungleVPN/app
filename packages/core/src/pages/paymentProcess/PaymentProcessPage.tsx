@@ -11,16 +11,16 @@ import {
   IconRestore,
 } from '@tabler/icons-react';
 import { useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useParams } from 'react-router';
 import Logo from '../../assets/Logo.svg?react';
-import LogoDark from '../../assets/Logo_dark.svg?react';
-import { FeaturesCard, Link } from '../../components';
-import { useTheme } from '../../hooks';
-import { useTermsStore } from '../../stores';
+import { FeaturesCard, Link, Loading } from '../../components';
+import { usePlans } from '../../hooks';
+import { usePlanByMonths, usePlansStatus, useTermsStore } from '../../stores';
 import { Block, Container, Grid, GridItem } from '../../ui';
+import { formatPlanPrice, isGlobalOrigin } from '../../utils';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
 import { PaymentFooter } from './PaymentFooter';
-import { formatEur, resolvePlan } from './planMocks';
+import { monthsFromSlug, planPeriodLabel } from './planSlug';
 
 const BRAND_GRADIENT = 'bg-linear-to-r from-violet-500 to-amber-400';
 
@@ -40,17 +40,25 @@ function StepHeading({ step, title }: { step: number; title: string }) {
 }
 
 export default function PaymentProcessPage() {
-  const [searchParams] = useSearchParams();
-  const { theme } = useTheme();
+  const { planSlug } = useParams();
   const { open: openTerms } = useTermsStore();
-  const plan = resolvePlan(searchParams.get('plan'));
   const [email, setEmail] = useState('');
 
-  const BrandLogo = theme === 'dark' ? LogoDark : Logo;
+  // Starts the one-time fetch if the visitor deep-linked here without passing
+  // through the landing page; otherwise the store already holds the plans.
+  usePlans();
+  const months = monthsFromSlug(planSlug);
+  const status = usePlansStatus();
+  const plan = usePlanByMonths(months);
+
+  const isRu = !isGlobalOrigin();
+  const pricing = isRu ? plan?.rub : plan?.eur;
+
+  if (status === 'idle' || status === 'loading') return <Loading />;
 
   return (
     <>
-      <Container maxWidth='lg' className='py-8'>
+      <Container maxWidth='lg' className='pt-8 pb-44 sm:pb-28'>
         <Grid className='gap-6'>
           {/* Checkout steps — full width up to md, half the grid from lg. */}
           <GridItem size={{ base: 12, sm: 12, md: 12, lg: 6 }}>
@@ -125,29 +133,9 @@ export default function PaymentProcessPage() {
                       </div>
                     </div>
 
-                    <div className='h-px w-full bg-foreground/10' />
-
-                    <p className='pt-4 text-sm leading-relaxed text-muted'>
-                      By completing your purchase, you agree to our{' '}
-                      <Link className='underline' href='/terms'>
-                        Terms of Service
-                      </Link>
-                      ,{' '}
-                      <Link className='underline' href='/privacy'>
-                        Privacy Policy
-                      </Link>
-                      . If the subscription includes auto-renewal, automatic charges will occur at
-                      the standard price. The promo code can only be applied to the first
-                      subscription payment. The subscription owner can manage or cancel it at any
-                      time through the{' '}
-                      <Link className='underline' href='/profile/subscription'>
-                        personal account
-                      </Link>
-                      .
-                    </p>
-
                     <Button
                       className={`${BRAND_GRADIENT} mt-5 w-full rounded-full sm:w-auto sm:px-10`}
+                      isDisabled={!pricing}
                     >
                       Proceed to payment
                     </Button>
@@ -164,31 +152,48 @@ export default function PaymentProcessPage() {
                 <div className='flex flex-col gap-5'>
                   <h2 className='text-lg font-bold sm:text-xl'>Your order</h2>
 
-                  <div className='flex flex-col gap-2'>
-                    <div className='flex items-start justify-between gap-4'>
-                      <div className='flex items-center gap-3'>
-                        <BrandLogo aria-hidden className='size-8 shrink-0 rounded-lg' />
-                        <p className='text-base font-semibold'>{plan.label}</p>
-                      </div>
-                      <div className='flex shrink-0 items-baseline gap-2'>
-                        {plan.discountPercent > 0 && (
-                          <span className='text-sm text-muted line-through'>
-                            {formatEur(plan.fullTotal)}
+                  {pricing && months !== null ? (
+                    <div className='flex flex-col gap-2'>
+                      <div className='flex items-start justify-between gap-4'>
+                        <div className='flex items-center gap-3'>
+                          <Logo aria-hidden className='size-8 shrink-0 rounded-lg' />
+                          <p className='text-base font-semibold'>
+                            JungleVPN for {planPeriodLabel(months)}
+                          </p>
+                        </div>
+                        <div className='flex shrink-0 items-baseline gap-2'>
+                          {pricing.discountPercent > 0 && pricing.fullTotal && (
+                            <span className='text-sm text-muted line-through'>
+                              {formatPlanPrice(pricing.fullTotal, isRu)}
+                            </span>
+                          )}
+                          <span className='text-base font-semibold'>
+                            {formatPlanPrice(pricing.total, isRu)}
                           </span>
-                        )}
-                        <span className='text-base font-semibold'>{formatEur(plan.total)}</span>
+                        </div>
                       </div>
-                    </div>
 
-                    {plan.discountPercent > 0 && (
-                      <Chip
-                        size='sm'
-                        className={`w-fit border-none text-[white] ${BRAND_GRADIENT}`}
-                      >
-                        <Chip.Label>Discount {plan.discountPercent}%</Chip.Label>
-                      </Chip>
-                    )}
-                  </div>
+                      {pricing.discountPercent > 0 && (
+                        <Chip
+                          size='sm'
+                          className={`w-fit border-none text-[white] ${BRAND_GRADIENT}`}
+                        >
+                          <Chip.Label>Discount {pricing.discountPercent}%</Chip.Label>
+                        </Chip>
+                      )}
+                    </div>
+                  ) : (
+                    <div className='flex flex-col gap-2'>
+                      <p className='text-base font-semibold'>This plan isn't available</p>
+                      <p className='text-sm text-muted'>
+                        Pick a subscription length on the{' '}
+                        <Link className='underline' href='/#pricing'>
+                          pricing page
+                        </Link>
+                        .
+                      </p>
+                    </div>
+                  )}
                   <FeaturesCard className='p-5 sm:p-6' title='Included in the subscription' />
                 </div>
               </Block>

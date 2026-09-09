@@ -7,7 +7,7 @@ import { Container } from '../../ui';
  */
 export function PaymentFooter() {
   return (
-    <footer className='mt-12 w-full border-t border-foreground/10 fixed bottom-0'>
+    <footer className='mt-12 w-full border-t border-foreground/10 fixed bottom-0 bg-white'>
       <Container maxWidth='lg'>
         <div className='flex flex-col items-center justify-between gap-4 py-5 sm:flex-row'>
           <div className='flex flex-wrap items-center justify-center gap-x-6 gap-y-2'>

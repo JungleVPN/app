@@ -65,7 +65,7 @@ export function createRoutes(Landing: ComponentType) {
           Component: WebPaymentLayout,
           children: [
             {
-              path: '/payment',
+              path: '/payment/:planSlug',
               lazy: () => pages().then((m) => ({ Component: m.PaymentProcessPage })),
             },
           ],
