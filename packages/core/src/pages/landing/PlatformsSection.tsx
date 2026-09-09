@@ -1,5 +1,5 @@
 import { Button } from '@heroui/react';
-import { IconBrandAppleFilled, IconBrandUbuntu, IconBrandWindowsFilled } from '@tabler/icons-react';
+import { IconBrandAppleFilled, IconBrandWindowsFilled } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import IconAndroid from '../../assets/icons/android-icon.svg?react';
 import IconAndroidTv from '../../assets/icons/androidTv-icon.svg?react';
@@ -14,7 +14,6 @@ const PLATFORMS = [
   { key: 'android', icon: <IconAndroid /> },
   { key: 'macos', icon: <IconMacOS /> },
   { key: 'windows', icon: <IconBrandWindowsFilled size={32} /> },
-  { key: 'linux', icon: <IconBrandUbuntu size={32} /> },
   { key: 'appleTv', icon: <IconAppleTv /> },
   { key: 'androidTv', icon: <IconAndroidTv /> },
 ] as const;

@@ -959,7 +959,6 @@
         "android": "Android",
         "macos": "macOS",
         "windows": "Windows",
-        "linux": "Linux",
         "appleTv": "Apple TV",
         "androidTv": "Android TV",
         "cta": "Connect"

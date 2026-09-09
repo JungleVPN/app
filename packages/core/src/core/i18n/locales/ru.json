@@ -771,7 +771,7 @@
       },
       "q2": {
         "question": "На каких устройствах работает JungleVPN?",
-        "answer": "JungleVPN работает на iPhone, Android, Mac, Windows и Linux. Одна подписка покрывает все ваши устройства одновременно — телефон, ноутбук и планшет."
+        "answer": "JungleVPN работает на iPhone, Android, Mac и Windows. Одна подписка покрывает все ваши устройства одновременно — телефон, ноутбук и планшет."
       },
       "q3": {
         "question": "Можно ли использовать JungleVPN на нескольких устройствах?",
@@ -984,7 +984,6 @@
         "android": "Android",
         "macos": "macOS",
         "windows": "Windows",
-        "linux": "Linux",
         "appleTv": "Apple TV",
         "androidTv": "Android TV",
         "cta": "Подключиться"
