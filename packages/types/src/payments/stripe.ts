@@ -24,6 +24,24 @@ export interface CreateStripeSessionDto {
 }
 
 /**
+ * Public Stripe create-session request — POST /payments/stripe/public-create-session.
+ *
+ * Unauthenticated checkout for the standalone payment page: the visitor has no
+ * account yet, so the backend find-or-creates the Remnawave user from `email`
+ * before opening the same Stripe session an authenticated caller would get.
+ */
+export interface CreatePublicStripeSessionDto {
+  /** Payer's email. The account is found-or-created from this address. */
+  email: string;
+  /** Subscription plan in months (1, 3, 6, 12). */
+  selectedPeriod: number;
+  /** Tolt affiliate referral id (`window.tolt_referral`), when present. */
+  toltReferralId?: string | null;
+  /** Referring user id captured from a `?ref=` link, when present. */
+  inviterId?: number;
+}
+
+/**
  * Response from GET /payments/stripe/subscription/:userId.
  * Reports whether the user has an active (or trialing) Stripe subscription and,
  * if so, a freshly-minted Billing Portal URL for self-service management.

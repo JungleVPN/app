@@ -2,6 +2,7 @@ import {
   type AdminPaymentDto,
   apiRoutes,
   type CaptureToltReferralDto,
+  type CreatePublicStripeSessionDto,
   type CreateStripeSessionDto,
   type CreateTelegramStarsInvoiceDto,
   type CreateYookassaSessionDto,
@@ -31,6 +32,14 @@ export function createPaymentsApi(client: ApiClient) {
 
     async createStripeSession(dto: CreateStripeSessionDto): Promise<PaymentSession> {
       return client.post<PaymentSession>(apiRoutes.payments.stripeCreateSession, dto);
+    },
+
+    /**
+     * Anonymous checkout for the standalone payment page — the backend
+     * find-or-creates the account from the payer email, so no session is needed.
+     */
+    async createPublicStripeSession(dto: CreatePublicStripeSessionDto): Promise<PaymentSession> {
+      return client.post<PaymentSession>(apiRoutes.payments.stripePublicCreateSession, dto);
     },
 
     /** Subscription status + Billing Portal URL for the authenticated user. */

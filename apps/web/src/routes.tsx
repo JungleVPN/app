@@ -52,10 +52,6 @@ export function createRoutes(Landing: ComponentType) {
               lazy: () => pages().then((m) => ({ Component: m.ConfirmPage })),
             },
             {
-              path: '/subscription/:shortUuid',
-              lazy: () => pages().then((m) => ({ Component: m.SubscriptionPage })),
-            },
-            {
               path: '/affiliates',
               lazy: () => pages().then((m) => ({ Component: m.AffiliatePage })),
             },

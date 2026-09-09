@@ -18,6 +18,7 @@ export const apiRoutes = {
   payments: {
     stripeCreateSession: '/stripe/create-session',
     stripeSubscription: '/stripe/subscription',
+    stripePublicCreateSession: '/stripe/public-create-session',
     stripeWebhook: '/stripe/webhook',
     yookassaCreateSession: '/yookassa/create-session',
     yookassaWebhook: '/yookassa/webhook',

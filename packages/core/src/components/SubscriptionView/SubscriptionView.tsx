@@ -22,7 +22,6 @@ const OS_TO_PLATFORM: Record<string, TSubscriptionPagePlatformKey> = {
  * Pure render component — reads subscription data from the shared Zustand stores.
  * Data fetching is the responsibility of the parent:
  *   - ProfileLayout  for authenticated profile routes
- *   - SubscriptionPage for the public /subscription/:shortUuid route
  */
 export function SubscriptionView({
   shortUuid,

@@ -6,7 +6,6 @@ import {
   ProfileLayout,
   ProtectedPaymentPage,
   ProtectedProfileSubscriptionPage,
-  SubscriptionPage,
   TermsPage,
 } from '@workspace/core';
 import {
@@ -28,7 +27,6 @@ import { TmaRootLayout } from '@/layouts/TmaRootLayout';
  *   /profile/subscription     — subscription tab
  *   /profile/payments         — payments tab
  *   /profile/devices          — devices tab
- *   /subscription/:shortUuid  — public subscription view
  *   /terms                    — terms page
  *   /privacy                  — privacy policy page
  *   /cookies                  — cookie policy page
@@ -93,10 +91,6 @@ export const router = createMemoryRouter(
               Component: ProtectedReferralsPage,
             },
           ],
-        },
-        {
-          path: 'subscription/:shortUuid',
-          Component: SubscriptionPage,
         },
         {
           path: 'terms',

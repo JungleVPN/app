@@ -1,4 +1,13 @@
-import { Button, Chip, Description, Input, TextField, Tooltip } from '@heroui/react';
+import {
+  Button,
+  Chip,
+  Description,
+  FieldError,
+  Form,
+  Input,
+  TextField,
+  Tooltip,
+} from '@heroui/react';
 import {
   IconBrandAppleFilled,
   IconBrandGoogle,
@@ -10,19 +19,32 @@ import {
   IconMail,
   IconRestore,
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import type { PaymentMethod } from '@workspace/types';
+import { type SyntheticEvent, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import Logo from '../../assets/Logo.svg?react';
 import { FeaturesCard, Link, Loading } from '../../components';
-import { usePlans } from '../../hooks';
+import { useNavigation, usePlans } from '../../hooks';
+import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import { usePlanByMonths, usePlansStatus, useTermsStore } from '../../stores';
 import { Block, Container, Grid, GridItem } from '../../ui';
-import { formatPlanPrice, isGlobalOrigin } from '../../utils';
+import {
+  formatPlanPrice,
+  getReferralUserId,
+  isGlobalOrigin,
+  phCapture,
+  validateEmail,
+} from '../../utils';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
 import { PaymentFooter } from './PaymentFooter';
 import { monthsFromSlug, planPeriodLabel } from './planSlug';
 
 const BRAND_GRADIENT = 'bg-linear-to-r from-violet-500 to-amber-400';
+
+const EMPTY_EMAIL_ERROR = 'Please enter your email address';
+const INVALID_EMAIL_ERROR = 'Please enter a valid email address';
+
+const CHECKOUT_ERROR = 'We could not start the payment. Please try again.';
 
 const EMAIL_HINT =
   "If you've used JungleVPN before, we'll add the subscription to your existing account. " +
@@ -43,6 +65,15 @@ export default function PaymentProcessPage() {
   const { planSlug } = useParams();
   const { open: openTerms } = useTermsStore();
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  // Only Stripe is offered on the global checkout today; the state keeps the
+  // submit button tied to the selected method rather than to the card block.
+  const [selectedMethod] = useState<PaymentMethod>('stripe');
+  const [isPending, setIsPending] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const paymentsApi = usePaymentsApi();
+  const navigate = useNavigation();
+  const { profileSubscriptionPath } = useAppRoutes();
 
   // Starts the one-time fetch if the visitor deep-linked here without passing
   // through the landing page; otherwise the store already holds the plans.
@@ -54,7 +85,69 @@ export default function PaymentProcessPage() {
   const isRu = !isGlobalOrigin();
   const pricing = isRu ? plan?.rub : plan?.eur;
 
-  if (status === 'idle' || status === 'loading') return <Loading />;
+  // This page sells in EUR through Stripe and is only ever linked from the global
+  // landing page — RU checks out through the in-profile plan picker. A RU visitor
+  // can still arrive by deep link, so send them where they can actually pay.
+  // Replaced in history: there is nothing here for them to go back to.
+  useEffect(() => {
+    if (isRu) navigate(profileSubscriptionPath, { replace: true });
+  }, [isRu, navigate, profileSubscriptionPath]);
+  /**
+   * Anonymous Stripe checkout for `/payment/planN`.
+   *
+   * The visitor has no account, so the backend find-or-creates one from the payer
+   * email and returns the same Stripe session an authenticated caller would get —
+   * see the public-create-session endpoint in apps/payments. Stripe returns the
+   * buyer to `/profile/subscription`, which sends them through login first.
+   */
+  const startCheckout = async (payerEmail: string) => {
+    if (months === null) return;
+
+    setIsPending(true);
+    setCheckoutError(null);
+    try {
+      const session = await paymentsApi.createPublicStripeSession({
+        email: payerEmail,
+        selectedPeriod: months,
+        toltReferralId: window.tolt_referral ?? null,
+        inviterId: getReferralUserId() ?? undefined,
+      });
+
+      if (!session?.url) {
+        setCheckoutError(CHECKOUT_ERROR);
+        return;
+      }
+
+      phCapture('checkout_started', { payment_provider: 'stripe', months });
+      window.location.href = session.url;
+    } catch {
+      setCheckoutError(CHECKOUT_ERROR);
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (emailError) setEmailError('');
+  };
+
+  const handleSubmit = async (event: SyntheticEvent) => {
+    event.preventDefault();
+
+    if (!email.trim()) {
+      setEmailError(EMPTY_EMAIL_ERROR);
+      return;
+    }
+    if (!validateEmail(email)) {
+      setEmailError(INVALID_EMAIL_ERROR);
+      return;
+    }
+
+    await startCheckout(email.trim());
+  };
+
+  if (isRu || status === 'idle' || status === 'loading') return <Loading />;
 
   return (
     <>
@@ -62,45 +155,60 @@ export default function PaymentProcessPage() {
         <Grid className='gap-6'>
           {/* Checkout steps — full width up to md, half the grid from lg. */}
           <GridItem size={{ base: 12, sm: 12, md: 12, lg: 6 }}>
-            <div className='flex flex-col gap-6'>
+            <Form
+              className='flex w-full flex-col gap-6'
+              validationBehavior='aria'
+              onSubmit={handleSubmit}
+            >
               <Block className='p-5 sm:p-6'>
                 <div className='flex flex-col gap-6'>
                   <StepHeading step={1} title='Enter the email for your JungleVPN account' />
 
-                  <TextField name='email' id='payment-email' type='email'>
+                  <TextField
+                    isInvalid={emailError.length > 0}
+                    isRequired
+                    name='email'
+                    id='payment-email'
+                    type='email'
+                  >
                     <div className='relative w-full'>
                       <span className='pointer-events-none absolute start-4 top-1/2 z-10 flex -translate-y-1/2 items-center text-muted'>
                         <IconMail size={20} stroke={1.5} />
                       </span>
                       <Input
                         autoComplete='email'
-                        className='w-full rounded-full ps-11'
+                        className='w-full rounded-full ps-11 data-[invalid]:border data-[invalid]:border-danger'
                         placeholder='mail@example.com'
                         value={email}
                         variant='secondary'
-                        onChange={(event) => setEmail(event.target.value)}
+                        onChange={(event) => handleEmailChange(event.target.value)}
                       />
                     </div>
-                    <div className='flex items-center ms-4'>
-                      <Description>Needed to manage your subscription</Description>
-                      <Tooltip delay={0} closeDelay={0}>
-                        <Button
-                          aria-label='Why we need your email'
-                          isIconOnly
-                          size='sm'
-                          variant='tertiary'
-                          className='size-5 min-w-0 bg-transparent p-0 text-muted'
-                        >
-                          <IconHelpCircle size={16} stroke={2} />
-                        </Button>
-                        <Tooltip.Content placement='bottom' showArrow className='max-w-72'>
-                          <Tooltip.Arrow />
-                          <p className='text-sm wrap-break-word [word-break:normal]'>
-                            {EMAIL_HINT}
-                          </p>
-                        </Tooltip.Content>
-                      </Tooltip>
-                    </div>
+                    {/* The error takes the hint's place, and typing restores the hint. */}
+                    {emailError.length > 0 ? (
+                      <FieldError className='ms-4'>{emailError}</FieldError>
+                    ) : (
+                      <div className='flex items-center ms-4'>
+                        <Description>Needed to manage your subscription</Description>
+                        <Tooltip delay={0} closeDelay={0}>
+                          <Button
+                            aria-label='Why we need your email'
+                            isIconOnly
+                            size='sm'
+                            variant='tertiary'
+                            className='size-5 min-w-0 bg-transparent p-0 text-muted'
+                          >
+                            <IconHelpCircle size={16} stroke={2} />
+                          </Button>
+                          <Tooltip.Content placement='bottom' showArrow className='max-w-72'>
+                            <Tooltip.Arrow />
+                            <p className='text-sm wrap-break-word [word-break:normal]'>
+                              {EMAIL_HINT}
+                            </p>
+                          </Tooltip.Content>
+                        </Tooltip>
+                      </div>
+                    )}
                   </TextField>
                 </div>
               </Block>
@@ -133,16 +241,22 @@ export default function PaymentProcessPage() {
                       </div>
                     </div>
 
-                    <Button
-                      className={`${BRAND_GRADIENT} mt-5 w-full rounded-full sm:w-auto sm:px-10`}
-                      isDisabled={!pricing}
-                    >
-                      Proceed to payment
-                    </Button>
+                    {selectedMethod === 'stripe' && (
+                      <Button
+                        className={`${BRAND_GRADIENT} mt-5 w-full rounded-full sm:w-auto sm:px-10`}
+                        isDisabled={!pricing}
+                        isPending={isPending}
+                        type='submit'
+                      >
+                        Proceed to payment
+                      </Button>
+                    )}
+
+                    {checkoutError && <p className='mt-3 text-sm text-danger'>{checkoutError}</p>}
                   </div>
                 </div>
               </Block>
-            </div>
+            </Form>
           </GridItem>
 
           {/* Order summary */}

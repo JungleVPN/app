@@ -1,6 +1,5 @@
-import type { RemnaUserId } from '../../remnawave';
+import type { RemnaUserId, RemnawebhookPayload } from '../../remnawave';
 import { PaymentPurpose } from '../common';
-import type { RemnawebhookPayload } from '../../remnawave';
 import type { IConfirmation } from './confirmation';
 import type { IAmount, Metadata } from './general';
 import type { IPaymentMethod, PaymentMethodData } from './payment-method';

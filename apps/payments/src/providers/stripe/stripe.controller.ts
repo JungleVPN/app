@@ -18,16 +18,24 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { getExtraDevicePrice, getPriceForPeriod } from '@payments/utils/amount';
 import { StripePayment } from '@workspace/database';
-import { type CreateStripeSessionDto, type PaymentPurpose } from '@workspace/types';
+import {
+  type CreatePublicStripeSessionDto,
+  type CreateStripeSessionDto,
+  type PaymentPurpose,
+} from '@workspace/types';
 import type Stripe from 'stripe';
 import { Repository } from 'typeorm';
 import { AdminRoleGuard } from '../../auth/admin-role.guard';
 import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
 import { ClientUserGuard } from '../../auth/client-user.guard';
+import { RemnaUserResolverService } from '../../auth/remna-user-resolver.service';
 import { ClientOrServiceGuard } from '../../guards/client-or-service.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
 import { StripeProvider } from './stripe.provider';
 import { isCheckoutSession, type Session } from './stripe.types';
+
+/** Mirrors the pattern the remnawave service validates lookups against. */
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 @Controller('stripe')
 export class StripeController {
@@ -38,6 +46,7 @@ export class StripeController {
     private readonly stripePaymentRepo: Repository<StripePayment>,
     private readonly stripeProvider: StripeProvider,
     private readonly analyticsClient: AnalyticsClientService,
+    private readonly remnaUserResolver: RemnaUserResolverService,
   ) {}
 
   /** List all Stripe payments, newest first — internal use only */
@@ -90,7 +99,55 @@ export class StripeController {
     @Headers('origin') origin?: string,
   ): Promise<Session> {
     const userId = authenticatedUserId ?? dto.userId;
-    const selectedPeriod = dto.selectedPeriod;
+
+    return this.openSession({ ...dto, userId }, origin);
+  }
+
+  /**
+   * Unauthenticated checkout for the standalone payment page.
+   *
+   * The visitor has no account, so the payer email is resolved to a Remnawave
+   * user (found or created) before opening the very same Stripe session an
+   * authenticated caller gets — same pricing, same payment record, same
+   * analytics, same webhook path.
+   */
+  @Post('public-create-session')
+  async createPublicSession(
+    @Body() dto: CreatePublicStripeSessionDto,
+    @Headers('origin') origin?: string,
+  ): Promise<Session> {
+    const email = dto.email?.trim() ?? '';
+    if (!EMAIL_PATTERN.test(email)) {
+      throw new BadRequestException('A valid email is required');
+    }
+
+    // Priced before the account is touched: a bad period must not leave a
+    // freshly created user behind for a checkout that was never opened.
+    this.resolveAmount('subscription', dto.selectedPeriod);
+
+    const userId = await this.remnaUserResolver.resolveOrCreateByEmail(email, {
+      inviterId: dto.inviterId,
+      origin,
+    });
+
+    return this.openSession(
+      {
+        userId,
+        selectedPeriod: dto.selectedPeriod,
+        toltReferralId: dto.toltReferralId,
+        metadata: { email, userId: String(userId) },
+      },
+      origin,
+    );
+  }
+
+  /**
+   * Opens a Stripe session and records the sale. Shared by the authenticated
+   * and public routes so both stay identical in pricing, persistence and
+   * analytics — only how the payer is identified differs.
+   */
+  private async openSession(dto: CreateStripeSessionDto, origin?: string): Promise<Session> {
+    const { userId, selectedPeriod } = dto;
     const purpose = dto.purchaseType ?? 'subscription';
 
     // A device slot is a one-off with its own price. Charging it through
@@ -98,14 +155,7 @@ export class StripeController {
     // would misstate the sale in payment history and admin search.
     const amount = this.resolveAmount(purpose, selectedPeriod);
 
-    const session = await this.stripeProvider.createPayment(
-      {
-        ...dto,
-        userId,
-        selectedPeriod,
-      },
-      origin,
-    );
+    const session = await this.stripeProvider.createPayment(dto, origin);
 
     // An existing subscriber is answered with a Billing Portal session, which is
     // not a sale: nothing was bought, and no webhook ever references a `bps_…`

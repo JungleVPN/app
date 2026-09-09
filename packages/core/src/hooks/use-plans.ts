@@ -4,9 +4,9 @@ import { coreEnv } from '../env';
 import { usePlansStatus, usePlansStore, usePlansStoreActions } from '../stores';
 
 /**
- * Reads the shared plans from the global store, kicking off the one-time fetch
- * on first use. Safe to call from several components — only the first `idle`
- * caller performs the request.
+ * Reads the shared plans from the global store, starting the fetch on first use.
+ * Safe to call from several components: concurrent callers share one request,
+ * and the result is reused for the rest of the session.
  */
 export const usePlans = () => {
   const plans = usePlansStore((state) => state.plans);
@@ -14,7 +14,9 @@ export const usePlans = () => {
   const { setPlans, setStatus } = usePlansStoreActions();
 
   useEffect(() => {
-    if (status !== 'idle') return;
+    // 'error' is retryable: a transient failure would otherwise hide pricing for
+    // the rest of the session, since the store outlives every consumer.
+    if (status === 'loading' || status === 'loaded') return;
 
     setStatus('loading');
     const url = `${coreEnv.paymentsUrl}${apiRoutes.payments.plans}`;
