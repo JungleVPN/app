@@ -19,9 +19,10 @@ import {
   IconMail,
   IconRestore,
 } from '@tabler/icons-react';
-import type { PaymentMethod } from '@workspace/types';
+import { ACTIVE_SUBSCRIPTION_CODE, type PaymentMethod } from '@workspace/types';
 import { type SyntheticEvent, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
+import { ApiClientError } from '../../api';
 import Logo from '../../assets/Logo.svg?react';
 import { FeaturesCard, Link, Loading } from '../../components';
 import { useNavigation, usePlans } from '../../hooks';
@@ -36,6 +37,7 @@ import {
   validateEmail,
 } from '../../utils';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
+import { ActiveSubscriptionDialog } from './ActiveSubscriptionDialog';
 import { PaymentFooter } from './PaymentFooter';
 import { monthsFromSlug, planPeriodLabel } from './planSlug';
 
@@ -45,6 +47,20 @@ const EMPTY_EMAIL_ERROR = 'Please enter your email address';
 const INVALID_EMAIL_ERROR = 'Please enter a valid email address';
 
 const CHECKOUT_ERROR = 'We could not start the payment. Please try again.';
+
+/**
+ * Whether the backend refused the checkout because the payer email already has
+ * an active subscription, rather than because the payment failed to start.
+ */
+function isActiveSubscriptionError(error: unknown): boolean {
+  if (!(error instanceof ApiClientError) || error.status !== 409) return false;
+
+  const data = error.data;
+  // The code is what identifies the case; a 409 from this endpoint means only
+  // this today, so an unparsed body is still treated as it.
+  if (typeof data !== 'object' || data === null) return true;
+  return (data as { code?: string }).code === ACTIVE_SUBSCRIPTION_CODE;
+}
 
 const EMAIL_HINT =
   "If you've used JungleVPN before, we'll add the subscription to your existing account. " +
@@ -71,9 +87,11 @@ export default function PaymentProcessPage() {
   const [selectedMethod] = useState<PaymentMethod>('stripe');
   const [isPending, setIsPending] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  // The email whose account already subscribes — also the dialog's open state.
+  const [activeSubscriptionEmail, setActiveSubscriptionEmail] = useState<string | null>(null);
   const paymentsApi = usePaymentsApi();
   const navigate = useNavigation();
-  const { profileSubscriptionPath } = useAppRoutes();
+  const { profileSubscriptionPath, profilePaymentPath } = useAppRoutes();
 
   // Starts the one-time fetch if the visitor deep-linked here without passing
   // through the landing page; otherwise the store already holds the plans.
@@ -105,6 +123,7 @@ export default function PaymentProcessPage() {
 
     setIsPending(true);
     setCheckoutError(null);
+    setActiveSubscriptionEmail(null);
     try {
       const session = await paymentsApi.createPublicStripeSession({
         email: payerEmail,
@@ -120,7 +139,13 @@ export default function PaymentProcessPage() {
 
       phCapture('checkout_started', { payment_provider: 'stripe', months });
       window.location.href = session.url;
-    } catch {
+    } catch (error) {
+      // An email that already subscribes is not a failed payment: retrying can
+      // never succeed, so the visitor is offered the way in instead.
+      if (isActiveSubscriptionError(error)) {
+        setActiveSubscriptionEmail(payerEmail);
+        return;
+      }
       setCheckoutError(CHECKOUT_ERROR);
     } finally {
       setIsPending(false);
@@ -326,6 +351,12 @@ export default function PaymentProcessPage() {
       <PaymentFooter />
 
       <TermsDialog />
+
+      <ActiveSubscriptionDialog
+        email={activeSubscriptionEmail}
+        onClose={() => setActiveSubscriptionEmail(null)}
+        onLogin={() => navigate(profilePaymentPath)}
+      />
     </>
   );
 }

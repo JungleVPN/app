@@ -2,6 +2,7 @@ import type { RawBodyRequest } from '@nestjs/common';
 import {
   BadRequestException,
   Body,
+  ConflictException,
   Controller,
   Get,
   Headers,
@@ -19,6 +20,7 @@ import { AnalyticsClientService } from '@payments/analytics/analytics-client.ser
 import { getExtraDevicePrice, getPriceForPeriod } from '@payments/utils/amount';
 import { StripePayment } from '@workspace/database';
 import {
+  ACTIVE_SUBSCRIPTION_CODE,
   type CreatePublicStripeSessionDto,
   type CreateStripeSessionDto,
   type PaymentPurpose,
@@ -130,7 +132,14 @@ export class StripeController {
       origin,
     });
 
-    return this.openSession(
+    // An authenticated caller who already subscribes is answered with a Billing
+    // Portal session. This caller proved nothing but knowledge of an email
+    // address, so the same answer would hand anyone a live self-service URL for
+    // that subscriber's account — invoices, card details, cancellation. Refuse
+    // instead, and let the page send them to sign in.
+    await this.refuseIfAlreadySubscribed(userId);
+
+    const session = await this.openSession(
       {
         userId,
         selectedPeriod: dto.selectedPeriod,
@@ -139,6 +148,37 @@ export class StripeController {
       },
       origin,
     );
+
+    // The check above races a subscription created between it and the session,
+    // and it is the only thing standing between an email address and someone
+    // else's portal. Never let a non-checkout session leave this route.
+    if (!isCheckoutSession(session)) {
+      throw this.activeSubscriptionConflict();
+    }
+
+    return session;
+  }
+
+  /** Refuses the anonymous route for a user who already subscribes. */
+  private async refuseIfAlreadySubscribed(userId: number): Promise<void> {
+    const customerId = await this.stripeProvider.getCustomerId(userId);
+    if (!customerId) return;
+
+    if (await this.stripeProvider.hasActiveSubscription(customerId)) {
+      throw this.activeSubscriptionConflict();
+    }
+  }
+
+  /**
+   * The 409 the checkout page recognises: it opens the "you already have a
+   * subscription, log in to manage it" dialog on this code, rather than showing
+   * the generic "we could not start the payment" failure.
+   */
+  private activeSubscriptionConflict(): ConflictException {
+    return new ConflictException({
+      code: ACTIVE_SUBSCRIPTION_CODE,
+      message: 'This email already has an active subscription',
+    });
   }
 
   /**

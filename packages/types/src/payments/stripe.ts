@@ -50,3 +50,11 @@ export interface StripeSubscriptionStatusDto {
   active: boolean;
   portalUrl: string | null;
 }
+
+/**
+ * Body of the 409 the public checkout answers with when the payer email already
+ * has an active subscription. The anonymous caller proved nothing but knowledge
+ * of the address, so it is never given a Billing Portal session — the page asks
+ * the visitor to log in and manage the subscription from their profile instead.
+ */
+export const ACTIVE_SUBSCRIPTION_CODE = 'active_subscription';

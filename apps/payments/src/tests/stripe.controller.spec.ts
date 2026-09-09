@@ -1,8 +1,12 @@
 import 'reflect-metadata';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { ClientOrServiceGuard } from '@payments/guards/client-or-service.guard';
 import { StripeController } from '@payments/providers/stripe/stripe.controller';
-import type { CreatePublicStripeSessionDto, CreateStripeSessionDto } from '@workspace/types';
+import {
+  ACTIVE_SUBSCRIPTION_CODE,
+  type CreatePublicStripeSessionDto,
+  type CreateStripeSessionDto,
+} from '@workspace/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const dto = (overrides: Partial<CreateStripeSessionDto> = {}): CreateStripeSessionDto => ({
@@ -172,7 +176,11 @@ describe('StripeController.createPublicSession', () => {
 
   const controllerWith = (
     resolver: { resolveOrCreateByEmail: ReturnType<typeof vi.fn> },
-    overrides: { createPayment?: ReturnType<typeof vi.fn> } = {},
+    overrides: {
+      createPayment?: ReturnType<typeof vi.fn>;
+      getCustomerId?: ReturnType<typeof vi.fn>;
+      hasActiveSubscription?: ReturnType<typeof vi.fn>;
+    } = {},
   ) => {
     process.env.PRICE_EUR_MONTH_1 = '10';
     const stripePaymentRepo = {
@@ -188,6 +196,8 @@ describe('StripeController.createPublicSession', () => {
           url: 'https://checkout',
           customer: 'cus_public',
         }),
+      getCustomerId: overrides.getCustomerId ?? vi.fn().mockResolvedValue(null),
+      hasActiveSubscription: overrides.hasActiveSubscription ?? vi.fn().mockResolvedValue(false),
     };
     const analyticsClient = { track: vi.fn().mockResolvedValue(undefined) };
     const controller = new StripeController(
@@ -295,7 +305,36 @@ describe('StripeController.createPublicSession', () => {
     );
   });
 
-  it('never records a sale when an existing subscriber is sent to the billing portal', async () => {
+  it('refuses an anonymous checkout for an email that already has an active subscription', async () => {
+    // Answering with a Billing Portal session here would hand anyone who types a
+    // subscriber's email a live self-service URL for that subscriber's account.
+    const resolver = { resolveOrCreateByEmail: vi.fn().mockResolvedValue(77) };
+    const { controller, stripeProvider, stripePaymentRepo, analyticsClient } = controllerWith(
+      resolver,
+      {
+        getCustomerId: vi.fn().mockResolvedValue('cus_victim'),
+        hasActiveSubscription: vi.fn().mockResolvedValue(true),
+      },
+    );
+
+    const error = await controller
+      .createPublicSession(publicDto(), 'https://app.test')
+      .catch((caught: unknown) => caught);
+
+    // The page turns this code into "you already have a subscription, log in"
+    // rather than a generic checkout failure.
+    expect(error).toBeInstanceOf(ConflictException);
+    expect((error as ConflictException).getResponse()).toMatchObject({
+      code: ACTIVE_SUBSCRIPTION_CODE,
+    });
+    expect(stripeProvider.createPayment).not.toHaveBeenCalled();
+    expect(stripePaymentRepo.save).not.toHaveBeenCalled();
+    expect(analyticsClient.track).not.toHaveBeenCalled();
+  });
+
+  it('never returns a billing portal session to an anonymous caller', async () => {
+    // Belt and braces: even if the subscription check misses, a portal session
+    // must not leave the public route.
     const resolver = { resolveOrCreateByEmail: vi.fn().mockResolvedValue(77) };
     const { controller, stripePaymentRepo, analyticsClient } = controllerWith(resolver, {
       createPayment: vi
@@ -303,7 +342,9 @@ describe('StripeController.createPublicSession', () => {
         .mockResolvedValue({ object: 'billing_portal.session', url: 'https://portal' }),
     });
 
-    await controller.createPublicSession(publicDto(), 'https://app.test');
+    await expect(controller.createPublicSession(publicDto(), 'https://app.test')).rejects.toThrow(
+      ConflictException,
+    );
 
     expect(stripePaymentRepo.save).not.toHaveBeenCalled();
     expect(analyticsClient.track).not.toHaveBeenCalled();
