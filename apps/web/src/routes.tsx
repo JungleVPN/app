@@ -3,6 +3,7 @@ import type { ComponentType } from 'react';
 
 import { WebAppLayout } from '@/layouts/WebAppLayout';
 import { WebLegalLayout } from '@/layouts/WebLegalLayout';
+import { WebPaymentLayout } from '@/layouts/WebPaymentLayout';
 import { WebRootLayout } from '@/layouts/WebRootLayout';
 
 // Loaded on demand via route.lazy so the landing page's initial bundle doesn't
@@ -41,22 +42,46 @@ export function createRoutes(Landing: ComponentType) {
         {
           Component: WebRootLayout,
           children: [
-            { path: '/subscribe', lazy: () => pages().then((m) => ({ Component: m.GetSubscriptionPage })) },
+            {
+              path: '/subscribe',
+              lazy: () => pages().then((m) => ({ Component: m.GetSubscriptionPage })),
+            },
             { path: '/login', lazy: () => pages().then((m) => ({ Component: m.LoginPage })) },
-            { path: '/login/confirm', lazy: () => pages().then((m) => ({ Component: m.ConfirmPage })) },
+            {
+              path: '/login/confirm',
+              lazy: () => pages().then((m) => ({ Component: m.ConfirmPage })),
+            },
             {
               path: '/subscription/:shortUuid',
               lazy: () => pages().then((m) => ({ Component: m.SubscriptionPage })),
             },
-            { path: '/affiliates', lazy: () => pages().then((m) => ({ Component: m.AffiliatePage })) },
+            {
+              path: '/affiliates',
+              lazy: () => pages().then((m) => ({ Component: m.AffiliatePage })),
+            },
+          ],
+        },
+        {
+          Component: WebPaymentLayout,
+          children: [
+            {
+              path: '/payment',
+              lazy: () => pages().then((m) => ({ Component: m.PaymentProcessPage })),
+            },
           ],
         },
         {
           Component: WebLegalLayout,
           children: [
             { path: '/terms', lazy: () => pages().then((m) => ({ Component: m.TermsPage })) },
-            { path: '/privacy', lazy: () => pages().then((m) => ({ Component: m.PrivacyPolicyPage })) },
-            { path: '/cookies', lazy: () => pages().then((m) => ({ Component: m.CookiePolicyPage })) },
+            {
+              path: '/privacy',
+              lazy: () => pages().then((m) => ({ Component: m.PrivacyPolicyPage })),
+            },
+            {
+              path: '/cookies',
+              lazy: () => pages().then((m) => ({ Component: m.CookiePolicyPage })),
+            },
           ],
         },
         {
@@ -67,9 +92,18 @@ export function createRoutes(Landing: ComponentType) {
               path: 'subscription',
               lazy: () => pages().then((m) => ({ Component: m.ProtectedProfileSubscriptionPage })),
             },
-            { path: 'plans', lazy: () => pages().then((m) => ({ Component: m.ProtectedPlansPage })) },
-            { path: 'payments', lazy: () => pages().then((m) => ({ Component: m.ProtectedPaymentPage })) },
-            { path: 'devices', lazy: () => pages().then((m) => ({ Component: m.ProtectedDevicesPage })) },
+            {
+              path: 'plans',
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedPlansPage })),
+            },
+            {
+              path: 'payments',
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedPaymentPage })),
+            },
+            {
+              path: 'devices',
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedDevicesPage })),
+            },
             {
               path: 'transactions',
               lazy: () => pages().then((m) => ({ Component: m.ProtectedTransactionsPage })),
@@ -79,7 +113,10 @@ export function createRoutes(Landing: ComponentType) {
               lazy: () => pages().then((m) => ({ Component: m.ProtectedTransactionDetailsPage })),
             },
             { path: 'menu', lazy: () => pages().then((m) => ({ Component: m.ProtectedMenuPage })) },
-            { path: 'referrals', lazy: () => pages().then((m) => ({ Component: m.ProtectedReferralsPage })) },
+            {
+              path: 'referrals',
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedReferralsPage })),
+            },
           ],
         },
       ],
