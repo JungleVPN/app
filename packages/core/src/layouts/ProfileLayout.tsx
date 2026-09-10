@@ -16,7 +16,7 @@ import {
   useSubscriptionConfigStoreActions,
 } from '../stores';
 import { Container } from '../ui';
-import { captureReferral, phIdentify } from '../utils';
+import { captureReferral, isGlobalOrigin, phIdentify } from '../utils';
 
 export function ProfileLayout() {
   const navigate = useNavigation();
@@ -24,7 +24,7 @@ export function ProfileLayout() {
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { platformType } = usePlatformStore();
-  const { getSubscriptionPath } = useAppRoutes();
+  const { getConnectEmailPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
   const { setLanguage } = useSubscriptionConfigStoreActions();
   // Hand any affiliate attribution to the backend as soon as the user is known.
@@ -43,11 +43,20 @@ export function ProfileLayout() {
 
   // Resolve the remnawave user from the available auth identity.
   //
-  // Web:  looks up by email (authUser.email); redirects to getSubscriptionPath if not found.
-  // TMA:  looks up by telegramId (tgUser.id);  redirects to getSubscriptionPath if not found.
+  // Web:  looks up by email (authUser.email); redirects to getConnectEmailPath if not found.
+  // TMA:  looks up by telegramId (tgUser.id);  redirects to getConnectEmailPath if not found.
+  //
+  // A RU miss is the start of the free trial: getConnectEmailPath auto-connects the
+  // account, which the panel opens with TRIAL_PERIOD_IN_DAYS of access.
+  //
+  // Global domains are the exception: there an account only exists once a payment has
+  // settled, so "not found" is the ordinary state of a logged-in visitor who has not
+  // subscribed yet. Sending them to getConnectEmailPath would bounce them straight back
+  // (it no longer creates accounts for global users) — ProfileSubscriptionPage offers
+  // them a plan instead.
   //
   // Guard: skip the API call if rmnUser is already in the store — this avoids a
-  // redundant lookup when the user just came through GetSubscriptionPage, which
+  // redundant lookup when the user just came through ConnectEmailPage, which
   // already resolved and stored the user before navigating here.
   useEffect(() => {
     if (useAuthStore.getState().rmnUser) return;
@@ -61,13 +70,13 @@ export function ProfileLayout() {
             // client-side events (plan_selected, subscription_viewed, ...) merge into
             // the same PostHog person as backend-dispatched events (payment_succeeded).
             phIdentify(String(user.id));
-          } else {
-            navigate(getSubscriptionPath);
+          } else if (!isGlobalOrigin()) {
+            navigate(getConnectEmailPath);
           }
         })
         .catch(console.error);
     }
-  }, [authUser?.email, remnawaveApi, setRmnUser, tgUser?.id, navigate, getSubscriptionPath]);
+  }, [authUser?.email, remnawaveApi, setRmnUser, tgUser?.id, navigate, getConnectEmailPath]);
 
   useEffect(() => {
     if (!rmnUser) return;

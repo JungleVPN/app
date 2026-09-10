@@ -23,6 +23,7 @@ const appRoutes = {
   paymentReturnPath: '/profile/subscription',
   authGateRedirectPath: '/login',
   affiliatesPath: '/affiliates',
+  publicPlansPath: '/plans',
   profileSubscriptionPath: '/profile/subscription',
   profilePaymentPath: '/profile/payments',
   profilePlansPath: '/profile/plans',
@@ -31,7 +32,8 @@ const appRoutes = {
   profileTransactionsPath: '/profile/transactions',
   profileMenuPath: '/profile/menu',
   profileReferralsPath: '/profile/referrals',
-  getSubscriptionPath: '/subscribe',
+  getConnectEmailPath: '/connectEmail',
+  getSubscriptionPath: (period: number) => `/payment/plan${period}`,
 };
 
 const rootEl = document.getElementById('root')!;

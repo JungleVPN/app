@@ -60,7 +60,7 @@ export default function LoginPage() {
       <div className={'mt-4'}>
         <FeaturesCard
           title={t('common.features.title')}
-          badge={t('getSubscription.discount')}
+          badge={t('connectEmailPage.discount')}
           description={t('login.trial_card_description')}
         />
       </div>

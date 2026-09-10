@@ -203,7 +203,7 @@
   "errors": {
     "unknown": "Bir şeyler ters gitti"
   },
-  "getSubscription": {
+  "connectEmailPage": {
     "enter_email": "E-posta",
     "email_placeholder": "ornek@gmail.com",
     "email_description": "Aboneliğinizi yönetmek için gereklidir",

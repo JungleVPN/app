@@ -130,6 +130,7 @@ const appRoutes = {
   paymentReturnPath: '/profile/subscription',
   authGateRedirectPath: '/login',
   affiliatesPath: '/affiliates',
+  publicPlansPath: '/plans',
   profileSubscriptionPath: '/profile/subscription',
   profilePaymentPath: '/profile/payments',
   profilePlansPath: '/profile/plans',
@@ -138,7 +139,8 @@ const appRoutes = {
   profileTransactionsPath: '/profile/transactions',
   profileMenuPath: '/profile/menu',
   profileReferralsPath: '/profile/referrals',
-  getSubscriptionPath: '/subscribe',
+  getConnectEmailPath: '/connectEmail',
+  getSubscriptionPath: (period: number) => `/payment/plan${period}`,
 };
 
 /**
@@ -216,7 +218,14 @@ export async function render(request: Request, hostname: string) {
     .join('\n    ');
 
   if (status >= 400) {
-    return { html: '', head, pointer: '', lang: config.lang, dir: getDirection(config.locale), status };
+    return {
+      html: '',
+      head,
+      pointer: '',
+      lang: config.lang,
+      dir: getDirection(config.locale),
+      status,
+    };
   }
 
   return {

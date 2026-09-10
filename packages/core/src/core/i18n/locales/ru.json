@@ -209,7 +209,7 @@
   "errors": {
     "unknown": "Произошла ошибка"
   },
-  "getSubscription": {
+  "connectEmailPage": {
     "enter_email": "Введите email для вашего аккаунта JungleVPN",
     "email_placeholder": "example@gmail.com",
     "email_description": "Необходим для управления вашей подпиской",

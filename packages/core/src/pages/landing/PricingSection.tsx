@@ -6,7 +6,7 @@ import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { usePlans } from '../../hooks';
 import { Grid, GridItem } from '../../ui';
 import { cn, formatPlanPrice, isGlobalOrigin } from '../../utils';
-import { planSlug } from '../paymentProcess/planSlug';
+import { planSlug } from '../getSubscription/planSlug';
 
 const HIGHLIGHTED_PLAN_MONTHS = 12;
 const HIGHLIGHTED_DESKTOP_POSITION = 2;

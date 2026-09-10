@@ -1,4 +1,5 @@
 import { RootLayout } from '@workspace/core';
+import { PaymentFooter } from '@workspace/core/components';
 
 /**
  * Checkout shell: wider than WebRootLayout so the payment steps and the order
@@ -6,8 +7,9 @@ import { RootLayout } from '@workspace/core';
  */
 export function WebPaymentLayout() {
   return (
-    <div className='mt-8'>
+    <div className='mt-8 flex flex-col justify-between h-screen'>
       <RootLayout />
+      <PaymentFooter />
     </div>
   );
 }

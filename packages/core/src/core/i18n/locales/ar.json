@@ -203,7 +203,7 @@
   "errors": {
     "unknown": "حدث خطأ ما"
   },
-  "getSubscription": {
+  "connectEmailPage": {
     "enter_email": "البريد الإلكتروني",
     "email_placeholder": "example@gmail.com",
     "email_description": "مطلوب لإدارة اشتراكك",

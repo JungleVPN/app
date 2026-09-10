@@ -11,12 +11,13 @@ import {
   clearReferral,
   getAttribution,
   getReferralUserId,
+  isGlobalOrigin,
   phCapture,
   phIdentify,
   validateEmail,
 } from '../../utils';
 
-export function useGetSubscriptionPage() {
+export function useConnectEmail() {
   const { profileSubscriptionPath, authGateRedirectPath } = useAppRoutes();
   const remnawaveApi = useRemnawaveApi();
   const analyticsApi = useAnalyticsApi();
@@ -30,6 +31,7 @@ export function useGetSubscriptionPage() {
   const { setRmnUser } = useAuthStoreActions();
   const { platformType } = usePlatformStore();
   const connectingRef = useRef(false);
+  const isGlobal = isGlobalOrigin();
 
   // Re-run on every landing: if the user arrives directly at /subscribe with
   // a ?ref= param, capture it. First-touch-guarded — no-op once the cookie
@@ -68,10 +70,20 @@ export function useGetSubscriptionPage() {
   // Web auto-connect: once Supabase auth resolves and there's still no remnawave
   // account, create it automatically using the verified JWT email — no form input
   // needed since the email was already collected during magic-link login.
+  //
+  // RU only. On the global domains an account is a paid artefact: it is created by
+  // the backend when a Stripe checkout started from GetSubscriptionPage succeeds, so
+  // merely logging in must not conjure one. A logged-in global visitor with no
+  // account is sent to the subscription page, which offers them a plan.
+  //
   // connectingRef guards against double-invocation from React Strict Mode or
   // multiple onAuthStateChange fires before rmnUser lands in the store.
   useEffect(() => {
     if (platformType !== 'web' || !authUser || rmnUser || connectingRef.current) return;
+    if (isGlobal) {
+      navigate(profileSubscriptionPath);
+      return;
+    }
     connectingRef.current = true;
 
     remnawaveApi
@@ -90,7 +102,17 @@ export function useGetSubscriptionPage() {
         connectingRef.current = false;
         console.error(err);
       });
-  }, [platformType, authUser, rmnUser, remnawaveApi, analyticsApi, navigate, setRmnUser]);
+  }, [
+    platformType,
+    authUser,
+    rmnUser,
+    isGlobal,
+    remnawaveApi,
+    analyticsApi,
+    navigate,
+    profileSubscriptionPath,
+    setRmnUser,
+  ]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentional fire-once
   useEffect(() => {
@@ -110,8 +132,8 @@ export function useGetSubscriptionPage() {
   };
 
   const validateEmailInput = (): string | null => {
-    if (!email.trim()) return t('getSubscription.error_empty_email');
-    if (!validateEmail(email)) return t('getSubscription.error_invalid_email');
+    if (!email.trim()) return t('connectEmailPage.error_empty_email');
+    if (!validateEmail(email)) return t('connectEmailPage.error_invalid_email');
     return null;
   };
 
@@ -161,14 +183,14 @@ export function useGetSubscriptionPage() {
         await submitTelegramUser(tgUser);
       }
     } catch {
-      setError(t('getSubscription.error_failed_to_create'));
+      setError(t('connectEmailPage.error_failed_to_create'));
       setHasError(true);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const isConnecting = platformType === 'web' && !!authUser && !rmnUser;
+  const isConnecting = platformType === 'web' && !isGlobal && !!authUser && !rmnUser;
 
   return {
     email,

@@ -1,7 +1,7 @@
 import {
   AffiliatePage,
+  ConnectEmailPage,
   CookiePolicyPage,
-  GetSubscriptionPage,
   PrivacyPolicyPage,
   ProfileLayout,
   ProtectedPaymentPage,
@@ -23,7 +23,7 @@ import { TmaRootLayout } from '@/layouts/TmaRootLayout';
  * TMA uses createMemoryRouter (no URL bar). Route paths mirror the web app
  * exactly so both platforms share the same AppRoutes config:
  *
- *   /getSubscription          — onboarding for new Telegram users (no ProfileLayout)
+ *   /connectEmail          — onboarding for new Telegram users (no ProfileLayout)
  *   /profile/subscription     — subscription tab
  *   /profile/payments         — payments tab
  *   /profile/devices          — devices tab
@@ -51,8 +51,8 @@ export const router = createMemoryRouter(
         {
           // Account setup for first-time TMA users. No ProfileLayout wrapper
           // because there is no rmnUser yet at this point.
-          path: 'getSubscription',
-          Component: GetSubscriptionPage,
+          path: 'connectEmail',
+          Component: ConnectEmailPage,
         },
         {
           path: 'profile',

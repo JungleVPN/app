@@ -1,12 +1,12 @@
 import { IconMail } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import Logo from '../assets/Logo_dark.svg?react';
-import LogoDark from '../assets/Logo_dark.svg?react';
-import { coreEnv } from '../env';
-import { useTheme } from '../hooks';
-import { scrollToTop } from '../utils';
-import { SupportButton } from './SupportWidget/SupportButton';
+import Logo from '../../assets/Logo_dark.svg?react';
+import LogoDark from '../../assets/Logo_dark.svg?react';
+import { coreEnv } from '../../env';
+import { useTheme } from '../../hooks';
+import { scrollToTop } from '../../utils';
+import { SupportButton } from '../SupportWidget/SupportButton';
 
 type FooterLinkDef =
   | { type: 'internal'; to: string }

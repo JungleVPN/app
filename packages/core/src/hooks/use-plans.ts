@@ -1,7 +1,7 @@
 import { apiRoutes, SubscriptionPlanDto } from '@workspace/types';
 import { useEffect } from 'react';
 import { coreEnv } from '../env';
-import { usePlansStatus, usePlansStore, usePlansStoreActions } from '../stores';
+import { usePlansStore, usePlansStoreActions } from '../stores';
 
 /**
  * Reads the shared plans from the global store, starting the fetch on first use.
@@ -10,12 +10,17 @@ import { usePlansStatus, usePlansStore, usePlansStoreActions } from '../stores';
  */
 export const usePlans = () => {
   const plans = usePlansStore((state) => state.plans);
-  const status = usePlansStatus();
   const { setPlans, setStatus } = usePlansStoreActions();
 
   useEffect(() => {
-    // 'error' is retryable: a transient failure would otherwise hide pricing for
-    // the rest of the session, since the store outlives every consumer.
+    // Status is read imperatively rather than subscribed to. A failed request
+    // sets 'error', so depending on it here would feed the failure straight back
+    // into this effect and re-request as fast as the network can fail.
+    //
+    // 'error' is still retryable, just not by itself: the next consumer to mount
+    // tries again, so a transient failure does not hide pricing for the rest of
+    // the session even though the store outlives every consumer.
+    const { status } = usePlansStore.getState();
     if (status === 'loading' || status === 'loaded') return;
 
     setStatus('loading');
@@ -24,7 +29,7 @@ export const usePlans = () => {
       .then((r) => r.json())
       .then((data: SubscriptionPlanDto[]) => setPlans(data))
       .catch(() => setStatus('error'));
-  }, [status, setPlans, setStatus]);
+  }, [setPlans, setStatus]);
 
   return plans;
 };

@@ -3,7 +3,7 @@ import { IconLogout, IconUser } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { useNavigation } from '../../hooks';
-import { useSupabaseClient } from '../../runtime';
+import { useAppRoutes, useSupabaseClient } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo } from '../../stores';
 import { isLandingPath } from '../../utils';
 
@@ -19,6 +19,7 @@ export function AuthButtons(props: AuthButtonsProps) {
   const { setAuthUser, setRmnUser } = useAuthStoreActions();
   const navigate = useNavigation();
   const location = useLocation();
+  const { publicPlansPath } = useAppRoutes();
   const { t } = useTranslation();
 
   if (loading) {
@@ -32,9 +33,16 @@ export function AuthButtons(props: AuthButtonsProps) {
   const handleTryNow = () => {
     if (isRu) {
       navigate('/login');
-    } else {
-      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+      return;
     }
+
+    const pricing = document.getElementById('pricing');
+    if (pricing) {
+      pricing.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+
+    navigate(publicPlansPath);
   };
 
   const handleLogout = async () => {

@@ -43,8 +43,8 @@ export function createRoutes(Landing: ComponentType) {
           Component: WebRootLayout,
           children: [
             {
-              path: '/subscribe',
-              lazy: () => pages().then((m) => ({ Component: m.GetSubscriptionPage })),
+              path: '/connectEmail',
+              lazy: () => pages().then((m) => ({ Component: m.ConnectEmailPage })),
             },
             { path: '/login', lazy: () => pages().then((m) => ({ Component: m.LoginPage })) },
             {
@@ -62,7 +62,11 @@ export function createRoutes(Landing: ComponentType) {
           children: [
             {
               path: '/payment/:planSlug',
-              lazy: () => pages().then((m) => ({ Component: m.PaymentProcessPage })),
+              lazy: () => pages().then((m) => ({ Component: m.GetSubscriptionPage })),
+            },
+            {
+              path: '/plans',
+              lazy: () => pages().then((m) => ({ Component: m.PublicPlansPage })),
             },
           ],
         },

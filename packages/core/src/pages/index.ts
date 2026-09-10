@@ -1,9 +1,10 @@
+export { default as ConnectEmailPage } from './connectEmailPage/ConnectEmailPage';
 export { default as CookiePolicyPage } from './cookies/CookiePolicyPage';
 export { default as GetSubscriptionPage } from './getSubscription/GetSubscriptionPage';
 export { default as LandingPage } from './landing/LandingPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';
 export { default as LoginPage } from './login/LoginPage';
-export { default as PaymentProcessPage } from './paymentProcess/PaymentProcessPage';
+export { PublicPlansPage } from './plans/PlansPage';
 export { default as PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';
 export { default as AffiliatePage } from './profile/affiliate/AffiliatePage';
 export { ProtectedDevicesPage } from './profile/devices/protected';

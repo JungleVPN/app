@@ -1,4 +1,6 @@
 import { AlertDialog, Button } from '@heroui/react';
+import { useNavigation } from '../../hooks';
+import { useAppRoutes } from '../../runtime';
 
 /**
  * Shown when the payer email on the anonymous checkout already has an active
@@ -13,13 +15,16 @@ import { AlertDialog, Button } from '@heroui/react';
  */
 export function ActiveSubscriptionDialog({
   email,
+  isLoggedIn,
   onClose,
-  onLogin,
 }: {
   email: string | null;
+  isLoggedIn: boolean;
   onClose: () => void;
-  onLogin: () => void;
 }) {
+  const navigate = useNavigation();
+  const { profileSubscriptionPath, authGateRedirectPath } = useAppRoutes();
+
   return (
     <AlertDialog.Backdrop
       isDismissable
@@ -44,14 +49,22 @@ export function ActiveSubscriptionDialog({
               <p>Log in to see your plan, invoices and payment method.</p>
             </div>
           </AlertDialog.Body>
-          <AlertDialog.Footer className='flex flex-col gap-2 sm:flex-row'>
-            <Button fullWidth onPress={onLogin}>
-              Log in
-            </Button>
-            <Button fullWidth variant='secondary' onPress={onClose}>
-              Use a different email
-            </Button>
-          </AlertDialog.Footer>
+          {isLoggedIn ? (
+            <AlertDialog.Footer className='flex flex-col gap-2 sm:flex-row'>
+              <Button fullWidth onPress={() => navigate(profileSubscriptionPath)}>
+                To Profile
+              </Button>
+            </AlertDialog.Footer>
+          ) : (
+            <AlertDialog.Footer className='flex flex-col gap-2 sm:flex-row'>
+              <Button fullWidth onPress={() => navigate(authGateRedirectPath)}>
+                Log in
+              </Button>
+              <Button fullWidth variant='secondary' onPress={onClose}>
+                Use a different email
+              </Button>
+            </AlertDialog.Footer>
+          )}
         </AlertDialog.Dialog>
       </AlertDialog.Container>
     </AlertDialog.Backdrop>

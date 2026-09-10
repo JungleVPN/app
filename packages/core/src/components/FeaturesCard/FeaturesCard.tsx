@@ -19,9 +19,9 @@ export function FeaturesCard({
   const { t } = useTranslation();
 
   const features = [
-    t('getSubscription.feature_devices'),
-    t('getSubscription.feature_traffic'),
-    t('getSubscription.feature_support'),
+    t('connectEmailPage.feature_devices'),
+    t('connectEmailPage.feature_traffic'),
+    t('connectEmailPage.feature_support'),
   ];
 
   return (

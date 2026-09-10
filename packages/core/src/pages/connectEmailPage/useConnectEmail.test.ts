@@ -2,8 +2,8 @@ import { act, renderHook } from '@testing-library/react';
 import type { User } from '@tma.js/sdk-react';
 import type { CreateUserResponseDto } from '@workspace/types';
 import type { SyntheticEvent } from 'react';
-import { describe, expect, it, vi } from 'vitest';
-import { useGetSubscriptionPage } from './useGetSubscriptionPage';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { useConnectEmail } from './useConnectEmail';
 
 const {
   mockBackButtonHide,
@@ -20,6 +20,7 @@ const {
   mockClearAttribution,
   mockGetAttribution,
   mockGetReferralUserId,
+  mockIsGlobalOrigin,
 } = vi.hoisted(() => ({
   mockBackButtonHide: vi.fn(),
   mockConnectEmail: vi.fn(),
@@ -35,6 +36,7 @@ const {
   mockClearAttribution: vi.fn(),
   mockGetAttribution: vi.fn(),
   mockGetReferralUserId: vi.fn(),
+  mockIsGlobalOrigin: vi.fn(),
 }));
 
 vi.mock('@tma.js/sdk-react', () => ({
@@ -82,6 +84,7 @@ vi.mock('../../utils', async (importOriginal) => {
     clearAttribution: mockClearAttribution,
     getAttribution: mockGetAttribution,
     getReferralUserId: mockGetReferralUserId,
+    isGlobalOrigin: mockIsGlobalOrigin,
   };
 });
 
@@ -145,12 +148,16 @@ function submitEvent(): SyntheticEvent {
   return { preventDefault: vi.fn() } as unknown as SyntheticEvent;
 }
 
-describe('useGetSubscriptionPage', () => {
+describe('useConnectEmail', () => {
+  beforeEach(() => {
+    mockIsGlobalOrigin.mockReturnValue(false);
+  });
+
   it('captures the referral on mount', () => {
     setAuthState();
     setPlatform('web');
 
-    renderHook(() => useGetSubscriptionPage());
+    renderHook(() => useConnectEmail());
 
     expect(mockCaptureReferral).toHaveBeenCalledTimes(1);
   });
@@ -159,7 +166,7 @@ describe('useGetSubscriptionPage', () => {
     setAuthState({ rmnUser: null });
     setPlatform('web');
 
-    renderHook(() => useGetSubscriptionPage());
+    renderHook(() => useConnectEmail());
 
     expect(mockPhCapture).toHaveBeenCalledWith('initial_page_viewed', { platform: 'web' });
   });
@@ -168,7 +175,7 @@ describe('useGetSubscriptionPage', () => {
     setAuthState({ rmnUser: null });
     setPlatform('telegram');
 
-    renderHook(() => useGetSubscriptionPage());
+    renderHook(() => useConnectEmail());
 
     expect(mockPhCapture).toHaveBeenCalledWith('initial_page_viewed', { platform: 'telegram' });
   });
@@ -177,7 +184,7 @@ describe('useGetSubscriptionPage', () => {
     setAuthState({ rmnUser: createRemnaUser() });
     setPlatform('web');
 
-    renderHook(() => useGetSubscriptionPage());
+    renderHook(() => useConnectEmail());
 
     expect(mockPhCapture).not.toHaveBeenCalled();
   });
@@ -186,7 +193,7 @@ describe('useGetSubscriptionPage', () => {
     setAuthState({ rmnUser: createRemnaUser(), authUser: { id: 'auth-1' } });
     setPlatform('web');
 
-    renderHook(() => useGetSubscriptionPage());
+    renderHook(() => useConnectEmail());
 
     expect(mockNavigate).toHaveBeenCalledWith('/profile/subscription');
   });
@@ -195,7 +202,7 @@ describe('useGetSubscriptionPage', () => {
     setAuthState({ rmnUser: createRemnaUser(), tgUser: createTgUser() });
     setPlatform('telegram');
 
-    renderHook(() => useGetSubscriptionPage());
+    renderHook(() => useConnectEmail());
 
     expect(mockNavigate).toHaveBeenCalledWith('/profile/subscription');
   });
@@ -204,7 +211,7 @@ describe('useGetSubscriptionPage', () => {
     setAuthState({ rmnUser: createRemnaUser() });
     setPlatform('web');
 
-    renderHook(() => useGetSubscriptionPage());
+    renderHook(() => useConnectEmail());
 
     expect(mockNavigate).toHaveBeenCalledWith('/login');
   });
@@ -213,7 +220,7 @@ describe('useGetSubscriptionPage', () => {
     setAuthState();
     setPlatform('telegram');
 
-    renderHook(() => useGetSubscriptionPage());
+    renderHook(() => useConnectEmail());
 
     expect(mockBackButtonHide).toHaveBeenCalledTimes(1);
   });
@@ -222,7 +229,7 @@ describe('useGetSubscriptionPage', () => {
     setAuthState();
     setPlatform('web');
 
-    renderHook(() => useGetSubscriptionPage());
+    renderHook(() => useConnectEmail());
 
     expect(mockBackButtonHide).not.toHaveBeenCalled();
   });
@@ -231,7 +238,7 @@ describe('useGetSubscriptionPage', () => {
     setAuthState();
     setPlatform('web');
 
-    const { result } = renderHook(() => useGetSubscriptionPage());
+    const { result } = renderHook(() => useConnectEmail());
 
     expect(result.current.email).toBe('');
     expect(result.current.error).toBeNull();
@@ -242,7 +249,7 @@ describe('useGetSubscriptionPage', () => {
   it('updates the email as the user types', () => {
     setAuthState();
     setPlatform('web');
-    const { result } = renderHook(() => useGetSubscriptionPage());
+    const { result } = renderHook(() => useConnectEmail());
 
     act(() => {
       result.current.handleEmailChange('alice@example.com');
@@ -254,7 +261,7 @@ describe('useGetSubscriptionPage', () => {
   it('clears a previously set error as soon as the user edits the email again', async () => {
     setAuthState();
     setPlatform('web');
-    const { result } = renderHook(() => useGetSubscriptionPage());
+    const { result } = renderHook(() => useConnectEmail());
 
     // empty-email submit populates an error first
     await act(async () => {
@@ -273,13 +280,13 @@ describe('useGetSubscriptionPage', () => {
   it('rejects submission with an empty email without calling the api', async () => {
     setAuthState();
     setPlatform('web');
-    const { result } = renderHook(() => useGetSubscriptionPage());
+    const { result } = renderHook(() => useConnectEmail());
 
     await act(async () => {
       await result.current.handleSubmit(submitEvent());
     });
 
-    expect(result.current.error).toBe('getSubscription.error_empty_email');
+    expect(result.current.error).toBe('connectEmailPage.error_empty_email');
     expect(result.current.hasError).toBe(true);
     expect(mockConnectEmail).not.toHaveBeenCalled();
   });
@@ -287,7 +294,7 @@ describe('useGetSubscriptionPage', () => {
   it('rejects submission with an invalid email without calling the api', async () => {
     setAuthState();
     setPlatform('web');
-    const { result } = renderHook(() => useGetSubscriptionPage());
+    const { result } = renderHook(() => useConnectEmail());
 
     act(() => {
       result.current.handleEmailChange('not-an-email');
@@ -296,7 +303,7 @@ describe('useGetSubscriptionPage', () => {
       await result.current.handleSubmit(submitEvent());
     });
 
-    expect(result.current.error).toBe('getSubscription.error_invalid_email');
+    expect(result.current.error).toBe('connectEmailPage.error_invalid_email');
     expect(result.current.hasError).toBe(true);
     expect(mockConnectEmail).not.toHaveBeenCalled();
   });
@@ -310,7 +317,7 @@ describe('useGetSubscriptionPage', () => {
       mockGetReferralUserId.mockReturnValue(null);
 
       await act(async () => {
-        renderHook(() => useGetSubscriptionPage());
+        renderHook(() => useConnectEmail());
       });
 
       expect(mockConnectEmail).toHaveBeenCalledWith('', { inviterId: undefined });
@@ -328,7 +335,7 @@ describe('useGetSubscriptionPage', () => {
       mockConnectEmail.mockResolvedValue(createRemnaUser({ shortUuid: 'new-short' }));
 
       await act(async () => {
-        renderHook(() => useGetSubscriptionPage());
+        renderHook(() => useConnectEmail());
       });
 
       expect(mockConnectEmail).toHaveBeenCalledWith('', { inviterId: 1001 });
@@ -346,7 +353,7 @@ describe('useGetSubscriptionPage', () => {
       setPlatform('web');
 
       await act(async () => {
-        renderHook(() => useGetSubscriptionPage());
+        renderHook(() => useConnectEmail());
       });
 
       expect(mockConnectEmail).not.toHaveBeenCalled();
@@ -359,7 +366,7 @@ describe('useGetSubscriptionPage', () => {
       mockGetReferralUserId.mockReturnValue(null);
 
       await act(async () => {
-        renderHook(() => useGetSubscriptionPage());
+        renderHook(() => useConnectEmail());
       });
 
       expect(mockConnectEmail).toHaveBeenCalled();
@@ -373,11 +380,48 @@ describe('useGetSubscriptionPage', () => {
       mockGetReferralUserId.mockReturnValue(null);
 
       await act(async () => {
-        renderHook(() => useGetSubscriptionPage());
+        renderHook(() => useConnectEmail());
       });
 
       expect(mockConnectEmail).toHaveBeenCalled();
       expect(mockNavigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('global domain', () => {
+    it('does not create a remnawave account when an authenticated global user has none', async () => {
+      mockIsGlobalOrigin.mockReturnValue(true);
+      setAuthState({ authUser: { id: 'auth-1' } });
+      setPlatform('web');
+      mockGetReferralUserId.mockReturnValue(null);
+
+      await act(async () => {
+        renderHook(() => useConnectEmail());
+      });
+
+      expect(mockConnectEmail).not.toHaveBeenCalled();
+    });
+
+    it('sends an authenticated global user without an account to the subscription page', async () => {
+      mockIsGlobalOrigin.mockReturnValue(true);
+      setAuthState({ authUser: { id: 'auth-1' } });
+      setPlatform('web');
+
+      await act(async () => {
+        renderHook(() => useConnectEmail());
+      });
+
+      expect(mockNavigate).toHaveBeenCalledWith('/profile/subscription');
+    });
+
+    it('reports no connection in progress for a global user, so the form is never shown as connecting', () => {
+      mockIsGlobalOrigin.mockReturnValue(true);
+      setAuthState({ authUser: { id: 'auth-1' } });
+      setPlatform('web');
+
+      const { result } = renderHook(() => useConnectEmail());
+
+      expect(result.current.isConnecting).toBe(false);
     });
   });
 
@@ -387,7 +431,7 @@ describe('useGetSubscriptionPage', () => {
       setPlatform('telegram');
       mockConnectEmail.mockResolvedValue(createRemnaUser({ id: 1003, telegramId: 777 }));
       mockGetAttribution.mockReturnValue(null);
-      const { result } = renderHook(() => useGetSubscriptionPage());
+      const { result } = renderHook(() => useConnectEmail());
 
       act(() => {
         result.current.handleEmailChange('tg@example.com');
@@ -409,7 +453,7 @@ describe('useGetSubscriptionPage', () => {
       mockConnectEmail.mockResolvedValue(createRemnaUser({ telegramId: 888 }));
       mockGetAttribution.mockReturnValue({ platform: 'telegram' });
       mockGetReferralUserId.mockReturnValue(1001);
-      const { result } = renderHook(() => useGetSubscriptionPage());
+      const { result } = renderHook(() => useConnectEmail());
 
       act(() => {
         result.current.handleEmailChange('newtg@example.com');

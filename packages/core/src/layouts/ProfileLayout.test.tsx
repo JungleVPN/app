@@ -1,19 +1,25 @@
-import type { GetUserByIdResponseDto } from '@workspace/types';
 import { cleanup, render, waitFor } from '@testing-library/react';
+import type { GetUserByIdResponseDto } from '@workspace/types';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAuthStore } from '../stores';
 import { ProfileLayout } from './ProfileLayout';
 
-const { getMe, phIdentify, navigate, remnawaveApi } = vi.hoisted(() => {
+const { getMe, phIdentify, navigate, remnawaveApi, isGlobalOrigin } = vi.hoisted(() => {
   const getMe = vi.fn();
   const remnawaveApi = {
     getMe,
     getMyMetadata: vi.fn().mockResolvedValue(null),
     upsertMyMetadata: vi.fn().mockResolvedValue(undefined),
   };
-  return { getMe, phIdentify: vi.fn(), navigate: vi.fn(), remnawaveApi };
+  return {
+    getMe,
+    phIdentify: vi.fn(),
+    navigate: vi.fn(),
+    remnawaveApi,
+    isGlobalOrigin: vi.fn(),
+  };
 });
 
 vi.mock('../api', () => ({
@@ -21,7 +27,7 @@ vi.mock('../api', () => ({
 }));
 
 vi.mock('../runtime', () => ({
-  useAppRoutes: () => ({ getSubscriptionPath: '/get-subscription' }),
+  useAppRoutes: () => ({ getConnectEmailPath: '/connectEmail' }),
   usePaymentsApi: () => ({}),
 }));
 
@@ -43,7 +49,7 @@ vi.mock('../pages/profile/payment/components/TermsDialog', () => ({ TermsDialog:
 vi.mock('../core/i18n', () => ({ applyUserLang: vi.fn() }));
 vi.mock('../env', () => ({ coreEnv: { subpageConfigUuid: 'test-subpage' } }));
 
-vi.mock('../utils', () => ({ captureReferral: vi.fn(), phIdentify }));
+vi.mock('../utils', () => ({ captureReferral: vi.fn(), phIdentify, isGlobalOrigin }));
 
 function fakeUser(overrides: Partial<GetUserByIdResponseDto> = {}) {
   return { id: 846, shortUuid: 'sub-846', ...overrides } as GetUserByIdResponseDto;
@@ -61,6 +67,7 @@ function renderProfileLayout() {
 
 describe('ProfileLayout', () => {
   beforeEach(() => {
+    isGlobalOrigin.mockReturnValue(false);
     remnawaveApi.getMyMetadata.mockResolvedValue(null);
     remnawaveApi.upsertMyMetadata.mockResolvedValue(undefined);
     useAuthStore.setState({
@@ -91,5 +98,23 @@ describe('ProfileLayout', () => {
     await waitFor(() => expect(getMe).toHaveBeenCalled());
 
     expect(phIdentify).not.toHaveBeenCalled();
+  });
+
+  it('sends a RU user with no remnawave account to the page that creates their trial account', async () => {
+    getMe.mockResolvedValue(null);
+
+    renderProfileLayout();
+
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/connectEmail'));
+  });
+
+  it('keeps a global user with no remnawave account on the profile, where a plan is offered', async () => {
+    isGlobalOrigin.mockReturnValue(true);
+    getMe.mockResolvedValue(null);
+
+    renderProfileLayout();
+
+    await waitFor(() => expect(getMe).toHaveBeenCalled());
+    expect(navigate).not.toHaveBeenCalled();
   });
 });

@@ -203,7 +203,7 @@
   "errors": {
     "unknown": "Something went wrong"
   },
-  "getSubscription": {
+  "connectEmailPage": {
     "enter_email": "Email",
     "email_placeholder": "example@gmail.com",
     "email_description": "Required to manage your subscription",
