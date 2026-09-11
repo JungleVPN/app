@@ -21,6 +21,7 @@ import {
 } from '@tabler/icons-react';
 import { PlanPricing } from '@workspace/types';
 import { SyntheticEvent } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import Logo from '../../assets/Logo.svg?react';
 import { FeaturesCard, Link } from '../../components';
 import { useTermsStore } from '../../stores';
@@ -43,10 +44,6 @@ interface GetSubscriptionComponentProps {
 }
 
 const BRAND_GRADIENT = 'bg-linear-to-r from-violet-500 to-amber-400';
-const EMAIL_HINT =
-  "If you've used JungleVPN before, we'll add the subscription to your existing account. " +
-  "If not, we'll create a new account with this email.";
-
 function StepHeading({ step, title }: { step: number; title: string }) {
   return (
     <div className='flex items-center gap-3'>
@@ -72,6 +69,7 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
     handleSubmit,
   } = props;
 
+  const { t } = useTranslation();
   const { open: openTerms } = useTermsStore();
 
   return (
@@ -87,7 +85,7 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
               {!isAuthenticated && (
                 <Block className='p-5 sm:p-6'>
                   <div className='flex flex-col gap-6'>
-                    <StepHeading step={1} title='Enter the email for your JungleVPN account' />
+                    <StepHeading step={1} title={t('getSubscription.step_email_title')} />
 
                     <TextField
                       isInvalid={emailError.length > 0}
@@ -103,7 +101,7 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                         <Input
                           autoComplete='email'
                           className='w-full rounded-full ps-11 data-invalid:border data-invalid:border-danger'
-                          placeholder='mail@example.com'
+                          placeholder={t('getSubscription.email_placeholder')}
                           value={email}
                           variant='secondary'
                           onChange={(event) => handleEmailChange(event.target.value)}
@@ -113,10 +111,10 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                         <FieldError className='ms-4'>{emailError}</FieldError>
                       ) : (
                         <div className='flex items-center ms-4'>
-                          <Description>Needed to manage your subscription</Description>
+                          <Description>{t('getSubscription.email_description')}</Description>
                           <Tooltip delay={0} closeDelay={0}>
                             <Button
-                              aria-label='Why we need your email'
+                              aria-label={t('getSubscription.email_hint_label')}
                               isIconOnly
                               size='sm'
                               variant='tertiary'
@@ -127,7 +125,7 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                             <Tooltip.Content placement='bottom' showArrow className='max-w-72'>
                               <Tooltip.Arrow />
                               <p className='text-sm wrap-break-word [word-break:normal]'>
-                                {EMAIL_HINT}
+                                {t('getSubscription.email_hint')}
                               </p>
                             </Tooltip.Content>
                           </Tooltip>
@@ -146,17 +144,17 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                     type='button'
                     onClick={openTerms}
                   >
-                    Subscription terms
+                    {t('getSubscription.terms_link')}
                     <IconChevronRight size={16} stroke={2} className='rtl:-scale-x-100' />
                   </button>
                 }
               >
                 <div className='flex flex-col gap-6'>
-                  <StepHeading step={2} title='Select a payment method' />
+                  <StepHeading step={2} title={t('getSubscription.step_payment_title')} />
 
                   <div className='rounded-2xl bg-foreground/[0.04] p-4 sm:p-5'>
                     <div className='flex flex-wrap items-center justify-between gap-3 pb-4'>
-                      <p className='text-base font-semibold'>Credit or debit card</p>
+                      <p className='text-base font-semibold'>{t('getSubscription.card_method')}</p>
                       <div className='flex items-center gap-2 text-muted'>
                         <IconBrandVisa size={28} stroke={2} />
                         <IconBrandAppleFilled size={22} stroke={2} />
@@ -172,7 +170,7 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                       isPending={isPending}
                       type='submit'
                     >
-                      Proceed to payment
+                      {t('getSubscription.submit')}
                     </Button>
 
                     {checkoutError && <p className='mt-3 text-sm text-danger'>{checkoutError}</p>}
@@ -186,7 +184,9 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
             <div className='flex flex-col gap-6'>
               <Block className='p-5 sm:p-6'>
                 <div className='flex flex-col gap-5'>
-                  <h2 className='text-lg font-bold sm:text-xl'>Your order</h2>
+                  <h2 className='text-lg font-bold sm:text-xl'>
+                    {t('getSubscription.order_title')}
+                  </h2>
 
                   {pricing && selectedPeriod !== null ? (
                     <div className='flex flex-col gap-2'>
@@ -194,7 +194,9 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                         <div className='flex items-center gap-3'>
                           <Logo aria-hidden className='size-8 shrink-0 rounded-lg' />
                           <p className='text-base font-semibold'>
-                            JungleVPN for {planPeriodLabel(selectedPeriod)}
+                            {t('getSubscription.order_item', {
+                              period: planPeriodLabel(selectedPeriod, t),
+                            })}
                           </p>
                         </div>
                         <div className='flex shrink-0 items-baseline gap-2'>
@@ -214,23 +216,31 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                           size='sm'
                           className={`w-fit border-none text-[white] ${BRAND_GRADIENT}`}
                         >
-                          <Chip.Label>Discount {pricing.discountPercent}%</Chip.Label>
+                          <Chip.Label>
+                            {t('getSubscription.discount', {
+                              percent: pricing.discountPercent,
+                            })}
+                          </Chip.Label>
                         </Chip>
                       )}
                     </div>
                   ) : (
                     <div className='flex flex-col gap-2'>
-                      <p className='text-base font-semibold'>This plan isn't available</p>
+                      <p className='text-base font-semibold'>
+                        {t('getSubscription.plan_unavailable_title')}
+                      </p>
                       <p className='text-sm text-muted'>
-                        Pick a subscription length on the{' '}
-                        <Link className='underline' href='/#pricing'>
-                          pricing page
-                        </Link>
-                        .
+                        <Trans
+                          i18nKey='getSubscription.plan_unavailable_description'
+                          components={{ 1: <Link className='underline' href='/#pricing' /> }}
+                        />
                       </p>
                     </div>
                   )}
-                  <FeaturesCard className='p-5 sm:p-6' title='Included in the subscription' />
+                  <FeaturesCard
+                    className='p-5 sm:p-6'
+                    title={t('getSubscription.features_title')}
+                  />
                 </div>
               </Block>
 
@@ -238,7 +248,7 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                 <span className='flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary'>
                   <IconRestore stroke={2} />
                 </span>
-                <p className='text-sm font-medium'>30-day money-back guarantee</p>
+                <p className='text-sm font-medium'>{t('getSubscription.guarantee')}</p>
               </div>
             </div>
           </GridItem>

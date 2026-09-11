@@ -994,7 +994,9 @@
     "month_one": "{{count}} ay",
     "month_other": "{{count}} ay",
     "perMonth": "aylık",
-    "continueButton": "Devam et"
+    "continueButton": "Devam et",
+    "year_one": "{{count}} yıl",
+    "year_other": "{{count}} yıl"
   },
   "subscriptionLinkWidget": {
     "getLink": "Yeni cihaz ekle",
@@ -1016,5 +1018,40 @@
     "title": "Aboneliğiniz hazır",
     "description": "Özel ve özgür internetin keyfini çıkarın",
     "connect": "Bağlan"
+  },
+  "getSubscription": {
+    "step_email_title": "JungleVPN hesabınız için e-posta adresinizi girin",
+    "email_placeholder": "ornek@gmail.com",
+    "email_description": "Aboneliğinizi yönetmek için gereklidir",
+    "email_hint_label": "E-posta adresinizi neden istiyoruz",
+    "email_hint": "Daha önce JungleVPN kullandıysanız aboneliği mevcut hesabınıza ekleriz. Kullanmadıysanız bu e-posta ile yeni bir hesap oluştururuz.",
+    "email_required_error": "Lütfen e-posta adresinizi girin",
+    "email_invalid_error": "Lütfen geçerli bir e-posta adresi girin",
+    "checkout_error": "Ödemeyi başlatamadık. Lütfen tekrar deneyin.",
+    "throttled_error": "Çok fazla deneme yapıldı. Lütfen birkaç dakika bekleyip tekrar deneyin.",
+    "terms_link": "Abonelik koşulları",
+    "step_payment_title": "Bir ödeme yöntemi seçin",
+    "card_method": "Kredi veya banka kartı",
+    "submit": "Ödemeye geç",
+    "order_title": "Siparişiniz",
+    "order_item": "{{period}} için JungleVPN",
+    "discount": "%{{percent}} indirim",
+    "plan_unavailable_title": "Bu plan şu anda kullanılamıyor",
+    "plan_unavailable_description": "<1>Fiyatlandırma sayfasından</1> bir abonelik süresi seçin.",
+    "features_title": "Aboneliğe dahil olanlar",
+    "guarantee": "30 gün para iade garantisi",
+    "active_dialog": {
+      "title": "Zaten bir aboneliğiniz var",
+      "description": "<1>{{email}}</1> adresinin halihazırda etkin bir JungleVPN aboneliği var, bu nedenle burada satın alınacak bir şey yok.",
+      "hint": "Planınızı, faturalarınızı ve ödeme yönteminizi görmek için giriş yapın.",
+      "to_profile": "Profile git",
+      "login": "Giriş yap",
+      "use_another_email": "Farklı bir e-posta kullan"
+    }
+  },
+  "paymentFooter": {
+    "copyright": "© {{year}} JungleVPN. Tüm hakları saklıdır.",
+    "terms": "Hizmet Koşulları",
+    "support": "Bize ulaşın"
   }
 }

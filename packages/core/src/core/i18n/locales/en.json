@@ -994,7 +994,9 @@
     "month_one": "{{count}} month",
     "month_other": "{{count}} months",
     "perMonth": "per month",
-    "continueButton": "Continue"
+    "continueButton": "Continue",
+    "year_one": "{{count}} year",
+    "year_other": "{{count}} years"
   },
   "subscriptionLinkWidget": {
     "getLink": "Add new device",
@@ -1016,5 +1018,40 @@
     "title": "Your subscription is ready",
     "description": "Enjoy private and free internet",
     "connect": "Connect"
+  },
+  "getSubscription": {
+    "step_email_title": "Enter the email for your JungleVPN account",
+    "email_placeholder": "email@example.com",
+    "email_description": "Needed to manage your subscription",
+    "email_hint_label": "Why we need your email",
+    "email_hint": "If you've used JungleVPN before, we'll add the subscription to your existing account. If not, we'll create a new account with this email.",
+    "email_required_error": "Please enter your email address",
+    "email_invalid_error": "Please enter a valid email address",
+    "checkout_error": "We could not start the payment. Please try again.",
+    "throttled_error": "Too many attempts. Please wait a few minutes and try again.",
+    "terms_link": "Subscription terms",
+    "step_payment_title": "Select a payment method",
+    "card_method": "Credit or debit card",
+    "submit": "Proceed to payment",
+    "order_title": "Your order",
+    "order_item": "JungleVPN for {{period}}",
+    "discount": "Discount {{percent}}%",
+    "plan_unavailable_title": "This plan isn't available",
+    "plan_unavailable_description": "Pick a subscription length on the <1>pricing page</1>.",
+    "features_title": "Included in the subscription",
+    "guarantee": "30-day money-back guarantee",
+    "active_dialog": {
+      "title": "You already have a subscription",
+      "description": "<1>{{email}}</1> already has an active JungleVPN subscription, so there is nothing to buy here.",
+      "hint": "Log in to see your plan, invoices and payment method.",
+      "to_profile": "Go to profile",
+      "login": "Log in",
+      "use_another_email": "Use a different email"
+    }
+  },
+  "paymentFooter": {
+    "copyright": "© {{year}} JungleVPN. All rights reserved.",
+    "terms": "Terms of Service",
+    "support": "Contact us"
   }
 }

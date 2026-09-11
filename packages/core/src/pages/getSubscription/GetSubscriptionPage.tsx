@@ -1,5 +1,6 @@
 import { ACTIVE_SUBSCRIPTION_CODE } from '@workspace/types';
 import { type SyntheticEvent, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { ApiClientError } from '../../api';
 import { Loading } from '../../components';
@@ -11,17 +12,17 @@ import { ActiveSubscriptionDialog } from './ActiveSubscriptionDialog';
 import { GetSubscriptionComponent } from './GetSubscriptionComponent';
 import { monthsFromSlug } from './planSlug';
 
-const EMPTY_EMAIL_ERROR = 'Please enter your email address';
-const INVALID_EMAIL_ERROR = 'Please enter a valid email address';
+const EMPTY_EMAIL_ERROR = 'getSubscription.email_required_error';
+const INVALID_EMAIL_ERROR = 'getSubscription.email_invalid_error';
 
-const CHECKOUT_ERROR = 'We could not start the payment. Please try again.';
+const CHECKOUT_ERROR = 'getSubscription.checkout_error';
 
 /**
  * The backend throttles this route per IP and per email. Telling a throttled
  * visitor to "try again" is the one instruction that cannot work, so the wait
  * is spelled out instead.
  */
-const THROTTLED_ERROR = 'Too many attempts. Please wait a few minutes and try again.';
+const THROTTLED_ERROR = 'getSubscription.throttled_error';
 
 /** Whether the backend refused the checkout because the caller was rate limited. */
 function isThrottledError(error: unknown): boolean {
@@ -44,6 +45,7 @@ function isActiveSubscriptionError(error: unknown): boolean {
 
 export default function GetSubscriptionPage() {
   const { planSlug } = useParams();
+  const { t } = useTranslation();
   const { authUser } = useAuthStore();
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -90,7 +92,7 @@ export default function GetSubscriptionPage() {
       });
 
       if (!session?.url) {
-        setCheckoutError(CHECKOUT_ERROR);
+        setCheckoutError(t(CHECKOUT_ERROR));
         return;
       }
 
@@ -100,7 +102,7 @@ export default function GetSubscriptionPage() {
         setActiveSubscriptionEmail(payerEmail);
         return;
       }
-      setCheckoutError(isThrottledError(error) ? THROTTLED_ERROR : CHECKOUT_ERROR);
+      setCheckoutError(t(isThrottledError(error) ? THROTTLED_ERROR : CHECKOUT_ERROR));
     } finally {
       setIsPending(false);
     }
@@ -117,11 +119,11 @@ export default function GetSubscriptionPage() {
     const userEmail = authUser?.email ?? email;
 
     if (!userEmail.trim()) {
-      setEmailError(EMPTY_EMAIL_ERROR);
+      setEmailError(t(EMPTY_EMAIL_ERROR));
       return;
     }
     if (!validateEmail(userEmail)) {
-      setEmailError(INVALID_EMAIL_ERROR);
+      setEmailError(t(INVALID_EMAIL_ERROR));
       return;
     }
 

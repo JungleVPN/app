@@ -995,7 +995,12 @@
     "month_one": "{{count}} شهر",
     "month_other": "{{count}} أشهر",
     "perMonth": "شهريًا",
-    "continueButton": "متابعة"
+    "continueButton": "متابعة",
+    "year_one": "{{count}} سنة",
+    "year_two": "{{count}} سنتان",
+    "year_few": "{{count}} سنوات",
+    "year_many": "{{count}} سنة",
+    "year_other": "{{count}} سنة"
   },
   "subscriptionLinkWidget": {
     "getLink": "إضافة جهاز جديد",
@@ -1017,5 +1022,40 @@
     "title": "اشتراكك جاهز",
     "description": "استمتع بإنترنت خاص وحر",
     "connect": "اتصال"
+  },
+  "getSubscription": {
+    "step_email_title": "أدخل البريد الإلكتروني الخاص بحساب JungleVPN",
+    "email_placeholder": "example@gmail.com",
+    "email_description": "مطلوب لإدارة اشتراكك",
+    "email_hint_label": "لماذا نحتاج بريدك الإلكتروني",
+    "email_hint": "إذا سبق لك استخدام JungleVPN، فسنضيف الاشتراك إلى حسابك الحالي. وإن لم يكن لديك حساب، فسننشئ حسابًا جديدًا بهذا البريد الإلكتروني.",
+    "email_required_error": "يرجى إدخال بريدك الإلكتروني",
+    "email_invalid_error": "يرجى إدخال بريد إلكتروني صالح",
+    "checkout_error": "تعذّر بدء عملية الدفع. يرجى المحاولة مرة أخرى.",
+    "throttled_error": "عدد المحاولات كبير جدًا. يرجى الانتظار بضع دقائق ثم المحاولة مرة أخرى.",
+    "terms_link": "شروط الاشتراك",
+    "step_payment_title": "اختر طريقة الدفع",
+    "card_method": "بطاقة ائتمان أو خصم",
+    "submit": "المتابعة إلى الدفع",
+    "order_title": "طلبك",
+    "order_item": "JungleVPN لمدة {{period}}",
+    "discount": "خصم {{percent}}%",
+    "plan_unavailable_title": "هذه الباقة غير متاحة",
+    "plan_unavailable_description": "اختر مدة الاشتراك من <1>صفحة الأسعار</1>.",
+    "features_title": "المزايا المشمولة في الاشتراك",
+    "guarantee": "ضمان استرداد الأموال خلال 30 يومًا",
+    "active_dialog": {
+      "title": "لديك اشتراك بالفعل",
+      "description": "يوجد بالفعل اشتراك JungleVPN نشط على العنوان <1>{{email}}</1>، لذا لا يوجد ما تشتريه هنا.",
+      "hint": "سجّل الدخول لعرض باقتك وفواتيرك وطريقة الدفع.",
+      "to_profile": "إلى الملف الشخصي",
+      "login": "تسجيل الدخول",
+      "use_another_email": "استخدام بريد إلكتروني آخر"
+    }
+  },
+  "paymentFooter": {
+    "copyright": "© {{year}} JungleVPN. جميع الحقوق محفوظة.",
+    "terms": "شروط الخدمة",
+    "support": "تواصل معنا"
   }
 }

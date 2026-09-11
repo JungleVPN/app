@@ -1021,7 +1021,11 @@
     "month_many": "{{count}} месяцев",
     "month_other": "{{count}} месяцев",
     "perMonth": "в месяц",
-    "continueButton": "Продолжить"
+    "continueButton": "Продолжить",
+    "year_one": "{{count}} год",
+    "year_few": "{{count}} года",
+    "year_many": "{{count}} лет",
+    "year_other": "{{count}} лет"
   },
   "subscriptionLinkWidget": {
     "getLink": "Добавить устройство",
@@ -1043,5 +1047,40 @@
     "title": "Ваша подписка готова",
     "description": "Наслаждайтесь приватным и свободным интернетом",
     "connect": "Подключиться"
+  },
+  "getSubscription": {
+    "step_email_title": "Укажите email для вашего аккаунта JungleVPN",
+    "email_placeholder": "email@example.com",
+    "email_description": "Нужен для управления подпиской",
+    "email_hint_label": "Зачем нам ваш email",
+    "email_hint": "Если вы уже пользовались JungleVPN, мы добавим подписку в ваш существующий аккаунт. Если нет — создадим новый аккаунт с этим email.",
+    "email_required_error": "Введите ваш email",
+    "email_invalid_error": "Введите корректный email",
+    "checkout_error": "Не удалось начать оплату. Пожалуйста, попробуйте снова.",
+    "throttled_error": "Слишком много попыток. Подождите несколько минут и попробуйте снова.",
+    "terms_link": "Условия подписки",
+    "step_payment_title": "Выберите способ оплаты",
+    "card_method": "Банковская карта",
+    "submit": "Перейти к оплате",
+    "order_title": "Ваш заказ",
+    "order_item": "JungleVPN на {{period}}",
+    "discount": "Скидка {{percent}}%",
+    "plan_unavailable_title": "Этот тариф недоступен",
+    "plan_unavailable_description": "Выберите срок подписки на <1>странице тарифов</1>.",
+    "features_title": "Входит в подписку",
+    "guarantee": "Гарантия возврата денег в течение 30 дней",
+    "active_dialog": {
+      "title": "У вас уже есть подписка",
+      "description": "На адрес <1>{{email}}</1> уже оформлена активная подписка JungleVPN, поэтому покупать здесь нечего.",
+      "hint": "Войдите, чтобы посмотреть тариф, счета и способ оплаты.",
+      "to_profile": "В профиль",
+      "login": "Войти",
+      "use_another_email": "Использовать другой email"
+    }
+  },
+  "paymentFooter": {
+    "copyright": "© {{year}} JungleVPN. Все права защищены.",
+    "terms": "Условия использования",
+    "support": "Связаться с нами"
   }
 }

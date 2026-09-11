@@ -1,4 +1,5 @@
 import { AlertDialog, Button } from '@heroui/react';
+import { Trans, useTranslation } from 'react-i18next';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 
@@ -22,6 +23,7 @@ export function ActiveSubscriptionDialog({
   isLoggedIn: boolean;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigation();
   const { profileSubscriptionPath, authGateRedirectPath } = useAppRoutes();
 
@@ -38,30 +40,33 @@ export function ActiveSubscriptionDialog({
         <AlertDialog.Dialog className='bg-surface-secondary'>
           <AlertDialog.CloseTrigger />
           <AlertDialog.Header className='mb-4'>
-            <AlertDialog.Heading>You already have a subscription</AlertDialog.Heading>
+            <AlertDialog.Heading>{t('getSubscription.active_dialog.title')}</AlertDialog.Heading>
           </AlertDialog.Header>
           <AlertDialog.Body>
             <div className='flex flex-col gap-3 text-sm text-muted'>
               <p>
-                <span className='font-semibold text-foreground'>{email}</span> already has an active
-                JungleVPN subscription, so there is nothing to buy here.
+                <Trans
+                  i18nKey='getSubscription.active_dialog.description'
+                  values={{ email }}
+                  components={{ 1: <span className='font-semibold text-foreground' /> }}
+                />
               </p>
-              <p>Log in to see your plan, invoices and payment method.</p>
+              <p>{t('getSubscription.active_dialog.hint')}</p>
             </div>
           </AlertDialog.Body>
           {isLoggedIn ? (
             <AlertDialog.Footer className='flex flex-col gap-2 sm:flex-row'>
               <Button fullWidth onPress={() => navigate(profileSubscriptionPath)}>
-                To Profile
+                {t('getSubscription.active_dialog.to_profile')}
               </Button>
             </AlertDialog.Footer>
           ) : (
             <AlertDialog.Footer className='flex flex-col gap-2 sm:flex-row'>
               <Button fullWidth onPress={() => navigate(authGateRedirectPath)}>
-                Log in
+                {t('getSubscription.active_dialog.login')}
               </Button>
               <Button fullWidth variant='secondary' onPress={onClose}>
-                Use a different email
+                {t('getSubscription.active_dialog.use_another_email')}
               </Button>
             </AlertDialog.Footer>
           )}
