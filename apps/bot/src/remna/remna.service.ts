@@ -5,8 +5,8 @@ import { createBackendClient } from '@utils/http-client';
 import {
   apiRoutes,
   CreateUserRequestDto,
-  type StreamedUserDto,
   GetUserMetadataResponseDto,
+  type StreamedUserDto,
   UserDto,
 } from '@workspace/types';
 import { AxiosInstance } from 'axios';

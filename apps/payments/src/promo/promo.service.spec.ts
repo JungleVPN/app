@@ -197,6 +197,29 @@ describe('PromoService', () => {
       expect(res.valid).toBe(false);
       expect(res.reason).toBeTruthy();
     });
+
+    it('does not record a rejection for a valid code', async () => {
+      const { service } = setup({ promo: makePromo() });
+      const analyticsClient = (service as any).analyticsClient;
+
+      await service.validate({ code: 'FREE2', userId: 1000 });
+
+      expect(analyticsClient.track).not.toHaveBeenCalled();
+    });
+
+    it('records the rejection for analytics, with the stable error code', async () => {
+      const { service } = setup({ promo: null });
+      const analyticsClient = (service as any).analyticsClient;
+
+      await service.validate({ code: 'nope', userId: 1000 });
+
+      expect(analyticsClient.track).toHaveBeenCalledWith({
+        event: 'promo_code_rejected',
+        userId: 1000,
+        code: 'NOPE',
+        reason: 'invalid',
+      });
+    });
   });
 
   describe('PromoService.applyToMonths', () => {

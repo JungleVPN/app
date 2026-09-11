@@ -32,13 +32,12 @@ export class MainKeyboardCallback extends Base {
     bot.filter(hears('pay-button-label'), async (ctx) => {
       const tmaPaymentUrl =
         process.env.TMA_APP_PAYMENT_URL || 'https://app.thejungle.pro/profile/payments';
-      const webAppUrl = process.env.WEB_PAYMENT_URL || 'https://jungle.community/profile/payments';
-      const webtUrl = withReferral(ctx, webAppUrl);
 
       await ctx.reply(ctx.t('pay-instruction-text'), {
-        reply_markup: new InlineKeyboard()
-          .webApp(ctx.t('pay-button-label'), withReferral(ctx, tmaPaymentUrl))
-          .url(ctx.t('web-button-label'), webtUrl),
+        reply_markup: new InlineKeyboard().webApp(
+          ctx.t('pay-button-label'),
+          withReferral(ctx, tmaPaymentUrl),
+        ),
       });
     });
 

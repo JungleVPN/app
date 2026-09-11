@@ -6,8 +6,10 @@ import { createContext, type ReactNode, useContext } from 'react';
  */
 export interface AppRoutes {
   paymentReturnPath: string;
+  paymentFailPath: string;
   authGateRedirectPath: string;
   affiliatesPath: string;
+  publicPlansPath: string;
   profileSubscriptionPath: string;
   profilePaymentPath: string;
   profilePlansPath: string;
@@ -16,7 +18,8 @@ export interface AppRoutes {
   profileExtraDevicePurchasePath: string;
   profileTransactionsPath: string;
   profileReferralsPath: string;
-  getSubscriptionPath: string;
+  getConnectEmailPath: string;
+  getSubscriptionPath: (period: number) => string;
 }
 
 const AppRoutesContext = createContext<AppRoutes | null>(null);

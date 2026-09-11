@@ -6,9 +6,11 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * column is converted from varchar to integer and backfilled by joining against
  * `remnawave_user_id_map`.
  *
- * That map is populated by `pnpm --filter @workspace/database snapshot:remna-ids`,
- * which MUST be run against the v2 panel before it is upgraded — v3 exposes no
- * way to resolve a legacy uuid, so the pairing cannot be recovered afterwards.
+ * That map was populated by a one-shot snapshot script, run against the v2 panel
+ * before it was upgraded. The script has since been removed: v3 exposes no way
+ * to resolve a legacy uuid, so it could never be run again. Recover it from git
+ * history (`git log -- packages/database/src/scripts/`) only if you find a
+ * database that still runs panel v2.
  *
  * Rows whose uuid is absent from the map cannot be attributed to any user. They
  * are moved aside into `*_orphaned_v2` tables rather than deleted, so the data
@@ -107,9 +109,10 @@ export class RemnawaveV3NumericUserId1791000000000 implements MigrationInterface
 
     if (!mapExists?.[0]?.to_regclass) {
       throw new Error(
-        'remnawave_user_id_map is missing. Run the snapshot against the v2 panel BEFORE ' +
-          'upgrading it: pnpm --filter @workspace/database snapshot:remna-ids. ' +
-          'Panel v3 cannot resolve legacy uuids, so this mapping is unrecoverable once upgraded.',
+        'remnawave_user_id_map is missing. This database predates the panel v3 conversion ' +
+          'and the uuid -> id mapping was never captured for it. Panel v3 cannot resolve legacy ' +
+          'uuids, so the mapping cannot be rebuilt and these columns cannot be converted ' +
+          'automatically. See git history for the snapshot script that produced the map.',
       );
     }
 

@@ -1,6 +1,7 @@
 import { SubscriptionPageRawConfigSchema } from '@workspace/types';
 import { useEffect, useState } from 'react';
 import { ApiClientError, useRemnawaveApi } from '../api';
+import { coreEnv } from '../env';
 import { useSubscriptionConfigStore, useSubscriptionInfoStore } from '../stores';
 
 export type SubscriptionDataError = 'ERR_GET_SUB_LINK' | 'ERR_FATCH_USER' | 'ERR_PARSE_APPCONFIG';
@@ -10,9 +11,9 @@ export type SubscriptionDataError = 'ERR_GET_SUB_LINK' | 'ERR_FATCH_USER' | 'ERR
  * Store reads/writes use `getState()` inside effects only (not reactive deps) to avoid loops.
  */
 const pendingShortUuids = new Set<string>();
-const pendingConfigUuids = new Set<string>();
+const pendingConfigShortUuids = new Set<string>();
 
-export function useSubscriptionData(shortUuid: string | undefined, subpageConfigUuid: string) {
+export function useSubscriptionData(shortUuid: string | undefined) {
   const remnawaveApi = useRemnawaveApi();
 
   const [error, setError] = useState<SubscriptionDataError | null>(null);
@@ -49,20 +50,31 @@ export function useSubscriptionData(shortUuid: string | undefined, subpageConfig
   }, [shortUuid, remnawaveApi]);
 
   useEffect(() => {
-    if (!subpageConfigUuid) return;
+    if (!shortUuid) return;
     // All store access via getState() — never reactive deps.
     if (useSubscriptionConfigStore.getState().isConfigLoaded) return;
-    if (pendingConfigUuids.has(subpageConfigUuid)) return;
+    if (pendingConfigShortUuids.has(shortUuid)) return;
 
-    pendingConfigUuids.add(subpageConfigUuid);
+    pendingConfigShortUuids.add(shortUuid);
 
     const fetchConfig = async () => {
       try {
-        const rawConfig = await remnawaveApi.getSubscriptionPageConfig(subpageConfigUuid);
+        const resolved = await remnawaveApi.getSubpageConfigByShortUuid(shortUuid);
+        const configUuid = resolved?.subpageConfigUuid ?? coreEnv.subpageConfigUuid;
+        if (!configUuid) {
+          console.error(
+            '[useSubscriptionData] No subpage config uuid resolved for shortUuid:',
+            shortUuid,
+          );
+          setError('ERR_PARSE_APPCONFIG');
+          return;
+        }
+
+        const rawConfig = await remnawaveApi.getSubscriptionPageConfig(configUuid);
         if (rawConfig == null) {
           console.error(
             '[useSubscriptionData] Empty subscription page config response for subpageConfigUuid:',
-            subpageConfigUuid,
+            configUuid,
           );
           setError('ERR_PARSE_APPCONFIG');
           return;
@@ -83,12 +95,12 @@ export function useSubscriptionData(shortUuid: string | undefined, subpageConfig
       } catch {
         setError('ERR_PARSE_APPCONFIG');
       } finally {
-        pendingConfigUuids.delete(subpageConfigUuid);
+        pendingConfigShortUuids.delete(shortUuid);
       }
     };
 
     void fetchConfig();
-  }, [subpageConfigUuid, remnawaveApi]);
+  }, [shortUuid, remnawaveApi]);
 
   return { error };
 }

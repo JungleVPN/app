@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 import { useNavigation } from '../../../hooks';
 import { useAppRoutes, useSupabaseClient } from '../../../runtime';
-import { captureReferral } from '../../../utils';
+import { captureReferral, phCapture, trackLoginConversion } from '../../../utils';
 
 export function useConfirm() {
   const supabase = useSupabaseClient();
@@ -16,6 +16,7 @@ export function useConfirm() {
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(60);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // Re-capture here too: `ref` was forwarded onto this URL by useLogin(), so
   // pick it up in case the original localStorage write didn't survive the hop.
@@ -35,6 +36,7 @@ export function useConfirm() {
     if (!otp || !email) return;
 
     setError(null);
+    setLoading(true);
 
     const { error: verifyError } = await supabase.auth.verifyOtp({
       email,
@@ -44,7 +46,11 @@ export function useConfirm() {
 
     if (verifyError) {
       setError(t('confirm.error_invalid_code'));
+      phCapture('otp_invalid_code');
+      setLoading(false);
     } else {
+      phCapture('otp_verified');
+      trackLoginConversion();
       const to = searchParams.get('to');
       navigate(to ?? profileSubscriptionPath);
     }
@@ -65,5 +71,5 @@ export function useConfirm() {
     setTimer(60);
   };
 
-  return { otp, setOtp, timer, error, handleConfirm, handleResend };
+  return { otp, setOtp, timer, error, loading, handleConfirm, handleResend };
 }

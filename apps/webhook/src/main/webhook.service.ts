@@ -49,7 +49,11 @@ export class WebhookService {
       return;
     }
 
-    if (event === REMNAWAVE_EVENTS.USER.EXPIRED || event === REMNAWAVE_EVENTS.USER.NOT_CONNECTED) {
+    if (
+      event === REMNAWAVE_EVENTS.USER.EXPIRED ||
+      event === REMNAWAVE_EVENTS.USER.NOT_CONNECTED ||
+      event === REMNAWAVE_EVENTS.USER.FIRST_CONNECTED
+    ) {
       await this.forwardRemnaEventToBot(payload);
     }
   }
@@ -108,7 +112,7 @@ export class WebhookService {
         transformRequest: [(data: Buffer) => data],
       });
     } catch (error) {
-      this.logger.error('Failed to forward Stripe webhook to payments service', error);
+      this.logger.error('Failed to forward Stripe webhook to payments service');
       throw error;
     }
   }

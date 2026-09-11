@@ -55,11 +55,8 @@ main-text =
     </blockquote>
 
 
-    My contacts:
     <blockquote>
-        <code>Telegram</code>: @Ramazzaniii
         <code>Channel</code>: @In_The_Jungle
-        <code>LinkedIn</code>: <a href="https://www.linkedin.com/in/ramazan-ittiev/">Link</a>
     </blockquote>
 
 
@@ -186,18 +183,14 @@ expired-48-hours-ago-subscription-text =
 
 
 user-not-connected-24 =
-    🌴🐵🌴
+    Вижу ты еще не подключился
 
-    Псст... Вижу ты еще не подключился
-
-    Подключайся и наслаждайся безопасным интернетом
+    Есть ли какие-то сложности с подключением? Напиши мне, помогу разобраться 🙂
 
 
 
-user-not-connected-72 =
-    Вижу ты все еще не подключался 🥲
-
-    Давай я помогу? Займет меньше минуты 🙂
+user-not-connected-48 =
+    Прошло уже 48 часов — что-то не получается? Расскажи что именно, помогу все настроить, займет меньше минуты 🙂
 
 
 

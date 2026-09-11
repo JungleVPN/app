@@ -10,7 +10,12 @@ import { PaymentPurpose } from './common';
  * the Stripe customer metadata.
  */
 export interface CreateStripeSessionDto {
-  userId: RemnaUserId;
+  /**
+   * The account being billed, or null for an anonymous checkout whose account
+   * does not exist yet — the public route defers creating it until a payment
+   * webhook confirms the charge settled.
+   */
+  userId: RemnaUserId | null;
   /** Defaults to 'subscription'. Use 'extra_device' for one-time device-slot purchases. */
   purchaseType?: PaymentPurpose;
 
@@ -24,6 +29,24 @@ export interface CreateStripeSessionDto {
 }
 
 /**
+ * Public Stripe create-session request — POST /payments/stripe/public-create-session.
+ *
+ * Unauthenticated checkout for the standalone payment page: the visitor has no
+ * account yet, so the backend find-or-creates the Remnawave user from `email`
+ * before opening the same Stripe session an authenticated caller would get.
+ */
+export interface CreatePublicStripeSessionDto {
+  /** Payer's email. The account is found-or-created from this address. */
+  email: string;
+  /** Subscription plan in months (1, 3, 6, 12). */
+  selectedPeriod: number;
+  /** Tolt affiliate referral id (`window.tolt_referral`), when present. */
+  toltReferralId?: string | null;
+  /** Referring user id captured from a `?ref=` link, when present. */
+  inviterId?: number;
+}
+
+/**
  * Response from GET /payments/stripe/subscription/:userId.
  * Reports whether the user has an active (or trialing) Stripe subscription and,
  * if so, a freshly-minted Billing Portal URL for self-service management.
@@ -32,3 +55,11 @@ export interface StripeSubscriptionStatusDto {
   active: boolean;
   portalUrl: string | null;
 }
+
+/**
+ * Body of the 409 the public checkout answers with when the payer email already
+ * has an active subscription. The anonymous caller proved nothing but knowledge
+ * of the address, so it is never given a Billing Portal session — the page asks
+ * the visitor to log in and manage the subscription from their profile instead.
+ */
+export const ACTIVE_SUBSCRIPTION_CODE = 'active_subscription';

@@ -1,26 +1,18 @@
 import { useTranslation } from 'react-i18next';
 import globe from '../../assets/lottie/globe.lottie?url';
-import globe_dark from '../../assets/lottie/globe_dark.lottie?url';
 import money from '../../assets/lottie/money.lottie?url';
-import money_dark from '../../assets/lottie/money_dark.lottie?url';
 import ready from '../../assets/lottie/ready.lottie?url';
-import ready_dark from '../../assets/lottie/ready_dark.lottie?url';
 import support from '../../assets/lottie/support.lottie?url';
-import support_dark from '../../assets/lottie/support_dark.lottie?url';
 import { ContentCard } from '../../components/ContentCard';
 import { coreEnv } from '../../env';
-import { useTheme } from '../../hooks';
 import { Grid, GridItem, LottieIcon } from '../../ui';
 
-const DARK_ICONS = [ready_dark, money_dark, globe_dark, support_dark];
-const LIGHT_ICONS = [ready, money, globe, support];
+const ICONS = [ready, globe, support, money];
 
-const FEATURE_KEYS = ['ready', 'money', 'globe', 'support'] as const;
+const FEATURE_KEYS = ['ready', 'globe', 'support', 'money'] as const;
 
 export function FeaturesSection() {
   const { t } = useTranslation();
-  const { theme } = useTheme();
-  const icons = theme === 'dark' ? DARK_ICONS : LIGHT_ICONS;
 
   return (
     <section>
@@ -38,7 +30,7 @@ export function FeaturesSection() {
         {FEATURE_KEYS.map((key, index) => (
           <GridItem key={key} size={{ base: 12, sm: 6 }}>
             <ContentCard
-              icon={icons[index] ? <LottieIcon loop src={icons[index]} /> : undefined}
+              icon={ICONS[index] ? <LottieIcon loop src={ICONS[index]} /> : undefined}
               title={t(`landing.features.${key}.title`)}
               description={t(`landing.features.${key}.description`, {
                 deviceLimit: coreEnv.deviceLimit,

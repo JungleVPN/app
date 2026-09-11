@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /profile
+Disallow: /login/confirm
+Disallow: /subscription/
+
+Content-Signal: search=yes, ai-input=yes, ai-train=yes

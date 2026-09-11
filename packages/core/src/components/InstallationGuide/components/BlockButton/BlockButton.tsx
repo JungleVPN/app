@@ -3,7 +3,7 @@ import type {
   TSubscriptionPageButtonConfig,
   TSubscriptionPageLocalizedText,
 } from '@workspace/types';
-import { getIconFromLibrary, TemplateEngine } from '../../../../utils';
+import { getIconFromLibrary, phCapture, TemplateEngine } from '../../../../utils';
 
 interface BlockButtonProps {
   button: TSubscriptionPageButtonConfig;
@@ -35,9 +35,11 @@ export function BlockButton({
   const handlePress = () => {
     if (isCopy) {
       if (formattedUrl) void onCopy(formattedUrl);
+      phCapture('app_connect_clicked', { link: formattedUrl });
       return;
     }
     const url = isExternal ? button.link : formattedUrl;
+    phCapture(isExternal ? 'app_download_clicked' : 'app_connect_clicked', { link: url });
     if (url) window.open(url, '_blank', 'noopener,noreferrer');
   };
 

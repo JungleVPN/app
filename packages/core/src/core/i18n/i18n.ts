@@ -6,19 +6,21 @@ import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
-import { isRuDomain } from '../../utils/domain';
+import { configuredDomains, isGlobalOrigin, localePolicyForHost } from '../../utils';
 import ar from './locales/ar.json';
 import en from './locales/en.json';
 import ru from './locales/ru.json';
+import tr from './locales/tr.json';
 
 export const DEFAULT_LOCALE = import.meta.env.PUBLIC_DEFAULT_LOCALE || 'en';
-export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'fa'] as const;
+export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'tr', 'fa'] as const;
 
 /** zh/fa reuse English until dedicated files exist */
 const resources = {
   ru: { translation: ru },
   en: { translation: en },
   ar: { translation: ar },
+  tr: { translation: tr },
   fa: { translation: ar },
 } as const;
 
@@ -36,27 +38,50 @@ function syncDocumentDirection(lang: string): void {
   if (html.lang !== lang) html.lang = lang;
 }
 
+/**
+ * Languages this host may serve. Detection (localStorage, then navigator) is otherwise
+ * free to pick any supported language, which is how a ru-RU browser ended up seeing
+ * Russian on the global domain a few ms after SSR had rendered English.
+ * `null` on the Mini App and previews, where every language stays available.
+ */
+const allowedLocales =
+  typeof window === 'undefined'
+    ? null
+    : localePolicyForHost(window.location.hostname, configuredDomains());
+
+const activeLocales = allowedLocales ?? [...SUPPORTED_LOCALES];
+
+/** Anything the host disallows falls back to the host's own first language. */
+export function isLocaleAllowed(lang: string): boolean {
+  return activeLocales.includes(lang);
+}
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: DEFAULT_LOCALE,
-    supportedLngs: [...SUPPORTED_LOCALES],
+    fallbackLng: allowedLocales?.[0] ?? DEFAULT_LOCALE,
+    supportedLngs: activeLocales,
     interpolation: {
       escapeValue: false,
     },
     detection: {
       // htmlTag excluded: index.html ships a static lang="en" attribute, which would
       // win over a previously cached/selected language on every reload.
-      order: ['localStorage', 'navigator'],
+      // path goes first everywhere: /en, /ar and /tr route the language explicitly and
+      // should win over a stale cached choice. It only ever matches a segment that's
+      // in supportedLngs, so RU-only hosts (locked below anyway) and hosts without
+      // an /en, /ar or /tr path are unaffected.
+      order: ['path', 'localStorage', 'navigator'],
+      lookupFromPathIndex: 0,
       caches: ['localStorage'],
     },
   })
   .then(() => {
     // The RU domain is Russian-only: it must always render in Russian, regardless
     // of what device detection or a previously cached selection landed on.
-    if (isRuDomain()) i18n.changeLanguage('ru');
+    if (!isGlobalOrigin()) i18n.changeLanguage('ru');
   });
 
 i18n.on('languageChanged', syncDocumentDirection);
@@ -69,8 +94,8 @@ if (i18n.language) syncDocumentDirection(i18n.language);
  * The RU domain overrides even a stored preference — it is Russian-only.
  */
 export function applyUserLang(lang: string): void {
-  const target = isRuDomain() ? 'ru' : lang;
-  if ((SUPPORTED_LOCALES as readonly string[]).includes(target)) {
+  const target = !isGlobalOrigin() ? 'ru' : lang;
+  if (isLocaleAllowed(target)) {
     i18n.changeLanguage(target);
   }
 }

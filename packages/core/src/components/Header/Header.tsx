@@ -9,7 +9,7 @@ import LogoDark from '../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../hooks';
 import { usePlatformStore } from '../../stores';
 import { Container } from '../../ui';
-import { isRuDomain, scrollToTop } from '../../utils';
+import { isGlobalOrigin, isLandingPath, phCapture, scrollToTop } from '../../utils';
 import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { SupportButton } from '../SupportWidget/SupportButton';
@@ -26,9 +26,14 @@ export function Header() {
   const remnawaveApi = useRemnawaveApi();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [isRu, setIsRu] = useState(false);
 
-  const isLanding = pathname === '/';
-  const isRu = isRuDomain();
+  const isLanding = isLandingPath(pathname);
+  const isTelegram = platformType === 'telegram';
+
+  useEffect(() => {
+    setIsRu(!isGlobalOrigin());
+  }, []);
 
   useEffect(() => {
     if (platformType !== 'telegram' || !tgUser?.id) return;
@@ -79,7 +84,10 @@ export function Header() {
             <Button
               key={id}
               className='text-sm mix-blend-difference text-[white] hover:underline transition-colors cursor-pointer bg-transparent border-none p-0'
-              onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => {
+                phCapture(`landing_${id}_link_clicked`);
+                document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
               {t(`header.nav.${id}`)}
             </Button>
@@ -93,9 +101,8 @@ export function Header() {
       >
         {!isLanding && <SubscriptionLinkWidget />}
         {!isLanding && <SupportButton />}
-        {/*{platformType === 'web' && <ThemeToggle />}*/}
-        {!isRu && <LanguageSwitcher />}
-        {platformType === 'web' && <AuthButtons />}
+        {!isRu && !isTelegram && <LanguageSwitcher />}
+        {platformType === 'web' && <AuthButtons isRu={isRu} />}
       </div>
 
       {/* Mobile: hamburger only */}
@@ -123,16 +130,20 @@ export function Header() {
   };
 
   return (
-    <Container className={wrapperClass()}>
-      <div
-        className={`w-full px-4 py-1 transition-all duration-300 rounded-2xl ${
-          scrolled && platformType !== 'telegram'
-            ? 'shadow-lg backdrop-blur-md bg-background/80'
-            : ''
-        }`}
-      >
-        {inner}
-      </div>
-    </Container>
+    <header>
+      <Container className={wrapperClass()}>
+        <div
+          className={`w-full px-4 py-1 transition-all duration-300 rounded-2xl ${
+            scrolled && platformType !== 'telegram'
+              ? 'shadow-lg backdrop-blur-md bg-background/80'
+              : !isLanding
+                ? 'shadow-none'
+                : 'md:shadow-lg md:backdrop-blur-md md:bg-background/80'
+          } `}
+        >
+          {inner}
+        </div>
+      </Container>
+    </header>
   );
 }

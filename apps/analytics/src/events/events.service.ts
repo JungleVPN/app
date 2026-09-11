@@ -33,10 +33,22 @@ export class EventsService {
     this.sheets = google.sheets({ version: 'v4', auth });
   }
 
+  private static readonly REVENUE_CRITICAL_EVENTS: ReadonlySet<AnalyticsEvent['event']> = new Set([
+    'payment_succeeded',
+    'payment_refunded',
+  ]);
+
   async trackEvent(event: AnalyticsEvent): Promise<void> {
     this.logger.log(`event=${event.event} ${JSON.stringify(event)}`);
     await this.persist(event);
     this.captureToPostHog(event);
+
+    // Buffered capture can be lost if the process exits before the next flush
+    // tick (flushInterval: 10s) — force it out now for events where that loss
+    // is unacceptable, rather than relying solely on graceful shutdown.
+    if (EventsService.REVENUE_CRITICAL_EVENTS.has(event.event)) {
+      await this.postHog.flush();
+    }
   }
 
   async trackUserCreated(
@@ -44,7 +56,28 @@ export class EventsService {
     attribution: AttributionPayload,
   ): Promise<void> {
     this.logger.log(`trackUserCreated called for user ${user.id}, adCode=${attribution.adCode}`);
+    this.identifyAttribution(user.id, attribution);
     await Promise.all([this.saveToDb(user.id, attribution), this.writeToSheets(user, attribution)]);
+  }
+
+  private identifyAttribution(userId: number, attribution: AttributionPayload): void {
+    try {
+      const properties: Record<string, string> = {
+        attribution_platform: attribution.platform,
+      };
+      if (attribution.source != null) properties.attribution_source = attribution.source;
+      if (attribution.medium != null) properties.attribution_medium = attribution.medium;
+      if (attribution.campaign != null) properties.attribution_campaign = attribution.campaign;
+      if (attribution.adset != null) properties.attribution_adset = attribution.adset;
+      if (attribution.ad != null) properties.attribution_ad = attribution.ad;
+      if (attribution.clickId != null) properties.attribution_click_id = attribution.clickId;
+      if (attribution.adCode != null) properties.attribution_ad_code = attribution.adCode;
+
+      this.postHog.identify(String(userId), { $set_once: properties });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`Failed to identify attribution for user ${userId}: ${message}`);
+    }
   }
 
   private async persist(event: AnalyticsEvent): Promise<void> {
@@ -73,8 +106,18 @@ export class EventsService {
     try {
       const userId = 'userId' in event ? event.userId : null;
       const telegramId = 'telegramId' in event ? event.telegramId : null;
+      const email = 'email' in event && typeof event.email === 'string' ? event.email : null;
+      // An anonymous global checkout has no account yet — the address the payer
+      // typed is the only identity it carries, and dropping the event would put
+      // a hole at the top of the funnel that matters most.
       const distinctId =
-        userId != null ? String(userId) : telegramId != null ? `tg:${telegramId}` : null;
+        userId != null
+          ? String(userId)
+          : telegramId != null
+            ? `tg:${telegramId}`
+            : email
+              ? `email:${email.trim().toLowerCase()}`
+              : null;
 
       if (!distinctId) {
         this.logger.warn(`No identity for PostHog capture: event=${event.event}`);
@@ -91,6 +134,20 @@ export class EventsService {
             first_seen: new Date().toISOString(),
           },
         });
+
+        // Merges pre-signup events (bot_started, tma_opened — captured under
+        // `tg:{telegramId}` before an account exists) onto this same PostHog
+        // person, so the acquisition → payment funnel spans one identity.
+        if (event.telegramId != null) {
+          this.postHog.alias(`tg:${event.telegramId}`, distinctId);
+        }
+
+        // Same merge for the anonymous checkout funnel: `checkout_started` was
+        // captured under `email:{address}` before this account existed, and the
+        // account is created off that very address once the payment settles.
+        if (event.email != null && event.email !== '') {
+          this.postHog.alias(`email:${event.email.trim().toLowerCase()}`, distinctId);
+        }
       }
 
       this.postHog.capture(distinctId, event.event, event as unknown as Record<string, unknown>);

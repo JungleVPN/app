@@ -1,7 +1,10 @@
+export { default as ConnectEmailPage } from './connectEmailPage/ConnectEmailPage';
+export { default as CookiePolicyPage } from './cookies/CookiePolicyPage';
 export { default as GetSubscriptionPage } from './getSubscription/GetSubscriptionPage';
 export { default as LandingPage } from './landing/LandingPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';
 export { default as LoginPage } from './login/LoginPage';
+export { PublicPlansPage } from './plans/PlansPage';
 export { default as PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';
 export { default as AffiliatePage } from './profile/affiliate/AffiliatePage';
 export { ProtectedDevicesPage } from './profile/devices/protected';
@@ -13,5 +16,6 @@ export { ProtectedTransactionDetailsPage } from './profile/menu/transactions/pro
 export { ProtectedPaymentPage } from './profile/payment/protected';
 export { ProtectedPlansPage } from './profile/plans/protected';
 export { ProtectedProfileSubscriptionPage } from './profile/subscription/protected';
-export { default as SubscriptionPage } from './subscription/SubscriptionPage';
+export { default as SubscriptionFailPage } from './subscriptionFail/SubscriptionFailPage';
+export { default as SubscriptionSuccessPage } from './subscriptionSuccess/SubscriptionSuccessPage';
 export { default as TermsPage } from './terms/TermsPage';

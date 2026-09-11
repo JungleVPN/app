@@ -76,6 +76,36 @@ export class YookassaService {
     return payment;
   }
 
+  /**
+   * Current status of one of the caller's own payments.
+   *
+   * Used by the post-payment return page to tell a completed payment from a
+   * cancelled one — YooKassa redirects both to the same `return_url`, so the
+   * status is the only discriminator. Reads live from YooKassa because our own
+   * row only catches up when the webhook lands, which races the redirect;
+   * falls back to the stored status if YooKassa is unreachable.
+   *
+   * A payment belonging to someone else is reported as missing, so payment ids
+   * cannot be probed for existence.
+   */
+  async getPaymentStatusForUser(
+    id: string,
+    userId: number,
+  ): Promise<{ id: string; status: Payments.PaymentStatus }> {
+    const record = await this.yookassaPaymentRepo.findOneBy({ id });
+    if (!record || record.userId !== userId) {
+      throw new NotFoundException(`Yookassa payment ${id} not found`);
+    }
+
+    try {
+      const { status } = await this.yooKassaProvider.getPayment(id);
+      return { id, status };
+    } catch (error) {
+      this.logger.warn(`Could not read live status for payment ${id}, using stored status`, error);
+      return { id, status: record.status as Payments.PaymentStatus };
+    }
+  }
+
   // ── Session creation ────────────────────────────────────────────────────
 
   async createPaymentSession(dto: CreateYookassaSessionDto): Promise<PaymentSession> {
@@ -148,6 +178,7 @@ export class YookassaService {
       event: 'checkout_started',
       userId,
       provider: 'yookassa',
+      purpose,
       amount: amountValue,
       currency: 'RUB',
     });
@@ -221,6 +252,15 @@ export class YookassaService {
       `Refund ${id} for payment ${payment_id}: ${refunded} of ${paid} ${payment.amount?.currency ?? 'RUB'} returned`,
     );
 
+    await this.analyticsClient.track({
+      event: 'payment_refunded',
+      userId: record.userId,
+      provider: 'yookassa',
+      isPartial,
+      amount: payment.refunded_amount?.value,
+      currency: payment.amount?.currency ?? 'RUB',
+    });
+
     await this.toltService.reportRefund({ chargeId: payment_id, isPartial });
   }
 
@@ -268,7 +308,7 @@ export class YookassaService {
     // Count prior succeeded payments before stamping this one — the current record
     // is still pending at this point, so a count of 0 means this is the first payment.
     const priorSucceeded = await this.yookassaPaymentRepo.count({
-      where: { userId: record.userId, status: 'succeeded' },
+      where: { userId: record.userId, status: 'succeeded', purpose: 'subscription' },
     });
     const isFirstPayment = priorSucceeded === 0;
 
@@ -301,9 +341,12 @@ export class YookassaService {
         event: 'payment_succeeded',
         userId: record.userId,
         provider: 'yookassa',
+        purpose: record.purpose,
         selectedPeriod: record.selectedPeriod,
         isFirstPayment,
         isAutoPayment: false,
+        amount: record.amount,
+        currency: 'RUB',
       });
 
       if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {
@@ -457,7 +500,7 @@ export class YookassaService {
 
       await this.savedMethodRepo.save(method);
 
-      this.analyticsClient.track({
+      await this.analyticsClient.track({
         event: 'payment_method_saved',
         userId,
         provider: 'yookassa',

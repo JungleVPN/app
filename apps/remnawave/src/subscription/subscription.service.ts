@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import {
   GetSubpageConfigByShortUuidCommand,
-  GetSubscriptionInfoByShortUuidCommand,
   GetSubpageConfigCommand,
+  GetSubscriptionInfoByShortUuidCommand,
 } from '@workspace/types';
 import { RemnaPanelClient } from '../common/remna-panel.client';
 

@@ -3,15 +3,23 @@ import { IconLogout, IconUser } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { useNavigation } from '../../hooks';
-import { useSupabaseClient } from '../../runtime';
+import { useAppRoutes, useSupabaseClient } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo } from '../../stores';
+import { isLandingPath } from '../../utils';
 
-export function AuthButtons() {
+interface AuthButtonsProps {
+  isRu?: boolean;
+}
+
+export function AuthButtons(props: AuthButtonsProps) {
+  const { isRu } = props;
+
   const supabase = useSupabaseClient();
   const { authUser, loading } = useAuthStoreInfo();
   const { setAuthUser, setRmnUser } = useAuthStoreActions();
   const navigate = useNavigation();
   const location = useLocation();
+  const { publicPlansPath, profileSubscriptionPath } = useAppRoutes();
   const { t } = useTranslation();
 
   if (loading) {
@@ -23,7 +31,16 @@ export function AuthButtons() {
   };
 
   const handleTryNow = () => {
-    navigate('/login');
+    if (isRu) {
+      navigate('/login');
+      return;
+    }
+
+    if (!authUser) {
+      navigate(publicPlansPath);
+    } else {
+      navigate(profileSubscriptionPath);
+    }
   };
 
   const handleLogout = async () => {
@@ -38,7 +55,7 @@ export function AuthButtons() {
     if (key === 'logout') await handleLogout();
   };
 
-  if (authUser && location.pathname !== '/') {
+  if (authUser && !isLandingPath(location.pathname)) {
     return (
       <Dropdown>
         <Button isIconOnly size='md' variant='outline'>

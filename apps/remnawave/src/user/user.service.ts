@@ -13,6 +13,7 @@ import {
   GetUserMetadataResponseDto,
   GetUsersStreamCommand,
   type GetUsersStreamQuery,
+  isGlobalOrigin,
   RevokeUserSubscriptionCommand,
   type StreamedUserDto,
   UpdateUserCommand,
@@ -27,8 +28,9 @@ import { Bot } from 'grammy';
 import { AnalyticsClientService } from '../analytics/analytics-client.service';
 import { RemnaPanelClient, RemnaPanelError } from '../common/remna-panel.client';
 
-// Used when REMNAWAVE_INTERNAL_SQUADS is unset/empty so new users still land in a squad.
-const DEFAULT_INTERNAL_SQUAD = '6f40164a-51d0-432a-8fa3-3e1311e13757';
+const RU_INTERNAL_SQUAD = '6f40164a-51d0-432a-8fa3-3e1311e13757';
+const GLOBAL_INTERNAL_SQUAD = 'd16313a3-6330-4868-bf8b-bce4911d31e7';
+const GLOBAL_EXTERNAL_SQUAD = 'e77d316a-745a-44c6-acc2-75c78e25d8d6';
 
 /** `/api/users/stream?size=` is capped at 1000 by the contract. */
 const STREAM_PAGE_SIZE = 1000;
@@ -196,26 +198,37 @@ export class UserService implements OnModuleInit {
   async createUser(
     payload: Pick<CreateUserRequestDto, 'telegramId' | 'email' | 'description'> & {
       inviterId?: number;
+      origin?: string | null;
     },
   ): Promise<CreateUserResponseDto> {
+    const isGlobal = isGlobalOrigin(payload.origin, this.configService.get('PUBLIC_DOMAIN_RU'));
+
     const trialDays = Number(this.configService.get('TRIAL_PERIOD_IN_DAYS', '3'));
-    const configuredInternalSquads = JSON.parse(
-      this.configService.get('REMNAWAVE_INTERNAL_SQUADS', '[]'),
+    const ruInternalSquad = this.configService.get('RU_INTERNAL_SQUAD', RU_INTERNAL_SQUAD);
+    const globalInternalSquad = this.configService.get(
+      'GLOBAL_INTERNAL_SQUAD',
+      GLOBAL_INTERNAL_SQUAD,
     );
-    const activeInternalSquads =
-      configuredInternalSquads.length > 0 ? configuredInternalSquads : [DEFAULT_INTERNAL_SQUAD];
+    const globalExternalSquad = this.configService.get(
+      'GLOBAL_EXTERNAL_SQUAD',
+      GLOBAL_EXTERNAL_SQUAD,
+    );
+
+    const activeInternalSquads = isGlobal ? [globalInternalSquad] : [ruInternalSquad];
+    const externalSquadUuid = isGlobal ? globalExternalSquad : null;
+
     const expireAt = addDays(new Date(), trialDays);
 
-    const { inviterId, ...rest } = payload;
+    const { inviterId, origin, ...rest } = payload;
 
     const body: CreateUserRequestDto = {
       ...rest,
       username: crypto.randomUUID().slice(0, 10),
-      expireAt,
+      expireAt: isGlobal ? new Date(Date.now()) : expireAt,
       activeInternalSquads,
+      externalSquadUuid,
       trafficLimitStrategy: 'MONTH',
       status: 'ACTIVE',
-      hwidDeviceLimit: Number(process.env.HWID_LIMIT) || 5,
     };
 
     const user = await this.panelClient.request<CreateUserResponseDto>({

@@ -8,13 +8,14 @@ import {
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from '../../hooks';
-import { useSubscription } from '../../stores';
+import { useAuthStore, useSubscription } from '../../stores';
 import { Grid, GridItem } from '../../ui';
 import { formatDate, getExpirationTextUtil } from '../../utils';
 import { InfoBlock } from '../InfoBlock/InfoBlock';
 
 export const SubscriptionInfoCollapsed = () => {
   const { t, currentLang, baseTranslations } = useTranslation();
+  const { rmnUser } = useAuthStore();
   const subscription = useSubscription();
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -30,7 +31,7 @@ export const SubscriptionInfoCollapsed = () => {
           <span className='flex min-w-0 flex-1 items-center gap-2'>
             <span className='flex min-w-0 flex-1 flex-col items-start gap-0'>
               <span className='truncate text-sm font-semibold text-foreground'>
-                {user.username}
+                {rmnUser?.email || user?.username}
               </span>
               <span className='truncate text-xs text-foreground'>
                 {getExpirationTextUtil(user.expiresAt, currentLang, baseTranslations)}
@@ -48,7 +49,7 @@ export const SubscriptionInfoCollapsed = () => {
                 color='blue'
                 icon={<IconUserScan size={16} />}
                 title={t(baseTranslations.name)}
-                value={user.username}
+                value={rmnUser?.email || user?.username}
               />
             </GridItem>
 

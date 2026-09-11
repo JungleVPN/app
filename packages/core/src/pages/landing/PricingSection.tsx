@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { usePlans } from '../../hooks';
+import { useAuthStore } from '../../stores';
 import { Grid, GridItem } from '../../ui';
-import { cn, formatPlanPrice, isRuDomain } from '../../utils';
+import { cn, formatPlanPrice, isGlobalOrigin } from '../../utils';
+import { planSlug } from '../getSubscription/planSlug';
 
 const HIGHLIGHTED_PLAN_MONTHS = 12;
 const HIGHLIGHTED_DESKTOP_POSITION = 2;
@@ -142,6 +144,7 @@ function calculatePricing(
 export function PricingSection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { authUser } = useAuthStore();
   const plans = usePlans();
 
   function formatMonths(months: number): string {
@@ -150,8 +153,12 @@ export function PricingSection() {
     return t('landing.pricing.monthsPeriod', { count: months });
   }
 
-  const handleCtaClick = () => navigate('/profile/plans');
-  const isRu = isRuDomain();
+  const isRu = !isGlobalOrigin();
+
+  // Global domains check out on the standalone payment page, which needs the
+  // chosen period in the URL. RU still goes through the in-profile plan picker.
+  const handleCtaClick = (months: number) =>
+    navigate(isRu || authUser ? '/profile/plans' : `/payment/${planSlug(months)}`);
 
   const sharedProps = {
     currency: isRu ? '₽' : '€',
@@ -159,7 +166,6 @@ export function PricingSection() {
     guarantee: t('landing.pricing.guarantee'),
     cta: t('landing.pricing.cta'),
     totalLabel: t('landing.pricing.totalLabel'),
-    onCtaClick: handleCtaClick,
   };
 
   if (plans.length === 0) return null;
@@ -216,6 +222,7 @@ export function PricingSection() {
                   }
                   highlighted={isHighlighted}
                   badge={badge}
+                  onCtaClick={() => handleCtaClick(plan.months)}
                 />
               </GridItem>
             );

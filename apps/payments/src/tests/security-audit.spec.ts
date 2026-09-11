@@ -318,26 +318,26 @@ describe('Security Audit', () => {
     });
 
     it('throws for an amount not matching the configured price', () => {
-      expect(() => mapEURAmountToMonthsNumber('99900')).toThrow();
+      expect(() => mapEURAmountToMonthsNumber(99900)).toThrow();
     });
 
     it('throws for amount = 0', () => {
-      expect(() => mapEURAmountToMonthsNumber('0')).toThrow();
+      expect(() => mapEURAmountToMonthsNumber(0)).toThrow();
     });
 
     it('throws when no periods are configured', () => {
       delete process.env.ALLOWED_PERIOD;
-      expect(() => mapEURAmountToMonthsNumber('500')).toThrow();
+      expect(() => mapEURAmountToMonthsNumber(500)).toThrow();
     });
 
     it('returns correct months for the configured price', () => {
       // 500 EUR cents = 5 EUR → matches PRICE_EUR_MONTH_1 = '5' → 1 month
-      expect(mapEURAmountToMonthsNumber('500')).toBe(1);
+      expect(mapEURAmountToMonthsNumber(500)).toBe(1);
 
       // Add a 3-month plan and verify it maps correctly
       process.env.ALLOWED_PERIOD = '1,3';
       process.env.PRICE_EUR_MONTH_3 = '12';
-      expect(mapEURAmountToMonthsNumber('1200')).toBe(3);
+      expect(mapEURAmountToMonthsNumber(1200)).toBe(3);
     });
   });
 });

@@ -18,9 +18,11 @@ export const apiRoutes = {
   payments: {
     stripeCreateSession: '/stripe/create-session',
     stripeSubscription: '/stripe/subscription',
+    stripePublicCreateSession: '/stripe/public-create-session',
     stripeWebhook: '/stripe/webhook',
     yookassaCreateSession: '/yookassa/create-session',
     yookassaWebhook: '/yookassa/webhook',
+    yookassaPaymentStatus: (id: string) => `/yookassa/payment-status/${encodeURIComponent(id)}`,
     yookassaSavedMethods: '/yookassa/saved-methods',
     yookassaSavedMethodById: (id: string) => `/yookassa/saved-methods/${encodeURIComponent(id)}`,
     telegramStarsCreateInvoice: '/telegram-stars/create-invoice',

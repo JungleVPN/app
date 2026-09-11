@@ -54,6 +54,18 @@ export class AdminService {
   }
 
   /**
+   * Statuses that are not a settled payment, and so never belong in a result.
+   *
+   * `pending` is the placeholder written before checkout. `completed` is
+   * Stripe-only and just as provisional: `checkout.session.completed` fires
+   * when the session finishes, but the money lands on a later
+   * `invoice.payment_succeeded`, which writes its own `paid` row. Both rows
+   * carry the same userId, so leaving `completed` in showed one purchase twice
+   * in the caller's history — once with a null paidAt.
+   */
+  private static readonly UNSETTLED_STATUSES = ['pending', 'completed'];
+
+  /**
    * The OR group of a free-text search, wrapped in Brackets.
    *
    * Brackets is load-bearing: TypeORM concatenates conditions with no
@@ -77,7 +89,13 @@ export class AdminService {
       });
       if (numQ !== null) {
         for (const column of columns.numeric) {
-          where.orWhere(`${column} = :numQ`, { numQ });
+          // CAST is load-bearing: `userId` is int and `telegramId` is bigint,
+          // and both branches share one parameter. Postgres resolves an untyped
+          // parameter once, from its first use, so an uncast placeholder is
+          // pinned to integer by the userId branch — and every modern Telegram
+          // id is above 2^31, which then fails the whole query with "value out
+          // of range for type integer" before a row is read.
+          where.orWhere(`${column} = CAST(:numQ AS bigint)`, { numQ });
         }
       }
     });
@@ -94,8 +112,9 @@ export class AdminService {
           numeric: ['p.userId', 'p.telegramId'],
         }),
       )
-      // Drop the pre-checkout placeholder rows — only settled records are shown.
-      .andWhere('p.status != :pending', { pending: 'pending' })
+      .andWhere('p.status NOT IN (:...unsettled)', {
+        unsettled: AdminService.UNSETTLED_STATUSES,
+      })
       .orderBy('p.createdAt', 'DESC')
       .getMany();
 
@@ -125,7 +144,9 @@ export class AdminService {
           numeric: ['p.userId', 'p.telegramId'],
         }),
       )
-      .andWhere('p.status != :pending', { pending: 'pending' })
+      .andWhere('p.status NOT IN (:...unsettled)', {
+        unsettled: AdminService.UNSETTLED_STATUSES,
+      })
       .orderBy('p.createdAt', 'DESC')
       .getMany();
 
@@ -156,8 +177,9 @@ export class AdminService {
           numeric: ['p.userId'],
         }),
       )
-      // Drop the pre-checkout placeholder rows — only settled records are shown.
-      .andWhere('p.status != :pending', { pending: 'pending' })
+      .andWhere('p.status NOT IN (:...unsettled)', {
+        unsettled: AdminService.UNSETTLED_STATUSES,
+      })
       .orderBy('p.createdAt', 'DESC')
       .getMany();
 

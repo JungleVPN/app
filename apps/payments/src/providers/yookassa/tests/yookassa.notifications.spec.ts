@@ -157,6 +157,8 @@ describe('YooKassa payment notifications', () => {
     process.env.REMNAWAVE_URL = 'http://remnawave:3002/remnawave';
     process.env.INTER_SERVICE_SECRET = 'inter-secret';
     process.env.PAYMENT_DESCRIPTION = 'Jungle VPN';
+    process.env.ALLOWED_PERIOD = '1';
+    process.env.PRICE_RUB_MONTH_1 = '599';
     // Without Zoho credentials the mailer short-circuits and sends nothing.
     process.env.ZOHO_CLIENT_ID = 'zc';
     process.env.ZOHO_CLIENT_SECRET = 'zs';
@@ -258,6 +260,8 @@ describe('YooKassa payment notifications', () => {
       'REMNAWAVE_URL',
       'INTER_SERVICE_SECRET',
       'PAYMENT_DESCRIPTION',
+      'ALLOWED_PERIOD',
+      'PRICE_RUB_MONTH_1',
       'ZOHO_CLIENT_ID',
       'ZOHO_CLIENT_SECRET',
       'ZOHO_REFRESH_TOKEN',

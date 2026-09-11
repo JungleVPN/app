@@ -4,7 +4,7 @@ import { useRemnawaveApi } from '../../../../api';
 import { useCreateStripeSession } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../../../stores';
-import { analytics } from '../../../../utils';
+import { phCapture } from '../../../../utils';
 
 /**
  * Stripe checkout flow for the web/TMA payment page.
@@ -81,7 +81,7 @@ export function useStripePayment(selectedPeriod: number) {
     });
 
     if (!session?.url) return;
-    analytics.beginCheckout('stripe');
+    phCapture('checkout_started', { payment_provider: 'stripe', months: selectedPeriod });
     redirectTo(session.url);
   };
 

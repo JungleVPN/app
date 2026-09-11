@@ -1,9 +1,11 @@
 export { AppAlert } from './AppAlert';
 export { AuthGuard } from './AuthGuard/AuthGuard';
+export { CookieConsent } from './CookieConsent/CookieConsent';
 export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorConnection } from './ErrorConnection/ErrorConnection';
 export { FeaturesCard } from './FeaturesCard/FeaturesCard';
-export { FooterSection } from './FooterSection';
+export { FooterSection } from './Footer/FooterSection';
+export { PaymentFooter } from './Footer/PaymentFooter';
 export { AuthButtons } from './Header/AuthButtons';
 export { Header } from './Header/Header';
 export { LanguageSwitcher } from './Header/LanguageSwitcher';

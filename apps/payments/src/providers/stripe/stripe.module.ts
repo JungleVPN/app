@@ -11,6 +11,7 @@ import {
   TelegramStarsPayment,
   YookassaPayment,
 } from '@workspace/database';
+import { PublicCheckoutRateLimitGuard } from '../../guards/public-checkout-rate-limit.guard';
 import { PaymentStatusModule } from '../../payment-status/payment-status.module';
 import { PromoModule } from '../../promo/promo.module';
 import { ToltModule } from '../../tolt/tolt.module';
@@ -30,6 +31,11 @@ import { ToltModule } from '../../tolt/tolt.module';
   ],
   controllers: [StripeController],
   exports: [StripeProvider, StripeWebhookService],
-  providers: [StripeClientService, StripeProvider, StripeWebhookService],
+  providers: [
+    StripeClientService,
+    StripeProvider,
+    StripeWebhookService,
+    PublicCheckoutRateLimitGuard,
+  ],
 })
 export class StripeModule {}

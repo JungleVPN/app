@@ -10,6 +10,7 @@ export const coreEnv = {
   subpageConfigUuid: (import.meta.env.PUBLIC_SUBPAGE_CONFIG ?? '') as string,
 
   successStickerFileId: (import.meta.env.PUBLIC_SUCCESS_STICKER_FILE_ID ?? '') as string,
+  failStickerFileId: (import.meta.env.PUBLIC_FAIL_STICKER_FILE_ID ?? '') as string,
   menuStickerFileId: (import.meta.env.PUBLIC_MENU_STICKER_FILE_ID ?? '') as string,
   extraDeviceStickerFileId: (import.meta.env.PUBLIC_EXTRA_DEVICE_STICKER_FILE_ID ?? '') as string,
   promoCodeStickerFileId: (import.meta.env.PUBLIC_PROMO_CODE_STICKER_FILE_ID ?? '') as string,

@@ -1,9 +1,9 @@
-import { Alert, Button, Form, Input, Label, Surface, TextField } from '@heroui/react';
+import { Alert, Button, Form, Input, Label, Spinner, Surface, TextField } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router';
 import { FeaturesCard } from '../../components';
 import { useAuthStore } from '../../stores';
-import { Block, Container } from '../../ui';
+import { Block } from '../../ui';
 import css from './login.module.css';
 import { useLogin } from './useLogin';
 
@@ -18,7 +18,7 @@ export default function LoginPage() {
   }
 
   return (
-    <Container maxWidth={'sm'} className='mt-24 w-full flex flex-col gap-3'>
+    <>
       <Surface variant='transparent'>
         <Block className={'p-4'}>
           <h1 className={`text-center text-xl font-semibold ${css.title}`}>{t('login.title')}</h1>
@@ -45,7 +45,12 @@ export default function LoginPage() {
                 />
               </TextField>
               <Button fullWidth isPending={loading} type='submit'>
-                {t('login.submit')}
+                {({ isPending }) => (
+                  <>
+                    {isPending ? <Spinner color='current' size='sm' /> : null}
+                    {t('login.submit')}
+                  </>
+                )}
               </Button>
             </Form>
           </div>
@@ -55,10 +60,10 @@ export default function LoginPage() {
       <div className={'mt-4'}>
         <FeaturesCard
           title={t('common.features.title')}
-          badge={t('getSubscription.discount')}
+          badge={t('connectEmailPage.discount')}
           description={t('login.trial_card_description')}
         />
       </div>
-    </Container>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 import * as process from 'node:process';
 
-const DEFAULT_RETURN_URL = 'https://jungle-vpn.com/profile/subscription';
+const DEFAULT_RETURN_URL = 'https://jungle-vpn.com/payment/success';
 
 function allowedOrigins(): string[] {
   return (process.env.CORS_ORIGIN ?? '')

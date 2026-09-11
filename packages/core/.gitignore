@@ -5,3 +5,4 @@ node_modules
 err.log
 out.log
 *.tsbuildinfo
+posthog-self-driving-report.md

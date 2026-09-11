@@ -23,7 +23,7 @@ function TestimonialCard({ quote, name }: { quote: string; name: string }) {
   return (
     <Card
       variant='secondary'
-      className='flex h-full flex-col justify-between gap-6 p-5 border-gray-500 border border-solid'
+      className='flex h-full flex-col justify-between gap-6 p-5 border-gray-500 border border-solid bg-white'
     >
       <p className='text-sm leading-relaxed text-foreground'>{quote}</p>
       <div className='flex items-center justify-between gap-3'>

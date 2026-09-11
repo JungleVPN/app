@@ -8,6 +8,7 @@ import { PaymentStatusListener } from '@bot/listeners/payment-status.listener';
 import { TelegramStarsListener } from '@bot/listeners/telegram-stars.listener';
 import { UserRewardedListener } from '@bot/listeners/user.rewarded.listener';
 import { UserExpireListener } from '@bot/listeners/user-expire.listener';
+import { UserFirstConnectedListener } from '@bot/listeners/user-first-connected.listener';
 import { UserNotConnectedListener } from '@bot/listeners/user-not-connected.listener';
 import { LocalisationService } from '@bot/localisation/localisation.service';
 import { MainMenu } from '@bot/navigation/features/main/main.menu';
@@ -15,6 +16,7 @@ import { MainMenuService } from '@bot/navigation/features/main/main.service';
 import { MainKeyboardCallback } from '@bot/navigation/features/main/main-keyboard.callback';
 import { RevokeSubMenuService } from '@bot/navigation/features/subscription/revokeSub.service';
 import { MenuModule } from '@bot/navigation/menu.module';
+import { ZohoEmailService } from '@bot/notifications/zoho-email.service';
 import { PollService } from '@bot/poll/poll.service';
 import { BroadcastsModule } from '@broadcasts/broadcasts.module';
 import { Module } from '@nestjs/common';
@@ -46,9 +48,11 @@ import { BotService } from './bot.service';
     MainMenu,
     LocalisationService,
     CurrencyService,
+    ZohoEmailService,
     // HANDLERS
     UserExpireListener,
     UserNotConnectedListener,
+    UserFirstConnectedListener,
     PaymentStatusListener,
     TelegramStarsListener,
     UserRewardedListener,

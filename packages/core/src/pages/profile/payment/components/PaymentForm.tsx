@@ -88,11 +88,11 @@ export function PaymentForm({
   submitRef.current = async () => {
     if (showEmailInput) {
       if (!email.trim()) {
-        setEmailError(t('getSubscription.error_empty_email'));
+        setEmailError(t('connectEmailPage.error_empty_email'));
         return;
       }
       if (!validateEmail(email)) {
-        setEmailError(t('getSubscription.error_invalid_email'));
+        setEmailError(t('connectEmailPage.error_invalid_email'));
         return;
       }
     }
@@ -127,7 +127,7 @@ export function PaymentForm({
               <Input
                 autoComplete='email'
                 className='w-full ps-11'
-                placeholder={t('getSubscription.email_placeholder')}
+                placeholder={t('connectEmailPage.email_placeholder')}
                 onBlur={() => {
                   mainButton.show();
                   setNavbarVisible(true);
@@ -146,7 +146,7 @@ export function PaymentForm({
             {emailError.length > 0 ? (
               <FieldError>{emailError}</FieldError>
             ) : (
-              <Description>{t('getSubscription.email_description')}</Description>
+              <Description>{t('connectEmailPage.email_description')}</Description>
             )}
           </TextField>
         </Block>

@@ -1,93 +1,159 @@
-import { Button, Chip, Description, FieldError, Form, Input, TextField } from '@heroui/react';
-import { IconArrowRight, IconCheck, IconMail } from '@tabler/icons-react';
+import { ACTIVE_SUBSCRIPTION_CODE } from '@workspace/types';
+import { type SyntheticEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router';
+import { ApiClientError } from '../../api';
 import { Loading } from '../../components';
-import { Block } from '../../ui';
-import styles from './getSubscription.module.css';
-import { useGetSubscriptionPage } from './useGetSubscriptionPage';
+import { useNavigation, usePlans } from '../../hooks';
+import { useAppRoutes, usePaymentsApi } from '../../runtime';
+import { useAuthStore, usePlanByMonths, usePlansStatus } from '../../stores';
+import { getReferralUserId, isGlobalOrigin, scrollToTop, validateEmail } from '../../utils';
+import { ActiveSubscriptionDialog } from './ActiveSubscriptionDialog';
+import { GetSubscriptionComponent } from './GetSubscriptionComponent';
+import { monthsFromSlug } from './planSlug';
+
+const EMPTY_EMAIL_ERROR = 'getSubscription.email_required_error';
+const INVALID_EMAIL_ERROR = 'getSubscription.email_invalid_error';
+
+const CHECKOUT_ERROR = 'getSubscription.checkout_error';
+
+/**
+ * The backend throttles this route per IP and per email. Telling a throttled
+ * visitor to "try again" is the one instruction that cannot work, so the wait
+ * is spelled out instead.
+ */
+const THROTTLED_ERROR = 'getSubscription.throttled_error';
+
+/** Whether the backend refused the checkout because the caller was rate limited. */
+function isThrottledError(error: unknown): boolean {
+  return error instanceof ApiClientError && error.status === 429;
+}
+
+/**
+ * Whether the backend refused the checkout because the payer email already has
+ * an active subscription, rather than because the payment failed to start.
+ */
+function isActiveSubscriptionError(error: unknown): boolean {
+  if (!(error instanceof ApiClientError) || error.status !== 409) return false;
+
+  const data = error.data;
+  // The code is what identifies the case; a 409 from this endpoint means only
+  // this today, so an unparsed body is still treated as it.
+  if (typeof data !== 'object' || data === null) return true;
+  return (data as { code?: string }).code === ACTIVE_SUBSCRIPTION_CODE;
+}
 
 export default function GetSubscriptionPage() {
+  const { planSlug } = useParams();
   const { t } = useTranslation();
-  const { email, error, hasError, isLoading, isConnecting, handleEmailChange, handleSubmit } =
-    useGetSubscriptionPage();
+  const { authUser } = useAuthStore();
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [isPending, setIsPending] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  // The email whose account already subscribes — also the dialog's open state.
+  const [activeSubscriptionEmail, setActiveSubscriptionEmail] = useState<string | null>(null);
+  const paymentsApi = usePaymentsApi();
+  const navigate = useNavigation();
+  const { profileSubscriptionPath } = useAppRoutes();
 
-  if (isConnecting) return <Loading />;
+  const isRu = !isGlobalOrigin();
 
-  const features = [
-    t('getSubscription.feature_devices'),
-    t('getSubscription.feature_traffic'),
-    t('getSubscription.feature_support'),
-  ];
+  useEffect(() => {
+    if (isRu) navigate(profileSubscriptionPath, { replace: true });
+  }, [isRu, navigate, profileSubscriptionPath]);
+
+  // Starts the one-time fetch if the visitor deep-linked here without passing
+  // through the landing page; otherwise the store already holds the plans.
+  usePlans();
+
+  const selectedPeriod = monthsFromSlug(planSlug);
+  const status = usePlansStatus();
+  const plan = usePlanByMonths(selectedPeriod);
+
+  const pricing = isRu ? plan?.rub : plan?.eur;
+
+  useEffect(() => {
+    scrollToTop();
+  }, []);
+
+  const startCheckout = async (payerEmail: string) => {
+    if (selectedPeriod === null) return;
+
+    setIsPending(true);
+    setCheckoutError(null);
+    setActiveSubscriptionEmail(null);
+    try {
+      const session = await paymentsApi.createPublicStripeSession({
+        email: payerEmail,
+        selectedPeriod,
+        toltReferralId: window.tolt_referral ?? null,
+        inviterId: getReferralUserId() ?? undefined,
+      });
+
+      if (!session?.url) {
+        setCheckoutError(t(CHECKOUT_ERROR));
+        return;
+      }
+
+      window.location.href = session.url;
+    } catch (error) {
+      if (isActiveSubscriptionError(error)) {
+        setActiveSubscriptionEmail(payerEmail);
+        return;
+      }
+      setCheckoutError(t(isThrottledError(error) ? THROTTLED_ERROR : CHECKOUT_ERROR));
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (emailError) setEmailError('');
+  };
+
+  const handleSubmit = async (event: SyntheticEvent) => {
+    event.preventDefault();
+
+    const userEmail = authUser?.email ?? email;
+
+    if (!userEmail.trim()) {
+      setEmailError(t(EMPTY_EMAIL_ERROR));
+      return;
+    }
+    if (!validateEmail(userEmail)) {
+      setEmailError(t(INVALID_EMAIL_ERROR));
+      return;
+    }
+
+    await startCheckout(userEmail);
+  };
+
+  if (isRu || status === 'idle' || status === 'loading') return <Loading />;
 
   return (
-    <Form className={styles.form}>
-      <div className='flex max-w-5xl flex-col gap-3'>
-        <div className='flex flex-col gap-2'>
-          <p className='text-base font-medium ms-4'>{t('getSubscription.enter_email')}</p>
-          <TextField isInvalid={hasError} isRequired name='email' id={'email'} type='email'>
-            <div className='relative w-full'>
-              <span className={styles.inputIcon}>
-                <IconMail size={20} stroke={1.5} />
-              </span>
-              <Input
-                autoComplete='email'
-                className={styles.input}
-                placeholder={t('getSubscription.email_placeholder')}
-                value={email}
-                variant='secondary'
-                onChange={(v) => handleEmailChange(v.target.value)}
-              />
-            </div>
-
-            {hasError ? (
-              <FieldError>{error}</FieldError>
-            ) : (
-              <Description className={'ms-4'}>{t('getSubscription.email_description')}</Description>
-            )}
-          </TextField>
-        </div>
-
-        <Block className={'p-4'}>
-          <div className={styles.orderSummary}>
-            <p className={styles.summaryTitle}>{t('getSubscription.order_summary')}</p>
-
-            <div className={styles.itemRow}>
-              <div className={styles.itemLabel}>
-                <div className='flex flex-col gap-0.5'>
-                  <p className={styles.itemName}>{t('getSubscription.item_name')}</p>
-                  <Chip color='warning' size='sm' className={'w-fit'} variant='secondary'>
-                    <Chip.Label>{t('getSubscription.discount')}</Chip.Label>
-                  </Chip>
-                </div>
-              </div>
-              <div className={styles.priceColumn}>
-                <p className={styles.currentPrice}>0 ₽</p>
-              </div>
-            </div>
-
-            <div className={styles.divider} />
-
-            <Button className={'w-full'} isPending={isLoading} type='submit' onClick={handleSubmit}>
-              {t('getSubscription.submit_button')}
-              <IconArrowRight size={20} stroke={2} className='rtl:-scale-x-100' />
-            </Button>
-
-            <div className='flex flex-col gap-4'>
-              <p className={styles.featuresTitle}>{t('getSubscription.features_title')}</p>
-              <div className={styles.featuresList}>
-                {features.map((feature) => (
-                  <div key={feature} className={styles.featureItem}>
-                    <div className={styles.featureIcon}>
-                      <IconCheck size={18} stroke={3} />
-                    </div>
-                    <p className='text-sm text-foreground/80'>{feature}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Block>
-      </div>
-    </Form>
+    <>
+      <GetSubscriptionComponent
+        isAuthenticated={Boolean(authUser)}
+        email={email}
+        emailError={emailError}
+        checkoutError={checkoutError}
+        isPending={isPending}
+        isRu={isRu}
+        selectedPeriod={selectedPeriod}
+        pricing={pricing}
+        handleSubmit={handleSubmit}
+        handleEmailChange={handleEmailChange}
+      />
+      <ActiveSubscriptionDialog
+        email={activeSubscriptionEmail}
+        isLoggedIn={Boolean(authUser)}
+        onClose={() => {
+          setEmail('');
+          setActiveSubscriptionEmail(null);
+        }}
+      />
+    </>
   );
 }

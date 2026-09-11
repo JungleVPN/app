@@ -617,6 +617,33 @@ describe('YookassaService', () => {
       expect(mockReportRefund).toHaveBeenCalledWith({ chargeId: 'pay_1', isPartial: false });
     });
 
+    it('records the refund for analytics, keyed to the payment’s user', async () => {
+      await service.handleWebhook(makeRefundPayload(), '127.0.0.1');
+
+      expect(analyticsClient.track).toHaveBeenCalledWith({
+        event: 'payment_refunded',
+        userId: 1000,
+        provider: 'yookassa',
+        isPartial: false,
+        amount: '200.00',
+        currency: 'RUB',
+      });
+    });
+
+    it('flags a partial refund in the analytics event too', async () => {
+      mockGetPayment.mockResolvedValue({
+        status: 'succeeded',
+        amount: { value: '200.00', currency: 'RUB' },
+        refunded_amount: { value: '50.00', currency: 'RUB' },
+      });
+
+      await service.handleWebhook(makeRefundPayload({ amount: { value: '50.00' } }), '127.0.0.1');
+
+      expect(analyticsClient.track).toHaveBeenCalledWith(
+        expect.objectContaining({ event: 'payment_refunded', isPartial: true }),
+      );
+    });
+
     it('flags a partial refund, which must not void the whole commission', async () => {
       mockGetPayment.mockResolvedValue({
         status: 'succeeded',
@@ -640,6 +667,9 @@ describe('YookassaService', () => {
       await service.handleWebhook(makeRefundPayload(), '127.0.0.1');
 
       expect(mockReportRefund).not.toHaveBeenCalled();
+      expect(analyticsClient.track).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event: 'payment_refunded' }),
+      );
     });
 
     // YooKassa has been seen to return a payment without amount fields; a
@@ -722,6 +752,45 @@ describe('YookassaService', () => {
       await expect(service.getPaymentById('pay_missing')).rejects.toThrow(NotFoundException);
       await expect(service.getPaymentById('pay_missing')).rejects.toThrow(
         'Yookassa payment pay_missing not found',
+      );
+    });
+  });
+
+  describe('getPaymentStatusForUser', () => {
+    it('reports the live status from YooKassa rather than the stored one', async () => {
+      mockYkFindOneBy.mockResolvedValue({ id: 'pay_1', userId: 1000, status: 'pending' });
+      mockGetPayment.mockResolvedValue({ status: 'canceled' });
+
+      await expect(service.getPaymentStatusForUser('pay_1', 1000)).resolves.toEqual({
+        id: 'pay_1',
+        status: 'canceled',
+      });
+    });
+
+    it('falls back to the stored status when YooKassa cannot be reached', async () => {
+      mockYkFindOneBy.mockResolvedValue({ id: 'pay_1', userId: 1000, status: 'succeeded' });
+      mockGetPayment.mockRejectedValue(new Error('yookassa down'));
+
+      await expect(service.getPaymentStatusForUser('pay_1', 1000)).resolves.toEqual({
+        id: 'pay_1',
+        status: 'succeeded',
+      });
+    });
+
+    it('hides another user\'s payment behind the same 404 as an unknown id', async () => {
+      mockYkFindOneBy.mockResolvedValue({ id: 'pay_1', userId: 999, status: 'succeeded' });
+
+      await expect(service.getPaymentStatusForUser('pay_1', 1000)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockGetPayment).not.toHaveBeenCalled();
+    });
+
+    it('raises 404 for an unknown id', async () => {
+      mockYkFindOneBy.mockResolvedValue(null);
+
+      await expect(service.getPaymentStatusForUser('pay_missing', 1000)).rejects.toThrow(
+        NotFoundException,
       );
     });
   });
@@ -857,6 +926,7 @@ describe('YookassaService', () => {
         event: 'checkout_started',
         userId: 1000,
         provider: 'yookassa',
+        purpose: 'subscription',
         amount: '599',
         currency: 'RUB',
       });
@@ -876,6 +946,14 @@ describe('YookassaService', () => {
         );
         expect(mockYkCreate).toHaveBeenCalledWith(
           expect.objectContaining({ purpose: 'extra_device', selectedPeriod: 0 }),
+        );
+      });
+
+      it('tags the checkout_started analytics event with its purpose, distinguishing it from a subscription', async () => {
+        await service.createPaymentSession(baseDto({ purpose: 'extra_device' }));
+
+        expect(analyticsClient.track).toHaveBeenCalledWith(
+          expect.objectContaining({ event: 'checkout_started', purpose: 'extra_device' }),
         );
       });
 
@@ -1111,6 +1189,28 @@ describe('YookassaService', () => {
           userId: 1000,
           provider: 'yookassa',
           isAutoPayment: false,
+        }),
+      );
+    });
+
+    it('records the purpose and settled amount so revenue and extra-device sales are queryable', async () => {
+      mockYkFindOneBy.mockResolvedValue({
+        userId: 1000,
+        selectedPeriod: 1,
+        telegramId: 42,
+        amount: '599',
+        purpose: 'subscription',
+        paidAt: null,
+      });
+
+      await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+      expect(analyticsClient.track).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: 'payment_succeeded',
+          purpose: 'subscription',
+          amount: '599',
+          currency: 'RUB',
         }),
       );
     });

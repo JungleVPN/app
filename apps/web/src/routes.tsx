@@ -1,26 +1,16 @@
 import { LandingLayout, ProfileLayout } from '@workspace/core';
-import {
-  AffiliatePage,
-  ConfirmPage,
-  GetSubscriptionPage,
-  LoginPage,
-  PrivacyPolicyPage,
-  ProtectedDevicesPage,
-  ProtectedMenuPage,
-  ProtectedPaymentPage,
-  ProtectedPlansPage,
-  ProtectedProfileSubscriptionPage,
-  ProtectedReferralsPage,
-  ProtectedTransactionDetailsPage,
-  ProtectedTransactionsPage,
-  SubscriptionPage,
-  TermsPage,
-} from '@workspace/core/pages';
 import type { ComponentType } from 'react';
 
 import { WebAppLayout } from '@/layouts/WebAppLayout';
 import { WebLegalLayout } from '@/layouts/WebLegalLayout';
+import { WebPaymentLayout } from '@/layouts/WebPaymentLayout';
 import { WebRootLayout } from '@/layouts/WebRootLayout';
+import { WebSuccessLayout } from '@/layouts/WebSuccessLayout';
+
+// Loaded on demand via route.lazy so the landing page's initial bundle doesn't
+// pull in the entire authenticated app (profile, payments, devices, etc.) —
+// see core-web-vitals audit on apps/web LCP/INP.
+const pages = () => import('@workspace/core/pages');
 
 export function createRoutes(Landing: ComponentType) {
   return [
@@ -32,36 +22,119 @@ export function createRoutes(Landing: ComponentType) {
           Component: LandingLayout,
           children: [{ index: true, Component: Landing }],
         },
+        // Global-domain language routing (jungle-vpn.com): /en, /ar and /tr serve
+        // the same landing page, with the active language picked up by i18n's path
+        // detector — see packages/core/src/core/i18n/i18n.ts.
+        {
+          path: '/en',
+          Component: LandingLayout,
+          children: [{ index: true, Component: Landing }],
+        },
+        {
+          path: '/ar',
+          Component: LandingLayout,
+          children: [{ index: true, Component: Landing }],
+        },
+        {
+          path: '/tr',
+          Component: LandingLayout,
+          children: [{ index: true, Component: Landing }],
+        },
         {
           Component: WebRootLayout,
           children: [
-            { path: '/subscribe', Component: GetSubscriptionPage },
-            { path: '/login', Component: LoginPage },
-            { path: '/login/confirm', Component: ConfirmPage },
-            { path: '/subscription/:shortUuid', Component: SubscriptionPage },
-            { path: '/affiliates', Component: AffiliatePage },
+            {
+              path: '/connectEmail',
+              lazy: () => pages().then((m) => ({ Component: m.ConnectEmailPage })),
+            },
+            { path: '/login', lazy: () => pages().then((m) => ({ Component: m.LoginPage })) },
+            {
+              path: '/login/confirm',
+              lazy: () => pages().then((m) => ({ Component: m.ConfirmPage })),
+            },
+            {
+              path: '/affiliates',
+              lazy: () => pages().then((m) => ({ Component: m.AffiliatePage })),
+            },
+          ],
+        },
+
+        {
+          Component: WebPaymentLayout,
+          children: [
+            {
+              path: '/payment/:planSlug',
+              lazy: () => pages().then((m) => ({ Component: m.GetSubscriptionPage })),
+            },
+            {
+              path: '/plans',
+              lazy: () => pages().then((m) => ({ Component: m.PublicPlansPage })),
+            },
           ],
         },
         {
           Component: WebLegalLayout,
           children: [
-            { path: '/terms', Component: TermsPage },
-            { path: '/privacy', Component: PrivacyPolicyPage },
+            { path: '/terms', lazy: () => pages().then((m) => ({ Component: m.TermsPage })) },
+            {
+              path: '/privacy',
+              lazy: () => pages().then((m) => ({ Component: m.PrivacyPolicyPage })),
+            },
+            {
+              path: '/cookies',
+              lazy: () => pages().then((m) => ({ Component: m.CookiePolicyPage })),
+            },
           ],
         },
         {
           path: '/profile',
           Component: ProfileLayout,
           children: [
-            { path: 'subscription', Component: ProtectedProfileSubscriptionPage },
-            { path: 'plans', Component: ProtectedPlansPage },
-            { path: 'payments', Component: ProtectedPaymentPage },
-            { path: 'devices', Component: ProtectedDevicesPage },
-            { path: 'transactions', Component: ProtectedTransactionsPage },
-            { path: 'transactions/:paymentId', Component: ProtectedTransactionDetailsPage },
-            { path: 'menu', Component: ProtectedMenuPage },
-            { path: 'referrals', Component: ProtectedReferralsPage },
+            {
+              path: 'subscription',
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedProfileSubscriptionPage })),
+            },
+            {
+              path: 'plans',
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedPlansPage })),
+            },
+            {
+              path: 'payments',
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedPaymentPage })),
+            },
+            {
+              path: 'devices',
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedDevicesPage })),
+            },
+            {
+              path: 'transactions',
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedTransactionsPage })),
+            },
+            {
+              path: 'transactions/:paymentId',
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedTransactionDetailsPage })),
+            },
+            { path: 'menu', lazy: () => pages().then((m) => ({ Component: m.ProtectedMenuPage })) },
+            {
+              path: 'referrals',
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedReferralsPage })),
+            },
           ],
+        },
+      ],
+    },
+    // Outside WebAppLayout: the success state deliberately renders without the
+    // header so it owns the viewport and offers a single next step.
+    {
+      Component: WebSuccessLayout,
+      children: [
+        {
+          path: '/payment/success',
+          lazy: () => pages().then((m) => ({ Component: m.SubscriptionSuccessPage })),
+        },
+        {
+          path: '/payment/fail',
+          lazy: () => pages().then((m) => ({ Component: m.SubscriptionFailPage })),
         },
       ],
     },

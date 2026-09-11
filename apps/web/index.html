@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html class="light" data-theme="light" lang="en">
   <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18413233512"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'AW-18413233512');
+    </script>
     <meta charset="UTF-8" />
     <!-- Anti-FOUC: apply persisted theme before React hydrates -->
     <script>
@@ -16,13 +25,6 @@
     </script>
     <link rel="icon" type="image/svg+xml" href="/assets/Logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!--app-head-->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Unbounded:wght@200..900&family=Vazirmatn:wght@100..900&display=swap"
-      rel="stylesheet"
-    />
     <link rel="preload" href="/src/assets/fonts/MartianMono-StdRg.woff2" as="font" type="font/woff2" crossorigin />
     <style>
       @font-face {
@@ -35,23 +37,11 @@
         font-display: optional;
       }
     </style>
-    <script>
-      if ('%PUBLIC_GA_ENABLED%' !== 'false') {
-        var s = document.createElement('script');
-        s.async = true;
-        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-6L3FCNC1NF';
-        document.head.appendChild(s);
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-6L3FCNC1NF');
-      }
-    </script>
-
-
+    <!--app-head-->
   </head>
   <body>
     <div id="root"><!--app-html--></div>
+    <!--app-pointer-->
     <script type="module" src="/src/entry-client.tsx"></script>
   </body>
 </html>

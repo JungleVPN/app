@@ -121,6 +121,40 @@ describe('ReferralService', () => {
       expect(typeof created.invitedId).toBe('number');
     });
 
+    it('records the linked referral for analytics — the funnel step before any reward', async () => {
+      const analyticsClient = makeAnalyticsClient();
+      const service = new ReferralService(
+        makeReferralRepo(null),
+        makeRemnaClient(),
+        { emit: vi.fn() } as unknown as EventEmitter2,
+        makePaymentsClient(),
+        analyticsClient,
+      );
+
+      await service.handleNewUser(INVITER_ID, INVITED_ID);
+
+      expect(analyticsClient.track).toHaveBeenCalledWith({
+        event: 'referral_linked',
+        invitedUserId: INVITED_ID,
+        inviterUserId: INVITER_ID,
+      });
+    });
+
+    it('does not record referral_linked when the referral is rejected', async () => {
+      const analyticsClient = makeAnalyticsClient();
+      const service = new ReferralService(
+        makeReferralRepo(null),
+        makeRemnaClient(),
+        { emit: vi.fn() } as unknown as EventEmitter2,
+        makePaymentsClient(),
+        analyticsClient,
+      );
+
+      await service.handleNewUser(INVITER_ID, INVITER_ID); // self-referral
+
+      expect(analyticsClient.track).not.toHaveBeenCalled();
+    });
+
     it('does not reward the inviter at signup — reward only happens after the friend pays', async () => {
       const remnaClient = makeRemnaClient();
       const service = makeService(makeReferralRepo(null), remnaClient);

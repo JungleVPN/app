@@ -127,3 +127,42 @@ describe('TelegramStarsService.handlePaymentSucceeded (promo)', () => {
     );
   });
 });
+
+describe('TelegramStarsService — analytics', () => {
+  it('tags checkout_started with the purpose, so a device slot is not counted as a subscription', async () => {
+    const { service } = makeService();
+
+    await service.createInvoice({ ...baseInvoiceDto, purpose: 'extra_device' });
+
+    expect((service as any).analyticsClient.track).toHaveBeenCalledWith(
+      expect.objectContaining({ event: 'checkout_started', purpose: 'extra_device' }),
+    );
+  });
+
+  it('records the purpose and settled amount on payment_succeeded', async () => {
+    const { service, repo } = makeService();
+    (repo.findOneBy as any).mockResolvedValue({
+      id: 'rec-1',
+      userId: 1000,
+      selectedPeriod: 1,
+      status: 'pending',
+      purpose: 'subscription',
+      starsAmount: 500,
+      promoCode: null,
+    });
+
+    await service.handlePaymentSucceeded({
+      paymentRecordId: 'rec-1',
+      telegramPaymentChargeId: 'charge-1',
+    });
+
+    expect((service as any).analyticsClient.track).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: 'payment_succeeded',
+        purpose: 'subscription',
+        amount: '500',
+        currency: 'XTR',
+      }),
+    );
+  });
+});

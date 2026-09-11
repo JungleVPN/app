@@ -1,10 +1,12 @@
+import { IconMail } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import Logo from '../assets/Logo_dark.svg?react';
-import LogoDark from '../assets/Logo_dark.svg?react';
-import { useTheme } from '../hooks';
-import { scrollToTop } from '../utils';
-import { SupportButton } from './SupportWidget/SupportButton';
+import Logo from '../../assets/Logo_dark.svg?react';
+import LogoDark from '../../assets/Logo_dark.svg?react';
+import { coreEnv } from '../../env';
+import { useTheme } from '../../hooks';
+import { scrollToTop } from '../../utils';
+import { SupportButton } from '../SupportWidget/SupportButton';
 
 type FooterLinkDef =
   | { type: 'internal'; to: string }
@@ -12,24 +14,48 @@ type FooterLinkDef =
   | { type: 'external'; href: string };
 
 const FOOTER_LINKS: Record<
-  'terms' | 'privacy' | 'affiliate' | 'referral' | 'pricing' | 'trial',
+  | 'terms'
+  | 'privacy'
+  | 'cookies'
+  | 'affiliate'
+  | 'referral'
+  | 'pricing'
+  | 'trial'
+  | 'partnership'
+  | 'howItWorks'
+  | 'faq',
   FooterLinkDef
 > = {
   terms: { type: 'internal', to: '/terms' },
   privacy: { type: 'internal', to: '/privacy' },
+  cookies: { type: 'internal', to: '/cookies' },
   affiliate: { type: 'internal', to: '/affiliates' },
   referral: { type: 'internal', to: '/profile/referrals' },
   pricing: { type: 'anchor', href: '#pricing' },
   trial: { type: 'anchor', href: '#trial' },
+  partnership: { type: 'anchor', href: '#partnership' },
+  howItWorks: { type: 'anchor', href: '#how-it-works' },
+  faq: { type: 'anchor', href: '#faq' },
 };
 
-const LINK_KEYS = ['terms', 'privacy', 'affiliate', 'referral', 'trial'] as const;
+const LINK_KEYS = [
+  'terms',
+  'privacy',
+  'cookies',
+  'affiliate',
+  'referral',
+  'pricing',
+  'partnership',
+  'howItWorks',
+  'faq',
+] as const;
 
 const linkClass = 'text-sm text-muted transition-colors hover:text-foreground';
 
 export function FooterSection() {
   const { t } = useTranslation();
   const { theme } = useTheme();
+  const { supportEmail } = coreEnv;
 
   return (
     <footer className='w-full'>
@@ -80,6 +106,13 @@ export function FooterSection() {
           </nav>
 
           <div className='flex items-center gap-4'>
+            <a
+              href={`mailto:${supportEmail}`}
+              className={'text-xs text-muted flex items-center gap-1'}
+            >
+              <IconMail size={18} />
+              {supportEmail}
+            </a>
             <SupportButton />
           </div>
         </div>

@@ -11,6 +11,7 @@ interface PageProps extends PropsWithChildren {
   subtitleClassName?: string;
   subtitle?: string;
   description?: string;
+  showBackButton?: boolean;
 }
 
 export function Page(props: PageProps) {
@@ -23,13 +24,14 @@ export function Page(props: PageProps) {
     subtitleClassName,
     subtitle,
     description,
+    showBackButton = true,
     children,
   } = props;
 
   return (
     <Surface variant={'transparent'} className={'flex flex-col items-center justify-center'}>
       <div className={'relative flex w-full items-center justify-center'}>
-        <BackButton className={'absolute top-0 left-0'} />
+        {showBackButton && <BackButton className={'absolute top-0 left-0'} />}
         {typeof icon === 'string' ? (
           <img src={icon} alt={title} className={'mx-auto h-25 w-25'} />
         ) : (

@@ -130,6 +130,24 @@ describe('WebhookService', () => {
       );
     });
 
+    it('forwards user.first_connected event to bot only', async () => {
+      const payload = {
+        scope: REMNAWAVE_EVENTS_SCOPES.USER,
+        event: REMNAWAVE_EVENTS.USER.FIRST_CONNECTED,
+        data: { id: 846, uuid: 'user-1', telegramId: 42 },
+        meta: null,
+      } as any;
+
+      await service.processRemnaEvent(payload);
+
+      expect(mockAxiosPost).toHaveBeenCalledTimes(1);
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        expect.stringContaining('/notify/user-event'),
+        payload,
+        expect.any(Object),
+      );
+    });
+
     it('skips user.expiration event without meta.expiration', async () => {
       const payload = {
         scope: REMNAWAVE_EVENTS_SCOPES.USER,

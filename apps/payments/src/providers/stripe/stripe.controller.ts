@@ -2,6 +2,7 @@ import type { RawBodyRequest } from '@nestjs/common';
 import {
   BadRequestException,
   Body,
+  ConflictException,
   Controller,
   Get,
   Headers,
@@ -15,17 +16,25 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getExtraDevicePrice, getPriceForPeriod } from '@payments/utils/amount';
 import { StripePayment } from '@workspace/database';
-import { type CreateStripeSessionDto, type PaymentPurpose } from '@workspace/types';
+import {
+  ACTIVE_SUBSCRIPTION_CODE,
+  type CreatePublicStripeSessionDto,
+  type CreateStripeSessionDto,
+} from '@workspace/types';
 import type Stripe from 'stripe';
 import { Repository } from 'typeorm';
 import { AdminRoleGuard } from '../../auth/admin-role.guard';
 import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
 import { ClientUserGuard } from '../../auth/client-user.guard';
+import { ClientOrServiceGuard } from '../../guards/client-or-service.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
+import { PublicCheckoutRateLimitGuard } from '../../guards/public-checkout-rate-limit.guard';
 import { StripeProvider } from './stripe.provider';
-import type { Session } from './stripe.types';
+import { isCheckoutSession, type Session } from './stripe.types';
+
+/** Mirrors the pattern the remnawave service validates lookups against. */
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 @Controller('stripe')
 export class StripeController {
@@ -79,71 +88,74 @@ export class StripeController {
     return this.stripePaymentRepo.save(payment);
   }
 
-  /** Create a checkout / portal session via Stripe */
   @Post('create-session')
+  @UseGuards(ClientOrServiceGuard)
   async createSession(
     @Body() dto: CreateStripeSessionDto,
+    @AuthenticatedUserId() authenticatedUserId: number | undefined,
     @Headers('origin') origin?: string,
   ): Promise<Session> {
-    const selectedPeriod = dto.selectedPeriod;
-    const purpose = dto.purchaseType ?? 'subscription';
+    const userId = authenticatedUserId ?? dto.userId;
 
-    // A device slot is a one-off with its own price. Charging it through
-    // STRIPE_EXTRA_DEVICE_PRICE_ID but recording a subscription period price
-    // would misstate the sale in payment history and admin search.
-    const amount = this.resolveAmount(purpose, selectedPeriod);
+    return this.stripeProvider.openSession({ ...dto, userId }, origin);
+  }
 
-    const session = await this.stripeProvider.createPayment(
+  @Post('public-create-session')
+  @UseGuards(PublicCheckoutRateLimitGuard)
+  async createPublicSession(
+    @Body() dto: CreatePublicStripeSessionDto,
+    @Headers('origin') origin?: string,
+  ): Promise<Session> {
+    const email = dto.email?.trim().toLocaleLowerCase() ?? '';
+    if (!EMAIL_PATTERN.test(email)) {
+      throw new BadRequestException('A valid email is required');
+    }
+
+    this.stripeProvider.resolveAmount('subscription', dto.selectedPeriod);
+
+    await this.refuseIfAlreadySubscribed(email);
+
+    const session = await this.stripeProvider.openSession(
       {
-        ...dto,
-        selectedPeriod,
+        userId: null,
+        selectedPeriod: dto.selectedPeriod,
+        toltReferralId: dto.toltReferralId,
+        metadata: {
+          email,
+          ...(dto.inviterId != null && { inviterId: String(dto.inviterId) }),
+          ...(origin && { signupOrigin: origin }),
+        },
       },
       origin,
     );
 
-    const customer = typeof session.customer === 'string' ? session.customer : session.customer?.id;
-
-    const existing = await this.stripePaymentRepo.findOne({
-      where: { customer },
-      order: { createdAt: 'DESC' },
-    });
-
-    if (!existing) {
-      const record = this.stripePaymentRepo.create({
-        id: session.id,
-        url: session.url,
-        customer: customer,
-        status: 'pending',
-        amount: +amount,
-        currency: 'EUR',
-        userId: dto.userId,
-        purpose,
-        paidAt: null,
-        stripeSubscriptionId: null,
-        invoiceUrl: null,
-      });
-      await this.stripePaymentRepo.save(record);
+    if (!isCheckoutSession(session)) {
+      throw this.activeSubscriptionConflict();
     }
 
     return session;
   }
 
-  /**
-   * The EUR price this session records, by what is being bought.
-   *
-   * There is no ValidationPipe on this controller, so an unusable
-   * `selectedPeriod` arrives here as an ordinary value. A bad request is the
-   * client's fault and answered as one — the price lookup throwing would
-   * otherwise surface as a 500.
-   */
-  private resolveAmount(purpose: PaymentPurpose, selectedPeriod: number): string {
-    try {
-      return purpose === 'extra_device'
-        ? getExtraDevicePrice('EUR')
-        : getPriceForPeriod('EUR', selectedPeriod);
-    } catch (error) {
-      throw new BadRequestException((error as Error).message);
+  private async refuseIfAlreadySubscribed(email: string): Promise<void> {
+    const customerId = await this.stripeProvider.findCustomerIdByEmail(email);
+    if (!customerId) return;
+
+    if (await this.stripeProvider.hasActiveSubscription(customerId)) {
+      throw this.activeSubscriptionConflict();
     }
+    return;
+  }
+
+  /**
+   * The 409 the checkout page recognises: it opens the "you already have a
+   * subscription, log in to manage it" dialog on this code, rather than showing
+   * the generic "we could not start the payment" failure.
+   */
+  private activeSubscriptionConflict(): ConflictException {
+    return new ConflictException({
+      code: ACTIVE_SUBSCRIPTION_CODE,
+      message: 'This email already has an active subscription',
+    });
   }
 
   /**
@@ -164,6 +176,9 @@ export class StripeController {
       throw new BadRequestException('Missing raw body');
     }
 
+    if (!process.env.STRIPE_WEBHOOK_SECRET) {
+      throw new BadRequestException('Missing STRIPE_WEBHOOK_SECRET');
+    }
     // Verify the signature first. A bad signature is not retryable, so reject
     // it with a 400 — Stripe won't redeliver and we don't touch business logic.
     let event: Stripe.Event;
@@ -171,7 +186,7 @@ export class StripeController {
       event = this.stripeProvider.stripe.webhooks.constructEvent(
         rawBody,
         signature,
-        process.env.STRIPE_WEBHOOK_SECRET || '',
+        process.env.STRIPE_WEBHOOK_SECRET,
       );
     } catch (err) {
       this.logger.error('Stripe webhook signature verification failed', err);

@@ -33,7 +33,9 @@ export class PostHogService implements OnModuleDestroy {
     try {
       this.client.capture({ distinctId, event, properties });
     } catch (err: unknown) {
-      this.logger.warn(`PostHog capture failed: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.warn(
+        `PostHog capture failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
   }
 
@@ -42,7 +44,29 @@ export class PostHogService implements OnModuleDestroy {
     try {
       this.client.identify({ distinctId, properties });
     } catch (err: unknown) {
-      this.logger.warn(`PostHog identify failed: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.warn(
+        `PostHog identify failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
+
+  /** Merges a pre-signup distinct id (e.g. `tg:{telegramId}`) into the canonical one. */
+  alias(distinctId: string, alias: string): void {
+    if (!this.client) return;
+    try {
+      this.client.alias({ distinctId, alias });
+    } catch (err: unknown) {
+      this.logger.warn(`PostHog alias failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  /** Forces buffered events out immediately, bypassing flushAt/flushInterval batching. */
+  async flush(): Promise<void> {
+    if (!this.client) return;
+    try {
+      await this.client.flush();
+    } catch (err: unknown) {
+      this.logger.warn(`PostHog flush failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 

@@ -1,16 +1,22 @@
+import type { TSubscriptionPageLanguageCode } from '@workspace/types';
 import { useEffect } from 'react';
 import { Outlet } from 'react-router';
 import { useRemnawaveApi } from '../api';
 import { Navbar } from '../components';
 import { SubscriptionLinkDialog } from '../components/SubscriptionLinkWidget/SubscriptionLinkDialog';
 import { applyUserLang } from '../core/i18n';
-import { coreEnv } from '../env';
 import { useNavigation, useSavedMethodsData, useSubscriptionData, useToltCapture } from '../hooks';
 import { TermsDialog } from '../pages/profile/payment/components/TermsDialog';
 import { useAppRoutes, usePaymentsApi } from '../runtime';
-import { useAuthStore, useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../stores';
+import {
+  useAuthStore,
+  useAuthStoreActions,
+  useAuthStoreInfo,
+  usePlatformStore,
+  useSubscriptionConfigStoreActions,
+} from '../stores';
 import { Container } from '../ui';
-import { captureReferral } from '../utils';
+import { captureReferral, isGlobalOrigin, phIdentify } from '../utils';
 
 export function ProfileLayout() {
   const navigate = useNavigation();
@@ -18,9 +24,9 @@ export function ProfileLayout() {
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { platformType } = usePlatformStore();
-  const { getSubscriptionPath } = useAppRoutes();
+  const { getConnectEmailPath, publicPlansPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
-
+  const { setLanguage } = useSubscriptionConfigStoreActions();
   // Hand any affiliate attribution to the backend as soon as the user is known.
   // It lives only in this browser session, but the payment it should credit may
   // settle days later — or be a renewal with no browser involved at all.
@@ -45,11 +51,20 @@ export function ProfileLayout() {
 
   // Resolve the remnawave user from the available auth identity.
   //
-  // Web:  looks up by email (authUser.email); redirects to getSubscriptionPath if not found.
-  // TMA:  looks up by telegramId (tgUser.id);  redirects to getSubscriptionPath if not found.
+  // Web:  looks up by email (authUser.email); redirects to getConnectEmailPath if not found.
+  // TMA:  looks up by telegramId (tgUser.id);  redirects to getConnectEmailPath if not found.
+  //
+  // A RU miss is the start of the free trial: getConnectEmailPath auto-connects the
+  // account, which the panel opens with TRIAL_PERIOD_IN_DAYS of access.
+  //
+  // Global domains are the exception: there an account only exists once a payment has
+  // settled, so "not found" is the ordinary state of a logged-in visitor who has not
+  // subscribed yet. Sending them to getConnectEmailPath would bounce them straight back
+  // (it no longer creates accounts for global users) — ProfileSubscriptionPage offers
+  // them a plan instead.
   //
   // Guard: skip the API call if rmnUser is already in the store — this avoids a
-  // redundant lookup when the user just came through GetSubscriptionPage, which
+  // redundant lookup when the user just came through ConnectEmailPage, which
   // already resolved and stored the user before navigating here.
   useEffect(() => {
     if (useAuthStore.getState().rmnUser) return;
@@ -58,38 +73,56 @@ export function ProfileLayout() {
         .getMe()
         .then((user) => {
           setRmnUser(user ?? null);
-          if (!user) navigate(getSubscriptionPath);
+          if (user) {
+            // Ties this browser's anonymous distinct_id to the canonical userId, so
+            // client-side events (plan_selected, subscription_viewed, ...) merge into
+            // the same PostHog person as backend-dispatched events (payment_succeeded).
+            phIdentify(String(user.id));
+          } else if (!isGlobalOrigin()) {
+            navigate(getConnectEmailPath);
+          } else navigate(publicPlansPath);
         })
         .catch(console.error);
     }
-  }, [authUser?.email, remnawaveApi, setRmnUser, tgUser?.id, navigate, getSubscriptionPath]);
-  // Pre-fetch both subscription and saved payment methods as soon as rmnUser
-  // is known so child routes render immediately without a loading flash on
-  // subsequent navigations.
+  }, [
+    authUser?.email,
+    remnawaveApi,
+    setRmnUser,
+    tgUser?.id,
+    navigate,
+    getConnectEmailPath,
+    publicPlansPath,
+  ]);
 
   useEffect(() => {
     if (!rmnUser) return;
     remnawaveApi
       .getMyMetadata()
       .then((meta) => {
-        if (meta?.lang) {
-          applyUserLang(String(meta.lang));
-          return;
-        }
-        // No stored preference yet: fall back to the Telegram system language in
-        // the TMA, or the browser language on the web — then persist it so the
-        // choice survives future refreshes without re-detecting.
-        const fallbackLang =
+        const currentLang = (
           platformType === 'telegram' && tgUser?.language_code
             ? tgUser.language_code
-            : navigator.language.split('-')[0];
-        applyUserLang(fallbackLang);
-        remnawaveApi.upsertMyMetadata({ lang: fallbackLang }).catch(console.error);
+            : (meta?.lang ?? navigator.language.split('-')[0])
+        ) as TSubscriptionPageLanguageCode;
+
+        applyUserLang(currentLang);
+        setLanguage(currentLang);
+
+        if (currentLang !== meta?.lang) {
+          remnawaveApi.upsertMyMetadata({ lang: currentLang }).catch(console.error);
+        }
       })
       .catch(console.error);
-  }, [rmnUser?.id, remnawaveApi, rmnUser, platformType, tgUser?.language_code]);
+  }, [
+    platformType,
+    remnawaveApi.getMyMetadata,
+    remnawaveApi.upsertMyMetadata,
+    rmnUser,
+    setLanguage,
+    tgUser?.language_code,
+  ]);
 
-  useSubscriptionData(rmnUser?.shortUuid, coreEnv.subpageConfigUuid);
+  useSubscriptionData(rmnUser?.shortUuid);
   useSavedMethodsData(rmnUser?.id);
 
   return (

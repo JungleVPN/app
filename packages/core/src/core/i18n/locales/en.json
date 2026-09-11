@@ -11,7 +11,7 @@
         "no-sub": "You don't have a subscription",
         "podpiska": "Subscription",
         "error-connect": "Connection error",
-        "error-parse-appconfig": "Ошибка обработки App-config",
+        "error-parse-appconfig": "App configuration processing error",
         "ERR_FATCH_USER": "Error getting user",
         "ERR_GET_SUB_LINK": "Error getting subscription link",
         "ERR_PARSE_APPCONFIG": "Error parsing app configuration",
@@ -30,7 +30,7 @@
   },
   "confirm": {
     "title": "Enter the code you received",
-    "submit": "Login",
+    "submit": "Log in",
     "resend_in": "Resend in {{timer}}s",
     "resend_otp": "Resend OTP",
     "hint": "You will receive an email with the code to enter",
@@ -40,7 +40,7 @@
     "title": "JungleVPN",
     "profile": "Profile",
     "logout": "Logout",
-    "login": "Log In",
+    "login": "Log in",
     "cta": "Try Now",
     "menu": "Menu",
     "logoAlt": "JungleVPN logo",
@@ -54,10 +54,16 @@
       "email": "Email"
     }
   },
+  "cookieConsent": {
+    "description": "We and selected third parties use cookies for experience enhancement and measurement purposes only and never sell your personal information. For more info please read our <policyLink>Cookie Policy</policyLink>.",
+    "accept": "Accept cookies",
+    "deny": "Deny"
+  },
   "languages": {
     "nativeRu": "Русский",
     "nativeEn": "English",
-    "nativeAr": "العربية"
+    "nativeAr": "العربية",
+    "nativeTr": "Türkçe"
   },
   "profileTabs": {
     "ariaLabel": "Profile sections",
@@ -197,7 +203,7 @@
   "errors": {
     "unknown": "Something went wrong"
   },
-  "getSubscription": {
+  "connectEmailPage": {
     "enter_email": "Email",
     "email_placeholder": "example@gmail.com",
     "email_description": "Required to manage your subscription",
@@ -206,7 +212,7 @@
     "error_failed_to_create": "Failed to create subscription. Please try again.",
     "order_summary": "Your order",
     "item_name": "JungleVPN subscription",
-    "discount": "3 days trial period",
+    "discount": "3-day trial period",
     "submit_button": "Get Subscription",
     "features_title": "Included in the subscription",
     "feature_devices": "VPN for all your devices",
@@ -272,7 +278,7 @@
       "i2": "The User undertakes to use the Service only in compliance with applicable law and third-party rules.",
       "i3": "Responsibility for the lawful use of the Service’s materials and services rests entirely with the User.",
       "i4_lead": "The following uses of the Service are strictly prohibited:",
-      "i4_u1": "circumventing government-mandated content restrictions or internet censorship in jurisdictions where such circumvention is illegal;",
+      "i4_u1": "using the Service in any jurisdiction where its use is prohibited or requires a licence the User does not hold;",
       "i4_u2": "accessing, transmitting, or distributing illegal content, including but not limited to child sexual abuse material, content promoting terrorism, or material that infringes third-party rights;",
       "i4_u3": "unauthorized access to computer systems, networks, or data;",
       "i4_u4": "distribution of malware, viruses, or other malicious code;",
@@ -362,7 +368,7 @@
       "i3_u1": "countries where VPN use is prohibited or subject to licensing requirements;",
       "i3_u2": "countries or territories subject to international sanctions;",
       "i3_u3": "regions where the Administration has determined that operating the Service creates unacceptable legal or compliance risk.",
-      "i4": "The Administration does not encourage or facilitate the circumvention of lawful government content restrictions. The User bears full and sole responsibility for any violation of local law resulting from their use of the Service."
+      "i4": "The Administration does not encourage or facilitate any unlawful use of the Service. The User bears full and sole responsibility for any violation of local law resulting from their use of the Service."
     },
     "s15": {
       "h": "15. Sanctions & Export Controls",
@@ -478,6 +484,84 @@
       "i1_tail": "."
     }
   },
+  "cookies": {
+    "pageTitle": "Cookie Policy",
+    "footer": "This Cookie Policy is part of the JungleVPN Terms of Use and Privacy Policy. By continuing to use the Service, you acknowledge that you have read and understood how we use cookies.",
+    "s1": {
+      "h": "1. Introduction",
+      "i1": "This Cookie Policy explains how JungleVPN uses cookies and similar tracking technologies across our website, Telegram bot, and applications (together, the \"Service\"), and how you can control them.",
+      "i2": "Cookies are small files stored on your device that let a site or app remember information about your visit. We use cookies set directly by us (\"first-party\") and cookies set by services we rely on (\"third-party\").",
+      "i3": "Wherever we rely on your consent, you can withdraw it at any time — see Section 5, Managing Your Preferences."
+    },
+    "s2": {
+      "h": "2. How We Use Cookies",
+      "i1_lead": "Necessary cookies — required for the Service to work and always active:",
+      "i1_u1": "keeping you signed in and remembering your language and interface preferences;",
+      "i1_u2": "recognizing a referral code or marketing link you arrived with, so it can be credited correctly.",
+      "i2_lead": "Measurement cookies — used only once you accept them, to understand how the Service is used and to find and fix problems:",
+      "i2_u1": "page views, feature usage, and error and crash diagnostics, collected through PostHog (see Section 3)."
+    },
+    "s3": {
+      "h": "3. Third-Party Services",
+      "i1": "PostHog is the analytics and tracking service we use across the Service. It provides product analytics, session replay, and error tracking so we can understand usage and fix bugs.",
+      "i2_lead": "Through PostHog we may collect:",
+      "i2_u1": "pages viewed, features used, and buttons clicked;",
+      "i2_u2": "a replay of on-screen interactions — clicks, scrolling, and typing activity; text typed into input fields is masked and never captured;",
+      "i2_u3": "device and browser type, approximate location derived from your IP address, and console error logs.",
+      "i3": "PostHog processes this data in the European Union. Before you respond to the cookie banner, it is collected without a persistent identifier (\"cookieless mode\"); once you accept, your activity across visits is linked to build a fuller picture of how the Service is used."
+    },
+    "s4": {
+      "h": "4. Cookies We Set",
+      "lead": "The table below lists the cookies our website currently sets.",
+      "table": {
+        "name": "Cookie",
+        "purpose": "Purpose",
+        "duration": "Duration"
+      },
+      "rows": {
+        "jvReferral": {
+          "name": "jv_referral",
+          "purpose": "Remembers the referral code you arrived with, so the referring user can be credited.",
+          "duration": "30 days"
+        },
+        "jvAttr": {
+          "name": "jv_attr",
+          "purpose": "Remembers which campaign or link brought you to the site, for marketing attribution.",
+          "duration": "30 days"
+        },
+        "postHog": {
+          "name": "ph_*_posthog",
+          "purpose": "Set only after you accept measurement cookies; links your activity across visits to the same PostHog profile.",
+          "duration": "1 year"
+        }
+      }
+    },
+    "s5": {
+      "h": "5. Managing Your Preferences",
+      "i1": "When you first visit, a banner lets you accept or decline measurement cookies. Declining does not stop the Service from measuring anonymous usage — it only prevents PostHog from linking that activity to a persistent identifier.",
+      "i2": "You can change your choice at any time by clearing your browser's cookies and site data for our domain, which brings the banner back.",
+      "i3": "Most browsers also let you view, block, or delete cookies directly in their settings (for example, Chrome, Firefox, Safari, and Edge each have a \"Cookies and site data\" section). Blocking necessary cookies may prevent parts of the Service from working."
+    },
+    "s6": {
+      "h": "6. Related Policy",
+      "i1_lead": "This Cookie Policy should be read together with our ",
+      "i1_link": "Privacy Policy",
+      "i1_tail": ", which covers what personal data we collect, why, and your rights over it."
+    },
+    "s7": {
+      "h": "7. Changes to This Policy",
+      "i1": "We may update this Cookie Policy from time to time to reflect changes in the cookies and services we use.",
+      "i2": "Material changes will be communicated by email or a prominent notice within the Service before they take effect."
+    },
+    "s8": {
+      "h": "8. Contact Us",
+      "i1_lead": "For any questions about this Policy, contact our support team via the ",
+      "i1_botLink": "Telegram bot",
+      "i1_mid": " or by email at ",
+      "i1_emailLink": "support@jungle-vpn.com",
+      "i1_tail": "."
+    }
+  },
   "menu": {
     "pageTitle": "Menu",
     "transactionHistory": "Transaction History",
@@ -509,8 +593,8 @@
     "hero": {
       "title": "JungleVPN",
       "subtitle": "Protect your connection, browse privately and stay secure on public Wi-Fi — with one VPN for all your devices.",
-      "cta": "Try free for 3 days",
-      "login": "Login",
+      "cta": "Try now",
+      "login": "Log in",
       "trial": "No credit card required",
       "guarantee": "30-day money-back guarantee",
       "features": {
@@ -542,7 +626,7 @@
           "description": "Brows as much as you want!"
         },
         "devices": {
-          "title": "No logs policy",
+          "title": "No-logs policy",
           "description": "Everything you do online is yours"
         }
       }
@@ -588,7 +672,7 @@
         "name": "Omar Raza"
       },
       "calls": {
-        "quote": "Video calls hold up on the evenings when everything else slows down. I have not had to switch locations to get a stable connection.",
+        "quote": "Video calls hold up in the evenings when everything else slows down. I have not had to switch locations to get a stable connection.",
         "name": "Farhan Siddiqui"
       },
       "multiDevice": {
@@ -631,7 +715,15 @@
       }
     },
     "countries": {
-      "label": "Servers in 6+ countries"
+      "label": "Servers in 6+ countries",
+      "names": {
+        "us": "United States",
+        "de": "Germany",
+        "nl": "Netherlands",
+        "at": "Austria",
+        "fi": "Finland",
+        "ru": "Russia"
+      }
     },
     "pricing": {
       "title": "Simple pricing. No hidden fees.",
@@ -642,7 +734,7 @@
       "cta": "Choose plan",
       "advantage1": "Unlimited speed & data",
       "advantage2": "Works on all your devices",
-      "advantage3": "Access any website, anywhere",
+      "advantage3": "Secure access wherever you are",
       "advantage4": "Support whenever you need it",
       "badge": "Best choice",
       "totalLabel": "Total",
@@ -712,11 +804,15 @@
       "copyright": "© {{year}}. All rights reserved.",
       "terms": "Terms",
       "privacy": "Privacy",
+      "cookies": "Cookies",
       "support": "Support",
       "affiliate": "Affiliate",
       "referral": "Referral",
       "pricing": "Pricing",
-      "trial": "Pricing"
+      "trial": "Pricing",
+      "partnership": "Partnership",
+      "howItWorks": "How It Works",
+      "faq": "FAQ"
     },
     "bento": {
       "titleStart": "Everything you need,",
@@ -786,7 +882,7 @@
         },
         "privacy": {
           "feature": "Tracks your online activity",
-          "ours": "No logs policy",
+          "ours": "No-logs policy",
           "theirs": "Possible"
         },
         "advertising": {
@@ -851,19 +947,21 @@
       "stats": {
         "speed": "Max server speed",
         "countries": "Server countries",
-        "guarantee": "Day money-back guarantee",
+        "guarantee_value": "30-day",
+        "guarantee": "Money-back guarantee",
+        "support_value": "~10m",
         "support": "Avg. support reply time"
       },
       "devices": {
-        "title": "Works on Every Device You Own",
+        "title": "Works on every device",
         "subtitle": "One subscription covers all your devices — no extra fees, no limits.",
-        "ios": "iPhone & iPad",
+        "ios": "IOS",
         "android": "Android",
         "macos": "macOS",
         "windows": "Windows",
-        "linux": "Linux",
         "appleTv": "Apple TV",
-        "androidTv": "Android TV"
+        "androidTv": "Android TV",
+        "cta": "Connect"
       }
     }
   },
@@ -873,6 +971,7 @@
     "noPaymentsFound": "No payments found",
     "searchAriaLabel": "Search",
     "details": {
+      "pageTitle": "Transaction Details",
       "title": "Payment Details",
       "paymentId": "Payment ID",
       "userId": "User ID",
@@ -895,7 +994,9 @@
     "month_one": "{{count}} month",
     "month_other": "{{count}} months",
     "perMonth": "per month",
-    "continueButton": "Continue"
+    "continueButton": "Continue",
+    "year_one": "{{count}} year",
+    "year_other": "{{count}} years"
   },
   "subscriptionLinkWidget": {
     "getLink": "Add new device",
@@ -907,5 +1008,50 @@
       "step1": "Scan the QR code from the app on another device or follow the link from QR.",
       "step2": "Or simply copy the link and follow the instructions."
     }
+  },
+  "subscriptionFail": {
+    "title": "Payment wasn't completed",
+    "description": "No money was taken. You can pick a plan and try again.",
+    "retry": "Try again"
+  },
+  "subscriptionSuccess": {
+    "title": "Your subscription is ready",
+    "description": "Enjoy private and free internet",
+    "connect": "Connect"
+  },
+  "getSubscription": {
+    "step_email_title": "Enter the email for your JungleVPN account",
+    "email_placeholder": "email@example.com",
+    "email_description": "Needed to manage your subscription",
+    "email_hint_label": "Why we need your email",
+    "email_hint": "If you've used JungleVPN before, we'll add the subscription to your existing account. If not, we'll create a new account with this email.",
+    "email_required_error": "Please enter your email address",
+    "email_invalid_error": "Please enter a valid email address",
+    "checkout_error": "We could not start the payment. Please try again.",
+    "throttled_error": "Too many attempts. Please wait a few minutes and try again.",
+    "terms_link": "Subscription terms",
+    "step_payment_title": "Select a payment method",
+    "card_method": "Credit or debit card",
+    "submit": "Proceed to payment",
+    "order_title": "Your order",
+    "order_item": "JungleVPN for {{period}}",
+    "discount": "Discount {{percent}}%",
+    "plan_unavailable_title": "This plan isn't available",
+    "plan_unavailable_description": "Pick a subscription length on the <1>pricing page</1>.",
+    "features_title": "Included in the subscription",
+    "guarantee": "30-day money-back guarantee",
+    "active_dialog": {
+      "title": "You already have a subscription",
+      "description": "<1>{{email}}</1> already has an active JungleVPN subscription, so there is nothing to buy here.",
+      "hint": "Log in to see your plan, invoices and payment method.",
+      "to_profile": "Go to profile",
+      "login": "Log in",
+      "use_another_email": "Use a different email"
+    }
+  },
+  "paymentFooter": {
+    "copyright": "© {{year}} JungleVPN. All rights reserved.",
+    "terms": "Terms of Service",
+    "support": "Contact us"
   }
 }
