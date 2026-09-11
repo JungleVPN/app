@@ -17,9 +17,13 @@ function buildLocalService() {
   return { i18n: { t: vi.fn((_locale: string, key: string) => key) } };
 }
 
-function buildRemnaService(lang: string | null = 'en') {
+function buildRemnaService(
+  lang: string | null = 'en',
+  user: unknown = { id: 1, activeInternalSquads: [] },
+) {
   return {
     getUserLang: vi.fn().mockResolvedValue(lang),
+    getUserById: vi.fn().mockResolvedValue(user),
   };
 }
 
@@ -157,7 +161,11 @@ describe('UserNotConnectedListener', () => {
     expect(subject24).not.toEqual(subject48);
   });
 
-  describe('email site URL from metadata.lang', () => {
+  describe("email site URL from the user's squad", () => {
+    // Matches RU_INTERNAL_SQUAD in vitest.config.mjs.
+    const RU_SQUAD = '6f40164a-51d0-432a-8fa3-3e1311e13757';
+    const GLOBAL_SQUAD = 'd16313a3-6330-4868-bf8b-bce4911d31e7';
+
     beforeEach(() => {
       process.env.PUBLIC_DOMAIN_RU = 'ru-jungle.example';
       process.env.PUBLIC_DOMAIN_GLOBAL = 'jungle-vpn.com';
@@ -168,49 +176,86 @@ describe('UserNotConnectedListener', () => {
       delete process.env.PUBLIC_DOMAIN_GLOBAL;
     });
 
-    it('links to the RU domain for a "ru" lang user', async () => {
+    const emailHtmlFor = async (
+      activeInternalSquads: unknown,
+      lang: string | null = 'en',
+    ): Promise<string> => {
       const zohoEmailService = buildZohoEmailService();
+      const user = activeInternalSquads === null ? null : { id: 1, activeInternalSquads };
       const listener = new UserNotConnectedListener(
         buildBotService() as any,
         buildLocalService() as any,
-        buildRemnaService('ru') as any,
+        buildRemnaService(lang, user) as any,
         zohoEmailService as any,
       );
 
       await listener.listenToUserNotConnectedEvent(basePayload({}, 24) as any);
 
+      const [, , html] = zohoEmailService.sendEmail.mock.calls[0];
+      return html as string;
+    };
+
+    it('links to the RU domain for a user in the RU squad', async () => {
+      expect(await emailHtmlFor([{ uuid: RU_SQUAD, name: 'Jungle Lake' }])).toContain(
+        'https://ru-jungle.example',
+      );
+    });
+
+    it('links to the global domain for a user in the global squad', async () => {
+      expect(await emailHtmlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }])).toContain(
+        'https://jungle-vpn.com',
+      );
+    });
+
+    it('links to the global domain for a global-squad user whose lang is "ru"', async () => {
+      const html = await emailHtmlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }], 'ru');
+
+      expect(html).toContain('https://jungle-vpn.com');
+      expect(html).not.toContain('ru-jungle.example');
+    });
+
+    it('links to the RU domain for an RU-squad user whose lang is "en"', async () => {
+      expect(await emailHtmlFor([{ uuid: RU_SQUAD, name: 'Jungle Lake' }], 'en')).toContain(
+        'https://ru-jungle.example',
+      );
+    });
+
+    it('defaults to the global domain when the user has no squads', async () => {
+      expect(await emailHtmlFor([])).toContain('https://jungle-vpn.com');
+    });
+
+    it('defaults to the global domain when the user lookup fails', async () => {
+      expect(await emailHtmlFor(null)).toContain('https://jungle-vpn.com');
+    });
+
+    it('still picks the email language from the user lang', async () => {
+      expect(await emailHtmlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }], 'ru')).toContain(
+        'lang="ru"',
+      );
+    });
+
+    // The panel ships `user.not_connected` with activeInternalSquads always empty
+    // for performance, so the payload's copy must never be trusted.
+    it('fetches the user rather than reading the squads off the event payload', async () => {
+      const zohoEmailService = buildZohoEmailService();
+      const remnaService = buildRemnaService('en', {
+        id: 1,
+        activeInternalSquads: [{ uuid: RU_SQUAD, name: 'Jungle Lake' }],
+      });
+      const listener = new UserNotConnectedListener(
+        buildBotService() as any,
+        buildLocalService() as any,
+        remnaService as any,
+        zohoEmailService as any,
+      );
+
+      await listener.listenToUserNotConnectedEvent(
+        basePayload({ activeInternalSquads: [] }, 24) as any,
+      );
+
+      expect(remnaService.getUserById).toHaveBeenCalledWith(1);
       const [, , html] = zohoEmailService.sendEmail.mock.calls[0];
       expect(html).toContain('https://ru-jungle.example');
-    });
-
-    it('links to the global domain for an "en" lang user', async () => {
-      const zohoEmailService = buildZohoEmailService();
-      const listener = new UserNotConnectedListener(
-        buildBotService() as any,
-        buildLocalService() as any,
-        buildRemnaService('en') as any,
-        zohoEmailService as any,
-      );
-
-      await listener.listenToUserNotConnectedEvent(basePayload({}, 24) as any);
-
-      const [, , html] = zohoEmailService.sendEmail.mock.calls[0];
-      expect(html).toContain('https://jungle-vpn.com');
-    });
-
-    it('defaults to the global domain when lang is unknown', async () => {
-      const zohoEmailService = buildZohoEmailService();
-      const listener = new UserNotConnectedListener(
-        buildBotService() as any,
-        buildLocalService() as any,
-        buildRemnaService(null) as any,
-        zohoEmailService as any,
-      );
-
-      await listener.listenToUserNotConnectedEvent(basePayload({}, 24) as any);
-
-      const [, , html] = zohoEmailService.sendEmail.mock.calls[0];
-      expect(html).toContain('https://jungle-vpn.com');
     });
   });
 });

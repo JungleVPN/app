@@ -1,7 +1,13 @@
 import * as process from 'node:process';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { apiRoutes, GetUserByIdResponseDto, Payments, WebhookEventEnum } from '@workspace/types';
+import {
+  apiRoutes,
+  GetUserByIdResponseDto,
+  isGlobalSquadUser,
+  Payments,
+  WebhookEventEnum,
+} from '@workspace/types';
 import axios, { isAxiosError } from 'axios';
 import {
   buildExpiryEmailHtml,
@@ -82,14 +88,22 @@ export class EmailNotificationService {
   }
 
   /**
-   * The subscription-management page, on the domain matching the user's
-   * `metadata.lang` — RU for a Russian-speaking user, the global domain
-   * otherwise. Never derived from PUBLIC_WEB_APP_URL/TMA_APP_URL, which
-   * don't identify which storefront a user belongs to.
+   * The subscription-management page, on the domain of the storefront the user
+   * actually belongs to — decided by their internal squad, the durable record of
+   * where they signed up. Not from `metadata.lang`, which is a display preference
+   * they can change (a Russian-speaking browser on the global domain stores
+   * `lang: "ru"`), and not from PUBLIC_WEB_APP_URL/TMA_APP_URL, which don't
+   * identify a storefront at all.
    */
-  private siteUrlFor(locale: SupportedLocale): string {
-    const domain =
-      locale === 'ru' ? process.env.PUBLIC_DOMAIN_RU : process.env.PUBLIC_DOMAIN_GLOBAL;
+  private get ruInternalSquad(): string {
+    const uuid = process.env.RU_INTERNAL_SQUAD;
+    if (!uuid) throw new Error('RU_INTERNAL_SQUAD is required to pick a storefront domain');
+    return uuid;
+  }
+
+  private siteUrlFor(user: Pick<GetUserByIdResponseDto, 'activeInternalSquads'>): string {
+    const isGlobal = isGlobalSquadUser(user, this.ruInternalSquad);
+    const domain = isGlobal ? process.env.PUBLIC_DOMAIN_GLOBAL : process.env.PUBLIC_DOMAIN_RU;
     if (domain) return `https://${domain}${PROFILE_SUBSCRIPTION_PATH}`;
     return process.env.PUBLIC_DOMAIN_GLOBAL ?? '';
   }
@@ -127,7 +141,7 @@ export class EmailNotificationService {
       locale,
       days,
       expireDate,
-      paymentUrl: this.siteUrlFor(locale),
+      paymentUrl: this.siteUrlFor(user),
       supportUrl: this.supportUrl,
     });
 
@@ -167,7 +181,7 @@ export class EmailNotificationService {
     const html = buildPaymentSuccessEmailHtml({
       locale,
       expireDate,
-      paymentUrl: this.siteUrlFor(locale),
+      paymentUrl: this.siteUrlFor(user),
       supportUrl: this.supportUrl,
     });
 
@@ -211,7 +225,7 @@ export class EmailNotificationService {
       locale,
       reason,
       expireDate,
-      paymentUrl: this.siteUrlFor(locale),
+      paymentUrl: this.siteUrlFor(user),
       supportUrl: this.supportUrl,
     });
 

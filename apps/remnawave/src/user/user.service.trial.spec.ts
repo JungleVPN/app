@@ -24,13 +24,21 @@ vi.mock('axios', () => ({ default: { post: vi.fn().mockResolvedValue({ data: {} 
 const RU_ORIGIN = 'https://ru-web.jungle.test';
 const GLOBAL_ORIGIN = 'https://jungle-vpn.com';
 
-function makeService(config: Record<string, string> = {}) {
+function makeService(overrides: Record<string, string> = {}) {
   const panelClient = {
     request: vi.fn().mockResolvedValue({ id: 1, telegramId: 555 }),
   } as unknown as RemnaPanelClient;
 
+  // RU_INTERNAL_SQUAD is required config in every environment.
+  const config: Record<string, string> = { RU_INTERNAL_SQUAD: 'squad-ru', ...overrides };
+
   const configService = {
     get: vi.fn((key: string, fallback?: unknown) => config[key] ?? fallback),
+    getOrThrow: vi.fn((key: string) => {
+      const value = config[key];
+      if (value === undefined) throw new Error(`Missing config: ${key}`);
+      return value;
+    }),
   } as unknown as ConfigService;
 
   const analyticsClient = { track: vi.fn() } as unknown as AnalyticsClientService;
@@ -73,6 +81,17 @@ describe('UserService.createUser — trial period', () => {
     await service.createUser({ telegramId: 111 });
 
     expect(daysUntil(bodyOf(panelClient).expireAt)).toBe(3);
+  });
+
+  it('assigns the RU squad and no external squad for an RU signup', async () => {
+    const { service, panelClient } = makeService();
+
+    await service.createUser({ email: 'ru@test.com', origin: RU_ORIGIN });
+
+    expect(bodyOf(panelClient)).toMatchObject({
+      activeInternalSquads: ['squad-ru'],
+      externalSquadUuid: null,
+    });
   });
 
   it('still assigns the global squads, so access works the moment payment lands', async () => {

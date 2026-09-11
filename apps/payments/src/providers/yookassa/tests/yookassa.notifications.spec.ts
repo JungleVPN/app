@@ -82,6 +82,7 @@ const remnawaveUser = {
   email: 'user@example.test',
   expireAt: '2026-04-01T00:00:00Z',
   status: 'ACTIVE',
+  activeInternalSquads: [] as { uuid: string; name: string }[],
 };
 
 const succeededWebhook = (overrides: Record<string, unknown> = {}): any => ({

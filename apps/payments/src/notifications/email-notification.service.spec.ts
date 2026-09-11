@@ -24,6 +24,7 @@ const remnawaveUser = {
   email: 'user@example.com',
   expireAt: new Date('2026-01-01T00:00:00.000Z'),
   telegramId: null,
+  activeInternalSquads: [] as { uuid: string; name: string }[],
 };
 
 const makeExpiryEvent = (
@@ -364,7 +365,11 @@ describe('EmailNotificationService', () => {
     });
   });
 
-  describe('site URL from metadata.lang', () => {
+  describe("site URL from the user's squad", () => {
+    // Matches RU_INTERNAL_SQUAD in vitest.config.mjs.
+    const RU_SQUAD = '6f40164a-51d0-432a-8fa3-3e1311e13757';
+    const GLOBAL_SQUAD = 'd16313a3-6330-4868-bf8b-bce4911d31e7';
+
     beforeEach(() => {
       process.env.PUBLIC_DOMAIN_RU = 'ru-jungle.example';
       process.env.PUBLIC_DOMAIN_GLOBAL = 'jungle-vpn.com';
@@ -381,11 +386,14 @@ describe('EmailNotificationService', () => {
       delete process.env.PUBLIC_DOMAIN_GLOBAL;
     });
 
-    const ctaUrlFor = async (metadata: Record<string, unknown>) => {
+    const ctaUrlFor = async (
+      squads: unknown,
+      metadata: Record<string, unknown> = {},
+    ): Promise<string> => {
       mockAxiosGet.mockImplementation(async (url: string) => {
         // The real endpoint wraps fields as `{ metadata: {...} }`.
         if (url.includes('/metadata')) return { data: { metadata } };
-        return { data: remnawaveUser };
+        return { data: { ...remnawaveUser, activeInternalSquads: squads } };
       });
 
       await service.onPaymentSucceeded(makePaymentSucceededEvent());
@@ -396,38 +404,41 @@ describe('EmailNotificationService', () => {
       return sendCall?.[1].content as string;
     };
 
-    it('links to the RU domain for a "ru" lang user', async () => {
-      const html = await ctaUrlFor({ lang: 'ru' });
+    it('links to the RU domain for a user in the RU squad', async () => {
+      const html = await ctaUrlFor([{ uuid: RU_SQUAD, name: 'Jungle Lake' }]);
 
       expect(html).toContain('https://ru-jungle.example/profile/subscription');
     });
 
-    it('links to the global domain for an "en" lang user', async () => {
-      const html = await ctaUrlFor({ lang: 'en' });
+    it('links to the global domain for a user in the global squad', async () => {
+      const html = await ctaUrlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }]);
 
       expect(html).toContain('https://jungle-vpn.com/profile/subscription');
     });
 
-    it('defaults to the global domain when lang metadata is missing', async () => {
-      const html = await ctaUrlFor({});
+    it('links to the global domain for a global-squad user whose lang is "ru"', async () => {
+      const html = await ctaUrlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }], { lang: 'ru' });
+
+      expect(html).toContain('https://jungle-vpn.com/profile/subscription');
+      expect(html).not.toContain('ru-jungle.example');
+    });
+
+    it('links to the RU domain for an RU-squad user whose lang is "en"', async () => {
+      const html = await ctaUrlFor([{ uuid: RU_SQUAD, name: 'Jungle Lake' }], { lang: 'en' });
+
+      expect(html).toContain('https://ru-jungle.example/profile/subscription');
+    });
+
+    it('defaults to the global domain when the user has no squads', async () => {
+      const html = await ctaUrlFor([]);
 
       expect(html).toContain('https://jungle-vpn.com/profile/subscription');
     });
 
-    it('also accepts a flat (unwrapped) metadata response', async () => {
-      mockAxiosGet.mockImplementation(async (url: string) => {
-        if (url.includes('/metadata')) return { data: { lang: 'ru' } };
-        return { data: remnawaveUser };
-      });
+    it('still picks the email language from metadata.lang', async () => {
+      const html = await ctaUrlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }], { lang: 'ru' });
 
-      await service.onPaymentSucceeded(makePaymentSucceededEvent());
-
-      const sendCall = mockAxiosPost.mock.calls.find((call) =>
-        String(call[0]).includes('mail.zoho.eu'),
-      );
-      expect(sendCall?.[1].content as string).toContain(
-        'https://ru-jungle.example/profile/subscription',
-      );
+      expect(html).toContain('lang="ru"');
     });
   });
 });
