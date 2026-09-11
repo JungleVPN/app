@@ -31,7 +31,7 @@ export function ComparisonSection() {
           <Chip color='default' variant='secondary' className='w-fit'>
             <Chip.Label>{t('landing.comparison.chip')}</Chip.Label>
           </Chip>
-          <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
+          <h2 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
             {t('landing.comparison.titleStart')}{' '}
             <span className='bg-linear-to-r from-purple-400 to-yellow-400 bg-clip-text text-transparent'>
               {t('landing.comparison.titleBrand')}
@@ -40,7 +40,8 @@ export function ComparisonSection() {
           <p className='text-base text-muted lg:text-md'>{t('landing.comparison.subtitle')}</p>
         </div>
         <LottieIcon
-          loop
+          loop={false}
+          autoplay={false}
           src={theme === 'dark' ? privacy_dark : privacy}
           size={160}
           className='shrink-0'

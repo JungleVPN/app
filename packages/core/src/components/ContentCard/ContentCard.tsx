@@ -33,7 +33,7 @@ export function ContentCard(props: ContentCardProps) {
         className={`relative bg-white border-gray-500 border border-solid flex h-full flex-col justify-between p-8 shadow-surface shadow-md min-h-64 ${className ?? ''}`}
       >
         <div className={icon ? 'pe-32' : ''}>
-          <h3 className='mb-3 text-3xl font-bold'>{title}</h3>
+          <h3 className='mb-3 text-2xl font-bold'>{title}</h3>
           {description && (
             <p className='text-muted text-sm leading-relaxed max-w-md'>{description}</p>
           )}

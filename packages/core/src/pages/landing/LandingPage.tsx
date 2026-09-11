@@ -15,8 +15,8 @@ import { InfoSection } from './InfoSection';
 import { PartnershipSection } from './PartnershipSection';
 import { PlatformsSection } from './PlatformsSection';
 import { PricingSection } from './PricingSection';
-import { TestimonialsSection } from './TestimonialsSection';
 import { TrustSection } from './TrustSection';
+import { WhatIsVPN } from './WhatIsVPN';
 
 export default function LandingPage() {
   const { rmnUser } = useAuthStore();
@@ -87,17 +87,17 @@ export default function LandingPage() {
             <FreeTrialSection />
           </Container>
         )}
-        <div id='testimonials'>
-          <TestimonialsSection />
-        </div>
+        <Container>
+          <InfoSection />
+        </Container>
         <Container id='partnership'>
           <PartnershipSection />
         </Container>
         <Container id='faq'>
           <FAQSection />
         </Container>
-        <Container>
-          <InfoSection />
+        <Container id='faq'>
+          <WhatIsVPN />
         </Container>
         <Container>
           <FooterSection />

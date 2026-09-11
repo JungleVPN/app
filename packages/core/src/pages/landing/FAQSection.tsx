@@ -26,7 +26,7 @@ export function FAQSection() {
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
+        <h2 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
           {t('landing.faq.title')}
         </h2>
         <p className='max-w-2xl text-base text-muted lg:text-md'>{t('landing.faq.subtitle')}</p>

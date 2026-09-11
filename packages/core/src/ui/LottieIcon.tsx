@@ -4,11 +4,12 @@ import { useEffect, useRef } from 'react';
 interface Props {
   src: string;
   loop?: boolean;
+  autoplay?: boolean;
   size?: number;
   className?: string;
 }
 
-export function LottieIcon({ src, loop = false, size = 110, className }: Props) {
+export function LottieIcon({ src, loop = false, autoplay = true, size = 110, className }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -18,7 +19,7 @@ export function LottieIcon({ src, loop = false, size = 110, className }: Props) 
       canvas: canvasRef.current,
       src,
       loop,
-      autoplay: true,
+      autoplay,
     });
 
     const io = new IntersectionObserver(
@@ -31,7 +32,7 @@ export function LottieIcon({ src, loop = false, size = 110, className }: Props) 
       io.disconnect();
       dotLottie.destroy();
     };
-  }, [src, loop]);
+  }, [src, loop, autoplay]);
 
   return (
     <canvas

@@ -12,7 +12,7 @@ type StatKey = 'users' | 'countries' | 'servers';
 const STATS: Array<{ key: StatKey; metric: string; icon: ReactNode }> = [
   {
     key: 'users',
-    metric: '50,000+',
+    metric: '20,000+',
     icon: <LottieIcon src={UsersLottie} loop size={150} />,
   },
   {
@@ -36,7 +36,7 @@ export function TrustSection() {
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>{t('landing.trust.chip')}</Chip.Label>
         </Chip>
-        <h2 className='text-xl font-bold tracking-tight sm:text-3xl lg:text-4xl'>
+        <h2 className='text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl'>
           {t('landing.trust.title')}
         </h2>
       </div>

@@ -52,7 +52,7 @@ export function HowItWorksSection() {
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>{t('landing.howItWorks.chip')}</Chip.Label>
         </Chip>
-        <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
+        <h2 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
           {t('landing.howItWorks.titleStart')}{' '}
           <span className='bg-linear-to-r from-purple-400 to-yellow-400 bg-clip-text text-transparent'>
             {t('landing.howItWorks.titleBrand')}

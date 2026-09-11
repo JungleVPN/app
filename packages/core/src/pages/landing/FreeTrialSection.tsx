@@ -19,11 +19,14 @@ export function FreeTrialSection() {
           </Chip>
 
           <div className='flex flex-col gap-3'>
-            <h2 className='text-xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl'>
+            <h2 className='text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl'>
               {t('landing.freeTrial.title', { days })}
             </h2>
             <p className='text-base text-white/80 lg:text-md px-4 lg:px-48'>
               {t('landing.freeTrial.subtitle')}
+            </p>
+            <p className='text-base lg:text-md text-white/80'>
+              {t('landing.freeTrial.disclaimer', { days })}
             </p>
           </div>
 
@@ -34,8 +37,6 @@ export function FreeTrialSection() {
           >
             {t('landing.freeTrial.cta')}
           </Button>
-
-          <p className='text-sm text-white/70'>{t('landing.freeTrial.disclaimer', { days })}</p>
         </div>
       </div>
     </section>

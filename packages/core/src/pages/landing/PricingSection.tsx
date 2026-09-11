@@ -94,12 +94,12 @@ function PlanIncludes() {
 
   return (
     <div className='flex flex-col items-center gap-3'>
-      <span className='text-sm font-semibold text-foreground'>
+      <span className='text-base font-semibold lg:text-md text-foreground'>
         {t('landing.pricing.includesTitle')}
       </span>
       <ul className='flex flex-wrap items-center justify-center gap-x-5 gap-y-2'>
         {INCLUDES_KEYS.map((key) => (
-          <li key={key} className='flex items-center gap-1.5 text-sm text-muted'>
+          <li key={key} className='flex items-center gap-1.5 text-base lg:text-md text-muted'>
             <IconCheck size={16} className='shrink-0 text-success' strokeWidth={2.5} />
             {t(`landing.pricing.${key}`)}
           </li>
@@ -175,7 +175,7 @@ export function PricingSection() {
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
+        <h2 className='text-2xl px-16 sm:px-0 font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
           {t('landing.pricing.title')}
         </h2>
         <p className='text-muted text-base lg:text-md'>{t('landing.pricing.subtitle')}</p>
