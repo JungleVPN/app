@@ -5,6 +5,7 @@ import { WebAppLayout } from '@/layouts/WebAppLayout';
 import { WebLegalLayout } from '@/layouts/WebLegalLayout';
 import { WebPaymentLayout } from '@/layouts/WebPaymentLayout';
 import { WebRootLayout } from '@/layouts/WebRootLayout';
+import { WebSuccessLayout } from '@/layouts/WebSuccessLayout';
 
 // Loaded on demand via route.lazy so the landing page's initial bundle doesn't
 // pull in the entire authenticated app (profile, payments, devices, etc.) —
@@ -57,6 +58,7 @@ export function createRoutes(Landing: ComponentType) {
             },
           ],
         },
+
         {
           Component: WebPaymentLayout,
           children: [
@@ -118,6 +120,21 @@ export function createRoutes(Landing: ComponentType) {
               lazy: () => pages().then((m) => ({ Component: m.ProtectedReferralsPage })),
             },
           ],
+        },
+      ],
+    },
+    // Outside WebAppLayout: the success state deliberately renders without the
+    // header so it owns the viewport and offers a single next step.
+    {
+      Component: WebSuccessLayout,
+      children: [
+        {
+          path: '/payment/success',
+          lazy: () => pages().then((m) => ({ Component: m.SubscriptionSuccessPage })),
+        },
+        {
+          path: '/payment/fail',
+          lazy: () => pages().then((m) => ({ Component: m.SubscriptionFailPage })),
         },
       ],
     },

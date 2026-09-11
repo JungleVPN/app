@@ -756,6 +756,45 @@ describe('YookassaService', () => {
     });
   });
 
+  describe('getPaymentStatusForUser', () => {
+    it('reports the live status from YooKassa rather than the stored one', async () => {
+      mockYkFindOneBy.mockResolvedValue({ id: 'pay_1', userId: 1000, status: 'pending' });
+      mockGetPayment.mockResolvedValue({ status: 'canceled' });
+
+      await expect(service.getPaymentStatusForUser('pay_1', 1000)).resolves.toEqual({
+        id: 'pay_1',
+        status: 'canceled',
+      });
+    });
+
+    it('falls back to the stored status when YooKassa cannot be reached', async () => {
+      mockYkFindOneBy.mockResolvedValue({ id: 'pay_1', userId: 1000, status: 'succeeded' });
+      mockGetPayment.mockRejectedValue(new Error('yookassa down'));
+
+      await expect(service.getPaymentStatusForUser('pay_1', 1000)).resolves.toEqual({
+        id: 'pay_1',
+        status: 'succeeded',
+      });
+    });
+
+    it('hides another user\'s payment behind the same 404 as an unknown id', async () => {
+      mockYkFindOneBy.mockResolvedValue({ id: 'pay_1', userId: 999, status: 'succeeded' });
+
+      await expect(service.getPaymentStatusForUser('pay_1', 1000)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockGetPayment).not.toHaveBeenCalled();
+    });
+
+    it('raises 404 for an unknown id', async () => {
+      mockYkFindOneBy.mockResolvedValue(null);
+
+      await expect(service.getPaymentStatusForUser('pay_missing', 1000)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
   // ─────────────────────────────────────────────────────────
   // createPaymentSession
   // ─────────────────────────────────────────────────────────

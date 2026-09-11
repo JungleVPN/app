@@ -54,6 +54,17 @@ export class YookassaController {
     return { ok: true };
   }
 
+  /**
+   * Status of one of the caller's own payments — used by the post-payment
+   * return page, which sees the same `return_url` whether the payment
+   * succeeded or was cancelled.
+   */
+  @Get('payment-status/:id')
+  @UseGuards(ClientUserGuard)
+  getPaymentStatus(@Param('id') id: string, @AuthenticatedUserId() userId: number) {
+    return this.yookassaService.getPaymentStatusForUser(id, userId);
+  }
+
   // ── Internal payment records — inter-service only ──────────────────
 
   /** List all Yookassa payments, newest first — internal use only */

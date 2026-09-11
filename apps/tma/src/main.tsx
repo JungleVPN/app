@@ -18,7 +18,8 @@ import { router } from '@/router';
 initDayjs();
 
 const appRoutes = {
-  paymentReturnPath: '/profile/subscription',
+  paymentReturnPath: '/payment/success',
+  paymentFailPath: '/payment/fail',
   authGateRedirectPath: '/connectEmail',
   affiliatesPath: '/affiliates',
   publicPlansPath: '/plans',

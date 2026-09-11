@@ -1006,5 +1006,15 @@
       "step1": "Scan the QR code from the app on another device or follow the link from QR.",
       "step2": "Or simply copy the link and follow the instructions."
     }
+  },
+  "subscriptionFail": {
+    "title": "Payment wasn't completed",
+    "description": "No money was taken. You can pick a plan and try again.",
+    "retry": "Try again"
+  },
+  "subscriptionSuccess": {
+    "title": "Your subscription is ready",
+    "description": "Enjoy private and free internet",
+    "connect": "Connect"
   }
 }

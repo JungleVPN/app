@@ -108,13 +108,13 @@ describe('ProfileLayout', () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/connectEmail'));
   });
 
-  it('keeps a global user with no remnawave account on the profile, where a plan is offered', async () => {
+  it('navigates a global user with no remnawave account to plans page', async () => {
     isGlobalOrigin.mockReturnValue(true);
     getMe.mockResolvedValue(null);
 
     renderProfileLayout();
 
     await waitFor(() => expect(getMe).toHaveBeenCalled());
-    expect(navigate).not.toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalled();
   });
 });

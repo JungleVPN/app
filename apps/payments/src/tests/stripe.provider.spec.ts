@@ -260,8 +260,8 @@ describe('StripeProvider.createPayment', () => {
 
       expect(mockCreateSession).toHaveBeenCalledWith(
         expect.objectContaining({
-          success_url: 'https://jungle.community/profile/subscription',
-          cancel_url: 'https://jungle.community/profile/subscription',
+          success_url: 'https://jungle.community/payment/success',
+          cancel_url: 'https://jungle.community/payment/fail',
         }),
       );
     });

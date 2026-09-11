@@ -9,7 +9,7 @@ import {
   usePlatformStore,
   useSavedMethodsStoreActions,
 } from '../../../../stores';
-import { phCapture } from '../../../../utils';
+import { phCapture, rememberPendingYookassaPayment } from '../../../../utils';
 
 export function useYookassaPayment(selectedPeriod: number) {
   const { rmnUser, tgUser } = useAuthStoreInfo();
@@ -65,6 +65,8 @@ export function useYookassaPayment(selectedPeriod: number) {
     });
 
     if (!session?.url) return;
+
+    rememberPendingYookassaPayment(session.id);
 
     phCapture('checkout_started', { payment_provider: 'yookassa', months: selectedPeriod });
     if (isNativeApp) {

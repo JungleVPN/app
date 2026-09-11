@@ -22,6 +22,7 @@ export const apiRoutes = {
     stripeWebhook: '/stripe/webhook',
     yookassaCreateSession: '/yookassa/create-session',
     yookassaWebhook: '/yookassa/webhook',
+    yookassaPaymentStatus: (id: string) => `/yookassa/payment-status/${encodeURIComponent(id)}`,
     yookassaSavedMethods: '/yookassa/saved-methods',
     yookassaSavedMethodById: (id: string) => `/yookassa/saved-methods/${encodeURIComponent(id)}`,
     telegramStarsCreateInvoice: '/telegram-stars/create-invoice',

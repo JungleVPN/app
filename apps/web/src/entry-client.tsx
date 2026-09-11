@@ -20,7 +20,8 @@ captureAttribution({ platform: 'web' });
 captureReferral();
 
 const appRoutes = {
-  paymentReturnPath: '/profile/subscription',
+  paymentReturnPath: '/payment/success',
+  paymentFailPath: '/payment/fail',
   authGateRedirectPath: '/login',
   affiliatesPath: '/affiliates',
   publicPlansPath: '/plans',

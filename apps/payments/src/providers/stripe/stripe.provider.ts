@@ -17,7 +17,8 @@ import { isCheckoutSession, type Session } from './stripe.types';
 import { StripeClientService } from './stripe-client.service';
 import { StripeWebhookService } from './stripe-webhook.service';
 
-const SUBSCRIPTION_RETURN_PATH = '/profile/subscription';
+const SUBSCRIPTION_RETURN_PATH = '/payment/success';
+const SUBSCRIPTION_CANCEL_PATH = '/payment/fail';
 
 /** The subscription statuses that count as "this customer is currently subscribed". */
 const LIVE_SUBSCRIPTION_STATUSES = [
@@ -271,6 +272,7 @@ export class StripeProvider {
       tolt_referral: toltReferralId || null,
     };
     const returnUrl = resolveReturnUrl(origin, SUBSCRIPTION_RETURN_PATH);
+    const cancelUrl = resolveReturnUrl(origin, SUBSCRIPTION_CANCEL_PATH);
 
     try {
       return await this.stripe.checkout.sessions.create({
@@ -281,7 +283,7 @@ export class StripeProvider {
         ...(!isExtraDevice && { subscription_data: { metadata } }),
         allow_promotion_codes: true,
         success_url: returnUrl,
-        cancel_url: returnUrl,
+        cancel_url: cancelUrl,
         phone_number_collection: { enabled: false },
       });
     } catch (error) {

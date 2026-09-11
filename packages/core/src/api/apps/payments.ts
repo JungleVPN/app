@@ -6,6 +6,7 @@ import {
   type CreateStripeSessionDto,
   type CreateTelegramStarsInvoiceDto,
   type CreateYookassaSessionDto,
+  type Payments,
   PaymentSession,
   type RecordToltClickDto,
   type RecordToltClickResponse,
@@ -45,6 +46,18 @@ export function createPaymentsApi(client: ApiClient) {
     /** Subscription status + Billing Portal URL for the authenticated user. */
     async getStripeSubscription(): Promise<StripeSubscriptionStatusDto> {
       return client.get<StripeSubscriptionStatusDto>(apiRoutes.payments.stripeSubscription);
+    },
+
+    /**
+     * Status of one of the user's own YooKassa payments — the return page's
+     * only way to tell a completed payment from a cancelled one.
+     */
+    async getYookassaPaymentStatus(
+      id: string,
+    ): Promise<{ id: string; status: Payments.PaymentStatus }> {
+      return client.get<{ id: string; status: Payments.PaymentStatus }>(
+        apiRoutes.payments.yookassaPaymentStatus(id),
+      );
     },
 
     /** Active saved payment methods for the authenticated user. */

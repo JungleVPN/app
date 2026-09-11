@@ -1006,5 +1006,15 @@
       "step1": "QR kodunu başka bir cihazdaki uygulamadan tarayın veya QR koddaki bağlantıyı açın.",
       "step2": "Ya da bağlantıyı kopyalayıp talimatları izleyin."
     }
+  },
+  "subscriptionFail": {
+    "title": "Ödeme tamamlanmadı",
+    "description": "Hesabınızdan para çekilmedi. Bir plan seçip tekrar deneyebilirsiniz.",
+    "retry": "Tekrar dene"
+  },
+  "subscriptionSuccess": {
+    "title": "Aboneliğiniz hazır",
+    "description": "Özel ve özgür internetin keyfini çıkarın",
+    "connect": "Bağlan"
   }
 }
