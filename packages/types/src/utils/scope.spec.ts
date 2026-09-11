@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isGlobalOrigin } from './scope';
+import { isGlobalOrigin, isGlobalSquadUser } from './scope';
 
 const RU_DOMAINS = 'jungle.community,thejungle.pro,web.thejungle.pro';
 
@@ -59,5 +59,41 @@ describe('isGlobalOrigin', () => {
 
   it('is false for an unparseable origin', () => {
     expect(isGlobalOrigin('not-a-url', RU_DOMAINS)).toBe(false);
+  });
+});
+
+describe('isGlobalSquadUser', () => {
+  const RU = '6f40164a-51d0-432a-8fa3-3e1311e13757';
+  const GLOBAL = 'd16313a3-6330-4868-bf8b-bce4911d31e7';
+
+  const userIn = (...uuids: (string | null)[]) => ({
+    activeInternalSquads: uuids.map((uuid) => ({ uuid, name: 'squad' })),
+  });
+
+  it('is false for a user whose only squad is the RU one', () => {
+    expect(isGlobalSquadUser(userIn(RU), RU)).toBe(false);
+  });
+
+  it('is true for a user in the global squad', () => {
+    expect(isGlobalSquadUser(userIn(GLOBAL), RU)).toBe(true);
+  });
+
+  // Extra squads mean extra access: only a user confined to the RU squad is an
+  // RU-storefront user.
+  it('is true when the RU squad is one of several the user belongs to', () => {
+    expect(isGlobalSquadUser(userIn(GLOBAL, RU), RU)).toBe(true);
+  });
+
+  it('compares squad uuids case-insensitively', () => {
+    expect(isGlobalSquadUser(userIn(RU.toUpperCase()), RU)).toBe(false);
+  });
+
+  it('is true when the user has no squads', () => {
+    expect(isGlobalSquadUser(userIn(), RU)).toBe(true);
+  });
+
+  it('ignores squad entries without a uuid', () => {
+    expect(isGlobalSquadUser(userIn(null, GLOBAL), RU)).toBe(true);
+    expect(isGlobalSquadUser(userIn(null, RU), RU)).toBe(false);
   });
 });

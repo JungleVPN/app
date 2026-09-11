@@ -52,3 +52,37 @@ export const isGlobalOrigin = (
 
   return !isRuHost(host, ruDomains);
 };
+
+type SquadRef = { readonly uuid?: string | null };
+
+/** Any panel user shape — created, fetched or streamed — carries its internal squads. */
+type SquadUser = { readonly activeInternalSquads: readonly SquadRef[] };
+
+/**
+ * True when a user belongs to the global storefront, judged by the internal squads
+ * they hold — the durable record of where they signed up. Only a user confined to the
+ * RU squad is an RU-storefront user: any additional squad means additional access, and
+ * so does holding no squads at all.
+ *
+ * Use this, never `metadata.lang`, to pick a domain or storefront for a user:
+ * `lang` is a display preference the user can change (a Russian-speaking browser on
+ * the global domain stores `lang: "ru"`) and says nothing about where they signed up.
+ *
+ * Pass a user fetched from the panel, never one off a webhook payload: the panel ships
+ * `user.not_connected` and the HWID events with `activeInternalSquads` empty.
+ *
+ * `ruSquadUuid` is the caller's `RU_INTERNAL_SQUAD` value, which every service must
+ * have configured. This module is bundled for the browser as well as the backend, so
+ * it never reads env vars itself — the caller supplies them.
+ */
+export const isGlobalSquadUser = (user: SquadUser, ruSquadUuid: string): boolean => {
+  const uuids = user.activeInternalSquads
+    .map((squad) => squad?.uuid?.trim().toLowerCase())
+    .filter((uuid): uuid is string => Boolean(uuid));
+
+  if (uuids.length === 0) return true;
+
+  const ruUuid = ruSquadUuid.trim().toLowerCase();
+
+  return !uuids.every((uuid) => uuid === ruUuid);
+};

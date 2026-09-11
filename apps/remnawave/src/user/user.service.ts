@@ -28,7 +28,6 @@ import { Bot } from 'grammy';
 import { AnalyticsClientService } from '../analytics/analytics-client.service';
 import { RemnaPanelClient, RemnaPanelError } from '../common/remna-panel.client';
 
-const RU_INTERNAL_SQUAD = '6f40164a-51d0-432a-8fa3-3e1311e13757';
 const GLOBAL_INTERNAL_SQUAD = 'd16313a3-6330-4868-bf8b-bce4911d31e7';
 const GLOBAL_EXTERNAL_SQUAD = 'e77d316a-745a-44c6-acc2-75c78e25d8d6';
 
@@ -204,7 +203,7 @@ export class UserService implements OnModuleInit {
     const isGlobal = isGlobalOrigin(payload.origin, this.configService.get('PUBLIC_DOMAIN_RU'));
 
     const trialDays = Number(this.configService.get('TRIAL_PERIOD_IN_DAYS', '3'));
-    const ruInternalSquad = this.configService.get('RU_INTERNAL_SQUAD', RU_INTERNAL_SQUAD);
+    const ruInternalSquad = this.configService.getOrThrow<string>('RU_INTERNAL_SQUAD');
     const globalInternalSquad = this.configService.get(
       'GLOBAL_INTERNAL_SQUAD',
       GLOBAL_INTERNAL_SQUAD,

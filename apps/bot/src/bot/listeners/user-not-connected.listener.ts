@@ -16,7 +16,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { WebHookEvent } from '@remna/remna.model';
 import { RemnaService } from '@remna/remna.service';
-import { UserDto } from '@workspace/types';
+import { isGlobalSquadUser, UserDto } from '@workspace/types';
 import { Bot, InlineKeyboard } from 'grammy';
 
 const SECOND_STAGE_HOURS = 48;
@@ -80,14 +80,21 @@ export class UserNotConnectedListener {
   }
 
   /**
-   * Which site to link to, from the user's `metadata.lang` — RU for a
-   * Russian-speaking user, the global domain otherwise. Never from
-   * PUBLIC_WEB_APP_URL/TMA_APP_URL, which don't identify which storefront the
-   * user belongs to.
+   * Which site to link to: the storefront the user actually belongs to, decided by
+   * their internal squad — the durable record of where they signed up. Not from
+   * `metadata.lang`, which is a display preference they can change (a Russian-speaking
+   * browser on the global domain stores `lang: "ru"`), and not from
+   * PUBLIC_WEB_APP_URL/TMA_APP_URL, which don't identify a storefront at all.
    */
-  private siteUrlFor(locale: NotConnectedEmailLocale): string {
-    const domain =
-      locale === 'ru' ? process.env.PUBLIC_DOMAIN_RU : process.env.PUBLIC_DOMAIN_GLOBAL;
+  private get ruInternalSquad(): string {
+    const uuid = process.env.RU_INTERNAL_SQUAD;
+    if (!uuid) throw new Error('RU_INTERNAL_SQUAD is required to pick a storefront domain');
+    return uuid;
+  }
+
+  private siteUrlFor(user: UserDto | null): string {
+    const isGlobal = !user || isGlobalSquadUser(user, this.ruInternalSquad);
+    const domain = isGlobal ? process.env.PUBLIC_DOMAIN_GLOBAL : process.env.PUBLIC_DOMAIN_RU;
     return domain ? `https://${domain}` : process.env.PUBLIC_WEB_APP_URL || 'https://thejungle.pro';
   }
 
@@ -132,7 +139,7 @@ export class UserNotConnectedListener {
     const html = buildNotConnectedEmailHtml({
       locale: emailLocale,
       stage,
-      appUrl: this.siteUrlFor(emailLocale),
+      appUrl: this.siteUrlFor(await this.remnaService.getUserById(user.id)),
       supportUrl: `mailto:${process.env.SUPPORT_EMAIL}` || 'support@jungle-vpn.com',
     });
 

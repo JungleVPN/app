@@ -87,6 +87,26 @@ export class RemnaService {
     }
   }
 
+  /**
+   * A user straight from the panel, with `activeInternalSquads` populated.
+   *
+   * Always fetched, never read off a webhook payload: the panel ships
+   * `user.not_connected` and the HWID events with `activeInternalSquads` empty for
+   * performance. Returns null when the lookup fails, so callers can fall back.
+   */
+  async getUserById(userId: number): Promise<UserDto | null> {
+    try {
+      return await this.fetch<UserDto>({
+        method: 'GET',
+        url: apiRoutes.remnawave.userById(userId),
+      });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      this.logger.warn(`Failed to fetch user ${userId}: ${message}`);
+      return null;
+    }
+  }
+
   async getUserLang(userId: number): Promise<string | null> {
     try {
       const { metadata } = await this.fetch<GetUserMetadataResponseDto>({

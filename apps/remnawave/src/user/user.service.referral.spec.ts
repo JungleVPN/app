@@ -32,6 +32,7 @@ function makeService() {
 
   const configService = {
     get: vi.fn((_key: string, fallback?: unknown) => fallback),
+    getOrThrow: vi.fn((_key: string) => 'squad-ru'),
   } as unknown as ConfigService;
 
   const analyticsClient = {
