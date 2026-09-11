@@ -224,7 +224,7 @@ export class UserService implements OnModuleInit {
     const body: CreateUserRequestDto = {
       ...rest,
       username: crypto.randomUUID().slice(0, 10),
-      expireAt,
+      expireAt: isGlobal ? new Date(Date.now()) : expireAt,
       activeInternalSquads,
       externalSquadUuid,
       trafficLimitStrategy: 'MONTH',

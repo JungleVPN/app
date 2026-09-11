@@ -5,7 +5,8 @@ import { AnalyticsClientService } from '@payments/analytics/analytics-client.ser
 import { SavedPaymentMethod, StripePayment } from '@workspace/database';
 import { Payments, WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
+import { RemnaUserResolverService } from '../../auth/remna-user-resolver.service';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
 import { ToltService } from '../../tolt/tolt.service';
 import type { StripeInvoicePayload } from './stripe.types';
@@ -51,6 +52,7 @@ export class StripeWebhookService {
     private readonly savedMethodRepo: Repository<SavedPaymentMethod>,
     private readonly analyticsClient: AnalyticsClientService,
     private readonly toltService: ToltService,
+    private readonly remnaUserResolver: RemnaUserResolverService,
   ) {}
 
   async handleWebhook(event: Stripe.Event) {
@@ -162,8 +164,6 @@ export class StripeWebhookService {
       provider: 'stripe',
       purpose: 'extra_device',
       selectedPeriod: 0,
-      // Not meaningful for a one-off purchase — isFirstPayment belongs to the
-      // subscription funnel.
       isFirstPayment: false,
       isAutoPayment: false,
       amount: existing?.amount != null ? String(existing.amount) : undefined,
@@ -171,85 +171,98 @@ export class StripeWebhookService {
     });
   }
 
-  // ── invoice.payment_succeeded ────────────────────────────────────────────
+  /**
+   * A Stripe customer with no `userId` in its metadata has never been seen
+   * before — the public checkout page takes an email and nothing else. The
+   * resolver owns find-or-create, so the same email reaching us twice (a retry,
+   * a second checkout) lands on one account rather than two.
+   */
+  private async resolveUserForInvoice(payload: StripeInvoicePayload): Promise<number> {
+    const inviterId = payload.metadata.inviterId ? Number(payload.metadata.inviterId) : undefined;
+
+    // The origin decides RU vs. global, and therefore whether a trial applies.
+    // Webhook time cannot know it — only the checkout page did, so it travels
+    // on the customer metadata.
+    return await this.remnaUserResolver.resolveOrCreateByEmail(payload.email, {
+      inviterId,
+      origin: payload.metadata.signupOrigin ?? null,
+    });
+  }
+
+  /**
+   * Stamp the remnawave id onto the Stripe customer, and onto any earlier rows
+   * for it, so every later invoice resolves the user straight from metadata.
+   * Best effort: failing here costs a lookup on the next invoice, never the sale.
+   */
+  private async attachUserToCustomer(
+    stripeCustomerId: string | null,
+    userId: number,
+  ): Promise<void> {
+    if (!stripeCustomerId) return;
+
+    const results = await Promise.allSettled([
+      this.stripeClient.stripe.customers.update(stripeCustomerId, {
+        metadata: { userId: String(userId) },
+      }),
+      this.stripePaymentRepo.update({ customer: stripeCustomerId, userId: IsNull() }, { userId }),
+    ]);
+
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        this.logger.error(
+          `Failed to attach user ${userId} to Stripe customer ${stripeCustomerId}`,
+          result.reason,
+        );
+      }
+    }
+  }
+
   private async handleInvoiceSuccess(event: Stripe.Event) {
     const invoice = event.data.object as Stripe.Invoice;
-    const payload = await this.buildInvoicePayload(event, true);
-    if (!payload) return;
+    const settled = await this.buildInvoicePayload(event, true);
+    if (!settled) return;
 
-    if (!payload.userId) {
-      this.logger.warn(`Stripe invoice ${invoice.id}: no userId on customer metadata — skipping`);
-      return;
+    if (await this.checkIdempotency(invoice)) return;
+    const selectedPeriod = mapEURAmountToMonthsNumber(invoice.subtotal);
+
+    const isNewUser = !settled.userId;
+    const userId = settled.userId ?? (await this.resolveUserForInvoice(settled));
+    const payload = { ...settled, userId };
+
+    if (isNewUser) {
+      await this.attachUserToCustomer(payload.stripeCustomerId, userId);
     }
 
-    // Idempotency: each invoice (initial + every renewal) has a unique id and
-    // gets its own DB row. If we already stamped it paid, this is a duplicate
-    // webhook (Stripe retries) — ignore so we never extend the subscription twice.
-    let record = await this.stripePaymentRepo.findOneBy({ id: invoice.id });
-    if (!record) {
-      await new Promise((resolve) => setTimeout(resolve, 1_500));
-      record = await this.stripePaymentRepo.findOneBy({ id: invoice.id });
-    }
-
-    if (record?.status === 'paid' && record.paidAt !== null) {
-      this.logger.log(`Stripe invoice ${invoice.id} already processed — ignoring duplicate`);
-      return;
-    }
-
-    // Strict amount → period validation (security finding #12) on the success path.
-    const selectedPeriod = mapEURAmountToMonthsNumber(invoice.subtotal.toString());
-
-    // Count prior paid invoices before stamping this one — the current row is
-    // still un-stamped at this point, so a count of 0 means first payment.
-    //
-    // Scoped to subscriptions: an extra-device slot is a one-off that never
-    // reaches the payment_succeeded funnel this flag belongs to, so letting one
-    // count here would silently demote a user's genuine first subscription to a
-    // renewal and drop them out of first-purchase onboarding and conversion
-    // figures.
-    const priorPaid = await this.stripePaymentRepo.count({
-      where: { userId: payload.userId, status: 'paid', purpose: 'subscription' },
-    });
-    const isFirstPayment = priorPaid === 0;
-
-    // Extend BEFORE writing the idempotency stamp: if remnawave is down this
-    // throws, the row stays un-stamped, and Stripe's retry re-enters and tries
-    // again — rather than locking the user out of a paid renewal.
     const result = await this.paymentStatusService.handleUserUpdates({
       selectedPeriod,
-      userId: payload.userId,
-      purpose: record?.purpose,
+      userId,
+      purpose: 'subscription',
     });
 
     // ToDo: add it to admin error notifications
     if (!result.success) {
       await this.persistInvoice({ ...payload, paidAt: null }, UNFULFILLED_STATUS);
       throw new UnfulfilledPaymentError(
-        `Stripe invoice ${invoice.id}: subscription was not extended for user ${payload.userId}`,
+        `Stripe invoice ${invoice.id}: subscription was not extended for user ${userId}`,
       );
     }
 
     await this.persistInvoice(payload, 'paid');
-
-    // Mirror YooKassa: a successful charge against an active subscription is a
-    // reusable payment method, so it must surface in saved_payment_methods.
     await this.activatePaymentMethod(payload);
 
     this.eventEmitter.emit(WebhookEventEnum['payment.succeeded'], {
-      userId: payload.userId,
+      userId,
       provider: 'stripe',
       selectedPeriod,
       invoiceUrl: payload.invoiceUrl ?? undefined,
-      isFirstPayment,
     } satisfies Payments.PaymentSucceededEventPayload);
 
     await this.analyticsClient.track({
       event: 'payment_succeeded',
-      userId: payload.userId,
+      userId,
       provider: 'stripe',
-      purpose: record?.purpose,
+      purpose: 'subscription',
       selectedPeriod,
-      isFirstPayment,
       isAutoPayment: invoice.billing_reason === 'subscription_cycle',
       amount: payload.amount != null ? String(payload.amount) : undefined,
       currency: 'EUR',
@@ -261,13 +274,13 @@ export class StripeWebhookService {
     // meaningful to report, and a guessed figure would misstate a commission.
     if (payload.amount !== null) {
       await this.toltService.reportConversion({
-        userId: payload.userId,
+        userId,
         provider: 'stripe',
         chargeId: invoice.id,
         amount: payload.amount,
         currency: 'EUR',
         periodMonths: selectedPeriod,
-        purpose: record?.purpose,
+        purpose: 'subscription',
       });
     }
   }
@@ -502,6 +515,8 @@ export class StripeWebhookService {
 
     const customer = await this.stripeClient.retrieveCustomer(customerId);
     if (!customer || customer.deleted) return null;
+    const email = customer.metadata.email?.trim() || customer.email?.trim();
+    if (!email) return null;
 
     const amountVal = isSuccess ? invoice.amount_paid : invoice.amount_due;
     const paidAt = isSuccess ? new Date() : null;
@@ -516,12 +531,26 @@ export class StripeWebhookService {
       stripeCustomerId: customer.id,
       invoiceUrl: invoice.hosted_invoice_url || null,
       metadata: { ...customer.metadata },
-      // Remnawave user id, stamped onto the customer at creation time.
+      email,
       userId: parseRemnaUserId(customer.metadata.userId),
       currency: 'EUR',
       paidAt,
       url: null,
     };
+  }
+
+  async checkIdempotency(invoice: Stripe.Invoice): Promise<boolean> {
+    let record = await this.stripePaymentRepo.findOneBy({ id: invoice.id });
+    if (!record) {
+      await new Promise((resolve) => setTimeout(resolve, 1_500));
+      record = await this.stripePaymentRepo.findOneBy({ id: invoice.id });
+    }
+
+    if (record?.status === 'paid' && record.paidAt !== null) {
+      this.logger.log(`Stripe invoice ${invoice.id} already processed — ignoring duplicate`);
+      return true;
+    }
+    return false;
   }
 }
 

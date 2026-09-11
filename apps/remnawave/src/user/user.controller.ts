@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
@@ -45,8 +46,9 @@ export class UserController {
     @Body() body: Pick<Remnawave.CreateUserRequestDto, 'telegramId' | 'email' | 'description'> & {
       inviterId?: number;
     },
+    @Headers('origin') origin?: string,
   ): Promise<Remnawave.CreateUserResponseDto> {
-    return this.userService.createUser(body);
+    return this.userService.createUser({ ...body, origin: origin ?? null });
   }
 
   @Patch()

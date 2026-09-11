@@ -17,8 +17,8 @@ export function mapToCorrectAmount(amountInCents: number): number {
  * a configured EUR price (finding #12) — callers must never silently grant an
  * unrecognised amount.
  */
-export function mapEURAmountToMonthsNumber(amount: string): number {
-  return amountToMonths(mapToCorrectAmount(Number(amount)), 'EUR');
+export function mapEURAmountToMonthsNumber(amount: number): number {
+  return amountToMonths(mapToCorrectAmount(amount), 'EUR');
 }
 
 export const customerToId = (

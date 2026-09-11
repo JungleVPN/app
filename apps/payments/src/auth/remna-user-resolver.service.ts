@@ -3,14 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { apiRoutes, type CreateUserResponseDto, type StreamedUserDto } from '@workspace/types';
 import axios, { type AxiosInstance } from 'axios';
 
-/**
- * Resolves a platform identity (Telegram user ID or email) to the internal
- * Remnawave user id by calling the remnawave service over the Docker-internal
- * network. Uses INTER_SERVICE_SECRET so the remnawave endpoint can be guarded.
- *
- * Panel v3 keys users by a numeric id; the remnawave service still exposes these
- * by-identity routes and backs them with `/api/users/stream` filters.
- */
 @Injectable()
 export class RemnaUserResolverService {
   private readonly logger = new Logger(RemnaUserResolverService.name);
@@ -72,7 +64,7 @@ export class RemnaUserResolverService {
     return data.id;
   }
 
-  private async findByEmail(email: string): Promise<number | null> {
+  async findByEmail(email: string): Promise<number | null> {
     try {
       const { data } = await this.http.get<StreamedUserDto[]>(
         apiRoutes.remnawave.userByEmail(email),

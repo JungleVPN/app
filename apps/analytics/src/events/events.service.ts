@@ -106,8 +106,18 @@ export class EventsService {
     try {
       const userId = 'userId' in event ? event.userId : null;
       const telegramId = 'telegramId' in event ? event.telegramId : null;
+      const email = 'email' in event && typeof event.email === 'string' ? event.email : null;
+      // An anonymous global checkout has no account yet — the address the payer
+      // typed is the only identity it carries, and dropping the event would put
+      // a hole at the top of the funnel that matters most.
       const distinctId =
-        userId != null ? String(userId) : telegramId != null ? `tg:${telegramId}` : null;
+        userId != null
+          ? String(userId)
+          : telegramId != null
+            ? `tg:${telegramId}`
+            : email
+              ? `email:${email.trim().toLowerCase()}`
+              : null;
 
       if (!distinctId) {
         this.logger.warn(`No identity for PostHog capture: event=${event.event}`);
@@ -130,6 +140,13 @@ export class EventsService {
         // person, so the acquisition → payment funnel spans one identity.
         if (event.telegramId != null) {
           this.postHog.alias(`tg:${event.telegramId}`, distinctId);
+        }
+
+        // Same merge for the anonymous checkout funnel: `checkout_started` was
+        // captured under `email:{address}` before this account existed, and the
+        // account is created off that very address once the payment settles.
+        if (event.email != null && event.email !== '') {
+          this.postHog.alias(`email:${event.email.trim().toLowerCase()}`, distinctId);
         }
       }
 

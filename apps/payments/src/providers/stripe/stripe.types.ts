@@ -17,8 +17,9 @@ export interface StripeInvoicePayload {
   id: string;
   userId: number | null;
   stripeCustomerId: string | null;
+  email: string;
   stripeSubscriptionId: string | null;
-  amount: number | null;
+  amount: number;
   currency: 'EUR' | null;
   status: Stripe.Invoice.Status | string;
   url: string | null;

@@ -4,6 +4,8 @@ import { motion, Variants } from 'framer-motion';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
+import { useAppRoutes } from '../../runtime';
+import { useAuthStore } from '../../stores';
 import { isGlobalOrigin } from '../../utils';
 import { BrandTitle } from './BrandTitle';
 
@@ -19,6 +21,9 @@ const item: Variants | undefined = {
 
 export function HeroSection() {
   const { t } = useTranslation();
+  const { authUser } = useAuthStore();
+  const { publicPlansPath, profileSubscriptionPath } = useAppRoutes();
+
   const navigate = useNavigate();
   const isRu = !isGlobalOrigin();
 
@@ -32,9 +37,13 @@ export function HeroSection() {
     if (isRu) {
       navigate('/login');
     } else {
-      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+      if (!authUser) {
+        navigate(publicPlansPath);
+      } else {
+        navigate(profileSubscriptionPath);
+      }
     }
-  }, [isRu, navigate]);
+  }, [isRu, navigate, authUser, profileSubscriptionPath, publicPlansPath]);
 
   return (
     <section className='flex flex-col justify-center items-center lg:flex-row lg:items-center lg:gap-8'>

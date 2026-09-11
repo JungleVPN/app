@@ -24,7 +24,7 @@ export function ProfileLayout() {
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { platformType } = usePlatformStore();
-  const { getConnectEmailPath } = useAppRoutes();
+  const { getConnectEmailPath, publicPlansPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
   const { setLanguage } = useSubscriptionConfigStoreActions();
   // Hand any affiliate attribution to the backend as soon as the user is known.
@@ -72,11 +72,19 @@ export function ProfileLayout() {
             phIdentify(String(user.id));
           } else if (!isGlobalOrigin()) {
             navigate(getConnectEmailPath);
-          }
+          } else navigate(publicPlansPath);
         })
         .catch(console.error);
     }
-  }, [authUser?.email, remnawaveApi, setRmnUser, tgUser?.id, navigate, getConnectEmailPath]);
+  }, [
+    authUser?.email,
+    remnawaveApi,
+    setRmnUser,
+    tgUser?.id,
+    navigate,
+    getConnectEmailPath,
+    publicPlansPath,
+  ]);
 
   useEffect(() => {
     if (!rmnUser) return;

@@ -25,7 +25,8 @@ export type UserCreatedEvent = {
 
 export type CheckoutStartedEvent = {
   event: 'checkout_started';
-  userId: RemnaUserId;
+  userId: RemnaUserId | null;
+  email?: string | null;
   provider: PaymentMethod;
   purpose: PaymentPurpose;
   amount: string;
@@ -39,7 +40,7 @@ export type PaymentSucceededEvent = {
   /** Omitted when the settling row could not be matched back to a session (should not normally happen). */
   purpose?: PaymentPurpose;
   selectedPeriod: number;
-  isFirstPayment: boolean;
+  isFirstPayment?: boolean;
   isAutoPayment: boolean;
   /** Omitted when the provider settlement carries no reliable amount (e.g. a Stripe invoice with no resolvable total). */
   amount?: string;

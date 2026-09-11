@@ -19,7 +19,7 @@ export function AuthButtons(props: AuthButtonsProps) {
   const { setAuthUser, setRmnUser } = useAuthStoreActions();
   const navigate = useNavigation();
   const location = useLocation();
-  const { publicPlansPath } = useAppRoutes();
+  const { publicPlansPath, profileSubscriptionPath } = useAppRoutes();
   const { t } = useTranslation();
 
   if (loading) {
@@ -36,13 +36,11 @@ export function AuthButtons(props: AuthButtonsProps) {
       return;
     }
 
-    const pricing = document.getElementById('pricing');
-    if (pricing) {
-      pricing.scrollIntoView({ behavior: 'smooth' });
-      return;
+    if (!authUser) {
+      navigate(publicPlansPath);
+    } else {
+      navigate(profileSubscriptionPath);
     }
-
-    navigate(publicPlansPath);
   };
 
   const handleLogout = async () => {

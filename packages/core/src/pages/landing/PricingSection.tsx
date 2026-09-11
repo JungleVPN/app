@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { usePlans } from '../../hooks';
+import { useAuthStore } from '../../stores';
 import { Grid, GridItem } from '../../ui';
 import { cn, formatPlanPrice, isGlobalOrigin } from '../../utils';
 import { planSlug } from '../getSubscription/planSlug';
@@ -143,6 +144,7 @@ function calculatePricing(
 export function PricingSection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { authUser } = useAuthStore();
   const plans = usePlans();
 
   function formatMonths(months: number): string {
@@ -156,7 +158,7 @@ export function PricingSection() {
   // Global domains check out on the standalone payment page, which needs the
   // chosen period in the URL. RU still goes through the in-profile plan picker.
   const handleCtaClick = (months: number) =>
-    navigate(isRu ? '/profile/plans' : `/payment/${planSlug(months)}`);
+    navigate(isRu || authUser ? '/profile/plans' : `/payment/${planSlug(months)}`);
 
   const sharedProps = {
     currency: isRu ? '₽' : '€',

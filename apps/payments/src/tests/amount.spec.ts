@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { amountToMonths, buildPlanPricing, getExtraDevicePrice, getPriceForPeriod } from '../utils/amount';
+import {
+  amountToMonths,
+  buildPlanPricing,
+  getExtraDevicePrice,
+  getPriceForPeriod,
+} from '../utils/amount';
 
 describe('provider-agnostic amount config', () => {
   beforeEach(() => {

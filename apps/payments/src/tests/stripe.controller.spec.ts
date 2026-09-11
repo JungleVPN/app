@@ -55,115 +55,94 @@ describe('ClientOrServiceGuard', () => {
 
 describe('StripeController.createSession', () => {
   let stripePaymentRepo: Record<string, ReturnType<typeof vi.fn>>;
-  let stripeProvider: { createPayment: ReturnType<typeof vi.fn> };
-  let analyticsClient: { track: ReturnType<typeof vi.fn> };
+  let stripeProvider: { openSession: ReturnType<typeof vi.fn> };
   let controller: StripeController;
 
-  beforeEach(() => {
-    process.env.PRICE_EUR_MONTH_1 = '10';
+  const checkoutSession = {
+    object: 'checkout.session',
+    id: 'cs_1',
+    url: 'https://checkout',
+    customer: 'cus_1',
+  };
 
+  beforeEach(() => {
     stripePaymentRepo = {
       create: vi.fn((entity: unknown) => entity),
       save: vi.fn(async (entity: unknown) => entity),
     };
     stripeProvider = {
-      createPayment: vi.fn().mockResolvedValue({
-        object: 'checkout.session',
-        id: 'cs_1',
-        url: 'https://checkout',
-        customer: 'cus_1',
-      }),
+      openSession: vi.fn().mockResolvedValue(checkoutSession),
     };
-    analyticsClient = { track: vi.fn().mockResolvedValue(undefined) };
 
-    controller = new StripeController(
-      stripePaymentRepo as never,
-      stripeProvider as never,
-      analyticsClient as never,
-      { resolveOrCreateByEmail: vi.fn() } as never,
-    );
+    controller = new StripeController(stripePaymentRepo as never, stripeProvider as never);
   });
 
   it('bills the authenticated user, never the user id in the request body', async () => {
     await controller.createSession(dto({ userId: 999 }), 42, 'https://app.test');
 
-    expect(stripeProvider.createPayment).toHaveBeenCalledWith(
+    expect(stripeProvider.openSession).toHaveBeenCalledWith(
       expect.objectContaining({ userId: 42 }),
       'https://app.test',
     );
-    expect(stripePaymentRepo.save).toHaveBeenCalledWith(expect.objectContaining({ userId: 42 }));
   });
 
   it('honours the body user id for an internal caller, which carries no identity', async () => {
     await controller.createSession(dto({ userId: 999 }), undefined, 'https://app.test');
 
-    expect(stripeProvider.createPayment).toHaveBeenCalledWith(
+    expect(stripeProvider.openSession).toHaveBeenCalledWith(
       expect.objectContaining({ userId: 999 }),
       'https://app.test',
     );
   });
 
-  it('records the pending sale for a checkout session', async () => {
+  // The origin decides which domain the payer is returned to after Stripe.
+  it('passes the request origin through, so the payer lands back where they started', async () => {
     await controller.createSession(dto(), 42, 'https://app.test');
 
-    expect(stripePaymentRepo.save).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'cs_1', status: 'pending', amount: 10 }),
+    expect(stripeProvider.openSession).toHaveBeenCalledWith(expect.anything(), 'https://app.test');
+  });
+
+  it('carries the rest of the request through untouched', async () => {
+    await controller.createSession(
+      dto({ purchaseType: 'extra_device', selectedPeriod: 3 }),
+      42,
+      'https://app.test',
+    );
+
+    expect(stripeProvider.openSession).toHaveBeenCalledWith(
+      expect.objectContaining({ purchaseType: 'extra_device', selectedPeriod: 3 }),
+      'https://app.test',
     );
   });
 
-  it('records the start of checkout for analytics, tagged with its purpose', async () => {
-    await controller.createSession(dto(), 42, 'https://app.test');
+  it('returns the session to the caller', async () => {
+    const session = await controller.createSession(dto(), 42, 'https://app.test');
 
-    expect(analyticsClient.track).toHaveBeenCalledWith({
-      event: 'checkout_started',
-      userId: 42,
-      provider: 'stripe',
-      purpose: 'subscription',
-      amount: '10',
-      currency: 'EUR',
-    });
+    expect(session).toMatchObject({ id: 'cs_1', url: 'https://checkout' });
   });
 
-  it('tags an extra-device checkout with its purpose', async () => {
-    process.env.EXTRA_DEVICE_PRICE_EUR = '5';
+  // A subscriber is routed to the Billing Portal instead of a second checkout.
+  // The controller does not second-guess that — it hands back whichever session
+  // it was given, so the caller can send the payer to it.
+  it('returns a billing portal session just as readily as a checkout', async () => {
+    stripeProvider.openSession.mockResolvedValue({
+      object: 'billing_portal.session',
+      id: 'bps_1',
+      url: 'https://portal',
+      customer: 'cus_1',
+    });
 
-    await controller.createSession(dto({ purchaseType: 'extra_device' }), 42, 'https://app.test');
+    const session = await controller.createSession(dto(), 42, 'https://app.test');
 
-    expect(analyticsClient.track).toHaveBeenCalledWith(
-      expect.objectContaining({ event: 'checkout_started', purpose: 'extra_device' }),
-    );
-
-    delete process.env.EXTRA_DEVICE_PRICE_EUR;
+    expect(session).toMatchObject({ id: 'bps_1', url: 'https://portal' });
   });
 
-  describe('when the subscriber is sent to the billing portal instead', () => {
-    beforeEach(() => {
-      stripeProvider.createPayment.mockResolvedValue({
-        object: 'billing_portal.session',
-        id: 'bps_1',
-        url: 'https://portal',
-        customer: 'cus_1',
-      });
-    });
+  it('surfaces an unusable period rather than answering as if checkout opened', async () => {
+    stripeProvider.openSession.mockRejectedValue(new BadRequestException('no price'));
 
-    it('records no sale, because opening the portal buys nothing', async () => {
-      await controller.createSession(dto(), 42, 'https://app.test');
-
-      expect(stripePaymentRepo.save).not.toHaveBeenCalled();
-    });
-
-    it('still returns the portal session to the caller', async () => {
-      const session = await controller.createSession(dto(), 42, 'https://app.test');
-
-      expect(session).toMatchObject({ id: 'bps_1', url: 'https://portal' });
-    });
-
-    it('still rejects an unusable period before reaching Stripe', async () => {
-      await expect(
-        controller.createSession(dto({ selectedPeriod: 7 }), 42, 'https://app.test'),
-      ).rejects.toThrow(BadRequestException);
-      expect(stripeProvider.createPayment).not.toHaveBeenCalled();
-    });
+    await expect(
+      controller.createSession(dto({ selectedPeriod: 7 }), 42, 'https://app.test'),
+    ).rejects.toThrow(BadRequestException);
   });
 });
 
@@ -175,93 +154,146 @@ describe('StripeController.createPublicSession', () => {
   });
 
   const controllerWith = (
-    resolver: { resolveOrCreateByEmail: ReturnType<typeof vi.fn> },
     overrides: {
-      createPayment?: ReturnType<typeof vi.fn>;
-      getCustomerId?: ReturnType<typeof vi.fn>;
+      openSession?: ReturnType<typeof vi.fn>;
+      findCustomerIdByEmail?: ReturnType<typeof vi.fn>;
       hasActiveSubscription?: ReturnType<typeof vi.fn>;
+      resolveAmount?: ReturnType<typeof vi.fn>;
     } = {},
   ) => {
-    process.env.PRICE_EUR_MONTH_1 = '10';
     const stripePaymentRepo = {
       create: vi.fn((entity: unknown) => entity),
       save: vi.fn(async (entity: unknown) => entity),
     };
     const stripeProvider = {
-      createPayment:
-        overrides.createPayment ??
+      openSession:
+        overrides.openSession ??
         vi.fn().mockResolvedValue({
           object: 'checkout.session',
           id: 'cs_public',
           url: 'https://checkout',
           customer: 'cus_public',
         }),
-      getCustomerId: overrides.getCustomerId ?? vi.fn().mockResolvedValue(null),
+      findCustomerIdByEmail: overrides.findCustomerIdByEmail ?? vi.fn().mockResolvedValue(null),
       hasActiveSubscription: overrides.hasActiveSubscription ?? vi.fn().mockResolvedValue(false),
+      resolveAmount:
+        overrides.resolveAmount ??
+        vi.fn((_purpose: string, selectedPeriod: number) => {
+          if (selectedPeriod === 99) {
+            throw new BadRequestException('No price configured for this period');
+          }
+          return '10';
+        }),
     };
-    const analyticsClient = { track: vi.fn().mockResolvedValue(undefined) };
-    const controller = new StripeController(
-      stripePaymentRepo as never,
-      stripeProvider as never,
-      analyticsClient as never,
-      resolver as never,
-    );
-    return { controller, stripePaymentRepo, stripeProvider, analyticsClient };
+    const controller = new StripeController(stripePaymentRepo as never, stripeProvider as never);
+    return { controller, stripePaymentRepo, stripeProvider };
   };
 
-  it('bills the account found or created for the payer email', async () => {
-    const resolver = { resolveOrCreateByEmail: vi.fn().mockResolvedValue(77) };
-    const { controller, stripeProvider, stripePaymentRepo } = controllerWith(resolver);
+  describe('deferring account creation until a payment settles', () => {
+    it('opens the checkout with no user id, because there is no account to bill yet', async () => {
+      const { controller, stripeProvider } = controllerWith();
 
-    await controller.createPublicSession(publicDto(), 'https://app.test');
+      await controller.createPublicSession(publicDto(), 'https://app.test');
 
-    expect(resolver.resolveOrCreateByEmail).toHaveBeenCalledWith(
-      'payer@test.com',
-      expect.objectContaining({ origin: 'https://app.test' }),
-    );
-    expect(stripeProvider.createPayment).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: 77, selectedPeriod: 1 }),
-      'https://app.test',
-    );
-    expect(stripePaymentRepo.save).toHaveBeenCalledWith(expect.objectContaining({ userId: 77 }));
+      expect(stripeProvider.openSession).toHaveBeenCalledWith(
+        expect.objectContaining({ userId: null, selectedPeriod: 1 }),
+        'https://app.test',
+      );
+    });
+
+    it('carries the payer email to Stripe so the webhook can create the account', async () => {
+      const { controller, stripeProvider } = controllerWith();
+
+      await controller.createPublicSession(publicDto(), 'https://app.test');
+
+      expect(stripeProvider.openSession).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({ email: 'payer@test.com' }),
+        }),
+        'https://app.test',
+      );
+    });
+
+    it('carries the signup origin, which decides RU vs. global for the deferred account', async () => {
+      const { controller, stripeProvider } = controllerWith();
+
+      await controller.createPublicSession(publicDto(), 'https://jungle-vpn.com');
+
+      expect(stripeProvider.openSession).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({ signupOrigin: 'https://jungle-vpn.com' }),
+        }),
+        'https://jungle-vpn.com',
+      );
+    });
+
+    it('carries the inviter, so the referral survives until the account exists', async () => {
+      const { controller, stripeProvider } = controllerWith();
+
+      await controller.createPublicSession(publicDto({ inviterId: 1337 }), 'https://app.test');
+
+      expect(stripeProvider.openSession).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({ inviterId: '1337' }),
+        }),
+        'https://app.test',
+      );
+    });
+
+    it('sends no user id to Stripe for a visitor with no account, rather than a placeholder', async () => {
+      const { controller, stripeProvider } = controllerWith();
+
+      await controller.createPublicSession(publicDto(), 'https://app.test');
+
+      const [sent] = stripeProvider.openSession.mock.calls[0];
+      expect(sent.metadata).not.toHaveProperty('userId');
+    });
   });
 
-  it('records the sale and reports it to analytics, exactly as the authenticated route does', async () => {
-    const resolver = { resolveOrCreateByEmail: vi.fn().mockResolvedValue(77) };
-    const { controller, stripePaymentRepo, analyticsClient } = controllerWith(resolver);
+  describe('a subscriber already on file with Stripe', () => {
+    it('recognises them by asking Stripe for the email, and refuses', async () => {
+      // Deferred account creation means a payer who signed up through this very
+      // page has no user id yet. Without the email lookup they would sail past
+      // the subscription check and be sold a second subscription.
+      const { controller, stripeProvider } = controllerWith({
+        findCustomerIdByEmail: vi.fn().mockResolvedValue('cus_existing'),
+        hasActiveSubscription: vi.fn().mockResolvedValue(true),
+      });
 
-    await controller.createPublicSession(publicDto(), 'https://app.test');
+      const error = await controller
+        .createPublicSession(publicDto(), 'https://app.test')
+        .catch((caught: unknown) => caught);
 
-    expect(stripePaymentRepo.save).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'cs_public', status: 'pending', amount: 10, currency: 'EUR' }),
-    );
-    expect(analyticsClient.track).toHaveBeenCalledWith(
-      expect.objectContaining({ event: 'checkout_started', userId: 77, provider: 'stripe' }),
-    );
-  });
+      // The page turns this code into "you already have a subscription, log in"
+      // rather than a generic checkout failure.
+      expect(error).toBeInstanceOf(ConflictException);
+      expect((error as ConflictException).getResponse()).toMatchObject({
+        code: ACTIVE_SUBSCRIPTION_CODE,
+      });
+      expect(stripeProvider.openSession).not.toHaveBeenCalled();
+    });
 
-  it('passes the payer email to Stripe so the webhook can identify the buyer', async () => {
-    const resolver = { resolveOrCreateByEmail: vi.fn().mockResolvedValue(77) };
-    const { controller, stripeProvider } = controllerWith(resolver);
+    it('lets them through when Stripe knows the email but nothing is live on it', async () => {
+      const { controller, stripeProvider } = controllerWith({
+        findCustomerIdByEmail: vi.fn().mockResolvedValue('cus_lapsed'),
+        hasActiveSubscription: vi.fn().mockResolvedValue(false),
+      });
 
-    await controller.createPublicSession(publicDto(), 'https://app.test');
+      await controller.createPublicSession(publicDto(), 'https://app.test');
 
-    expect(stripeProvider.createPayment).toHaveBeenCalledWith(
-      expect.objectContaining({ metadata: expect.objectContaining({ email: 'payer@test.com' }) }),
-      'https://app.test',
-    );
+      expect(stripeProvider.openSession).toHaveBeenCalled();
+    });
   });
 
   it('forwards the affiliate referral so attribution survives the anonymous checkout', async () => {
-    const resolver = { resolveOrCreateByEmail: vi.fn().mockResolvedValue(77) };
-    const { controller, stripeProvider } = controllerWith(resolver);
+    const { controller, stripeProvider } = controllerWith();
 
     await controller.createPublicSession(
       publicDto({ toltReferralId: 'tolt_9' }),
       'https://app.test',
     );
 
-    expect(stripeProvider.createPayment).toHaveBeenCalledWith(
+    expect(stripeProvider.openSession).toHaveBeenCalledWith(
       expect.objectContaining({ toltReferralId: 'tolt_9' }),
       'https://app.test',
     );
@@ -272,72 +304,29 @@ describe('StripeController.createPublicSession', () => {
     [''],
     ['  '],
   ])('refuses to open a checkout for the malformed email %j', async (email) => {
-    const resolver = { resolveOrCreateByEmail: vi.fn() };
-    const { controller } = controllerWith(resolver);
+    const { controller, stripeProvider } = controllerWith();
 
     await expect(controller.createPublicSession(publicDto({ email }), 'o')).rejects.toThrow(
       BadRequestException,
     );
-    expect(resolver.resolveOrCreateByEmail).not.toHaveBeenCalled();
+    expect(stripeProvider.findCustomerIdByEmail).not.toHaveBeenCalled();
   });
 
   it('refuses a period that has no configured price, rather than failing at Stripe', async () => {
-    const resolver = { resolveOrCreateByEmail: vi.fn().mockResolvedValue(77) };
-    const { controller } = controllerWith(resolver);
+    const { controller, stripeProvider } = controllerWith();
 
     await expect(
       controller.createPublicSession(publicDto({ selectedPeriod: 99 }), 'https://app.test'),
     ).rejects.toThrow(BadRequestException);
-    // Pricing is checked first so a rejected checkout leaves no orphan account.
-    expect(resolver.resolveOrCreateByEmail).not.toHaveBeenCalled();
-  });
-
-  it('returns the buyer to the profile subscription page after paying', async () => {
-    const resolver = { resolveOrCreateByEmail: vi.fn().mockResolvedValue(77) };
-    const { controller, stripeProvider } = controllerWith(resolver);
-
-    await controller.createPublicSession(publicDto(), 'https://app.test');
-
-    // No return path is passed, so the provider uses its own '/profile/subscription'.
-    expect(stripeProvider.createPayment).toHaveBeenCalledWith(
-      expect.anything(),
-      'https://app.test',
-    );
-  });
-
-  it('refuses an anonymous checkout for an email that already has an active subscription', async () => {
-    // Answering with a Billing Portal session here would hand anyone who types a
-    // subscriber's email a live self-service URL for that subscriber's account.
-    const resolver = { resolveOrCreateByEmail: vi.fn().mockResolvedValue(77) };
-    const { controller, stripeProvider, stripePaymentRepo, analyticsClient } = controllerWith(
-      resolver,
-      {
-        getCustomerId: vi.fn().mockResolvedValue('cus_victim'),
-        hasActiveSubscription: vi.fn().mockResolvedValue(true),
-      },
-    );
-
-    const error = await controller
-      .createPublicSession(publicDto(), 'https://app.test')
-      .catch((caught: unknown) => caught);
-
-    // The page turns this code into "you already have a subscription, log in"
-    // rather than a generic checkout failure.
-    expect(error).toBeInstanceOf(ConflictException);
-    expect((error as ConflictException).getResponse()).toMatchObject({
-      code: ACTIVE_SUBSCRIPTION_CODE,
-    });
-    expect(stripeProvider.createPayment).not.toHaveBeenCalled();
-    expect(stripePaymentRepo.save).not.toHaveBeenCalled();
-    expect(analyticsClient.track).not.toHaveBeenCalled();
+    // Pricing is checked first, so a rejected checkout costs no Stripe round trip.
+    expect(stripeProvider.findCustomerIdByEmail).not.toHaveBeenCalled();
   });
 
   it('never returns a billing portal session to an anonymous caller', async () => {
     // Belt and braces: even if the subscription check misses, a portal session
     // must not leave the public route.
-    const resolver = { resolveOrCreateByEmail: vi.fn().mockResolvedValue(77) };
-    const { controller, stripePaymentRepo, analyticsClient } = controllerWith(resolver, {
-      createPayment: vi
+    const { controller } = controllerWith({
+      openSession: vi
         .fn()
         .mockResolvedValue({ object: 'billing_portal.session', url: 'https://portal' }),
     });
@@ -345,8 +334,5 @@ describe('StripeController.createPublicSession', () => {
     await expect(controller.createPublicSession(publicDto(), 'https://app.test')).rejects.toThrow(
       ConflictException,
     );
-
-    expect(stripePaymentRepo.save).not.toHaveBeenCalled();
-    expect(analyticsClient.track).not.toHaveBeenCalled();
   });
 });

@@ -10,7 +10,12 @@ import { PaymentPurpose } from './common';
  * the Stripe customer metadata.
  */
 export interface CreateStripeSessionDto {
-  userId: RemnaUserId;
+  /**
+   * The account being billed, or null for an anonymous checkout whose account
+   * does not exist yet — the public route defers creating it until a payment
+   * webhook confirms the charge settled.
+   */
+  userId: RemnaUserId | null;
   /** Defaults to 'subscription'. Use 'extra_device' for one-time device-slot purchases. */
   purchaseType?: PaymentPurpose;
 

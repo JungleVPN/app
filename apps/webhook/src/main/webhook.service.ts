@@ -112,7 +112,7 @@ export class WebhookService {
         transformRequest: [(data: Buffer) => data],
       });
     } catch (error) {
-      this.logger.error('Failed to forward Stripe webhook to payments service', error);
+      this.logger.error('Failed to forward Stripe webhook to payments service');
       throw error;
     }
   }

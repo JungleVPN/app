@@ -165,7 +165,9 @@ describe('EventsService.trackEvent()', () => {
     describe('revenue-critical flush', () => {
       it('flushes immediately after capturing payment_succeeded', async () => {
         const flush = vi.fn().mockResolvedValue(undefined);
-        const { service } = buildService({ postHog: buildPostHog(undefined, undefined, undefined, flush) });
+        const { service } = buildService({
+          postHog: buildPostHog(undefined, undefined, undefined, flush),
+        });
 
         await service.trackEvent({
           event: 'payment_succeeded',
@@ -182,7 +184,9 @@ describe('EventsService.trackEvent()', () => {
 
       it('does not flush for non-revenue-critical events', async () => {
         const flush = vi.fn().mockResolvedValue(undefined);
-        const { service } = buildService({ postHog: buildPostHog(undefined, undefined, undefined, flush) });
+        const { service } = buildService({
+          postHog: buildPostHog(undefined, undefined, undefined, flush),
+        });
 
         await service.trackEvent({
           event: 'bot_started',
