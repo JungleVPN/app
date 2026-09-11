@@ -5,6 +5,7 @@ import {
   FieldError,
   Form,
   Input,
+  Spinner,
   TextField,
   Tooltip,
 } from '@heroui/react';
@@ -159,7 +160,12 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                       isPending={isPending}
                       type='submit'
                     >
-                      {t('getSubscription.submit')}
+                      {({ isPending: isSubmitPending }) => (
+                        <>
+                          {t('getSubscription.submit')}
+                          {isSubmitPending ? <Spinner color='current' size='sm' /> : null}
+                        </>
+                      )}
                     </Button>
 
                     <div className='flex items-center gap-3 text-muted'>
