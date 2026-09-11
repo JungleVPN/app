@@ -9,7 +9,13 @@ import LogoDark from '../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../hooks';
 import { usePlatformStore } from '../../stores';
 import { Container } from '../../ui';
-import { isGlobalOrigin, isLandingPath, phCapture, scrollToTop } from '../../utils';
+import {
+  isGlobalOrigin,
+  isLandingPath,
+  isPlansOrPaymentPlanPath,
+  phCapture,
+  scrollToTop,
+} from '../../utils';
 import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { SupportButton } from '../SupportWidget/SupportButton';
@@ -30,6 +36,7 @@ export function Header() {
 
   const isLanding = isLandingPath(pathname);
   const isTelegram = platformType === 'telegram';
+  const hideAuthButtons = isPlansOrPaymentPlanPath(pathname);
 
   useEffect(() => {
     setIsRu(!isGlobalOrigin());
@@ -102,7 +109,7 @@ export function Header() {
         {!isLanding && <SubscriptionLinkWidget />}
         {!isLanding && <SupportButton />}
         {!isRu && !isTelegram && <LanguageSwitcher />}
-        {platformType === 'web' && <AuthButtons isRu={isRu} />}
+        {platformType === 'web' && !hideAuthButtons && <AuthButtons isRu={isRu} />}
       </div>
 
       {/* Mobile: hamburger only */}
@@ -123,8 +130,6 @@ export function Header() {
     if (platformType === 'telegram') {
       return 'relative';
     }
-
-    if (!isLanding) return 'relative mt-4';
 
     return 'w-fit fixed top-4 left-2/4 -translate-x-1/2 z-100';
   };

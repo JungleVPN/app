@@ -150,22 +150,11 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                 }
               >
                 <div className='flex flex-col gap-6'>
-                  <StepHeading step={2} title={t('getSubscription.step_payment_title')} />
+                  <StepHeading step={2} title={t('getSubscription.card_method')} />
 
-                  <div className='rounded-2xl bg-foreground/[0.04] p-4 sm:p-5'>
-                    <div className='flex flex-wrap items-center justify-between gap-3 pb-4'>
-                      <p className='text-base font-semibold'>{t('getSubscription.card_method')}</p>
-                      <div className='flex items-center gap-2 text-muted'>
-                        <IconBrandVisa size={28} stroke={2} />
-                        <IconBrandAppleFilled size={22} stroke={2} />
-                        <IconCreditCard size={24} stroke={2} />
-                        <IconBrandMastercard size={24} stroke={2} />
-                        <IconBrandGoogle size={24} stroke={2} />
-                      </div>
-                    </div>
-
+                  <div className='flex flex-wrap items-center justify-between gap-4'>
                     <Button
-                      className={`${BRAND_GRADIENT} mt-5 w-full rounded-full sm:w-auto sm:px-10`}
+                      className={`${BRAND_GRADIENT} w-full rounded-full sm:w-auto sm:px-10`}
                       isDisabled={!pricing}
                       isPending={isPending}
                       type='submit'
@@ -173,8 +162,16 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                       {t('getSubscription.submit')}
                     </Button>
 
-                    {checkoutError && <p className='mt-3 text-sm text-danger'>{checkoutError}</p>}
+                    <div className='flex items-center gap-3 text-muted'>
+                      <IconBrandVisa size={28} stroke={2} />
+                      <IconBrandAppleFilled size={22} stroke={2} />
+                      <IconCreditCard size={24} stroke={2} />
+                      <IconBrandMastercard size={24} stroke={2} />
+                      <IconBrandGoogle size={24} stroke={2} />
+                    </div>
                   </div>
+
+                  {checkoutError && <p className='text-sm text-danger'>{checkoutError}</p>}
                 </div>
               </Block>
             </Form>

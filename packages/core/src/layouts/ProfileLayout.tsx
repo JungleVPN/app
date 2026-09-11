@@ -127,7 +127,10 @@ export function ProfileLayout() {
 
   return (
     <>
-      <Container maxWidth={'sm'} className={'pt-10 pb-22'}>
+      <Container
+        maxWidth={'sm'}
+        className={`${platformType === 'web' ? 'pt-32 pb-22' : 'pt-4 pb-22'}`}
+      >
         <Outlet />
       </Container>
       {rmnUser && <Navbar />}

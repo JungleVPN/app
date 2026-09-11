@@ -34,6 +34,7 @@ export {
   isCrawlablePath,
   isGlobalOrigin,
   isLandingPath,
+  isPlansOrPaymentPlanPath,
   LANDING_PATHS,
   localePolicyForHost,
   markdownPathFor,

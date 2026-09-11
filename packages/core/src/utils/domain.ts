@@ -100,6 +100,11 @@ export function isLandingPath(pathname: string): boolean {
   return LANDING_PATHS.has(pathname);
 }
 
+/** True for the plan-selection/checkout paths `/plans` and `/payment/planN`, where AuthButtons are hidden. */
+export function isPlansOrPaymentPlanPath(pathname: string): boolean {
+  return pathname === '/plans' || /^\/payment\/plan\d+/.test(pathname);
+}
+
 /**
  * Public, unauthenticated marketing/legal paths safe to expose as Markdown
  * alternates to AI crawlers and agents. Excludes `/profile/*` (authenticated),

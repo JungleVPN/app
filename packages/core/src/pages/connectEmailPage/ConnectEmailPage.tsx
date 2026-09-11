@@ -20,7 +20,7 @@ export default function ConnectEmailPage() {
   ];
 
   return (
-    <Form className={styles.form}>
+    <Form className={'px-4 pt-2'}>
       <div className='flex max-w-5xl flex-col gap-3'>
         <div className='flex flex-col gap-2'>
           <p className='text-base font-medium ms-4'>{t('connectEmailPage.enter_email')}</p>
@@ -42,7 +42,9 @@ export default function ConnectEmailPage() {
             {hasError ? (
               <FieldError>{error}</FieldError>
             ) : (
-              <Description className={'ms-4'}>{t('connectEmailPage.email_description')}</Description>
+              <Description className={'ms-4'}>
+                {t('connectEmailPage.email_description')}
+              </Description>
             )}
           </TextField>
         </div>

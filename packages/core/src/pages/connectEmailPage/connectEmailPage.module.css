@@ -28,10 +28,6 @@
   pointer-events: none;
 }
 
-.form {
-  /*margin-top: 5rem;*/
-}
-
 .header {
   display: flex;
   flex-direction: column;

@@ -1,4 +1,4 @@
-import { RootLayout } from '@workspace/core';
+import { RootLayout, usePlatformStore } from '@workspace/core';
 import { PaymentFooter } from '@workspace/core/components';
 
 /**
@@ -6,8 +6,12 @@ import { PaymentFooter } from '@workspace/core/components';
  * summary can sit side by side from `lg` up. The header comes from WebAppLayout.
  */
 export function WebPaymentLayout() {
+  const { platformType } = usePlatformStore();
+
   return (
-    <div className='mt-8 flex flex-col justify-between h-screen'>
+    <div
+      className={`${platformType === 'web' ? 'pt-32' : ''} flex flex-col justify-between h-screen`}
+    >
       <RootLayout />
       <PaymentFooter />
     </div>
