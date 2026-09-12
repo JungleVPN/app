@@ -75,7 +75,8 @@ type SquadUser = { readonly activeInternalSquads: readonly SquadRef[] };
  * have configured. This module is bundled for the browser as well as the backend, so
  * it never reads env vars itself — the caller supplies them.
  */
-export const isGlobalSquadUser = (user: SquadUser, ruSquadUuid: string): boolean => {
+export const isGlobalSquadUser = (user: SquadUser | null, ruSquadUuid: string): boolean => {
+  if (!user) return false;
   const uuids = user.activeInternalSquads
     .map((squad) => squad?.uuid?.trim().toLowerCase())
     .filter((uuid): uuid is string => Boolean(uuid));
