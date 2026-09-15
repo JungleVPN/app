@@ -29,6 +29,7 @@
     "@heroui/react": "^3.0.3",
     "@heroui/styles": "^3.0.3",
     "@lottiefiles/dotlottie-web": "^0.73.0",
+    "@paddle/paddle-js": "^1.6.5",
     "@posthog/react": "^1.10.5",
     "@remnawave/subscription-page-types": "^0.4.0",
     "@tabler/icons-react": "^3.31.0",

@@ -20,6 +20,8 @@ export const apiRoutes = {
     stripeSubscription: '/stripe/subscription',
     stripePublicCreateSession: '/stripe/public-create-session',
     stripeWebhook: '/stripe/webhook',
+    paddlePublicCreateCheckout: '/paddle/public-create-checkout',
+    paddleWebhook: '/paddle/webhook',
     yookassaCreateSession: '/yookassa/create-session',
     yookassaWebhook: '/yookassa/webhook',
     yookassaPaymentStatus: (id: string) => `/yookassa/payment-status/${encodeURIComponent(id)}`,

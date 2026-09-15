@@ -2,10 +2,12 @@ import {
   type AdminPaymentDto,
   apiRoutes,
   type CaptureToltReferralDto,
+  type CreatePublicPaddleCheckoutDto,
   type CreatePublicStripeSessionDto,
   type CreateStripeSessionDto,
   type CreateTelegramStarsInvoiceDto,
   type CreateYookassaSessionDto,
+  type PaddleCheckoutPayload,
   type Payments,
   PaymentSession,
   type RecordToltClickDto,
@@ -41,6 +43,17 @@ export function createPaymentsApi(client: ApiClient) {
      */
     async createPublicStripeSession(dto: CreatePublicStripeSessionDto): Promise<PaymentSession> {
       return client.post<PaymentSession>(apiRoutes.payments.stripePublicCreateSession, dto);
+    },
+
+    /**
+     * Validates an anonymous Paddle checkout and returns what the caller needs
+     * to open `Paddle.Checkout.open()` itself — Paddle Checkout is opened
+     * client-side, unlike Stripe's server-created hosted session.
+     */
+    async createPublicPaddleCheckout(
+      dto: CreatePublicPaddleCheckoutDto,
+    ): Promise<PaddleCheckoutPayload> {
+      return client.post<PaddleCheckoutPayload>(apiRoutes.payments.paddlePublicCreateCheckout, dto);
     },
 
     /** Subscription status + Billing Portal URL for the authenticated user. */

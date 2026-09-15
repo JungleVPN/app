@@ -21,6 +21,8 @@ export type SubscriptionPlanDto = {
   priceEur: string;
   priceRub: string;
   priceStars: number;
+  /** Paddle catalog price id for this period, or null when Paddle isn't configured for it. */
+  paddlePriceId: string | null;
   eur: PlanPricing;
   rub: PlanPricing;
 };

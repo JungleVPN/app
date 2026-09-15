@@ -8,6 +8,7 @@
 
 export * from './admin';
 export * from './common';
+export * from './paddle';
 export * from './promo';
 export * from './stripe';
 export * from './telegram-stars';

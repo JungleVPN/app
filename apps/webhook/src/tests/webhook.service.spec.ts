@@ -162,6 +162,23 @@ describe('WebhookService', () => {
     });
   });
 
+  describe('forwardPaddleWebhook', () => {
+    it('forwards raw body and signature to payments service', async () => {
+      const rawBody = Buffer.from('{"test": true}');
+      await service.forwardPaddleWebhook(rawBody, 'sig_123');
+
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        expect.stringContaining('/paddle/webhook'),
+        rawBody,
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'paddle-signature': 'sig_123',
+          }),
+        }),
+      );
+    });
+  });
+
   describe('forwardYookassaWebhook', () => {
     it('forwards payload and IP to payments service', async () => {
       const payload = { type: 'notification', event: 'payment.succeeded', object: {} } as any;

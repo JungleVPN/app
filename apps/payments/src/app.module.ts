@@ -7,6 +7,7 @@ import { AnalyticsClientModule } from '@payments/analytics/analytics-client.modu
 import { BotNotificationModule } from '@payments/notifications/bot-notification.module';
 import { PromoModule } from '@payments/promo/promo.module';
 import { CommonModule } from '@payments/providers/common/common.module';
+import { PaddleModule } from '@payments/providers/paddle/paddle.module';
 import { StripeModule } from '@payments/providers/stripe/stripe.module';
 import { TelegramStarsModule } from '@payments/providers/telegram-stars/telegram-stars.module';
 import { AutopaymentModule } from '@payments/providers/yookassa/autopayment/autopayment.module';
@@ -29,6 +30,7 @@ import { ClientAuthModule } from './auth/client-auth.module';
     AdminModule,
     CommonModule,
     StripeModule,
+    PaddleModule,
     TelegramStarsModule,
     YookassaModule,
     AutopaymentModule,

@@ -158,7 +158,7 @@ export function PricingSection() {
   // Global domains check out on the standalone payment page, which needs the
   // chosen period in the URL. RU still goes through the in-profile plan picker.
   const handleCtaClick = (months: number) =>
-    navigate(isRu || authUser ? '/profile/plans' : `/payment/${planSlug(months)}`);
+    navigate(isRu || authUser ? '/profile/plans' : `/paddle-checkout/${planSlug(months)}`);
 
   const sharedProps = {
     currency: isRu ? '₽' : '€',

@@ -29,6 +29,7 @@ export class CommonService {
             priceRub,
             priceEur,
             priceStars: starsAmounts[i] ?? 0,
+            paddlePriceId: process.env[`PADDLE_PRICE_ID_MONTH_${months}`] ?? null,
             rub: buildPlanPricing('RUB', months, Number(priceRub), basePriceRub),
             eur: buildPlanPricing('EUR', months, Number(priceEur), basePriceEur),
           } satisfies SubscriptionPlanDto;

@@ -117,6 +117,23 @@ export class WebhookService {
     }
   }
 
+  async forwardPaddleWebhook(rawBody: Buffer, signature: string): Promise<void> {
+    try {
+      await axios.post(`${this.paymentsBaseUrl}${apiRoutes.payments.paddleWebhook}`, rawBody, {
+        headers: {
+          'content-type': 'application/json',
+          'paddle-signature': signature,
+          'x-service-secret': process.env.INTER_SERVICE_SECRET,
+        },
+        // Send raw buffer, don't let axios transform it
+        transformRequest: [(data: Buffer) => data],
+      });
+    } catch (error) {
+      this.logger.error('Failed to forward Paddle webhook to payments service');
+      throw error;
+    }
+  }
+
   async forwardYookassaWebhook(payload: PaymentWebhookNotification, ip: string): Promise<void> {
     await axios.post(`${this.paymentsBaseUrl}${apiRoutes.payments.yookassaWebhook}`, payload, {
       headers: {
