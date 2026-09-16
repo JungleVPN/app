@@ -302,13 +302,19 @@ describe('PaddleWebhookService', () => {
       );
     });
 
-    it('skips a transaction whose custom data carries no email to attribute it to', async () => {
-      await service.handleWebhook(
-        makeTransactionEvent('transaction.completed', { customData: {} }),
-      );
+    it('throws on a transaction whose custom data carries no email to attribute it to', async () => {
+      await expect(
+        service.handleWebhook(makeTransactionEvent('transaction.completed', { customData: {} })),
+      ).rejects.toThrow(/no email/);
 
       expect(mockResolveOrCreateByEmail).not.toHaveBeenCalled();
       expect(mockHandleUserUpdates).not.toHaveBeenCalled();
+      // Must not be left stuck at 'processing' — same release path as the
+      // unrecognised-price-id guard.
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'txn_1', status: 'processing' },
+        { status: 'unfulfilled' },
+      );
     });
 
     it('records the charge but withholds the paid stamp when the extension fails', async () => {

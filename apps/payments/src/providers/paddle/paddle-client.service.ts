@@ -48,4 +48,27 @@ export class PaddleClientService {
       throw error;
     }
   }
+
+  /** The id of `customerId`'s live (active/trialing) subscription, or null if it has none. */
+  async findActiveSubscriptionId(customerId: string): Promise<string | null> {
+    try {
+      const subscriptions = await this.paddle.subscriptions
+        .list({ customerId: [customerId], status: [...LIVE_SUBSCRIPTION_STATUSES] })
+        .next();
+      return subscriptions[0]?.id ?? null;
+    } catch (error) {
+      this.logger.error(`Error listing Paddle subscriptions for customer ${customerId}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * A fresh Customer Portal overview URL, authenticated for `customerId` and
+   * deep-scoped to `subscriptionId`. Sessions are short-lived and must never
+   * be cached — mint one per request (mirrors Stripe's Billing Portal session).
+   */
+  async createPortalUrl(customerId: string, subscriptionId: string): Promise<string> {
+    const session = await this.paddle.customerPortalSessions.create(customerId, [subscriptionId]);
+    return session.urls.general.overview;
+  }
 }

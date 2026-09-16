@@ -11,7 +11,8 @@ interface SavedMethodProps {
   isLoadingMethods: boolean;
   isDeleting?: boolean;
   onDelete?: (id: string) => void;
-  hasStripeSubscription?: boolean;
+  /** True for a provider (Stripe, Paddle) that manages renewals and payment methods itself — nothing for our own list to show. */
+  hasManagedSubscription?: boolean;
 }
 
 export function SavedMethod({
@@ -19,7 +20,7 @@ export function SavedMethod({
   isLoadingMethods,
   isDeleting,
   onDelete,
-  hasStripeSubscription,
+  hasManagedSubscription,
 }: SavedMethodProps) {
   const { t } = useTranslation();
   const { open: openTerms, isOpen: isTermsOpen } = useTermsStore();
@@ -31,7 +32,7 @@ export function SavedMethod({
 
   const description = (
     <>
-      {!hasStripeSubscription && (
+      {!hasManagedSubscription && (
         <span className={'mb-3'}>{t('payment.savedMethodsDescription')}</span>
       )}
       <p className='text-start text-xs text-muted'>
@@ -49,7 +50,7 @@ export function SavedMethod({
 
   return (
     <Block
-      title={!hasStripeSubscription ? t('payment.methodsHeading') : undefined}
+      title={!hasManagedSubscription ? t('payment.methodsHeading') : undefined}
       description={description}
       variant='secondary'
     >
@@ -58,7 +59,7 @@ export function SavedMethod({
           <Spinner color='accent' size='sm' />
         </div>
       ) : (
-        !hasStripeSubscription &&
+        !hasManagedSubscription &&
         savedMethods?.map((method, index) => (
           <Fragment key={method.id}>
             <SavedMethodRow

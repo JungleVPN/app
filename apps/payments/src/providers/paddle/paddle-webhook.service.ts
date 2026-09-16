@@ -123,6 +123,9 @@ export class PaddleWebhookService {
   private async processCompletedTransaction(transaction: TransactionNotification): Promise<void> {
     const customData = toCustomData(transaction.customData);
     const email = customData.email?.trim();
+    if (!email) {
+      throw new Error(`Paddle transaction ${transaction.id} has no email in custom data`);
+    }
 
     const priceId = transaction.items[0]?.price?.id;
     const selectedPeriod = priceIdToMonths(priceId);

@@ -100,6 +100,21 @@ describe('PaddleController.createPublicCheckout', () => {
   });
 });
 
+describe('PaddleController.getSubscriptionStatus', () => {
+  it('returns the status from the provider for the authenticated user', async () => {
+    const paddleProvider = {
+      getSubscriptionStatus: vi.fn().mockResolvedValue({ active: true, portalUrl: 'https://portal.paddle.test' }),
+    };
+    const paddleClientService = { paddle: { webhooks: { unmarshal: vi.fn() } } };
+    const controller = new PaddleController(paddleProvider as never, paddleClientService as never);
+
+    const result = await controller.getSubscriptionStatus(1000);
+
+    expect(paddleProvider.getSubscriptionStatus).toHaveBeenCalledWith(1000);
+    expect(result).toEqual({ active: true, portalUrl: 'https://portal.paddle.test' });
+  });
+});
+
 describe('PaddleController.webhook', () => {
   const ENV_KEY = 'PADDLE_WEBHOOK_SECRET';
 

@@ -21,6 +21,7 @@ export const apiRoutes = {
     stripePublicCreateSession: '/stripe/public-create-session',
     stripeWebhook: '/stripe/webhook',
     paddlePublicCreateCheckout: '/paddle/public-create-checkout',
+    paddleSubscription: '/paddle/subscription',
     paddleWebhook: '/paddle/webhook',
     yookassaCreateSession: '/yookassa/create-session',
     yookassaWebhook: '/yookassa/webhook',

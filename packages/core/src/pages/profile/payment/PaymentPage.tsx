@@ -41,6 +41,8 @@ export default function PaymentPage() {
     handleStarsPayment,
     handleOpenStripePortal,
     isOpeningStripePortal,
+    handleOpenPaddlePortal,
+    isOpeningPaddlePortal,
     validatePromo,
   } = usePayment(selectedPlan?.months ?? 1);
 
@@ -48,7 +50,8 @@ export default function PaymentPage() {
     phCapture('payments_viewed');
   }, []);
 
-  const { savedMethods, hasActiveMethod, hasStripeSubscription } = useSavedPayment();
+  const { savedMethods, hasActiveMethod, hasStripeSubscription, hasPaddleSubscription } =
+    useSavedPayment();
 
   const { platformType } = usePlatformStore();
   const { setNavbarVisible } = useNavbarStore();
@@ -80,6 +83,8 @@ export default function PaymentPage() {
     yookassa: isPaying,
     stripe: isStripePaying,
     stars: isStarsPaying,
+    // Paddle checkout only happens on the standalone public pricing page, never here.
+    paddle: false,
   };
   const isPending = isPendingByMethod[selectedMethod];
 
@@ -115,9 +120,24 @@ export default function PaymentPage() {
                 </>
               )}
             </Button>
+          ) : hasPaddleSubscription ? (
+            <Button
+              fullWidth
+              size='lg'
+              isDisabled={isOpeningPaddlePortal}
+              isPending={isOpeningPaddlePortal}
+              onPress={handleOpenPaddlePortal}
+            >
+              {({ isPending }) => (
+                <>
+                  {isPending ? <Spinner color='current' size='sm' /> : null}
+                  {t('payment.stripeManageButton')}
+                </>
+              )}
+            </Button>
           ) : null}
           <SavedMethod
-            hasStripeSubscription={hasStripeSubscription}
+            hasManagedSubscription={hasStripeSubscription || hasPaddleSubscription}
             savedMethods={savedMethods}
             isLoadingMethods={isLoading}
             isDeleting={isDeleting}

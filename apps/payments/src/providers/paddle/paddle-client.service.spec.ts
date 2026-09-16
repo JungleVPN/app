@@ -6,6 +6,7 @@ const nextCustomers = vi.fn();
 const nextSubscriptions = vi.fn();
 const customersList = vi.fn(() => ({ next: nextCustomers }));
 const subscriptionsList = vi.fn(() => ({ next: nextSubscriptions }));
+const portalSessionsCreate = vi.fn();
 
 vi.mock('@paddle/paddle-node-sdk', () => ({
   Environment: { sandbox: 'sandbox', production: 'production' },
@@ -13,6 +14,7 @@ vi.mock('@paddle/paddle-node-sdk', () => ({
     return {
       customers: { list: customersList },
       subscriptions: { list: subscriptionsList },
+      customerPortalSessions: { create: portalSessionsCreate },
     };
   }),
 }));
@@ -82,6 +84,39 @@ describe('PaddleClientService', () => {
       const service = new PaddleClientService();
 
       await expect(service.hasActiveSubscription('payer@test.com')).resolves.toBe(true);
+    });
+  });
+
+  describe('findActiveSubscriptionId', () => {
+    it('returns the id of the live subscription', async () => {
+      nextSubscriptions.mockResolvedValue([{ id: 'sub_1', status: 'active' }]);
+      const service = new PaddleClientService();
+
+      await expect(service.findActiveSubscriptionId('ctm_1')).resolves.toBe('sub_1');
+      expect(subscriptionsList).toHaveBeenCalledWith(
+        expect.objectContaining({ customerId: ['ctm_1'], status: ['active', 'trialing'] }),
+      );
+    });
+
+    it('returns null when the customer has no live subscription', async () => {
+      nextSubscriptions.mockResolvedValue([]);
+      const service = new PaddleClientService();
+
+      await expect(service.findActiveSubscriptionId('ctm_1')).resolves.toBeNull();
+    });
+  });
+
+  describe('createPortalUrl', () => {
+    it('mints a portal session and returns the overview URL', async () => {
+      portalSessionsCreate.mockResolvedValue({
+        urls: { general: { overview: 'https://portal.paddle.test/overview' } },
+      });
+      const service = new PaddleClientService();
+
+      await expect(service.createPortalUrl('ctm_1', 'sub_1')).resolves.toBe(
+        'https://portal.paddle.test/overview',
+      );
+      expect(portalSessionsCreate).toHaveBeenCalledWith('ctm_1', ['sub_1']);
     });
   });
 });

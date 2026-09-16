@@ -4,6 +4,7 @@ import {
   Body,
   ConflictException,
   Controller,
+  Get,
   Headers,
   HttpCode,
   Logger,
@@ -16,11 +17,14 @@ import {
   ACTIVE_SUBSCRIPTION_CODE,
   type CreatePublicPaddleCheckoutDto,
   type PaddleCheckoutPayload,
+  type PaddleSubscriptionStatusDto,
 } from '@workspace/types';
+import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
+import { ClientUserGuard } from '../../auth/client-user.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
 import { PublicCheckoutRateLimitGuard } from '../../guards/public-checkout-rate-limit.guard';
-import { PaddleClientService } from './paddle-client.service';
 import { PaddleProvider } from './paddle.provider';
+import { PaddleClientService } from './paddle-client.service';
 
 /** Mirrors the pattern the Stripe public route validates emails against. */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -66,6 +70,15 @@ export class PaddleController {
     }
 
     return payload;
+  }
+
+  /** Active-subscription status + Customer Portal URL for the authenticated user. */
+  @Get('subscription')
+  @UseGuards(ClientUserGuard)
+  async getSubscriptionStatus(
+    @AuthenticatedUserId() userId: number,
+  ): Promise<PaddleSubscriptionStatusDto> {
+    return this.paddleProvider.getSubscriptionStatus(userId);
   }
 
   /**

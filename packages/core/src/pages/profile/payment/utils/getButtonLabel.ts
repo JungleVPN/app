@@ -15,6 +15,7 @@ export function getButtonLabel(
       });
     case 'stripe':
     case 'stars':
+    case 'paddle':
       return t('payment.planPriceEurButton', {
         amount: selectedPlan.priceEur,
         count: selectedPlan.months,

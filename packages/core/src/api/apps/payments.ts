@@ -8,6 +8,7 @@ import {
   type CreateTelegramStarsInvoiceDto,
   type CreateYookassaSessionDto,
   type PaddleCheckoutPayload,
+  type PaddleSubscriptionStatusDto,
   type Payments,
   PaymentSession,
   type RecordToltClickDto,
@@ -59,6 +60,11 @@ export function createPaymentsApi(client: ApiClient) {
     /** Subscription status + Billing Portal URL for the authenticated user. */
     async getStripeSubscription(): Promise<StripeSubscriptionStatusDto> {
       return client.get<StripeSubscriptionStatusDto>(apiRoutes.payments.stripeSubscription);
+    },
+
+    /** Subscription status + Customer Portal URL for the authenticated user. */
+    async getPaddleSubscription(): Promise<PaddleSubscriptionStatusDto> {
+      return client.get<PaddleSubscriptionStatusDto>(apiRoutes.payments.paddleSubscription);
     },
 
     /**

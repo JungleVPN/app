@@ -1,14 +1,20 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import type { EventEntity } from '@paddle/paddle-node-sdk';
-import type { PaddleCheckoutPayload } from '@workspace/types';
+import { PaddlePayment } from '@workspace/database';
+import type { PaddleCheckoutPayload, PaddleSubscriptionStatusDto } from '@workspace/types';
+import { Repository } from 'typeorm';
 import { PaddleClientService } from './paddle-client.service';
 import { PaddleWebhookService } from './paddle-webhook.service';
 
 @Injectable()
 export class PaddleProvider {
+  private readonly logger = new Logger(PaddleProvider.name);
+
   constructor(
     private readonly paddleClientService: PaddleClientService,
     private readonly paddleWebhookService: PaddleWebhookService,
+    @InjectRepository(PaddlePayment) private readonly repository: Repository<PaddlePayment>,
   ) {}
 
   async handleWebhook(event: EventEntity): Promise<void> {
@@ -17,6 +23,36 @@ export class PaddleProvider {
 
   async hasActiveSubscription(email: string): Promise<boolean> {
     return this.paddleClientService.hasActiveSubscription(email);
+  }
+
+  /** The Paddle customer id last recorded for `userId`, or null if they've never paid via Paddle. */
+  async getCustomerId(userId: number): Promise<string | null> {
+    const lastPayment = await this.repository.findOne({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
+    return lastPayment?.customer ?? null;
+  }
+
+  /**
+   * Reports whether `userId` has an active/trialing Paddle subscription and,
+   * if so, returns a fresh Customer Portal URL for self-service management
+   * (mirrors Stripe's `getSubscriptionStatus`).
+   */
+  async getSubscriptionStatus(userId: number): Promise<PaddleSubscriptionStatusDto> {
+    const customerId = await this.getCustomerId(userId);
+    if (!customerId) return { active: false, portalUrl: null };
+
+    const subscriptionId = await this.paddleClientService.findActiveSubscriptionId(customerId);
+    if (!subscriptionId) return { active: false, portalUrl: null };
+
+    try {
+      const portalUrl = await this.paddleClientService.createPortalUrl(customerId, subscriptionId);
+      return { active: true, portalUrl };
+    } catch (error) {
+      this.logger.error(`Failed to create portal session for customer ${customerId}`, error);
+      return { active: true, portalUrl: null };
+    }
   }
 
   /**

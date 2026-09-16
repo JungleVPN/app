@@ -1,5 +1,6 @@
 import { coreEnv } from '../../../../env';
 import { useAuthStoreInfo } from '../../../../stores';
+import { usePaddlePayment } from './usePaddlePayment';
 import { usePromoValidation } from './usePromoValidation';
 import { useStripePayment } from './useStripePayment';
 import { useTelegramStarsPayment } from './useTelegramStarsPayment';
@@ -13,6 +14,7 @@ export function usePayment(selectedPeriod: number) {
 
   const yookassa = useYookassaPayment(selectedPeriod);
   const stripe = useStripePayment(selectedPeriod);
+  const paddle = usePaddlePayment();
   const stars = useTelegramStarsPayment(selectedPeriod);
   const { validatePromo } = usePromoValidation();
 
@@ -22,6 +24,7 @@ export function usePayment(selectedPeriod: number) {
     validatePromo,
     ...yookassa,
     ...stripe,
+    ...paddle,
     ...stars,
   };
 }

@@ -16,10 +16,12 @@ export const useSavedPayment = () => {
 
   const hasActiveMethod = savedMethods?.some((m) => m.isActive) ?? false;
   const hasStripeSubscription = savedMethods?.some((m) => m.provider === 'stripe') ?? false;
+  const hasPaddleSubscription = savedMethods?.some((m) => m.provider === 'paddle') ?? false;
 
   return {
     savedMethods,
     hasActiveMethod,
     hasStripeSubscription,
+    hasPaddleSubscription,
   };
 };

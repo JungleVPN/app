@@ -63,6 +63,12 @@ export default function ExtraDevicePurchasePage() {
         return t('devices.extraDevicePurchase.priceStarsButton', {
           amount: coreEnv.extraDevicePriceStars,
         });
+      // Extra-device purchases aren't offered through Paddle — `selectedMethod`
+      // never actually resolves to it on this page.
+      case 'paddle':
+        return t('devices.extraDevicePurchase.priceEurButton', {
+          amount: coreEnv.extraDevicePriceEUR,
+        });
     }
   }, [selectedMethod, t]);
 

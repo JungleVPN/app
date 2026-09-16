@@ -27,3 +27,14 @@ export interface PaddleCheckoutPayload {
   priceId: string;
   customData: Record<string, string>;
 }
+
+/**
+ * Response from GET /payments/paddle/subscription.
+ * Reports whether the authenticated user has an active (or trialing) Paddle
+ * subscription and, if so, a freshly-minted Customer Portal URL for
+ * self-service management — mirrors Stripe's `StripeSubscriptionStatusDto`.
+ */
+export interface PaddleSubscriptionStatusDto {
+  active: boolean;
+  portalUrl: string | null;
+}

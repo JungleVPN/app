@@ -7,15 +7,29 @@ const ENV_KEYS = ['PADDLE_PRICE_ID_MONTH_1', 'PADDLE_PRICE_ID_MONTH_3'] as const
 
 describe('PaddleProvider', () => {
   let originalEnv: Record<string, string | undefined>;
-  let paddleClientService: { hasActiveSubscription: ReturnType<typeof vi.fn> };
+  let paddleClientService: {
+    hasActiveSubscription: ReturnType<typeof vi.fn>;
+    findActiveSubscriptionId: ReturnType<typeof vi.fn>;
+    createPortalUrl: ReturnType<typeof vi.fn>;
+  };
   let paddleWebhookService: { handleWebhook: ReturnType<typeof vi.fn> };
+  let repository: { findOne: ReturnType<typeof vi.fn> };
   let provider: PaddleProvider;
 
   beforeEach(() => {
     originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
-    paddleClientService = { hasActiveSubscription: vi.fn().mockResolvedValue(false) };
+    paddleClientService = {
+      hasActiveSubscription: vi.fn().mockResolvedValue(false),
+      findActiveSubscriptionId: vi.fn().mockResolvedValue(null),
+      createPortalUrl: vi.fn().mockResolvedValue('https://portal.paddle.test/session'),
+    };
     paddleWebhookService = { handleWebhook: vi.fn().mockResolvedValue(undefined) };
-    provider = new PaddleProvider(paddleClientService as never, paddleWebhookService as never);
+    repository = { findOne: vi.fn().mockResolvedValue(null) };
+    provider = new PaddleProvider(
+      paddleClientService as never,
+      paddleWebhookService as never,
+      repository as never,
+    );
   });
 
   afterEach(() => {
@@ -109,6 +123,69 @@ describe('PaddleProvider', () => {
       await provider.handleWebhook(event as never);
 
       expect(paddleWebhookService.handleWebhook).toHaveBeenCalledWith(event);
+    });
+  });
+
+  describe('getCustomerId', () => {
+    it('returns the customer id off the most recent payment row', async () => {
+      repository.findOne.mockResolvedValue({ customer: 'ctm_1' });
+
+      await expect(provider.getCustomerId(1000)).resolves.toBe('ctm_1');
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { userId: 1000 },
+        order: { createdAt: 'DESC' },
+      });
+    });
+
+    it('returns null for a user who has never paid via Paddle', async () => {
+      repository.findOne.mockResolvedValue(null);
+
+      await expect(provider.getCustomerId(1000)).resolves.toBeNull();
+    });
+  });
+
+  describe('getSubscriptionStatus', () => {
+    it('reports inactive for a user with no recorded Paddle customer', async () => {
+      repository.findOne.mockResolvedValue(null);
+
+      await expect(provider.getSubscriptionStatus(1000)).resolves.toEqual({
+        active: false,
+        portalUrl: null,
+      });
+      expect(paddleClientService.findActiveSubscriptionId).not.toHaveBeenCalled();
+    });
+
+    it('reports inactive when the customer has no live subscription', async () => {
+      repository.findOne.mockResolvedValue({ customer: 'ctm_1' });
+      paddleClientService.findActiveSubscriptionId.mockResolvedValue(null);
+
+      await expect(provider.getSubscriptionStatus(1000)).resolves.toEqual({
+        active: false,
+        portalUrl: null,
+      });
+      expect(paddleClientService.createPortalUrl).not.toHaveBeenCalled();
+    });
+
+    it('returns a fresh portal URL for an active subscription', async () => {
+      repository.findOne.mockResolvedValue({ customer: 'ctm_1' });
+      paddleClientService.findActiveSubscriptionId.mockResolvedValue('sub_1');
+
+      await expect(provider.getSubscriptionStatus(1000)).resolves.toEqual({
+        active: true,
+        portalUrl: 'https://portal.paddle.test/session',
+      });
+      expect(paddleClientService.createPortalUrl).toHaveBeenCalledWith('ctm_1', 'sub_1');
+    });
+
+    it('still reports active when minting the portal session fails', async () => {
+      repository.findOne.mockResolvedValue({ customer: 'ctm_1' });
+      paddleClientService.findActiveSubscriptionId.mockResolvedValue('sub_1');
+      paddleClientService.createPortalUrl.mockRejectedValue(new Error('paddle down'));
+
+      await expect(provider.getSubscriptionStatus(1000)).resolves.toEqual({
+        active: true,
+        portalUrl: null,
+      });
     });
   });
 });
