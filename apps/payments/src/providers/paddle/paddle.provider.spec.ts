@@ -8,12 +8,14 @@ const ENV_KEYS = ['PADDLE_PRICE_ID_MONTH_1', 'PADDLE_PRICE_ID_MONTH_3'] as const
 describe('PaddleProvider', () => {
   let originalEnv: Record<string, string | undefined>;
   let paddleClientService: { hasActiveSubscription: ReturnType<typeof vi.fn> };
+  let paddleWebhookService: { handleWebhook: ReturnType<typeof vi.fn> };
   let provider: PaddleProvider;
 
   beforeEach(() => {
     originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
     paddleClientService = { hasActiveSubscription: vi.fn().mockResolvedValue(false) };
-    provider = new PaddleProvider(paddleClientService as never);
+    paddleWebhookService = { handleWebhook: vi.fn().mockResolvedValue(undefined) };
+    provider = new PaddleProvider(paddleClientService as never, paddleWebhookService as never);
   });
 
   afterEach(() => {
@@ -97,6 +99,16 @@ describe('PaddleProvider', () => {
 
       await expect(provider.hasActiveSubscription('payer@test.com')).resolves.toBe(true);
       expect(paddleClientService.hasActiveSubscription).toHaveBeenCalledWith('payer@test.com');
+    });
+  });
+
+  describe('handleWebhook', () => {
+    it('delegates to the webhook service', async () => {
+      const event = { eventType: 'transaction.completed' };
+
+      await provider.handleWebhook(event as never);
+
+      expect(paddleWebhookService.handleWebhook).toHaveBeenCalledWith(event);
     });
   });
 });

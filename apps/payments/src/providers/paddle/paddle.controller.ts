@@ -11,6 +11,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import type { EventEntity } from '@paddle/paddle-node-sdk';
 import {
   ACTIVE_SUBSCRIPTION_CODE,
   type CreatePublicPaddleCheckoutDto,
@@ -83,9 +84,10 @@ export class PaddleController {
    * Only apps/webhook is a legitimate caller, gated behind the inter-service
    * secret in addition to the Paddle signature check below (mirrors Stripe).
    *
-   * MVP scope: verifies the signature and logs the event. Does not yet
-   * activate a Remnawave subscription — that lands when this integration
-   * moves beyond the sandbox proof-of-concept.
+   * Verify the signature first. A bad signature is not retryable, so reject
+   * it with a 400 — Paddle won't redeliver and we don't touch business logic.
+   * Let processing errors propagate (→ 5xx): Paddle retries non-2xx
+   * deliveries, which is the recovery path `PaddleWebhookService` relies on.
    */
   @Post('webhook')
   @HttpCode(200)
@@ -105,7 +107,7 @@ export class PaddleController {
       throw new BadRequestException('Missing PADDLE_WEBHOOK_SECRET');
     }
 
-    let event: { eventType: string; eventId: string };
+    let event: EventEntity;
     try {
       event = await this.paddleClientService.paddle.webhooks.unmarshal(
         rawBody.toString(),
@@ -118,6 +120,7 @@ export class PaddleController {
     }
 
     this.logger.log(`Received Paddle webhook: ${event.eventType} (${event.eventId})`);
+    await this.paddleProvider.handleWebhook(event);
     return { received: true };
   }
 }

@@ -3,6 +3,7 @@ export * from './entities/analytics-event.entity';
 export * from './entities/broadcast.entity';
 export * from './entities/broadcast-message.entity';
 export * from './entities/fx-rate.entity';
+export * from './entities/paddle-payment.entity';
 export * from './entities/promo.entity';
 export * from './entities/promo-redemption.entity';
 export * from './entities/referral.entity';

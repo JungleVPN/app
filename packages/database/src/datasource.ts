@@ -6,6 +6,7 @@ import { AnalyticsEvent } from './entities/analytics-event.entity';
 import { Broadcast } from './entities/broadcast.entity';
 import { BroadcastMessage } from './entities/broadcast-message.entity';
 import { FxRate } from './entities/fx-rate.entity';
+import { PaddlePayment } from './entities/paddle-payment.entity';
 import { Promo } from './entities/promo.entity';
 import { PromoRedemption } from './entities/promo-redemption.entity';
 import { Referral } from './entities/referral.entity';
@@ -41,6 +42,7 @@ export const dataSourceOptions: DataSourceOptions = {
     Referral,
     SavedPaymentMethod,
     StripePayment,
+    PaddlePayment,
     TelegramStarsPayment,
     YookassaPayment,
     Broadcast,

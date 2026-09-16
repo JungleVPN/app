@@ -1,10 +1,19 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import type { EventEntity } from '@paddle/paddle-node-sdk';
 import type { PaddleCheckoutPayload } from '@workspace/types';
 import { PaddleClientService } from './paddle-client.service';
+import { PaddleWebhookService } from './paddle-webhook.service';
 
 @Injectable()
 export class PaddleProvider {
-  constructor(private readonly paddleClientService: PaddleClientService) {}
+  constructor(
+    private readonly paddleClientService: PaddleClientService,
+    private readonly paddleWebhookService: PaddleWebhookService,
+  ) {}
+
+  async handleWebhook(event: EventEntity): Promise<void> {
+    await this.paddleWebhookService.handleWebhook(event);
+  }
 
   async hasActiveSubscription(email: string): Promise<boolean> {
     return this.paddleClientService.hasActiveSubscription(email);

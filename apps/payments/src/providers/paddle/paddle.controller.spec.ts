@@ -105,22 +105,25 @@ describe('PaddleController.webhook', () => {
 
   const reqWith = (rawBody?: Buffer) => ({ rawBody }) as never;
 
-  const controllerWith = (unmarshal: ReturnType<typeof vi.fn>) => {
-    const paddleProvider = {};
+  const controllerWith = (
+    unmarshal: ReturnType<typeof vi.fn>,
+    handleWebhook: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(undefined),
+  ) => {
+    const paddleProvider = { handleWebhook };
     const paddleClientService = { paddle: { webhooks: { unmarshal } } };
-    return new PaddleController(paddleProvider as never, paddleClientService as never);
+    return { controller: new PaddleController(paddleProvider as never, paddleClientService as never), paddleProvider };
   };
 
   it('rejects a request with no raw body, since the signature cannot be verified without it', async () => {
     process.env[ENV_KEY] = 'whsec_test';
-    const controller = controllerWith(vi.fn());
+    const { controller } = controllerWith(vi.fn());
 
     await expect(controller.webhook(reqWith(undefined), 'sig')).rejects.toThrow(BadRequestException);
   });
 
   it('rejects when PADDLE_WEBHOOK_SECRET is not configured, rather than skip verification', async () => {
     delete process.env[ENV_KEY];
-    const controller = controllerWith(vi.fn());
+    const { controller } = controllerWith(vi.fn());
 
     await expect(
       controller.webhook(reqWith(Buffer.from('{}')), 'sig'),
@@ -130,7 +133,7 @@ describe('PaddleController.webhook', () => {
   it('rejects a payload whose signature Paddle refuses to verify', async () => {
     process.env[ENV_KEY] = 'whsec_test';
     const unmarshal = vi.fn().mockRejectedValue(new Error('bad signature'));
-    const controller = controllerWith(unmarshal);
+    const { controller } = controllerWith(unmarshal);
 
     await expect(
       controller.webhook(reqWith(Buffer.from('{}')), 'bad-sig'),
@@ -140,10 +143,29 @@ describe('PaddleController.webhook', () => {
   it('acknowledges a verified event', async () => {
     process.env[ENV_KEY] = 'whsec_test';
     const unmarshal = vi.fn().mockResolvedValue({ eventType: 'transaction.completed', eventId: 'evt_1' });
-    const controller = controllerWith(unmarshal);
+    const { controller } = controllerWith(unmarshal);
 
     const result = await controller.webhook(reqWith(Buffer.from('{}')), 'sig');
 
     expect(result).toEqual({ received: true });
+  });
+
+  it('hands the verified event to the provider for processing', async () => {
+    process.env[ENV_KEY] = 'whsec_test';
+    const event = { eventType: 'transaction.completed', eventId: 'evt_1' };
+    const unmarshal = vi.fn().mockResolvedValue(event);
+    const { controller, paddleProvider } = controllerWith(unmarshal);
+
+    await controller.webhook(reqWith(Buffer.from('{}')), 'sig');
+
+    expect(paddleProvider.handleWebhook).toHaveBeenCalledWith(event);
+  });
+
+  it('lets a processing failure propagate as a 5xx, so Paddle retries the delivery', async () => {
+    process.env[ENV_KEY] = 'whsec_test';
+    const unmarshal = vi.fn().mockResolvedValue({ eventType: 'transaction.completed', eventId: 'evt_1' });
+    const { controller } = controllerWith(unmarshal, vi.fn().mockRejectedValue(new Error('boom')));
+
+    await expect(controller.webhook(reqWith(Buffer.from('{}')), 'sig')).rejects.toThrow('boom');
   });
 });

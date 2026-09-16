@@ -62,7 +62,7 @@ export namespace Payments {
 
   interface PaymentResultEventPayload {
     userId: RemnaUserId;
-    provider: 'stripe' | 'yookassa';
+    provider: 'stripe' | 'yookassa' | 'paddle';
     invoiceUrl?: string;
     selectedPeriod?: number;
     purpose?: PaymentPurpose;
