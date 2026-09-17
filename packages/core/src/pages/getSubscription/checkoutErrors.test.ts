@@ -1,7 +1,7 @@
 import { ACTIVE_SUBSCRIPTION_CODE } from '@workspace/types';
 import { describe, expect, it } from 'vitest';
 import { ApiClientError } from '../../api';
-import { isActiveSubscriptionError, isThrottledError } from './checkoutErrors';
+import { checkoutErrorKey, isActiveSubscriptionError, isThrottledError } from './checkoutErrors';
 
 describe('isThrottledError', () => {
   it('recognises a 429 from the backend as throttling', () => {
@@ -61,5 +61,27 @@ describe('isActiveSubscriptionError', () => {
 
   it('does not mistake a plain error for it', () => {
     expect(isActiveSubscriptionError(new Error('boom'))).toBe(false);
+  });
+});
+
+describe('checkoutErrorKey', () => {
+  it('asks a throttled visitor to wait rather than retry', () => {
+    const error = new ApiClientError({ status: 429, message: 'Too many requests', data: null });
+
+    expect(checkoutErrorKey(error)).toBe('getSubscription.throttled_error');
+  });
+
+  it('points an already-subscribed payer at their existing subscription', () => {
+    const error = new ApiClientError({
+      status: 409,
+      message: 'conflict',
+      data: { code: ACTIVE_SUBSCRIPTION_CODE },
+    });
+
+    expect(checkoutErrorKey(error)).toBe('getSubscription.active_subscription_error');
+  });
+
+  it('falls back to the generic checkout failure for anything else', () => {
+    expect(checkoutErrorKey(new Error('network down'))).toBe('getSubscription.checkout_error');
   });
 });

@@ -18,10 +18,15 @@ export function priceIdToMonths(priceId: string | null | undefined): number | nu
   return null;
 }
 
-/** Converts a Paddle amount string (minor currency units, e.g. cents) to major units. */
-export function toMajorUnits(amount: string | null | undefined): number {
+/**
+ * Converts an optional Paddle amount string (its own lowest unit) to major
+ * units for `currencyCode`, treating a missing amount as zero. The
+ * null-tolerant wrapper around `paddleAmountToNumber` — zero-decimal
+ * currencies must not be divided, see there.
+ */
+export function toMajorUnits(amount: string | null | undefined, currencyCode: string): number {
   if (!amount) return 0;
-  return Number(amount) / 100;
+  return paddleAmountToNumber(amount, currencyCode);
 }
 
 /** Paddle's `customData` is typed `Record<string, any> | null` on the wire; narrows it to what checkout actually sends. */

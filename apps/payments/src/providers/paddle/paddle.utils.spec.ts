@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { paddleAmountToNumber, paddleCurrencyDecimals } from './paddle.utils';
+import { paddleAmountToNumber, paddleCurrencyDecimals, toMajorUnits } from './paddle.utils';
 
 describe('paddleCurrencyDecimals', () => {
   it.each([
@@ -26,5 +26,20 @@ describe('paddleAmountToNumber', () => {
     'CLP',
   ])('leaves a zero-decimal currency amount as-is for %s', (currency) => {
     expect(paddleAmountToNumber('1200', currency)).toBe(1200);
+  });
+});
+
+describe('toMajorUnits', () => {
+  it('divides a regular currency amount by 100', () => {
+    expect(toMajorUnits('2999', 'USD')).toBe(29.99);
+  });
+
+  it('leaves a zero-decimal currency amount as-is', () => {
+    expect(toMajorUnits('1200', 'JPY')).toBe(1200);
+  });
+
+  it('treats a missing amount as zero', () => {
+    expect(toMajorUnits(null, 'EUR')).toBe(0);
+    expect(toMajorUnits(undefined, 'JPY')).toBe(0);
   });
 });

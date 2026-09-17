@@ -19,3 +19,13 @@ export function isActiveSubscriptionError(error: unknown): boolean {
   if (typeof data !== 'object' || data === null) return true;
   return (data as { code?: string }).code === ACTIVE_SUBSCRIPTION_CODE;
 }
+
+/**
+ * The i18n key describing why a checkout could not be started, for flows that
+ * show the reason inline instead of opening the active-subscription dialog.
+ */
+export function checkoutErrorKey(error: unknown): string {
+  if (isThrottledError(error)) return 'getSubscription.throttled_error';
+  if (isActiveSubscriptionError(error)) return 'getSubscription.active_subscription_error';
+  return 'getSubscription.checkout_error';
+}

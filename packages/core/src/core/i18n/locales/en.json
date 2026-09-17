@@ -1027,6 +1027,7 @@
     "email_invalid_error": "Please enter a valid email address",
     "checkout_error": "We could not start the payment. Please try again.",
     "throttled_error": "Too many attempts. Please wait a few minutes and try again.",
+    "active_subscription_error": "You already have an active subscription on this email. Manage it from your profile.",
     "terms_link": "Subscription terms",
     "step_payment_title": "Select a payment method",
     "card_method": "Credit or debit card",

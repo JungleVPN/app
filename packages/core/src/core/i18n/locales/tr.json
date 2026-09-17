@@ -1027,6 +1027,7 @@
     "email_invalid_error": "Lütfen geçerli bir e-posta adresi girin",
     "checkout_error": "Ödemeyi başlatamadık. Lütfen tekrar deneyin.",
     "throttled_error": "Çok fazla deneme yapıldı. Lütfen birkaç dakika bekleyip tekrar deneyin.",
+    "active_subscription_error": "Bu e-posta adresinde zaten aktif bir abonelik var. Profilinizden yönetebilirsiniz.",
     "terms_link": "Abonelik koşulları",
     "step_payment_title": "Bir ödeme yöntemi seçin",
     "card_method": "Kredi veya banka kartı",

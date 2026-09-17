@@ -41,6 +41,7 @@ export default function PaymentPage() {
     isOpeningPaddlePortal,
     handlePaddlePayment,
     isPaddlePaying,
+    paddleError,
     validatePromo,
   } = usePayment(selectedPlan?.period ?? 1);
 
@@ -152,6 +153,7 @@ export default function PaymentPage() {
             buttonLabel={buttonLabel}
             isPending={isPending}
             starsError={starsError}
+            paymentError={paddleError}
             platformType={platformType}
             enablePromo={selectedMethod !== 'stripe' && selectedMethod !== 'paddle'}
             onYookassaPayment={handleYookassaPayment}

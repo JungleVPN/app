@@ -142,6 +142,7 @@ export class PaddleWebhookService {
 
     const amount = toMajorUnits(
       transaction.details?.totals?.grandTotal ?? transaction.details?.totals?.total,
+      transaction.currencyCode,
     );
     const currency = transaction.currencyCode;
 
@@ -209,6 +210,7 @@ export class PaddleWebhookService {
     const email = customData.email?.trim();
     const amount = toMajorUnits(
       transaction.details?.totals?.grandTotal ?? transaction.details?.totals?.total,
+      transaction.currencyCode,
     );
 
     // A failed charge is not the moment to create an account for a payer who
@@ -299,7 +301,7 @@ export class PaddleWebhookService {
       return;
     }
 
-    const refundedAmount = toMajorUnits(adjustment.totals.total);
+    const refundedAmount = toMajorUnits(adjustment.totals.total, adjustment.currencyCode);
     const isPartial = record.amount != null && refundedAmount > 0 && refundedAmount < record.amount;
 
     this.logger.log(

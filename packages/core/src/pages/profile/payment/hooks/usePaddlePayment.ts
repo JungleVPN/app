@@ -1,10 +1,13 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigation } from '../../../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreInfo, usePlanByPeriod } from '../../../../stores';
 import { getReferralUserId, phCapture } from '../../../../utils';
+import { checkoutErrorKey } from '../../../getSubscription/checkoutErrors';
 
 export function usePaddlePayment(selectedPeriod: number) {
+  const { t } = useTranslation();
   const { rmnUser } = useAuthStoreInfo();
   const paymentsApi = usePaymentsApi();
   const { profilePaddleCheckoutPath } = useAppRoutes();
@@ -19,6 +22,10 @@ export function usePaddlePayment(selectedPeriod: number) {
 
   const [isOpeningPaddlePortal, setIsOpeningPaddlePortal] = useState(false);
   const [isPaddlePaying, setIsPaddlePaying] = useState(false);
+  // The backend refuses a checkout for reasons the payer can act on — an email
+  // that already subscribes, or too many attempts — so the reason is shown
+  // rather than left to reject unhandled.
+  const [paddleError, setPaddleError] = useState<string | null>(null);
 
   // Mint a fresh Customer Portal URL on demand (an explicit user action), so
   // we never have to cache a portal session that can expire.
@@ -38,6 +45,7 @@ export function usePaddlePayment(selectedPeriod: number) {
     if (!rmnUser) return;
 
     setIsPaddlePaying(true);
+    setPaddleError(null);
     try {
       const payerEmail = email ?? rmnUser.email ?? undefined;
       if (!payerEmail) return;
@@ -54,6 +62,8 @@ export function usePaddlePayment(selectedPeriod: number) {
       navigate(profilePaddleCheckoutPath, {
         state: { priceId, customData, email: payerEmail, countryCode, selectedPeriod },
       });
+    } catch (error) {
+      setPaddleError(t(checkoutErrorKey(error)));
     } finally {
       setIsPaddlePaying(false);
     }
@@ -64,5 +74,6 @@ export function usePaddlePayment(selectedPeriod: number) {
     isOpeningPaddlePortal,
     handlePaddlePayment,
     isPaddlePaying,
+    paddleError,
   };
 }

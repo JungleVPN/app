@@ -23,6 +23,7 @@ interface PaymentFormProps {
   buttonLabel: string;
   isPending: boolean;
   starsError: string | null;
+  paymentError?: string | null;
   platformType: PlatformType | null;
   enablePromo?: boolean;
   children?: ReactNode;
@@ -39,6 +40,7 @@ export function PaymentForm({
   buttonLabel,
   isPending,
   starsError,
+  paymentError,
   enablePromo = true,
   children,
   onYookassaPayment,
@@ -173,7 +175,9 @@ export function PaymentForm({
           </button>
         </p>
       </div>
-      {starsError && <p className='px-4 text-xs text-danger'>{starsError}</p>}
+      {(starsError || paymentError) && (
+        <p className='px-4 text-xs text-danger'>{starsError ?? paymentError}</p>
+      )}
       {children}
 
       {enablePromo && (
