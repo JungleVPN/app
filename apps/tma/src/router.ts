@@ -11,6 +11,7 @@ import {
 import {
   ProtectedDevicesPage,
   ProtectedMenuPage,
+  ProtectedPaddleCheckoutPage,
   ProtectedPlansPage,
   ProtectedReferralsPage,
   ProtectedTransactionDetailsPage,
@@ -26,6 +27,7 @@ import { TmaRootLayout } from '@/layouts/TmaRootLayout';
  *   /connectEmail          — onboarding for new Telegram users (no ProfileLayout)
  *   /profile/subscription     — subscription tab
  *   /profile/payments         — payments tab
+ *   /profile/checkout         — Paddle checkout
  *   /profile/devices          — devices tab
  *   /terms                    — terms page
  *   /privacy                  — privacy policy page
@@ -69,6 +71,10 @@ export const router = createMemoryRouter(
             {
               path: 'payments',
               Component: ProtectedPaymentPage,
+            },
+            {
+              path: 'checkout',
+              Component: ProtectedPaddleCheckoutPage,
             },
             {
               path: 'devices',

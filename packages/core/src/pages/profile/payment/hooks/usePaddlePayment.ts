@@ -1,20 +1,17 @@
-import type { Paddle } from '@paddle/paddle-js';
-import { initializePaddle } from '@paddle/paddle-js';
 import { useCallback, useState } from 'react';
-import { useTheme } from '../../../../hooks';
+import { useNavigation } from '../../../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../../../runtime';
-import { useAuthStoreInfo } from '../../../../stores';
+import { useAuthStoreInfo, usePlanByPeriod } from '../../../../stores';
 import { getReferralUserId, phCapture } from '../../../../utils';
-import {
-  getPaddleClientToken,
-  getPaddleEnvironment,
-} from '../../../paddleGetSubscription/paddleEnv';
 
 export function usePaddlePayment(selectedPeriod: number) {
   const { rmnUser } = useAuthStoreInfo();
   const paymentsApi = usePaymentsApi();
-  const { paymentReturnPath } = useAppRoutes();
-  const { theme } = useTheme();
+  const { profilePaddleCheckoutPath } = useAppRoutes();
+  const navigate = useNavigation();
+  // Detected from the payer's IP while the plan was priced — prefilling it
+  // alongside the email is what lets the checkout skip Paddle's details step.
+  const countryCode = usePlanByPeriod(selectedPeriod)?.countryCode ?? null;
 
   const redirectTo = useCallback((url: string) => {
     window.location.href = url;
@@ -52,28 +49,10 @@ export function usePaddlePayment(selectedPeriod: number) {
         inviterId: getReferralUserId() ?? undefined,
       });
 
-      // Failing loudly on an unset/invalid env var is deliberate: a
-      // misconfigured token must never silently open a checkout against the
-      // wrong Paddle account.
-      const paddle: Paddle | undefined = await initializePaddle({
-        token: getPaddleClientToken(),
-        environment: getPaddleEnvironment(),
-      });
-      if (!paddle) return;
-
       phCapture('checkout_started', { payment_provider: 'paddle', months: selectedPeriod });
 
-      paddle.Checkout.open({
-        items: [{ priceId, quantity: 1 }],
-        customData,
-        customer: { email: payerEmail },
-        settings: {
-          successUrl: `${window.location.origin}${paymentReturnPath}`,
-          // The email was just linked and handed to Paddle above — the
-          // checkout must not let the payer swap it for a different address.
-          allowLogout: false,
-          theme,
-        },
+      navigate(profilePaddleCheckoutPath, {
+        state: { priceId, customData, email: payerEmail, countryCode, selectedPeriod },
       });
     } finally {
       setIsPaddlePaying(false);

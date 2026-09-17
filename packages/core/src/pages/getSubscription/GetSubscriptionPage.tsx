@@ -1,5 +1,5 @@
 import { GLOBAL_PAYMENT_PROVIDER } from '../../utils';
-import PaddleCheckoutPage from '../paddleGetSubscription/PaddleCheckoutPage';
+import PaddleStartCheckoutPage from '../paddleGetSubscription/PaddleStartCheckoutPage';
 import StripeCheckoutPage from './StripeCheckoutPage';
 
 /**
@@ -8,4 +8,4 @@ import StripeCheckoutPage from './StripeCheckoutPage';
  * `CheckoutForm`, so switching providers changes who takes the payment and
  * nothing else about the page.
  */
-export default GLOBAL_PAYMENT_PROVIDER === 'paddle' ? PaddleCheckoutPage : StripeCheckoutPage;
+export default GLOBAL_PAYMENT_PROVIDER === 'paddle' ? PaddleStartCheckoutPage : StripeCheckoutPage;

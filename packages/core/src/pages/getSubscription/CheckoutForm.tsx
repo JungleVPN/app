@@ -21,7 +21,7 @@ import {
   IconRestore,
 } from '@tabler/icons-react';
 import type { SubscriptionPlanDto } from '@workspace/types';
-import { ReactNode, SyntheticEvent } from 'react';
+import { SyntheticEvent } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Logo from '../../assets/Logo.svg?react';
 import { FeaturesCard, Link } from '../../components';
@@ -43,12 +43,6 @@ interface CheckoutFormProps {
   canSubmit: boolean;
   handleSubmit: (event: SyntheticEvent) => void;
   handleEmailChange: (value: string) => void;
-  /**
-   * A provider that collects payment on this page (Paddle's inline checkout)
-   * renders it here once it is mounting. It takes the submit button's place,
-   * and freezes the email that was already handed to the provider.
-   */
-  checkoutFrame?: ReactNode;
 }
 
 const BRAND_GRADIENT = 'bg-linear-to-r from-violet-500 to-amber-400';
@@ -67,8 +61,8 @@ function StepHeading({ step, title }: { step: number; title: string }) {
 /**
  * The global checkout page's markup, shared by every payment provider —
  * email step, payment step, and order summary. A provider reaches it only
- * through `canSubmit` and an optional `checkoutFrame`; see `useCheckout` for
- * the flow behind it.
+ * through `canSubmit`; see `useCheckout` for the flow behind it. Taking the
+ * payment itself happens after this form, on the provider's own route.
  */
 export const CheckoutForm = (props: CheckoutFormProps) => {
   const {
@@ -80,7 +74,6 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
     selectedPeriod,
     checkoutError,
     isPending,
-    checkoutFrame,
     handleEmailChange,
     handleSubmit,
   } = props;
@@ -109,7 +102,6 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                     <StepHeading step={1} title={t('getSubscription.step_email_title')} />
 
                     <TextField
-                      isDisabled={Boolean(checkoutFrame)}
                       isInvalid={emailError.length > 0}
                       isRequired
                       name='email'
@@ -174,31 +166,29 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                 <div className='flex flex-col gap-6'>
                   <StepHeading step={2} title={t('getSubscription.card_method')} />
 
-                  {checkoutFrame ?? (
-                    <div className='flex flex-wrap items-center justify-between gap-4'>
-                      <Button
-                        className={`${BRAND_GRADIENT} w-full rounded-full sm:w-auto sm:px-10`}
-                        isDisabled={!canSubmit}
-                        isPending={isPending}
-                        type='submit'
-                      >
-                        {({ isPending: isSubmitPending }) => (
-                          <>
-                            {t('getSubscription.submit')}
-                            {isSubmitPending ? <Spinner color='current' size='sm' /> : null}
-                          </>
-                        )}
-                      </Button>
+                  <div className='flex flex-wrap items-center justify-between gap-4'>
+                    <Button
+                      className={`${BRAND_GRADIENT} w-full rounded-full sm:w-auto sm:px-10`}
+                      isDisabled={!canSubmit}
+                      isPending={isPending}
+                      type='submit'
+                    >
+                      {({ isPending: isSubmitPending }) => (
+                        <>
+                          {t('getSubscription.submit')}
+                          {isSubmitPending ? <Spinner color='current' size='sm' /> : null}
+                        </>
+                      )}
+                    </Button>
 
-                      <div className='flex items-center gap-3 text-muted'>
-                        <IconBrandVisa size={28} stroke={2} />
-                        <IconBrandAppleFilled size={22} stroke={2} />
-                        <IconCreditCard size={24} stroke={2} />
-                        <IconBrandMastercard size={24} stroke={2} />
-                        <IconBrandGoogle size={24} stroke={2} />
-                      </div>
+                    <div className='flex items-center gap-3 text-muted'>
+                      <IconBrandVisa size={28} stroke={2} />
+                      <IconBrandAppleFilled size={22} stroke={2} />
+                      <IconCreditCard size={24} stroke={2} />
+                      <IconBrandMastercard size={24} stroke={2} />
+                      <IconBrandGoogle size={24} stroke={2} />
                     </div>
-                  )}
+                  </div>
 
                   {checkoutError && <p className='text-sm text-danger'>{checkoutError}</p>}
                 </div>

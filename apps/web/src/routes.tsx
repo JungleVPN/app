@@ -62,6 +62,11 @@ export function createRoutes(Landing: ComponentType) {
         {
           Component: WebPaymentLayout,
           children: [
+            // Static segment, so it wins over `/payment/:planSlug` below.
+            {
+              path: '/payment/checkout',
+              lazy: () => pages().then((m) => ({ Component: m.PaddleCheckoutPage })),
+            },
             {
               path: '/payment/:planSlug',
               lazy: () => pages().then((m) => ({ Component: m.GetSubscriptionPage })),
@@ -101,6 +106,10 @@ export function createRoutes(Landing: ComponentType) {
             {
               path: 'payments',
               lazy: () => pages().then((m) => ({ Component: m.ProtectedPaymentPage })),
+            },
+            {
+              path: 'checkout',
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedPaddleCheckoutPage })),
             },
             {
               path: 'devices',

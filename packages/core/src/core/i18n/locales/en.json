@@ -1051,5 +1051,9 @@
     "copyright": "© {{year}} JungleVPN. All rights reserved.",
     "terms": "Terms of Service",
     "support": "Contact us"
+  },
+  "paddleCheckout": {
+    "title": "Checkout",
+    "subtitle": "Complete your payment to activate your subscription"
   }
 }

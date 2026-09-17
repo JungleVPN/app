@@ -1055,5 +1055,9 @@
     "copyright": "© {{year}} JungleVPN. جميع الحقوق محفوظة.",
     "terms": "شروط الخدمة",
     "support": "تواصل معنا"
+  },
+  "paddleCheckout": {
+    "title": "الدفع",
+    "subtitle": "أكمل الدفع لتفعيل اشتراكك"
   }
 }

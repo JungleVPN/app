@@ -1051,5 +1051,9 @@
     "copyright": "© {{year}} JungleVPN. Tüm hakları saklıdır.",
     "terms": "Hizmet Koşulları",
     "support": "Bize ulaşın"
+  },
+  "paddleCheckout": {
+    "title": "Ödeme",
+    "subtitle": "Aboneliğinizi etkinleştirmek için ödemeyi tamamlayın"
   }
 }
