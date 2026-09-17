@@ -29,7 +29,7 @@ export function ContentCard(props: ContentCardProps) {
     const { title, description, learnMoreLabel, learnMoreHref = '#', icon, className } = props;
     return (
       <Card
-        variant='secondary'
+        variant='tertiary'
         className={`relative bg-white border-gray-500 border border-solid flex h-full flex-col justify-between p-8 shadow-surface shadow-md min-h-64 ${className ?? ''}`}
       >
         <div className={icon ? 'pe-32' : ''}>
@@ -51,8 +51,8 @@ export function ContentCard(props: ContentCardProps) {
   const { icon, title, description, className } = props;
   return (
     <Card
-      variant='secondary'
-      className={`flex flex-col h-full border-gray-500 border border-solid items-center gap-3 p-6 text-center shadow-surface transition-all duration-300 hover:scale-[1.03] hover:shadow-md cursor-default ${className ?? ''}`}
+      variant='default'
+      className={`flex flex-col h-full bg-white border-gray-500 border border-solid items-center gap-3 p-6 text-center shadow-surface transition-all duration-300 hover:scale-[1.03] hover:shadow-md cursor-default ${className ?? ''}`}
     >
       <div className='text-primary'>{icon}</div>
       <Card.Header className='flex-col items-center gap-1 p-0'>

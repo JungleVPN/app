@@ -49,15 +49,6 @@ export default function LandingPage() {
           'flex flex-col gap-48 relative z-10 bg-background rounded-t-[4rem] rounded-b-[4rem] py-12 md:py-8'
         }
       >
-        <div className='absolute inset-0 pointer-events-none opacity-40 overflow-hidden'>
-          <div
-            className='absolute inset-0 blur-3xl'
-            style={{
-              background:
-                'linear-gradient(135deg,rgba(255, 255, 255, 0.1) 30%, rgba(142, 81, 255, 0.1) 30%), rgba(255, 255, 255, 0.1) 30%',
-            }}
-          />
-        </div>
         <Container>
           <TrustSection />
         </Container>
@@ -72,16 +63,25 @@ export default function LandingPage() {
           <FeaturesSection />
         </Container>
       </div>
-      <div className={'flex flex-col gap-56 relative bg-background -mt-24 pt-64 overflow-hidden'}>
+
+      <div className={'flex flex-col gap-56 relative bg-white -mt-24 pt-64 overflow-hidden'}>
         <Container id='how-it-works'>
           <HowItWorksSection />
         </Container>
         <Container>
           <ComparisonSection />
         </Container>
-        <Container id='pricing'>
-          <PricingSection />
-        </Container>
+        <div className={'px-12'}>
+          <div
+            className={
+              'flex flex-col gap-48 relative z-10 bg-background rounded-t-[4rem] rounded-b-[4rem] py-12 md:py-8'
+            }
+          >
+            <Container id='pricing'>
+              <PricingSection />
+            </Container>
+          </div>
+        </div>
         {isRu && (
           <Container>
             <FreeTrialSection />

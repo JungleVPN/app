@@ -49,7 +49,7 @@ export function ComparisonSection() {
       </div>
 
       <div className='relative'>
-        <div className='absolute -inset-y-4 inset-s-0 w-1/2 rounded-3xl bg-white shadow-surface shadow-lg sm:inset-s-[44%] sm:w-[28%]' />
+        <div className='absolute -inset-y-4 inset-s-0 w-1/2 rounded-3xl bg-linear-to-r from-purple-200 to-yellow-200 shadow-surface shadow-lg sm:inset-s-[44%] sm:w-[28%]' />
 
         <table className='relative w-full table-fixed'>
           <colgroup>
@@ -67,7 +67,7 @@ export function ComparisonSection() {
                   <div className='flex h-5 w-5 items-center justify-center rounded-full bg-primary'>
                     <IconCheck size={12} className='text-primary-foreground' strokeWidth={3} />
                   </div>
-                  <span className='text-base font-bold text-neutral-900'>
+                  <span className='text-lg font-bold text-neutral-900'>
                     {t('landing.comparison.header.ours')}
                   </span>
                 </div>

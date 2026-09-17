@@ -645,7 +645,8 @@
       "connect": {
         "title": "Connect and use JungleVPN",
         "description": "Open the app, select the required connection and tap Connect. Your VPN configuration is ready to use, with access to the server locations included in your JungleVPN subscription."
-      }
+      },
+      "note": "Note: We offer variety of plans you can choose from. Accepted payment methods are by credit card, Apple Pay or PayPal."
     },
     "trust": {
       "chip": "Privacy-first",

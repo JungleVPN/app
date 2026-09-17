@@ -645,7 +645,8 @@
       "connect": {
         "title": "Bağlanın ve JungleVPN'i kullanın",
         "description": "Uygulamayı açın, istediğiniz bağlantıyı seçin ve Bağlan'a dokunun. VPN yapılandırmanız, JungleVPN aboneliğinize dahil olan sunucu konumlarına erişimle birlikte kullanıma hazır."
-      }
+      },
+      "note": "Not: Aralarından seçim yapabileceğiniz çeşitli planlar sunuyoruz. Kabul edilen ödeme yöntemleri kredi kartı, Apple Pay veya PayPal'dır."
     },
     "trust": {
       "chip": "Önce gizlilik",

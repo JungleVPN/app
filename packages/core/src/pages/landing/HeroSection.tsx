@@ -74,7 +74,7 @@ export function HeroSection() {
             </div>
             <Chip color='default' variant='tertiary' className='w-fit text-muted'>
               <IconRefresh size={14} />
-              <Chip.Label>{t('landing.hero.trial')}</Chip.Label>
+              <Chip.Label>{t('landing.hero.guarantee')}</Chip.Label>
             </Chip>
           </motion.div>
 
