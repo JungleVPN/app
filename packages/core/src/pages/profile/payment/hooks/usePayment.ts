@@ -14,7 +14,7 @@ export function usePayment(selectedPeriod: number) {
 
   const yookassa = useYookassaPayment(selectedPeriod);
   const stripe = useStripePayment(selectedPeriod);
-  const paddle = usePaddlePayment();
+  const paddle = usePaddlePayment(selectedPeriod);
   const stars = useTelegramStarsPayment(selectedPeriod);
   const { validatePromo } = usePromoValidation();
 

@@ -11,7 +11,7 @@ import { useBackButton, useNavigation } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { useNavbarStore, usePlatformStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
-import { isGlobalOrigin, phCapture } from '../../../utils';
+import { GLOBAL_PAYMENT_PROVIDER, isGlobalOrigin, phCapture } from '../../../utils';
 import { PaymentForm } from './components/PaymentForm';
 import { SavedMethod } from './components/SavedMethod';
 import { usePayment } from './hooks/usePayment';
@@ -39,6 +39,8 @@ export default function PaymentPage() {
     isOpeningStripePortal,
     handleOpenPaddlePortal,
     isOpeningPaddlePortal,
+    handlePaddlePayment,
+    isPaddlePaying,
     validatePromo,
   } = usePayment(selectedPlan?.period ?? 1);
 
@@ -57,8 +59,11 @@ export default function PaymentPage() {
 
   const isLoading = savedMethods === null;
 
+  // RU visitors and Telegram users pay through YooKassa; everyone else checks
+  // out through whichever global provider is currently enabled.
+  const globalMethod: PaymentMethod = GLOBAL_PAYMENT_PROVIDER === 'paddle' ? 'paddle' : 'stripe';
   const [selectedMethod] = useState<PaymentMethod>(
-    isRu || platformType === 'telegram' ? 'yookassa' : 'stripe',
+    isRu || platformType === 'telegram' ? 'yookassa' : globalMethod,
   );
 
   useBackButton(() => navigate(-1));
@@ -79,8 +84,7 @@ export default function PaymentPage() {
     yookassa: isPaying,
     stripe: isStripePaying,
     stars: isStarsPaying,
-    // Paddle checkout only happens on the standalone public pricing page, never here.
-    paddle: false,
+    paddle: isPaddlePaying,
   };
   const isPending = isPendingByMethod[selectedMethod];
 
@@ -149,9 +153,10 @@ export default function PaymentPage() {
             isPending={isPending}
             starsError={starsError}
             platformType={platformType}
-            enablePromo={selectedMethod !== 'stripe'}
+            enablePromo={selectedMethod !== 'stripe' && selectedMethod !== 'paddle'}
             onYookassaPayment={handleYookassaPayment}
             onStripePayment={handleStripePayment}
+            onPaddlePayment={handlePaddlePayment}
             onStarsPayment={handleStarsPayment}
             onValidatePromo={validatePromo}
           >

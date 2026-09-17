@@ -28,6 +28,7 @@ interface PaymentFormProps {
   children?: ReactNode;
   onYookassaPayment: (email?: string, promoCode?: string) => Promise<void>;
   onStripePayment?: (email?: string, promoCode?: string) => Promise<void>;
+  onPaddlePayment?: (email?: string, promoCode?: string) => Promise<void>;
   onStarsPayment: (promoCode?: string) => Promise<void>;
   onValidatePromo?: (promoCode: string) => Promise<boolean>;
 }
@@ -42,6 +43,7 @@ export function PaymentForm({
   children,
   onYookassaPayment,
   onStripePayment,
+  onPaddlePayment,
   onStarsPayment,
   onValidatePromo,
 }: PaymentFormProps) {
@@ -69,6 +71,9 @@ export function PaymentForm({
         break;
       case 'stripe':
         await onStripePayment?.(emailArg, codeArg);
+        break;
+      case 'paddle':
+        await onPaddlePayment?.(emailArg, codeArg);
         break;
       case 'yookassa':
         await onYookassaPayment(emailArg, codeArg);
