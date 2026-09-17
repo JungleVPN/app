@@ -39,3 +39,21 @@ export function toCustomData(customData: unknown): PaddleCustomData {
 export function isReportableCurrency(currency: string): currency is 'EUR' {
   return currency === 'EUR';
 }
+
+/** The Paddle currencies with no minor unit — see https://developer.paddle.com/concepts/sell/supported-currencies. */
+const ZERO_DECIMAL_PADDLE_CURRENCIES = new Set(['JPY', 'KRW', 'CLP']);
+
+/** Decimal places a Paddle-resolved currency displays at — 0 for JPY/KRW/CLP, 2 otherwise. */
+export function paddleCurrencyDecimals(currencyCode: string): number {
+  return ZERO_DECIMAL_PADDLE_CURRENCIES.has(currencyCode) ? 0 : 2;
+}
+
+/**
+ * A Paddle pricing-preview amount (its own lowest-unit integer, as a string)
+ * to a real number in major units — accounting for the zero-decimal
+ * currencies, whose integer is already the whole amount (`1200` means 1200,
+ * not 12.00).
+ */
+export function paddleAmountToNumber(amount: string, currencyCode: string): number {
+  return paddleCurrencyDecimals(currencyCode) === 0 ? Number(amount) : Number(amount) / 100;
+}

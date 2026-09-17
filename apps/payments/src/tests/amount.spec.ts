@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   amountToMonths,
-  buildPlanPricing,
+  buildPricing,
   getExtraDevicePrice,
   getPriceForPeriod,
 } from '../utils/amount';
@@ -116,41 +116,77 @@ describe('provider-agnostic amount config', () => {
     });
   });
 
-  describe('buildPlanPricing', () => {
-    it('has no discount and a null fullTotal for the base (1-month) plan', () => {
-      const pricing = buildPlanPricing('EUR', 1, 6, 6);
+  describe('buildPricing', () => {
+    it('has no discount for the base (1-month) plan, whose total is its own baseline', () => {
+      const pricing = buildPricing({ currency: 'EUR', months: 1, total: 6, basePrice: 6 });
+
       expect(pricing).toEqual({
         total: '6.00',
         monthly: '6.00',
         fullTotal: '6.00',
         discountPercent: 0,
+        currencyCode: 'EUR',
       });
     });
 
     it('rounds EUR to 2 decimals and computes the discount vs. the base price', () => {
-      const pricing = buildPlanPricing('EUR', 12, 43.2, 6);
-      expect(pricing.total).toBe('43.20');
-      expect(pricing.monthly).toBe('3.60');
-      expect(pricing.fullTotal).toBe('72.00');
-      expect(pricing.discountPercent).toBe(40);
+      const pricing = buildPricing({ currency: 'EUR', months: 12, total: 43.2, basePrice: 6 });
+
+      expect(pricing).toEqual({
+        total: '43.20',
+        monthly: '3.60',
+        fullTotal: '72.00',
+        discountPercent: 40,
+        currencyCode: 'EUR',
+      });
     });
 
-    it('rounds RUB to 0 decimals and computes the discount vs. the base price', () => {
-      const pricing = buildPlanPricing('RUB', 6, 882, 200);
-      expect(pricing.total).toBe('882');
-      expect(pricing.monthly).toBe('147');
-      expect(pricing.fullTotal).toBe('1200');
-      expect(pricing.discountPercent).toBe(27);
+    it('rounds RUB to whole rubles, since we never quote kopecks', () => {
+      const pricing = buildPricing({ currency: 'RUB', months: 6, total: 882, basePrice: 200 });
+
+      expect(pricing).toEqual({
+        total: '882',
+        monthly: '147',
+        fullTotal: '1200',
+        discountPercent: 27,
+        currencyCode: 'RUB',
+      });
     });
 
     it('returns a null fullTotal and zero discount when there is no base price', () => {
-      const pricing = buildPlanPricing('EUR', 6, 26.4, null);
+      const pricing = buildPricing({ currency: 'EUR', months: 6, total: 26.4, basePrice: null });
+
       expect(pricing).toEqual({
         total: '26.40',
         monthly: '4.40',
         fullTotal: null,
         discountPercent: 0,
+        currencyCode: 'EUR',
       });
+    });
+
+    it('renders a zero-decimal Paddle currency without cents', () => {
+      const pricing = buildPricing({ currency: 'JPY', months: 3, total: 3600, basePrice: 1500 });
+
+      expect(pricing).toEqual({
+        total: '3600',
+        monthly: '1200',
+        fullTotal: '4500',
+        discountPercent: 20,
+        currencyCode: 'JPY',
+      });
+    });
+
+    it('carries the currency it was quoted in, so nothing downstream has to guess', () => {
+      expect(
+        buildPricing({ currency: 'GBP', months: 1, total: 8.5, basePrice: null }),
+      ).toMatchObject({ currencyCode: 'GBP' });
+    });
+
+    it('falls back to 2 decimals for a Paddle currency it has no display rule for', () => {
+      const pricing = buildPricing({ currency: 'GBP', months: 1, total: 8.5, basePrice: null });
+
+      expect(pricing.total).toBe('8.50');
     });
   });
 });

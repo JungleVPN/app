@@ -57,11 +57,7 @@ export function TermsDialog() {
                     {t('terms.dialog.termsOfServiceLink')}
                   </Link>
                   {t('terms.dialog.agreementsMid')}
-                  <Link
-                    className='underline underline-offset-2'
-                    href='/privacy'
-                    onClick={close}
-                  >
+                  <Link className='underline underline-offset-2' href='/privacy' onClick={close}>
                     {t('terms.dialog.privacyPolicyLink')}
                   </Link>
                   {t('terms.dialog.agreementsTail')}

@@ -67,10 +67,6 @@ export function createRoutes(Landing: ComponentType) {
               lazy: () => pages().then((m) => ({ Component: m.GetSubscriptionPage })),
             },
             {
-              path: '/paddle-checkout/:planSlug',
-              lazy: () => pages().then((m) => ({ Component: m.PaddleGetSubscriptionPage })),
-            },
-            {
               path: '/plans',
               lazy: () => pages().then((m) => ({ Component: m.PublicPlansPage })),
             },

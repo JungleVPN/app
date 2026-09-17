@@ -18,7 +18,7 @@ import { PaddleWebhookService } from './paddle-webhook.service';
     ToltModule,
   ],
   controllers: [PaddleController],
-  exports: [PaddleProvider, PaddleWebhookService],
+  exports: [PaddleProvider, PaddleWebhookService, PaddleClientService],
   providers: [
     PaddleClientService,
     PaddleProvider,

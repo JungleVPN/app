@@ -20,8 +20,8 @@ import {
   IconMail,
   IconRestore,
 } from '@tabler/icons-react';
-import { PlanPricing } from '@workspace/types';
-import { SyntheticEvent } from 'react';
+import type { SubscriptionPlanDto } from '@workspace/types';
+import { ReactNode, SyntheticEvent } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Logo from '../../assets/Logo.svg?react';
 import { FeaturesCard, Link } from '../../components';
@@ -31,20 +31,28 @@ import { formatPlanPrice } from '../../utils';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
 import { planPeriodLabel } from './planSlug';
 
-interface GetSubscriptionComponentProps {
+interface CheckoutFormProps {
   isAuthenticated: boolean;
   email: string;
   emailError: string;
   checkoutError: string | null;
   isPending: boolean;
-  isRu: boolean;
   selectedPeriod: number | null;
-  pricing: PlanPricing | undefined;
+  plan: SubscriptionPlanDto | undefined;
+  /** False while the provider still can't start a payment — no plan, or its SDK not loaded yet. */
+  canSubmit: boolean;
   handleSubmit: (event: SyntheticEvent) => void;
   handleEmailChange: (value: string) => void;
+  /**
+   * A provider that collects payment on this page (Paddle's inline checkout)
+   * renders it here once it is mounting. It takes the submit button's place,
+   * and freezes the email that was already handed to the provider.
+   */
+  checkoutFrame?: ReactNode;
 }
 
 const BRAND_GRADIENT = 'bg-linear-to-r from-violet-500 to-amber-400';
+
 function StepHeading({ step, title }: { step: number; title: string }) {
   return (
     <div className='flex items-center gap-3'>
@@ -56,22 +64,34 @@ function StepHeading({ step, title }: { step: number; title: string }) {
   );
 }
 
-export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) => {
+/**
+ * The global checkout page's markup, shared by every payment provider —
+ * email step, payment step, and order summary. A provider reaches it only
+ * through `canSubmit` and an optional `checkoutFrame`; see `useCheckout` for
+ * the flow behind it.
+ */
+export const CheckoutForm = (props: CheckoutFormProps) => {
   const {
     isAuthenticated,
     email,
     emailError,
-    pricing,
+    plan,
+    canSubmit,
     selectedPeriod,
     checkoutError,
     isPending,
-    isRu,
+    checkoutFrame,
     handleEmailChange,
     handleSubmit,
   } = props;
 
   const { t } = useTranslation();
   const { open: openTerms } = useTermsStore();
+
+  // Already resolved to this visitor's own currency by the backend — this
+  // form only formats it, and never learns which provider quoted it.
+  const pricing = plan?.planPricing ?? null;
+  const format = (amount: string) => (pricing ? formatPlanPrice(pricing, amount) : amount);
 
   return (
     <>
@@ -89,6 +109,7 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                     <StepHeading step={1} title={t('getSubscription.step_email_title')} />
 
                     <TextField
+                      isDisabled={Boolean(checkoutFrame)}
                       isInvalid={emailError.length > 0}
                       isRequired
                       name='email'
@@ -153,29 +174,31 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                 <div className='flex flex-col gap-6'>
                   <StepHeading step={2} title={t('getSubscription.card_method')} />
 
-                  <div className='flex flex-wrap items-center justify-between gap-4'>
-                    <Button
-                      className={`${BRAND_GRADIENT} w-full rounded-full sm:w-auto sm:px-10`}
-                      isDisabled={!pricing}
-                      isPending={isPending}
-                      type='submit'
-                    >
-                      {({ isPending: isSubmitPending }) => (
-                        <>
-                          {t('getSubscription.submit')}
-                          {isSubmitPending ? <Spinner color='current' size='sm' /> : null}
-                        </>
-                      )}
-                    </Button>
+                  {checkoutFrame ?? (
+                    <div className='flex flex-wrap items-center justify-between gap-4'>
+                      <Button
+                        className={`${BRAND_GRADIENT} w-full rounded-full sm:w-auto sm:px-10`}
+                        isDisabled={!canSubmit}
+                        isPending={isPending}
+                        type='submit'
+                      >
+                        {({ isPending: isSubmitPending }) => (
+                          <>
+                            {t('getSubscription.submit')}
+                            {isSubmitPending ? <Spinner color='current' size='sm' /> : null}
+                          </>
+                        )}
+                      </Button>
 
-                    <div className='flex items-center gap-3 text-muted'>
-                      <IconBrandVisa size={28} stroke={2} />
-                      <IconBrandAppleFilled size={22} stroke={2} />
-                      <IconCreditCard size={24} stroke={2} />
-                      <IconBrandMastercard size={24} stroke={2} />
-                      <IconBrandGoogle size={24} stroke={2} />
+                      <div className='flex items-center gap-3 text-muted'>
+                        <IconBrandVisa size={28} stroke={2} />
+                        <IconBrandAppleFilled size={22} stroke={2} />
+                        <IconCreditCard size={24} stroke={2} />
+                        <IconBrandMastercard size={24} stroke={2} />
+                        <IconBrandGoogle size={24} stroke={2} />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {checkoutError && <p className='text-sm text-danger'>{checkoutError}</p>}
                 </div>
@@ -205,12 +228,10 @@ export const GetSubscriptionComponent = (props: GetSubscriptionComponentProps) =
                         <div className='flex shrink-0 items-baseline gap-2'>
                           {pricing.discountPercent > 0 && pricing.fullTotal && (
                             <span className='text-sm text-muted line-through'>
-                              {formatPlanPrice(pricing.fullTotal, isRu)}
+                              {format(pricing.fullTotal)}
                             </span>
                           )}
-                          <span className='text-base font-semibold'>
-                            {formatPlanPrice(pricing.total, isRu)}
-                          </span>
+                          <span className='text-base font-semibold'>{format(pricing.total)}</span>
                         </div>
                       </div>
 

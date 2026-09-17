@@ -2,41 +2,58 @@ import { type PlanPricing } from '@workspace/types';
 
 export type Currency = 'RUB' | 'EUR';
 
-/** Decimal places used when formatting a currency's prices for display. */
-const CURRENCY_DECIMALS: Record<Currency, number> = { RUB: 0, EUR: 2 };
+/**
+ * Decimal places a price is rendered at, by currency code — two unless listed
+ * here: RUB because we quote whole rubles, the others because they have no
+ * minor unit at all.
+ *
+ * This is a display choice, not a claim about a currency's minor unit. For
+ * that question — converting a Paddle amount out of its lowest unit — see
+ * `paddleCurrencyDecimals` in `paddle.utils`.
+ */
+const DISPLAY_DECIMALS: Record<string, number> = { RUB: 0, JPY: 0, KRW: 0, CLP: 0 };
+const DEFAULT_DISPLAY_DECIMALS = 2;
 
-const PERIOD_KEYS = [
-  { key: 'MONTH_1', months: 1 },
-  { key: 'MONTH_3', months: 3 },
-  { key: 'MONTH_6', months: 6 },
-  { key: 'MONTH_12', months: 12 },
-] as const;
+const priceEnvKey = (currency: Currency, months: number) => `PRICE_${currency}_MONTH_${months}`;
 
-export const enabledPeriodMonths = (): number[] => {
+/**
+ * The subscription periods currently on sale, in configured order.
+ *
+ * This is the only list of periods in the app — there is no hardcoded set of
+ * supported lengths. A period exists for a currency exactly when its
+ * `PRICE_<CURRENCY>_MONTH_<N>` env var is set, which is what
+ * `getPriceForPeriod` checks; ALLOWED_PERIOD narrows that to what is on sale
+ * right now. The two are deliberately separate: delisting a period from sale
+ * must not stop an existing subscriber from renewing it.
+ */
+export function enabledPeriodMonths(): number[] {
   if (!process.env.ALLOWED_PERIOD) {
     throw new Error('No period months selected.');
   }
+
   return process.env.ALLOWED_PERIOD.split(',')
-    .map((p) => Number(p.trim()))
-    .filter((p) => p > 0);
-};
+    .map((period) => Number(period.trim()))
+    .filter((period) => period > 0);
+}
 
 /**
  * Months granted by a paid `amount` (major units) for the currency.
  *
- * Iterates enabled periods and matches the amount against the corresponding
- * PRICE_*_MONTH_N env var. Throws when no match is found — callers must never
- * grant an unrecognised amount. An unconfigured ALLOWED_PERIOD rejects
- * every amount (fail-safe).
+ * Matches the amount against each enabled period's `PRICE_*_MONTH_N` env var.
+ * Throws when nothing matches — callers must never grant an unrecognised
+ * amount. An unconfigured ALLOWED_PERIOD rejects every amount (fail-safe).
  */
 export function amountToMonths(amount: number, currency: Currency): number {
-  const enabled = enabledPeriodMonths();
-  for (const { key, months } of PERIOD_KEYS) {
-    if (!enabled.includes(months)) continue;
-    const price = process.env[`PRICE_${currency}_${key}`];
-    if (price && Number(price) === amount) return months;
+  const months = enabledPeriodMonths().find((period) => {
+    const price = process.env[priceEnvKey(currency, period)];
+    return Boolean(price) && Number(price) === amount;
+  });
+
+  if (months === undefined) {
+    throw new Error(`Unrecognized ${currency} amount: ${amount}`);
   }
-  throw new Error(`Unrecognized ${currency} amount: ${amount}. `);
+
+  return months;
 }
 
 /**
@@ -51,47 +68,57 @@ export function getExtraDevicePrice(currency: Currency): string {
   if (!price || Number(price) <= 0) {
     throw new Error(`Missing extra device price for ${currency}`);
   }
+
   return price;
 }
 
 /**
- * The configured price (as string) for a given number of months.
- * Throws when the period is unknown or its price env var is not set.
+ * The configured price (as string) for a given number of months — the env var
+ * is the whole definition of whether that period exists for this currency.
+ *
+ * Intentionally not gated on ALLOWED_PERIOD: renewals re-price an existing
+ * subscriber's own period, which may since have been taken off sale.
+ * Throws when the period has no price configured.
  */
 export function getPriceForPeriod(currency: Currency, months: number): string {
-  const entry = PERIOD_KEYS.find((p) => p.months === months);
-  if (!entry) throw new Error(`Unknown period: ${months} months`);
-  const price = process.env[`PRICE_${currency}_${entry.key}`];
+  const price = process.env[priceEnvKey(currency, months)];
   if (!price || Number(price) <= 0) {
-    throw new Error(`Missing price for ${currency} and ${months} month(s)`);
+    throw new Error(`No ${currency} price configured for a ${months} month plan`);
   }
+
   return price;
 }
 
 /**
- * Ready-to-render pricing for a plan: formatted total/monthly price, the
- * undiscounted total for comparison, and the percentage saved.
+ * Ready-to-render pricing for one plan: the total and per-month price
+ * formatted for `currency`, the undiscounted total to strike through, and the
+ * percentage saved against it.
  *
- * `basePrice` is the 1-month price in the same currency (or null when no
- * 1-month plan is configured) — the baseline every other period is compared
- * against to compute the discount.
+ * `basePrice` is the 1-month price in the same currency — the baseline every
+ * longer period's discount is measured against — or null when there is no
+ * 1-month plan to compare with, which leaves the plan showing no discount.
+ *
+ * `currency` is a plain code rather than our own `Currency` union because
+ * Paddle quotes plans in whichever of its currencies fits the visitor.
  */
-export function buildPlanPricing(
-  currency: Currency,
-  months: number,
-  totalPrice: number,
-  basePrice: number | null,
-): PlanPricing {
-  const decimals = CURRENCY_DECIMALS[currency];
-  const monthly = totalPrice / months;
+export function buildPricing(input: {
+  currency: string;
+  months: number;
+  total: number;
+  basePrice: number | null;
+}): PlanPricing {
+  const { currency, months, total, basePrice } = input;
+
+  const decimals = DISPLAY_DECIMALS[currency] ?? DEFAULT_DISPLAY_DECIMALS;
   const fullTotal = basePrice !== null ? basePrice * months : null;
   const discountPercent =
-    fullTotal !== null && fullTotal > 0 ? Math.round((1 - totalPrice / fullTotal) * 100) : 0;
+    fullTotal !== null && fullTotal > 0 ? Math.round((1 - total / fullTotal) * 100) : 0;
 
   return {
-    total: totalPrice.toFixed(decimals),
-    monthly: monthly.toFixed(decimals),
+    total: total.toFixed(decimals),
+    monthly: (total / months).toFixed(decimals),
     fullTotal: fullTotal !== null ? fullTotal.toFixed(decimals) : null,
     discountPercent,
+    currencyCode: currency,
   };
 }

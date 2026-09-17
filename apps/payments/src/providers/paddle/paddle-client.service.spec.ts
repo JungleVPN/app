@@ -7,6 +7,7 @@ const nextSubscriptions = vi.fn();
 const customersList = vi.fn(() => ({ next: nextCustomers }));
 const subscriptionsList = vi.fn(() => ({ next: nextSubscriptions }));
 const portalSessionsCreate = vi.fn();
+const pricingPreviewPreview = vi.fn();
 
 vi.mock('@paddle/paddle-node-sdk', () => ({
   Environment: { sandbox: 'sandbox', production: 'production' },
@@ -15,6 +16,7 @@ vi.mock('@paddle/paddle-node-sdk', () => ({
       customers: { list: customersList },
       subscriptions: { list: subscriptionsList },
       customerPortalSessions: { create: portalSessionsCreate },
+      pricingPreview: { preview: pricingPreviewPreview },
     };
   }),
 }));
@@ -117,6 +119,113 @@ describe('PaddleClientService', () => {
         'https://portal.paddle.test/overview',
       );
       expect(portalSessionsCreate).toHaveBeenCalledWith('ctm_1', ['sub_1']);
+    });
+  });
+
+  describe('getPricePreview', () => {
+    const items = [{ priceId: 'pri_1', quantity: 1 }];
+
+    it("previews against the visitor's IP so Paddle geolocates the currency", async () => {
+      pricingPreviewPreview.mockResolvedValue({ currencyCode: 'USD' });
+      const service = new PaddleClientService();
+
+      const result = await service.getPricePreview(items, '203.0.113.5');
+
+      expect(pricingPreviewPreview).toHaveBeenCalledWith({
+        items,
+        customerIpAddress: '203.0.113.5',
+      });
+      expect(result).toEqual({ currencyCode: 'USD' });
+    });
+
+    it('skips the IP lookup and prices in EUR outright when no client IP is known', async () => {
+      pricingPreviewPreview.mockResolvedValue({ currencyCode: 'EUR' });
+      const service = new PaddleClientService();
+
+      await service.getPricePreview(items, null);
+
+      expect(pricingPreviewPreview).toHaveBeenCalledOnce();
+      expect(pricingPreviewPreview).toHaveBeenCalledWith({ items, currencyCode: 'EUR' });
+    });
+
+    it('falls back to a forced EUR preview when the IP-based lookup fails (e.g. an unsupported country)', async () => {
+      pricingPreviewPreview
+        .mockRejectedValueOnce(new Error('country_and_ip_address_mismatch'))
+        .mockResolvedValueOnce({ currencyCode: 'EUR' });
+      const service = new PaddleClientService();
+
+      const result = await service.getPricePreview(items, '203.0.113.5');
+
+      expect(pricingPreviewPreview).toHaveBeenCalledTimes(2);
+      expect(pricingPreviewPreview).toHaveBeenNthCalledWith(2, { items, currencyCode: 'EUR' });
+      expect(result).toEqual({ currencyCode: 'EUR' });
+    });
+
+    it('lets a failure in the EUR fallback itself propagate, rather than hide that Paddle is unreachable', async () => {
+      pricingPreviewPreview
+        .mockRejectedValueOnce(new Error('network down'))
+        .mockRejectedValueOnce(new Error('network down'));
+      const service = new PaddleClientService();
+
+      await expect(service.getPricePreview(items, '203.0.113.5')).rejects.toThrow('network down');
+    });
+
+    /**
+     * The SDK bounds nothing itself — no timeout option, no abort signal — so
+     * a stalled connection would otherwise hang the pricing page until the
+     * gateway gives up and serves a 502.
+     */
+    describe('when the connection stalls rather than failing', () => {
+      beforeEach(() => {
+        vi.useFakeTimers();
+      });
+
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it('gives up instead of waiting on Paddle forever', async () => {
+        pricingPreviewPreview.mockReturnValue(new Promise(() => {}));
+        const service = new PaddleClientService();
+
+        const preview = service.getPricePreview(items, '203.0.113.5');
+        const assertion = expect(preview).rejects.toThrow(/timed out/);
+        await vi.advanceTimersByTimeAsync(3_000);
+
+        await assertion;
+      });
+
+      it('does not retry a stall in the fallback currency, which would only stall again', async () => {
+        pricingPreviewPreview.mockReturnValue(new Promise(() => {}));
+        const service = new PaddleClientService();
+
+        const preview = service.getPricePreview(items, '203.0.113.5');
+        const assertion = expect(preview).rejects.toThrow(/timed out/);
+        await vi.advanceTimersByTimeAsync(3_000);
+        await assertion;
+
+        expect(pricingPreviewPreview).toHaveBeenCalledOnce();
+      });
+
+      it('bounds the no-IP path too, which goes straight to the fallback currency', async () => {
+        pricingPreviewPreview.mockReturnValue(new Promise(() => {}));
+        const service = new PaddleClientService();
+
+        const preview = service.getPricePreview(items, null);
+        const assertion = expect(preview).rejects.toThrow(/timed out/);
+        await vi.advanceTimersByTimeAsync(3_000);
+
+        await assertion;
+      });
+
+      it('still resolves normally when Paddle answers within the budget', async () => {
+        pricingPreviewPreview.mockResolvedValue({ currencyCode: 'USD' });
+        const service = new PaddleClientService();
+
+        await expect(service.getPricePreview(items, '203.0.113.5')).resolves.toEqual({
+          currencyCode: 'USD',
+        });
+      });
     });
   });
 });

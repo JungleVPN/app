@@ -4,7 +4,6 @@ export { default as GetSubscriptionPage } from './getSubscription/GetSubscriptio
 export { default as LandingPage } from './landing/LandingPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';
 export { default as LoginPage } from './login/LoginPage';
-export { default as PaddleGetSubscriptionPage } from './paddleGetSubscription/PaddleGetSubscriptionPage';
 export { PublicPlansPage } from './plans/PlansPage';
 export { default as PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';
 export { default as AffiliatePage } from './profile/affiliate/AffiliatePage';

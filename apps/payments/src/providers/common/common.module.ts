@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { PaymentsUtils } from '@payments/utils/utils';
+import { PaddleModule } from '@payments/providers/paddle/paddle.module';
 import { CommonController } from './common.controller';
 import { CommonService } from './common.service';
 
 @Module({
+  imports: [PaddleModule],
   controllers: [CommonController],
-  providers: [CommonService, PaymentsUtils],
+  providers: [CommonService],
 })
 export class CommonModule {}

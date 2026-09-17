@@ -1,3 +1,4 @@
+import type { PlanPricing } from '@workspace/types';
 import { describe, expect, it } from 'vitest';
 import { getButtonLabel } from './getButtonLabel';
 
@@ -9,31 +10,36 @@ const t = (key: string, params?: Record<string, unknown>): string => {
   return `${key}:${parts}`;
 };
 
-const plan = { months: 12, priceEur: 43.2, priceRub: 1440 };
+function pricing(overrides: Partial<PlanPricing> = {}): PlanPricing {
+  return {
+    total: '43.20',
+    monthly: '3.60',
+    fullTotal: '72.00',
+    discountPercent: 40,
+    currencyCode: 'EUR',
+    ...overrides,
+  };
+}
 
 describe('getButtonLabel', () => {
-  it('uses EUR price for stripe', () => {
-    expect(getButtonLabel('stripe', plan, t)).toBe(
-      'payment.planPriceEurButton:amount=43.2,count=12',
+  it("labels the button with the plan's total in the currency the backend quoted", () => {
+    expect(getButtonLabel({ period: 12, pricing: pricing() }, t)).toBe(
+      'payment.planPriceButton:price=€43.20,count=12',
     );
   });
 
-  it('uses RUB price for yookassa', () => {
-    expect(getButtonLabel('yookassa', plan, t)).toBe(
-      'payment.planPriceRubButton:amount=1440,count=12',
+  it('follows the quoted currency rather than the payment method', () => {
+    const label = getButtonLabel(
+      { period: 3, pricing: pricing({ total: '1200', currencyCode: 'RUB' }) },
+      t,
     );
+
+    expect(label).toMatch(/^payment\.planPriceButton:price=.*1[\s,]?200.*,count=3$/);
   });
 
-  it('uses EUR price for stars', () => {
-    expect(getButtonLabel('stars', plan, t)).toBe(
-      'payment.planPriceEurButton:amount=43.2,count=12',
-    );
-  });
-
-  it('uses correct prices for 1-month plan', () => {
-    const singleMonth = { months: 1, priceEur: 6, priceRub: 200 };
-    expect(getButtonLabel('yookassa', singleMonth, t)).toBe(
-      'payment.planPriceRubButton:amount=200,count=1',
+  it('pluralises against the selected period', () => {
+    expect(getButtonLabel({ period: 1, pricing: pricing({ total: '6.00' }) }, t)).toBe(
+      'payment.planPriceButton:price=€6.00,count=1',
     );
   });
 });

@@ -16,16 +16,12 @@ import { PaymentForm } from './components/PaymentForm';
 import { SavedMethod } from './components/SavedMethod';
 import { usePayment } from './hooks/usePayment';
 import { useSavedPayment } from './hooks/useSavedPayment';
-import { getButtonLabel } from './utils/getButtonLabel';
+import { getButtonLabel, type SelectedPlan } from './utils/getButtonLabel';
 
 export default function PaymentPage() {
   const { t } = useTranslation();
   const location = useLocation();
-  const selectedPlan = location.state?.selectedPlan as {
-    months: number;
-    priceEur: number;
-    priceRub: number;
-  };
+  const selectedPlan = location.state?.selectedPlan as SelectedPlan | undefined;
 
   const {
     needsEmailInput,
@@ -44,7 +40,7 @@ export default function PaymentPage() {
     handleOpenPaddlePortal,
     isOpeningPaddlePortal,
     validatePromo,
-  } = usePayment(selectedPlan?.months ?? 1);
+  } = usePayment(selectedPlan?.period ?? 1);
 
   useEffect(() => {
     phCapture('payments_viewed');
@@ -77,7 +73,7 @@ export default function PaymentPage() {
     }
   }, [isLoading, hasActiveMethod, selectedPlan, navigate, profilePlansPath]);
 
-  const buttonLabel = selectedPlan ? getButtonLabel(selectedMethod, selectedPlan, t) : '';
+  const buttonLabel = selectedPlan ? getButtonLabel(selectedPlan, t) : '';
 
   const isPendingByMethod: Record<PaymentMethod, boolean> = {
     yookassa: isPaying,

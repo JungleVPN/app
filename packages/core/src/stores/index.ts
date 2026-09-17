@@ -7,7 +7,7 @@ export { useBackButtonStore, useBackButtonStoreActions, useBackHandler } from '.
 export { useNavbarStore } from './navbar';
 export type { IPlansActions, IPlansState, PlansStatus } from './plans';
 export {
-  usePlanByMonths,
+  usePlanByPeriod,
   usePlansStatus,
   usePlansStore,
   usePlansStoreActions,

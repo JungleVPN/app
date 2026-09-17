@@ -6,10 +6,11 @@ import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { usePlans } from '../../hooks';
 import { useAuthStore } from '../../stores';
 import { Grid, GridItem } from '../../ui';
-import { cn, formatPlanPrice, isGlobalOrigin } from '../../utils';
+import { cn, isGlobalOrigin } from '../../utils';
 import { planSlug } from '../getSubscription/planSlug';
+import { calculatePricing } from './pricingCalculation';
 
-const HIGHLIGHTED_PLAN_MONTHS = 12;
+const HIGHLIGHTED_PLAN_PERIOD = 12;
 const HIGHLIGHTED_DESKTOP_POSITION = 2;
 
 const ORDER_CLASSES = ['order-0', 'order-1', 'order-2', 'order-3'] as const;
@@ -18,13 +19,13 @@ const LG_ORDER_CLASSES = ['lg:order-0', 'lg:order-1', 'lg:order-2', 'lg:order-3'
 type PlanOrder = { mobile: number; desktop: number };
 
 function buildPlanOrders(plans: SubscriptionPlanDto[]): Map<number, PlanOrder> {
-  const highlighted = plans.find((plan) => plan.months === HIGHLIGHTED_PLAN_MONTHS);
+  const highlighted = plans.find((plan) => plan.period === HIGHLIGHTED_PLAN_PERIOD);
 
   if (!highlighted) {
-    return new Map(plans.map((plan, i) => [plan.months, { mobile: i, desktop: i }]));
+    return new Map(plans.map((plan, i) => [plan.period, { mobile: i, desktop: i }]));
   }
 
-  const others = plans.filter((plan) => plan.months !== HIGHLIGHTED_PLAN_MONTHS);
+  const others = plans.filter((plan) => plan.period !== HIGHLIGHTED_PLAN_PERIOD);
   const desktopOrder = [
     ...others.slice(0, HIGHLIGHTED_DESKTOP_POSITION),
     highlighted,
@@ -33,9 +34,9 @@ function buildPlanOrders(plans: SubscriptionPlanDto[]): Map<number, PlanOrder> {
   const mobileOrder = [highlighted, ...others];
 
   const orders = new Map<number, PlanOrder>();
-  desktopOrder.map((plan, i) => orders.set(plan.months, { mobile: 0, desktop: i }));
+  desktopOrder.map((plan, i) => orders.set(plan.period, { mobile: 0, desktop: i }));
   mobileOrder.forEach((plan, i) => {
-    orders.set(plan.months, { ...orders.get(plan.months)!, mobile: i });
+    orders.set(plan.period, { ...orders.get(plan.period)!, mobile: i });
   });
 
   return orders;
@@ -109,38 +110,6 @@ function PlanIncludes() {
   );
 }
 
-type PriceCalculation = {
-  price: string;
-  discount?: string;
-  originalTotal?: string;
-  discountedTotal?: string;
-  noDiscountLabel?: string;
-};
-
-function calculatePricing(
-  plan: SubscriptionPlanDto,
-  isRu: boolean,
-  discountLabel: (percent: number, isBestValue: boolean) => string,
-  noDiscountLabel: string,
-): PriceCalculation {
-  const pricing = isRu ? plan.rub : plan.eur;
-
-  if (plan.months === 1) {
-    return { price: pricing.monthly, noDiscountLabel };
-  }
-
-  if (pricing.discountPercent <= 0 || !pricing.fullTotal) {
-    return { price: pricing.monthly };
-  }
-
-  return {
-    price: pricing.monthly,
-    discount: discountLabel(pricing.discountPercent, plan.months === 12),
-    originalTotal: formatPlanPrice(pricing.fullTotal, isRu),
-    discountedTotal: formatPlanPrice(pricing.total, isRu),
-  };
-}
-
 export function PricingSection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -158,10 +127,9 @@ export function PricingSection() {
   // Global domains check out on the standalone payment page, which needs the
   // chosen period in the URL. RU still goes through the in-profile plan picker.
   const handleCtaClick = (months: number) =>
-    navigate(isRu || authUser ? '/profile/plans' : `/paddle-checkout/${planSlug(months)}`);
+    navigate(isRu || authUser ? '/profile/plans' : `/payment/${planSlug(months)}`);
 
   const sharedProps = {
-    currency: isRu ? '₽' : '€',
     interval: t('landing.pricing.interval'),
     guarantee: t('landing.pricing.guarantee'),
     cta: t('landing.pricing.cta'),
@@ -186,24 +154,22 @@ export function PricingSection() {
 
         <Grid>
           {plans.map((plan) => {
-            const isHighlighted = plan.months === HIGHLIGHTED_PLAN_MONTHS;
-            const pricing = calculatePricing(
-              plan,
-              isRu,
-              (percent, isBestValue) =>
-                isBestValue
+            const isHighlighted = plan.period === HIGHLIGHTED_PLAN_PERIOD;
+            const pricing = calculatePricing(plan, {
+              discountLabel: (percent: number) =>
+                plan.period === 12
                   ? t('landing.pricing.discountBest', { percent })
                   : t('landing.pricing.discount', { percent }),
-              t('landing.pricing.noDiscount'),
-            );
+              noDiscountLabel: t('landing.pricing.noDiscount'),
+            });
 
-            const period = formatMonths(plan.months);
+            const period = formatMonths(plan.period);
             const badge = isHighlighted ? t('landing.pricing.badgeValue') : undefined;
-            const order = planOrders.get(plan.months)!;
+            const order = planOrders.get(plan.period)!;
 
             return (
               <GridItem
-                key={plan.months}
+                key={plan.period}
                 size={{ base: 12, sm: 12, md: 6, lg: 3 }}
                 className={cn(
                   !isHighlighted && 'rounded-t-2xl',
@@ -222,7 +188,7 @@ export function PricingSection() {
                   }
                   highlighted={isHighlighted}
                   badge={badge}
-                  onCtaClick={() => handleCtaClick(plan.months)}
+                  onCtaClick={() => handleCtaClick(plan.period)}
                 />
               </GridItem>
             );

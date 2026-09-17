@@ -21,11 +21,7 @@ export {
   writeCookie,
   writeJsonCookie,
 } from './cookies';
-export { formatPlanPrice } from './currency';
-export {
-  rememberPendingYookassaPayment,
-  takePendingYookassaPayment,
-} from './pendingPayment';
+export { formatIntlPrice, formatPlanPrice } from './currency';
 export { toDateString } from './date';
 export { detectOs } from './detectOs';
 export {
@@ -49,6 +45,11 @@ export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';
 export type { LlmsTxtOptions } from './llmsTxt';
 export { buildLlmsTxt } from './llmsTxt';
+export { GLOBAL_PAYMENT_PROVIDER } from './paymentProvider';
+export {
+  rememberPendingYookassaPayment,
+  takePendingYookassaPayment,
+} from './pendingPayment';
 export type { PostHogConsentStatus } from './posthog';
 export {
   phCapture,

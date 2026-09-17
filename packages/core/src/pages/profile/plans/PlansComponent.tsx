@@ -9,15 +9,13 @@ import { formatPlanPrice } from '../../../utils';
 interface PlansComponentProps {
   data: SubscriptionPlanDto[];
   activePeriod: number;
-  isRu: boolean;
-  isTelegram: boolean;
   onSubmit: () => void;
   handleSelectionChange: (key: Key) => void;
 }
 
 export const PlansComponent = (props: PlansComponentProps) => {
   const { t } = useTranslation();
-  const { data, activePeriod, isRu, isTelegram, onSubmit, handleSelectionChange } = props;
+  const { data, activePeriod, onSubmit, handleSelectionChange } = props;
 
   return (
     <Page title={t('plans.pageTitle')}>
@@ -40,13 +38,13 @@ export const PlansComponent = (props: PlansComponentProps) => {
             <Tabs.ListContainer className='w-full'>
               <Tabs.List aria-label={t('plans.tabsAriaLabel')} className='w-full gap-2 p-0'>
                 {data.map((plan) => {
-                  const pricing = isRu || isTelegram ? plan.rub : plan.eur;
-                  const label = t('plans.month', { count: plan.months });
+                  const pricing = plan.planPricing;
+                  const label = t('plans.month', { count: plan.period });
 
                   return (
                     <Tabs.Tab
-                      key={plan.months}
-                      id={String(plan.months)}
+                      key={plan.period}
+                      id={String(plan.period)}
                       className='h-auto w-full rounded-2xl px-4 py-3 text-start'
                     >
                       <div className='flex w-full items-center justify-between'>
@@ -61,16 +59,16 @@ export const PlansComponent = (props: PlansComponentProps) => {
                           </div>
                           {pricing.discountPercent > 0 && pricing.fullTotal && (
                             <div className='flex items-center gap-1.5 text-sm text-muted'>
-                              <span>{formatPlanPrice(pricing.total, isRu || isTelegram)}</span>
+                              <span>{formatPlanPrice(pricing, pricing.total)}</span>
                               <span className='line-through'>
-                                {formatPlanPrice(pricing.fullTotal, isRu || isTelegram)}
+                                {formatPlanPrice(pricing, pricing.fullTotal)}
                               </span>
                             </div>
                           )}
                         </div>
                         <div className='text-end'>
                           <div className='text-lg font-bold text-primary'>
-                            {formatPlanPrice(pricing.monthly, isRu || isTelegram)}
+                            {formatPlanPrice(pricing, pricing.monthly)}
                           </div>
                           <div className='text-xs text-muted'>{t('plans.perMonth')}</div>
                         </div>
@@ -83,7 +81,7 @@ export const PlansComponent = (props: PlansComponentProps) => {
             </Tabs.ListContainer>
 
             {data.map((plan) => (
-              <Tabs.Panel key={plan.months} id={String(plan.months)} className='hidden'>
+              <Tabs.Panel key={plan.period} id={String(plan.period)} className='hidden'>
                 {null}
               </Tabs.Panel>
             ))}

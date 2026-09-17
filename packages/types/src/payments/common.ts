@@ -3,7 +3,11 @@ export type PaymentMethod = 'yookassa' | 'stripe' | 'stars' | 'paddle';
 /** Determines what action is taken after a successful payment. */
 export type PaymentPurpose = 'subscription' | 'extra_device';
 
-/** Ready-to-render pricing for a plan in a single currency. */
+/**
+ * Ready-to-render pricing for a plan, already resolved to the one currency
+ * this visitor will be charged in. Amounts are formatted strings at that
+ * currency's own precision — never re-round or re-compute them client-side.
+ */
 export type PlanPricing = {
   /** Formatted total price for the period. */
   total: string;
@@ -13,16 +17,25 @@ export type PlanPricing = {
   fullTotal: string | null;
   /** Percentage saved vs. the undiscounted rate; 0 when there's no discount. */
   discountPercent: number;
+  /** ISO 4217 code the amounts above are quoted in, for locale-correct formatting. */
+  currencyCode: string;
 };
 
-/** A single available subscription plan returned by the common /plans endpoint. */
+/**
+ * A single available subscription plan returned by the common /plans endpoint.
+ *
+ * Deliberately says nothing about which provider will take the payment: the
+ * backend picks that from the request's Origin (RU domain vs. global) and,
+ * for global visitors, has the provider quote the price for their IP. The
+ * client renders what it is given and asks the backend to start a checkout.
+ */
 export type SubscriptionPlanDto = {
-  months: number;
-  priceEur: string;
-  priceRub: string;
-  priceStars: number;
-  /** Paddle catalog price id for this period, or null when Paddle isn't configured for it. */
-  paddlePriceId: string | null;
-  eur: PlanPricing;
-  rub: PlanPricing;
+  /** Subscription length in months. */
+  period: number;
+  planPricing: PlanPricing;
+  /**
+   * Country detected for this visitor while pricing, or null when it could not
+   * be. Used to prefill checkout so the payer skips the address step.
+   */
+  countryCode: string | null;
 };

@@ -5,7 +5,6 @@ type PriceCardProps = {
   period: string;
   subtitle?: string;
   price: string;
-  currency: string;
   interval: string;
   advantages?: string[];
   guarantee: string;
@@ -24,7 +23,6 @@ export function PriceCard({
   period,
   subtitle,
   price,
-  currency,
   interval,
   advantages,
   guarantee,
@@ -64,7 +62,6 @@ export function PriceCard({
             className={`text-5xl font-bold tracking-tight ${highlighted ? 'text-purple-400' : 'text-foreground'}`}
           >
             {price}
-            {currency}
           </span>
           <span className='text-sm text-muted'>{interval}</span>
         </div>

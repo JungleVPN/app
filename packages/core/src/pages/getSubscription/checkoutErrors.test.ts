@@ -15,13 +15,19 @@ describe('isThrottledError', () => {
   });
 
   it('does not mistake a different status code for throttling', () => {
-    expect(isThrottledError(new ApiClientError({ status: 400, message: 'nope', data: null }))).toBe(false);
+    expect(isThrottledError(new ApiClientError({ status: 400, message: 'nope', data: null }))).toBe(
+      false,
+    );
   });
 });
 
 describe('isActiveSubscriptionError', () => {
   it('recognises the 409 carrying the active-subscription code', () => {
-    const error = new ApiClientError({ status: 409, message: 'conflict', data: { code: ACTIVE_SUBSCRIPTION_CODE } });
+    const error = new ApiClientError({
+      status: 409,
+      message: 'conflict',
+      data: { code: ACTIVE_SUBSCRIPTION_CODE },
+    });
 
     expect(isActiveSubscriptionError(error)).toBe(true);
   });
@@ -34,13 +40,21 @@ describe('isActiveSubscriptionError', () => {
   });
 
   it('does not mistake a 409 carrying a different code', () => {
-    const error = new ApiClientError({ status: 409, message: 'conflict', data: { code: 'something_else' } });
+    const error = new ApiClientError({
+      status: 409,
+      message: 'conflict',
+      data: { code: 'something_else' },
+    });
 
     expect(isActiveSubscriptionError(error)).toBe(false);
   });
 
   it('does not mistake an unrelated status code', () => {
-    const error = new ApiClientError({ status: 400, message: 'bad request', data: { code: ACTIVE_SUBSCRIPTION_CODE } });
+    const error = new ApiClientError({
+      status: 400,
+      message: 'bad request',
+      data: { code: ACTIVE_SUBSCRIPTION_CODE },
+    });
 
     expect(isActiveSubscriptionError(error)).toBe(false);
   });

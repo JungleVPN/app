@@ -44,8 +44,8 @@ export const usePlansStoreInfo = () => usePlansStore((state) => state.plans);
 
 export const usePlansStatus = () => usePlansStore((state) => state.status);
 
-/** Looks up a plan by its subscription length; `undefined` until plans load. */
-export const usePlanByMonths = (months: number | null) =>
+/** Looks up a plan by its subscription length in months; `undefined` until plans load. */
+export const usePlanByPeriod = (period: number | null) =>
   usePlansStore((state) =>
-    months === null ? undefined : state.plans.find((plan) => plan.months === months),
+    period === null ? undefined : state.plans.find((plan) => plan.period === period),
   );

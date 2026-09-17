@@ -1,24 +1,19 @@
-import type { PaymentMethod } from '@workspace/types';
+import type { PlanPricing } from '@workspace/types';
+import { formatPlanPrice } from '../../../../utils';
 
-export type SelectedPlan = { months: number; priceEur: number; priceRub: number };
+export type SelectedPlan = { period: number; pricing: PlanPricing };
 
+/**
+ * The pay button's label. The price is already quoted in the currency this
+ * visitor will be charged, whichever provider ends up taking the payment —
+ * so the label no longer varies by method.
+ */
 export function getButtonLabel(
-  method: PaymentMethod,
   selectedPlan: SelectedPlan,
   t: (key: string, params?: Record<string, unknown>) => string,
 ): string {
-  switch (method) {
-    case 'yookassa':
-      return t('payment.planPriceRubButton', {
-        amount: selectedPlan.priceRub,
-        count: selectedPlan.months,
-      });
-    case 'stripe':
-    case 'stars':
-    case 'paddle':
-      return t('payment.planPriceEurButton', {
-        amount: selectedPlan.priceEur,
-        count: selectedPlan.months,
-      });
-  }
+  return t('payment.planPriceButton', {
+    price: formatPlanPrice(selectedPlan.pricing, selectedPlan.pricing.total),
+    count: selectedPlan.period,
+  });
 }
