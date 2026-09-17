@@ -22,6 +22,8 @@ export {
   writeJsonCookie,
 } from './cookies';
 export { formatIntlPrice, formatPlanPrice } from './currency';
+export { calculatePricing, formatPlanAmounts, sortPlansByPeriodDesc } from './planPricing';
+export type { PlanAmounts, PriceCalculation } from './planPricing';
 export { toDateString } from './date';
 export { detectOs } from './detectOs';
 export {

@@ -1,6 +1,6 @@
 import type { PlanPricing, SubscriptionPlanDto } from '@workspace/types';
 import { describe, expect, it } from 'vitest';
-import { calculatePricing } from './pricingCalculation';
+import { calculatePricing } from './planPricing';
 
 const labels = {
   discountLabel: (percent: number) => `-${percent}%`,

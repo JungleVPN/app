@@ -4,7 +4,7 @@ import { Key } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FeaturesCard } from '../../../components';
 import { Block, Page } from '../../../ui';
-import { formatPlanPrice } from '../../../utils';
+import { formatPlanAmounts } from '../../../utils';
 
 interface PlansComponentProps {
   data: SubscriptionPlanDto[];
@@ -38,7 +38,7 @@ export const PlansComponent = (props: PlansComponentProps) => {
             <Tabs.ListContainer className='w-full'>
               <Tabs.List aria-label={t('plans.tabsAriaLabel')} className='w-full gap-2 p-0'>
                 {data.map((plan) => {
-                  const pricing = plan.planPricing;
+                  const amounts = formatPlanAmounts(plan.planPricing);
                   const label = t('plans.month', { count: plan.period });
 
                   return (
@@ -51,24 +51,22 @@ export const PlansComponent = (props: PlansComponentProps) => {
                         <div className='flex flex-col gap-1'>
                           <div className='flex items-center gap-2'>
                             <span className='font-semibold'>{label}</span>
-                            {pricing.discountPercent > 0 && (
+                            {amounts.discountPercent > 0 && (
                               <Chip color='accent' size='sm' variant='soft'>
-                                <Chip.Label>-{pricing.discountPercent}%</Chip.Label>
+                                <Chip.Label>-{amounts.discountPercent}%</Chip.Label>
                               </Chip>
                             )}
                           </div>
-                          {pricing.discountPercent > 0 && pricing.fullTotal && (
+                          {amounts.hasDiscount && (
                             <div className='flex items-center gap-1.5 text-sm text-muted'>
-                              <span>{formatPlanPrice(pricing, pricing.total)}</span>
-                              <span className='line-through'>
-                                {formatPlanPrice(pricing, pricing.fullTotal)}
-                              </span>
+                              <span>{amounts.total}</span>
+                              <span className='line-through'>{amounts.fullTotal}</span>
                             </div>
                           )}
                         </div>
                         <div className='text-end'>
                           <div className='text-lg font-bold text-primary'>
-                            {formatPlanPrice(pricing, pricing.monthly)}
+                            {amounts.monthly}
                           </div>
                           <div className='text-xs text-muted'>{t('plans.perMonth')}</div>
                         </div>
