@@ -3,11 +3,10 @@ import { FooterSection, StickyFooterReveal } from '../../components';
 import { useAuthStore } from '../../stores';
 import { Container } from '../../ui';
 import { isGlobalOrigin, phCapture } from '../../utils';
-import { BentoSection } from './BentoSection';
+import { BentoFeaturesStack } from './BentoFeaturesStack';
 import { ComparisonSection } from './ComparisonSection';
 import { CountriesMarquee } from './CountriesMarquee';
 import { FAQSection } from './FAQSection';
-import { FeaturesSection } from './FeaturesSection';
 import { FreeTrialSection } from './FreeTrialSection';
 import { HeroSection } from './HeroSection';
 import { HowItWorksSection } from './HowItWorksSection';
@@ -57,10 +56,7 @@ export default function LandingPage() {
           <PlatformsSection />
         </Container>
         <Container>
-          <BentoSection />
-        </Container>
-        <Container>
-          <FeaturesSection />
+          <BentoFeaturesStack />
         </Container>
       </div>
 
@@ -76,7 +72,7 @@ export default function LandingPage() {
           <Container>
             <ComparisonSection />
           </Container>
-          <div className={'px-12'}>
+          <div className={'lg:px-12'}>
             <div
               className={
                 'flex flex-col gap-48 relative z-10 bg-background rounded-t-[4rem] rounded-b-[4rem] py-12 md:py-8'

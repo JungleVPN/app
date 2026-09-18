@@ -49,7 +49,7 @@ export function ComparisonSection() {
       </div>
 
       <div className='relative'>
-        <div className='absolute -inset-y-4 inset-s-0 w-1/2 rounded-3xl bg-linear-to-r from-purple-200 to-yellow-200 shadow-surface shadow-lg sm:inset-s-[44%] sm:w-[28%]' />
+        <div className='absolute -inset-y-4 inset-s-0 w-1/2 rounded-3xl bg-[#8e52fe12] shadow-surface shadow-lg sm:inset-s-[44%] sm:w-[28%]' />
 
         <table className='relative w-full table-fixed'>
           <colgroup>

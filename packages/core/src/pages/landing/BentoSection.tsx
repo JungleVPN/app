@@ -14,10 +14,12 @@ type BentoCellProps = {
 
 function BentoCell({ icon, title, description, className }: BentoCellProps) {
   return (
-    <div className={`flex flex-col justify-between gap-10 p-7 ${className ?? ''}`}>
+    <div
+      className={`flex flex-col justify-between gap-4 p-5 sm:gap-5 sm:p-7 lg:gap-10 ${className ?? ''}`}
+    >
       <div
         aria-hidden
-        className='[&>svg]:h-auto [&>svg]:w-full flex h-full items-center justify-center'
+        className='[&>svg]:h-auto [&>svg]:w-full [&>svg]:max-h-30 sm:[&>svg]:max-h-28 lg:[&>svg]:max-h-none flex h-full items-center justify-center'
       >
         {icon}
       </div>
@@ -44,7 +46,7 @@ export function BentoSection() {
       </div>
 
       <div className='overflow-hidden rounded-3xl bg-[#1d1d1d]'>
-        <div className='p-7'>
+        <div className='p-5 sm:p-7'>
           <h3 className='text-xl font-bold text-white'>{t('landing.bento.subtitle')}</h3>
         </div>
 
