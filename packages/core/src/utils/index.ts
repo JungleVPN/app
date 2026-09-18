@@ -40,6 +40,7 @@ export {
   parseDomains,
   resolveLocaleForHost,
   resolveLocaleForRequest,
+  setRequestHostname,
 } from './domain';
 export { formatCurrency, truncate } from './format';
 export { trackLoginConversion } from './gtag';

@@ -14,6 +14,7 @@ export { useBackButton } from './useBackButton';
 export { useClipboard } from './useClipboard';
 export { useNavigation } from './useNavigation';
 export { useSavedMethodsData } from './useSavedMethodsData';
+export { useScrollToTopOnNavigate } from './useScrollToTopOnNavigate';
 export type { SubscriptionDataError } from './useSubscriptionData';
 export { useSubscriptionData } from './useSubscriptionData';
 export { useTheme } from './useTheme';

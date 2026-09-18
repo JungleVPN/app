@@ -5,7 +5,7 @@ import { useLocation } from 'react-router';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes, useSupabaseClient } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo } from '../../stores';
-import { isLandingPath } from '../../utils';
+import { isLandingPath, PRICING_PATH, scrollToTop } from '../../utils';
 
 interface AuthButtonsProps {
   isRu?: boolean;
@@ -19,7 +19,7 @@ export function AuthButtons(props: AuthButtonsProps) {
   const { setAuthUser, setRmnUser } = useAuthStoreActions();
   const navigate = useNavigation();
   const location = useLocation();
-  const { publicPlansPath, profileSubscriptionPath } = useAppRoutes();
+  const { profileSubscriptionPath } = useAppRoutes();
   const { t } = useTranslation();
 
   if (loading) {
@@ -36,8 +36,12 @@ export function AuthButtons(props: AuthButtonsProps) {
       return;
     }
 
+    if (location.pathname === PRICING_PATH) {
+      scrollToTop();
+    }
+
     if (!authUser) {
-      navigate(publicPlansPath);
+      navigate(PRICING_PATH);
     } else {
       navigate(profileSubscriptionPath);
     }

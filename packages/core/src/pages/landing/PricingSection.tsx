@@ -1,5 +1,6 @@
 import { IconBrandAppleFilled, IconBrandGoogleFilled, IconCheck } from '@tabler/icons-react';
 import type { SubscriptionPlanDto } from '@workspace/types';
+import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
@@ -132,7 +133,18 @@ function PlanIncludes({ surface }: { surface: Surface }) {
   );
 }
 
-export function PricingSection({ surface = 'light' }: { surface?: Surface } = {}) {
+/**
+ * `animateOnMount` staggers the cards in as the page loads — used on the pricing page,
+ * where the plans are the hero. On the landing page the section sits far below the fold,
+ * so the animation would play unseen and the cards are rendered static instead.
+ */
+export function PricingSection({
+  surface = 'light',
+  animateOnMount = false,
+}: {
+  surface?: Surface;
+  animateOnMount?: boolean;
+} = {}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const plans = usePlans();
@@ -205,19 +217,30 @@ export function PricingSection({ surface = 'light' }: { surface?: Surface } = {}
                   LG_ORDER_CLASSES[order.desktop],
                 )}
               >
-                <PriceCard
-                  {...sharedProps}
-                  {...pricing}
-                  period={period}
-                  cta={
-                    isHighlighted
-                      ? t('landing.pricing.ctaPlan', { period })
-                      : t('landing.pricing.cta')
-                  }
-                  highlighted={isHighlighted}
-                  badge={badge}
-                  onCtaClick={() => handleCtaClick(plan.period)}
-                />
+                <motion.div
+                  className='h-full'
+                  initial={animateOnMount ? { opacity: 0, y: 24 } : false}
+                  animate={animateOnMount ? { opacity: 1, y: 0 } : undefined}
+                  transition={{
+                    duration: 0.45,
+                    ease: 'easeOut',
+                    delay: order.desktop * 0.12,
+                  }}
+                >
+                  <PriceCard
+                    {...sharedProps}
+                    {...pricing}
+                    period={period}
+                    cta={
+                      isHighlighted
+                        ? t('landing.pricing.ctaPlan', { period })
+                        : t('landing.pricing.cta')
+                    }
+                    highlighted={isHighlighted}
+                    badge={badge}
+                    onCtaClick={() => handleCtaClick(plan.period)}
+                  />
+                </motion.div>
               </GridItem>
             );
           })}

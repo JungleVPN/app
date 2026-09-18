@@ -2,7 +2,8 @@
   "common": {
     "features": {
       "title": "What's included in the subscription:"
-    }
+    },
+    "cta": "Try Now"
   },
   "main": {
     "page": {
@@ -794,10 +795,9 @@
     },
     "freeTrial": {
       "badge": "Free trial",
-      "title": "Try JungleVPN for Free",
-      "subtitle": "Test the connection, available server locations and everyday performance before choosing a plan. No credit card required.",
-      "cta": "Start your free trial",
-      "disclaimer": "{{days}}-day free trial · No credit card required · 30-day money-back guarantee"
+      "title": "Try JungleVPN for {{days}} days",
+      "subtitle": "Not satisfied? Get a full refund, no questions asked.",
+      "cta": "Start your free trial"
     },
     "footer": {
       "copyright": "© {{year}}. All rights reserved.",

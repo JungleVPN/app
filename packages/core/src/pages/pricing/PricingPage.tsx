@@ -1,5 +1,8 @@
 import { FooterSection, StickyFooterReveal } from '../../components';
 import { Container } from '../../ui';
+import { isGlobalOrigin, scrollToTop } from '../../utils';
+import { FAQSection } from '../landing/FAQSection';
+import { FreeTrialSection } from '../landing/FreeTrialSection';
 import { PricingSection } from '../landing/PricingSection';
 import { BenefitsSection } from './BenefitsSection';
 
@@ -8,7 +11,7 @@ export default function PricingPage() {
     <div className='relative bg-[#1a1a1a]'>
       <div className='relative lg:sticky top-0 z-10 bg-gray-100 overflow-hidden pt-30 pb-32 md:py-56 lg:py-40'>
         <Container>
-          <PricingSection surface='light' />
+          <PricingSection surface='light' animateOnMount />
         </Container>
       </div>
 
@@ -18,8 +21,10 @@ export default function PricingPage() {
             'flex flex-col gap-56 relative z-10 bg-white -mt-24 pt-24 pb-32 rounded-b-[4rem] overflow-hidden'
           }
         >
-          <Container>
+          <Container className={'flex flex-col gap-32'}>
             <BenefitsSection />
+            <FreeTrialSection onCtaClick={isGlobalOrigin() ? scrollToTop : undefined} />
+            <FAQSection />
           </Container>
         </div>
 

@@ -1,5 +1,5 @@
 import { Button, Surface } from '@heroui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import Logo from '../../assets/Logo_dark.svg?react';
@@ -8,7 +8,11 @@ import { Link } from '../Link/Link';
 
 export function CookieConsent() {
   const { t } = useTranslation();
-  const [pending, setPending] = useState(() => phConsentStatus() === 'pending');
+  const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    setPending(phConsentStatus() === 'pending');
+  }, []);
 
   if (!pending) return null;
 

@@ -13,7 +13,7 @@ import { paymentsApi } from '@/api/payments';
 import { backendClient } from '@/api/remnawave';
 import { createClient } from '@/lib/supabase/client';
 import { WebAuthProvider } from '@/providers/WebAuthProvider';
-import { router } from '@/router.ts';
+import { createAppRouter, preloadMatchedRoutes } from '@/router.ts';
 
 initDayjs();
 captureAttribution({ platform: 'web' });
@@ -40,28 +40,40 @@ const appRoutes = {
 };
 
 const rootEl = document.getElementById('root')!;
+const isServerRendered = rootEl.querySelector('*') !== null;
 
-const app = (
-  <StrictMode>
-    <AppRoutesProvider value={appRoutes}>
-      <PaymentsApiProvider api={paymentsApi}>
-        <AnalyticsApiProvider client={analyticsClient}>
-          <SupabaseProvider getClient={createClient}>
-            <WebAuthProvider>
-              <ApiProvider client={backendClient}>
-                <RouterProvider router={router} />
-              </ApiProvider>
-            </WebAuthProvider>
-          </SupabaseProvider>
-        </AnalyticsApiProvider>
-      </PaymentsApiProvider>
-    </AppRoutesProvider>
-  </StrictMode>
-);
+function renderApp() {
+  const app = (
+    <StrictMode>
+      <AppRoutesProvider value={appRoutes}>
+        <PaymentsApiProvider api={paymentsApi}>
+          <AnalyticsApiProvider client={analyticsClient}>
+            <SupabaseProvider getClient={createClient}>
+              <WebAuthProvider>
+                <ApiProvider client={backendClient}>
+                  <RouterProvider router={createAppRouter()} />
+                </ApiProvider>
+              </WebAuthProvider>
+            </SupabaseProvider>
+          </AnalyticsApiProvider>
+        </PaymentsApiProvider>
+      </AppRoutesProvider>
+    </StrictMode>
+  );
 
-// Use hydrateRoot when the SSR server pre-rendered HTML, createRoot otherwise (local vite dev).
-if (rootEl.querySelector('*')) {
-  hydrateRoot(rootEl, app);
+  // Use hydrateRoot when the SSR server pre-rendered HTML, createRoot otherwise (local vite dev).
+  if (isServerRendered) {
+    hydrateRoot(rootEl, app);
+  } else {
+    createRoot(rootEl).render(app);
+  }
+}
+
+// Lazy routes must be resolved before hydrating, or the first client render is an empty
+// shell where the server rendered a full page — see preloadMatchedRoutes. Nothing to wait
+// for when there is no server markup to match.
+if (isServerRendered) {
+  void preloadMatchedRoutes(window.location.pathname).then(renderApp);
 } else {
-  createRoot(rootEl).render(app);
+  renderApp();
 }

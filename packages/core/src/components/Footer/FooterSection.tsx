@@ -31,7 +31,7 @@ const FOOTER_LINKS: Record<
   cookies: { type: 'internal', to: '/cookies' },
   affiliate: { type: 'internal', to: '/affiliates' },
   referral: { type: 'internal', to: '/profile/referrals' },
-  pricing: { type: 'anchor', href: '#pricing' },
+  pricing: { type: 'internal', to: '/pricing' },
   trial: { type: 'anchor', href: '#trial' },
   partnership: { type: 'anchor', href: '#partnership' },
   howItWorks: { type: 'anchor', href: '#how-it-works' },
@@ -50,7 +50,7 @@ const LINK_KEYS = [
   'faq',
 ] as const;
 
-const linkClass = 'text-sm text-white/60 transition-colors hover:text-white';
+const linkClass = 'text-sm mix-blend-normal transition-colors';
 
 export function FooterSection() {
   const { t } = useTranslation();
@@ -73,7 +73,7 @@ export function FooterSection() {
             )}
             <p className='text-lg'>JungleVPN</p>
           </button>
-          <p className='text-sm text-white/60'>
+          <p className='text-sm mix-blend-normal'>
             {t('landing.footer.copyright', { year: new Date().getFullYear() })}
           </p>
         </div>
@@ -108,7 +108,7 @@ export function FooterSection() {
           <div className='flex items-center gap-4'>
             <a
               href={`mailto:${supportEmail}`}
-              className={'text-xs text-white/60 flex items-center gap-1'}
+              className={'text-xs mix-blend-normal flex items-center gap-1'}
             >
               <IconMail size={18} />
               {supportEmail}

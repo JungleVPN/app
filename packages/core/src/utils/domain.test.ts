@@ -10,6 +10,7 @@ import {
   parseDomains,
   resolveLocaleForHost,
   resolveLocaleForRequest,
+  setRequestHostname,
 } from './domain';
 
 const domains = {
@@ -67,6 +68,7 @@ describe('isGlobalOrigin', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
+    setRequestHostname(null);
     usePlatformStore.getState().actions.setPlatformType('web');
   });
 
@@ -80,6 +82,22 @@ describe('isGlobalOrigin', () => {
     vi.stubEnv('PUBLIC_DOMAIN_RU', domains.ru);
     vi.stubGlobal('window', { location: { hostname: 'jungle-vpn.com' } });
     expect(isGlobalOrigin()).toBe(true);
+  });
+
+  it('resolves from the request hostname during SSR, where there is no window', () => {
+    vi.stubEnv('PUBLIC_DOMAIN_RU', domains.ru);
+    vi.stubGlobal('window', undefined);
+    setRequestHostname('jungle-vpn.com');
+    expect(isGlobalOrigin()).toBe(true);
+
+    setRequestHostname('thejungle.pro');
+    expect(isGlobalOrigin()).toBe(false);
+  });
+
+  it('is false during SSR when no request hostname was set', () => {
+    vi.stubEnv('PUBLIC_DOMAIN_RU', domains.ru);
+    vi.stubGlobal('window', undefined);
+    expect(isGlobalOrigin()).toBe(false);
   });
 
   it('is false inside the Telegram Mini App regardless of hostname', () => {

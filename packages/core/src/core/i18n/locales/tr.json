@@ -2,7 +2,8 @@
   "common": {
     "features": {
       "title": "Aboneliğe neler dahil:"
-    }
+    },
+    "cta": "Şimdi Deneyin"
   },
   "main": {
     "page": {
@@ -794,10 +795,9 @@
     },
     "freeTrial": {
       "badge": "Ücretsiz deneme",
-      "title": "JungleVPN'i Ücretsiz Deneyin",
-      "subtitle": "Bir plan seçmeden önce bağlantıyı, mevcut sunucu konumlarını ve günlük performansı test edin. Kredi kartı gerekmez.",
-      "cta": "Ücretsiz denemenizi başlatın",
-      "disclaimer": "{{days}} gün ücretsiz deneme · Kredi kartı gerekmez · 30 gün para iade garantisi"
+      "title": "JungleVPN'i {{days}} gün deneyin",
+      "subtitle": "Memnun kalmadınız mı? Hiçbir soru sorulmadan paranızı tam olarak iade ediyoruz.",
+      "cta": "Ücretsiz denemenizi başlatın"
     },
     "footer": {
       "copyright": "© {{year}}. Tüm hakları saklıdır.",

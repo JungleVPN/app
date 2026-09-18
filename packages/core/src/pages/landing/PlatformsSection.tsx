@@ -8,7 +8,7 @@ import IconAppleTv from '../../assets/icons/appleTv-icon.svg?react';
 import IconMacOS from '../../assets/icons/macOs-icon.svg?react';
 import PlatformsIcon from '../../assets/icons/platforms-icon.svg?react';
 import { useNavigation } from '../../hooks';
-import { isGlobalOrigin } from '../../utils';
+import { PRICING_PATH } from '../../utils';
 
 const PLATFORMS = [
   { key: 'ios', icon: <IconBrandAppleFilled size={32} /> },
@@ -22,15 +22,8 @@ const PLATFORMS = [
 export function PlatformsSection() {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const isRu = !isGlobalOrigin();
 
-  const handleClick = useCallback(() => {
-    if (isRu) {
-      navigate('/profile/subscription');
-    } else {
-      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [isRu, navigate]);
+  const handleClick = useCallback(() => navigate(PRICING_PATH), [navigate]);
 
   return (
     <section className={'bg-white relative p-6 md:p-8 rounded-4xl shadow-sm'}>

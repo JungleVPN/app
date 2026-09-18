@@ -65,6 +65,18 @@ export function configuredDomains(): DomainLocales {
 }
 
 /**
+ * The hostname of the request being server-rendered. SSR has no `window`, so without it
+ * `isGlobalOrigin` fell back to RU on every host and the server rendered the RU-only
+ * markup (the free-trial section) that the global client never renders — a hydration
+ * mismatch on the landing page. Set per request by the SSR entry before rendering.
+ */
+let requestHostname: string | null = null;
+
+export function setRequestHostname(hostname: string | null): void {
+  requestHostname = hostname;
+}
+
+/**
  * True unless the app is being served from one of the RU domains (PUBLIC_DOMAIN_RU),
  * or is running inside the Telegram Mini App. The Mini App has no domain of its own
  * to route on (see `localePolicyForHost`'s "unrestricted host" case), and every
@@ -73,11 +85,17 @@ export function configuredDomains(): DomainLocales {
  * decision to `isGlobalOrigin` in `@workspace/types`, the single source of truth
  * shared with the backend. Used to force Russian and to switch pricing/payment UI
  * to RUB-only behavior.
+ *
+ * On the server the hostname comes from `setRequestHostname`, so SSR and the first
+ * client render agree; with neither a window nor a request hostname it stays false.
  */
 export function isGlobalOrigin(): boolean {
-  if (typeof window === 'undefined') return false;
   if (usePlatformStore.getState().platformType === 'telegram') return false;
-  return resolveIsGlobalOrigin(`https://${window.location.hostname}`, configuredDomains().ru);
+
+  const hostname = typeof window === 'undefined' ? requestHostname : window.location.hostname;
+  if (!hostname) return false;
+
+  return resolveIsGlobalOrigin(`https://${hostname}`, configuredDomains().ru);
 }
 
 /** Non-English global languages that route as `/<lang>`. English is the unprefixed `/`. */

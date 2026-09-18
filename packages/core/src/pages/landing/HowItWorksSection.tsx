@@ -9,7 +9,7 @@ import Step3 from '../../assets/icons/how-it-works-step-3.svg?react';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStore } from '../../stores';
 import { Grid, GridItem } from '../../ui';
-import { isGlobalOrigin } from '../../utils';
+import { isGlobalOrigin, PRICING_PATH } from '../../utils';
 
 type StepKey = 'install' | 'subscribe' | 'connect';
 
@@ -45,7 +45,7 @@ function StepCard({ step }: { step: Step }) {
 export function HowItWorksSection() {
   const { t } = useTranslation();
   const { authUser } = useAuthStore();
-  const { publicPlansPath, profileSubscriptionPath } = useAppRoutes();
+  const { profileSubscriptionPath } = useAppRoutes();
 
   const navigate = useNavigate();
   const isRu = !isGlobalOrigin();
@@ -55,12 +55,12 @@ export function HowItWorksSection() {
       navigate('/login');
     } else {
       if (!authUser) {
-        navigate(publicPlansPath);
+        navigate(PRICING_PATH);
       } else {
         navigate(profileSubscriptionPath);
       }
     }
-  }, [authUser, isRu, navigate, profileSubscriptionPath, publicPlansPath]);
+  }, [authUser, isRu, navigate, profileSubscriptionPath]);
 
   return (
     <section className='mb-24'>

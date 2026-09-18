@@ -4,9 +4,7 @@ import { motion, Variants } from 'framer-motion';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { useAppRoutes } from '../../runtime';
-import { useAuthStore } from '../../stores';
-import { isGlobalOrigin } from '../../utils';
+import { PRICING_PATH } from '../../utils';
 import { BrandTitle } from './BrandTitle';
 
 const container = {
@@ -21,11 +19,7 @@ const item: Variants | undefined = {
 
 export function HeroSection() {
   const { t } = useTranslation();
-  const { authUser } = useAuthStore();
-  const { publicPlansPath, profileSubscriptionPath } = useAppRoutes();
-
   const navigate = useNavigate();
-  const isRu = !isGlobalOrigin();
 
   const features = [
     { Icon: IconShieldCheck, text: t('landing.hero.features.feature1') },
@@ -33,17 +27,7 @@ export function HeroSection() {
     { Icon: IconBolt, text: t('landing.hero.features.feature3') },
   ];
 
-  const handleClick = useCallback(() => {
-    if (isRu) {
-      navigate('/login');
-    } else {
-      if (!authUser) {
-        navigate(publicPlansPath);
-      } else {
-        navigate(profileSubscriptionPath);
-      }
-    }
-  }, [isRu, navigate, authUser, profileSubscriptionPath, publicPlansPath]);
+  const handleClick = useCallback(() => navigate(PRICING_PATH), [navigate]);
 
   return (
     <section className='flex flex-col justify-center items-center lg:flex-row lg:items-center lg:gap-8'>

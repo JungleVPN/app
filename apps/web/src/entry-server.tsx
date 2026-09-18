@@ -10,6 +10,7 @@ import {
   localePolicyForHost,
   markdownPathFor,
   resolveLocaleForRequest,
+  setRequestHostname,
 } from '@workspace/core/utils';
 import { type ComponentType, StrictMode } from 'react';
 import { renderToString } from 'react-dom/server';
@@ -157,6 +158,11 @@ async function renderPage(request: Request, hostname: string) {
 
   await i18n.changeLanguage(config.locale);
 
+  // The RU/global switch reads window.location on the client; on the server it has to be
+  // told which host it is rendering for, or every page renders the RU markup and the
+  // global domain fails hydration.
+  setRequestHostname(hostname);
+
   const routes = createRoutes(config.Landing, PricingPage);
   const handler = createStaticHandler(routes);
   const context = await handler.query(request);
@@ -186,7 +192,11 @@ async function renderPage(request: Request, hostname: string) {
                 }}
               >
                 <ApiProvider client={backendClient}>
-                  <StaticRouterProvider router={router} context={context} />
+                  {/* `hydrate` emits a __staticRouterHydrationData script inside #root.
+                      The client router is created without hydrationData, so that script
+                      is a node the client tree does not have — an extra child React
+                      reports as a hydration mismatch on every SSR page. */}
+                  <StaticRouterProvider router={router} context={context} hydrate={false} />
                 </ApiProvider>
               </SupabaseProvider>
             </AnalyticsApiProvider>
