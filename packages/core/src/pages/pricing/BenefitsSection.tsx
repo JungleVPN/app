@@ -24,7 +24,7 @@ const BENEFITS = [
     titleKey: 'landing.features.support.title',
     descriptionKey: 'landing.features.support.description',
   },
-  { key: 'servers', Icon: IconServers, title: '30+', descriptionKey: 'landing.trust.users' },
+  { key: 'servers', Icon: IconServers, title: '20000+', descriptionKey: 'landing.trust.users' },
 ] as const;
 
 export function BenefitsSection() {

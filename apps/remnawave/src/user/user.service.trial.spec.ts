@@ -1,15 +1,14 @@
 /**
  * UserService.createUser — who gets a trial.
  *
- * Global accounts are created by the Stripe webhook *after* a payment has
- * settled, so the account exists to hold a purchase rather than to hand out
- * access. Creating it with TRIAL_PERIOD_IN_DAYS would give every payer a free
- * window on top of what they bought, and — worse, before this flow was
- * deferred — would have handed trial access to anyone who typed an email into
- * the public checkout page and walked away.
+ * The trial is a Telegram-only offer. Only a signup carrying a telegramId — the
+ * Mini App or the bot, where the trial is the product's front door — opens with
+ * TRIAL_PERIOD_IN_DAYS of access.
  *
- * RU signups still come through the bot/TMA, where the trial is the product's
- * front door, so they are deliberately untouched.
+ * Web accounts (global and RU alike) exist to hold a purchase rather than to hand
+ * out access: they are created around a payment, so opening them with a trial
+ * would give every payer a free window on top of what they bought, and would hand
+ * access to anyone who typed an email into the public checkout page and walked away.
  */
 
 import 'reflect-metadata';
@@ -51,7 +50,8 @@ const bodyOf = (panelClient: RemnaPanelClient) =>
 
 /** Whole days between now and an expiry, rounded to the nearest day. */
 const daysUntil = (expireAt: Date) =>
-  Math.round((new Date(expireAt).getTime() - Date.now()) / 86_400_000);
+  // `|| 0` normalises the -0 that an expiry a few ms in the past rounds to.
+  Math.round((new Date(expireAt).getTime() - Date.now()) / 86_400_000) || 0;
 
 describe('UserService.createUser — trial period', () => {
   beforeEach(() => vi.clearAllMocks());
@@ -64,7 +64,18 @@ describe('UserService.createUser — trial period', () => {
     expect(daysUntil(bodyOf(panelClient).expireAt)).toBe(0);
   });
 
-  it('still grants an RU signup the configured trial', async () => {
+  it('grants an RU web signup no trial either', async () => {
+    const { service, panelClient } = makeService({
+      TRIAL_PERIOD_IN_DAYS: '3',
+      PUBLIC_DOMAIN_RU: 'ru-web.jungle.test',
+    });
+
+    await service.createUser({ email: 'ru@test.com', origin: RU_ORIGIN });
+
+    expect(daysUntil(bodyOf(panelClient).expireAt)).toBe(0);
+  });
+
+  it('grants a Telegram signup the configured trial, whatever the origin', async () => {
     const { service, panelClient } = makeService({
       TRIAL_PERIOD_IN_DAYS: '3',
       PUBLIC_DOMAIN_RU: 'ru-web.jungle.test',
@@ -75,7 +86,7 @@ describe('UserService.createUser — trial period', () => {
     expect(daysUntil(bodyOf(panelClient).expireAt)).toBe(3);
   });
 
-  it('treats a signup with no origin as RU, keeping the bot flow unchanged', async () => {
+  it('grants a bot signup (no origin at all) the configured trial', async () => {
     const { service, panelClient } = makeService({ TRIAL_PERIOD_IN_DAYS: '3' });
 
     await service.createUser({ telegramId: 111 });

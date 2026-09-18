@@ -25,9 +25,7 @@
     "title": "Login or Sign Up",
     "email_label": "Email",
     "email_placeholder": "Your email",
-    "submit": "Continue",
-    "trial_card_title": "What you'll get after login",
-    "trial_card_description": "Trial applies to new accounts only."
+    "submit": "Continue"
   },
   "confirm": {
     "title": "Enter the code you received",
@@ -47,8 +45,7 @@
     "logoAlt": "JungleVPN logo",
     "nav": {
       "partnership": "Partnership",
-      "pricing": "Prices",
-      "trial": "Prices"
+      "pricing": "Prices"
     },
     "support": {
       "telegram": "Telegram",
@@ -594,7 +591,6 @@
       "subtitle": "Protect your connection, browse privately and stay secure on public Wi-Fi — with one VPN for all your devices.",
       "cta": "Try now",
       "login": "Log in",
-      "trial": "No credit card required",
       "guarantee": "30-day money-back guarantee",
       "features": {
         "feature1": "Unlimited traffic on all your devices",
@@ -688,7 +684,7 @@
         "name": "Sara Mitchell"
       },
       "privacy": {
-        "quote": "What I wanted was a clear privacy policy and a connection that does not drop. That is what I got, and the trial let me check before paying.",
+        "quote": "What I wanted was a clear privacy policy and a connection that does not drop. That is what I got, and I could check it all before paying.",
         "name": "Priya Nair"
       }
     },
@@ -764,10 +760,6 @@
         "question": "Which devices can I use JungleVPN on?",
         "answer": "JungleVPN works on all platforms. One subscription can be used across all your devices, so you can protect your phone, laptop and other supported devices with a single plan."
       },
-      "q3": {
-        "question": "What does the 3-day free trial include?",
-        "answer": "The free trial gives you access to JungleVPN before you commit to a paid subscription. No credit card is required to start. You can test the connection, available server locations and everyday performance before deciding whether to continue."
-      },
       "q4": {
         "question": "What happens if I am not satisfied after purchasing?",
         "answer": "JungleVPN includes a 30-day money-back guarantee. If the service is not right for you, contact our support team within the eligible refund period and we will guide you through the refund process according to the applicable terms."
@@ -793,11 +785,9 @@
         "cta": "Invite a friend →"
       }
     },
-    "freeTrial": {
-      "badge": "Free trial",
-      "title": "Try JungleVPN for {{days}} days",
-      "subtitle": "Not satisfied? Get a full refund, no questions asked.",
-      "cta": "Start your free trial"
+    "cta": {
+      "title": "Get JungleVPN today",
+      "subtitle": "Not satisfied? Get a full refund, no questions asked."
     },
     "footer": {
       "copyright": "© {{year}}. All rights reserved.",
@@ -808,7 +798,6 @@
       "affiliate": "Affiliate",
       "referral": "Referral",
       "pricing": "Pricing",
-      "trial": "Pricing",
       "partnership": "Partnership",
       "howItWorks": "How It Works",
       "faq": "FAQ"

@@ -20,7 +20,6 @@ const FOOTER_LINKS: Record<
   | 'affiliate'
   | 'referral'
   | 'pricing'
-  | 'trial'
   | 'partnership'
   | 'howItWorks'
   | 'faq',
@@ -32,7 +31,6 @@ const FOOTER_LINKS: Record<
   affiliate: { type: 'internal', to: '/affiliates' },
   referral: { type: 'internal', to: '/profile/referrals' },
   pricing: { type: 'internal', to: '/pricing' },
-  trial: { type: 'anchor', href: '#trial' },
   partnership: { type: 'anchor', href: '#partnership' },
   howItWorks: { type: 'anchor', href: '#how-it-works' },
   faq: { type: 'anchor', href: '#faq' },

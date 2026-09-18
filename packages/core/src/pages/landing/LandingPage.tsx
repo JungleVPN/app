@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import { FooterSection, StickyFooterReveal } from '../../components';
 import { useAuthStore } from '../../stores';
 import { Container } from '../../ui';
-import { isGlobalOrigin, phCapture } from '../../utils';
+import { PRICING_PATH, phCapture } from '../../utils';
 import { BentoFeaturesStack } from './BentoFeaturesStack';
 import { ComparisonSection } from './ComparisonSection';
 import { CountriesMarquee } from './CountriesMarquee';
+import { CTASection } from './CTASection';
 import { FAQSection } from './FAQSection';
-import { FreeTrialSection } from './FreeTrialSection';
 import { HeroSection } from './HeroSection';
 import { HowItWorksSection } from './HowItWorksSection';
 import { InfoSection } from './InfoSection';
@@ -19,7 +20,7 @@ import { WhatIsVPN } from './WhatIsVPN';
 
 export default function LandingPage() {
   const { rmnUser } = useAuthStore();
-  const isRu = !isGlobalOrigin();
+  const navigate = useNavigate();
 
   useEffect(() => {
     phCapture('landing_viewed', { userId: rmnUser?.id });
@@ -83,11 +84,6 @@ export default function LandingPage() {
               </Container>
             </div>
           </div>
-          {isRu && (
-            <Container>
-              <FreeTrialSection />
-            </Container>
-          )}
           <Container>
             <InfoSection />
           </Container>
@@ -99,6 +95,9 @@ export default function LandingPage() {
           </Container>
           <Container id='faq'>
             <WhatIsVPN />
+          </Container>
+          <Container>
+            <CTASection onCtaClick={() => navigate(PRICING_PATH)} />
           </Container>
         </div>
 

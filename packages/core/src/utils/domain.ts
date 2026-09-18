@@ -67,8 +67,8 @@ export function configuredDomains(): DomainLocales {
 /**
  * The hostname of the request being server-rendered. SSR has no `window`, so without it
  * `isGlobalOrigin` fell back to RU on every host and the server rendered the RU-only
- * markup (the free-trial section) that the global client never renders — a hydration
- * mismatch on the landing page. Set per request by the SSR entry before rendering.
+ * markup that the global client never renders — a hydration mismatch on the landing
+ * page. Set per request by the SSR entry before rendering.
  */
 let requestHostname: string | null = null;
 

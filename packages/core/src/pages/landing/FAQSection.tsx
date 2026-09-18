@@ -1,30 +1,20 @@
 import { Accordion } from '@heroui/react';
-import {
-  IconDevices,
-  IconDownload,
-  IconLock,
-  IconReceiptRefund,
-  IconSparkles,
-} from '@tabler/icons-react';
+import { IconDevices, IconDownload, IconLock, IconReceiptRefund } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Container } from '../../ui';
-import { isGlobalOrigin } from '../../utils';
 
 const FAQ_ICONS: ReactNode[] = [
   <IconDownload size={20} key={1} />,
   <IconDevices size={20} key={2} />,
-  <IconSparkles size={20} key={3} />,
   <IconReceiptRefund size={20} key={4} />,
   <IconLock size={20} key={5} />,
 ];
 
-const FAQ_KEYS = ['q1', 'q2', 'q3', 'q4', 'q5'] as const;
+const FAQ_KEYS = ['q1', 'q2', 'q4', 'q5'] as const;
 
 export function FAQSection() {
   const { t } = useTranslation();
-
-  const isGlobal = isGlobalOrigin();
 
   return (
     <section>
@@ -39,25 +29,22 @@ export function FAQSection() {
         className='flex flex-col items-center justify-center gap-4 text-center md:flex-row'
       >
         <Accordion className='w-full bg-background' variant='surface'>
-          {FAQ_KEYS.map((key, index) => {
-            if (key === 'q3' && isGlobal) return null;
-            return (
-              <Accordion.Item key={key}>
-                <Accordion.Heading className={'font-secondary'}>
-                  <Accordion.Trigger>
-                    <span className='me-3 shrink-0 text-muted'>{FAQ_ICONS[index]}</span>
-                    {t(`landing.faq.${key}.question`)}
-                    <Accordion.Indicator />
-                  </Accordion.Trigger>
-                </Accordion.Heading>
-                <Accordion.Panel>
-                  <Accordion.Body className={'text-start'}>
-                    {t(`landing.faq.${key}.answer`)}
-                  </Accordion.Body>
-                </Accordion.Panel>
-              </Accordion.Item>
-            );
-          })}
+          {FAQ_KEYS.map((key, index) => (
+            <Accordion.Item key={key}>
+              <Accordion.Heading className={'font-secondary'}>
+                <Accordion.Trigger>
+                  <span className='me-3 shrink-0 text-muted'>{FAQ_ICONS[index]}</span>
+                  {t(`landing.faq.${key}.question`)}
+                  <Accordion.Indicator />
+                </Accordion.Trigger>
+              </Accordion.Heading>
+              <Accordion.Panel>
+                <Accordion.Body className={'text-start'}>
+                  {t(`landing.faq.${key}.answer`)}
+                </Accordion.Body>
+              </Accordion.Panel>
+            </Accordion.Item>
+          ))}
         </Accordion>
       </Container>
     </section>

@@ -202,6 +202,7 @@ export class UserService implements OnModuleInit {
   ): Promise<CreateUserResponseDto> {
     const isGlobal = isGlobalOrigin(payload.origin, this.configService.get('PUBLIC_DOMAIN_RU'));
 
+    const isTelegramSignup = payload.telegramId !== undefined && payload.telegramId !== null;
     const trialDays = Number(this.configService.get('TRIAL_PERIOD_IN_DAYS', '3'));
     const ruInternalSquad = this.configService.getOrThrow<string>('RU_INTERNAL_SQUAD');
     const globalInternalSquad = this.configService.get(
@@ -216,14 +217,14 @@ export class UserService implements OnModuleInit {
     const activeInternalSquads = isGlobal ? [globalInternalSquad] : [ruInternalSquad];
     const externalSquadUuid = isGlobal ? globalExternalSquad : null;
 
-    const expireAt = addDays(new Date(), trialDays);
+    const expireAt = isTelegramSignup ? addDays(new Date(), trialDays) : new Date(Date.now());
 
     const { inviterId, origin, ...rest } = payload;
 
     const body: CreateUserRequestDto = {
       ...rest,
       username: crypto.randomUUID().slice(0, 10),
-      expireAt: isGlobal ? new Date(Date.now()) : expireAt,
+      expireAt,
       activeInternalSquads,
       externalSquadUuid,
       trafficLimitStrategy: 'MONTH',

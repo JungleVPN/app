@@ -1,8 +1,8 @@
 import { FooterSection, StickyFooterReveal } from '../../components';
 import { Container } from '../../ui';
-import { isGlobalOrigin, scrollToTop } from '../../utils';
+import { scrollToTop } from '../../utils';
+import { CTASection } from '../landing/CTASection';
 import { FAQSection } from '../landing/FAQSection';
-import { FreeTrialSection } from '../landing/FreeTrialSection';
 import { PricingSection } from '../landing/PricingSection';
 import { BenefitsSection } from './BenefitsSection';
 
@@ -23,7 +23,7 @@ export default function PricingPage() {
         >
           <Container className={'flex flex-col gap-32'}>
             <BenefitsSection />
-            <FreeTrialSection onCtaClick={isGlobalOrigin() ? scrollToTop : undefined} />
+            <CTASection onCtaClick={scrollToTop} />
             <FAQSection />
           </Container>
         </div>

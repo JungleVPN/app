@@ -58,11 +58,7 @@ export default function LoginPage() {
       </Surface>
 
       <div className={'mt-4'}>
-        <FeaturesCard
-          title={t('common.features.title')}
-          badge={t('connectEmailPage.discount')}
-          description={t('login.trial_card_description')}
-        />
+        <FeaturesCard title={t('common.features.title')} />
       </div>
     </>
   );

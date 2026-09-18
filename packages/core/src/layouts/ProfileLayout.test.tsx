@@ -3,7 +3,7 @@ import type { GetUserByIdResponseDto } from '@workspace/types';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useAuthStore } from '../stores';
+import { useAuthStore, usePlatformStore } from '../stores';
 import { ProfileLayout } from './ProfileLayout';
 
 const { getMe, phIdentify, navigate, remnawaveApi, isGlobalOrigin } = vi.hoisted(() => {
@@ -27,7 +27,7 @@ vi.mock('../api', () => ({
 }));
 
 vi.mock('../runtime', () => ({
-  useAppRoutes: () => ({ getConnectEmailPath: '/connectEmail' }),
+  useAppRoutes: () => ({ getConnectEmailPath: '/connectEmail', publicPlansPath: '/plans' }),
   usePaymentsApi: () => ({}),
 }));
 
@@ -68,6 +68,7 @@ function renderProfileLayout() {
 describe('ProfileLayout', () => {
   beforeEach(() => {
     isGlobalOrigin.mockReturnValue(false);
+    usePlatformStore.setState({ platformType: 'web' });
     remnawaveApi.getMyMetadata.mockResolvedValue(null);
     remnawaveApi.upsertMyMetadata.mockResolvedValue(undefined);
     useAuthStore.setState({
@@ -100,7 +101,10 @@ describe('ProfileLayout', () => {
     expect(phIdentify).not.toHaveBeenCalled();
   });
 
-  it('sends a RU user with no remnawave account to the page that creates their trial account', async () => {
+  // The trial is a Telegram-only offer: only the Mini App creates an account up
+  // front, and the panel opens it with TRIAL_PERIOD_IN_DAYS of access.
+  it('sends a TMA user with no remnawave account to the page that creates their trial account', async () => {
+    usePlatformStore.setState({ platformType: 'telegram' });
     getMe.mockResolvedValue(null);
 
     renderProfileLayout();
@@ -108,13 +112,11 @@ describe('ProfileLayout', () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/connectEmail'));
   });
 
-  it('navigates a global user with no remnawave account to plans page', async () => {
-    isGlobalOrigin.mockReturnValue(true);
+  it('navigates a web user with no remnawave account to the plans page', async () => {
     getMe.mockResolvedValue(null);
 
     renderProfileLayout();
 
-    await waitFor(() => expect(getMe).toHaveBeenCalled());
-    expect(navigate).toHaveBeenCalled();
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/plans'));
   });
 });

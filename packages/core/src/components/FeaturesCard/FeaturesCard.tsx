@@ -3,19 +3,14 @@ import { IconCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Block } from '../../ui';
 
-type TrialFeaturesCardProps = {
+type FeaturesCardProps = {
   badge?: string;
   title?: string;
   description?: string;
   className?: string;
 };
 
-export function FeaturesCard({
-  badge,
-  title,
-  description,
-  className = 'p-4',
-}: TrialFeaturesCardProps) {
+export function FeaturesCard({ badge, title, description, className = 'p-4' }: FeaturesCardProps) {
   const { t } = useTranslation();
 
   const features = [

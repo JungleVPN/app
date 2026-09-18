@@ -25,9 +25,7 @@
     "title": "Giriş yap veya kayıt ol",
     "email_label": "E-posta",
     "email_placeholder": "E-posta adresiniz",
-    "submit": "Devam et",
-    "trial_card_title": "Giriş sonrası neler kazanacaksınız",
-    "trial_card_description": "Deneme süresi yalnızca yeni hesaplar için geçerlidir."
+    "submit": "Devam et"
   },
   "confirm": {
     "title": "Aldığınız kodu girin",
@@ -47,8 +45,7 @@
     "logoAlt": "JungleVPN logosu",
     "nav": {
       "partnership": "İş Ortaklığı",
-      "pricing": "Fiyatlar",
-      "trial": "Fiyatlar"
+      "pricing": "Fiyatlar"
     },
     "support": {
       "telegram": "Telegram",
@@ -594,7 +591,6 @@
       "subtitle": "Bağlantınızı güvence altına alın, gizliliğinizi koruyarak gezinin ve tüm cihazlarınız için tek bir VPN ile herkese açık Wi-Fi ağlarında güvende kalın.",
       "cta": "Hemen deneyin",
       "login": "Giriş yap",
-      "trial": "Kredi kartı gerekmez",
       "guarantee": "30 gün para iade garantisi",
       "features": {
         "feature1": "Tüm cihazlarınızda sınırsız trafik",
@@ -764,10 +760,6 @@
         "question": "JungleVPN'i hangi cihazlarda kullanabilirim?",
         "answer": "JungleVPN tüm platformlarda çalışır. Tek bir abonelik tüm cihazlarınızda kullanılabilir; böylece telefonunuzu, dizüstü bilgisayarınızı ve desteklenen diğer cihazlarınızı tek bir planla koruyabilirsiniz."
       },
-      "q3": {
-        "question": "3 günlük ücretsiz deneme neleri kapsıyor?",
-        "answer": "Ücretsiz deneme, ücretli bir aboneliğe geçmeden önce JungleVPN'e erişim sağlar. Başlamak için kredi kartı gerekmez. Karar vermeden önce bağlantıyı, mevcut sunucu konumlarını ve günlük performansı test edebilirsiniz."
-      },
       "q4": {
         "question": "Satın aldıktan sonra memnun kalmazsam ne olur?",
         "answer": "JungleVPN, 30 gün para iade garantisi sunar. Hizmet sizin için uygun değilse, uygun iade süresi içinde destek ekibimizle iletişime geçin; geçerli koşullara göre iade sürecinde size yol göstereceğiz."
@@ -793,11 +785,9 @@
         "cta": "Bir arkadaşınızı davet edin →"
       }
     },
-    "freeTrial": {
-      "badge": "Ücretsiz deneme",
-      "title": "JungleVPN'i {{days}} gün deneyin",
-      "subtitle": "Memnun kalmadınız mı? Hiçbir soru sorulmadan paranızı tam olarak iade ediyoruz.",
-      "cta": "Ücretsiz denemenizi başlatın"
+    "cta": {
+      "title": "JungleVPN’i bugün edinin",
+      "subtitle": "Memnun kalmadınız mı? Hiçbir soru sorulmadan paranızı tam olarak iade ediyoruz."
     },
     "footer": {
       "copyright": "© {{year}}. Tüm hakları saklıdır.",
@@ -808,7 +798,6 @@
       "affiliate": "Ortaklık",
       "referral": "Davet",
       "pricing": "Fiyatlandırma",
-      "trial": "Fiyatlandırma",
       "partnership": "İş Ortaklığı",
       "howItWorks": "Nasıl Çalışır",
       "faq": "SSS"

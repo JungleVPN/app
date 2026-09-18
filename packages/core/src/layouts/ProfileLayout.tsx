@@ -16,7 +16,7 @@ import {
   useSubscriptionConfigStoreActions,
 } from '../stores';
 import { Container } from '../ui';
-import { captureReferral, isGlobalOrigin, phIdentify } from '../utils';
+import { captureReferral, phIdentify } from '../utils';
 
 export function ProfileLayout() {
   const navigate = useNavigation();
@@ -54,14 +54,13 @@ export function ProfileLayout() {
   // Web:  looks up by email (authUser.email); redirects to getConnectEmailPath if not found.
   // TMA:  looks up by telegramId (tgUser.id);  redirects to getConnectEmailPath if not found.
   //
-  // A RU miss is the start of the free trial: getConnectEmailPath auto-connects the
-  // account, which the panel opens with TRIAL_PERIOD_IN_DAYS of access.
+  // A TMA miss is the start of the free trial: getConnectEmailPath auto-connects the
+  // account, which the panel opens with TRIAL_PERIOD_IN_DAYS of access. The trial is a
+  // Telegram-only offer.
   //
-  // Global domains are the exception: there an account only exists once a payment has
-  // settled, so "not found" is the ordinary state of a logged-in visitor who has not
-  // subscribed yet. Sending them to getConnectEmailPath would bounce them straight back
-  // (it no longer creates accounts for global users) — ProfileSubscriptionPage offers
-  // them a plan instead.
+  // On the web — global and RU alike — an account only exists once a payment has settled,
+  // so "not found" is the ordinary state of a logged-in visitor who has not subscribed
+  // yet. They are offered a plan instead.
   //
   // Guard: skip the API call if rmnUser is already in the store — this avoids a
   // redundant lookup when the user just came through ConnectEmailPage, which
@@ -78,7 +77,7 @@ export function ProfileLayout() {
             // client-side events (plan_selected, subscription_viewed, ...) merge into
             // the same PostHog person as backend-dispatched events (payment_succeeded).
             phIdentify(String(user.id));
-          } else if (!isGlobalOrigin()) {
+          } else if (platformType === 'telegram') {
             navigate(getConnectEmailPath);
           } else navigate(publicPlansPath);
         })
@@ -92,6 +91,7 @@ export function ProfileLayout() {
     navigate,
     getConnectEmailPath,
     publicPlansPath,
+    platformType,
   ]);
 
   useEffect(() => {
