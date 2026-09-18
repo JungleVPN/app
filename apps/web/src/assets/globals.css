@@ -9,6 +9,10 @@
   transition: none !important;
 }
 
+.font-primary {
+  font-family: "MartianMono", sans-serif;
+}
+
 .font-secondary {
   font-family: "Montserrat", sans-serif;
 }

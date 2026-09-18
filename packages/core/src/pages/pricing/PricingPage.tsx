@@ -1,6 +1,7 @@
 import { FooterSection, StickyFooterReveal } from '../../components';
 import { Container } from '../../ui';
 import { PricingSection } from '../landing/PricingSection';
+import { BenefitsSection } from './BenefitsSection';
 
 export default function PricingPage() {
   return (
@@ -14,9 +15,13 @@ export default function PricingPage() {
       <div className='relative z-10'>
         <div
           className={
-            'flex flex-col gap-56 relative z-10 bg-white -mt-24 pt-64 pb-32 rounded-b-[4rem] overflow-hidden'
+            'flex flex-col gap-56 relative z-10 bg-white -mt-24 pt-24 pb-32 rounded-b-[4rem] overflow-hidden'
           }
-        />
+        >
+          <Container>
+            <BenefitsSection />
+          </Container>
+        </div>
 
         <StickyFooterReveal>
           <Container className={'-mt-20 pt-20'}>

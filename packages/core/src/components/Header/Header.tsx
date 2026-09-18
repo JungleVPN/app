@@ -26,7 +26,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileDrawer } from './MobileDrawer';
 
 const navLinkClass =
-  'text-sm mix-blend-difference text-[white] hover:underline transition-colors cursor-pointer bg-transparent border-none p-0';
+  'text-base mix-blend-difference text-[white] hover:underline transition-colors cursor-pointer bg-transparent border-none p-0';
 
 export function Header() {
   const { t } = useTranslation();
@@ -81,13 +81,18 @@ export function Header() {
     ) : theme === 'dark' || platformType === 'telegram' ? (
       <LogoDark aria-label={t('header.logoAlt')} width={56} height={56} />
     ) : (
-      <Logo aria-label={t('header.logoAlt')} width={56} height={56} />
+      <Logo aria-label={t('header.logoAlt')} width={36} height={36} />
     );
 
   const inner = (
-    <div className='flex items-center justify-between gap-4'>
-      <Link href={getLink()} onClick={scrollToTop}>
+    <div className='flex items-center justify-between gap-16 min-h-15'>
+      <Link
+        href={getLink()}
+        onClick={scrollToTop}
+        className={'flex items-center justify-center gap-2'}
+      >
         {logoNode}
+        <span className={'font-primary font-extrabold text-xl'}>JungleVPN</span>
       </Link>
 
       {isLanding && (
