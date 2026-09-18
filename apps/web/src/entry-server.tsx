@@ -1,6 +1,6 @@
 import { AnalyticsApiProvider, ApiProvider } from '@workspace/core/api';
 import { getDirection, i18n } from '@workspace/core/core/i18n';
-import { LandingPage } from '@workspace/core/pages';
+import { LandingPage, PricingPage } from '@workspace/core/pages';
 import { AppRoutesProvider, PaymentsApiProvider, SupabaseProvider } from '@workspace/core/runtime';
 import {
   buildLlmsTxt,
@@ -157,7 +157,7 @@ async function renderPage(request: Request, hostname: string) {
 
   await i18n.changeLanguage(config.locale);
 
-  const routes = createRoutes(config.Landing);
+  const routes = createRoutes(config.Landing, PricingPage);
   const handler = createStaticHandler(routes);
   const context = await handler.query(request);
 

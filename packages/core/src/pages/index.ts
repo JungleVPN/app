@@ -7,6 +7,7 @@ export { default as LoginPage } from './login/LoginPage';
 export { default as PaddleCheckoutPage } from './paddleCheckout/PaddleCheckoutPage';
 export { ProtectedPaddleCheckoutPage } from './paddleCheckout/protected';
 export { PublicPlansPage } from './plans/PlansPage';
+export { default as PricingPage } from './pricing/PricingPage';
 export { default as PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';
 export { default as AffiliatePage } from './profile/affiliate/AffiliatePage';
 export { ProtectedDevicesPage } from './profile/devices/protected';

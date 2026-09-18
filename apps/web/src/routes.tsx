@@ -12,7 +12,7 @@ import { WebSuccessLayout } from '@/layouts/WebSuccessLayout';
 // see core-web-vitals audit on apps/web LCP/INP.
 const pages = () => import('@workspace/core/pages');
 
-export function createRoutes(Landing: ComponentType) {
+export function createRoutes(Landing: ComponentType, Pricing: ComponentType) {
   return [
     {
       Component: WebAppLayout,
@@ -39,6 +39,15 @@ export function createRoutes(Landing: ComponentType) {
           path: '/tr',
           Component: LandingLayout,
           children: [{ index: true, Component: Landing }],
+        },
+        // The pricing page reuses the landing layout: it is the same marketing
+        // surface, with the plans lifted into the hero. Eager like the landing
+        // page, because SSR's static handler does not resolve `lazy` routes —
+        // a lazy component here renders an empty shell and then fails hydration.
+        {
+          path: '/pricing',
+          Component: LandingLayout,
+          children: [{ index: true, Component: Pricing }],
         },
         {
           Component: WebRootLayout,

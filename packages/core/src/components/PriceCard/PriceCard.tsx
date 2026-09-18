@@ -49,7 +49,7 @@ export function PriceCard({
 
       <Card
         variant='secondary'
-        className={`h-full w-full p-6 justify-between bg-white shadow-md ${highlighted ? 'rounded-t-none ring-2 ring-purple-400' : ''} `}
+        className={`h-full w-full gap-1 p-6 justify-between bg-white shadow-md ${highlighted ? 'rounded-t-none ring-2 ring-purple-400' : ''} `}
       >
         <div className='mb-4 flex flex-col gap-1'>
           <span className='text-lg font-bold text-foreground'>{period}</span>
@@ -59,7 +59,7 @@ export function PriceCard({
 
         <div className='mb-4 flex items-baseline gap-1'>
           <span
-            className={`text-5xl font-bold tracking-tight ${highlighted ? 'text-purple-400' : 'text-foreground'}`}
+            className={`text-4xl font-bold tracking-tight ${highlighted ? 'text-purple-400' : 'text-foreground'}`}
           >
             {price}
           </span>

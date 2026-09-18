@@ -103,7 +103,7 @@ export default function LandingPage() {
         </div>
 
         <StickyFooterReveal>
-          <Container>
+          <Container className={'-mt-20 pt-20'}>
             <FooterSection />
           </Container>
         </StickyFooterReveal>

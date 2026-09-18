@@ -22,8 +22,6 @@ export {
   writeJsonCookie,
 } from './cookies';
 export { formatIntlPrice, formatPlanPrice } from './currency';
-export { calculatePricing, formatPlanAmounts, sortPlansByPeriodDesc } from './planPricing';
-export type { PlanAmounts, PriceCalculation } from './planPricing';
 export { toDateString } from './date';
 export { detectOs } from './detectOs';
 export {
@@ -32,11 +30,13 @@ export {
   isCrawlablePath,
   isGlobalOrigin,
   isLandingPath,
+  isMarketingPath,
   isPlansOrPaymentPlanPath,
   LANDING_PATHS,
   localePolicyForHost,
   markdownPathFor,
   normalizeHostname,
+  PRICING_PATH,
   parseDomains,
   resolveLocaleForHost,
   resolveLocaleForRequest,
@@ -52,6 +52,8 @@ export {
   rememberPendingYookassaPayment,
   takePendingYookassaPayment,
 } from './pendingPayment';
+export type { PlanAmounts, PriceCalculation } from './planPricing';
+export { calculatePricing, formatPlanAmounts, sortPlansByPeriodDesc } from './planPricing';
 export type { PostHogConsentStatus } from './posthog';
 export {
   phCapture,

@@ -4,9 +4,13 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { usePlatformStore } from '../../stores';
-import { isGlobalOrigin } from '../../utils';
+import { isGlobalOrigin, isLandingPath, isMarketingPath, PRICING_PATH } from '../../utils';
+import { Link } from '../Link/Link';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
+
+const navItemClass =
+  'flex items-center px-3 py-2.5 rounded-xl text-sm text-foreground/70 hover:text-foreground hover:bg-default transition-colors text-start';
 
 export function MobileDrawer() {
   const { t, i18n } = useTranslation();
@@ -14,7 +18,7 @@ export function MobileDrawer() {
   const { pathname } = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
-  const isLanding = pathname === '/';
+  const isLanding = isMarketingPath(pathname);
   const isRu = !isGlobalOrigin();
   const isTelegram = platformType === 'telegram';
 
@@ -56,16 +60,22 @@ export function MobileDrawer() {
             <Drawer.Body className='flex flex-col gap-2'>
               {isLanding && (
                 <nav className='flex flex-col gap-1'>
-                  {(['pricing', 'partnership'] as const).map((id) => (
+                  <Link
+                    href={PRICING_PATH}
+                    className={navItemClass}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {t('header.nav.pricing')}
+                  </Link>
+                  {isLandingPath(pathname) && (
                     <button
-                      key={id}
                       type='button'
-                      className='flex items-center px-3 py-2.5 rounded-xl text-sm text-foreground/70 hover:text-foreground hover:bg-default transition-colors text-start'
-                      onClick={() => scrollTo(id)}
+                      className={navItemClass}
+                      onClick={() => scrollTo('partnership')}
                     >
-                      {t(`header.nav.${id}`)}
+                      {t('header.nav.partnership')}
                     </button>
-                  ))}
+                  )}
                 </nav>
               )}
 

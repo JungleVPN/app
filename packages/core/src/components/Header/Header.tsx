@@ -12,7 +12,9 @@ import { Container } from '../../ui';
 import {
   isGlobalOrigin,
   isLandingPath,
+  isMarketingPath,
   isPlansOrPaymentPlanPath,
+  PRICING_PATH,
   phCapture,
   scrollToTop,
 } from '../../utils';
@@ -22,6 +24,9 @@ import { SupportButton } from '../SupportWidget/SupportButton';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileDrawer } from './MobileDrawer';
+
+const navLinkClass =
+  'text-sm mix-blend-difference text-[white] hover:underline transition-colors cursor-pointer bg-transparent border-none p-0';
 
 export function Header() {
   const { t } = useTranslation();
@@ -34,7 +39,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [isRu, setIsRu] = useState(false);
 
-  const isLanding = isLandingPath(pathname);
+  const isLanding = isMarketingPath(pathname);
   const isTelegram = platformType === 'telegram';
   const hideAuthButtons = isPlansOrPaymentPlanPath(pathname);
 
@@ -87,18 +92,27 @@ export function Header() {
 
       {isLanding && (
         <nav className='hidden sm:flex items-center gap-6'>
-          {(['pricing', 'partnership'] as const).map((id) => (
+          <Link
+            href={PRICING_PATH}
+            className={navLinkClass}
+            onClick={() => {
+              phCapture('landing_pricing_link_clicked');
+              scrollToTop();
+            }}
+          >
+            {t('header.nav.pricing')}
+          </Link>
+          {isLandingPath(pathname) && (
             <Button
-              key={id}
-              className='text-sm mix-blend-difference text-[white] hover:underline transition-colors cursor-pointer bg-transparent border-none p-0'
+              className={navLinkClass}
               onClick={() => {
-                phCapture(`landing_${id}_link_clicked`);
-                document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+                phCapture('landing_partnership_link_clicked');
+                document.getElementById('partnership')?.scrollIntoView({ behavior: 'smooth' });
               }}
             >
-              {t(`header.nav.${id}`)}
+              {t('header.nav.partnership')}
             </Button>
-          ))}
+          )}
         </nav>
       )}
 

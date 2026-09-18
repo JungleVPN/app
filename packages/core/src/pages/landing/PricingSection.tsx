@@ -88,17 +88,41 @@ function GooglePayIcon() {
 
 const INCLUDES_KEYS = ['includes1', 'includes2', 'includes3', 'includes4', 'includes5'] as const;
 
-function PlanIncludes() {
+/**
+ * The section sits on the white landing page and on the dark gradient hero of
+ * the pricing page, so its copy colours follow the surface it is placed on.
+ */
+type Surface = 'light' | 'dark';
+
+const HEADING_CLASS: Record<Surface, string> = {
+  light: 'text-black',
+  dark: 'text-white',
+};
+
+const BODY_CLASS: Record<Surface, string> = {
+  light: 'text-muted',
+  dark: 'text-white/70',
+};
+
+const EMPHASIS_CLASS: Record<Surface, string> = {
+  light: 'text-foreground',
+  dark: 'text-white',
+};
+
+function PlanIncludes({ surface }: { surface: Surface }) {
   const { t } = useTranslation();
 
   return (
     <div className='flex flex-col items-center gap-3'>
-      <span className='text-base font-semibold lg:text-md text-foreground'>
+      <span className={cn('text-base font-semibold lg:text-md', EMPHASIS_CLASS[surface])}>
         {t('landing.pricing.includesTitle')}
       </span>
       <ul className='flex flex-wrap items-center justify-center gap-x-5 gap-y-2'>
         {INCLUDES_KEYS.map((key) => (
-          <li key={key} className='flex items-center gap-1.5 text-base lg:text-md text-muted'>
+          <li
+            key={key}
+            className={cn('flex items-center gap-1.5 text-base lg:text-md', BODY_CLASS[surface])}
+          >
             <IconCheck size={16} className='shrink-0 text-success' strokeWidth={2.5} />
             {t(`landing.pricing.${key}`)}
           </li>
@@ -108,7 +132,7 @@ function PlanIncludes() {
   );
 }
 
-export function PricingSection() {
+export function PricingSection({ surface = 'light' }: { surface?: Surface } = {}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const plans = usePlans();
@@ -140,14 +164,21 @@ export function PricingSection() {
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-2xl text-black px-16 sm:px-0 font-bold tracking-tight sm:text-3xl lg:text-4xl'>
+        <h2
+          className={cn(
+            'text-2xl px-16 sm:px-0 font-bold tracking-tight sm:text-3xl lg:text-4xl',
+            HEADING_CLASS[surface],
+          )}
+        >
           {t('landing.pricing.title')}
         </h2>
-        <p className='text-muted text-base lg:text-md'>{t('landing.pricing.subtitle')}</p>
+        <p className={cn('text-base lg:text-md', BODY_CLASS[surface])}>
+          {t('landing.pricing.subtitle')}
+        </p>
       </div>
 
       <div className='flex flex-col items-center gap-8'>
-        <PlanIncludes />
+        <PlanIncludes surface={surface} />
 
         <Grid>
           {plans.map((plan) => {

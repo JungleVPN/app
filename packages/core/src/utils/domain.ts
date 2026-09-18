@@ -100,6 +100,17 @@ export function isLandingPath(pathname: string): boolean {
   return LANDING_PATHS.has(pathname);
 }
 
+/** The standalone marketing pricing page. */
+export const PRICING_PATH = '/pricing';
+
+/**
+ * True for the public marketing surfaces — the landing pages and the pricing
+ * page — which share the same transparent, nav-carrying header.
+ */
+export function isMarketingPath(pathname: string): boolean {
+  return isLandingPath(pathname) || pathname === PRICING_PATH;
+}
+
 /** True for the plan-selection/checkout paths `/plans` and `/payment/planN`, where AuthButtons are hidden. */
 export function isPlansOrPaymentPlanPath(pathname: string): boolean {
   return pathname === '/plans' || /^\/payment\/plan\d+/.test(pathname);
@@ -112,6 +123,7 @@ export function isPlansOrPaymentPlanPath(pathname: string): boolean {
  */
 export const CRAWLABLE_PATHS: ReadonlySet<string> = new Set([
   ...LANDING_PATHS,
+  PRICING_PATH,
   '/terms',
   '/privacy',
   '/cookies',
