@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
 import { FooterSection, StickyFooterReveal } from '../../components';
 import { useAuthStore } from '../../stores';
 import { Container } from '../../ui';
@@ -17,10 +16,11 @@ import { PlatformsSection } from './PlatformsSection';
 import { PricingSection } from './PricingSection';
 import { TrustSection } from './TrustSection';
 import { WhatIsVPN } from './WhatIsVPN';
+import { useNavigation } from '../../hooks';
 
 export default function LandingPage() {
   const { rmnUser } = useAuthStore();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
 
   useEffect(() => {
     phCapture('landing_viewed', { userId: rmnUser?.id });

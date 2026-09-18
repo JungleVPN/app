@@ -9,22 +9,12 @@ import {
   TextField,
   Tooltip,
 } from '@heroui/react';
-import {
-  IconBrandAppleFilled,
-  IconBrandGoogle,
-  IconBrandMastercard,
-  IconBrandVisa,
-  IconChevronRight,
-  IconCreditCard,
-  IconHelpCircle,
-  IconMail,
-  IconRestore,
-} from '@tabler/icons-react';
+import { IconChevronRight, IconHelpCircle, IconMail, IconRestore } from '@tabler/icons-react';
 import type { SubscriptionPlanDto } from '@workspace/types';
 import { SyntheticEvent } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Logo from '../../assets/Logo.svg?react';
-import { FeaturesCard, Link } from '../../components';
+import { FeaturesCard, Link, PaymentMethodIcons } from '../../components';
 import { useTermsStore } from '../../stores';
 import { Block, Container, Grid, GridItem } from '../../ui';
 import { formatPlanPrice } from '../../utils';
@@ -181,13 +171,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                       )}
                     </Button>
 
-                    <div className='flex items-center gap-3 text-muted'>
-                      <IconBrandVisa size={28} stroke={2} />
-                      <IconBrandAppleFilled size={22} stroke={2} />
-                      <IconCreditCard size={24} stroke={2} />
-                      <IconBrandMastercard size={24} stroke={2} />
-                      <IconBrandGoogle size={24} stroke={2} />
-                    </div>
+                    <PaymentMethodIcons className='gap-3' />
                   </div>
 
                   {checkoutError && <p className='text-sm text-danger'>{checkoutError}</p>}

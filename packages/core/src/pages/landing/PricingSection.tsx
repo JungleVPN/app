@@ -1,12 +1,12 @@
-import { IconBrandAppleFilled, IconBrandGoogleFilled, IconCheck } from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 import type { SubscriptionPlanDto } from '@workspace/types';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { PaymentMethodIcons } from '../../components';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
-import { usePlans } from '../../hooks';
+import { useNavigation, usePlans } from '../../hooks';
 import { Grid, GridItem } from '../../ui';
-import { calculatePricing, cn, isGlobalOrigin } from '../../utils';
+import { calculatePricing, cn } from '../../utils';
 import { planSlug } from '../getSubscription/planSlug';
 
 const HIGHLIGHTED_PLAN_PERIOD = 12;
@@ -39,52 +39,6 @@ function buildPlanOrders(plans: SubscriptionPlanDto[]): Map<number, PlanOrder> {
   });
 
   return orders;
-}
-
-function PaymentMethods() {
-  return (
-    <div className='flex flex-wrap items-center justify-center gap-4'>
-      <MastercardIcon />
-      <VisaIcon />
-      <ApplePayIcon />
-      <GooglePayIcon />
-    </div>
-  );
-}
-
-function MastercardIcon() {
-  return (
-    <div className='flex items-center'>
-      <div className='h-7 w-7 rounded-full bg-red-500 opacity-90' />
-      <div className='-ml-3 h-7 w-7 rounded-full bg-orange-400 opacity-80' />
-    </div>
-  );
-}
-
-function VisaIcon() {
-  return (
-    <span className='text-base font-extrabold tracking-widest text-foreground opacity-70'>
-      VISA
-    </span>
-  );
-}
-
-function ApplePayIcon() {
-  return (
-    <div className='flex items-center gap-1 opacity-70'>
-      <IconBrandAppleFilled />
-      <span className='text-sm font-semibold text-foreground'>Pay</span>
-    </div>
-  );
-}
-
-function GooglePayIcon() {
-  return (
-    <div className='flex items-center gap-1 opacity-70'>
-      <IconBrandGoogleFilled />
-      <span className='text-sm font-semibold text-foreground'>Pay</span>
-    </div>
-  );
 }
 
 const INCLUDES_KEYS = ['includes1', 'includes2', 'includes3', 'includes4', 'includes5'] as const;
@@ -146,7 +100,7 @@ export function PricingSection({
   animateOnMount?: boolean;
 } = {}) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
   const plans = usePlans();
 
   function formatMonths(months: number): string {
@@ -155,12 +109,7 @@ export function PricingSection({
     return t('landing.pricing.monthsPeriod', { count: months });
   }
 
-  const isRu = !isGlobalOrigin();
-
-  // Global domains check out on the standalone payment page, which needs the
-  // chosen period in the URL. RU still goes through the in-profile plan picker.
-  const handleCtaClick = (months: number) =>
-    navigate(isRu ? '/profile/plans' : `/payment/${planSlug(months)}`);
+  const handleCtaClick = (months: number) => navigate(`/payment/${planSlug(months)}`);
 
   const sharedProps = {
     interval: t('landing.pricing.interval'),
@@ -246,7 +195,7 @@ export function PricingSection({
           })}
         </Grid>
 
-        <PaymentMethods />
+        <PaymentMethodIcons />
       </div>
     </section>
   );

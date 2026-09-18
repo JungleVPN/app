@@ -7,13 +7,7 @@ import { useAppRoutes, useSupabaseClient } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo } from '../../stores';
 import { isLandingPath, PRICING_PATH, scrollToTop } from '../../utils';
 
-interface AuthButtonsProps {
-  isRu?: boolean;
-}
-
-export function AuthButtons(props: AuthButtonsProps) {
-  const { isRu } = props;
-
+export function AuthButtons() {
   const supabase = useSupabaseClient();
   const { authUser, loading } = useAuthStoreInfo();
   const { setAuthUser, setRmnUser } = useAuthStoreActions();
@@ -31,11 +25,6 @@ export function AuthButtons(props: AuthButtonsProps) {
   };
 
   const handleTryNow = () => {
-    if (isRu) {
-      navigate('/login');
-      return;
-    }
-
     if (location.pathname === PRICING_PATH) {
       scrollToTop();
     }

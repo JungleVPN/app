@@ -410,6 +410,19 @@ describe('EmailNotificationService', () => {
       expect(html).toContain('https://ru-jungle.example/profile/subscription');
     });
 
+    // PUBLIC_DOMAIN_RU holds every host the RU storefront answers on, and pasting
+    // the raw value into a URL produced `https://a,b,c/profile/subscription` —
+    // not a link any mail client will open, which is how the payment-success
+    // email arrived with no working "manage subscription" button.
+    it('links to the first host when the domain variable lists several', async () => {
+      process.env.PUBLIC_DOMAIN_RU = 'jungle.community,thejungle.pro,web.thejungle.pro';
+
+      const html = await ctaUrlFor([{ uuid: RU_SQUAD, name: 'Jungle Lake' }]);
+
+      expect(html).toContain('https://jungle.community/profile/subscription');
+      expect(html).not.toContain('thejungle.pro/profile/subscription');
+    });
+
     it('links to the global domain for a user in the global squad', async () => {
       const html = await ctaUrlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }]);
 

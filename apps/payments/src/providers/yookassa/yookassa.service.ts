@@ -61,7 +61,7 @@ export class YookassaService {
 
   getActiveSavedMethods(userId: number): Promise<SavedPaymentMethod[]> {
     return this.savedMethodRepo.find({
-      where: { userId, isActive: true },
+      where: { userId, isActive: true, provider: 'yookassa' },
       order: { createdAt: 'DESC' },
     });
   }
@@ -96,6 +96,30 @@ export class YookassaService {
     if (!record || record.userId !== userId) {
       throw new NotFoundException(`Yookassa payment ${id} not found`);
     }
+
+    try {
+      const { status } = await this.yooKassaProvider.getPayment(id);
+      return { id, status };
+    } catch (error) {
+      this.logger.warn(`Could not read live status for payment ${id}, using stored status`, error);
+      return { id, status: record.status as Payments.PaymentStatus };
+    }
+  }
+
+  /**
+   * Status of a payment by id alone, for the post-payment return page.
+   *
+   * The RU checkout is anonymous — the payer has no credential when YooKassa
+   * sends them back — so the payment id is the only thing tying the browser to
+   * the payment. It is an unguessable YooKassa uuid held by the tab that
+   * started the checkout, and this answers with nothing but the status: no
+   * user, no amount, no plan.
+   */
+  async getPublicPaymentStatus(
+    id: string,
+  ): Promise<{ id: string; status: Payments.PaymentStatus }> {
+    const record = await this.yookassaPaymentRepo.findOneBy({ id });
+    if (!record) throw new NotFoundException(`Yookassa payment ${id} not found`);
 
     try {
       const { status } = await this.yooKassaProvider.getPayment(id);

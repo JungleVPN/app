@@ -4,13 +4,14 @@ import {
   type CaptureToltReferralDto,
   type CreatePublicPaddleCheckoutDto,
   type CreatePublicStripeSessionDto,
+  type CreatePublicYookassaSessionDto,
   type CreateStripeSessionDto,
   type CreateTelegramStarsInvoiceDto,
   type CreateYookassaSessionDto,
   type PaddleCheckoutPayload,
   type PaddleSubscriptionStatusDto,
-  type Payments,
   PaymentSession,
+  type Payments,
   type RecordToltClickDto,
   type RecordToltClickResponse,
   SavedMethodDto,
@@ -32,6 +33,17 @@ export function createPaymentsApi(client: ApiClient) {
       dto: Omit<CreateYookassaSessionDto, 'amount'>,
     ): Promise<PaymentSession> {
       return client.post<PaymentSession>(apiRoutes.payments.yookassaCreateSession, dto);
+    },
+
+    /**
+     * Anonymous RU checkout for the standalone payment page — the backend
+     * find-or-creates the account from the payer email and answers with the
+     * YooKassa confirmation URL to send the payer to.
+     */
+    async createPublicYookassaSession(
+      dto: CreatePublicYookassaSessionDto,
+    ): Promise<PaymentSession> {
+      return client.post<PaymentSession>(apiRoutes.payments.yookassaPublicCreateSession, dto);
     },
 
     async createStripeSession(dto: CreateStripeSessionDto): Promise<PaymentSession> {
@@ -76,6 +88,18 @@ export function createPaymentsApi(client: ApiClient) {
     ): Promise<{ id: string; status: Payments.PaymentStatus }> {
       return client.get<{ id: string; status: Payments.PaymentStatus }>(
         apiRoutes.payments.yookassaPaymentStatus(id),
+      );
+    },
+
+    /**
+     * The same status by payment id alone. The RU checkout is anonymous, so the
+     * payer coming back from YooKassa has no credential to look it up with.
+     */
+    async getPublicYookassaPaymentStatus(
+      id: string,
+    ): Promise<{ id: string; status: Payments.PaymentStatus }> {
+      return client.get<{ id: string; status: Payments.PaymentStatus }>(
+        apiRoutes.payments.yookassaPublicPaymentStatus(id),
       );
     },
 

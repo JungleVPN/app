@@ -24,8 +24,11 @@ export const apiRoutes = {
     paddleSubscription: '/paddle/subscription',
     paddleWebhook: '/paddle/webhook',
     yookassaCreateSession: '/yookassa/create-session',
+    yookassaPublicCreateSession: '/yookassa/public-create-session',
     yookassaWebhook: '/yookassa/webhook',
     yookassaPaymentStatus: (id: string) => `/yookassa/payment-status/${encodeURIComponent(id)}`,
+    yookassaPublicPaymentStatus: (id: string) =>
+      `/yookassa/public-payment-status/${encodeURIComponent(id)}`,
     yookassaSavedMethods: '/yookassa/saved-methods',
     yookassaSavedMethodById: (id: string) => `/yookassa/saved-methods/${encodeURIComponent(id)}`,
     telegramStarsCreateInvoice: '/telegram-stars/create-invoice',

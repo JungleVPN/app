@@ -8,6 +8,7 @@ import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
 import { PaymentsUtils } from '@payments/utils/utils';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
+import { PublicCheckoutRateLimitGuard } from '../../guards/public-checkout-rate-limit.guard';
 import { PaymentStatusModule } from '../../payment-status/payment-status.module';
 import { PromoModule } from '../../promo/promo.module';
 import { ToltModule } from '../../tolt/tolt.module';
@@ -23,6 +24,12 @@ import { ToltModule } from '../../tolt/tolt.module';
   ],
   controllers: [YookassaController],
   exports: [YooKassaProvider, YookassaService],
-  providers: [YooKassaConnector, YooKassaProvider, YookassaService, PaymentsUtils],
+  providers: [
+    YooKassaConnector,
+    YooKassaProvider,
+    YookassaService,
+    PaymentsUtils,
+    PublicCheckoutRateLimitGuard,
+  ],
 })
 export class YookassaModule {}

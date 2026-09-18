@@ -1,8 +1,9 @@
 import { Card, Separator } from '@heroui/react';
 import { TSubscriptionPageRawConfig } from '@remnawave/subscription-page-types';
-import { isGlobalSquadUser, TSubscriptionPagePlatformKey } from '@workspace/types';
+import { TSubscriptionPagePlatformKey } from '@workspace/types';
 import { useTranslation } from '../../hooks';
-import { useAuthStore, useSubscriptionConfig } from '../../stores';
+import { useSubscriptionConfig } from '../../stores';
+import { isGlobalOrigin } from '../../utils';
 import { AppTabs } from './components/AppTabs/AppTabs';
 import {
   AccordionBlockRenderer,
@@ -40,8 +41,7 @@ function renderBlocks(
 
 export function InstallationGuideConnector({ hasPlatformApps, platform, type }: IProps) {
   const { t, baseTranslations } = useTranslation();
-  const { rmnUser } = useAuthStore();
-  const isGlobalUser = isGlobalSquadUser(rmnUser, import.meta.env.RU_INTERNAL_SQUAD || '');
+  const isGlobalUser = isGlobalOrigin();
   const { svgLibrary } = useSubscriptionConfig();
   const {
     selectedPlatformId,

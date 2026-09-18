@@ -128,7 +128,7 @@ export function Header() {
         {!isLanding && <SubscriptionLinkWidget />}
         {!isLanding && <SupportButton />}
         {!isRu && !isTelegram && <LanguageSwitcher />}
-        {platformType === 'web' && !hideAuthButtons && <AuthButtons isRu={isRu} />}
+        {platformType === 'web' && !hideAuthButtons && <AuthButtons />}
       </div>
 
       {/* Mobile: hamburger only */}

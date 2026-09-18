@@ -15,6 +15,7 @@ export { InfoBlock } from './InfoBlock/InfoBlock';
 export { InstallationGuideConnector } from './InstallationGuide';
 export { Link } from './Link/Link';
 export { Loading } from './Loading/Loading';
+export { PaymentMethodIcons } from './PaymentMethods/PaymentMethodIcons';
 export { PromoDrawer } from './payment/PromoDrawer';
 export { SavedMethodRow } from './payment/SavedMethodRow';
 export { StarsPaymentSuccessDrawer } from './payment/StarsPaymentSuccessDrawer';

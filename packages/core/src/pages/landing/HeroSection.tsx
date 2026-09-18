@@ -3,7 +3,9 @@ import { IconBolt, IconRefresh, IconRocket, IconShieldCheck } from '@tabler/icon
 import { motion, Variants } from 'framer-motion';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigation } from '../../hooks';
+import { useAppRoutes } from '../../runtime';
+import { useAuthStore } from '../../stores';
 import { PRICING_PATH } from '../../utils';
 import { BrandTitle } from './BrandTitle';
 
@@ -19,7 +21,9 @@ const item: Variants | undefined = {
 
 export function HeroSection() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
+  const { authUser } = useAuthStore();
+  const { profileSubscriptionPath } = useAppRoutes();
 
   const features = [
     { Icon: IconShieldCheck, text: t('landing.hero.features.feature1') },
@@ -27,7 +31,13 @@ export function HeroSection() {
     { Icon: IconBolt, text: t('landing.hero.features.feature3') },
   ];
 
-  const handleClick = useCallback(() => navigate(PRICING_PATH), [navigate]);
+  const handleClick = useCallback(() => {
+    if (!authUser) {
+      navigate(PRICING_PATH);
+    } else {
+      navigate(profileSubscriptionPath);
+    }
+  }, [navigate, authUser, profileSubscriptionPath]);
 
   return (
     <section className='flex flex-col justify-center items-center lg:flex-row lg:items-center lg:gap-8'>

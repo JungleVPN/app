@@ -6,6 +6,7 @@ import {
   GetUserByIdResponseDto,
   isGlobalSquadUser,
   Payments,
+  parseDomains,
   WebhookEventEnum,
 } from '@workspace/types';
 import axios, { isAxiosError } from 'axios';
@@ -101,11 +102,25 @@ export class EmailNotificationService {
     return uuid;
   }
 
+  /**
+   * Both domain variables hold a comma-separated list — the RU storefront alone
+   * answers on four hosts — so the raw value cannot be pasted into a URL: it
+   * produced `https://jungle.community,thejungle.pro,…/profile/subscription`,
+   * which is not a link any mail client will open. The first entry is the
+   * canonical host of that storefront.
+   */
+  private canonicalHost(domains: string | undefined): string | null {
+    return parseDomains(domains)[0] ?? null;
+  }
+
   private siteUrlFor(user: Pick<GetUserByIdResponseDto, 'activeInternalSquads'>): string {
     const isGlobal = isGlobalSquadUser(user, this.ruInternalSquad);
-    const domain = isGlobal ? process.env.PUBLIC_DOMAIN_GLOBAL : process.env.PUBLIC_DOMAIN_RU;
-    if (domain) return `https://${domain}${PROFILE_SUBSCRIPTION_PATH}`;
-    return process.env.PUBLIC_DOMAIN_GLOBAL ?? '';
+    const host =
+      this.canonicalHost(
+        isGlobal ? process.env.PUBLIC_DOMAIN_GLOBAL : process.env.PUBLIC_DOMAIN_RU,
+      ) ?? this.canonicalHost(process.env.PUBLIC_DOMAIN_GLOBAL);
+
+    return host ? `https://${host}${PROFILE_SUBSCRIPTION_PATH}` : '';
   }
 
   private get supportUrl(): string {

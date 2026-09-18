@@ -2,14 +2,14 @@ import { Button, Card, Chip } from '@heroui/react';
 import { IconRefresh } from '@tabler/icons-react';
 import { ReactNode, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import Step1 from '../../assets/icons/how-it-works-step-1.svg?react';
 import Step2 from '../../assets/icons/how-it-works-step-2.svg?react';
 import Step3 from '../../assets/icons/how-it-works-step-3.svg?react';
+import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStore } from '../../stores';
 import { Grid, GridItem } from '../../ui';
-import { isGlobalOrigin, PRICING_PATH } from '../../utils';
+import { PRICING_PATH } from '../../utils';
 
 type StepKey = 'install' | 'subscribe' | 'connect';
 
@@ -47,20 +47,15 @@ export function HowItWorksSection() {
   const { authUser } = useAuthStore();
   const { profileSubscriptionPath } = useAppRoutes();
 
-  const navigate = useNavigate();
-  const isRu = !isGlobalOrigin();
+  const navigate = useNavigation();
 
   const handleClick = useCallback(() => {
-    if (isRu) {
-      navigate('/login');
+    if (!authUser) {
+      navigate(PRICING_PATH);
     } else {
-      if (!authUser) {
-        navigate(PRICING_PATH);
-      } else {
-        navigate(profileSubscriptionPath);
-      }
+      navigate(profileSubscriptionPath);
     }
-  }, [authUser, isRu, navigate, profileSubscriptionPath]);
+  }, [authUser, navigate, profileSubscriptionPath]);
 
   return (
     <section className='mb-24'>

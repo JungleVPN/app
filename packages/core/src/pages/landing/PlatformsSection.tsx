@@ -8,6 +8,8 @@ import IconAppleTv from '../../assets/icons/appleTv-icon.svg?react';
 import IconMacOS from '../../assets/icons/macOs-icon.svg?react';
 import PlatformsIcon from '../../assets/icons/platforms-icon.svg?react';
 import { useNavigation } from '../../hooks';
+import { useAppRoutes } from '../../runtime';
+import { useAuthStore } from '../../stores';
 import { PRICING_PATH } from '../../utils';
 
 const PLATFORMS = [
@@ -21,9 +23,18 @@ const PLATFORMS = [
 
 export function PlatformsSection() {
   const { t } = useTranslation();
+  const { authUser } = useAuthStore();
+  const { profileSubscriptionPath } = useAppRoutes();
+
   const navigate = useNavigation();
 
-  const handleClick = useCallback(() => navigate(PRICING_PATH), [navigate]);
+  const handleClick = useCallback(() => {
+    if (!authUser) {
+      navigate(PRICING_PATH);
+    } else {
+      navigate(profileSubscriptionPath);
+    }
+  }, [navigate, authUser, profileSubscriptionPath]);
 
   return (
     <section className={'bg-white relative p-6 md:p-8 rounded-4xl shadow-sm'}>

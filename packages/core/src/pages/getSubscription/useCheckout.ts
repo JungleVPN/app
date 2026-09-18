@@ -2,10 +2,9 @@ import type { SubscriptionPlanDto } from '@workspace/types';
 import { type SyntheticEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
-import { useNavigation, usePlans } from '../../hooks';
-import { useAppRoutes } from '../../runtime';
+import { usePlans } from '../../hooks';
 import { useAuthStore, usePlanByPeriod, usePlansStatus } from '../../stores';
-import { isGlobalOrigin, scrollToTop, validateEmail } from '../../utils';
+import { scrollToTop, validateEmail } from '../../utils';
 import { isActiveSubscriptionError, isThrottledError } from './checkoutErrors';
 import { monthsFromSlug } from './planSlug';
 
@@ -30,7 +29,7 @@ export interface Checkout {
   plan: SubscriptionPlanDto | undefined;
   selectedPeriod: number | null;
   isAuthenticated: boolean;
-  /** True until the RU redirect has settled and the plans have loaded. */
+  /** True until the plans have loaded. */
   isLoading: boolean;
   email: string;
   emailError: string;
@@ -44,32 +43,24 @@ export interface Checkout {
 }
 
 /**
- * Everything the global checkout page does that isn't provider-specific: the
- * RU redirect, resolving the plan from the route, email entry and validation,
- * and turning a refused checkout into the right message.
+ * Everything a checkout page does that isn't provider-specific: resolving the
+ * plan from the route, email entry and validation, and turning a refused
+ * checkout into the right message.
  *
  * A provider supplies only `startCheckout` — what it actually means to begin
- * paying (Stripe redirects to a hosted session, Paddle mounts an inline
- * checkout). It throws on failure; this hook classifies the error.
+ * paying (Stripe and YooKassa redirect to a hosted session, Paddle mounts an
+ * inline checkout). It throws on failure; this hook classifies the error.
  */
 export function useCheckout(startCheckout: (request: CheckoutRequest) => Promise<void>): Checkout {
   const { planSlug } = useParams();
   const { t } = useTranslation();
   const { authUser } = useAuthStore();
-  const navigate = useNavigation();
-  const { profileSubscriptionPath } = useAppRoutes();
 
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [isPending, setIsPending] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [activeSubscriptionEmail, setActiveSubscriptionEmail] = useState<string | null>(null);
-
-  const isRu = !isGlobalOrigin();
-
-  useEffect(() => {
-    if (isRu) navigate(profileSubscriptionPath, { replace: true });
-  }, [isRu, navigate, profileSubscriptionPath]);
 
   useEffect(() => {
     scrollToTop();

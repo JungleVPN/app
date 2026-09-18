@@ -25,7 +25,7 @@ export function ActiveSubscriptionDialog({
 }) {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { profileSubscriptionPath, authGateRedirectPath } = useAppRoutes();
+  const { profilePaymentPath, authGateRedirectPath } = useAppRoutes();
 
   return (
     <AlertDialog.Backdrop
@@ -56,7 +56,7 @@ export function ActiveSubscriptionDialog({
           </AlertDialog.Body>
           {isLoggedIn ? (
             <AlertDialog.Footer className='flex flex-col gap-2 sm:flex-row'>
-              <Button fullWidth onPress={() => navigate(profileSubscriptionPath)}>
+              <Button fullWidth onPress={() => navigate(profilePaymentPath)}>
                 {t('getSubscription.active_dialog.to_profile')}
               </Button>
             </AlertDialog.Footer>

@@ -1,10 +1,10 @@
 import { Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigation } from '../../hooks';
 
 export function CTASection({ onCtaClick }: { onCtaClick?: () => void } = {}) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigation();
 
   return (
     <section id='cta'>

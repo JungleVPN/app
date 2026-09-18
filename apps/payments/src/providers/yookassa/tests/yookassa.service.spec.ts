@@ -709,13 +709,13 @@ describe('YookassaService', () => {
   // Query methods
   // ─────────────────────────────────────────────────────────
   describe('getActiveSavedMethods', () => {
-    it('returns only the user’s active methods, newest first', async () => {
+    it('returns only the user’s active YooKassa methods, newest first', async () => {
       const methods = [{ id: 'sm-2' }, { id: 'sm-1' }];
       mockSmFind.mockResolvedValue(methods);
 
       await expect(service.getActiveSavedMethods(1000)).resolves.toBe(methods);
       expect(mockSmFind).toHaveBeenCalledWith({
-        where: { userId: 1000, isActive: true },
+        where: { userId: 1000, isActive: true, provider: 'yookassa' },
         order: { createdAt: 'DESC' },
       });
     });
