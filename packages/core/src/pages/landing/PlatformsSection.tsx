@@ -6,9 +6,8 @@ import IconAndroid from '../../assets/icons/android-icon.svg?react';
 import IconAndroidTv from '../../assets/icons/androidTv-icon.svg?react';
 import IconAppleTv from '../../assets/icons/appleTv-icon.svg?react';
 import IconMacOS from '../../assets/icons/macOs-icon.svg?react';
-import GlobeLottie from '../../assets/lottie/globe.lottie?url';
+import PlatformsIcon from '../../assets/icons/platforms-icon.svg?react';
 import { useNavigation } from '../../hooks';
-import { LottieIcon } from '../../ui';
 import { isGlobalOrigin } from '../../utils';
 
 const PLATFORMS = [
@@ -34,9 +33,7 @@ export function PlatformsSection() {
   }, [isRu, navigate]);
 
   return (
-    <section
-      className={'bg-white relative p-6 md:p-8 rounded-4xl border-gray-500 border border-solid'}
-    >
+    <section className={'bg-white relative p-6 md:p-8 rounded-4xl '}>
       <div className='flex flex-col md:flex-row gap-12 lg:flex-row lg:items-center lg:justify-between'>
         <div className='flex flex-col items-center gap-4 text-center md:items-start lg:text-left'>
           <h2 className='text-2xl font-bold tracking-tight text-foreground text-start lg:text-4xl'>
@@ -56,7 +53,7 @@ export function PlatformsSection() {
         </div>
 
         <div className='hidden sm:block flex h-64 w-full items-center justify-center rounded-3xl lg:h-80 lg:w-96 lg:shrink-0'>
-          <LottieIcon src={GlobeLottie} loop size={250} />,
+          <PlatformsIcon />
         </div>
       </div>
 

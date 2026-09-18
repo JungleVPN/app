@@ -36,7 +36,7 @@ export function SupportButton({ variant = 'icon', label }: SupportButtonProps) {
   return (
     <SupportPopover
       trigger={
-        <Button isIconOnly size='md' variant='tertiary' aria-label={t('a11y.support')}>
+        <Button isIconOnly size='md' variant='secondary' aria-label={t('a11y.support')}>
           <IconHelpCircle />
         </Button>
       }

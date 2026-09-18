@@ -43,15 +43,7 @@ export function BentoSection() {
         </h2>
       </div>
 
-      <div
-        className='overflow-hidden rounded-3xl bg-[#1a1a1a]'
-        style={{
-          backgroundImage:
-            'radial-gradient(60% 60% at 20% 15%, rgb(255 185 0 / 30%) 0%, transparent 90%),' +
-            'radial-gradient(60% 60% at 80% 10%, rgb(142 81 255 / 30%) 0%, transparent 90%),' +
-            'radial-gradient(60% 60% at 50% 55%, rgb(229 117 117 / 30%) 0%, transparent 90%)',
-        }}
-      >
+      <div className='overflow-hidden rounded-3xl bg-[#1d1d1d]'>
         <div className='p-7'>
           <h3 className='text-xl font-bold text-white'>{t('landing.bento.subtitle')}</h3>
         </div>

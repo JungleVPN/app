@@ -9,7 +9,10 @@ const { phCapture, isGlobalOrigin } = vi.hoisted(() => ({
 }));
 
 vi.mock('../../utils', () => ({ phCapture, isGlobalOrigin }));
-vi.mock('../../components', () => ({ FooterSection: () => null }));
+vi.mock('../../components', () => ({
+  FooterSection: () => null,
+  StickyFooterReveal: ({ children }: { children?: ReactNode }) => <>{children}</>,
+}));
 vi.mock('../../ui', () => ({
   Container: ({ children }: { children?: ReactNode }) => <>{children}</>,
 }));

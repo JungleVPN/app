@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { FooterSection } from '../../components';
+import { FooterSection, StickyFooterReveal } from '../../components';
 import { useAuthStore } from '../../stores';
 import { Container } from '../../ui';
 import { isGlobalOrigin, phCapture } from '../../utils';
@@ -28,7 +28,7 @@ export default function LandingPage() {
 
   return (
     <div className='relative bg-[#1a1a1a]'>
-      <div className='sticky top-0 overflow-hidden pt-42 pb-32 md:py-56 lg:py-72'>
+      <div className='sticky top-0 z-10 bg-[#1a1a1a] overflow-hidden pt-42 pb-32 md:py-56 lg:py-72'>
         <div className='inset-0 pointer-events-none opacity-40 overflow-hidden'>
           <div
             className='absolute inset-0 blur-3xl'
@@ -46,7 +46,7 @@ export default function LandingPage() {
       </div>
       <div
         className={
-          'flex flex-col gap-48 relative z-10 bg-background rounded-t-[4rem] rounded-b-[4rem] py-12 md:py-8'
+          'flex flex-col gap-48 relative z-20 bg-background rounded-t-[4rem] rounded-b-[4rem] py-12 md:py-8'
         }
       >
         <Container>
@@ -64,44 +64,53 @@ export default function LandingPage() {
         </Container>
       </div>
 
-      <div className={'flex flex-col gap-56 relative bg-white -mt-24 pt-64 overflow-hidden'}>
-        <Container id='how-it-works'>
-          <HowItWorksSection />
-        </Container>
-        <Container>
-          <ComparisonSection />
-        </Container>
-        <div className={'px-12'}>
-          <div
-            className={
-              'flex flex-col gap-48 relative z-10 bg-background rounded-t-[4rem] rounded-b-[4rem] py-12 md:py-8'
-            }
-          >
-            <Container id='pricing'>
-              <PricingSection />
-            </Container>
-          </div>
-        </div>
-        {isRu && (
-          <Container>
-            <FreeTrialSection />
+      <div className='relative z-10'>
+        <div
+          className={
+            'flex flex-col gap-56 relative z-10 bg-white -mt-24 pt-64 pb-32 rounded-b-[4rem] overflow-hidden'
+          }
+        >
+          <Container id='how-it-works'>
+            <HowItWorksSection />
           </Container>
-        )}
-        <Container>
-          <InfoSection />
-        </Container>
-        <Container id='partnership'>
-          <PartnershipSection />
-        </Container>
-        <Container id='faq'>
-          <FAQSection />
-        </Container>
-        <Container id='faq'>
-          <WhatIsVPN />
-        </Container>
-        <Container>
-          <FooterSection />
-        </Container>
+          <Container>
+            <ComparisonSection />
+          </Container>
+          <div className={'px-12'}>
+            <div
+              className={
+                'flex flex-col gap-48 relative z-10 bg-background rounded-t-[4rem] rounded-b-[4rem] py-12 md:py-8'
+              }
+            >
+              <Container id='pricing'>
+                <PricingSection />
+              </Container>
+            </div>
+          </div>
+          {isRu && (
+            <Container>
+              <FreeTrialSection />
+            </Container>
+          )}
+          <Container>
+            <InfoSection />
+          </Container>
+          <Container id='partnership'>
+            <PartnershipSection />
+          </Container>
+          <Container id='faq'>
+            <FAQSection />
+          </Container>
+          <Container id='faq'>
+            <WhatIsVPN />
+          </Container>
+        </div>
+
+        <StickyFooterReveal>
+          <Container>
+            <FooterSection />
+          </Container>
+        </StickyFooterReveal>
       </div>
     </div>
   );

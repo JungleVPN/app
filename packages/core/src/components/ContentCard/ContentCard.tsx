@@ -30,7 +30,7 @@ export function ContentCard(props: ContentCardProps) {
     return (
       <Card
         variant='tertiary'
-        className={`relative bg-white border-gray-500 border border-solid flex h-full flex-col justify-between p-8 shadow-surface shadow-md min-h-64 ${className ?? ''}`}
+        className={`relative bg-white  flex h-full flex-col justify-between p-8 shadow-surface shadow-md min-h-64 ${className ?? ''}`}
       >
         <div className={icon ? 'pe-32' : ''}>
           <h3 className='mb-3 text-2xl font-bold'>{title}</h3>
@@ -43,7 +43,9 @@ export function ContentCard(props: ContentCardProps) {
             {learnMoreLabel}
           </Link>
         )}
-        {icon && <div className='absolute inset-e-10 bottom-10 h-32 w-32'>{icon}</div>}
+        {icon && (
+          <div className='absolute inset-e-0 lg:inset-e-0 bottom-0 h-32 lg:h-36'>{icon}</div>
+        )}
       </Card>
     );
   }
@@ -52,7 +54,7 @@ export function ContentCard(props: ContentCardProps) {
   return (
     <Card
       variant='default'
-      className={`flex flex-col h-full bg-white border-gray-500 border border-solid items-center gap-3 p-6 text-center shadow-surface transition-all duration-300 hover:scale-[1.03] hover:shadow-md cursor-default ${className ?? ''}`}
+      className={`flex flex-col h-full bg-white items-center gap-3 p-6 text-center shadow-surface transition-all duration-300 hover:scale-[1.03] hover:shadow-md cursor-default ${className ?? ''}`}
     >
       <div className='text-primary'>{icon}</div>
       <Card.Header className='flex-col items-center gap-1 p-0'>

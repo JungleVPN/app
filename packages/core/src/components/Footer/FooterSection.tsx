@@ -50,7 +50,7 @@ const LINK_KEYS = [
   'faq',
 ] as const;
 
-const linkClass = 'text-sm text-muted transition-colors hover:text-foreground';
+const linkClass = 'text-sm text-white/60 transition-colors hover:text-white';
 
 export function FooterSection() {
   const { t } = useTranslation();
@@ -73,7 +73,7 @@ export function FooterSection() {
             )}
             <p className='text-lg'>JungleVPN</p>
           </button>
-          <p className='text-sm text-muted'>
+          <p className='text-sm text-white/60'>
             {t('landing.footer.copyright', { year: new Date().getFullYear() })}
           </p>
         </div>
@@ -108,7 +108,7 @@ export function FooterSection() {
           <div className='flex items-center gap-4'>
             <a
               href={`mailto:${supportEmail}`}
-              className={'text-xs text-muted flex items-center gap-1'}
+              className={'text-xs text-white/60 flex items-center gap-1'}
             >
               <IconMail size={18} />
               {supportEmail}

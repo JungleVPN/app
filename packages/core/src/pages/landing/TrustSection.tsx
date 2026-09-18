@@ -1,11 +1,11 @@
 import { Chip } from '@heroui/react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import UsersLottie from '../../assets/lottie/avatar.lottie?url';
-import GlobeLottie from '../../assets/lottie/globe.lottie?url';
-import ServersLottie from '../../assets/lottie/servers.lottie?url';
+import LocationsIcon from '../../assets/icons/all-devices-icon.svg?react';
+import ServersIcon from '../../assets/icons/servers-icon.svg?react';
+import UsersIcon from '../../assets/icons/users-icon.svg?react';
 import { ContentCard } from '../../components/ContentCard';
-import { Grid, GridItem, LottieIcon } from '../../ui';
+import { Grid, GridItem } from '../../ui';
 
 type StatKey = 'users' | 'countries' | 'servers';
 
@@ -13,17 +13,17 @@ const STATS: Array<{ key: StatKey; metric: string; icon: ReactNode }> = [
   {
     key: 'users',
     metric: '20,000+',
-    icon: <LottieIcon src={UsersLottie} loop size={150} />,
+    icon: <UsersIcon />,
   },
   {
     key: 'countries',
     metric: '6+',
-    icon: <LottieIcon src={GlobeLottie} loop size={150} />,
+    icon: <LocationsIcon />,
   },
   {
     key: 'servers',
     metric: '30+',
-    icon: <LottieIcon src={ServersLottie} loop size={200} />,
+    icon: <ServersIcon />,
   },
 ];
 
