@@ -140,7 +140,7 @@ export function PricingSection() {
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-2xl px-16 sm:px-0 font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
+        <h2 className='text-2xl text-black px-16 sm:px-0 font-bold tracking-tight sm:text-3xl lg:text-4xl'>
           {t('landing.pricing.title')}
         </h2>
         <p className='text-muted text-base lg:text-md'>{t('landing.pricing.subtitle')}</p>
