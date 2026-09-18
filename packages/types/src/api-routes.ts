@@ -18,10 +18,12 @@ export const apiRoutes = {
   payments: {
     stripeCreateSession: '/stripe/create-session',
     stripeSubscription: '/stripe/subscription',
+    stripePortal: '/stripe/portal',
     stripePublicCreateSession: '/stripe/public-create-session',
     stripeWebhook: '/stripe/webhook',
     paddlePublicCreateCheckout: '/paddle/public-create-checkout',
     paddleSubscription: '/paddle/subscription',
+    paddlePortal: '/paddle/portal',
     paddleWebhook: '/paddle/webhook',
     yookassaCreateSession: '/yookassa/create-session',
     yookassaPublicCreateSession: '/yookassa/public-create-session',

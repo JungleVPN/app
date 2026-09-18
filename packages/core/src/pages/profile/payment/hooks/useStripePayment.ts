@@ -45,8 +45,8 @@ export function useStripePayment(selectedPeriod: number) {
     if (!uuid) return;
     setIsOpeningStripePortal(true);
     try {
-      const status = await paymentsApi.getStripeSubscription();
-      if (status.portalUrl) redirectTo(status.portalUrl);
+      const { portalUrl } = await paymentsApi.getStripePortalUrl();
+      if (portalUrl) redirectTo(portalUrl);
     } finally {
       setIsOpeningStripePortal(false);
     }

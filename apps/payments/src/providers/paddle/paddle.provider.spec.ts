@@ -14,6 +14,7 @@ describe('PaddleProvider', () => {
   };
   let paddleWebhookService: { handleWebhook: ReturnType<typeof vi.fn> };
   let repository: { findOne: ReturnType<typeof vi.fn> };
+  let savedMethodRepo: { find: ReturnType<typeof vi.fn> };
   let provider: PaddleProvider;
 
   beforeEach(() => {
@@ -25,10 +26,12 @@ describe('PaddleProvider', () => {
     };
     paddleWebhookService = { handleWebhook: vi.fn().mockResolvedValue(undefined) };
     repository = { findOne: vi.fn().mockResolvedValue(null) };
+    savedMethodRepo = { find: vi.fn().mockResolvedValue([]) };
     provider = new PaddleProvider(
       paddleClientService as never,
       paddleWebhookService as never,
       repository as never,
+      savedMethodRepo as never,
     );
   });
 
@@ -144,25 +147,88 @@ describe('PaddleProvider', () => {
     });
   });
 
+  /**
+   * Status comes from the `saved_payment_methods` rows the Paddle webhooks
+   * maintain, not from Paddle's API — mirrors Stripe.
+   */
   describe('getSubscriptionStatus', () => {
-    it('reports inactive for a user with no recorded Paddle customer', async () => {
-      repository.findOne.mockResolvedValue(null);
+    const paddleRow = (overrides: Record<string, unknown> = {}) => ({
+      id: 'row-1',
+      userId: 1000,
+      provider: 'paddle',
+      paymentMethodId: 'sub_1',
+      paymentMethodType: 'paddle',
+      title: null,
+      card: null,
+      isActive: true,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+      ...overrides,
+    });
 
+    it('reports an active subscription from the row the webhook wrote', async () => {
+      savedMethodRepo.find.mockResolvedValue([paddleRow()]);
+
+      const status = await provider.getSubscriptionStatus(1000);
+
+      expect(status.active).toBe(true);
+      expect(status.methods[0]?.paymentMethodId).toBe('sub_1');
+    });
+
+    it('reports no subscription for a user with no saved Paddle row', async () => {
       await expect(provider.getSubscriptionStatus(1000)).resolves.toEqual({
         active: false,
-        portalUrl: null,
+        methods: [],
       });
+    });
+
+    // The reason for reading our own rows: this runs on every profile load.
+    it('never calls the Paddle API to answer the question', async () => {
+      savedMethodRepo.find.mockResolvedValue([paddleRow()]);
+
+      await provider.getSubscriptionStatus(1000);
+
+      expect(paddleClientService.findActiveSubscriptionId).not.toHaveBeenCalled();
+      expect(paddleClientService.createPortalUrl).not.toHaveBeenCalled();
+    });
+
+    // YooKassa cards and Paddle subscriptions share one table, so an unscoped
+    // read would report a YooKassa payer as a Paddle subscriber.
+    it("asks only for this user's rows, scoped to Paddle and still active", async () => {
+      await provider.getSubscriptionStatus(1000);
+
+      expect(savedMethodRepo.find).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { userId: 1000, provider: 'paddle', isActive: true } }),
+      );
+    });
+
+    // Dates cross the wire as strings; the DTO says so, the entity does not.
+    it('serialises timestamps the way the client receives them', async () => {
+      savedMethodRepo.find.mockResolvedValue([paddleRow()]);
+
+      const status = await provider.getSubscriptionStatus(1000);
+
+      expect(status.methods[0]?.createdAt).toBe('2026-01-01T00:00:00.000Z');
+    });
+  });
+
+  /**
+   * The portal is the one thing only Paddle can mint, so it stays a live call —
+   * made when the user presses "manage", not on every page load.
+   */
+  describe('getPortalUrl', () => {
+    it('reports no URL for a user with no recorded Paddle customer', async () => {
+      repository.findOne.mockResolvedValue(null);
+
+      await expect(provider.getPortalUrl(1000)).resolves.toEqual({ portalUrl: null });
       expect(paddleClientService.findActiveSubscriptionId).not.toHaveBeenCalled();
     });
 
-    it('reports inactive when the customer has no live subscription', async () => {
+    it('reports no URL when the customer has no live subscription', async () => {
       repository.findOne.mockResolvedValue({ customer: 'ctm_1' });
       paddleClientService.findActiveSubscriptionId.mockResolvedValue(null);
 
-      await expect(provider.getSubscriptionStatus(1000)).resolves.toEqual({
-        active: false,
-        portalUrl: null,
-      });
+      await expect(provider.getPortalUrl(1000)).resolves.toEqual({ portalUrl: null });
       expect(paddleClientService.createPortalUrl).not.toHaveBeenCalled();
     });
 
@@ -170,22 +236,20 @@ describe('PaddleProvider', () => {
       repository.findOne.mockResolvedValue({ customer: 'ctm_1' });
       paddleClientService.findActiveSubscriptionId.mockResolvedValue('sub_1');
 
-      await expect(provider.getSubscriptionStatus(1000)).resolves.toEqual({
-        active: true,
+      await expect(provider.getPortalUrl(1000)).resolves.toEqual({
         portalUrl: 'https://portal.paddle.test/session',
       });
       expect(paddleClientService.createPortalUrl).toHaveBeenCalledWith('ctm_1', 'sub_1');
     });
 
-    it('still reports active when minting the portal session fails', async () => {
+    // A Paddle outage must not read as "your subscription is gone" — the
+    // subscription is reported by the DB, independently of this call.
+    it('reports no URL rather than failing when minting the portal session fails', async () => {
       repository.findOne.mockResolvedValue({ customer: 'ctm_1' });
       paddleClientService.findActiveSubscriptionId.mockResolvedValue('sub_1');
       paddleClientService.createPortalUrl.mockRejectedValue(new Error('paddle down'));
 
-      await expect(provider.getSubscriptionStatus(1000)).resolves.toEqual({
-        active: true,
-        portalUrl: null,
-      });
+      await expect(provider.getPortalUrl(1000)).resolves.toEqual({ portalUrl: null });
     });
   });
 });

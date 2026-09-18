@@ -8,7 +8,7 @@ import IconDevices from '../../assets/icons/device-tab-icon.svg?react';
 import IconPig from '../../assets/icons/payment-tab-icon.svg?react';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
-import { useNavbarStore, useSavedMethodsStoreInfo } from '../../stores';
+import { useHasActiveBilling, useNavbarStore } from '../../stores';
 import css from './Tabs.module.css';
 
 type TabValue = 'subscription' | 'payments' | 'devices' | 'menu';
@@ -58,8 +58,7 @@ export const Navbar = () => {
     profileMenuPath,
   } = useAppRoutes();
   const { isVisible } = useNavbarStore();
-  const savedMethods = useSavedMethodsStoreInfo();
-  const hasActiveMethod = savedMethods?.some((m) => m.isActive) ?? false;
+  const hasActiveMethod = useHasActiveBilling();
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { pathname } = useLocation();

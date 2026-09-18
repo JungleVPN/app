@@ -1,27 +1,31 @@
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useSavedMethodsStoreInfo } from '../../../../stores';
+import {
+  useHasActiveBilling,
+  useIsBillingLoaded,
+  usePaddleSubscription,
+  useStripeSubscription,
+  useYookassaSubscription,
+} from '../../../../stores';
 
+/**
+ * The user's billing as the payment page needs it.
+ *
+ * Each provider is asked about itself: a Stripe or Paddle subscriber has no
+ * YooKassa saved method, so deriving the provider flags from that list — as
+ * this once did — reported them as having no subscription to manage.
+ */
 export const useSavedPayment = () => {
-  const { t } = useTranslation();
-  const rawMethods = useSavedMethodsStoreInfo();
-
-  const savedMethods = useMemo(
-    () =>
-      rawMethods?.map((m) =>
-        m.provider === 'stripe' ? { ...m, title: m.title ?? t('payment.methodStripe') } : m,
-      ) ?? null,
-    [rawMethods, t],
-  );
-
-  const hasActiveMethod = savedMethods?.some((m) => m.isActive) ?? false;
-  const hasStripeSubscription = savedMethods?.some((m) => m.provider === 'stripe') ?? false;
-  const hasPaddleSubscription = savedMethods?.some((m) => m.provider === 'paddle') ?? false;
+  const yookassa = useYookassaSubscription();
+  const stripe = useStripeSubscription();
+  const paddle = usePaddleSubscription();
+  const hasActiveMethod = useHasActiveBilling();
+  const isLoaded = useIsBillingLoaded();
 
   return {
-    savedMethods,
+    /** YooKassa's saved cards — the only methods this app lists and deletes itself. */
+    savedMethods: yookassa.methods,
+    isLoading: !isLoaded,
     hasActiveMethod,
-    hasStripeSubscription,
-    hasPaddleSubscription,
+    hasStripeSubscription: stripe.active,
+    hasPaddleSubscription: paddle.active,
   };
 };

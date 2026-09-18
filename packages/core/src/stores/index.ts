@@ -27,11 +27,21 @@ export {
   usePlatformStoreActions,
   usePlatformStoreInfo,
 } from './platform';
-export type { ISavedMethodsActions, ISavedMethodsState } from './saved-methods';
+export type {
+  IBillingState,
+  ISavedMethodsActions,
+  ISavedMethodsState,
+} from './saved-methods';
 export {
+  selectHasActiveBilling,
+  toProviderSubscription,
+  useHasActiveBilling,
+  useIsBillingLoaded,
+  usePaddleSubscription,
   useSavedMethodsStore,
   useSavedMethodsStoreActions,
-  useSavedMethodsStoreInfo,
+  useStripeSubscription,
+  useYookassaSubscription,
 } from './saved-methods';
 export type { ISubscriptionConfigActions, ISubscriptionConfigState } from './subscription-config';
 export {

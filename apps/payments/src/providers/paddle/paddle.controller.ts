@@ -17,7 +17,8 @@ import {
   ACTIVE_SUBSCRIPTION_CODE,
   type CreatePublicPaddleCheckoutDto,
   type PaddleCheckoutPayload,
-  type PaddleSubscriptionStatusDto,
+  type ProviderPortalDto,
+  type ProviderSubscriptionDto,
 } from '@workspace/types';
 import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
 import { ClientUserGuard } from '../../auth/client-user.guard';
@@ -72,13 +73,23 @@ export class PaddleController {
     return payload;
   }
 
-  /** Active-subscription status + Customer Portal URL for the authenticated user. */
+  /**
+   * Active-subscription status for the authenticated user, read from our own
+   * saved-method rows — no Paddle call (mirrors Stripe).
+   */
   @Get('subscription')
   @UseGuards(ClientUserGuard)
   async getSubscriptionStatus(
     @AuthenticatedUserId() userId: number,
-  ): Promise<PaddleSubscriptionStatusDto> {
+  ): Promise<ProviderSubscriptionDto> {
     return this.paddleProvider.getSubscriptionStatus(userId);
+  }
+
+  /** A fresh Customer Portal URL — minted on demand, when the user asks to manage. */
+  @Get('portal')
+  @UseGuards(ClientUserGuard)
+  async getPortalUrl(@AuthenticatedUserId() userId: number): Promise<ProviderPortalDto> {
+    return this.paddleProvider.getPortalUrl(userId);
   }
 
   /**

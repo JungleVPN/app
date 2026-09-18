@@ -14,9 +14,9 @@ import { phCapture, rememberPendingYookassaPayment } from '../../../../utils';
 export function useYookassaPayment(selectedPeriod: number) {
   const { rmnUser, tgUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
-  const { setSavedMethods } = useSavedMethodsStoreActions();
+  const { setYookassaMethods } = useSavedMethodsStoreActions();
   const { platformType, clientPlatform } = usePlatformStore();
-  const { paymentReturnPath, profilePlansPath } = useAppRoutes();
+  const { profileSubscriptionPath, profilePlansPath } = useAppRoutes();
   const navigate = useNavigation();
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
@@ -29,8 +29,8 @@ export function useYookassaPayment(selectedPeriod: number) {
   const handleDelete = async (id: string) => {
     await deleteMethod(id);
     phCapture('payment_method_deleted');
-    const list = await paymentsApi.getSavedMethods();
-    setSavedMethods(list);
+    const list = await paymentsApi.getYookassaSavedMethods();
+    setYookassaMethods(list);
     if (!list?.some((m) => m.isActive)) {
       navigate(profilePlansPath);
     }
@@ -58,7 +58,7 @@ export function useYookassaPayment(selectedPeriod: number) {
       confirmation: {
         return_url: isNativeApp
           ? coreEnv.tmaAppUrl
-          : `${window.location.origin}${paymentReturnPath}`,
+          : `${window.location.origin}${profileSubscriptionPath}`,
         type: 'redirect',
       },
       selectedPeriod,

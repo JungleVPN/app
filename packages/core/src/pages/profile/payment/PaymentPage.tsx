@@ -49,7 +49,7 @@ export default function PaymentPage() {
     phCapture('payments_viewed');
   }, []);
 
-  const { savedMethods, hasActiveMethod, hasStripeSubscription, hasPaddleSubscription } =
+  const { savedMethods, isLoading, hasActiveMethod, hasStripeSubscription, hasPaddleSubscription } =
     useSavedPayment();
 
   const { platformType } = usePlatformStore();
@@ -57,8 +57,6 @@ export default function PaymentPage() {
   const navigate = useNavigation();
   const { profilePlansPath } = useAppRoutes();
   const isRu = !isGlobalOrigin();
-
-  const isLoading = savedMethods === null;
 
   // RU visitors and Telegram users pay through YooKassa; everyone else checks
   // out through whichever global provider is currently enabled.

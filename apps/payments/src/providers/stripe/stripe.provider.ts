@@ -4,11 +4,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { getExtraDevicePrice, getPriceForPeriod } from '@payments/utils/amount';
 import { resolveReturnUrl } from '@payments/utils/return-origin';
-import { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
+import { toSavedMethodDto } from '@payments/utils/saved-method';
+import {
+  SavedPaymentMethod,
+  StripePayment,
+  TelegramStarsPayment,
+  YookassaPayment,
+} from '@workspace/database';
 import {
   CreateStripeSessionDto,
   type PaymentPurpose,
-  StripeSubscriptionStatusDto,
+  type ProviderPortalDto,
+  type ProviderSubscriptionDto,
 } from '@workspace/types';
 import type Stripe from 'stripe';
 import { In, Repository } from 'typeorm';
@@ -39,6 +46,8 @@ export class StripeProvider {
     @InjectRepository(TelegramStarsPayment)
     private telegramStarsRepository: Repository<TelegramStarsPayment>,
     private readonly analyticsClient: AnalyticsClientService,
+    @InjectRepository(SavedPaymentMethod)
+    private readonly savedMethodRepository: Repository<SavedPaymentMethod>,
   ) {
     this.stripe = stripeClientService.stripe;
   }
@@ -326,22 +335,43 @@ export class StripeProvider {
    * Reports whether `userId` has an active/trialing Stripe subscription and,
    * if so, returns a fresh Billing Portal URL for self-service management.
    */
-  async getSubscriptionStatus(
-    userId: number,
-    origin?: string,
-  ): Promise<StripeSubscriptionStatusDto> {
-    const customerId = await this.getCustomerId(userId);
-    if (!customerId) return { active: false, portalUrl: null };
+  /**
+   * Whether `userId` is subscribed through Stripe, answered from our own
+   * `saved_payment_methods` rows rather than Stripe's API.
+   *
+   * The webhooks already keep those rows true: a paid invoice activates one
+   * (`activatePaymentMethod`) and `customer.subscription.deleted` removes it.
+   * Reading them makes this free to ask, which matters because every profile
+   * load asks it. The trade-off is that a webhook we have not yet received
+   * leaves a brand-new subscriber looking unsubscribed until it lands.
+   */
+  async getSubscriptionStatus(userId: number): Promise<ProviderSubscriptionDto> {
+    const methods = await this.savedMethodRepository.find({
+      where: { userId, provider: 'stripe', isActive: true },
+      order: { createdAt: 'DESC' },
+    });
 
-    const active = await this.hasActiveSubscription(customerId);
-    if (!active) return { active: false, portalUrl: null };
+    return { active: methods.length > 0, methods: methods.map(toSavedMethodDto) };
+  }
+
+  /**
+   * A fresh Billing Portal URL, minted on demand.
+   *
+   * Only Stripe can produce one and the session expires, so this stays a live
+   * call — made when the user presses "manage", not on every page load. A
+   * failure is reported as "no URL": the user is subscribed either way, and
+   * saying otherwise would be a lie about their account.
+   */
+  async getPortalUrl(userId: number, origin?: string): Promise<ProviderPortalDto> {
+    const customerId = await this.getCustomerId(userId);
+    if (!customerId) return { portalUrl: null };
 
     try {
       const portal = await this.createPortalSession(customerId, origin);
-      return { active: true, portalUrl: portal.url };
+      return { portalUrl: portal.url };
     } catch (error) {
       this.logger.error(`Failed to create portal session for customer ${customerId}`, error);
-      return { active: true, portalUrl: null };
+      return { portalUrl: null };
     }
   }
 

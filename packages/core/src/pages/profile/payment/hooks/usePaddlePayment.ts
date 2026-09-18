@@ -34,8 +34,8 @@ export function usePaddlePayment(selectedPeriod: number) {
     if (!uuid) return;
     setIsOpeningPaddlePortal(true);
     try {
-      const status = await paymentsApi.getPaddleSubscription();
-      if (status.portalUrl) redirectTo(status.portalUrl);
+      const { portalUrl } = await paymentsApi.getPaddlePortalUrl();
+      if (portalUrl) redirectTo(portalUrl);
     } finally {
       setIsOpeningPaddlePortal(false);
     }

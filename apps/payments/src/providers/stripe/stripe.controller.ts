@@ -53,14 +53,24 @@ export class StripeController {
     return this.stripePaymentRepo.find({ order: { createdAt: 'DESC' } });
   }
 
-  /** Active-subscription status + Billing Portal URL for the authenticated user */
+  /**
+   * Active-subscription status for the authenticated user, read from our own
+   * saved-method rows — no Stripe call, so it stays cheap enough for the
+   * profile to ask on every load. The portal URL is a separate request.
+   *
+   * Declared before the `:id` route below, which would otherwise swallow it.
+   */
   @Get('subscription')
   @UseGuards(ClientUserGuard)
-  async getSubscriptionStatus(
-    @AuthenticatedUserId() userId: number,
-    @Headers('origin') origin?: string,
-  ) {
-    return this.stripeProvider.getSubscriptionStatus(userId, origin);
+  async getSubscriptionStatus(@AuthenticatedUserId() userId: number) {
+    return this.stripeProvider.getSubscriptionStatus(userId);
+  }
+
+  /** A fresh Billing Portal URL — minted on demand, when the user asks to manage. */
+  @Get('portal')
+  @UseGuards(ClientUserGuard)
+  async getPortalUrl(@AuthenticatedUserId() userId: number, @Headers('origin') origin?: string) {
+    return this.stripeProvider.getPortalUrl(userId, origin);
   }
 
   /** Get a single Stripe payment by id — internal use only */

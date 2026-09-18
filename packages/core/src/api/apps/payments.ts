@@ -9,13 +9,13 @@ import {
   type CreateTelegramStarsInvoiceDto,
   type CreateYookassaSessionDto,
   type PaddleCheckoutPayload,
-  type PaddleSubscriptionStatusDto,
   PaymentSession,
   type Payments,
+  type ProviderPortalDto,
+  type ProviderSubscriptionDto,
   type RecordToltClickDto,
   type RecordToltClickResponse,
   SavedMethodDto,
-  type StripeSubscriptionStatusDto,
   type SubscriptionPlanDto,
   type TelegramStarsInvoiceResponse,
   type ValidatePromoDto,
@@ -69,14 +69,30 @@ export function createPaymentsApi(client: ApiClient) {
       return client.post<PaddleCheckoutPayload>(apiRoutes.payments.paddlePublicCreateCheckout, dto);
     },
 
-    /** Subscription status + Billing Portal URL for the authenticated user. */
-    async getStripeSubscription(): Promise<StripeSubscriptionStatusDto> {
-      return client.get<StripeSubscriptionStatusDto>(apiRoutes.payments.stripeSubscription);
+    /**
+     * Whether the user is subscribed through Stripe, read from our own records
+     * rather than Stripe's API — cheap enough to ask on every profile load.
+     */
+    async getStripeSubscription(): Promise<ProviderSubscriptionDto> {
+      return client.get<ProviderSubscriptionDto>(apiRoutes.payments.stripeSubscription);
     },
 
-    /** Subscription status + Customer Portal URL for the authenticated user. */
-    async getPaddleSubscription(): Promise<PaddleSubscriptionStatusDto> {
-      return client.get<PaddleSubscriptionStatusDto>(apiRoutes.payments.paddleSubscription);
+    /** The same question for Paddle, answered the same way. */
+    async getPaddleSubscription(): Promise<ProviderSubscriptionDto> {
+      return client.get<ProviderSubscriptionDto>(apiRoutes.payments.paddleSubscription);
+    },
+
+    /**
+     * A fresh Stripe Billing Portal URL. Minted on demand because portal
+     * sessions expire — ask only when the user presses "manage".
+     */
+    async getStripePortalUrl(): Promise<ProviderPortalDto> {
+      return client.get<ProviderPortalDto>(apiRoutes.payments.stripePortal);
+    },
+
+    /** The same, for Paddle's Customer Portal. */
+    async getPaddlePortalUrl(): Promise<ProviderPortalDto> {
+      return client.get<ProviderPortalDto>(apiRoutes.payments.paddlePortal);
     },
 
     /**
@@ -103,12 +119,18 @@ export function createPaymentsApi(client: ApiClient) {
       );
     },
 
-    /** Active saved payment methods for the authenticated user. */
-    async getSavedMethods(): Promise<SavedMethodDto[]> {
+    /**
+     * Active saved YooKassa payment methods for the authenticated user.
+     *
+     * YooKassa only: the endpoint filters on `provider: 'yookassa'`, so a Stripe
+     * or Paddle subscriber answers `[]` here. Their billing is reported by
+     * `getStripeSubscription` / `getPaddleSubscription` instead.
+     */
+    async getYookassaSavedMethods(): Promise<SavedMethodDto[]> {
       return client.get<SavedMethodDto[]>(apiRoutes.payments.yookassaSavedMethods);
     },
 
-    /** Delete a saved payment method belonging to the authenticated user. */
+    /** Delete a saved YooKassa payment method belonging to the authenticated user. */
     async deleteSavedMethod(id: string): Promise<void> {
       return client.delete<void>(apiRoutes.payments.yookassaSavedMethodById(id));
     },

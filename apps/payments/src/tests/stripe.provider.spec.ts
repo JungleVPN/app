@@ -43,6 +43,7 @@ const makeProvider = (overrides: {
   mockCustomersList?: CustomersListMock;
   mockCustomersUpdate?: ReturnType<typeof vi.fn>;
   mockPortalCreate?: ReturnType<typeof vi.fn>;
+  mockSavedMethodFind?: ReturnType<typeof vi.fn>;
 }) => {
   const mockCreateSession =
     overrides.mockCreateSession ??
@@ -108,6 +109,9 @@ const makeProvider = (overrides: {
     exists: vi.fn().mockResolvedValue(false),
   } as unknown as Repository<TelegramStarsPayment>;
 
+  const mockSavedMethodFind = overrides.mockSavedMethodFind ?? vi.fn().mockResolvedValue([]);
+  const savedMethodRepo = { find: mockSavedMethodFind } as never;
+
   const provider = new StripeProvider(
     {} as unknown as StripeWebhookService,
     stripeClient,
@@ -115,10 +119,12 @@ const makeProvider = (overrides: {
     yookassaRepo,
     starsRepo,
     { track: mockTrack } as never,
+    savedMethodRepo,
   );
 
   return {
     provider,
+    mockSavedMethodFind,
     mockCreateSession,
     mockTrack,
     mockRepoFindOne,
@@ -372,13 +378,16 @@ describe('StripeProvider.createPayment', () => {
       expect(mockCreateSession).not.toHaveBeenCalled();
     });
 
+    // Status no longer asks Stripe anything, so the portal is where a Stripe
+    // outage can still be met. A portal it cannot mint is reported as "no URL",
+    // never as "you have no subscription".
     it('never tells a payer their subscription does not exist', async () => {
       const { provider } = makeProvider({
         mockRepoFindOne: vi.fn().mockResolvedValue({ customer: 'cus_1' }),
-        mockSubscriptionsList: vi.fn().mockRejectedValue(new Error('rate limited')),
+        mockPortalCreate: vi.fn().mockRejectedValue(new Error('rate limited')),
       });
 
-      await expect(provider.getSubscriptionStatus(1000)).rejects.toThrow('rate limited');
+      await expect(provider.getPortalUrl(1000)).resolves.toEqual({ portalUrl: null });
     });
   });
 });
@@ -684,5 +693,96 @@ describe('StripeProvider.openSession', () => {
       provider.openSession(subscriptionDto({ selectedPeriod: 7 }), 'https://app.test'),
     ).rejects.toThrow(BadRequestException);
     expect(mockCreateSession).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * Subscription status is answered from our own `saved_payment_methods` rows,
+ * which the Stripe webhooks maintain: a paid invoice activates a row, a
+ * cancelled subscription deletes it. Stripe's API is not consulted — this
+ * question is asked on every profile load.
+ */
+describe('StripeProvider.getSubscriptionStatus', () => {
+  const stripeRow = (overrides: Record<string, unknown> = {}) => ({
+    id: 'row-1',
+    userId: 42,
+    provider: 'stripe',
+    paymentMethodId: 'sub_123',
+    paymentMethodType: 'stripe',
+    title: null,
+    card: null,
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...overrides,
+  });
+
+  it('reports an active subscription from the row the webhook wrote', async () => {
+    const { provider } = makeProvider({
+      mockSavedMethodFind: vi.fn().mockResolvedValue([stripeRow()]),
+    });
+
+    const status = await provider.getSubscriptionStatus(42);
+
+    expect(status.active).toBe(true);
+    expect(status.methods).toHaveLength(1);
+    expect(status.methods[0]?.paymentMethodId).toBe('sub_123');
+  });
+
+  it('reports no subscription for a user with no saved Stripe row', async () => {
+    const { provider } = makeProvider({});
+
+    await expect(provider.getSubscriptionStatus(42)).resolves.toEqual({
+      active: false,
+      methods: [],
+    });
+  });
+
+  // The reason for reading our own rows at all: this runs on every profile load.
+  it('never calls the Stripe API to answer the question', async () => {
+    const { provider, mockPortalCreate } = makeProvider({
+      mockSavedMethodFind: vi.fn().mockResolvedValue([stripeRow()]),
+      mockSubscriptionsList: vi.fn().mockRejectedValue(new Error('should not be called')),
+    });
+
+    await expect(provider.getSubscriptionStatus(42)).resolves.toMatchObject({ active: true });
+    expect(mockPortalCreate).not.toHaveBeenCalled();
+  });
+
+  // YooKassa cards and Stripe subscriptions share one table, so an unscoped
+  // read would report a YooKassa payer as a Stripe subscriber.
+  it('asks only for this user\'s rows, scoped to Stripe and still active', async () => {
+    const { provider, mockSavedMethodFind } = makeProvider({});
+
+    await provider.getSubscriptionStatus(42);
+
+    expect(mockSavedMethodFind).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { userId: 42, provider: 'stripe', isActive: true } }),
+    );
+  });
+});
+
+/**
+ * The Billing Portal is the one thing only Stripe can produce, so it stays a
+ * live call — made when the user presses "manage", not on every page load.
+ */
+describe('StripeProvider.getPortalUrl', () => {
+  it('mints a fresh portal URL for a customer we know', async () => {
+    const { provider } = makeProvider({
+      mockRepoFindOne: vi.fn().mockResolvedValue({ customer: 'cus_1' }),
+    });
+
+    await expect(provider.getPortalUrl(42)).resolves.toEqual({
+      portalUrl: 'https://portal.test',
+    });
+  });
+
+  it('reports no URL for a user who has never paid through Stripe', async () => {
+    const { provider, mockPortalCreate } = makeProvider({
+      mockRepoFindOne: vi.fn().mockResolvedValue(null),
+    });
+
+    await expect(provider.getPortalUrl(42)).resolves.toEqual({ portalUrl: null });
+    expect(mockPortalCreate).not.toHaveBeenCalled();
   });
 });

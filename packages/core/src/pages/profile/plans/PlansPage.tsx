@@ -12,8 +12,7 @@ export default function PlansPage() {
   const plans = usePlans();
   const [selectedPeriod, setSelectedPeriod] = useState<number>(12);
 
-  const { hasActiveMethod, savedMethods } = useSavedPayment();
-  const isLoading = savedMethods === null;
+  const { hasActiveMethod, isLoading } = useSavedPayment();
 
   useEffect(() => {
     phCapture('plans_viewed');

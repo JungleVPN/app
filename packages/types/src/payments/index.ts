@@ -10,6 +10,7 @@ export * from './admin';
 export * from './common';
 export * from './paddle';
 export * from './promo';
+export * from './provider-subscription';
 export * from './stripe';
 export * from './telegram-stars';
 export * from './tolt';

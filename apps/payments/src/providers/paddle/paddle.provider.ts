@@ -1,8 +1,13 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { EventEntity } from '@paddle/paddle-node-sdk';
-import { PaddlePayment } from '@workspace/database';
-import type { PaddleCheckoutPayload, PaddleSubscriptionStatusDto } from '@workspace/types';
+import { toSavedMethodDto } from '@payments/utils/saved-method';
+import { PaddlePayment, SavedPaymentMethod } from '@workspace/database';
+import type {
+  PaddleCheckoutPayload,
+  ProviderPortalDto,
+  ProviderSubscriptionDto,
+} from '@workspace/types';
 import { Repository } from 'typeorm';
 import { PaddleClientService } from './paddle-client.service';
 import { PaddleWebhookService } from './paddle-webhook.service';
@@ -15,6 +20,8 @@ export class PaddleProvider {
     private readonly paddleClientService: PaddleClientService,
     private readonly paddleWebhookService: PaddleWebhookService,
     @InjectRepository(PaddlePayment) private readonly repository: Repository<PaddlePayment>,
+    @InjectRepository(SavedPaymentMethod)
+    private readonly savedMethodRepository: Repository<SavedPaymentMethod>,
   ) {}
 
   async handleWebhook(event: EventEntity): Promise<void> {
@@ -35,23 +42,37 @@ export class PaddleProvider {
   }
 
   /**
-   * Reports whether `userId` has an active/trialing Paddle subscription and,
-   * if so, returns a fresh Customer Portal URL for self-service management
-   * (mirrors Stripe's `getSubscriptionStatus`).
+   * Whether `userId` is subscribed through Paddle, answered from our own
+   * `saved_payment_methods` rows rather than Paddle's API — mirrors Stripe's
+   * `getSubscriptionStatus`, including its reliance on the webhooks that keep
+   * those rows true.
    */
-  async getSubscriptionStatus(userId: number): Promise<PaddleSubscriptionStatusDto> {
-    const customerId = await this.getCustomerId(userId);
-    if (!customerId) return { active: false, portalUrl: null };
+  async getSubscriptionStatus(userId: number): Promise<ProviderSubscriptionDto> {
+    const methods = await this.savedMethodRepository.find({
+      where: { userId, provider: 'paddle', isActive: true },
+      order: { createdAt: 'DESC' },
+    });
 
-    const subscriptionId = await this.paddleClientService.findActiveSubscriptionId(customerId);
-    if (!subscriptionId) return { active: false, portalUrl: null };
+    return { active: methods.length > 0, methods: methods.map(toSavedMethodDto) };
+  }
+
+  /**
+   * A fresh Customer Portal URL, minted on demand — the one thing only Paddle
+   * can produce (mirrors Stripe's `getPortalUrl`).
+   */
+  async getPortalUrl(userId: number): Promise<ProviderPortalDto> {
+    const customerId = await this.getCustomerId(userId);
+    if (!customerId) return { portalUrl: null };
 
     try {
+      const subscriptionId = await this.paddleClientService.findActiveSubscriptionId(customerId);
+      if (!subscriptionId) return { portalUrl: null };
+
       const portalUrl = await this.paddleClientService.createPortalUrl(customerId, subscriptionId);
-      return { active: true, portalUrl };
+      return { portalUrl };
     } catch (error) {
       this.logger.error(`Failed to create portal session for customer ${customerId}`, error);
-      return { active: true, portalUrl: null };
+      return { portalUrl: null };
     }
   }
 

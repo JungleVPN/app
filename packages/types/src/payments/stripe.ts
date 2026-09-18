@@ -47,16 +47,6 @@ export interface CreatePublicStripeSessionDto {
 }
 
 /**
- * Response from GET /payments/stripe/subscription/:userId.
- * Reports whether the user has an active (or trialing) Stripe subscription and,
- * if so, a freshly-minted Billing Portal URL for self-service management.
- */
-export interface StripeSubscriptionStatusDto {
-  active: boolean;
-  portalUrl: string | null;
-}
-
-/**
  * Body of the 409 the public checkout answers with when the payer email already
  * has an active subscription. The anonymous caller proved nothing but knowledge
  * of the address, so it is never given a Billing Portal session — the page asks
