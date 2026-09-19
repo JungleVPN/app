@@ -16,7 +16,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { WebHookEvent } from '@remna/remna.model';
 import { RemnaService } from '@remna/remna.service';
-import { isGlobalSquadUser, UserDto } from '@workspace/types';
+import { isGlobalSquadUser, scopeHost, UserDto } from '@workspace/types';
 import { Bot, InlineKeyboard } from 'grammy';
 
 const SECOND_STAGE_HOURS = 48;
@@ -93,9 +93,13 @@ export class UserNotConnectedListener {
   }
 
   private siteUrlFor(user: UserDto | null): string {
-    const isGlobal = !user || isGlobalSquadUser(user, this.ruInternalSquad);
-    const domain = isGlobal ? process.env.PUBLIC_DOMAIN_GLOBAL : process.env.PUBLIC_DOMAIN_RU;
-    return domain ? `https://${domain}` : process.env.PUBLIC_WEB_APP_URL || 'https://thejungle.pro';
+    const scope = !user || isGlobalSquadUser(user, this.ruInternalSquad) ? 'global' : 'ru';
+    const host = scopeHost(scope, {
+      ru: process.env.PUBLIC_DOMAIN_RU,
+      global: process.env.PUBLIC_DOMAIN_GLOBAL,
+    });
+
+    return host ? `https://${host}` : process.env.PUBLIC_WEB_APP_URL || 'https://thejungle.pro';
   }
 
   async handle48Hours(telegramId: number, locale: LocaleId, keyboard: InlineKeyboard) {

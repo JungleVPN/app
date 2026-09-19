@@ -13,7 +13,7 @@ import {
   GetUserMetadataResponseDto,
   GetUsersStreamCommand,
   type GetUsersStreamQuery,
-  isGlobalOrigin,
+  scopeForOrigin,
   RevokeUserSubscriptionCommand,
   type StreamedUserDto,
   UpdateUserCommand,
@@ -200,7 +200,7 @@ export class UserService implements OnModuleInit {
       origin?: string | null;
     },
   ): Promise<CreateUserResponseDto> {
-    const isGlobal = isGlobalOrigin(payload.origin, this.configService.get('PUBLIC_DOMAIN_RU'));
+    const scope = scopeForOrigin(payload.origin, this.configService.get('PUBLIC_DOMAIN_RU'));
 
     const isTelegramSignup = payload.telegramId !== undefined && payload.telegramId !== null;
     const trialDays = Number(this.configService.get('TRIAL_PERIOD_IN_DAYS', '3'));
@@ -214,6 +214,7 @@ export class UserService implements OnModuleInit {
       GLOBAL_EXTERNAL_SQUAD,
     );
 
+    const isGlobal = scope === 'global';
     const activeInternalSquads = isGlobal ? [globalInternalSquad] : [ruInternalSquad];
     const externalSquadUuid = isGlobal ? globalExternalSquad : null;
 

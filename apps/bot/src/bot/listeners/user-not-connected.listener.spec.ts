@@ -201,6 +201,17 @@ describe('UserNotConnectedListener', () => {
       );
     });
 
+    // PUBLIC_DOMAIN_RU holds every host the RU storefront answers on; pasting the raw
+    // value into a URL yields https://a,b,c/… , which no mail client will open.
+    it('links to the first RU host when PUBLIC_DOMAIN_RU lists several', async () => {
+      process.env.PUBLIC_DOMAIN_RU = 'jungle.community,thejungle.pro,web.thejungle.pro';
+
+      const html = await emailHtmlFor([{ uuid: RU_SQUAD, name: 'Jungle Lake' }]);
+
+      expect(html).toContain('https://jungle.community');
+      expect(html).not.toContain('thejungle.pro');
+    });
+
     it('links to the global domain for a user in the global squad', async () => {
       expect(await emailHtmlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }])).toContain(
         'https://jungle-vpn.com',

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isGlobalOrigin, isGlobalSquadUser } from './scope';
+import { isGlobalOrigin, isGlobalSquadUser, scopeForOrigin, scopeHost } from './scope';
 
 const RU_DOMAINS = 'jungle.community,thejungle.pro,web.thejungle.pro';
 
@@ -95,5 +95,65 @@ describe('isGlobalSquadUser', () => {
   it('ignores squad entries without a uuid', () => {
     expect(isGlobalSquadUser(userIn(null, GLOBAL), RU)).toBe(true);
     expect(isGlobalSquadUser(userIn(null, RU), RU)).toBe(false);
+  });
+});
+
+describe('scopeForOrigin', () => {
+  it("is 'ru' for a configured RU domain", () => {
+    expect(scopeForOrigin('https://thejungle.pro', RU_DOMAINS)).toBe('ru');
+  });
+
+  it("is 'ru' for a host using the `ru` prefix convention", () => {
+    expect(scopeForOrigin('https://ru-web.development-env.uk', RU_DOMAINS)).toBe('ru');
+  });
+
+  it("is 'global' for the production global domain", () => {
+    expect(scopeForOrigin('https://jungle-vpn.com', RU_DOMAINS)).toBe('global');
+  });
+
+  it("is 'global' for a non-RU preview host", () => {
+    expect(scopeForOrigin('https://eu-web.development-env.uk', RU_DOMAINS)).toBe('global');
+  });
+
+  it("is 'global' for localhost", () => {
+    expect(scopeForOrigin('http://localhost:7080', RU_DOMAINS)).toBe('global');
+  });
+
+  // Preserves the caller-visible behaviour of isGlobalOrigin, which answered
+  // "not global" whenever there was no usable host to judge.
+  it("is 'ru' when there is no usable origin", () => {
+    expect(scopeForOrigin(null, RU_DOMAINS)).toBe('ru');
+    expect(scopeForOrigin(undefined, RU_DOMAINS)).toBe('ru');
+    expect(scopeForOrigin('', RU_DOMAINS)).toBe('ru');
+    expect(scopeForOrigin('not-a-url', RU_DOMAINS)).toBe('ru');
+  });
+});
+
+describe('scopeHost', () => {
+  const DOMAINS = { ru: RU_DOMAINS, global: 'jungle-vpn.com,eu.jungle-vpn.com' };
+
+  it("returns the first RU domain for the 'ru' scope", () => {
+    expect(scopeHost('ru', DOMAINS)).toBe('jungle.community');
+  });
+
+  it("returns the first global domain for the 'global' scope", () => {
+    expect(scopeHost('global', DOMAINS)).toBe('jungle-vpn.com');
+  });
+
+  it('normalizes the host it returns', () => {
+    expect(scopeHost('ru', { ru: 'WWW.TheJungle.PRO:8443', global: 'jungle-vpn.com' })).toBe(
+      'thejungle.pro',
+    );
+  });
+
+  // A link must never be built from the raw comma-separated env value.
+  it('falls back to the global domain when the RU list is empty', () => {
+    expect(scopeHost('ru', { ru: '', global: 'jungle-vpn.com' })).toBe('jungle-vpn.com');
+    expect(scopeHost('ru', { ru: undefined, global: 'jungle-vpn.com' })).toBe('jungle-vpn.com');
+  });
+
+  it('is null when neither list has a usable host', () => {
+    expect(scopeHost('global', { ru: RU_DOMAINS, global: '' })).toBe(null);
+    expect(scopeHost('ru', { ru: '', global: undefined })).toBe(null);
   });
 });

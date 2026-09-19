@@ -33,25 +33,67 @@ const isRuHost = (host: string, ruDomains?: string | null): boolean => {
 };
 
 /**
- * True for any signup Origin/hostname that is not RU — the single source of truth for
- * RU vs. global behavior across the monorepo (which squads a new user is dropped into,
- * pricing/payment currency, forced locale, …). RU is the only carve-out: it gets `ru`
- * behavior, and everything else (production global, per-environment preview hosts,
- * localhost) gets global behavior.
+ * Which storefront a request or a user belongs to. RU is the only carve-out: it gets `ru`
+ * behavior (rouble pricing, YooKassa/Stars, forced Russian), and everything else —
+ * production global, per-environment preview hosts, localhost — gets `global`.
+ */
+export type UserScope = 'ru' | 'global';
+
+/**
+ * The scope an Origin/hostname implies. This is the *signup-time* answer: it is how a
+ * brand-new user's scope is decided, and it is the only signal available on anonymous
+ * surfaces (pricing, checkout) where there is no user yet. For an existing user, read the
+ * scope stored on the user instead — a request host says where they are browsing from,
+ * not which storefront they bought from.
  *
  * `ruDomains` is the caller's PUBLIC_DOMAIN_RU value (`process.env.PUBLIC_DOMAIN_RU` on
  * the backend, `import.meta.env.PUBLIC_DOMAIN_RU` on the frontend) — this package stays
  * environment-agnostic and never reads env vars itself.
  */
+export const scopeForOrigin = (
+  origin: string | undefined | null,
+  ruDomains?: string | null,
+): UserScope => {
+  const host = hostnameFromOrigin(origin);
+  if (!host) return 'ru';
+
+  return isRuHost(host, ruDomains) ? 'ru' : 'global';
+};
+
+/** The PUBLIC_DOMAIN_RU / PUBLIC_DOMAIN_GLOBAL values a caller was configured with. */
+export interface ScopeDomains {
+  readonly ru?: string | null;
+  readonly global?: string | null;
+}
+
+/**
+ * The one host to build a link to for a scope, or null when nothing is configured.
+ *
+ * The inverse direction of `scopeForOrigin`, and deliberately not its mirror: both domain
+ * variables hold a comma-separated list — the RU storefront alone answers on four hosts —
+ * so the raw value cannot be pasted into a URL. It produced
+ * `https://jungle.community,thejungle.pro,…/profile/subscription`, which is not a link any
+ * mail client will open. The first entry is the canonical host of that storefront.
+ *
+ * Falls back to the global host so a missing PUBLIC_DOMAIN_RU yields a reachable link
+ * rather than none.
+ */
+export const scopeHost = (scope: UserScope, domains: ScopeDomains): string | null => {
+  const preferred = scope === 'ru' ? domains.ru : domains.global;
+
+  return parseDomains(preferred)[0] ?? parseDomains(domains.global)[0] ?? null;
+};
+
+/**
+ * True for any signup Origin/hostname that is not RU.
+ *
+ * @deprecated Prefer `scopeForOrigin`, which names both answers. This wrapper exists so
+ * the frontend's host-derived checks can migrate in their own slice.
+ */
 export const isGlobalOrigin = (
   origin: string | undefined | null,
   ruDomains?: string | null,
-): boolean => {
-  const host = hostnameFromOrigin(origin);
-  if (!host) return false;
-
-  return !isRuHost(host, ruDomains);
-};
+): boolean => scopeForOrigin(origin, ruDomains) === 'global';
 
 type SquadRef = { readonly uuid?: string | null };
 

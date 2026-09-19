@@ -7,7 +7,7 @@ import {
   enabledPeriodMonths,
   getPriceForPeriod,
 } from '@payments/utils/amount';
-import { isGlobalOrigin, type SubscriptionPlanDto } from '@workspace/types';
+import { scopeForOrigin, type SubscriptionPlanDto } from '@workspace/types';
 
 /** Paddle's quote for one visitor, reduced to what a plan needs from it. */
 interface PaddleQuote {
@@ -43,7 +43,7 @@ export class CommonService {
     origin: string | null;
     clientIp: string | null;
   }): Promise<SubscriptionPlanDto[]> {
-    if (!isGlobalOrigin(origin, process.env.PUBLIC_DOMAIN_RU)) {
+    if (scopeForOrigin(origin, process.env.PUBLIC_DOMAIN_RU) === 'ru') {
       return this.buildPlans('RUB');
     }
 
