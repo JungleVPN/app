@@ -569,6 +569,12 @@
   },
   "referrals": {
     "pageTitle": "Davet Programı",
+    "hero": {
+      "badge": "Her arkadaş için 30 gün",
+      "title": "JungleVPN’i önerdiğiniz için ücretsiz abonelik",
+      "subtitle": "Arkadaşlarınızı JungleVPN’e davet edin, her kayıt için 30 günlük abonelik kazanın.",
+      "cta": "Arkadaşlarını davet et"
+    },
     "step1": {
       "title": "Davet bağlantınızı bir arkadaşınızla paylaşın",
       "copy": "Kopyala",

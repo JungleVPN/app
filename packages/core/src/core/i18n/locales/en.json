@@ -569,6 +569,12 @@
   },
   "referrals": {
     "pageTitle": "Referrals",
+    "hero": {
+      "badge": "30 days per friend",
+      "title": "Free subscription for referring JungleVPN",
+      "subtitle": "Invite friends to JungleVPN and earn 30 days of subscription for every signup.",
+      "cta": "Invite friends"
+    },
     "step1": {
       "title": "Share your referral link with a friend",
       "copy": "Copy",
