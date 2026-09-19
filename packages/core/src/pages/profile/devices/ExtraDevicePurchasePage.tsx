@@ -7,7 +7,7 @@ import { coreEnv, getTelegramStickerUrl } from '../../../env';
 import { useBackButton } from '../../../hooks';
 import { useNavbarStore, usePlatformStore } from '../../../stores';
 import { LottieIcon, Page, TgsSticker } from '../../../ui';
-import { isGlobalOrigin } from '../../../utils';
+import { userScope } from '../../../utils';
 import { PaymentForm } from '../payment/components/PaymentForm';
 import { useExtraDevicePayment } from './hooks/useExtraDevicePayment';
 import { useExtraDeviceStarsPayment } from './hooks/useExtraDeviceStarsPayment';
@@ -17,7 +17,7 @@ export default function ExtraDevicePurchasePage() {
   const { t } = useTranslation();
   const { platformType } = usePlatformStore();
   const { setNavbarVisible } = useNavbarStore();
-  const isRu = !isGlobalOrigin();
+  const isRu = userScope() === 'ru';
 
   const [selectedMethod] = useState<PaymentMethod>(
     isRu || platformType === 'telegram' ? 'yookassa' : 'stripe',

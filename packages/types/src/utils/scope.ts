@@ -100,6 +100,44 @@ type SquadRef = { readonly uuid?: string | null };
 /** Any panel user shape — created, fetched or streamed — carries its internal squads. */
 type SquadUser = { readonly activeInternalSquads: readonly SquadRef[] };
 
+/** The storefront squad uuids a caller was configured with. */
+export interface ScopeSquads {
+  readonly ru: string;
+  readonly global: string;
+}
+
+/**
+ * The storefront a user's squads imply, or null when they imply none.
+ *
+ * Holding the RU squad is what makes someone an RU user, whatever else they hold:
+ * extra squads grant extra node access and say nothing about where the user signed
+ * up. Reading "RU only if confined to the RU squad" is how a paying RU customer who
+ * had been given an admin or test squad was sent a link to the global storefront.
+ *
+ * Null is deliberate and means "do not guess". A user carrying neither storefront
+ * squad — access-only, or none at all — has their storefront recorded nowhere, and a
+ * guess that gets written down is indistinguishable from a fact afterwards. Callers
+ * should leave such a user unstamped and surface them for a human to decide.
+ *
+ * Pass a user fetched from the panel or its user stream, never one off a webhook
+ * payload: the panel ships `user.not_connected` and the HWID events with
+ * `activeInternalSquads` empty.
+ */
+export const scopeFromSquads = (user: SquadUser | null, squads: ScopeSquads): UserScope | null => {
+  if (!user) return null;
+
+  const uuids = new Set(
+    user.activeInternalSquads
+      .map((squad) => squad?.uuid?.trim().toLowerCase())
+      .filter((uuid): uuid is string => Boolean(uuid)),
+  );
+
+  if (uuids.has(squads.ru.trim().toLowerCase())) return 'ru';
+  if (uuids.has(squads.global.trim().toLowerCase())) return 'global';
+
+  return null;
+};
+
 /**
  * True when a user belongs to the global storefront, judged by the internal squads
  * they hold — the durable record of where they signed up. Only a user confined to the

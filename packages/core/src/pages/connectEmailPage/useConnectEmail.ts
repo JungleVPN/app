@@ -11,7 +11,7 @@ import {
   clearReferral,
   getAttribution,
   getReferralUserId,
-  isGlobalOrigin,
+  currentScope,
   phCapture,
   phIdentify,
   validateEmail,
@@ -31,7 +31,7 @@ export function useConnectEmail() {
   const { setRmnUser } = useAuthStoreActions();
   const { platformType } = usePlatformStore();
   const connectingRef = useRef(false);
-  const isGlobal = isGlobalOrigin();
+  const isGlobal = currentScope() === 'global';
 
   // Re-run on every landing: if the user arrives directly at /subscribe with
   // a ?ref= param, capture it. First-touch-guarded — no-op once the cookie

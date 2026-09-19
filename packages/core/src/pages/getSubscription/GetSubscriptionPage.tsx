@@ -1,4 +1,4 @@
-import { GLOBAL_PAYMENT_PROVIDER, isGlobalOrigin } from '../../utils';
+import { currentScope, GLOBAL_PAYMENT_PROVIDER } from '../../utils';
 import PaddleStartCheckoutPage from '../paddleGetSubscription/PaddleStartCheckoutPage';
 import RuStartCheckoutPage from '../ruGetSubscription/RuStartCheckoutPage';
 import StripeCheckoutPage from './StripeCheckoutPage';
@@ -11,11 +11,11 @@ import StripeCheckoutPage from './StripeCheckoutPage';
  * Every page shares `useCheckout` and `CheckoutForm`, so the provider changes
  * who takes the money and nothing else about the page.
  *
- * Resolved per render rather than at module scope: `isGlobalOrigin` reads the
+ * Resolved per render rather than at module scope: `currentScope` reads the
  * request hostname, which SSR only knows once a request is in flight.
  */
 export default function GetSubscriptionPage() {
-  if (!isGlobalOrigin()) return <RuStartCheckoutPage />;
+  if (currentScope() === 'ru') return <RuStartCheckoutPage />;
 
   return GLOBAL_PAYMENT_PROVIDER === 'paddle' ? (
     <PaddleStartCheckoutPage />

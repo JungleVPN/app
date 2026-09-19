@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { usePlatformStore } from '../stores';
 import {
   isCrawlablePath,
-  isGlobalOrigin,
+  currentScope,
   isLandingPath,
   localePolicyForHost,
   markdownPathFor,
@@ -64,7 +64,7 @@ describe('resolveLocaleForHost', () => {
   });
 });
 
-describe('isGlobalOrigin', () => {
+describe('currentScope', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
@@ -72,39 +72,39 @@ describe('isGlobalOrigin', () => {
     usePlatformStore.getState().actions.setPlatformType('web');
   });
 
-  it('is false for every configured Russian domain, including the www host', () => {
+  it("is 'ru' for every configured Russian domain, including the www host", () => {
     vi.stubEnv('PUBLIC_DOMAIN_RU', domains.ru);
     vi.stubGlobal('window', { location: { hostname: 'www.thejungle.pro' } });
-    expect(isGlobalOrigin()).toBe(false);
+    expect(currentScope()).toBe('ru');
   });
 
-  it('is true on the global domain', () => {
+  it("is 'global' on the global domain", () => {
     vi.stubEnv('PUBLIC_DOMAIN_RU', domains.ru);
     vi.stubGlobal('window', { location: { hostname: 'jungle-vpn.com' } });
-    expect(isGlobalOrigin()).toBe(true);
+    expect(currentScope()).toBe('global');
   });
 
   it('resolves from the request hostname during SSR, where there is no window', () => {
     vi.stubEnv('PUBLIC_DOMAIN_RU', domains.ru);
     vi.stubGlobal('window', undefined);
     setRequestHostname('jungle-vpn.com');
-    expect(isGlobalOrigin()).toBe(true);
+    expect(currentScope()).toBe('global');
 
     setRequestHostname('thejungle.pro');
-    expect(isGlobalOrigin()).toBe(false);
+    expect(currentScope()).toBe('ru');
   });
 
-  it('is false during SSR when no request hostname was set', () => {
+  it("is 'ru' during SSR when no request hostname was set", () => {
     vi.stubEnv('PUBLIC_DOMAIN_RU', domains.ru);
     vi.stubGlobal('window', undefined);
-    expect(isGlobalOrigin()).toBe(false);
+    expect(currentScope()).toBe('ru');
   });
 
-  it('is false inside the Telegram Mini App regardless of hostname', () => {
+  it("is 'ru' inside the Telegram Mini App regardless of hostname", () => {
     vi.stubEnv('PUBLIC_DOMAIN_RU', domains.ru);
     vi.stubGlobal('window', { location: { hostname: 'jungle-vpn.com' } });
     usePlatformStore.getState().actions.setPlatformType('telegram');
-    expect(isGlobalOrigin()).toBe(false);
+    expect(currentScope()).toBe('ru');
   });
 });
 

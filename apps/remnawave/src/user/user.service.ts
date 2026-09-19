@@ -10,13 +10,13 @@ import {
   GetUserByIdCommand,
   GetUserByIdResponseDto,
   GetUserMetadataCommand,
-  isGlobalSquadUser,
   GetUserMetadataResponseDto,
   GetUsersStreamCommand,
   type GetUsersStreamQuery,
-  scopeForOrigin,
   RevokeUserSubscriptionCommand,
   type StreamedUserDto,
+  scopeForOrigin,
+  scopeFromSquads,
   UpdateUserCommand,
   UpdateUserRequestDto,
   UpdateUserResponseDto,
@@ -395,11 +395,21 @@ export class UserService implements OnModuleInit {
   }
 
   async upsertUserMetadata(userId: number, metadata: Record<string, unknown>): Promise<void> {
+    const existing = (await this.getUserMetadata(userId))?.metadata ?? {};
+
     await this.panelClient.request({
       url: UpsertUserMetadataCommand.url(String(userId)),
       method: UpsertUserMetadataCommand.endpointDetails.REQUEST_METHOD,
-      body: { metadata },
+      body: { metadata: { ...existing, ...metadata } },
     });
+  }
+
+  /** The two squads that identify a storefront, as this service is configured. */
+  private get storefrontSquads() {
+    return {
+      ru: this.configService.getOrThrow<string>('RU_INTERNAL_SQUAD'),
+      global: this.configService.get('GLOBAL_INTERNAL_SQUAD', GLOBAL_INTERNAL_SQUAD),
+    };
   }
 
   /** The metadata key a user's storefront is stored under. */
@@ -423,25 +433,18 @@ export class UserService implements OnModuleInit {
     if (UserService.isUserScope(stored)) return stored;
 
     const user = await this.getUserById(userId);
-    const ruSquad = this.configService.getOrThrow<string>('RU_INTERNAL_SQUAD');
-    const derived: UserScope = isGlobalSquadUser(user, ruSquad) ? 'global' : 'ru';
+    const derived = scopeFromSquads(user, this.storefrontSquads);
+
+    if (!derived) return 'global';
 
     await this.setUserScope(userId, derived);
 
     return derived;
   }
 
-  /**
-   * Stores a user's storefront.
-   *
-   * Read-modify-write, because the panel's metadata upsert REPLACES the object rather
-   * than merging into it: writing `{ scope }` alone drops `lang`, and with it the
-   * language every e-mail to that user is written in.
-   */
+  /** Stores a user's storefront, leaving the rest of their metadata alone. */
   async setUserScope(userId: number, scope: UserScope): Promise<void> {
-    const existing = (await this.getUserMetadata(userId))?.metadata ?? {};
-
-    await this.upsertUserMetadata(userId, { ...existing, [UserService.SCOPE_KEY]: scope });
+    await this.upsertUserMetadata(userId, { [UserService.SCOPE_KEY]: scope });
   }
 
   async revokeSubscription(userId: number): Promise<string> {

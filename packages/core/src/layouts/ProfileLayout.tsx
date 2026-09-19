@@ -22,7 +22,7 @@ export function ProfileLayout() {
   const navigate = useNavigation();
   const remnawaveApi = useRemnawaveApi();
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
-  const { setRmnUser } = useAuthStoreActions();
+  const { setRmnUser, setUserScope } = useAuthStoreActions();
   const { platformType } = usePlatformStore();
   const { getConnectEmailPath, publicPlansPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
@@ -99,6 +99,11 @@ export function ProfileLayout() {
     remnawaveApi
       .getMyMetadata()
       .then((meta) => {
+        // The storefront this user actually belongs to, so pages specific to them
+        // stop deciding it from whichever host they happen to be browsing.
+        const scope = meta?.scope;
+        setUserScope(scope === 'ru' || scope === 'global' ? scope : null);
+
         const currentLang = (
           platformType === 'telegram' && tgUser?.language_code
             ? tgUser.language_code
@@ -119,6 +124,7 @@ export function ProfileLayout() {
     remnawaveApi.upsertMyMetadata,
     rmnUser,
     setLanguage,
+    setUserScope,
     tgUser?.language_code,
   ]);
 

@@ -3,7 +3,7 @@ import { TSubscriptionPageRawConfig } from '@remnawave/subscription-page-types';
 import { TSubscriptionPagePlatformKey } from '@workspace/types';
 import { useTranslation } from '../../hooks';
 import { useSubscriptionConfig } from '../../stores';
-import { isGlobalOrigin } from '../../utils';
+import { userScope } from '../../utils';
 import { AppTabs } from './components/AppTabs/AppTabs';
 import {
   AccordionBlockRenderer,
@@ -41,7 +41,7 @@ function renderBlocks(
 
 export function InstallationGuideConnector({ hasPlatformApps, platform, type }: IProps) {
   const { t, baseTranslations } = useTranslation();
-  const isGlobalUser = isGlobalOrigin();
+  const isGlobalUser = userScope() === 'global';
   const { svgLibrary } = useSubscriptionConfig();
   const {
     selectedPlatformId,

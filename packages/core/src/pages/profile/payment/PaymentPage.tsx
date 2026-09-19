@@ -11,7 +11,7 @@ import { useBackButton, useNavigation } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { useNavbarStore, usePlatformStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
-import { GLOBAL_PAYMENT_PROVIDER, isGlobalOrigin, phCapture } from '../../../utils';
+import { GLOBAL_PAYMENT_PROVIDER, phCapture, userScope } from '../../../utils';
 import { PaymentForm } from './components/PaymentForm';
 import { SavedMethod } from './components/SavedMethod';
 import { usePayment } from './hooks/usePayment';
@@ -56,7 +56,7 @@ export default function PaymentPage() {
   const { setNavbarVisible } = useNavbarStore();
   const navigate = useNavigation();
   const { profilePlansPath } = useAppRoutes();
-  const isRu = !isGlobalOrigin();
+  const isRu = userScope() === 'ru';
 
   // RU visitors and Telegram users pay through YooKassa; everyone else checks
   // out through whichever global provider is currently enabled.

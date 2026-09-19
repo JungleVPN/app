@@ -3,12 +3,8 @@
  * host falls back to the global languages (en, ar).
  */
 
-import {
-  normalizeHostname,
-  parseDomains,
-  isGlobalOrigin as resolveIsGlobalOrigin,
-} from '@workspace/types';
-import { usePlatformStore } from '../stores';
+import { normalizeHostname, parseDomains, scopeForOrigin, type UserScope } from '@workspace/types';
+import { useAuthStore, usePlatformStore } from '../stores';
 
 export { normalizeHostname, parseDomains };
 
@@ -77,25 +73,49 @@ export function setRequestHostname(hostname: string | null): void {
 }
 
 /**
- * True unless the app is being served from one of the RU domains (PUBLIC_DOMAIN_RU),
- * or is running inside the Telegram Mini App. The Mini App has no domain of its own
- * to route on (see `localePolicyForHost`'s "unrestricted host" case), and every
- * Telegram signup is treated as RU regardless of client-supplied Origin — see
- * `apps/remnawave/src/user/connect.controller.ts`. Delegates the actual RU/global
- * decision to `isGlobalOrigin` in `@workspace/types`, the single source of truth
- * shared with the backend. Used to force Russian and to switch pricing/payment UI
- * to RUB-only behavior.
+ * The storefront this page is being served as: `ru` on the RU domains
+ * (PUBLIC_DOMAIN_RU) and inside the Telegram Mini App, `global` everywhere else.
+ *
+ * The Mini App has no domain of its own to route on (see `localePolicyForHost`'s
+ * "unrestricted host" case), and every Telegram signup is RU regardless of the
+ * client-supplied Origin — see `apps/remnawave/src/user/user.service.ts`. Delegates
+ * the actual decision to `scopeForOrigin` in `@workspace/types`, the single source of
+ * truth shared with the backend. Used to force Russian and to switch pricing/payment
+ * UI to RUB-only behavior.
+ *
+ * This is the scope of the *page*, not of the signed-in user: it is what an
+ * unauthenticated visitor's storefront is decided from. A page rendering something
+ * specific to the signed-in user should read the scope stored on that user instead —
+ * a request host says where they are browsing from, not which storefront they bought
+ * from.
  *
  * On the server the hostname comes from `setRequestHostname`, so SSR and the first
- * client render agree; with neither a window nor a request hostname it stays false.
+ * client render agree; with neither a window nor a request hostname it stays `ru`.
  */
-export function isGlobalOrigin(): boolean {
-  if (usePlatformStore.getState().platformType === 'telegram') return false;
+export function currentScope(): UserScope {
+  if (usePlatformStore.getState().platformType === 'telegram') return 'ru';
 
   const hostname = typeof window === 'undefined' ? requestHostname : window.location.hostname;
-  if (!hostname) return false;
+  if (!hostname) return 'ru';
 
-  return resolveIsGlobalOrigin(`https://${hostname}`, configuredDomains().ru);
+  return scopeForOrigin(`https://${hostname}`, configuredDomains().ru);
+}
+
+/**
+ * The scope a page should render for: the signed-in user's stored scope when we know
+ * it, and the host's otherwise.
+ *
+ * Prefer this to `currentScope` anywhere the output is specific to the signed-in user
+ * — pricing, payment methods, install instructions. The host a user is browsing from
+ * says where they are, not which storefront they bought from: an RU customer who
+ * opens the global domain is still an RU customer, and showing them global pricing is
+ * the same bug as sending them a global "manage subscription" link.
+ *
+ * For an unauthenticated visitor there is no user to ask, and the host is the right
+ * answer — it is what their scope will be decided from if they sign up.
+ */
+export function userScope(): UserScope {
+  return useAuthStore.getState().userScope ?? currentScope();
 }
 
 /** Non-English global languages that route as `/<lang>`. English is the unprefixed `/`. */

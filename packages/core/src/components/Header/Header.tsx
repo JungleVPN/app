@@ -10,7 +10,7 @@ import { useTheme } from '../../hooks';
 import { usePlatformStore } from '../../stores';
 import { Container } from '../../ui';
 import {
-  isGlobalOrigin,
+  currentScope,
   isLandingPath,
   isMarketingPath,
   isPlansOrPaymentPlanPath,
@@ -44,7 +44,7 @@ export function Header() {
   const hideAuthButtons = isPlansOrPaymentPlanPath(pathname);
 
   useEffect(() => {
-    setIsRu(!isGlobalOrigin());
+    setIsRu(currentScope() === 'ru');
   }, []);
 
   useEffect(() => {

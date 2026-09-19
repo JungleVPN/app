@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { usePlatformStore } from '../../stores';
-import { isGlobalOrigin, isLandingPath, isMarketingPath, PRICING_PATH } from '../../utils';
+import { currentScope, isLandingPath, isMarketingPath, PRICING_PATH } from '../../utils';
 import { Link } from '../Link/Link';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -19,7 +19,7 @@ export function MobileDrawer() {
   const [isOpen, setIsOpen] = useState(false);
 
   const isLanding = isMarketingPath(pathname);
-  const isRu = !isGlobalOrigin();
+  const isRu = currentScope() === 'ru';
   const isTelegram = platformType === 'telegram';
 
   const scrollTo = (id: string) => {

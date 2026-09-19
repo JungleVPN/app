@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAuthStore, usePlatformStore } from '../stores';
 import { ProfileLayout } from './ProfileLayout';
 
-const { getMe, phIdentify, navigate, remnawaveApi, isGlobalOrigin } = vi.hoisted(() => {
+const { getMe, phIdentify, navigate, remnawaveApi, currentScope } = vi.hoisted(() => {
   const getMe = vi.fn();
   const remnawaveApi = {
     getMe,
@@ -18,7 +18,7 @@ const { getMe, phIdentify, navigate, remnawaveApi, isGlobalOrigin } = vi.hoisted
     phIdentify: vi.fn(),
     navigate: vi.fn(),
     remnawaveApi,
-    isGlobalOrigin: vi.fn(),
+    currentScope: vi.fn(),
   };
 });
 
@@ -49,7 +49,7 @@ vi.mock('../pages/profile/payment/components/TermsDialog', () => ({ TermsDialog:
 vi.mock('../core/i18n', () => ({ applyUserLang: vi.fn() }));
 vi.mock('../env', () => ({ coreEnv: { subpageConfigUuid: 'test-subpage' } }));
 
-vi.mock('../utils', () => ({ captureReferral: vi.fn(), phIdentify, isGlobalOrigin }));
+vi.mock('../utils', () => ({ captureReferral: vi.fn(), phIdentify, currentScope }));
 
 function fakeUser(overrides: Partial<GetUserByIdResponseDto> = {}) {
   return { id: 846, shortUuid: 'sub-846', ...overrides } as GetUserByIdResponseDto;
@@ -67,7 +67,7 @@ function renderProfileLayout() {
 
 describe('ProfileLayout', () => {
   beforeEach(() => {
-    isGlobalOrigin.mockReturnValue(false);
+    currentScope.mockReturnValue('ru');
     usePlatformStore.setState({ platformType: 'web' });
     remnawaveApi.getMyMetadata.mockResolvedValue(null);
     remnawaveApi.upsertMyMetadata.mockResolvedValue(undefined);

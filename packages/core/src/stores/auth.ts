@@ -1,4 +1,4 @@
-import type { GetUserByIdResponseDto } from '@workspace/types';
+import type { GetUserByIdResponseDto, UserScope } from '@workspace/types';
 import { create } from 'zustand';
 import { AuthSource, User } from '../types/tma';
 
@@ -25,6 +25,12 @@ export interface IAuthState {
   tgUser: User | null;
   /** Raw initData string sent as X-Telegram-Init-Data header. */
   tgInitDataRaw: string | null;
+  /**
+   * The storefront the signed-in user belongs to, as stored on them. Null until
+   * their metadata arrives, and for visitors who are not signed in — the host
+   * answers for those, see `userScope`.
+   */
+  userScope: UserScope | null;
 }
 
 export interface IAuthActions {
@@ -35,6 +41,7 @@ export interface IAuthActions {
     setAuthSource: (source: AuthSource | null) => void;
     setTgUser: (user: User | null) => void;
     setTgInitDataRaw: (raw: string | null) => void;
+    setUserScope: (scope: UserScope | null) => void;
   };
 }
 
@@ -45,6 +52,7 @@ const initialState: IAuthState = {
   authSource: null,
   tgUser: null,
   tgInitDataRaw: null,
+  userScope: null,
 };
 
 export const useAuthStore = create<IAuthActions & IAuthState>()((set) => ({
@@ -56,6 +64,7 @@ export const useAuthStore = create<IAuthActions & IAuthState>()((set) => ({
     setAuthSource: (authSource) => set({ authSource }),
     setTgUser: (tgUser) => set({ tgUser }),
     setTgInitDataRaw: (tgInitDataRaw) => set({ tgInitDataRaw }),
+    setUserScope: (userScope) => set({ userScope }),
   },
 }));
 

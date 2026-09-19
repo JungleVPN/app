@@ -21,7 +21,8 @@ import { UserService } from './user.service';
 vi.mock('axios', () => ({ default: { post: vi.fn().mockResolvedValue({ data: {} }) } }));
 
 const RU_SQUAD = 'squad-ru';
-const OTHER_SQUAD = 'squad-admin';
+const GLOBAL_SQUAD = 'd16313a3-6330-4868-bf8b-bce4911d31e7';
+const ADMIN_SQUAD = 'squad-admin';
 
 type PanelCall = { url: string; method: string; body?: unknown };
 
@@ -66,11 +67,9 @@ function makePanel({
     getOrThrow: vi.fn(() => RU_SQUAD),
   } as unknown as ConfigService;
 
-  const service = new UserService(
-    panelClient,
-    configService,
-    { track: vi.fn() } as unknown as AnalyticsClientService,
-  );
+  const service = new UserService(panelClient, configService, {
+    track: vi.fn(),
+  } as unknown as AnalyticsClientService);
 
   const metadataWrites = () =>
     calls.filter((c) => c.url.includes('metadata') && c.method.toLowerCase() !== 'get');
@@ -95,7 +94,7 @@ describe('UserService.getUserScope', () => {
 
   // The stored value is the whole point: squads must not get a second vote.
   it('does not consult squads when a scope is stored', async () => {
-    const { service, calls } = makePanel({ metadata: { scope: 'ru' }, squads: [OTHER_SQUAD] });
+    const { service, calls } = makePanel({ metadata: { scope: 'ru' }, squads: [ADMIN_SQUAD] });
 
     await service.getUserScope(1);
 
@@ -108,10 +107,29 @@ describe('UserService.getUserScope', () => {
     expect(await service.getUserScope(1)).toBe('ru');
   });
 
-  it("derives 'global' for a legacy user holding a squad other than RU", async () => {
-    const { service } = makePanel({ metadata: {}, squads: [OTHER_SQUAD] });
+  it("derives 'global' for a legacy user in the global squad", async () => {
+    const { service } = makePanel({ metadata: {}, squads: [GLOBAL_SQUAD] });
 
     expect(await service.getUserScope(1)).toBe('global');
+  });
+
+  // The whole bug in one test: an RU customer who was also given an admin or test
+  // squad is still an RU customer.
+  it("derives 'ru' for a legacy user who holds the RU squad alongside others", async () => {
+    const { service } = makePanel({ metadata: {}, squads: [ADMIN_SQUAD, RU_SQUAD] });
+
+    expect(await service.getUserScope(1)).toBe('ru');
+  });
+
+  // A user carrying neither storefront squad has no recorded storefront. Global is
+  // the only storefront that serves anyone, so it is what they are shown — but it is
+  // a fallback, not a finding, and writing it down would make it indistinguishable
+  // from one. Slice 4's backfill reports these for a human instead.
+  it('does not store a scope it had to guess', async () => {
+    const { service, metadataWrites } = makePanel({ metadata: {}, squads: [ADMIN_SQUAD] });
+
+    expect(await service.getUserScope(1)).toBe('global');
+    expect(metadataWrites()).toHaveLength(0);
   });
 
   it('derives a scope for a legacy user with no metadata at all', async () => {
@@ -131,7 +149,7 @@ describe('UserService.getUserScope', () => {
 
   // A value we do not recognise is no better than none: re-derive rather than trust it.
   it('re-derives when the stored scope is not a scope we know', async () => {
-    const { service } = makePanel({ metadata: { scope: 'eu' }, squads: [OTHER_SQUAD] });
+    const { service } = makePanel({ metadata: { scope: 'eu' }, squads: [GLOBAL_SQUAD] });
 
     expect(await service.getUserScope(1)).toBe('global');
   });
@@ -229,5 +247,40 @@ describe('UserService.createUser — stamping the scope', () => {
     await expect(
       service.createUser({ email: 'a@b.c', origin: 'https://jungle-vpn.com' }),
     ).resolves.toMatchObject({ id: 1 });
+  });
+});
+
+/**
+ * The panel REPLACES a user's metadata on upsert. Every caller that wrote a subset of
+ * the keys therefore silently dropped the rest — the frontend writes `{ lang }` alone
+ * on most profile visits, which erased the stored scope of any user whose language
+ * had drifted. Merging belongs in the one place that talks to the panel, so no caller
+ * can get it wrong.
+ */
+describe('UserService.upsertUserMetadata', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('merges into the metadata the user already has', async () => {
+    const { service, metadataWrites } = makePanel({ metadata: { lang: 'en', scope: 'ru' } });
+
+    await service.upsertUserMetadata(1, { lang: 'ru' });
+
+    expect(metadataWrites()[0].body).toEqual({ metadata: { lang: 'ru', scope: 'ru' } });
+  });
+
+  it('adds keys the user does not have yet', async () => {
+    const { service, metadataWrites } = makePanel({ metadata: { lang: 'en' } });
+
+    await service.upsertUserMetadata(1, { scope: 'global' });
+
+    expect(metadataWrites()[0].body).toEqual({ metadata: { lang: 'en', scope: 'global' } });
+  });
+
+  it('writes what it was given for a user with no metadata', async () => {
+    const { service, metadataWrites } = makePanel({ metadata: null });
+
+    await service.upsertUserMetadata(1, { lang: 'ru' });
+
+    expect(metadataWrites()[0].body).toEqual({ metadata: { lang: 'ru' } });
   });
 });

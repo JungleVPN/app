@@ -4,10 +4,10 @@ import MastercardLogo from '../../assets/icons/mastercard-svgrepo-com.svg?react'
 import MirLogo from '../../assets/icons/mir-svgrepo-com.svg?react';
 import BankCardLogo from '../../assets/icons/rub-svgrepo-com.svg?react';
 import VisaLogo from '../../assets/icons/visa-classic-svgrepo-com.svg?react';
-import { isGlobalOrigin } from '../../utils';
+import { currentScope } from '../../utils';
 
 export function PaymentMethodIcons({ className = '' }: { className?: string } = {}) {
-  const isGlobal = isGlobalOrigin();
+  const isGlobal = currentScope() === 'global';
 
   return (
     <div className={`flex flex-wrap items-center justify-center gap-4 text-muted ${className}`}>

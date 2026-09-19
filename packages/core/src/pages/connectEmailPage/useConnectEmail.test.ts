@@ -20,7 +20,7 @@ const {
   mockClearAttribution,
   mockGetAttribution,
   mockGetReferralUserId,
-  mockIsGlobalOrigin,
+  mockCurrentScope,
 } = vi.hoisted(() => ({
   mockBackButtonHide: vi.fn(),
   mockConnectEmail: vi.fn(),
@@ -36,7 +36,7 @@ const {
   mockClearAttribution: vi.fn(),
   mockGetAttribution: vi.fn(),
   mockGetReferralUserId: vi.fn(),
-  mockIsGlobalOrigin: vi.fn(),
+  mockCurrentScope: vi.fn(),
 }));
 
 vi.mock('@tma.js/sdk-react', () => ({
@@ -84,7 +84,7 @@ vi.mock('../../utils', async (importOriginal) => {
     clearAttribution: mockClearAttribution,
     getAttribution: mockGetAttribution,
     getReferralUserId: mockGetReferralUserId,
-    isGlobalOrigin: mockIsGlobalOrigin,
+    currentScope: mockCurrentScope,
   };
 });
 
@@ -150,7 +150,7 @@ function submitEvent(): SyntheticEvent {
 
 describe('useConnectEmail', () => {
   beforeEach(() => {
-    mockIsGlobalOrigin.mockReturnValue(false);
+    mockCurrentScope.mockReturnValue('ru');
   });
 
   it('captures the referral on mount', () => {
@@ -390,7 +390,7 @@ describe('useConnectEmail', () => {
 
   describe('global domain', () => {
     it('does not create a remnawave account when an authenticated global user has none', async () => {
-      mockIsGlobalOrigin.mockReturnValue(true);
+      mockCurrentScope.mockReturnValue('global');
       setAuthState({ authUser: { id: 'auth-1' } });
       setPlatform('web');
       mockGetReferralUserId.mockReturnValue(null);
@@ -403,7 +403,7 @@ describe('useConnectEmail', () => {
     });
 
     it('sends an authenticated global user without an account to the subscription page', async () => {
-      mockIsGlobalOrigin.mockReturnValue(true);
+      mockCurrentScope.mockReturnValue('global');
       setAuthState({ authUser: { id: 'auth-1' } });
       setPlatform('web');
 
@@ -415,7 +415,7 @@ describe('useConnectEmail', () => {
     });
 
     it('reports no connection in progress for a global user, so the form is never shown as connecting', () => {
-      mockIsGlobalOrigin.mockReturnValue(true);
+      mockCurrentScope.mockReturnValue('global');
       setAuthState({ authUser: { id: 'auth-1' } });
       setPlatform('web');
 
