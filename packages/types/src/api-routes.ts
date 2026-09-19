@@ -66,6 +66,7 @@ export const apiRoutes = {
     userExtraDevice: (userId: number) => `/users/${userId}/extra-device`,
     userExpiry: (userId: number) => `/users/${userId}/expiry`,
     userMetadata: (userId: number) => `/users/${userId}/metadata`,
+    userScope: (userId: number) => `/users/${userId}/scope`,
     // ── client-facing (ClientUserGuard — no user id in path) ──────────────
     me: '/users/me',
     meMetadata: '/users/me/metadata',

@@ -16,7 +16,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { WebHookEvent } from '@remna/remna.model';
 import { RemnaService } from '@remna/remna.service';
-import { isGlobalSquadUser, scopeHost, UserDto } from '@workspace/types';
+import { scopeHost, UserDto, type UserScope } from '@workspace/types';
 import { Bot, InlineKeyboard } from 'grammy';
 
 const SECOND_STAGE_HOURS = 48;
@@ -80,21 +80,18 @@ export class UserNotConnectedListener {
   }
 
   /**
-   * Which site to link to: the storefront the user actually belongs to, decided by
-   * their internal squad — the durable record of where they signed up. Not from
-   * `metadata.lang`, which is a display preference they can change (a Russian-speaking
-   * browser on the global domain stores `lang: "ru"`), and not from
+   * Which site to link to: the storefront the user belongs to, from the scope stored
+   * on them — the durable record of where they signed up. Not their squads, which say
+   * which nodes they may reach and rerouted a paying RU customer to the global
+   * storefront the moment they were given an admin or extra access squad. Not
+   * `metadata.lang` either, which is a display preference they can change, nor
    * PUBLIC_WEB_APP_URL/TMA_APP_URL, which don't identify a storefront at all.
+   *
+   * A scope that could not be read falls back to global: a link has to point
+   * somewhere, and the global storefront can serve any user.
    */
-  private get ruInternalSquad(): string {
-    const uuid = process.env.RU_INTERNAL_SQUAD;
-    if (!uuid) throw new Error('RU_INTERNAL_SQUAD is required to pick a storefront domain');
-    return uuid;
-  }
-
-  private siteUrlFor(user: UserDto | null): string {
-    const scope = !user || isGlobalSquadUser(user, this.ruInternalSquad) ? 'global' : 'ru';
-    const host = scopeHost(scope, {
+  private siteUrlFor(scope: UserScope | null): string {
+    const host = scopeHost(scope ?? 'global', {
       ru: process.env.PUBLIC_DOMAIN_RU,
       global: process.env.PUBLIC_DOMAIN_GLOBAL,
     });
@@ -143,7 +140,7 @@ export class UserNotConnectedListener {
     const html = buildNotConnectedEmailHtml({
       locale: emailLocale,
       stage,
-      appUrl: this.siteUrlFor(await this.remnaService.getUserById(user.id)),
+      appUrl: this.siteUrlFor(await this.remnaService.getUserScope(user.id)),
       supportUrl: `mailto:${process.env.SUPPORT_EMAIL}` || 'support@jungle-vpn.com',
     });
 

@@ -14,7 +14,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import * as Remnawave from '@workspace/types';
-import { UpdateUserResponseDto } from '@workspace/types';
+import { UpdateUserResponseDto, type UserScope } from '@workspace/types';
 import { InterServiceGuard } from '../guards/inter-service.guard';
 import { UserService } from './user.service';
 
@@ -87,6 +87,16 @@ export class UserController {
     },
   ): Promise<UpdateUserResponseDto> {
     return this.userService.updateExpiry(userId, body.months);
+  }
+
+  /**
+   * The storefront a user belongs to, for the services that build links to it.
+   * Only this service talks to the panel, so the answer is minted here once
+   * rather than derived again by every caller.
+   */
+  @Get(':userId/scope')
+  async getUserScope(@Param('userId', ParseIntPipe) userId: number): Promise<{ scope: UserScope }> {
+    return { scope: await this.userService.getUserScope(userId) };
   }
 
   @Get(':userId/metadata')

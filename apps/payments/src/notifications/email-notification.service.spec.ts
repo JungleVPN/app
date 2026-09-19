@@ -365,11 +365,7 @@ describe('EmailNotificationService', () => {
     });
   });
 
-  describe("site URL from the user's squad", () => {
-    // Matches RU_INTERNAL_SQUAD in vitest.config.mjs.
-    const RU_SQUAD = '6f40164a-51d0-432a-8fa3-3e1311e13757';
-    const GLOBAL_SQUAD = 'd16313a3-6330-4868-bf8b-bce4911d31e7';
-
+  describe("site URL from the user's scope", () => {
     beforeEach(() => {
       process.env.PUBLIC_DOMAIN_RU = 'ru-jungle.example';
       process.env.PUBLIC_DOMAIN_GLOBAL = 'jungle-vpn.com';
@@ -387,13 +383,17 @@ describe('EmailNotificationService', () => {
     });
 
     const ctaUrlFor = async (
-      squads: unknown,
+      scope: 'ru' | 'global' | null,
       metadata: Record<string, unknown> = {},
     ): Promise<string> => {
       mockAxiosGet.mockImplementation(async (url: string) => {
+        if (url.includes('/scope')) {
+          if (scope === null) throw new Error('remnawave unreachable');
+          return { data: { scope } };
+        }
         // The real endpoint wraps fields as `{ metadata: {...} }`.
         if (url.includes('/metadata')) return { data: { metadata } };
-        return { data: { ...remnawaveUser, activeInternalSquads: squads } };
+        return { data: remnawaveUser };
       });
 
       await service.onPaymentSucceeded(makePaymentSucceededEvent());
@@ -404,54 +404,47 @@ describe('EmailNotificationService', () => {
       return sendCall?.[1].content as string;
     };
 
-    it('links to the RU domain for a user in the RU squad', async () => {
-      const html = await ctaUrlFor([{ uuid: RU_SQUAD, name: 'Jungle Lake' }]);
+    it("links to the RU domain for a user whose scope is 'ru'", async () => {
+      expect(await ctaUrlFor('ru')).toContain('https://ru-jungle.example/profile/subscription');
+    });
 
-      expect(html).toContain('https://ru-jungle.example/profile/subscription');
+    it("links to the global domain for a user whose scope is 'global'", async () => {
+      expect(await ctaUrlFor('global')).toContain('https://jungle-vpn.com/profile/subscription');
+    });
+
+    // The bug this change exists for: an RU customer whose panel squads say anything
+    // other than "RU only" — an admin, an extra access squad, none at all — was sent
+    // a "manage subscription" link to the global storefront they had never used.
+    it("keeps an 'ru' user on the RU domain whatever their squads say", async () => {
+      const html = await ctaUrlFor('ru');
+
+      expect(html).toContain('https://ru-jungle.example');
+      expect(html).not.toContain('jungle-vpn.com');
     });
 
     // PUBLIC_DOMAIN_RU holds every host the RU storefront answers on, and pasting
     // the raw value into a URL produced `https://a,b,c/profile/subscription` —
-    // not a link any mail client will open, which is how the payment-success
-    // email arrived with no working "manage subscription" button.
+    // not a link any mail client will open.
     it('links to the first host when the domain variable lists several', async () => {
       process.env.PUBLIC_DOMAIN_RU = 'jungle.community,thejungle.pro,web.thejungle.pro';
 
-      const html = await ctaUrlFor([{ uuid: RU_SQUAD, name: 'Jungle Lake' }]);
+      const html = await ctaUrlFor('ru');
 
       expect(html).toContain('https://jungle.community/profile/subscription');
-      expect(html).not.toContain('thejungle.pro/profile/subscription');
+      expect(html).not.toContain('web.thejungle.pro');
     });
 
-    it('links to the global domain for a user in the global squad', async () => {
-      const html = await ctaUrlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }]);
+    it("links to the global domain for a 'global' user whose lang is \"ru\"", async () => {
+      const html = await ctaUrlFor('global', { lang: 'ru' });
 
-      expect(html).toContain('https://jungle-vpn.com/profile/subscription');
-    });
-
-    it('links to the global domain for a global-squad user whose lang is "ru"', async () => {
-      const html = await ctaUrlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }], { lang: 'ru' });
-
-      expect(html).toContain('https://jungle-vpn.com/profile/subscription');
+      expect(html).toContain('https://jungle-vpn.com');
       expect(html).not.toContain('ru-jungle.example');
     });
 
-    it('links to the RU domain for an RU-squad user whose lang is "en"', async () => {
-      const html = await ctaUrlFor([{ uuid: RU_SQUAD, name: 'Jungle Lake' }], { lang: 'en' });
-
-      expect(html).toContain('https://ru-jungle.example/profile/subscription');
-    });
-
-    it('defaults to the global domain when the user has no squads', async () => {
-      const html = await ctaUrlFor([]);
-
-      expect(html).toContain('https://jungle-vpn.com/profile/subscription');
-    });
-
-    it('still picks the email language from metadata.lang', async () => {
-      const html = await ctaUrlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }], { lang: 'ru' });
-
-      expect(html).toContain('lang="ru"');
+    // A scope that cannot be read must not silently reroute the payer, but the mail
+    // still needs a working link: global serves every user.
+    it('falls back to the global domain when the scope cannot be read', async () => {
+      expect(await ctaUrlFor(null)).toContain('https://jungle-vpn.com/profile/subscription');
     });
   });
 });

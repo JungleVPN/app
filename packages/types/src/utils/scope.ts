@@ -106,9 +106,11 @@ type SquadUser = { readonly activeInternalSquads: readonly SquadRef[] };
  * RU squad is an RU-storefront user: any additional squad means additional access, and
  * so does holding no squads at all.
  *
- * Use this, never `metadata.lang`, to pick a domain or storefront for a user:
- * `lang` is a display preference the user can change (a Russian-speaking browser on
- * the global domain stores `lang: "ru"`) and says nothing about where they signed up.
+ * @deprecated as a way to pick a storefront. Read the scope stored on the user
+ * instead (`UserService.getUserScope`): squads say which nodes a user may reach, and
+ * a user given an admin or extra access squad silently changed storefront — which is
+ * how a paying RU customer was sent a link to the global domain. This survives only
+ * as the one-time derivation for users created before the scope was stamped.
  *
  * Pass a user fetched from the panel, never one off a webhook payload: the panel ships
  * `user.not_connected` and the HWID events with `activeInternalSquads` empty.

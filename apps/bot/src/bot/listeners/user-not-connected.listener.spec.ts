@@ -20,10 +20,12 @@ function buildLocalService() {
 function buildRemnaService(
   lang: string | null = 'en',
   user: unknown = { id: 1, activeInternalSquads: [] },
+  scope: 'ru' | 'global' | null = 'global',
 ) {
   return {
     getUserLang: vi.fn().mockResolvedValue(lang),
     getUserById: vi.fn().mockResolvedValue(user),
+    getUserScope: vi.fn().mockResolvedValue(scope),
   };
 }
 
@@ -161,11 +163,7 @@ describe('UserNotConnectedListener', () => {
     expect(subject24).not.toEqual(subject48);
   });
 
-  describe("email site URL from the user's squad", () => {
-    // Matches RU_INTERNAL_SQUAD in vitest.config.mjs.
-    const RU_SQUAD = '6f40164a-51d0-432a-8fa3-3e1311e13757';
-    const GLOBAL_SQUAD = 'd16313a3-6330-4868-bf8b-bce4911d31e7';
-
+  describe("email site URL from the user's scope", () => {
     beforeEach(() => {
       process.env.PUBLIC_DOMAIN_RU = 'ru-jungle.example';
       process.env.PUBLIC_DOMAIN_GLOBAL = 'jungle-vpn.com';
@@ -177,15 +175,14 @@ describe('UserNotConnectedListener', () => {
     });
 
     const emailHtmlFor = async (
-      activeInternalSquads: unknown,
+      scope: 'ru' | 'global' | null,
       lang: string | null = 'en',
     ): Promise<string> => {
       const zohoEmailService = buildZohoEmailService();
-      const user = activeInternalSquads === null ? null : { id: 1, activeInternalSquads };
       const listener = new UserNotConnectedListener(
         buildBotService() as any,
         buildLocalService() as any,
-        buildRemnaService(lang, user) as any,
+        buildRemnaService(lang, { id: 1, activeInternalSquads: [] }, scope) as any,
         zohoEmailService as any,
       );
 
@@ -195,10 +192,29 @@ describe('UserNotConnectedListener', () => {
       return html as string;
     };
 
-    it('links to the RU domain for a user in the RU squad', async () => {
-      expect(await emailHtmlFor([{ uuid: RU_SQUAD, name: 'Jungle Lake' }])).toContain(
-        'https://ru-jungle.example',
-      );
+    it("links to the RU domain for a user whose scope is 'ru'", async () => {
+      expect(await emailHtmlFor('ru')).toContain('https://ru-jungle.example');
+    });
+
+    it("links to the global domain for a user whose scope is 'global'", async () => {
+      expect(await emailHtmlFor('global')).toContain('https://jungle-vpn.com');
+    });
+
+    // The bug this whole change exists for: a paying RU customer whose panel squads
+    // say anything other than "RU only" — an admin, an extra access squad, none at
+    // all — used to be sent to the global storefront. The stored scope is the answer.
+    it("links to the RU domain for an 'ru' user regardless of their squads", async () => {
+      const html = await emailHtmlFor('ru');
+
+      expect(html).toContain('https://ru-jungle.example');
+      expect(html).not.toContain('jungle-vpn.com');
+    });
+
+    it("links to the global domain for a 'global' user whose lang is \"ru\"", async () => {
+      const html = await emailHtmlFor('global', 'ru');
+
+      expect(html).toContain('https://jungle-vpn.com');
+      expect(html).not.toContain('ru-jungle.example');
     });
 
     // PUBLIC_DOMAIN_RU holds every host the RU storefront answers on; pasting the raw
@@ -206,53 +222,28 @@ describe('UserNotConnectedListener', () => {
     it('links to the first RU host when PUBLIC_DOMAIN_RU lists several', async () => {
       process.env.PUBLIC_DOMAIN_RU = 'jungle.community,thejungle.pro,web.thejungle.pro';
 
-      const html = await emailHtmlFor([{ uuid: RU_SQUAD, name: 'Jungle Lake' }]);
+      const html = await emailHtmlFor('ru');
 
       expect(html).toContain('https://jungle.community');
       expect(html).not.toContain('thejungle.pro');
     });
 
-    it('links to the global domain for a user in the global squad', async () => {
-      expect(await emailHtmlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }])).toContain(
-        'https://jungle-vpn.com',
-      );
-    });
-
-    it('links to the global domain for a global-squad user whose lang is "ru"', async () => {
-      const html = await emailHtmlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }], 'ru');
-
-      expect(html).toContain('https://jungle-vpn.com');
-      expect(html).not.toContain('ru-jungle.example');
-    });
-
-    it('links to the RU domain for an RU-squad user whose lang is "en"', async () => {
-      expect(await emailHtmlFor([{ uuid: RU_SQUAD, name: 'Jungle Lake' }], 'en')).toContain(
-        'https://ru-jungle.example',
-      );
-    });
-
-    it('defaults to the global domain when the user has no squads', async () => {
-      expect(await emailHtmlFor([])).toContain('https://jungle-vpn.com');
-    });
-
-    it('defaults to the global domain when the user lookup fails', async () => {
+    // The scope lookup can fail; an unreachable panel must not silently reroute an
+    // RU customer, but a link has to point somewhere — global is the safe default.
+    it('falls back to the global domain when the scope cannot be read', async () => {
       expect(await emailHtmlFor(null)).toContain('https://jungle-vpn.com');
     });
 
     it('still picks the email language from the user lang', async () => {
-      expect(await emailHtmlFor([{ uuid: GLOBAL_SQUAD, name: 'Global' }], 'ru')).toContain(
-        'lang="ru"',
-      );
+      expect(await emailHtmlFor('global', 'ru')).toContain('lang="ru"');
     });
 
     // The panel ships `user.not_connected` with activeInternalSquads always empty
-    // for performance, so the payload's copy must never be trusted.
-    it('fetches the user rather than reading the squads off the event payload', async () => {
+    // for performance, so nothing about the storefront can be read off the payload:
+    // the scope is asked for by user id.
+    it('asks the service for the scope of the user the event names', async () => {
       const zohoEmailService = buildZohoEmailService();
-      const remnaService = buildRemnaService('en', {
-        id: 1,
-        activeInternalSquads: [{ uuid: RU_SQUAD, name: 'Jungle Lake' }],
-      });
+      const remnaService = buildRemnaService('en', { id: 1, activeInternalSquads: [] }, 'ru');
       const listener = new UserNotConnectedListener(
         buildBotService() as any,
         buildLocalService() as any,
@@ -264,7 +255,7 @@ describe('UserNotConnectedListener', () => {
         basePayload({ activeInternalSquads: [] }, 24) as any,
       );
 
-      expect(remnaService.getUserById).toHaveBeenCalledWith(1);
+      expect(remnaService.getUserScope).toHaveBeenCalledWith(1);
       const [, , html] = zohoEmailService.sendEmail.mock.calls[0];
       expect(html).toContain('https://ru-jungle.example');
     });

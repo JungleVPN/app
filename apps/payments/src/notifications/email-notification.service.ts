@@ -4,9 +4,9 @@ import { OnEvent } from '@nestjs/event-emitter';
 import {
   apiRoutes,
   GetUserByIdResponseDto,
-  isGlobalSquadUser,
   Payments,
   scopeHost,
+  type UserScope,
   WebhookEventEnum,
 } from '@workspace/types';
 import axios, { isAxiosError } from 'axios';
@@ -90,26 +90,44 @@ export class EmailNotificationService {
 
   /**
    * The subscription-management page, on the domain of the storefront the user
-   * actually belongs to — decided by their internal squad, the durable record of
-   * where they signed up. Not from `metadata.lang`, which is a display preference
-   * they can change (a Russian-speaking browser on the global domain stores
-   * `lang: "ru"`), and not from PUBLIC_WEB_APP_URL/TMA_APP_URL, which don't
-   * identify a storefront at all.
+   * belongs to — from the scope stored on them, the durable record of where they
+   * signed up.
+   *
+   * Not from their squads, which say which nodes they may reach: an RU customer
+   * given an admin or extra access squad was sent a "manage subscription" link to
+   * the global storefront they had never used. Not from `metadata.lang` either,
+   * which is a display preference they can change (a Russian-speaking browser on
+   * the global domain stores `lang: "ru"`), and not from PUBLIC_WEB_APP_URL /
+   * TMA_APP_URL, which don't identify a storefront at all.
+   *
+   * A scope that could not be read falls back to global rather than to no link:
+   * the global storefront can serve any user.
    */
-  private get ruInternalSquad(): string {
-    const uuid = process.env.RU_INTERNAL_SQUAD;
-    if (!uuid) throw new Error('RU_INTERNAL_SQUAD is required to pick a storefront domain');
-    return uuid;
-  }
-
-  private siteUrlFor(user: Pick<GetUserByIdResponseDto, 'activeInternalSquads'>): string {
-    const scope = isGlobalSquadUser(user, this.ruInternalSquad) ? 'global' : 'ru';
-    const host = scopeHost(scope, {
+  private siteUrlFor(scope: UserScope | null): string {
+    const host = scopeHost(scope ?? 'global', {
       ru: process.env.PUBLIC_DOMAIN_RU,
       global: process.env.PUBLIC_DOMAIN_GLOBAL,
     });
 
     return host ? `https://${host}${PROFILE_SUBSCRIPTION_PATH}` : '';
+  }
+
+  /** The user's scope, or null when the remnawave service cannot be reached. */
+  private async getUserScope(userId: number): Promise<UserScope | null> {
+    try {
+      const { data } = await axios.get<{ scope: UserScope }>(
+        `${this.remnawaveBaseUrl}${apiRoutes.remnawave.userScope(userId)}`,
+        {
+          headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
+          timeout: 5_000,
+        },
+      );
+      return data.scope;
+    } catch (err: unknown) {
+      const detail = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Failed to fetch scope for user ${userId}: ${detail}`);
+      return null;
+    }
   }
 
   private get supportUrl(): string {
@@ -145,7 +163,7 @@ export class EmailNotificationService {
       locale,
       days,
       expireDate,
-      paymentUrl: this.siteUrlFor(user),
+      paymentUrl: this.siteUrlFor(await this.getUserScope(userId)),
       supportUrl: this.supportUrl,
     });
 
@@ -185,7 +203,7 @@ export class EmailNotificationService {
     const html = buildPaymentSuccessEmailHtml({
       locale,
       expireDate,
-      paymentUrl: this.siteUrlFor(user),
+      paymentUrl: this.siteUrlFor(await this.getUserScope(userId)),
       supportUrl: this.supportUrl,
     });
 
@@ -229,7 +247,7 @@ export class EmailNotificationService {
       locale,
       reason,
       expireDate,
-      paymentUrl: this.siteUrlFor(user),
+      paymentUrl: this.siteUrlFor(await this.getUserScope(userId)),
       supportUrl: this.supportUrl,
     });
 

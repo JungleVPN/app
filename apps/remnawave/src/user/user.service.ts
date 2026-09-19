@@ -202,9 +202,17 @@ export class UserService implements OnModuleInit {
       origin?: string | null;
     },
   ): Promise<CreateUserResponseDto> {
-    const scope = scopeForOrigin(payload.origin, this.configService.get('PUBLIC_DOMAIN_RU'));
-
     const isTelegramSignup = payload.telegramId !== undefined && payload.telegramId !== null;
+
+    /**
+     * Telegram is an RU surface, whatever Origin the client sent. The Mini App has no
+     * domain of its own to route on, so the header says nothing about the storefront —
+     * matching the frontend, where `isGlobalOrigin()` is false on the Telegram platform.
+     * For every other signup the host is the only signal there is.
+     */
+    const scope: UserScope = isTelegramSignup
+      ? 'ru'
+      : scopeForOrigin(payload.origin, this.configService.get('PUBLIC_DOMAIN_RU'));
     const trialDays = Number(this.configService.get('TRIAL_PERIOD_IN_DAYS', '3'));
     const ruInternalSquad = this.configService.getOrThrow<string>('RU_INTERNAL_SQUAD');
     const globalInternalSquad = this.configService.get(

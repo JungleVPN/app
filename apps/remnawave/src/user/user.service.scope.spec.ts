@@ -188,6 +188,39 @@ describe('UserService.createUser — stamping the scope', () => {
     expect(metadataWrites()[0].body).toEqual({ metadata: { scope: 'global' } });
   });
 
+  // Telegram is an RU surface: the Mini App has no domain of its own to route on, and
+  // the client-supplied Origin on a Telegram signup says nothing about the storefront.
+  // A telegramId is therefore the answer by itself, whatever origin arrives with it.
+  it('stamps a Telegram signup as ru even when the origin is the global domain', async () => {
+    const { service, metadataWrites } = makePanel({ metadata: {} });
+
+    await service.createUser({ telegramId: 111, origin: 'https://jungle-vpn.com' });
+
+    expect(metadataWrites()[0].body).toEqual({ metadata: { scope: 'ru' } });
+  });
+
+  it('stamps a Telegram signup as ru when no origin arrives at all', async () => {
+    const { service, metadataWrites } = makePanel({ metadata: {} });
+
+    await service.createUser({ telegramId: 111 });
+
+    expect(metadataWrites()[0].body).toEqual({ metadata: { scope: 'ru' } });
+  });
+
+  // The scope and the squads are one decision, so they cannot disagree: a Telegram
+  // signup that stamps `ru` must also land in the RU squad.
+  it('puts a Telegram signup on a global origin into the RU squad', async () => {
+    const { service, calls } = makePanel({ metadata: {} });
+
+    await service.createUser({ telegramId: 111, origin: 'https://jungle-vpn.com' });
+
+    const create = calls.find((call) => call.method.toLowerCase() === 'post');
+    expect(create?.body).toMatchObject({
+      activeInternalSquads: [RU_SQUAD],
+      externalSquadUuid: null,
+    });
+  });
+
   // Best-effort, like the referral notification: an account must exist even if the
   // panel refuses the metadata write.
   it('still creates the account when the scope cannot be stamped', async () => {

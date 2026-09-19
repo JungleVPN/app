@@ -8,6 +8,7 @@ import {
   GetUserMetadataResponseDto,
   type StreamedUserDto,
   UserDto,
+  type UserScope,
 } from '@workspace/types';
 import { AxiosInstance } from 'axios';
 
@@ -103,6 +104,26 @@ export class RemnaService {
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : String(e);
       this.logger.warn(`Failed to fetch user ${userId}: ${message}`);
+      return null;
+    }
+  }
+
+  /**
+   * The storefront the user belongs to, as the remnawave service records it.
+   *
+   * Returns null when the lookup fails so the caller can fall back rather than
+   * quietly routing the user to the wrong storefront on a transient error.
+   */
+  async getUserScope(userId: number): Promise<UserScope | null> {
+    try {
+      const { scope } = await this.fetch<{ scope: UserScope }>({
+        method: 'GET',
+        url: apiRoutes.remnawave.userScope(userId),
+      });
+      return scope;
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      this.logger.warn(`Failed to fetch scope for user ${userId}: ${message}`);
       return null;
     }
   }
