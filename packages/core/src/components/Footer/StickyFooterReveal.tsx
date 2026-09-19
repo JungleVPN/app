@@ -5,5 +5,5 @@ type StickyFooterRevealProps = {
 };
 
 export function StickyFooterReveal({ children }: StickyFooterRevealProps) {
-  return <div className='sticky bottom-0 z-0 bg-[#1a1a1a] text-white'>{children}</div>;
+  return <div className='sticky bottom-0 z-0 bg-[#1a1a1a] mt-20 text-white'>{children}</div>;
 }
