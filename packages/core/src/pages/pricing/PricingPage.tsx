@@ -1,4 +1,3 @@
-import { FooterSection, StickyFooterReveal } from '../../components';
 import { Container } from '../../ui';
 import { scrollToTop } from '../../utils';
 import { CTASection } from '../landing/CTASection';
@@ -27,12 +26,6 @@ export default function PricingPage() {
             <FAQSection />
           </Container>
         </div>
-
-        <StickyFooterReveal>
-          <Container className={'-mt-20 pt-20'}>
-            <FooterSection />
-          </Container>
-        </StickyFooterReveal>
       </div>
     </div>
   );

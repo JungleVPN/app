@@ -37,7 +37,9 @@ h3 {
   --second-button-color: rgb(99 102 241 / 10%);
   --text-confirm-color: #2da44e;
   --color-accent: oklch(0.32 0.04 195.45);
+  --background: oklch(0.9702 0 0);
   --accent: oklch(0.32 0.04 195.45);
+  --accent-secondary: #f2ecfd;
   --accent-surface: oklch(0.32 0.04 195.45 / 1);
   --accent-light: oklch(0.62 0.04 195.45 / 1);
   --surface: oklch(0.9524 0.0013 286.37);

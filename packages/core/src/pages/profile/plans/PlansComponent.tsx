@@ -65,9 +65,7 @@ export const PlansComponent = (props: PlansComponentProps) => {
                           )}
                         </div>
                         <div className='text-end'>
-                          <div className='text-lg font-bold text-primary'>
-                            {amounts.monthly}
-                          </div>
+                          <div className='text-lg font-bold text-primary'>{amounts.monthly}</div>
                           <div className='text-xs text-muted'>{t('plans.perMonth')}</div>
                         </div>
                       </div>

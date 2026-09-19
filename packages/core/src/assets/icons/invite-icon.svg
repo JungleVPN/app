@@ -1,0 +1,32 @@
+<svg
+        viewBox='0 0 420 320'
+        role='presentation'
+        aria-hidden='true'
+        focusable='false'
+        className='h-56 w-full max-w-md md:h-72'
+>
+    <ellipse cx='210' cy='236' rx='150' ry='62' fill='#1a1a1a' opacity='0.85' />
+    <circle cx='214' cy='78' r='34' fill='none' stroke='#ffffff' strokeWidth='4' />
+    <path
+            d='M150 196c0-42 28-76 64-76s64 34 64 76'
+            fill='none'
+            stroke='#ffffff'
+            strokeWidth='4'
+            strokeLinecap='round'
+    />
+    <rect x='160' y='196' width='108' height='96' rx='8' fill='#ffffff' />
+    <path d='M214 196v96M160 232h108' stroke='#1a1a1a' strokeWidth='4' />
+    <path
+            d='M92 128l30 22M96 196l26-8M330 110c22 10 30 30 18 46M344 220l24-14'
+            stroke='#ffffff'
+            strokeWidth='4'
+            strokeLinecap='round'
+    />
+    <path
+            d='M356 52l8 22 22 8-22 8-8 22-8-22-22-8 22-8z'
+            fill='none'
+            stroke='#ffffff'
+            strokeWidth='4'
+            strokeLinejoin='round'
+    />
+</svg>

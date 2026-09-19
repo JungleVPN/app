@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
-import { FooterSection, StickyFooterReveal } from '../../components';
 import { useAuthStore } from '../../stores';
-import { Container } from '../../ui';
-import { PRICING_PATH, phCapture } from '../../utils';
+import { Container, RoundedSection } from '../../ui';
+import { phCapture } from '../../utils';
 import { BentoFeaturesStack } from './BentoFeaturesStack';
 import { ComparisonSection } from './ComparisonSection';
 import { CountriesMarquee } from './CountriesMarquee';
@@ -16,11 +15,9 @@ import { PlatformsSection } from './PlatformsSection';
 import { PricingSection } from './PricingSection';
 import { TrustSection } from './TrustSection';
 import { WhatIsVPN } from './WhatIsVPN';
-import { useNavigation } from '../../hooks';
 
 export default function LandingPage() {
   const { rmnUser } = useAuthStore();
-  const navigate = useNavigation();
 
   useEffect(() => {
     phCapture('landing_viewed', { userId: rmnUser?.id });
@@ -44,11 +41,7 @@ export default function LandingPage() {
           <HeroSection />
         </Container>
       </div>
-      <div
-        className={
-          'flex flex-col gap-48 relative z-20 bg-background rounded-t-[4rem] rounded-b-[4rem] py-12 md:py-8'
-        }
-      >
+      <RoundedSection className='z-20'>
         <Container>
           <TrustSection />
         </Container>
@@ -59,7 +52,7 @@ export default function LandingPage() {
         <Container>
           <BentoFeaturesStack />
         </Container>
-      </div>
+      </RoundedSection>
 
       <div className='relative z-10'>
         <div
@@ -74,15 +67,11 @@ export default function LandingPage() {
             <ComparisonSection />
           </Container>
           <div className={'lg:px-12'}>
-            <div
-              className={
-                'flex flex-col gap-48 relative z-10 bg-background rounded-t-[4rem] rounded-b-[4rem] py-12 md:py-8'
-              }
-            >
+            <RoundedSection className='z-10'>
               <Container id='pricing'>
                 <PricingSection />
               </Container>
-            </div>
+            </RoundedSection>
           </div>
           <Container>
             <InfoSection />
@@ -97,15 +86,9 @@ export default function LandingPage() {
             <WhatIsVPN />
           </Container>
           <Container>
-            <CTASection onCtaClick={() => navigate(PRICING_PATH)} />
+            <CTASection />
           </Container>
         </div>
-
-        <StickyFooterReveal>
-          <Container className={'-mt-20 pt-20'}>
-            <FooterSection />
-          </Container>
-        </StickyFooterReveal>
       </div>
     </div>
   );

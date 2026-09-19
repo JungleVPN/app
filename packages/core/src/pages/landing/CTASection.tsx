@@ -1,6 +1,7 @@
 import { Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '../../hooks';
+import { PRICING_PATH } from '../../utils';
 
 export function CTASection({ onCtaClick }: { onCtaClick?: () => void } = {}) {
   const { t } = useTranslation();
@@ -22,7 +23,7 @@ export function CTASection({ onCtaClick }: { onCtaClick?: () => void } = {}) {
           <Button
             size='lg'
             className=' font-semibold shadow-lg '
-            onClick={onCtaClick ?? (() => navigate('/login'))}
+            onClick={onCtaClick ?? (() => navigate(PRICING_PATH))}
           >
             {t('common.cta')}
           </Button>

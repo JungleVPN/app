@@ -12,7 +12,11 @@ import { WebSuccessLayout } from '@/layouts/WebSuccessLayout';
 // see core-web-vitals audit on apps/web LCP/INP.
 const pages = () => import('@workspace/core/pages');
 
-export function createRoutes(Landing: ComponentType, Pricing: ComponentType) {
+export function createRoutes(
+  Landing: ComponentType,
+  Pricing: ComponentType,
+  ReferralsPage: ComponentType,
+) {
   return [
     {
       Component: WebAppLayout,
@@ -22,9 +26,6 @@ export function createRoutes(Landing: ComponentType, Pricing: ComponentType) {
           Component: LandingLayout,
           children: [{ index: true, Component: Landing }],
         },
-        // Global-domain language routing (jungle-vpn.com): /en, /ar and /tr serve
-        // the same landing page, with the active language picked up by i18n's path
-        // detector — see packages/core/src/core/i18n/i18n.ts.
         {
           path: '/en',
           Component: LandingLayout,
@@ -40,24 +41,19 @@ export function createRoutes(Landing: ComponentType, Pricing: ComponentType) {
           Component: LandingLayout,
           children: [{ index: true, Component: Landing }],
         },
-        // The pricing page reuses the landing layout: it is the same marketing
-        // surface, with the plans lifted into the hero. Eager like the landing
-        // page, because SSR's static handler does not resolve `lazy` routes —
-        // a lazy component here renders an empty shell and then fails hydration.
+
         {
           path: '/pricing',
           Component: LandingLayout,
           children: [{ index: true, Component: Pricing }],
         },
-        // The public referrals page is a marketing surface: it shares the landing
-        // layout, the header's nav and the sticky footer reveal.
         {
           path: '/referrals',
           Component: LandingLayout,
           children: [
             {
               index: true,
-              lazy: () => pages().then((m) => ({ Component: m.ReferralsPage })),
+              Component: ReferralsPage,
             },
           ],
         },

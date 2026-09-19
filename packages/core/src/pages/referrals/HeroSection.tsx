@@ -1,5 +1,4 @@
 import { Button, Chip } from '@heroui/react';
-import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReferralsIcon from '../../assets/icons/referrals-page-hero-icon.svg?react';
 import { useNavigation } from '../../hooks';
@@ -8,13 +7,9 @@ import { useAppRoutes } from '../../runtime';
 export function HeroSection() {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { profileReferralsPath } = useAppRoutes();
+  const { authGateRedirectPath, profileReferralsPath } = useAppRoutes();
 
-  // Visitors without an account cannot own a referral link yet, so the invite
-  // starts at pricing — the same entry point the landing hero uses.
-  const handleClick = useCallback(() => {
-    navigate(profileReferralsPath);
-  }, [navigate, profileReferralsPath]);
+  const inviteHref = `${authGateRedirectPath}?to=${encodeURIComponent(profileReferralsPath)}`;
 
   return (
     <section className='flex flex-col items-center gap-8 text-center bg-white rounded-t-[4rem] rounded-b-[4rem] py-12 md:py-8'>
@@ -38,7 +33,7 @@ export function HeroSection() {
         <Button
           size='lg'
           className='h-14 px-10 rounded-4xl bg-linear-to-r from-purple-400 to-yellow-400 text-white hover:opacity-90'
-          onClick={handleClick}
+          onClick={() => navigate(inviteHref)}
         >
           {t('referrals.hero.cta')}
         </Button>
