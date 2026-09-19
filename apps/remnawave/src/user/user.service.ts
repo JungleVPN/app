@@ -10,6 +10,7 @@ import {
   GetUserByIdCommand,
   GetUserByIdResponseDto,
   GetUserMetadataCommand,
+  isGlobalSquadUser,
   GetUserMetadataResponseDto,
   GetUsersStreamCommand,
   type GetUsersStreamQuery,
@@ -21,6 +22,7 @@ import {
   UpdateUserResponseDto,
   UpsertUserMetadataCommand,
   UserDto,
+  type UserScope,
 } from '@workspace/types';
 import axios from 'axios';
 import { addDays, addMonths } from 'date-fns';
@@ -238,6 +240,8 @@ export class UserService implements OnModuleInit {
       body,
     });
 
+    await this.stampScope(user.id, scope);
+
     if (inviterId) {
       await this.notifyReferral(inviterId, user.id);
     }
@@ -250,6 +254,19 @@ export class UserService implements OnModuleInit {
     });
 
     return user;
+  }
+
+  /**
+   * Stamps the new account with the storefront it was created from.
+   * Best-effort: a panel that refuses the metadata write must not fail account
+   * creation — `getUserScope` will derive and store one on first read instead.
+   */
+  private async stampScope(userId: number, scope: UserScope): Promise<void> {
+    try {
+      await this.setUserScope(userId, scope);
+    } catch (err: any) {
+      this.logger.warn(`Failed to stamp scope "${scope}" on user ${userId}: ${err.message}`);
+    }
   }
 
   /**
@@ -375,6 +392,48 @@ export class UserService implements OnModuleInit {
       method: UpsertUserMetadataCommand.endpointDetails.REQUEST_METHOD,
       body: { metadata },
     });
+  }
+
+  /** The metadata key a user's storefront is stored under. */
+  private static readonly SCOPE_KEY = 'scope';
+
+  private static isUserScope(value: unknown): value is UserScope {
+    return value === 'ru' || value === 'global';
+  }
+
+  /**
+   * Which storefront a user belongs to — the durable record of where they signed up,
+   * stored on their panel metadata.
+   *
+   * A user created before the scope was stamped has none, so the first read derives one
+   * from their squads and writes it back; from then on the stored value is the answer.
+   * Deriving is a fallback, not the rule: squads say which nodes a user may reach, and a
+   * user moved to an admin or access squad would otherwise silently change storefront.
+   */
+  async getUserScope(userId: number): Promise<UserScope> {
+    const stored = (await this.getUserMetadata(userId))?.metadata?.[UserService.SCOPE_KEY];
+    if (UserService.isUserScope(stored)) return stored;
+
+    const user = await this.getUserById(userId);
+    const ruSquad = this.configService.getOrThrow<string>('RU_INTERNAL_SQUAD');
+    const derived: UserScope = isGlobalSquadUser(user, ruSquad) ? 'global' : 'ru';
+
+    await this.setUserScope(userId, derived);
+
+    return derived;
+  }
+
+  /**
+   * Stores a user's storefront.
+   *
+   * Read-modify-write, because the panel's metadata upsert REPLACES the object rather
+   * than merging into it: writing `{ scope }` alone drops `lang`, and with it the
+   * language every e-mail to that user is written in.
+   */
+  async setUserScope(userId: number, scope: UserScope): Promise<void> {
+    const existing = (await this.getUserMetadata(userId))?.metadata ?? {};
+
+    await this.upsertUserMetadata(userId, { ...existing, [UserService.SCOPE_KEY]: scope });
   }
 
   async revokeSubscription(userId: number): Promise<string> {
