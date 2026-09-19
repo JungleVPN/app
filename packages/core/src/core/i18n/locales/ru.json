@@ -45,7 +45,9 @@
     "logoAlt": "Логотип JungleVPN",
     "nav": {
       "partnership": "Партнёрство",
-      "pricing": "Цены"
+      "pricing": "Цены",
+      "offer": "Что мы предлагаем",
+      "inviteAndEarn": "Приглашай и Зарабатывай"
     },
     "support": {
       "telegram": "Telegram",

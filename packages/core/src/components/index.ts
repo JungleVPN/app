@@ -10,6 +10,7 @@ export { StickyFooterReveal } from './Footer/StickyFooterReveal';
 export { AuthButtons } from './Header/AuthButtons';
 export { Header } from './Header/Header';
 export { LanguageSwitcher } from './Header/LanguageSwitcher';
+export { OfferMenu } from './Header/OfferMenu';
 export { ThemeToggle } from './Header/ThemeToggle';
 export { InfoBlock } from './InfoBlock/InfoBlock';
 export { InstallationGuideConnector } from './InstallationGuide';

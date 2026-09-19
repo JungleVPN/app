@@ -1,6 +1,7 @@
 export type { AsyncState } from './use-async';
 export { useAsync } from './use-async';
 export { useDeleteDevice, useUserDevices } from './use-devices';
+export { useHoverOpen } from './use-hover-open';
 export {
   useCreatePaymentSession,
   useCreateStripeSession,

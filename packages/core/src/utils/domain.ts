@@ -141,12 +141,15 @@ export function isLandingPath(pathname: string): boolean {
 /** The standalone marketing pricing page. */
 export const PRICING_PATH = '/pricing';
 
+/** The public referrals page reached from the header's "What we offer" menu. */
+export const REFERRALS_PATH = '/referrals';
+
 /**
- * True for the public marketing surfaces — the landing pages and the pricing
- * page — which share the same transparent, nav-carrying header.
+ * True for the public marketing surfaces — the landing pages, the pricing page
+ * and the referrals page — which share the same transparent, nav-carrying header.
  */
 export function isMarketingPath(pathname: string): boolean {
-  return isLandingPath(pathname) || pathname === PRICING_PATH;
+  return isLandingPath(pathname) || pathname === PRICING_PATH || pathname === REFERRALS_PATH;
 }
 
 /** True for the plan-selection/checkout paths `/plans` and `/payment/planN`, where AuthButtons are hidden. */

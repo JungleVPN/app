@@ -39,6 +39,7 @@ export {
   normalizeHostname,
   PRICING_PATH,
   parseDomains,
+  REFERRALS_PATH,
   resolveLocaleForHost,
   resolveLocaleForRequest,
   setRequestHostname,

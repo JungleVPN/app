@@ -45,7 +45,9 @@
     "logoAlt": "JungleVPN logo",
     "nav": {
       "partnership": "Partnership",
-      "pricing": "Prices"
+      "pricing": "Prices",
+      "offer": "What we offer",
+      "inviteAndEarn": "Invite and Earn"
     },
     "support": {
       "telegram": "Telegram",

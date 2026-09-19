@@ -8,6 +8,7 @@ import { currentScope, isLandingPath, isMarketingPath, PRICING_PATH } from '../.
 import { Link } from '../Link/Link';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { OFFER_MENU_ITEMS } from './offerMenuItems';
 
 const navItemClass =
   'flex items-center px-3 py-2.5 rounded-xl text-sm text-foreground/70 hover:text-foreground hover:bg-default transition-colors text-start';
@@ -67,6 +68,16 @@ export function MobileDrawer() {
                   >
                     {t('header.nav.pricing')}
                   </Link>
+                  {OFFER_MENU_ITEMS.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={item.path}
+                      className={navItemClass}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {t(item.labelKey)}
+                    </Link>
+                  ))}
                   {isLandingPath(pathname) && (
                     <button
                       type='button'

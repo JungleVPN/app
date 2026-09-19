@@ -24,9 +24,11 @@ import { SupportButton } from '../SupportWidget/SupportButton';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileDrawer } from './MobileDrawer';
+import { OfferMenu } from './OfferMenu';
 
-const navLinkClass =
-  'text-base mix-blend-difference text-[white] hover:underline transition-colors cursor-pointer bg-transparent border-none p-0';
+const navItemClass =
+  'text-base mix-blend-difference text-[white] transition-colors cursor-pointer bg-transparent border-none p-0';
+const navLinkClass = `${navItemClass} hover:underline`;
 
 export function Header() {
   const { t } = useTranslation();
@@ -107,6 +109,7 @@ export function Header() {
           >
             {t('header.nav.pricing')}
           </Link>
+          <OfferMenu triggerClassName={navItemClass} />
           {isLandingPath(pathname) && (
             <Button
               className={navLinkClass}

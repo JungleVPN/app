@@ -49,6 +49,18 @@ export function createRoutes(Landing: ComponentType, Pricing: ComponentType) {
           Component: LandingLayout,
           children: [{ index: true, Component: Pricing }],
         },
+        // The public referrals page is a marketing surface: it shares the landing
+        // layout, the header's nav and the sticky footer reveal.
+        {
+          path: '/referrals',
+          Component: LandingLayout,
+          children: [
+            {
+              index: true,
+              lazy: () => pages().then((m) => ({ Component: m.ReferralsPage })),
+            },
+          ],
+        },
         {
           Component: WebRootLayout,
           children: [

@@ -4,6 +4,7 @@ import {
   isCrawlablePath,
   currentScope,
   isLandingPath,
+  isMarketingPath,
   localePolicyForHost,
   markdownPathFor,
   normalizeHostname,
@@ -144,6 +145,19 @@ describe('isLandingPath', () => {
 
   it.each(['/subscribe', '/en/nested', '/login'])('is false for %s', (pathname) => {
     expect(isLandingPath(pathname)).toBe(false);
+  });
+});
+
+describe('isMarketingPath', () => {
+  it.each(['/', '/en', '/pricing', '/referrals'])(
+    'is true for the marketing surface %s',
+    (pathname) => {
+      expect(isMarketingPath(pathname)).toBe(true);
+    },
+  );
+
+  it.each(['/login', '/profile/referrals'])('is false for %s', (pathname) => {
+    expect(isMarketingPath(pathname)).toBe(false);
   });
 });
 
