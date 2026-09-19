@@ -8,14 +8,13 @@ export function LandingLayout() {
 
   return (
     <ErrorBoundary>
-      <Outlet />
+      <div className='relative bg-[#1a1a1a]'>
+        <div className='relative z-10'>
+          <Outlet />
+        </div>
 
-      {/* The footer belongs to the marketing surface as a whole — landing,
-          pricing and referrals all reveal the same one, so it lives here
-          rather than at the bottom of each page. */}
-      <div className='relative z-10 bg-[#1a1a1a]'>
         <StickyFooterReveal>
-          <Container className='-mt-20 pt-20'>
+          <Container>
             <FooterSection />
           </Container>
         </StickyFooterReveal>

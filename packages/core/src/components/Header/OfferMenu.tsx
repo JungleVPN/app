@@ -1,4 +1,4 @@
-import { Button, Dropdown } from '@heroui/react';
+import { Button, Dropdown, Label } from '@heroui/react';
 import { IconChevronDown } from '@tabler/icons-react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -99,7 +99,7 @@ export function OfferMenu({ triggerClassName }: OfferMenuProps) {
       </span>
       {/* Non-modal: a modal popover makes the page behind it non-interactive, which
           pulls the pointer off the trigger and leaves the hover state flickering. */}
-      <Dropdown.Popover isNonModal onMouseEnter={open} onMouseLeave={leave}>
+      <Dropdown.Popover placement='bottom' isNonModal onMouseEnter={open} onMouseLeave={leave}>
         <Dropdown.Menu
           onAction={(key) => {
             const path = pathForOfferItem(String(key));
@@ -109,13 +109,22 @@ export function OfferMenu({ triggerClassName }: OfferMenuProps) {
             navigate(path);
           }}
         >
-          {OFFER_MENU_ITEMS.map((item) => (
-            // Plain text rather than a <Label>: a label element contributes no
-            // accessible name to the menu item, leaving it unnamed to assistive tech.
-            <Dropdown.Item key={item.id} id={item.id} textValue={t(item.labelKey)}>
-              {t(item.labelKey)}
-            </Dropdown.Item>
-          ))}
+          {OFFER_MENU_ITEMS.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Dropdown.Item key={item.id} id={item.id} textValue={t(item.labelKey)}>
+                <span className='flex items-center gap-3'>
+                  <span className='flex size-10 shrink-0 items-center justify-center rounded-xl border border-divider bg-surface-secondary'>
+                    <Icon size={20} stroke={1.5} aria-hidden='true' />
+                  </span>
+                  <span className='flex flex-col gap-0.5'>
+                    <Label className='font-semibold'>{t(item.labelKey)}</Label>
+                    <span className='text-sm text-foreground/50'>{t(item.descriptionKey)}</span>
+                  </span>
+                </span>
+              </Dropdown.Item>
+            );
+          })}
         </Dropdown.Menu>
       </Dropdown.Popover>
     </Dropdown>
