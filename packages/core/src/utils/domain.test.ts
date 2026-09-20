@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { usePlatformStore } from '../stores';
 import {
-  isCrawlablePath,
   currentScope,
+  isCrawlablePath,
   isLandingPath,
   isMarketingPath,
   localePolicyForHost,
@@ -149,12 +149,16 @@ describe('isLandingPath', () => {
 });
 
 describe('isMarketingPath', () => {
-  it.each(['/', '/en', '/pricing', '/referrals', '/locations'])(
-    'is true for the marketing surface %s',
-    (pathname) => {
-      expect(isMarketingPath(pathname)).toBe(true);
-    },
-  );
+  it.each([
+    '/',
+    '/en',
+    '/pricing',
+    '/referrals',
+    '/locations',
+    '/what-is-vpn',
+  ])('is true for the marketing surface %s', (pathname) => {
+    expect(isMarketingPath(pathname)).toBe(true);
+  });
 
   it.each(['/login', '/profile/referrals'])('is false for %s', (pathname) => {
     expect(isMarketingPath(pathname)).toBe(false);
@@ -173,6 +177,7 @@ describe('isCrawlablePath', () => {
     '/affiliates',
     '/subscribe',
     '/login',
+    '/what-is-vpn',
   ])('is true for the public path %s', (pathname) => {
     expect(isCrawlablePath(pathname)).toBe(true);
   });

@@ -14,7 +14,6 @@ import { PartnershipSection } from './PartnershipSection';
 import { PlatformsSection } from './PlatformsSection';
 import { PricingSection } from './PricingSection';
 import { TrustSection } from './TrustSection';
-import { WhatIsVPN } from './WhatIsVPN';
 
 export default function LandingPage() {
   const { rmnUser } = useAuthStore();
@@ -96,11 +95,6 @@ export default function LandingPage() {
           <Container id='faq'>
             <Reveal>
               <FAQSection />
-            </Reveal>
-          </Container>
-          <Container id='faq'>
-            <Reveal>
-              <WhatIsVPN />
             </Reveal>
           </Container>
           <Container>

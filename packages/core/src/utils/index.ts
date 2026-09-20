@@ -44,6 +44,7 @@ export {
   resolveLocaleForRequest,
   setRequestHostname,
   userScope,
+  WHAT_IS_VPN_PATH,
 } from './domain';
 export { formatCurrency, truncate } from './format';
 export { trackLoginConversion } from './gtag';

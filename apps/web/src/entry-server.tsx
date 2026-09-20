@@ -1,6 +1,12 @@
 import { AnalyticsApiProvider, ApiProvider } from '@workspace/core/api';
 import { getDirection, i18n } from '@workspace/core/core/i18n';
-import { LandingPage, LocationsPage, PricingPage, ReferralsPage } from '@workspace/core/pages';
+import {
+  LandingPage,
+  LocationsPage,
+  PricingPage,
+  ReferralsPage,
+  WhatIsVpnPage,
+} from '@workspace/core/pages';
 import { AppRoutesProvider, PaymentsApiProvider, SupabaseProvider } from '@workspace/core/runtime';
 import {
   buildLlmsTxt,
@@ -163,7 +169,13 @@ async function renderPage(request: Request, hostname: string) {
   // global domain fails hydration.
   setRequestHostname(hostname);
 
-  const routes = createRoutes(config.Landing, PricingPage, ReferralsPage, LocationsPage);
+  const routes = createRoutes(
+    config.Landing,
+    PricingPage,
+    ReferralsPage,
+    LocationsPage,
+    WhatIsVpnPage,
+  );
   const handler = createStaticHandler(routes);
   const context = await handler.query(request);
 

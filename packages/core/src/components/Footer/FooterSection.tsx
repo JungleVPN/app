@@ -5,7 +5,7 @@ import Logo from '../../assets/Logo_dark.svg?react';
 import LogoDark from '../../assets/Logo_dark.svg?react';
 import { coreEnv } from '../../env';
 import { useTheme } from '../../hooks';
-import { LOCATIONS_PATH, scrollToTop } from '../../utils';
+import { LOCATIONS_PATH, scrollToTop, WHAT_IS_VPN_PATH } from '../../utils';
 import { Platforms } from '../Platforms/Platforms';
 import { SupportButton } from '../SupportWidget/SupportButton';
 
@@ -15,7 +15,14 @@ type FooterLinkDef =
   | { type: 'external'; href: string };
 
 const FOOTER_LINKS: Record<
-  'terms' | 'privacy' | 'cookies' | 'affiliate' | 'referral' | 'locations' | 'pricing',
+  | 'terms'
+  | 'privacy'
+  | 'cookies'
+  | 'affiliate'
+  | 'referral'
+  | 'locations'
+  | 'pricing'
+  | 'whatIsVpn',
   FooterLinkDef
 > = {
   terms: { type: 'internal', to: '/terms' },
@@ -25,6 +32,7 @@ const FOOTER_LINKS: Record<
   referral: { type: 'internal', to: '/referrals' },
   locations: { type: 'internal', to: LOCATIONS_PATH },
   pricing: { type: 'internal', to: '/pricing' },
+  whatIsVpn: { type: 'internal', to: WHAT_IS_VPN_PATH },
 };
 
 const LINK_KEYS = [
@@ -35,6 +43,7 @@ const LINK_KEYS = [
   'referral',
   'locations',
   'pricing',
+  'whatIsVpn',
 ] as const;
 
 const linkClass = 'text-sm mix-blend-normal transition-colors';

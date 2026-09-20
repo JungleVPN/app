@@ -1,4 +1,10 @@
-import { LandingPage, LocationsPage, PricingPage, ReferralsPage } from '@workspace/core/pages';
+import {
+  LandingPage,
+  LocationsPage,
+  PricingPage,
+  ReferralsPage,
+  WhatIsVpnPage,
+} from '@workspace/core/pages';
 import { createBrowserRouter, matchRoutes, type RouteObject } from 'react-router';
 
 import { createRoutes } from './routes';
@@ -8,6 +14,7 @@ export const routes = createRoutes(
   PricingPage,
   ReferralsPage,
   LocationsPage,
+  WhatIsVpnPage,
 ) as RouteObject[];
 
 /**

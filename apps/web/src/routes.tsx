@@ -17,6 +17,7 @@ export function createRoutes(
   Pricing: ComponentType,
   ReferralsPage: ComponentType,
   LocationsPage: ComponentType,
+  WhatIsVpnPage: ComponentType,
 ) {
   return [
     {
@@ -52,6 +53,11 @@ export function createRoutes(
           path: '/locations',
           Component: LandingLayout,
           children: [{ index: true, Component: LocationsPage }],
+        },
+        {
+          path: '/what-is-vpn',
+          Component: LandingLayout,
+          children: [{ index: true, Component: WhatIsVpnPage }],
         },
         {
           path: '/referrals',

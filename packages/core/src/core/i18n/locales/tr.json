@@ -50,7 +50,9 @@
       "inviteAndEarn": "Tavsiye et & kazan",
       "inviteAndEarnDescription": "Arkadaşlarını davet et, ücretsiz günler kazan",
       "locations": "Sunucu konumları",
-      "locationsDescription": "Dünyanın her yerinde VPN sunucuları"
+      "locationsDescription": "Dünyanın her yerinde VPN sunucuları",
+      "whatIsVpn": "VPN nedir?",
+      "whatIsVpnDescription": "VPN'in nasıl çalıştığına dair sade bir rehber"
     },
     "support": {
       "telegram": "Telegram",
@@ -833,7 +835,8 @@
       "partnership": "İş Ortaklığı",
       "howItWorks": "Nasıl Çalışır",
       "faq": "SSS",
-      "locations": "Konumlar"
+      "locations": "Konumlar",
+      "whatIsVpn": "VPN nedir?"
     },
     "bento": {
       "titleStart": "İhtiyacınız olan her şey,",
@@ -1019,6 +1022,68 @@
         "private": {
           "title": "Her zaman özel gezinme",
           "description": "JungleVPN trafiği şifreler ve kişisel verilerinizi meraklı gözlerden uzak tutar."
+        }
+      }
+    },
+    "whatIsVpn": {
+      "hero": {
+        "title": "Sade bir dille: VPN nedir?",
+        "subtitle": "VPN, cihazınızla güvendiğiniz bir sunucu arasında şifreli bir tünel kurar. Bunun pratikte ne anlama geldiğini, neyi koruduğunu ve neyi korumadığını anlatıyoruz."
+      },
+      "how": {
+        "title": "VPN bağlantısı nasıl çalışır",
+        "subtitle": "Bağlan'a her dokunduğunuzda dört adım gerçekleşir — genellikle bir saniyeden kısa sürede.",
+        "connect": {
+          "title": "1. Cihazınız bağlanır",
+          "description": "Uygulama, seçtiğiniz ülkedeki bir JungleVPN sunucusuyla bağlantı kurar."
+        },
+        "encrypt": {
+          "title": "2. Trafik şifrelenir",
+          "description": "Cihazınızdan çıkan her şey önce şifrelenir; kafedeki Wi-Fi, modem ve operatörünüz açtığınız siteleri değil, karmaşık veriyi görür."
+        },
+        "tunnel": {
+          "title": "3. Tünelden geçer",
+          "description": "Şifreli trafik tünel üzerinden VPN sunucusuna ulaşır; sunucu şifreyi çözer ve isteği sizin adınıza iletir."
+        },
+        "exit": {
+          "title": "4. Site sunucuya yanıt verir",
+          "description": "Siteler sizin ev IP'nizi değil, sunucunun IP adresini ve konumunu görür. Yanıt aynı şifreli tünelden geri döner."
+        }
+      },
+      "useCases": {
+        "title": "VPN gerçekten ne zaman işe yarar",
+        "subtitle": "Sihir değil — birkaç somut, günlük durum.",
+        "wifi": {
+          "title": "Halka açık Wi-Fi",
+          "description": "Havalimanı, otel ve kafe ağlarını doğrulayamazsınız. Şifreleme, trafiğinizi aynı ağdaki herkes için okunamaz hâle getirir."
+        },
+        "travel": {
+          "title": "Seyahat",
+          "description": "Yurt dışındayken alışkın olduğunuz site ve servisleri kullanmak için istediğiniz ülkedeki bir sunucuya bağlanın."
+        },
+        "privacy": {
+          "title": "Günlük gizlilik",
+          "description": "Operatörünüz ve trafiğinizin geçtiği ağlar, hangi siteleri ziyaret ettiğiniz hakkında çok daha azını görür."
+        },
+        "work": {
+          "title": "Uzaktan çalışma",
+          "description": "Tek bir şifreli bağlantı; dizüstü bilgisayarınızı, telefonunuzu ve tabletinizi nerede olursanız olun kapsar."
+        }
+      },
+      "myths": {
+        "title": "VPN ne değildir",
+        "subtitle": "Sınırları net söylemek, pazarlama vaatlerinden daha önemlidir.",
+        "anonymity": {
+          "myth": "“VPN beni tamamen anonim yapar.”",
+          "fact": "IP adresinizi gizler ve trafiğinizi şifreler; ancak oturum açtığınız hesapları, çerezleri veya tarayıcı parmak izini ortadan kaldırmaz."
+        },
+        "speed": {
+          "myth": "“VPN her şeyi yavaşlatır.”",
+          "fact": "Trafik daha uzun bir yol izler, bu yüzden bir miktar gecikme kaçınılmazdır — ama yakın ve yeterli kapasiteli bir sunucuda fark genellikle hissedilmez."
+        },
+        "legal": {
+          "myth": "“VPN antivirüs yerine geçer.”",
+          "fact": "VPN, aktarım hâlindeki veriyi korur. Zararlı bir dosya indirmenizi ya da şifrenizi bir oltalama sayfasına girmenizi engelleyemez."
         }
       }
     }

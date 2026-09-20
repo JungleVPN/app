@@ -24,3 +24,4 @@ export { default as ReferralsPage } from './referrals/ReferralsPage';
 export { default as SubscriptionFailPage } from './subscriptionFail/SubscriptionFailPage';
 export { default as SubscriptionSuccessPage } from './subscriptionSuccess/SubscriptionSuccessPage';
 export { default as TermsPage } from './terms/TermsPage';
+export { default as WhatIsVpnPage } from './whatIsVpn/WhatIsVpnPage';

@@ -33,6 +33,8 @@ export function BlurInWords({
     return <Tag className={className}>{text}</Tag>;
   }
 
+  const words = text.split(' ');
+
   return (
     <MotionTag
       className={className}
@@ -40,10 +42,12 @@ export function BlurInWords({
       animate='show'
       variants={{ show: { transition: { staggerChildren: stagger, delayChildren: delay } } }}
     >
-      {text.split(' ').map((word, index) => (
-        <motion.span key={word} variants={WORD} className='inline-block whitespace-pre'>
+      {words.map((word, index) => (
+        // A sentence repeats words ("what … what"), so the position is the identity.
+        // biome-ignore lint/suspicious/noArrayIndexKey: words are positional, never reordered
+        <motion.span key={index} variants={WORD} className='inline-block whitespace-pre'>
           {word}
-          {index < text.split(' ').length - 1 ? ' ' : ''}
+          {index < words.length - 1 ? ' ' : ''}
         </motion.span>
       ))}
     </MotionTag>
