@@ -1,47 +1,22 @@
-import DottedMap from 'dotted-map';
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import worldMapUrl from '../../assets/world-map-dotted.svg';
 
-const PINS = [
-  { lat: 60.1699, lng: 24.9384 }, // Finland (Helsinki)
-  { lat: 50.1109, lng: 8.6821 }, // Germany (Frankfurt)
-  { lat: 48.2082, lng: 16.3738 }, // Austria (Vienna)
-  { lat: 55.7558, lng: 37.6176 }, // Russia (Moscow)
-  { lat: 38.7509, lng: -77.4753 }, // USA (Manassas, VA)
-  { lat: 52.3676, lng: 4.9041 }, // Netherlands (Amsterdam)
-];
-
+/**
+ * The dotted server map. The SVG is generated ahead of time by
+ * `scripts/generate-world-map.mjs` and served as a static file: building it in
+ * the browser meant shipping ~350 KB of world geometry in the entry bundle and
+ * blocking the main thread for most of a second on arrival.
+ */
 export function WorldMap() {
   const { t } = useTranslation();
-  const [src, setSrc] = useState('');
-
-  useEffect(() => {
-    const map = new DottedMap({ height: 100, grid: 'diagonal' });
-
-    PINS.forEach(({ lat, lng }) => {
-      map.addPin({
-        lat,
-        lng,
-        svgOptions: { color: '#ffcb3d', radius: 0.7 },
-      });
-    });
-
-    const svg = map.getSVG({
-      radius: 0.5,
-      color: '#999999',
-      shape: 'circle',
-      backgroundColor: 'transparent',
-    });
-
-    setSrc(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
-  }, []);
-
-  if (!src) return <div className='h-auto w-full aspect-2/1' />;
 
   return (
     <img
-      src={src}
+      src={worldMapUrl}
       alt={t('landing.locations.hero.mapAlt')}
+      width={198}
+      height={100}
+      decoding='async'
       className='h-auto w-full lg:w-[60%] m-auto opacity-90 mask-[linear-gradient(to_bottom,transparent,var(--background)_20%,var(--background)_80%,transparent)] select-none'
     />
   );
