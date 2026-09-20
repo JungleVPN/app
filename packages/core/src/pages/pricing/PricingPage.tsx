@@ -1,4 +1,4 @@
-import { Container, RoundedSection } from '../../ui';
+import { Container, Reveal, RoundedSection } from '../../ui';
 import { scrollToTop } from '../../utils';
 import { CTASection } from '../landing/CTASection';
 import { FAQSection } from '../landing/FAQSection';
@@ -16,9 +16,15 @@ export default function PricingPage() {
 
       <RoundedSection variant={'secondary'}>
         <Container className={'flex flex-col gap-32 pt-20'}>
-          <BenefitsSection />
-          <CTASection onCtaClick={scrollToTop} />
-          <FAQSection />
+          <Reveal>
+            <BenefitsSection />
+          </Reveal>
+          <Reveal>
+            <CTASection onCtaClick={scrollToTop} />
+          </Reveal>
+          <Reveal>
+            <FAQSection />
+          </Reveal>
         </Container>
       </RoundedSection>
     </div>

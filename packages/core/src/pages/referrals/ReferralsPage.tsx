@@ -1,4 +1,4 @@
-import { Container, RoundedSection } from '../../ui';
+import { Container, Reveal, RoundedSection } from '../../ui';
 import { FAQSection } from '../landing/FAQSection';
 import { HeroSection } from './HeroSection';
 import { HowItWorksSection } from './HowItWorksSection';
@@ -13,13 +13,19 @@ export default function ReferralsPage() {
 
       <RoundedSection variant={'secondary'}>
         <Container>
-          <HowItWorksSection />
+          <Reveal>
+            <HowItWorksSection />
+          </Reveal>
         </Container>
         <Container>
-          <InviteBannerSection />
+          <Reveal>
+            <InviteBannerSection />
+          </Reveal>
         </Container>
         <Container>
-          <FAQSection />
+          <Reveal>
+            <FAQSection />
+          </Reveal>
         </Container>
       </RoundedSection>
     </div>

@@ -1,4 +1,4 @@
-import { Container, RoundedSection } from '../../ui';
+import { Container, Reveal, RoundedSection } from '../../ui';
 import { CTASection } from '../landing/CTASection';
 import { FAQSection } from '../landing/FAQSection';
 import { AroundTheWorldSection } from './AroundTheWorldSection';
@@ -10,12 +10,18 @@ export default function LocationsPage() {
       <HeroSection />
 
       <RoundedSection variant='secondary' className='py-20 md:py-28'>
-        <AroundTheWorldSection />
+        <Reveal>
+          <AroundTheWorldSection />
+        </Reveal>
         <Container>
-          <CTASection />
+          <Reveal>
+            <CTASection />
+          </Reveal>
         </Container>
         <Container>
-          <FAQSection variant={'secondary'} />
+          <Reveal>
+            <FAQSection variant={'secondary'} />
+          </Reveal>
         </Container>
       </RoundedSection>
     </div>

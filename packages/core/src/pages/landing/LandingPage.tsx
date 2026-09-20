@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAuthStore } from '../../stores';
-import { Container, RoundedSection } from '../../ui';
+import { Container, Reveal, RoundedSection } from '../../ui';
 import { phCapture } from '../../utils';
 import { BentoFeaturesStack } from './BentoFeaturesStack';
 import { ComparisonSection } from './ComparisonSection';
@@ -43,52 +43,72 @@ export default function LandingPage() {
       </div>
       <RoundedSection className='z-20' rounded>
         <Container>
-          <TrustSection />
+          <Reveal>
+            <TrustSection />
+          </Reveal>
         </Container>
-        <CountriesMarquee />
+        <Reveal>
+          <CountriesMarquee />
+        </Reveal>
         <Container>
-          <PlatformsSection />
+          <Reveal>
+            <PlatformsSection />
+          </Reveal>
         </Container>
         <Container>
-          <BentoFeaturesStack />
+          <Reveal>
+            <BentoFeaturesStack />
+          </Reveal>
         </Container>
       </RoundedSection>
 
       <div className='relative z-10'>
-        <div
-          className={
-            'flex flex-col gap-56 relative z-10 bg-white -mt-24 pt-64 pb-32 rounded-b-[4rem] overflow-hidden'
-          }
-        >
-          <Container id='how-it-works'>
-            <HowItWorksSection />
+        <RoundedSection rounded variant={'secondary'} className={'-mt-40 md:-mt-40'}>
+          <Container id='how-it-works' className={'pt-60'}>
+            <Reveal>
+              <HowItWorksSection />
+            </Reveal>
           </Container>
           <Container>
-            <ComparisonSection />
+            <Reveal>
+              <ComparisonSection />
+            </Reveal>
           </Container>
-          <div className={'lg:px-12'}>
+          <div className={'lg:px-12 '}>
             <RoundedSection className='z-10' rounded>
               <Container id='pricing'>
-                <PricingSection />
+                <Reveal>
+                  <PricingSection />
+                </Reveal>
               </Container>
             </RoundedSection>
           </div>
           <Container>
-            <InfoSection />
+            <Reveal>
+              <InfoSection />
+            </Reveal>
           </Container>
           <Container id='partnership'>
-            <PartnershipSection />
+            <Reveal>
+              <PartnershipSection />
+            </Reveal>
           </Container>
           <Container id='faq'>
-            <FAQSection />
+            <Reveal>
+              <FAQSection />
+            </Reveal>
           </Container>
           <Container id='faq'>
-            <WhatIsVPN />
+            <Reveal>
+              <WhatIsVPN />
+            </Reveal>
           </Container>
           <Container>
-            <CTASection />
+            <Reveal>
+              <CTASection />
+            </Reveal>
           </Container>
-        </div>
+        </RoundedSection>
       </div>
     </div>
   );
