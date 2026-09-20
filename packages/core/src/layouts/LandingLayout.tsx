@@ -1,7 +1,6 @@
 import { Outlet } from 'react-router';
 import { ErrorBoundary, FooterSection, StickyFooterReveal } from '../components';
 import { useScrollToTopOnNavigate } from '../hooks';
-import { Container } from '../ui';
 
 export function LandingLayout() {
   useScrollToTopOnNavigate();
@@ -14,9 +13,7 @@ export function LandingLayout() {
         </div>
 
         <StickyFooterReveal>
-          <Container>
-            <FooterSection />
-          </Container>
+          <FooterSection />
         </StickyFooterReveal>
       </div>
     </ErrorBoundary>

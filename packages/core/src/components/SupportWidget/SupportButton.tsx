@@ -21,7 +21,7 @@ export function SupportButton({ variant = 'icon', label }: SupportButtonProps) {
       <SupportPopover
         trigger={
           <Button
-            className='h-auto min-w-0 gap-1.5 bg-transparent p-0 text-sm text-muted hover:text-foreground'
+            className='h-auto min-w-0 gap-1.5 bg-transparent p-0 text-sm text-white/50'
             variant='tertiary'
           >
             <IconHeadphones size={18} stroke={1.5} />
