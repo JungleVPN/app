@@ -1,12 +1,15 @@
-import { IconArrowsExchange, IconFingerprint, IconGlobe, IconWifi } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { Grid, GridItem } from '../../ui';
+import FreedomIcon from '../../assets/icons/freedom-icon.svg?react';
+import PrivacyIcon from '../../assets/icons/privacy-icon.svg?react';
+import RoutingIcon from '../../assets/icons/routing-icon.svg?react';
+import SecurityIcon from '../../assets/icons/security-icon.svg?react';
+import { BlurInWords, Grid, GridItem } from '../../ui';
 
 const USE_CASE_CARDS = [
-  { key: 'wifi', icon: <IconWifi size={24} />, color: 'text-blue-500' },
-  { key: 'privacy', icon: <IconFingerprint size={24} />, color: 'text-purple-500' },
-  { key: 'travel', icon: <IconGlobe size={24} />, color: 'text-emerald-500' },
-  { key: 'smartRouting', icon: <IconArrowsExchange size={24} />, color: 'text-orange-500' },
+  { key: 'wifi', icon: <FreedomIcon />, color: 'text-blue-500' },
+  { key: 'privacy', icon: <PrivacyIcon />, color: 'text-purple-500' },
+  { key: 'travel', icon: <SecurityIcon />, color: 'text-emerald-500' },
+  { key: 'smartRouting', icon: <RoutingIcon />, color: 'text-orange-500' },
 ] as const;
 
 /** `valueKey` is for values that carry a translated unit, e.g. "30-day" / "30 дней". */
@@ -38,12 +41,15 @@ export function InfoSection() {
             <div className='flex items-start gap-4 rounded-2xl h-full border border-divider bg-surface-secondary p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md'>
               <span className={`mt-0.5 shrink-0 ${color}`}>{icon}</span>
               <div>
-                <h3 className='font-semibold md:text-lg text-foreground'>
-                  {t(`landing.info.why.${key}.title`)}
-                </h3>
-                <p className='mt-1 text-sm leading-relaxed text-muted'>
-                  {t(`landing.info.why.${key}.description`)}
-                </p>
+                <BlurInWords
+                  as={'h3'}
+                  text={t(`landing.info.why.${key}.title`)}
+                  className='font-semibold md:text-lg text-foreground'
+                />
+                <BlurInWords
+                  text={t(`landing.info.why.${key}.description`)}
+                  className='mt-1 text-sm leading-relaxed text-muted'
+                />
               </div>
             </div>
           </GridItem>
@@ -55,12 +61,16 @@ export function InfoSection() {
         {STATS.map(({ key, value, valueKey }) => (
           <GridItem key={key} size={{ base: 12, sm: 6, lg: 3 }}>
             <div className='flex flex-col items-center gap-1 text-center'>
-              <span className='text-xl font-bold text-foreground lg:text-4xl'>
-                {valueKey ? t(valueKey) : value}
-              </span>
-              <span className='text-xs text-muted lg:text-sm'>
-                {t(`landing.info.stats.${key}`)}
-              </span>
+              <BlurInWords
+                as={'h3'}
+                text={`${valueKey ? t(valueKey) : value}`}
+                className='text-xl font-bold text-foreground lg:text-4xl'
+              />
+              <BlurInWords
+                as={'p'}
+                text={t(`landing.info.stats.${key}`)}
+                className='text-xs text-muted lg:text-sm'
+              />
             </div>
           </GridItem>
         ))}

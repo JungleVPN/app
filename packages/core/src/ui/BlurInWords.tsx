@@ -3,7 +3,7 @@ import { motion, useReducedMotion, Variants } from 'framer-motion';
 type BlurInWordsProps = {
   text: string;
   className?: string;
-  as?: 'h1' | 'p' | 'span';
+  as?: 'h1' | 'h2' | 'h3' | 'p' | 'span';
   delay?: number;
   stagger?: number;
 };
