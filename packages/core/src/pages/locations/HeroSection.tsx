@@ -1,8 +1,9 @@
 import { Button } from '@heroui/react';
 import { IconDeviceLaptop, IconInfinity, IconShieldCheck } from '@tabler/icons-react';
+import { motion, useReducedMotion, Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '../../hooks';
-import { Container } from '../../ui';
+import { BlurInWords, Container } from '../../ui';
 import { PRICING_PATH } from '../../utils';
 import { WorldMap } from '../landing/WorldMap';
 
@@ -38,22 +39,43 @@ const BENEFITS: readonly Benefit[] = [
   },
 ];
 
+/** Cards rise into place one after another once the row scrolls into view. */
+const BENEFIT_CARD: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+};
+
 export function HeroSection() {
   const { t } = useTranslation();
   const navigate = useNavigation();
+  const prefersReducedMotion = useReducedMotion();
+
+  const titleWords = t('landing.locations.hero.title').split(' ').length;
+  const subtitleDelay = 0.2 + titleWords * 0.06;
 
   return (
     <section className='relative flex min-h-screen flex-col justify-center gap-10 py-36 md:py-48 text-white'>
       <Container maxWidth='md' className='flex flex-col items-center gap-6 text-center'>
-        <h1 className='font-primary font-extrabold text-2xl md:text-4xl text-balance'>
-          {t('landing.locations.hero.title')}
-        </h1>
+        <BlurInWords
+          as='h1'
+          text={t('landing.locations.hero.title')}
+          className='font-primary font-extrabold text-2xl md:text-4xl text-balance'
+          delay={0.2}
+        />
 
-        <p className='max-w-3xl text-base md:text-md text-white/70'>
-          {t('landing.locations.hero.subtitle')}
-        </p>
+        <BlurInWords
+          as='p'
+          text={t('landing.locations.hero.subtitle')}
+          className='max-w-3xl text-base md:text-md text-white/70'
+          delay={subtitleDelay}
+        />
 
-        <div className='flex flex-col items-center gap-4'>
+        <motion.div
+          className='flex flex-col items-center gap-4'
+          initial={prefersReducedMotion ? false : { opacity: 0, filter: 'blur(8px)' }}
+          animate={{ opacity: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 0.6, ease: 'easeOut', delay: subtitleDelay + 0.5 }}
+        >
           <Button
             size='lg'
             className='h-14 px-10 rounded-4xl bg-linear-to-r from-purple-400 to-yellow-400 text-white hover:opacity-90'
@@ -66,17 +88,30 @@ export function HeroSection() {
             <IconShieldCheck size={18} />
             {t('landing.hero.guarantee')}
           </p>
-        </div>
+        </motion.div>
       </Container>
 
       <div className='relative'>
-        <WorldMap />
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0, filter: 'blur(24px)', scale: 1.04 }}
+          animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
+          transition={{ duration: 4, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <WorldMap />
+        </motion.div>
 
         <Container className='relative -mt-16 md:-mt-28 lg:-mt-40'>
-          <ul className='grid gap-4 md:grid-cols-3'>
+          <motion.ul
+            className='grid gap-4 md:grid-cols-3'
+            initial={prefersReducedMotion ? false : 'hidden'}
+            whileInView='show'
+            viewport={{ once: true, amount: 0.3 }}
+            variants={{ show: { transition: { staggerChildren: 0.15 } } }}
+          >
             {BENEFITS.map(({ key, icon: Icon, titleKey, descriptionKey }) => (
-              <li
+              <motion.li
                 key={key}
+                variants={BENEFIT_CARD}
                 className='flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-md'
               >
                 <div className='flex items-center gap-3'>
@@ -84,9 +119,9 @@ export function HeroSection() {
                   <h2 className='font-semibold text-sm md:text-md text-balance'>{t(titleKey)}</h2>
                 </div>
                 <p className='text-sm text-white/70'>{t(descriptionKey)}</p>
-              </li>
+              </motion.li>
             ))}
-          </ul>
+          </motion.ul>
         </Container>
       </div>
     </section>

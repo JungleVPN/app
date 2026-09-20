@@ -24,8 +24,8 @@ export function HowItWorksSection() {
       <div className='flex flex-col items-center gap-4 text-center'>
         <Chip
           color='default'
-          variant='secondary'
-          className='w-fit rounded-full bg-default-100 px-4 py-1 text-sm text-muted'
+          variant='tertiary'
+          className='w-fit rounded-full border border-[#1a1a1a]/15 bg-transparent px-4 py-1 text-sm text-[#1a1a1a]/70'
         >
           <Chip.Label>{t('referrals.howItWorks.badge')}</Chip.Label>
         </Chip>

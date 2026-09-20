@@ -1,13 +1,16 @@
 import { Button, Chip } from '@heroui/react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import ReferralsIcon from '../../assets/icons/referrals-page-hero-icon.svg?react';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
+import { BlurInWords } from '../../ui';
 
 export function HeroSection() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { authGateRedirectPath, profileReferralsPath } = useAppRoutes();
+  const prefersReducedMotion = useReducedMotion();
 
   const inviteHref = `${authGateRedirectPath}?to=${encodeURIComponent(profileReferralsPath)}`;
 
@@ -22,13 +25,19 @@ export function HeroSection() {
           <Chip.Label>{t('referrals.hero.badge')}</Chip.Label>
         </Chip>
 
-        <h1 className='font-primary font-extrabold text-2xl md:text-4xl text-balance text-[#1a1a1a]'>
-          {t('referrals.hero.title')}
-        </h1>
+        <BlurInWords
+          as='h1'
+          text={t('referrals.hero.title')}
+          className='font-primary font-extrabold text-2xl md:text-4xl text-balance text-[#1a1a1a]'
+          delay={0.2}
+        />
 
-        <p className='max-w-2xl text-base md:text-md text-[#1a1a1a]/70'>
-          {t('referrals.hero.subtitle')}
-        </p>
+        <BlurInWords
+          as='p'
+          text={t('referrals.hero.subtitle')}
+          className='max-w-2xl text-base md:text-md text-[#1a1a1a]/70'
+          delay={0.2}
+        />
 
         <Button
           size='lg'
@@ -39,7 +48,13 @@ export function HeroSection() {
         </Button>
       </div>
 
-      <ReferralsIcon className='w-full max-w-md h-80 md:h-100' />
+      <motion.div
+        initial={prefersReducedMotion ? false : { opacity: 0, filter: 'blur(24px)', scale: 1.04 }}
+        animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
+        transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <ReferralsIcon className='w-full max-w-md h-80 md:h-100' />
+      </motion.div>
     </section>
   );
 }

@@ -32,8 +32,8 @@ export function ContentCard(props: ContentCardProps) {
         variant='tertiary'
         className={`relative bg-white  flex h-full flex-col justify-between p-8 shadow-surface shadow-md min-h-64 ${className ?? ''}`}
       >
-        <div className={icon ? 'pe-32' : ''}>
-          <h3 className='mb-3 text-2xl font-bold'>{title}</h3>
+        <div>
+          <h3 className='mb-3 text-3xl font-bold'>{title}</h3>
           {description && (
             <p className='text-muted text-sm leading-relaxed max-w-md'>{description}</p>
           )}
@@ -43,9 +43,7 @@ export function ContentCard(props: ContentCardProps) {
             {learnMoreLabel}
           </Link>
         )}
-        {icon && (
-          <div className='absolute inset-e-0 lg:inset-e-0 bottom-0 h-32 lg:h-36'>{icon}</div>
-        )}
+        {icon && <div className='h-auto w-fit'>{icon}</div>}
       </Card>
     );
   }

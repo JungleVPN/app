@@ -10,15 +10,15 @@ import u from '../../assets/brand/u.svg?react';
 import V from '../../assets/brand/V.svg?react';
 
 const letters = [
-  { Component: J, large: true, scale: 1, offsetY: 0 },
-  { Component: u, large: false, scale: 1, offsetY: 0 },
-  { Component: n, large: false, scale: 1, offsetY: 0 },
-  { Component: g, large: false, scale: 1, offsetY: 0 },
-  { Component: l, large: false, scale: 1.15, offsetY: 0 },
-  { Component: e, large: false, scale: 1.15, offsetY: 0, offsetX: -2 },
-  { Component: V, large: true, scale: 1, offsetY: 0 },
-  { Component: P, large: true, scale: 1.05, offsetY: 0 },
-  { Component: N, large: true, scale: 1, offsetY: 0 },
+  { Component: J, large: true, scale: 1, offsetY: 0, offsetX: 0 },
+  { Component: u, large: false, scale: 1, offsetY: 0, offsetX: 0 },
+  { Component: n, large: false, scale: 1, offsetY: 0, offsetX: 0 },
+  { Component: g, large: false, scale: 1, offsetY: 0, offsetX: 0 },
+  { Component: l, large: false, scale: 1.15, offsetY: 0, offsetX: 0 },
+  { Component: e, large: false, scale: 1.15, offsetY: 0, offsetX: -6 },
+  { Component: V, large: true, scale: 1, offsetY: 0, offsetX: 0 },
+  { Component: P, large: true, scale: 1.05, offsetY: 0, offsetX: 0 },
+  { Component: N, large: true, scale: 1, offsetY: 0, offsetX: 0 },
 ];
 
 const container: Variants = {
@@ -42,7 +42,7 @@ export function BrandTitle() {
       initial='hidden'
       animate='show'
     >
-      {letters.map(({ Component, large, scale, offsetY }) => (
+      {letters.map(({ Component, large, scale, offsetY, offsetX }) => (
         <motion.span
           key={Component.toString()}
           variants={letter}
@@ -54,7 +54,9 @@ export function BrandTitle() {
         >
           <div
             className='h-full w-auto origin-bottom'
-            style={{ transform: `translateY(${offsetY}px) scale(${scale})` }}
+            style={{
+              transform: `translateY(${offsetY}px) translateX(${offsetX}px) scale(${scale})`,
+            }}
           >
             <Component
               className='h-full w-auto [&_path[fill]:not([fill="none"])]:fill-white'

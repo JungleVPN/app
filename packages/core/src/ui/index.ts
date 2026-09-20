@@ -1,4 +1,5 @@
 export { BackButton } from './BackButton';
+export { BlurInWords } from './BlurInWords';
 export { Block } from './Block/Block';
 export { Container } from './Container/Container';
 export { Grid } from './Grid/Grid';

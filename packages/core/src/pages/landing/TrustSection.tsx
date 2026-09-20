@@ -13,7 +13,7 @@ const STATS: Array<{ key: StatKey; metric: string; icon: ReactNode }> = [
   {
     key: 'users',
     metric: '20,000+',
-    icon: <UsersIcon />,
+    icon: <UsersIcon className={'w-60'} />,
   },
   {
     key: 'countries',
@@ -47,6 +47,7 @@ export function TrustSection() {
             <ContentCard
               variant='stat'
               title={metric}
+              className={'flex-row flex-wrap'}
               description={t(`landing.trust.${key}`)}
               icon={icon}
             />
