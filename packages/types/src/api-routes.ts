@@ -50,6 +50,8 @@ export const apiRoutes = {
     rewardAfterPayment: '/reward-after-payment',
   },
   remnawave: {
+    // ── public, unauthenticated ──────────────────────────────────────────
+    ipStatus: '/ip-status',
     // ── server-to-server (InterServiceGuard) ─────────────────────────────
     users: '/users',
     userByTelegramId: (telegramId: number | string) => `/users/by-telegram-id/${telegramId}`,

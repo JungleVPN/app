@@ -95,9 +95,7 @@ export function Header() {
       >
         {logoNode}
         <span
-          className={
-            'hidden md:block font-primary font-extrabold text-xl mix-blend-difference text-white'
-          }
+          className={'block font-primary font-extrabold text-xl mix-blend-difference text-white'}
         >
           JungleVPN
         </span>
@@ -149,7 +147,7 @@ export function Header() {
       )}
     </div>
   );
-
+  console.log(scrolled);
   const wrapperClass = () => {
     if (isMobileTma) {
       return 'sticky top-0 z-50 shrink-0 py-3 mt-24';
@@ -159,24 +157,14 @@ export function Header() {
       return 'relative';
     }
 
-    return 'w-fit fixed top-4 left-2/4 -translate-x-1/2 z-100';
+    return `'w-full sticky top-0 z-100 -mb-[84px] transition-all duration-300 bg-white ${scrolled ? 'shadow-lg' : 'shadow-none'}'`;
   };
 
   return (
-    <header>
-      <Container className={wrapperClass()}>
-        <div
-          className={`w-full px-4 py-1 transition-all duration-300 rounded-2xl ${
-            scrolled && platformType !== 'telegram'
-              ? 'shadow-lg backdrop-blur-md bg-background/80'
-              : !isLanding
-                ? 'shadow-none bg-background/80'
-                : 'md:shadow-lg md:backdrop-blur-md md:bg-background/80'
-          } `}
-        >
-          {inner}
-        </div>
-      </Container>
-    </header>
+    <div className={wrapperClass()}>
+      <header className={`w-full transition-all duration-300 ${!isLanding ? 'shadow-none ' : ''} `}>
+        <Container>{inner}</Container>
+      </header>
+    </div>
   );
 }

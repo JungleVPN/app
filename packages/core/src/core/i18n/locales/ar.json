@@ -1185,5 +1185,10 @@
   "paddleCheckout": {
     "title": "الدفع",
     "subtitle": "أكمل الدفع لتفعيل اشتراكك"
+  },
+  "ipStatus": {
+    "yourIp": "عنوان IP الخاص بك: {{ip}}",
+    "protected": "أنت محمي!",
+    "unprotected": "أنت غير محمي!"
   }
 }

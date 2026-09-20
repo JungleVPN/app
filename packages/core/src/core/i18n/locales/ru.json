@@ -1208,5 +1208,10 @@
   "paddleCheckout": {
     "title": "Оплата",
     "subtitle": "Завершите оплату, чтобы активировать подписку"
+  },
+  "ipStatus": {
+    "yourIp": "Ваш IP: {{ip}}",
+    "protected": "Вы защищены!",
+    "unprotected": "Вы не защищены!"
   }
 }

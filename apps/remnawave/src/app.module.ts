@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from '@workspace/database';
 import { RemnawaveHealthController } from './health/health.controller';
 import { HwidModule } from './hwid/hwid.module';
+import { IpStatusModule } from './ip-status/ip-status.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { UserModule } from './user/user.module';
 
@@ -18,6 +19,7 @@ import { UserModule } from './user/user.module';
     UserModule,
     SubscriptionModule,
     HwidModule,
+    IpStatusModule,
   ],
   controllers: [RemnawaveHealthController],
 })

@@ -4,10 +4,11 @@ import {
   CreateUserResponseDto,
   DeleteUserHwidDeviceCommand,
   GetSubpageConfigByShortUuidCommand,
-  GetSubscriptionInfoByShortUuidCommand,
   GetSubpageConfigCommand,
+  GetSubscriptionInfoByShortUuidCommand,
   GetUserByIdResponseDto,
   GetUserHwidDevicesCommand,
+  type IpStatusDto,
   type StreamedUserDto,
   UpdateUserCommand,
   UpdateUserResponseDto,
@@ -16,6 +17,14 @@ import type { ApiClient } from '../client';
 
 export function createRemnawaveApi(client: ApiClient) {
   return {
+    /**
+     * Public and per-caller: the backend answers about whoever made the
+     * request, so this takes no arguments and must not be cached.
+     */
+    async getIpStatus(signal?: AbortSignal): Promise<IpStatusDto> {
+      return client.get<IpStatusDto>(apiRoutes.remnawave.ipStatus, { signal });
+    },
+
     async getUserByEmail(body: { email: string }): Promise<StreamedUserDto[] | null> {
       try {
         return await client.get<StreamedUserDto[]>(apiRoutes.remnawave.userByEmail(body.email));

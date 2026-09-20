@@ -14,6 +14,12 @@ async function bootstrap() {
   // main.ts — after app is created
   app.getHttpAdapter().get('/', (_req, res) => res.status(200).send());
 
+  // Exactly one hop, not `true`. Caddy appends the real peer address to
+  // X-Forwarded-For, so trusting one proxy makes `req.ip` that appended entry.
+  // Trusting all of them would make `req.ip` the left-most entry — a value the
+  // visitor controls, which /ip-status compares against node addresses.
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
+
   const origin = corsOriginEnv
     .split(',')
     .map((s) => s.trim().replace(/\/+$/, ''))

@@ -1181,5 +1181,10 @@
   "paddleCheckout": {
     "title": "Ödeme",
     "subtitle": "Aboneliğinizi etkinleştirmek için ödemeyi tamamlayın"
+  },
+  "ipStatus": {
+    "yourIp": "IP adresiniz: {{ip}}",
+    "protected": "Korunuyorsunuz!",
+    "unprotected": "Korunmuyorsunuz!"
   }
 }

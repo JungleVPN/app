@@ -6,6 +6,7 @@ export {
   DeleteUserHwidDeviceCommand,
   EVENTS as REMNAWAVE_EVENTS,
   EVENTS_SCOPES as REMNAWAVE_EVENTS_SCOPES,
+  GetNodesCommand,
   GetSubpageConfigByShortUuidCommand,
   GetSubpageConfigCommand,
   GetSubscriptionInfoByShortUuidCommand,
@@ -69,3 +70,17 @@ export type GetUserMetadataResponseDto = GetUserMetadataCommand.Response['respon
 export type GetUsersStreamQuery = GetUsersStreamCommand.RequestQuery;
 export type GetUsersStreamResponseDto = GetUsersStreamCommand.Response['response'];
 export type StreamedUserDto = GetUsersStreamResponseDto['users'][number];
+
+/**
+ * Whether the caller's traffic is exiting through one of our nodes.
+ *
+ * `protected: null` means the answer is genuinely unknown — the node list was
+ * unreachable, or the caller's address could not be read. Callers must render
+ * that as "unknown", never as "not protected": the latter tells a connected
+ * customer they are exposed whenever the panel has a bad minute.
+ */
+export type IpStatusDto = {
+  ip: string | null;
+  countryCode: string | null;
+  protected: boolean | null;
+};

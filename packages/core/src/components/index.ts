@@ -14,6 +14,7 @@ export { OfferMenu } from './Header/OfferMenu';
 export { ThemeToggle } from './Header/ThemeToggle';
 export { InfoBlock } from './InfoBlock/InfoBlock';
 export { InstallationGuideConnector } from './InstallationGuide';
+export { IpStatusBar } from './IpStatusBar/IpStatusBar';
 export { Link } from './Link/Link';
 export { Loading } from './Loading/Loading';
 export { PaymentMethodIcons } from './PaymentMethods/PaymentMethodIcons';

@@ -1181,5 +1181,10 @@
   "paddleCheckout": {
     "title": "Checkout",
     "subtitle": "Complete your payment to activate your subscription"
+  },
+  "ipStatus": {
+    "yourIp": "Your IP: {{ip}}",
+    "protected": "You are protected!",
+    "unprotected": "You are not protected!"
   }
 }
