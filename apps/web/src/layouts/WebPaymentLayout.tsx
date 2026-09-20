@@ -1,5 +1,5 @@
 import { RootLayout, usePlatformStore } from '@workspace/core';
-import { PaymentFooter } from '@workspace/core/components';
+import { SecondaryFooter } from '@workspace/core/components';
 
 /**
  * Checkout shell: wider than WebRootLayout so the payment steps and the order
@@ -13,7 +13,7 @@ export function WebPaymentLayout() {
       className={`${platformType === 'web' ? 'pt-32' : ''} flex flex-col justify-between h-screen`}
     >
       <RootLayout />
-      <PaymentFooter />
+      <SecondaryFooter />
     </div>
   );
 }

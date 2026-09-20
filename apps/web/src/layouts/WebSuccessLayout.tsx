@@ -1,5 +1,5 @@
 import { RootLayout } from '@workspace/core';
-import { CookieConsent, PaymentFooter } from '@workspace/core/components';
+import { CookieConsent, SecondaryFooter } from '@workspace/core/components';
 
 export function WebSuccessLayout() {
   return (
@@ -7,7 +7,7 @@ export function WebSuccessLayout() {
       <div className='flex flex-1 flex-col'>
         <RootLayout />
       </div>
-      <PaymentFooter />
+      <SecondaryFooter />
       <CookieConsent />
     </div>
   );

@@ -94,7 +94,11 @@ export function Header() {
         className={'flex items-center justify-center gap-2'}
       >
         {logoNode}
-        <span className={'font-primary font-extrabold text-xl mix-blend-difference text-white'}>
+        <span
+          className={
+            'hidden md:block font-primary font-extrabold text-xl mix-blend-difference text-white'
+          }
+        >
           JungleVPN
         </span>
       </Link>
@@ -166,7 +170,7 @@ export function Header() {
             scrolled && platformType !== 'telegram'
               ? 'shadow-lg backdrop-blur-md bg-background/80'
               : !isLanding
-                ? 'shadow-none'
+                ? 'shadow-none bg-background/80'
                 : 'md:shadow-lg md:backdrop-blur-md md:bg-background/80'
           } `}
         >

@@ -43,9 +43,9 @@ export function HeroSection() {
   const navigate = useNavigation();
 
   return (
-    <section className='relative flex min-h-screen flex-col justify-center gap-10 py-48 text-white'>
+    <section className='relative flex min-h-screen flex-col justify-center gap-10 py-36 md:py-48 text-white'>
       <Container maxWidth='md' className='flex flex-col items-center gap-6 text-center'>
-        <h1 className='font-primary font-extrabold text-3xl md:text-4xl text-balance'>
+        <h1 className='font-primary font-extrabold text-2xl md:text-4xl text-balance'>
           {t('landing.locations.hero.title')}
         </h1>
 

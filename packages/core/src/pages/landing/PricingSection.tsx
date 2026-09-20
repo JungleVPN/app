@@ -127,7 +127,7 @@ export function PricingSection({
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <h2
           className={cn(
-            'text-2xl px-16 sm:px-0 font-bold tracking-tight sm:text-3xl lg:text-4xl',
+            'text-2xl px-16 sm:px-0 font-bold tracking-tight lg:text-4xl',
             HEADING_CLASS[surface],
           )}
         >

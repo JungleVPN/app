@@ -6,6 +6,7 @@ import LogoDark from '../../assets/Logo_dark.svg?react';
 import { coreEnv } from '../../env';
 import { useTheme } from '../../hooks';
 import { LOCATIONS_PATH, scrollToTop } from '../../utils';
+import { Platforms } from '../Platforms/Platforms';
 import { SupportButton } from '../SupportWidget/SupportButton';
 
 type FooterLinkDef =
@@ -14,28 +15,16 @@ type FooterLinkDef =
   | { type: 'external'; href: string };
 
 const FOOTER_LINKS: Record<
-  | 'terms'
-  | 'privacy'
-  | 'cookies'
-  | 'affiliate'
-  | 'referral'
-  | 'locations'
-  | 'pricing'
-  | 'partnership'
-  | 'howItWorks'
-  | 'faq',
+  'terms' | 'privacy' | 'cookies' | 'affiliate' | 'referral' | 'locations' | 'pricing',
   FooterLinkDef
 > = {
   terms: { type: 'internal', to: '/terms' },
   privacy: { type: 'internal', to: '/privacy' },
   cookies: { type: 'internal', to: '/cookies' },
   affiliate: { type: 'internal', to: '/affiliates' },
-  referral: { type: 'internal', to: '/profile/referrals' },
+  referral: { type: 'internal', to: '/referrals' },
   locations: { type: 'internal', to: LOCATIONS_PATH },
   pricing: { type: 'internal', to: '/pricing' },
-  partnership: { type: 'anchor', href: '#partnership' },
-  howItWorks: { type: 'anchor', href: '#how-it-works' },
-  faq: { type: 'anchor', href: '#faq' },
 };
 
 const LINK_KEYS = [
@@ -46,9 +35,6 @@ const LINK_KEYS = [
   'referral',
   'locations',
   'pricing',
-  'partnership',
-  'howItWorks',
-  'faq',
 ] as const;
 
 const linkClass = 'text-sm mix-blend-normal transition-colors';
@@ -60,7 +46,8 @@ export function FooterSection() {
 
   return (
     <footer className='w-full'>
-      <div className='flex flex-col gap-8 py-12 '>
+      <div className='flex flex-col gap-8 py-8'>
+        <Platforms className={'mb-8'} />
         <div className='flex flex-col items-start gap-6'>
           <button
             type='button'

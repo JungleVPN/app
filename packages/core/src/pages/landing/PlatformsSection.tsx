@@ -1,25 +1,12 @@
 import { Button } from '@heroui/react';
-import { IconBrandAppleFilled, IconBrandWindowsFilled } from '@tabler/icons-react';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import IconAndroid from '../../assets/icons/android-icon.svg?react';
-import IconAndroidTv from '../../assets/icons/androidTv-icon.svg?react';
-import IconAppleTv from '../../assets/icons/appleTv-icon.svg?react';
-import IconMacOS from '../../assets/icons/macOs-icon.svg?react';
 import PlatformsIcon from '../../assets/icons/platforms-icon.svg?react';
+import { Platforms } from '../../components/Platforms/Platforms';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStore } from '../../stores';
 import { PRICING_PATH } from '../../utils';
-
-const PLATFORMS = [
-  { key: 'ios', icon: <IconBrandAppleFilled size={32} /> },
-  { key: 'android', icon: <IconAndroid /> },
-  { key: 'macos', icon: <IconMacOS /> },
-  { key: 'windows', icon: <IconBrandWindowsFilled size={32} /> },
-  { key: 'appleTv', icon: <IconAppleTv /> },
-  { key: 'androidTv', icon: <IconAndroidTv /> },
-] as const;
 
 export function PlatformsSection() {
   const { t } = useTranslation();
@@ -61,19 +48,7 @@ export function PlatformsSection() {
         </div>
       </div>
 
-      <div className='mt-12 flex flex-wrap items-center gap-4 justify-around'>
-        {PLATFORMS.map(({ key, icon }) => (
-          <div
-            key={key}
-            className='w-18 md:w-28 flex flex-col items-center justify-between gap-3 rounded-2xl transition-all duration-200 hover:scale-105 hover:-translate-y-1'
-          >
-            <span>{icon}</span>
-            <h3 className='text-sm font-semibold text-foreground text-center'>
-              {t(`landing.info.devices.${key}`)}
-            </h3>
-          </div>
-        ))}
-      </div>
+      <Platforms className={'mt-12'} />
     </section>
   );
 }

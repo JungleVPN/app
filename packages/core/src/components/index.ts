@@ -5,7 +5,7 @@ export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorConnection } from './ErrorConnection/ErrorConnection';
 export { FeaturesCard } from './FeaturesCard/FeaturesCard';
 export { FooterSection } from './Footer/FooterSection';
-export { PaymentFooter } from './Footer/PaymentFooter';
+export { SecondaryFooter } from './Footer/SecondaryFooter';
 export { StickyFooterReveal } from './Footer/StickyFooterReveal';
 export { AuthButtons } from './Header/AuthButtons';
 export { Header } from './Header/Header';

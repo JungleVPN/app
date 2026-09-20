@@ -2,11 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher, Link, SupportButton } from '../../components';
 import { Container } from '../../ui';
 
-/**
- * Checkout-only footer: a slim legal/support bar, deliberately lighter than the
- * landing page's `FooterSection` so it doesn't compete with the payment steps.
- */
-export function PaymentFooter() {
+export function SecondaryFooter() {
   const { t } = useTranslation();
 
   return (

@@ -31,7 +31,7 @@ export function PartnershipSection() {
               title={t(`landing.partnership.${key}.title`)}
               description={t(`landing.partnership.${key}.description`)}
               learnMoreLabel={t(`landing.partnership.${key}.cta`)}
-              learnMoreHref={key === 'affiliate' ? '/affiliates' : '/profile/referrals'}
+              learnMoreHref={key === 'affiliate' ? '/affiliates' : '/referrals'}
               icon={
                 PARTNERSHIP_STICKERS[key] ? (
                   <LottieIcon

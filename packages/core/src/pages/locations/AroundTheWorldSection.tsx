@@ -79,7 +79,7 @@ export function AroundTheWorldSection() {
           ))}
         </ul>
 
-        <AroundTheWorldIcon />
+        <AroundTheWorldIcon className={'h-70 md:h-100 m-auto'} />
 
         <ul className='flex flex-col gap-16 lg:gap-32'>
           {RIGHT_FEATURES.map((feature) => (
