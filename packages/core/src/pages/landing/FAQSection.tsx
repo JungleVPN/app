@@ -13,7 +13,7 @@ const FAQ_ICONS: ReactNode[] = [
 
 const FAQ_KEYS = ['q1', 'q2', 'q4', 'q5'] as const;
 
-export function FAQSection() {
+export function FAQSection({ variant = 'primary' }: { variant?: 'primary' | 'secondary' }) {
   const { t } = useTranslation();
 
   return (
@@ -28,7 +28,10 @@ export function FAQSection() {
         maxWidth={'sm'}
         className='flex flex-col items-center justify-center gap-4 text-center md:flex-row'
       >
-        <Accordion className='w-full bg-background' variant='surface'>
+        <Accordion
+          className={`'w-full' ${variant === 'primary' ? 'bg-background' : 'bg-surface'}`}
+          variant='surface'
+        >
           {FAQ_KEYS.map((key, index) => (
             <Accordion.Item key={key}>
               <Accordion.Heading className={'font-secondary'}>

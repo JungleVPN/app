@@ -2,6 +2,7 @@ export { default as ConnectEmailPage } from './connectEmailPage/ConnectEmailPage
 export { default as CookiePolicyPage } from './cookies/CookiePolicyPage';
 export { default as GetSubscriptionPage } from './getSubscription/GetSubscriptionPage';
 export { default as LandingPage } from './landing/LandingPage';
+export { default as LocationsPage } from './locations/LocationsPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';
 export { default as LoginPage } from './login/LoginPage';
 export { default as PaddleCheckoutPage } from './paddleCheckout/PaddleCheckoutPage';

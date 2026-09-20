@@ -94,7 +94,9 @@ export function Header() {
         className={'flex items-center justify-center gap-2'}
       >
         {logoNode}
-        <span className={'font-primary font-extrabold text-xl'}>JungleVPN</span>
+        <span className={'font-primary font-extrabold text-xl mix-blend-difference text-white'}>
+          JungleVPN
+        </span>
       </Link>
 
       {isLanding && (

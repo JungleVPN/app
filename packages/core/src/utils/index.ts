@@ -27,13 +27,13 @@ export { detectOs } from './detectOs';
 export {
   CRAWLABLE_PATHS,
   configuredDomains,
-  isCrawlablePath,
   currentScope,
-  userScope,
+  isCrawlablePath,
   isLandingPath,
   isMarketingPath,
   isPlansOrPaymentPlanPath,
   LANDING_PATHS,
+  LOCATIONS_PATH,
   localePolicyForHost,
   markdownPathFor,
   normalizeHostname,
@@ -43,6 +43,7 @@ export {
   resolveLocaleForHost,
   resolveLocaleForRequest,
   setRequestHostname,
+  userScope,
 } from './domain';
 export { formatCurrency, truncate } from './format';
 export { trackLoginConversion } from './gtag';

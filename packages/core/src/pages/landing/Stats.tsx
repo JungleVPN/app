@@ -1,14 +1,13 @@
 import Marquee from 'react-fast-marquee';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../../hooks';
 
 const SERVERS = [
-  { flag: '🇦🇹', code: 'at', stableId: 'c2895df5f9d24049' },
-  { flag: '🇺🇸', code: 'us', stableId: '0172cd32ccd7cfcd' },
-  { flag: '🇩🇪', code: 'de', stableId: '42cd27737e86d4af' },
-  { flag: '🇳🇱', code: 'nl', stableId: 'bcc819be08a37eb6' },
-  { flag: '🇫🇮', code: 'fi', stableId: '4cd8b86c7c3a66f5' },
-  { flag: '🇷🇺', code: 'ru', stableId: '55d99e8dc5987ec2' },
+  { flag: '🇦🇹', code: 'at', stableId: 'c96085c98b645c14' },
+  { flag: '🇺🇸', code: 'us', stableId: '7523869015daa789' },
+  { flag: '🇩🇪', code: 'de', stableId: '8c2b912906620243' },
+  { flag: '🇳🇱', code: 'nl', stableId: 'f999ce2e170d4911' },
+  { flag: '🇫🇮', code: 'fi', stableId: '1e54362d1b38c1cd' },
+  { flag: '🇷🇺', code: 'ru', stableId: '47df2d51d885276a' },
 ];
 
 /** The marquee shows the list three times; ids keep React keys unique across passes. */
@@ -17,7 +16,6 @@ const MARQUEE_SERVERS = ['a', 'b', 'c'].flatMap((pass) =>
 );
 
 export const Stats = () => {
-  const { theme } = useTheme();
   const { t } = useTranslation();
 
   return (
@@ -35,7 +33,7 @@ export const Stats = () => {
               </span>
             </div>
             <iframe
-              src={`https://health.thejungle.pro/?stableId=${stableId}&theme=${theme}&transparent=true&rounded=full&showName=false`}
+              src={`https://health.thejungle.pro/?stableId=${stableId}&theme=light&transparent=true&rounded=full&showName=false`}
               width={100}
               height={40}
               title={t(`landing.countries.names.${code}`)}

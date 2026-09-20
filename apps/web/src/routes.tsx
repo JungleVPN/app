@@ -16,6 +16,7 @@ export function createRoutes(
   Landing: ComponentType,
   Pricing: ComponentType,
   ReferralsPage: ComponentType,
+  LocationsPage: ComponentType,
 ) {
   return [
     {
@@ -46,6 +47,11 @@ export function createRoutes(
           path: '/pricing',
           Component: LandingLayout,
           children: [{ index: true, Component: Pricing }],
+        },
+        {
+          path: '/locations',
+          Component: LandingLayout,
+          children: [{ index: true, Component: LocationsPage }],
         },
         {
           path: '/referrals',

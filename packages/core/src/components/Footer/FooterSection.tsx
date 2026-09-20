@@ -5,7 +5,7 @@ import Logo from '../../assets/Logo_dark.svg?react';
 import LogoDark from '../../assets/Logo_dark.svg?react';
 import { coreEnv } from '../../env';
 import { useTheme } from '../../hooks';
-import { scrollToTop } from '../../utils';
+import { LOCATIONS_PATH, scrollToTop } from '../../utils';
 import { SupportButton } from '../SupportWidget/SupportButton';
 
 type FooterLinkDef =
@@ -19,6 +19,7 @@ const FOOTER_LINKS: Record<
   | 'cookies'
   | 'affiliate'
   | 'referral'
+  | 'locations'
   | 'pricing'
   | 'partnership'
   | 'howItWorks'
@@ -30,6 +31,7 @@ const FOOTER_LINKS: Record<
   cookies: { type: 'internal', to: '/cookies' },
   affiliate: { type: 'internal', to: '/affiliates' },
   referral: { type: 'internal', to: '/profile/referrals' },
+  locations: { type: 'internal', to: LOCATIONS_PATH },
   pricing: { type: 'internal', to: '/pricing' },
   partnership: { type: 'anchor', href: '#partnership' },
   howItWorks: { type: 'anchor', href: '#how-it-works' },
@@ -42,6 +44,7 @@ const LINK_KEYS = [
   'cookies',
   'affiliate',
   'referral',
+  'locations',
   'pricing',
   'partnership',
   'howItWorks',

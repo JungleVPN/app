@@ -48,7 +48,9 @@
       "pricing": "Fiyatlar",
       "offer": "Neler sunuyoruz",
       "inviteAndEarn": "Tavsiye et & kazan",
-      "inviteAndEarnDescription": "Arkadaşlarını davet et, ücretsiz günler kazan"
+      "inviteAndEarnDescription": "Arkadaşlarını davet et, ücretsiz günler kazan",
+      "locations": "Sunucu konumları",
+      "locationsDescription": "Dünyanın her yerinde VPN sunucuları"
     },
     "support": {
       "telegram": "Telegram",
@@ -830,7 +832,8 @@
       "pricing": "Fiyatlandırma",
       "partnership": "İş Ortaklığı",
       "howItWorks": "Nasıl Çalışır",
-      "faq": "SSS"
+      "faq": "SSS",
+      "locations": "Konumlar"
     },
     "bento": {
       "titleStart": "İhtiyacınız olan her şey,",
@@ -971,7 +974,7 @@
         "support": "Ort. destek yanıt süresi"
       },
       "devices": {
-        "title": "Sahip Olduğunuz Her Cihazda Çalışır",
+        "title": "Her Platformda Çalışır",
         "subtitle": "Tek bir abonelik tüm cihazlarınızı kapsar — ek ücret yok, limit yok.",
         "ios": "IOS",
         "android": "Android",
@@ -980,6 +983,43 @@
         "appleTv": "Apple TV",
         "androidTv": "Android TV",
         "cta": "Bağlan"
+      }
+    },
+    "locations": {
+      "hero": {
+        "title": "JungleVPN konumları her yerde",
+        "subtitle": "VPN sunucuları dünyanın her yerinde bulunuyor. İnterneti Kuzey veya Güney Amerika’da, Avrupa’da ya da Asya’daymışsınız gibi kullanın.",
+        "mapAlt": "JungleVPN sunucu konumlarını gösteren dünya haritası"
+      },
+      "benefits": {
+        "devices": {
+          "title": "Tüm cihazlarınız için tek bir VPN",
+          "description": "JungleVPN’i istediğiniz cihaza kurun — geniş bir uyumlu uygulama yelpazesi sunuyoruz."
+        },
+        "traffic": {
+          "title": "Sınırsız trafik",
+          "description": "Aylık trafik limiti olmadan gezinin, içerik izleyin, görüntülü görüşün ve çevrimiçi hizmetleri kullanın."
+        }
+      },
+      "world": {
+        "title": "JungleVPN — dünyanın her yerinde yanınızda",
+        "subtitle": "Herkes özel ve güvenli bir internete erişmeyi hak eder.",
+        "everywhere": {
+          "title": "Bağlantınızı her yerde koruyun",
+          "description": "Dünyanın her yerinde çalışır."
+        },
+        "travel": {
+          "title": "Rahat seyahat",
+          "description": "Seyahat ederken favori site ve hizmetlerinize erişmenize yardımcı oluyoruz."
+        },
+        "wifi": {
+          "title": "Güvenli Wi-Fi bağlantısı",
+          "description": "Herkese açık ağlarda güvende kalın."
+        },
+        "private": {
+          "title": "Her zaman özel gezinme",
+          "description": "JungleVPN trafiği şifreler ve kişisel verilerinizi meraklı gözlerden uzak tutar."
+        }
       }
     }
   },

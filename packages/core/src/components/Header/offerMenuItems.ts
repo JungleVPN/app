@@ -1,5 +1,5 @@
-import { IconHeartHandshake } from '@tabler/icons-react';
-import { REFERRALS_PATH } from '../../utils';
+import { IconHeartHandshake, IconWorld } from '@tabler/icons-react';
+import { LOCATIONS_PATH, REFERRALS_PATH } from '../../utils';
 
 export const OFFER_MENU_ITEMS = [
   {
@@ -8,6 +8,13 @@ export const OFFER_MENU_ITEMS = [
     descriptionKey: 'header.nav.inviteAndEarnDescription',
     icon: IconHeartHandshake,
     path: REFERRALS_PATH,
+  },
+  {
+    id: 'locations',
+    labelKey: 'header.nav.locations',
+    descriptionKey: 'header.nav.locationsDescription',
+    icon: IconWorld,
+    path: LOCATIONS_PATH,
   },
 ] as const;
 

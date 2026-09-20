@@ -1,5 +1,6 @@
 import DottedMap from 'dotted-map';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const PINS = [
   { lat: 60.1699, lng: 24.9384 }, // Finland (Helsinki)
@@ -11,6 +12,7 @@ const PINS = [
 ];
 
 export function WorldMap() {
+  const { t } = useTranslation();
   const [src, setSrc] = useState('');
 
   useEffect(() => {
@@ -34,13 +36,13 @@ export function WorldMap() {
     setSrc(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
   }, []);
 
-  if (!src) return <div className='h-auto w-full aspect-[2/1]' />;
+  if (!src) return <div className='h-auto w-full aspect-2/1' />;
 
   return (
     <img
       src={src}
-      alt='World map showing VPN server locations'
-      className='h-auto w-full opacity-90 mask-[linear-gradient(to_bottom,transparent,var(--background)_20%,var(--background)_80%,transparent)] select-none'
+      alt={t('landing.locations.hero.mapAlt')}
+      className='h-auto w-full lg:w-[60%] m-auto opacity-90 mask-[linear-gradient(to_bottom,transparent,var(--background)_20%,var(--background)_80%,transparent)] select-none'
     />
   );
 }

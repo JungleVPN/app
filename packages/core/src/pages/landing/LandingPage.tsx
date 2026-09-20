@@ -41,7 +41,7 @@ export default function LandingPage() {
           <HeroSection />
         </Container>
       </div>
-      <RoundedSection className='z-20'>
+      <RoundedSection className='z-20' rounded>
         <Container>
           <TrustSection />
         </Container>
@@ -67,7 +67,7 @@ export default function LandingPage() {
             <ComparisonSection />
           </Container>
           <div className={'lg:px-12'}>
-            <RoundedSection className='z-10'>
+            <RoundedSection className='z-10' rounded>
               <Container id='pricing'>
                 <PricingSection />
               </Container>

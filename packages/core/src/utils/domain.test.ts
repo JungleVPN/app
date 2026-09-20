@@ -149,7 +149,7 @@ describe('isLandingPath', () => {
 });
 
 describe('isMarketingPath', () => {
-  it.each(['/', '/en', '/pricing', '/referrals'])(
+  it.each(['/', '/en', '/pricing', '/referrals', '/locations'])(
     'is true for the marketing surface %s',
     (pathname) => {
       expect(isMarketingPath(pathname)).toBe(true);

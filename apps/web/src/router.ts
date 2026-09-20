@@ -1,9 +1,14 @@
-import { LandingPage, PricingPage, ReferralsPage } from '@workspace/core/pages';
+import { LandingPage, LocationsPage, PricingPage, ReferralsPage } from '@workspace/core/pages';
 import { createBrowserRouter, matchRoutes, type RouteObject } from 'react-router';
 
 import { createRoutes } from './routes';
 
-export const routes = createRoutes(LandingPage, PricingPage, ReferralsPage) as RouteObject[];
+export const routes = createRoutes(
+  LandingPage,
+  PricingPage,
+  ReferralsPage,
+  LocationsPage,
+) as RouteObject[];
 
 /**
  * Resolves the `lazy` modules for the routes matching `pathname` and folds them into

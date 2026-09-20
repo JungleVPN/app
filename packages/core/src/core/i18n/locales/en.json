@@ -48,7 +48,9 @@
       "pricing": "Prices",
       "offer": "What we offer",
       "inviteAndEarn": "Refer & Earn",
-      "inviteAndEarnDescription": "Invite friends and get free subscription days"
+      "inviteAndEarnDescription": "Invite friends and get free subscription days",
+      "locations": "Server locations",
+      "locationsDescription": "VPN servers all around the world"
     },
     "support": {
       "telegram": "Telegram",
@@ -830,7 +832,8 @@
       "pricing": "Pricing",
       "partnership": "Partnership",
       "howItWorks": "How It Works",
-      "faq": "FAQ"
+      "faq": "FAQ",
+      "locations": "Locations"
     },
     "bento": {
       "titleStart": "Everything you need,",
@@ -971,7 +974,7 @@
         "support": "Avg. support reply time"
       },
       "devices": {
-        "title": "Works on every device",
+        "title": "Works on every platform",
         "subtitle": "One subscription covers all your devices — no extra fees, no limits.",
         "ios": "IOS",
         "android": "Android",
@@ -980,6 +983,43 @@
         "appleTv": "Apple TV",
         "androidTv": "Android TV",
         "cta": "Connect"
+      }
+    },
+    "locations": {
+      "hero": {
+        "title": "JungleVPN locations are everywhere",
+        "subtitle": "VPN servers are located all around the world. Use the internet as if you are in North or South America, Europe or Asia.",
+        "mapAlt": "World map showing JungleVPN server locations"
+      },
+      "benefits": {
+        "devices": {
+          "title": "One VPN for all your devices",
+          "description": "Install JungleVPN on any of your devices — we offer a wide range of compatible apps."
+        },
+        "traffic": {
+          "title": "Unlimited traffic",
+          "description": "Browse, stream, make video calls and use online services with no monthly traffic limit."
+        }
+      },
+      "world": {
+        "title": "JungleVPN — stays with you around the world",
+        "subtitle": "Everyone deserves access to a private, secure internet.",
+        "everywhere": {
+          "title": "Protect your connection everywhere",
+          "description": "Works across the globe."
+        },
+        "travel": {
+          "title": "Comfortable traveling",
+          "description": "We help you to access your favorite sites and services while traveling."
+        },
+        "wifi": {
+          "title": "Secure Wi-Fi connection",
+          "description": "Make sure you stay safe on public networks."
+        },
+        "private": {
+          "title": "Private browsing, always",
+          "description": "JungleVPN encrypts traffic and keeps personal data away from prying eyes."
+        }
       }
     }
   },
