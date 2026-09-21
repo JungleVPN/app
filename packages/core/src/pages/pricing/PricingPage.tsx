@@ -9,9 +9,7 @@ export default function PricingPage() {
   return (
     <div className='relative bg-[#1a1a1a]'>
       <div className='relative lg:sticky top-0 z-10 bg-gray-100 overflow-hidden pt-40 px-5 pb-10 md:py-56 lg:pt-60 lg:pb-20 md:px-20 lg:px-40'>
-        <Container>
-          <PricingSection surface='light' animateOnMount />
-        </Container>
+        <PricingSection surface='light' animateOnMount />
       </div>
 
       <RoundedSection variant={'secondary'}>

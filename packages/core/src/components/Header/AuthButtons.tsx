@@ -74,7 +74,7 @@ export function AuthButtons() {
     );
   }
 
-  if (location.pathname.includes('login')) return null;
+  if (location.pathname.includes('login') || location.pathname.includes('checkout')) return null;
 
   return (
     <div className='flex items-center gap-2'>
