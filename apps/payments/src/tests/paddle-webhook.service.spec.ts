@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import * as process from 'node:process';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
-import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { EventEntity } from '@paddle/paddle-node-sdk';
+import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { PaddlePayment } from '@workspace/database';
 import { WebhookEventEnum } from '@workspace/types';
 import type { Repository } from 'typeorm';
@@ -45,7 +45,7 @@ const makeTransactionEvent = (
       customData: { email: 'payer@test.com' },
       currencyCode: 'EUR',
       origin: 'web',
-      items: [{ price: { id: 'pri_month_1' } }],
+      items: [{ price: { id: 'pri_month_1', customData: { selectedPeriod: 1 } } }],
       details: { totals: { total: '200', grandTotal: '200' } },
       ...overrides,
     },
@@ -271,13 +271,17 @@ describe('PaddleWebhookService', () => {
       await service.handleWebhook(makeTransactionEvent('transaction.completed'));
 
       expect(mockHandleUserUpdates).toHaveBeenCalled();
-      expect(mockSave).toHaveBeenCalledWith(expect.objectContaining({ id: 'txn_1', status: 'paid' }));
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'txn_1', status: 'paid' }),
+      );
     });
 
     it('throws on an unrecognised catalog price id, rather than guess a period', async () => {
       await expect(
         service.handleWebhook(
-          makeTransactionEvent('transaction.completed', { items: [{ price: { id: 'pri_unknown' } }] }),
+          makeTransactionEvent('transaction.completed', {
+            items: [{ price: { id: 'pri_unknown' } }],
+          }),
         ),
       ).rejects.toThrow(/unrecognised price id/);
       expect(mockHandleUserUpdates).not.toHaveBeenCalled();
@@ -432,10 +436,7 @@ describe('PaddleWebhookService', () => {
     it('marks the matching payment rows canceled', async () => {
       await service.handleWebhook(makeSubscriptionCanceledEvent());
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { subscriptionId: 'sub_1' },
-        { status: 'canceled' },
-      );
+      expect(mockUpdate).toHaveBeenCalledWith({ subscriptionId: 'sub_1' }, { status: 'canceled' });
     });
 
     it('deletes the matching saved Paddle method', async () => {
@@ -450,14 +451,9 @@ describe('PaddleWebhookService', () => {
     it('still cancels the payment rows when deleting the saved method fails', async () => {
       mockSavedDelete.mockRejectedValueOnce(new Error('db down'));
 
-      await expect(
-        service.handleWebhook(makeSubscriptionCanceledEvent()),
-      ).resolves.toBeUndefined();
+      await expect(service.handleWebhook(makeSubscriptionCanceledEvent())).resolves.toBeUndefined();
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { subscriptionId: 'sub_1' },
-        { status: 'canceled' },
-      );
+      expect(mockUpdate).toHaveBeenCalledWith({ subscriptionId: 'sub_1' }, { status: 'canceled' });
     });
   });
 

@@ -11,6 +11,7 @@ import type { StripeWebhookService } from '../providers/stripe/stripe-webhook.se
 
 vi.mock('@workspace/database', () => ({
   StripePayment: class {},
+  PaddlePayment: class {},
   YookassaPayment: class {},
   TelegramStarsPayment: class {},
   SavedPaymentMethod: class {},
@@ -751,7 +752,7 @@ describe('StripeProvider.getSubscriptionStatus', () => {
 
   // YooKassa cards and Stripe subscriptions share one table, so an unscoped
   // read would report a YooKassa payer as a Stripe subscriber.
-  it('asks only for this user\'s rows, scoped to Stripe and still active', async () => {
+  it("asks only for this user's rows, scoped to Stripe and still active", async () => {
     const { provider, mockSavedMethodFind } = makeProvider({});
 
     await provider.getSubscriptionStatus(42);

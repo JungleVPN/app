@@ -41,7 +41,7 @@ export class PaymentStatusService {
     promo?: { code: string | null; provider: PaymentMethod; paymentId: string };
   }): Promise<{ success: boolean }> {
     // Promo codes only extend subscriptions — never device slots.
-    const months =
+    const days =
       purpose === 'extra_device' || !promo
         ? selectedPeriod
         : await this.promoService.applyToMonths(promo.code, selectedPeriod, {
@@ -53,7 +53,7 @@ export class PaymentStatusService {
     const user =
       purpose === 'extra_device'
         ? await this.addExtraDevice(userId)
-        : await this.extendUserExpiry(userId, months);
+        : await this.extendUserExpiry(userId, days);
 
     if (!user) {
       this.logger.warn(`User not found: userId=${userId}`);
@@ -67,7 +67,7 @@ export class PaymentStatusService {
     this.logger.log(
       purpose === 'extra_device'
         ? `Payment processed for user ${userId}: +1 device slot`
-        : `Payment processed for user ${userId}: +${months} month(s)`,
+        : `Payment processed for user ${userId}: +${days} days(s)`,
     );
 
     return { success: true };
@@ -97,7 +97,7 @@ export class PaymentStatusService {
   // propagate a non-200 back to YooKassa and let it retry the webhook later.
   private async extendUserExpiry(
     userId: number,
-    months: number,
+    days: number,
   ): Promise<{ telegramId: number | null } | null> {
     const MAX_ATTEMPTS = 3;
     const DELAY_MS = 2_000;
@@ -106,7 +106,7 @@ export class PaymentStatusService {
       try {
         const { data } = await axios.patch<{ telegramId: number | null }>(
           `${this.remnawareBaseUrl}${apiRoutes.remnawave.userExpiry(userId)}`,
-          { months },
+          { days },
           {
             headers: { 'x-service-secret': process.env.INTER_SERVICE_SECRET },
             timeout: 10_000,

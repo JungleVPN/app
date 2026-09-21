@@ -17,14 +17,14 @@ export type PromoEligibility = 'all' | 'expired_only' | 'new';
  * pure handler. Today only `bonus_months` ships; discounts can be added later
  * (they additionally affect the charged amount — see promo.applier.ts).
  */
-export type PromoEffect = { type: 'bonus_months'; months: number };
+export type PromoEffect = { type: 'bonus_months'; days: number };
 
 /** Context resolution needs to decide whether a code is currently usable. */
 export interface PromoContext {
   userId: RemnaUserId;
   /** Subscription status from remnawave, when known (for `expired_only`). */
   userStatus?: string;
-  /** Months the user is paying for, when known (for min-period style rules). */
+  /** Days the user is paying for, when known (for min-period style rules). */
   selectedPeriod?: number;
 }
 

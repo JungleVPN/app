@@ -50,6 +50,9 @@ export default function PaddleCheckoutPage({ fallbackPath }: PaddleCheckoutPageP
     initializePaddle({
       token: getPaddleClientToken(),
       environment: getPaddleEnvironment(),
+      pwCustomer: {
+        email: checkout.email,
+      },
     }).then((instance) => {
       if (!cancelled) setPaddle(instance);
     });

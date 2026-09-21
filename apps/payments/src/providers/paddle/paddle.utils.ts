@@ -1,23 +1,5 @@
 import type { PaddleCustomData } from './paddle.types';
 
-const PERIOD_MONTHS = [1, 3, 6, 12] as const;
-
-/**
- * Reverse-maps a Paddle catalog price id back to the subscription period it
- * bills, by checking it against every configured `PADDLE_PRICE_ID_MONTH_*`
- * env var — the same set `PaddleProvider.getPriceId` builds the checkout from.
- * Returns null for an id that matches no configured period, so callers can
- * refuse an unrecognised price rather than guess a period (mirrors Stripe's
- * `mapEURAmountToMonthsNumber` fail-safe).
- */
-export function priceIdToMonths(priceId: string | null | undefined): number | null {
-  if (!priceId) return null;
-  for (const months of PERIOD_MONTHS) {
-    if (process.env[`PADDLE_PRICE_ID_MONTH_${months}`] === priceId) return months;
-  }
-  return null;
-}
-
 /**
  * Converts an optional Paddle amount string (its own lowest unit) to major
  * units for `currencyCode`, treating a missing amount as zero. The

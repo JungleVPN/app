@@ -10,7 +10,7 @@ import type { PromoEffect } from '@workspace/types';
 export function bonusMonthsFromEffect(effect: PromoEffect): number {
   switch (effect.type) {
     case 'bonus_months':
-      return effect.months;
+      return effect.days;
     default:
       // Exhaustiveness guard: a new effect type must be handled explicitly.
       return 0;

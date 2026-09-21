@@ -25,7 +25,7 @@ import {
   type UserScope,
 } from '@workspace/types';
 import axios from 'axios';
-import { addDays, addMonths } from 'date-fns';
+import { addDays } from 'date-fns';
 import { Bot } from 'grammy';
 import { AnalyticsClientService } from '../analytics/analytics-client.service';
 import { RemnaPanelClient, RemnaPanelError } from '../common/remna-panel.client';
@@ -348,14 +348,13 @@ export class UserService implements OnModuleInit {
     return user;
   }
 
-  async updateExpiry(userId: number, months: number): Promise<UpdateUserResponseDto> {
+  async updateExpiry(userId: number, days: number): Promise<UpdateUserResponseDto> {
     const user = await this.getUserById(userId);
     if (!user) throw new NotFoundException(`User ${userId} not found`);
 
     const base =
       user.expireAt && new Date(user.expireAt) > new Date() ? new Date(user.expireAt) : new Date();
-    const expireAt = addMonths(base, months);
-
+    const expireAt = addDays(base, Number(days));
     await this.updateUser({ id: userId, expireAt });
 
     return user;

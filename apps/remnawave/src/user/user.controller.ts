@@ -83,10 +83,10 @@ export class UserController {
   async updateExpiry(
     @Param('userId', ParseIntPipe) userId: number,
     @Body() body: {
-      months: number;
+      days: number;
     },
   ): Promise<UpdateUserResponseDto> {
-    return this.userService.updateExpiry(userId, body.months);
+    return this.userService.updateExpiry(userId, body.days);
   }
 
   /**

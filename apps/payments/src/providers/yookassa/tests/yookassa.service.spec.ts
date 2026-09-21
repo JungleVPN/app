@@ -17,6 +17,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@workspace/database', () => {
   return {
     YookassaPayment: class {},
+    PaddlePayment: class {},
     TelegramStarsPayment: class {},
     StripePayment: class {},
     SavedPaymentMethod: class {},
@@ -777,7 +778,7 @@ describe('YookassaService', () => {
       });
     });
 
-    it('hides another user\'s payment behind the same 404 as an unknown id', async () => {
+    it("hides another user's payment behind the same 404 as an unknown id", async () => {
       mockYkFindOneBy.mockResolvedValue({ id: 'pay_1', userId: 999, status: 'succeeded' });
 
       await expect(service.getPaymentStatusForUser('pay_1', 1000)).rejects.toThrow(

@@ -18,13 +18,18 @@
  */
 
 import 'reflect-metadata';
-import { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
+import {
+  PaddlePayment,
+  StripePayment,
+  TelegramStarsPayment,
+  YookassaPayment,
+} from '@workspace/database';
 import type { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 import { DataSource } from 'typeorm';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { AdminService } from './admin.service';
 
-const ENTITIES = [YookassaPayment, TelegramStarsPayment, StripePayment];
+const ENTITIES = [YookassaPayment, TelegramStarsPayment, StripePayment, PaddlePayment];
 
 let dataSource: DataSource;
 
@@ -69,6 +74,7 @@ async function runSearch(
     repoFor(YookassaPayment),
     repoFor(TelegramStarsPayment),
     repoFor(StripePayment),
+    repoFor(PaddlePayment),
   );
 
   await service.search(query);
@@ -91,6 +97,7 @@ describe('AdminService.search — the pending filter must survive every OR branc
     ['YookassaPayment', YookassaPayment.name],
     ['TelegramStarsPayment', TelegramStarsPayment.name],
     ['StripePayment', StripePayment.name],
+    ['PaddlePayment', PaddlePayment.name],
   ] as const;
 
   it.each(providers)('%s keeps the status check outside the OR group', async (_label, key) => {

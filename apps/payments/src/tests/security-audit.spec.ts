@@ -15,6 +15,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // ── Entity class stubs ────────────────────────────────────────────────────────
 vi.mock('@workspace/database', () => ({
   YookassaPayment: class {},
+  PaddlePayment: class {},
   TelegramStarsPayment: class {},
   StripePayment: class {},
   SavedPaymentMethod: class {},

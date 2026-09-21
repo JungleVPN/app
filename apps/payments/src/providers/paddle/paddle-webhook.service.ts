@@ -16,7 +16,7 @@ import { RemnaUserResolverService } from '../../auth/remna-user-resolver.service
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
 import { ToltService } from '../../tolt/tolt.service';
 import type { PaddleTransactionPayload } from './paddle.types';
-import { isReportableCurrency, priceIdToMonths, toCustomData, toMajorUnits } from './paddle.utils';
+import { isReportableCurrency, toCustomData, toMajorUnits } from './paddle.utils';
 
 /**
  * Status for a transaction Paddle settled that we could not turn into the
@@ -127,8 +127,10 @@ export class PaddleWebhookService {
       throw new Error(`Paddle transaction ${transaction.id} has no email in custom data`);
     }
 
-    const priceId = transaction.items[0]?.price?.id;
-    const selectedPeriod = priceIdToMonths(priceId);
+    const price = transaction.items[0]?.price;
+    const priceId = price?.id;
+    const selectedPeriod = price?.customData?.selectedPeriod;
+
     if (selectedPeriod == null) {
       throw new Error(`Paddle transaction ${transaction.id}: unrecognised price id ${priceId}`);
     }

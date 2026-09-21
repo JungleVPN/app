@@ -4,8 +4,8 @@ import { bonusMonthsFromEffect } from './promo.applier';
 
 describe('bonusMonthsFromEffect', () => {
   it('returns the configured months for a bonus_months effect', () => {
-    expect(bonusMonthsFromEffect({ type: 'bonus_months', months: 2 })).toBe(2);
-    expect(bonusMonthsFromEffect({ type: 'bonus_months', months: 0 })).toBe(0);
+    expect(bonusMonthsFromEffect({ type: 'bonus_months', days: 2 })).toBe(2);
+    expect(bonusMonthsFromEffect({ type: 'bonus_months', days: 0 })).toBe(0);
   });
 
   it('returns 0 for an unknown effect type (forward-compat guard)', () => {

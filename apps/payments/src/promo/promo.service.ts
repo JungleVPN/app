@@ -146,10 +146,10 @@ export class PromoService {
    */
   async applyToMonths(
     code: string | null | undefined,
-    months: number,
+    days: number,
     redemption: { userId: number; provider: PaymentMethod; paymentId: string },
   ): Promise<number> {
-    if (!code) return months;
+    if (!code) return days;
     const normalized = PromoService.normalize(code);
 
     return this.dataSource.transaction(async (manager) => {
@@ -161,30 +161,30 @@ export class PromoService {
       });
       if (existing) {
         // Already applied for this payment — don't grant twice.
-        return months;
+        return days;
       }
 
       const promo = await manager.getRepository(Promo).findOneBy({ code: normalized });
       if (!promo?.active) {
         this.logger.warn(`Promo ${normalized} on payment ${redemption.paymentId} not grantable`);
-        return months;
+        return days;
       }
 
       const now = new Date();
       if ((promo.startsAt && now < promo.startsAt) || (promo.endsAt && now > promo.endsAt)) {
         this.logger.warn(`Promo ${normalized} outside window at fulfillment — no bonus`);
-        return months;
+        return days;
       }
 
       const usedByUser = await redemptions.countBy({
         promoCode: normalized,
         userId: redemption.userId,
       });
-      if (usedByUser >= promo.perUserLimit) return months;
+      if (usedByUser >= promo.perUserLimit) return days;
 
       if (promo.maxRedemptions !== null) {
         const total = await redemptions.countBy({ promoCode: normalized });
-        if (total >= promo.maxRedemptions) return months;
+        if (total >= promo.maxRedemptions) return days;
       }
 
       const bonus = bonusMonthsFromEffect(promo.effect);
@@ -205,10 +205,10 @@ export class PromoService {
 
       this.logger.log(
         `Promo ${normalized} redeemed by ${redemption.userId} on ${redemption.provider} ` +
-          `payment ${redemption.paymentId}: +${bonus} month(s)`,
+          `payment ${redemption.paymentId}: +${bonus} days(s)`,
       );
 
-      return months + bonus;
+      return days + bonus;
     });
   }
 }

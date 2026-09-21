@@ -4,7 +4,7 @@ import type { AdminPaymentDto, PromoEffect } from '@workspace/types';
 import { describe, expect, it, vi } from 'vitest';
 import { PromoInvalidError, PromoService } from './promo.service';
 
-const BONUS: PromoEffect = { type: 'bonus_months', months: 2 };
+const BONUS: PromoEffect = { type: 'bonus_months', days: 2 };
 
 function makePromo(overrides: Partial<Promo> = {}): Promo {
   return {
