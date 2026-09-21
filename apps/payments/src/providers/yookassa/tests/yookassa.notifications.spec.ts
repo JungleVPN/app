@@ -28,6 +28,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@workspace/database', () => ({
   YookassaPayment: class {},
+  PaddlePayment: class {},
   TelegramStarsPayment: class {},
   StripePayment: class {},
   SavedPaymentMethod: class {},
@@ -94,6 +95,9 @@ const succeededWebhook = (overrides: Record<string, unknown> = {}): any => ({
     paid: true,
     amount: { value: '599.00', currency: 'RUB' },
     captured_at: '2026-03-01T12:00:00Z',
+    metadata: {
+      email: 'example@mail.com',
+    },
     ...overrides,
   },
 });
@@ -240,6 +244,7 @@ describe('YooKassa payment notifications', () => {
         reportConversion: vi.fn().mockResolvedValue(undefined),
         reportRefund: vi.fn().mockResolvedValue(undefined),
       } as unknown as ToltService,
+      {} as any,
     );
 
     autopaymentService = new AutopaymentService(

@@ -9,7 +9,7 @@ export interface AdminPaymentDto {
   /** Internal payment record id */
   paymentId: string;
   provider: AdminPaymentProvider;
-  userId: RemnaUserId;
+  userId: RemnaUserId | null;
   telegramId?: number | null;
   status: string;
   purpose: PaymentPurpose;

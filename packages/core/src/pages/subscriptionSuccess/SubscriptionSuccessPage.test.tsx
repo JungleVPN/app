@@ -9,10 +9,28 @@ import { cleanup, render, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import SubscriptionSuccessPage from './SubscriptionSuccessPage';
 
-const { getPublicYookassaPaymentStatus, navigate, takePendingYookassaPayment } = vi.hoisted(() => ({
+const {
+  getPublicYookassaPaymentStatus,
+  navigate,
+  takePendingYookassaPayment,
+  localePolicyForHost,
+  configuredDomains,
+  currentScope,
+  LOCATIONS_PATH,
+  WHAT_IS_VPN_PATH,
+  PRICING_PATH,
+  REFERRALS_PATH,
+} = vi.hoisted(() => ({
   getPublicYookassaPaymentStatus: vi.fn(),
   navigate: vi.fn(),
   takePendingYookassaPayment: vi.fn(),
+  localePolicyForHost: vi.fn(),
+  configuredDomains: vi.fn(),
+  currentScope: vi.fn(),
+  LOCATIONS_PATH: vi.fn(),
+  WHAT_IS_VPN_PATH: vi.fn(),
+  PRICING_PATH: vi.fn(),
+  REFERRALS_PATH: vi.fn(),
 }));
 
 vi.mock('../../runtime', () => ({
@@ -23,7 +41,16 @@ vi.mock('../../runtime', () => ({
   }),
 }));
 vi.mock('../../hooks', () => ({ useNavigation: () => navigate }));
-vi.mock('../../utils', () => ({ takePendingYookassaPayment }));
+vi.mock('../../utils', () => ({
+  takePendingYookassaPayment,
+  localePolicyForHost,
+  configuredDomains,
+  currentScope,
+  LOCATIONS_PATH,
+  WHAT_IS_VPN_PATH,
+  PRICING_PATH,
+  REFERRALS_PATH,
+}));
 vi.mock('../../env', () => ({ coreEnv: {}, getTelegramStickerUrl: () => null }));
 vi.mock('../../ui', () => ({ TgsSticker: () => null }));
 

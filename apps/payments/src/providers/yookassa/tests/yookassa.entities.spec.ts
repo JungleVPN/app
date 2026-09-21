@@ -81,11 +81,16 @@ describe('YookassaPayment entity', () => {
   });
 
   it.each([
-    ['userId', 'the owner every fulfilment and refund is attributed to'],
     ['amount', 'the charged value, kept as a string to avoid float drift'],
     ['selectedPeriod', 'the months of subscription this payment buys'],
   ])('requires %s — %s', (column) => {
     expect(columns.get(column)?.options.nullable).toBe(false);
+  });
+
+  it.each([
+    ['userId', 'the owner every fulfilment and refund is attributed to'],
+  ])('requires %s — %s', (column) => {
+    expect(columns.get(column)?.options.nullable).toBe(true);
   });
 
   it('defaults currency to RUB, the only currency YooKassa is used for', () => {

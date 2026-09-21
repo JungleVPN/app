@@ -9,6 +9,7 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
+import { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { getPriceForPeriod } from '@payments/utils/amount';
 import { PaymentsUtils } from '@payments/utils/utils';
@@ -55,6 +56,7 @@ export class YookassaService {
     private readonly promoService: PromoService,
     private readonly analyticsClient: AnalyticsClientService,
     private readonly toltService: ToltService,
+    private readonly remnaUserResolver: RemnaUserResolverService,
   ) {}
 
   // ── Query methods ────────────────────────────────────────────────────────
@@ -139,6 +141,7 @@ export class YookassaService {
       purpose = 'subscription',
       promoCode,
       userStatus,
+      metadata,
       ...paymentFields
     } = dto;
 
@@ -152,7 +155,7 @@ export class YookassaService {
     // Validate any promo up front so the user gets immediate feedback. Only
     // subscription payments carry promos; the binding check is at fulfillment.
     const validatedPromoCode =
-      purpose !== 'extra_device' && promoCode
+      purpose !== 'extra_device' && promoCode && userId
         ? await this.validatePromoOrThrow(promoCode, { userId, userStatus, selectedPeriod })
         : null;
 
@@ -161,6 +164,10 @@ export class YookassaService {
       amount: {
         value: amountValue,
         currency: 'RUB',
+      },
+      metadata: {
+        email: dto.email,
+        ...(dto.inviterId != null && { inviterId: String(dto.inviterId) }),
       },
       description: process.env.PAYMENT_DESCRIPTION,
       capture: true,
@@ -289,7 +296,14 @@ export class YookassaService {
   }
 
   async handlePaymentSucceeded(payload: PaymentWebhookNotification): Promise<void> {
-    const { payment_method, id, status, captured_at } = payload.object;
+    const { payment_method, id, status, captured_at, metadata } = payload.object;
+
+    const email = metadata?.email;
+    const inviterId = metadata?.inviterId ? Number(metadata.inviterId) : undefined;
+
+    if (!email) {
+      throw new Error(`Yookassa transaction ${id} has no email in metadata`);
+    }
 
     // Single-retry lookup: autopayments can return status=succeeded synchronously
     // from YooKassa, meaning the webhook may arrive before the initiating service
@@ -301,7 +315,13 @@ export class YookassaService {
       record = await this.yookassaPaymentRepo.findOneBy({ id });
     }
 
-    if (!record?.userId || record?.selectedPeriod == null) {
+    const userId =
+      record?.userId ??
+      (await this.remnaUserResolver.resolveOrCreateByEmail(email, {
+        inviterId,
+      }));
+
+    if (!userId || record?.selectedPeriod == null) {
       this.logger.error(
         `Payment ${id}: no DB record found after retry — possible orphaned payment, manual recovery needed`,
       );
@@ -332,7 +352,7 @@ export class YookassaService {
     // Count prior succeeded payments before stamping this one — the current record
     // is still pending at this point, so a count of 0 means this is the first payment.
     const priorSucceeded = await this.yookassaPaymentRepo.count({
-      where: { userId: record.userId, status: 'succeeded', purpose: 'subscription' },
+      where: { userId, status: 'succeeded', purpose: 'subscription' },
     });
     const isFirstPayment = priorSucceeded === 0;
 
@@ -341,7 +361,7 @@ export class YookassaService {
     // and try again once remnawave recovers — rather than being locked out forever.
     const result = await this.paymentStatusService.handleUserUpdates({
       selectedPeriod: record.selectedPeriod,
-      userId: record.userId,
+      userId,
       purpose: record.purpose,
       promo: { code: record.promoCode, provider: 'yookassa', paymentId: record.id },
     });
@@ -354,7 +374,7 @@ export class YookassaService {
 
     if (result.success) {
       this.eventEmitter.emit(WebhookEventEnum['payment.succeeded'], {
-        userId: record.userId,
+        userId,
         provider: 'yookassa',
         selectedPeriod: record.selectedPeriod,
         purpose: record.purpose,
@@ -363,7 +383,7 @@ export class YookassaService {
 
       await this.analyticsClient.track({
         event: 'payment_succeeded',
-        userId: record.userId,
+        userId,
         provider: 'yookassa',
         purpose: record.purpose,
         selectedPeriod: record.selectedPeriod,
@@ -374,7 +394,7 @@ export class YookassaService {
       });
 
       if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {
-        await this.activatePaymentMethod({ userId: record.userId, payment_method });
+        await this.activatePaymentMethod({ userId, payment_method });
       }
 
       // Report to the affiliate program. Tolt has no YooKassa integration, so
@@ -386,7 +406,7 @@ export class YookassaService {
       // throws, and `paidAt` was stamped above, so even if YooKassa times out
       // waiting for us and redelivers, the replay guard drops the retry.
       await this.toltService.reportConversion({
-        userId: record.userId,
+        userId,
         provider: 'yookassa',
         chargeId: id,
         amount: Number(record.amount),
@@ -398,7 +418,7 @@ export class YookassaService {
   }
 
   async handlePaymentCanceled(payload: PaymentWebhookNotification): Promise<void> {
-    const { id, status, cancellation_details, payment_method } = payload.object;
+    const { id, status, cancellation_details, payment_method, metadata } = payload.object;
 
     const record = await this.yookassaPaymentRepo.findOneBy({ id });
 
@@ -412,7 +432,9 @@ export class YookassaService {
     await this.yookassaPaymentRepo.update(id, { status, url: null });
 
     if (!cancellation_details || !record) return;
+    const userId = metadata?.userId ? Number(metadata?.userId) : null;
 
+    if (!userId) return;
     // Autopayment: payment_method.saved=true means this charge used a stored method.
     // AutopaymentService already emitted payment.autopayment_failed — skip duplicate.
     if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {
@@ -425,7 +447,7 @@ export class YookassaService {
     // User has an active saved method: AutopaymentService will handle the retry and
     // will emit its own failure event if all retries are exhausted.
     const hasSavedMethod = await this.savedMethodRepo.findOneBy({
-      userId: record.userId,
+      userId,
       isActive: true,
     });
 
@@ -438,7 +460,7 @@ export class YookassaService {
 
     // First payment: user has never successfully paid — no failure notification.
     const priorSucceededCount = await this.yookassaPaymentRepo.count({
-      where: { userId: record.userId, status: 'succeeded' },
+      where: { userId, status: 'succeeded' },
     });
 
     if (priorSucceededCount === 0) {
@@ -449,7 +471,7 @@ export class YookassaService {
     }
 
     this.eventEmitter.emit(WebhookEventEnum['payment.canceled'], {
-      userId: record.userId,
+      userId,
       provider: 'yookassa',
       selectedPeriod: record.selectedPeriod ?? 0,
       reason: cancellation_details.reason,
@@ -457,7 +479,7 @@ export class YookassaService {
 
     this.analyticsClient.track({
       event: 'payment_failed',
-      userId: record.userId,
+      userId,
       provider: 'yookassa',
       paymentId: id,
       reason: cancellation_details.reason ?? 'unknown',

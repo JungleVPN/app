@@ -39,7 +39,6 @@ export class EventsService {
   ]);
 
   async trackEvent(event: AnalyticsEvent): Promise<void> {
-    this.logger.log(`event=${event.event} ${JSON.stringify(event)}`);
     await this.persist(event);
     this.captureToPostHog(event);
 

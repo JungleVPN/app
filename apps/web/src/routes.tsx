@@ -72,10 +72,6 @@ export function createRoutes(
         {
           Component: WebRootLayout,
           children: [
-            {
-              path: '/connectEmail',
-              lazy: () => pages().then((m) => ({ Component: m.ConnectEmailPage })),
-            },
             { path: '/login', lazy: () => pages().then((m) => ({ Component: m.LoginPage })) },
             {
               path: '/login/confirm',

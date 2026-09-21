@@ -49,6 +49,10 @@ export function useYookassaPayment(selectedPeriod: number) {
       }
     }
 
+    if (!activeUser.email) {
+      throw new Error('No such email');
+    }
+
     const session = await createSession({
       userId: activeUser.id,
       telegramId: tgUser?.id != null ? Number(tgUser.id) : null,
@@ -61,6 +65,7 @@ export function useYookassaPayment(selectedPeriod: number) {
           : `${window.location.origin}${profileSubscriptionPath}`,
         type: 'redirect',
       },
+      email: activeUser.email,
       selectedPeriod,
     });
 

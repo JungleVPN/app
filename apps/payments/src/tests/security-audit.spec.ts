@@ -15,6 +15,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // ── Entity class stubs ────────────────────────────────────────────────────────
 vi.mock('@workspace/database', () => ({
   YookassaPayment: class {},
+  PaddlePayment: class {},
   TelegramStarsPayment: class {},
   StripePayment: class {},
   SavedPaymentMethod: class {},
@@ -43,6 +44,9 @@ const makeSucceededPayload = (
       created_at: '2026-01-01T00:00:00Z',
       refundable: true,
       test: false,
+      metadata: {
+        email: 'examole@gmail.com',
+      },
       ...overrides,
     },
   }) as unknown as PaymentWebhookNotification;
@@ -109,6 +113,7 @@ describe('Security Audit', () => {
         {} as any,
         { track: vi.fn() } as any,
         { reportConversion: vi.fn() } as any,
+        {} as any,
       );
     });
 
@@ -173,6 +178,7 @@ describe('Security Audit', () => {
         {} as any,
         { track: vi.fn() } as any,
         { reportConversion: vi.fn() } as any,
+        {} as any,
       );
       (svc as any).isIPRangeValid = mockIsIPRangeValid;
 
@@ -254,6 +260,7 @@ describe('Security Audit', () => {
         {} as any,
         { track: vi.fn() } as any,
         { reportConversion: vi.fn() } as any,
+        {} as any,
       );
     });
 
@@ -294,6 +301,7 @@ describe('Security Audit', () => {
         {} as any,
         { track: vi.fn() } as any,
         { reportConversion: vi.fn() } as any,
+        {} as any,
       );
 
       const payload = makeSucceededPayload('pay_replay');

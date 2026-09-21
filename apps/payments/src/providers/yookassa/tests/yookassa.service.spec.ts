@@ -3,6 +3,7 @@ import * as process from 'node:process';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
+import type { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
 import type { PaymentStatusService } from '@payments/payment-status/payment-status.service';
 import { PromoInvalidError, type PromoService } from '@payments/promo/promo.service';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
@@ -17,6 +18,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@workspace/database', () => {
   return {
     YookassaPayment: class {},
+    PaddlePayment: class {},
     TelegramStarsPayment: class {},
     StripePayment: class {},
     SavedPaymentMethod: class {},
@@ -56,6 +58,9 @@ const makeSucceededPayload = (overrides: Partial<any> = {}): PaymentWebhookNotif
       created_at: '2026-01-01T00:00:00Z',
       refundable: true,
       test: false,
+      metadata: {
+        email: 'example@mail.com',
+      },
       ...overrides,
     },
   }) as unknown as PaymentWebhookNotification;
@@ -110,6 +115,9 @@ describe('YookassaService', () => {
   let mockReportRefund: any;
   let toltService: ToltService;
 
+  let remnaUserResolver: RemnaUserResolverService;
+  remnaUserResolver = {} as unknown as RemnaUserResolverService;
+
   /** Rebuild the service — the IP allowlist is snapshotted in the constructor. */
   const makeService = () =>
     new YookassaService(
@@ -122,6 +130,7 @@ describe('YookassaService', () => {
       promoService,
       analyticsClient,
       toltService,
+      remnaUserResolver,
     );
 
   beforeEach(() => {
@@ -777,7 +786,7 @@ describe('YookassaService', () => {
       });
     });
 
-    it('hides another user\'s payment behind the same 404 as an unknown id', async () => {
+    it("hides another user's payment behind the same 404 as an unknown id", async () => {
       mockYkFindOneBy.mockResolvedValue({ id: 'pay_1', userId: 999, status: 'succeeded' });
 
       await expect(service.getPaymentStatusForUser('pay_1', 1000)).rejects.toThrow(
