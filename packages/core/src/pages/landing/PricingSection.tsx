@@ -11,8 +11,8 @@ import { planSlug } from '../getSubscription/planSlug';
 const HIGHLIGHTED_PLAN_PERIOD = 12;
 const HIGHLIGHTED_DESKTOP_POSITION = 2;
 
-const ORDER_CLASSES = ['order-0', 'order-1', 'order-2', 'order-3'] as const;
-const LG_ORDER_CLASSES = ['lg:order-0', 'lg:order-1', 'lg:order-2', 'lg:order-3'] as const;
+const ORDER_CLASSES = ['order-0', 'order-2', 'order-1', 'order-3'] as const;
+const LG_ORDER_CLASSES = ['lg:order-0', 'lg:order-2', 'lg:order-1', 'lg:order-3'] as const;
 
 type PlanOrder = { mobile: number; desktop: number };
 
@@ -126,7 +126,7 @@ export function PricingSection({
             return (
               <GridItem
                 key={plan.period}
-                size={{ base: 12, sm: 12, md: 6, lg: 3 }}
+                size={{ base: 12, sm: 12, md: 12, lg: 4 }}
                 className={cn(
                   !isHighlighted && 'rounded-t-2xl',
                   ORDER_CLASSES[order.mobile],
