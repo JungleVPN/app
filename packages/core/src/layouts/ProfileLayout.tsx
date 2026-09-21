@@ -16,7 +16,7 @@ import {
   useSubscriptionConfigStoreActions,
 } from '../stores';
 import { Container } from '../ui';
-import { captureReferral, phIdentify } from '../utils';
+import { captureReferral, PRICING_PATH, phIdentify } from '../utils';
 
 export function ProfileLayout() {
   const navigate = useNavigation();
@@ -24,7 +24,7 @@ export function ProfileLayout() {
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
   const { setRmnUser, setUserScope } = useAuthStoreActions();
   const { platformType } = usePlatformStore();
-  const { getConnectEmailPath, publicPlansPath } = useAppRoutes();
+  const { getConnectEmailPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
   const { setLanguage } = useSubscriptionConfigStoreActions();
   // Hand any affiliate attribution to the backend as soon as the user is known.
@@ -79,7 +79,7 @@ export function ProfileLayout() {
             phIdentify(String(user.id));
           } else if (platformType === 'telegram') {
             navigate(getConnectEmailPath);
-          } else navigate(publicPlansPath);
+          } else navigate(PRICING_PATH);
         })
         .catch(console.error);
     }
@@ -90,7 +90,6 @@ export function ProfileLayout() {
     tgUser?.id,
     navigate,
     getConnectEmailPath,
-    publicPlansPath,
     platformType,
   ]);
 

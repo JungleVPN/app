@@ -6,13 +6,7 @@ import MirLogo from '../../assets/icons/mir-svgrepo-com.svg?react';
 import VisaLogo from '../../assets/icons/visa-classic-svgrepo-com.svg?react';
 import { currentScope } from '../../utils';
 
-export function PaymentMethodIcons({
-  className = '',
-  showAll = false,
-}: {
-  className?: string;
-  showAll?: boolean;
-} = {}): JSX.Element {
+export function PaymentMethodIcons({ className = '' }: { className?: string } = {}): JSX.Element {
   const isGlobal = currentScope() === 'global';
 
   return (
@@ -20,8 +14,8 @@ export function PaymentMethodIcons({
       {!isGlobal && <MirLogo aria-label='Mir' className={LOGO_CLASS} />}
       <VisaLogo aria-label='Visa' className={LOGO_CLASS} />
       <MastercardLogo aria-label='Mastercard' className={LOGO_CLASS} />
-      {(showAll || isGlobal) && <IconBrandApple className={'h-11 w-auto opacity-90'} />}
-      {(showAll || isGlobal) && <IconBrandGoogle className={'h-11 w-auto opacity-90'} />}
+      {isGlobal && <IconBrandApple className={'h-11 w-auto opacity-90'} />}
+      {isGlobal && <IconBrandGoogle className={'h-11 w-auto opacity-90'} />}
     </div>
   );
 }

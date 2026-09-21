@@ -3,7 +3,7 @@
     "features": {
       "title": "Что входит в подписку:"
     },
-    "cta": "Попробовать"
+    "cta": "Подключиться"
   },
   "main": {
     "page": {
@@ -572,12 +572,12 @@
   "menu": {
     "pageTitle": "Меню",
     "transactionHistory": "История транзакций",
-    "referrals": "Рефералы",
+    "referrals": "Реферальная программа",
     "affiliates": "Делись и Зарабатывай",
     "subtitle": "Управление настройками аккаунта"
   },
   "referrals": {
-    "pageTitle": "Рефералы",
+    "pageTitle": "Реферальная программа",
     "hero": {
       "badge": "30 дней за друга",
       "title": "Бесплатная подписка за приглашение в JungleVPN",
@@ -837,7 +837,7 @@
       "cookies": "Cookie",
       "support": "Поддержка",
       "affiliate": "Партнёрство",
-      "referral": "Рефералы",
+      "referral": "Реферальная программа",
       "pricing": "Цены",
       "partnership": "Партнёрство",
       "howItWorks": "Как это работает",
