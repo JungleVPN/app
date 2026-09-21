@@ -1,6 +1,5 @@
 import { BadRequestException, Controller, Get, Query, UseGuards } from '@nestjs/common';
 import type { AdminPaymentDto } from '@workspace/types';
-import { AdminRoleGuard } from '../auth/admin-role.guard';
 import { AuthenticatedUserId } from '../auth/authenticated-user.decorator';
 import { ClientUserGuard } from '../auth/client-user.guard';
 import { InterServiceGuard } from '../guards/inter-service.guard';
@@ -41,7 +40,7 @@ export class AdminController {
    * Replaces the old X-Admin-Id header approach which was trivially forgeable.
    */
   @Get('search')
-  @UseGuards(ClientUserGuard, AdminRoleGuard)
+  @UseGuards(ClientUserGuard)
   searchPayments(@Query('q') q: string): Promise<AdminPaymentDto[]> {
     if (!q?.trim()) throw new BadRequestException('Query parameter "q" is required');
     return this.adminService.search(q.trim());

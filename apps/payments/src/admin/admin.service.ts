@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
+import {
+  PaddlePayment,
+  StripePayment,
+  TelegramStarsPayment,
+  YookassaPayment,
+} from '@workspace/database';
 import type { AdminPaymentDto } from '@workspace/types';
 import { Brackets, IsNull, Not, Repository } from 'typeorm';
 
@@ -13,6 +18,8 @@ export class AdminService {
     private readonly starsRepo: Repository<TelegramStarsPayment>,
     @InjectRepository(StripePayment)
     private readonly stripeRepo: Repository<StripePayment>,
+    @InjectRepository(PaddlePayment)
+    private readonly paddleRepo: Repository<PaddlePayment>,
   ) {}
 
   async hasEverPaid(userId: number): Promise<boolean> {
@@ -21,18 +28,20 @@ export class AdminService {
       this.yookassaRepo.exists({ where: { userId, ...settled } }),
       this.starsRepo.exists({ where: { userId, ...settled } }),
       this.stripeRepo.exists({ where: { userId, ...settled } }),
+      this.paddleRepo.exists({ where: { userId, ...settled } }),
     ]);
     return yookassa || stars || stripe;
   }
 
   async search(q: string): Promise<AdminPaymentDto[]> {
-    const [yookassaResults, starsResults, stripeResults] = await Promise.all([
+    const [yookassaResults, starsResults, stripeResults, paddleResults] = await Promise.all([
       this.searchYookassa(q),
       this.searchStars(q),
       this.searchStripe(q),
+      this.searchPaddle(q),
     ]);
 
-    const results = [...yookassaResults, ...starsResults, ...stripeResults];
+    const results = [...yookassaResults, ...starsResults, ...stripeResults, ...paddleResults];
 
     // Sort newest first
     results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -193,6 +202,40 @@ export class AdminService {
         purpose: p.purpose,
         amount: p.amount != null ? String(p.amount) : undefined,
         currency: p.currency,
+        selectedPeriod,
+        createdAt: p.createdAt,
+        paidAt: p.paidAt,
+      }),
+    );
+  }
+
+  private async searchPaddle(q: string): Promise<AdminPaymentDto[]> {
+    const selectedPeriod = Number(process.env.ALLOWED_PERIOD ?? 1);
+
+    const rows = await this.paddleRepo
+      .createQueryBuilder('p')
+      .where(
+        AdminService.matchesQuery(q, AdminService.asNumeric(q), {
+          text: ['p.id', 'p.customer'],
+          numeric: ['p.userId'],
+        }),
+      )
+      .andWhere('p.status NOT IN (:...unsettled)', {
+        unsettled: AdminService.UNSETTLED_STATUSES,
+      })
+      .orderBy('p.createdAt', 'DESC')
+      .getMany();
+
+    return rows.map(
+      (p): AdminPaymentDto => ({
+        paymentId: p.id,
+        provider: 'paddle',
+        userId: p.userId ?? 0,
+        telegramId: null,
+        status: p.status,
+        purpose: p.purpose,
+        amount: p.amount != null ? String(p.amount) : undefined,
+        currency: p.currency ?? undefined,
         selectedPeriod,
         createdAt: p.createdAt,
         paidAt: p.paidAt,

@@ -2,7 +2,7 @@ import type { RemnaUserId } from '../remnawave';
 import { PaymentPurpose } from './common';
 
 /** Payment provider identifier */
-export type AdminPaymentProvider = 'yookassa' | 'telegram_stars' | 'stripe';
+export type AdminPaymentProvider = 'yookassa' | 'telegram_stars' | 'stripe' | 'paddle';
 
 /** Unified payment record returned by the admin search endpoint */
 export interface AdminPaymentDto {
