@@ -149,7 +149,7 @@ export function Header() {
       )}
     </div>
   );
-  console.log(scrolled);
+
   const wrapperClass = () => {
     if (isMobileTma) {
       return 'sticky top-0 z-50 shrink-0 py-3 mt-24';

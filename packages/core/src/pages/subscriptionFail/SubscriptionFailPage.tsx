@@ -2,13 +2,12 @@ import { Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { useNavigation } from '../../hooks';
-import { useAppRoutes } from '../../runtime';
 import { TgsSticker } from '../../ui';
+import { PRICING_PATH } from '../../utils';
 
 export default function SubscriptionFailPage() {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { publicPlansPath } = useAppRoutes();
   const failStickerUrl = getTelegramStickerUrl(coreEnv.failStickerFileId);
 
   return (
@@ -33,7 +32,7 @@ export default function SubscriptionFailPage() {
           fullWidth
           className='mt-12 sm:mt-10'
           size='lg'
-          onPress={() => navigate(publicPlansPath, { replace: true })}
+          onPress={() => navigate(PRICING_PATH, { replace: true })}
         >
           {t('subscriptionFail.retry')}
         </Button>
