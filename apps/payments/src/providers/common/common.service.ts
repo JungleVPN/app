@@ -7,7 +7,7 @@ import {
   enabledPeriodMonths,
   getPriceForPeriod,
 } from '@payments/utils/amount';
-import { scopeForOrigin, type SubscriptionPlanDto } from '@workspace/types';
+import { type SubscriptionPlanDto, scopeForOrigin } from '@workspace/types';
 
 /** Paddle's quote for one visitor, reduced to what a plan needs from it. */
 interface PaddleQuote {
@@ -60,6 +60,7 @@ export class CommonService {
     const basePrice = periods.includes(1) ? this.findPrice(currency, 1) : null;
 
     return periods
+      .filter((period) => period !== 3)
       .map((period): SubscriptionPlanDto | null => {
         const total = this.findPrice(currency, period);
         if (total === null) return null;

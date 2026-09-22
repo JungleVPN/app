@@ -12,7 +12,6 @@ export type Currency = 'RUB' | 'EUR';
  * `paddleCurrencyDecimals` in `paddle.utils`.
  */
 const DISPLAY_DECIMALS: Record<string, number> = { RUB: 0, JPY: 0, KRW: 0, CLP: 0 };
-const DEFAULT_DISPLAY_DECIMALS = 2;
 
 const priceEnvKey = (currency: Currency, months: number) => `PRICE_${currency}_MONTH_${months}`;
 
@@ -89,18 +88,14 @@ export function getPriceForPeriod(currency: Currency, months: number): string {
   return price;
 }
 
-/**
- * Ready-to-render pricing for one plan: the total and per-month price
- * formatted for `currency`, the undiscounted total to strike through, and the
- * percentage saved against it.
- *
- * `basePrice` is the 1-month price in the same currency — the baseline every
- * longer period's discount is measured against — or null when there is no
- * 1-month plan to compare with, which leaves the plan showing no discount.
- *
- * `currency` is a plain code rather than our own `Currency` union because
- * Paddle quotes plans in whichever of its currencies fits the visitor.
- */
+const formatPrice = (value: number, currency: string): string => {
+  const truncated = Math.floor(value * 100) / 100;
+
+  const decimals = DISPLAY_DECIMALS[currency] ?? 2;
+
+  return truncated.toFixed(decimals).replace(/\.00$/, '');
+};
+
 export function buildPricing(input: {
   currency: string;
   months: number;
@@ -109,15 +104,17 @@ export function buildPricing(input: {
 }): PlanPricing {
   const { currency, months, total, basePrice } = input;
 
-  const decimals = DISPLAY_DECIMALS[currency] ?? DEFAULT_DISPLAY_DECIMALS;
   const fullTotal = basePrice !== null ? basePrice * months : null;
+
   const discountPercent =
     fullTotal !== null && fullTotal > 0 ? Math.round((1 - total / fullTotal) * 100) : 0;
 
+  const monthly = total / months;
+
   return {
-    total: total.toFixed(decimals),
-    monthly: (total / months).toFixed(decimals),
-    fullTotal: fullTotal !== null ? fullTotal.toFixed(decimals) : null,
+    total: total.toString(),
+    monthly: formatPrice(monthly, currency),
+    fullTotal: fullTotal !== null ? formatPrice(fullTotal, currency) : null,
     discountPercent,
     currencyCode: currency,
   };
