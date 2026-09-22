@@ -3,6 +3,7 @@ import * as process from 'node:process';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
+import type { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
 import type { PaymentStatusService } from '@payments/payment-status/payment-status.service';
 import { PromoInvalidError, type PromoService } from '@payments/promo/promo.service';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
@@ -57,6 +58,9 @@ const makeSucceededPayload = (overrides: Partial<any> = {}): PaymentWebhookNotif
       created_at: '2026-01-01T00:00:00Z',
       refundable: true,
       test: false,
+      metadata: {
+        email: 'example@mail.com',
+      },
       ...overrides,
     },
   }) as unknown as PaymentWebhookNotification;
@@ -111,6 +115,9 @@ describe('YookassaService', () => {
   let mockReportRefund: any;
   let toltService: ToltService;
 
+  let remnaUserResolver: RemnaUserResolverService;
+  remnaUserResolver = {} as unknown as RemnaUserResolverService;
+
   /** Rebuild the service — the IP allowlist is snapshotted in the constructor. */
   const makeService = () =>
     new YookassaService(
@@ -123,6 +130,7 @@ describe('YookassaService', () => {
       promoService,
       analyticsClient,
       toltService,
+      remnaUserResolver,
     );
 
   beforeEach(() => {

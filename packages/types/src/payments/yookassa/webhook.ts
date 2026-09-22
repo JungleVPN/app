@@ -91,6 +91,7 @@ export interface IRefund {
   readonly amount: IAmount;
   readonly created_at: string;
   readonly description?: string;
+  readonly metadata?: Record<string, unknown>;
 }
 
 /** Webhook-уведомление о возврате (refund.succeeded). */

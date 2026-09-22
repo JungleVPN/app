@@ -114,6 +114,7 @@ describe('YookassaController', () => {
         description: 'test',
         save_payment_method: true,
         selectedPeriod: 1,
+        email: 'example@gmail.com',
       };
       const session = { id: 'sess-1', url: 'https://yk/sess-1' };
       (yookassaService.createPaymentSession as any).mockResolvedValue(session);
@@ -155,28 +156,16 @@ describe('YookassaController', () => {
       const session = { id: 'sess-1', url: 'https://yk/sess-1' };
       (yookassaService.createPaymentSession as any).mockResolvedValue(session);
 
-      const result = await controller.createPublicPaymentSession(publicDto(), 'https://ru.test');
+      const result = await controller.createPublicPaymentSession(publicDto());
 
-      expect(remnaUserResolver.resolveOrCreateByEmail).toHaveBeenCalledWith('payer@test.com', {
-        inviterId: undefined,
-        origin: 'https://ru.test',
-      });
       expect(yookassaService.createPaymentSession).toHaveBeenCalledWith({
-        userId: 77,
+        userId: null,
         selectedPeriod: 3,
         save_payment_method: true,
         confirmation: { type: 'redirect', return_url: 'https://ru.jungle.test/payment/return' },
+        email: 'payer@test.com',
       });
       expect(result).toBe(session);
-    });
-
-    it('carries the referring user through to account creation', async () => {
-      await controller.createPublicPaymentSession(publicDto({ inviterId: 42 }), 'https://ru.test');
-
-      expect(remnaUserResolver.resolveOrCreateByEmail).toHaveBeenCalledWith(
-        'payer@test.com',
-        expect.objectContaining({ inviterId: 42 }),
-      );
     });
 
     it.each([
@@ -186,7 +175,7 @@ describe('YookassaController', () => {
       'missing@domain',
     ])('rejects %s without touching the panel or YooKassa', async (email) => {
       await expect(
-        controller.createPublicPaymentSession(publicDto({ email }), 'https://ru.test'),
+        controller.createPublicPaymentSession(publicDto({ email })),
       ).rejects.toBeInstanceOf(BadRequestException);
 
       expect(remnaUserResolver.resolveOrCreateByEmail).not.toHaveBeenCalled();
@@ -199,9 +188,7 @@ describe('YookassaController', () => {
       (remnaUserResolver.findByEmail as any).mockResolvedValue(500);
       (yookassaService.getActiveSavedMethods as any).mockResolvedValue([{ id: 'pm-1' }]);
 
-      await expect(
-        controller.createPublicPaymentSession(publicDto(), 'https://ru.test'),
-      ).rejects.toMatchObject({
+      await expect(controller.createPublicPaymentSession(publicDto())).rejects.toMatchObject({
         response: { code: ACTIVE_SUBSCRIPTION_CODE },
       });
 
@@ -213,7 +200,7 @@ describe('YookassaController', () => {
       (remnaUserResolver.findByEmail as any).mockResolvedValue(500);
       (yookassaService.getActiveSavedMethods as any).mockResolvedValue([]);
 
-      await controller.createPublicPaymentSession(publicDto(), 'https://ru.test');
+      await controller.createPublicPaymentSession(publicDto());
 
       expect(yookassaService.createPaymentSession).toHaveBeenCalled();
     });
@@ -221,7 +208,7 @@ describe('YookassaController', () => {
     it('does not look for saved methods when the email has no account at all', async () => {
       (remnaUserResolver.findByEmail as any).mockResolvedValue(null);
 
-      await controller.createPublicPaymentSession(publicDto(), 'https://ru.test');
+      await controller.createPublicPaymentSession(publicDto());
 
       expect(yookassaService.getActiveSavedMethods).not.toHaveBeenCalled();
     });

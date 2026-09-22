@@ -1,4 +1,3 @@
-import { IconCheck } from '@tabler/icons-react';
 import type { SubscriptionPlanDto } from '@workspace/types';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -12,8 +11,8 @@ import { planSlug } from '../getSubscription/planSlug';
 const HIGHLIGHTED_PLAN_PERIOD = 12;
 const HIGHLIGHTED_DESKTOP_POSITION = 2;
 
-const ORDER_CLASSES = ['order-0', 'order-1', 'order-2', 'order-3'] as const;
-const LG_ORDER_CLASSES = ['lg:order-0', 'lg:order-1', 'lg:order-2', 'lg:order-3'] as const;
+const ORDER_CLASSES = ['order-0', 'order-2', 'order-1', 'order-3'] as const;
+const LG_ORDER_CLASSES = ['lg:order-0', 'lg:order-2', 'lg:order-1', 'lg:order-3'] as const;
 
 type PlanOrder = { mobile: number; desktop: number };
 
@@ -41,8 +40,6 @@ function buildPlanOrders(plans: SubscriptionPlanDto[]): Map<number, PlanOrder> {
   return orders;
 }
 
-const INCLUDES_KEYS = ['includes1', 'includes2', 'includes3', 'includes4', 'includes5'] as const;
-
 /**
  * The section sits on the white landing page and on the dark gradient hero of
  * the pricing page, so its copy colours follow the surface it is placed on.
@@ -58,34 +55,6 @@ const BODY_CLASS: Record<Surface, string> = {
   light: 'text-muted',
   dark: 'text-white/70',
 };
-
-const EMPHASIS_CLASS: Record<Surface, string> = {
-  light: 'text-foreground',
-  dark: 'text-white',
-};
-
-function PlanIncludes({ surface }: { surface: Surface }) {
-  const { t } = useTranslation();
-
-  return (
-    <div className='flex flex-col items-center gap-3'>
-      <span className={cn('text-base font-semibold lg:text-md', EMPHASIS_CLASS[surface])}>
-        {t('landing.pricing.includesTitle')}
-      </span>
-      <ul className='flex flex-wrap items-center justify-center gap-x-5 gap-y-2'>
-        {INCLUDES_KEYS.map((key) => (
-          <li
-            key={key}
-            className={cn('flex items-center gap-1.5 text-base lg:text-md', BODY_CLASS[surface])}
-          >
-            <IconCheck size={16} className='shrink-0 text-success' strokeWidth={2.5} />
-            {t(`landing.pricing.${key}`)}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
 
 /**
  * `animateOnMount` staggers the cards in as the page loads — used on the pricing page,
@@ -125,22 +94,20 @@ export function PricingSection({
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2
+        <h1
           className={cn(
-            'text-2xl px-16 sm:px-0 font-bold tracking-tight lg:text-4xl',
+            'text-2xl sm:px-0 font-bold tracking-tight lg:text-4xl',
             HEADING_CLASS[surface],
           )}
         >
           {t('landing.pricing.title')}
-        </h2>
+        </h1>
         <p className={cn('text-base lg:text-md', BODY_CLASS[surface])}>
           {t('landing.pricing.subtitle')}
         </p>
       </div>
 
       <div className='flex flex-col items-center gap-8'>
-        <PlanIncludes surface={surface} />
-
         <Grid>
           {plans.map((plan) => {
             const isHighlighted = plan.period === HIGHLIGHTED_PLAN_PERIOD;
@@ -159,7 +126,7 @@ export function PricingSection({
             return (
               <GridItem
                 key={plan.period}
-                size={{ base: 12, sm: 12, md: 6, lg: 3 }}
+                size={{ base: 12, sm: 12, md: 12, lg: 4 }}
                 className={cn(
                   !isHighlighted && 'rounded-t-2xl',
                   ORDER_CLASSES[order.mobile],

@@ -16,9 +16,13 @@ export interface PaymentSession {
  * `selectedPeriod` and ignores anything the caller sends.
  */
 export interface CreateYookassaSessionDto
-  extends Omit<Payments.CreatePaymentRequest, 'metadata' | 'capture' | 'amount'> {
+  extends Omit<Payments.CreatePaymentRequest, 'capture' | 'amount'> {
   amount?: Payments.CreatePaymentRequest['amount'];
-  userId: RemnaUserId;
+  userId: RemnaUserId | null;
+  /** Payer's email. The account is found-or-created from it server-side. */
+  email: string;
+  /** Referring user id captured from a `?ref=` link, when present. */
+  inviterId?: number;
   /** Telegram user id of the payer — stored on the DB record for admin lookups. */
   telegramId?: number | null;
   /** What this payment is for. Defaults to 'subscription'. */

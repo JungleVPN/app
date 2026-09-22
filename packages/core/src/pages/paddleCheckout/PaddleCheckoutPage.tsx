@@ -3,6 +3,7 @@ import { initializePaddle } from '@paddle/paddle-js';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
+import { i18n } from '../../core/i18n';
 import { useBackButton, useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useNavbarStore } from '../../stores';
@@ -27,6 +28,7 @@ export default function PaddleCheckoutPage({ fallbackPath }: PaddleCheckoutPageP
   const hasOpenedCheckout = useRef(false);
   const { setNavbarVisible } = useNavbarStore();
 
+  const { language } = i18n;
   const checkout = isPaddleCheckoutState(state) ? state : null;
 
   useBackButton(() => navigate(-1));
@@ -73,6 +75,7 @@ export default function PaddleCheckoutPage({ fallbackPath }: PaddleCheckoutPageP
         ...(checkout.countryCode && { address: { countryCode: checkout.countryCode } }),
       },
       settings: {
+        locale: language,
         successUrl: `${window.location.origin}${paymentReturnPath}`,
         allowLogout: false,
         theme: 'light',

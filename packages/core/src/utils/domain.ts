@@ -165,6 +165,10 @@ export function isMarketingPath(pathname: string): boolean {
   );
 }
 
+export function isProfilePath(pathname: string): boolean {
+  return pathname.includes('/profile');
+}
+
 /** True for the plan-selection/checkout paths `/plans` and `/payment/planN`, where AuthButtons are hidden. */
 export function isPlansOrPaymentPlanPath(pathname: string): boolean {
   return pathname === '/plans' || /^\/payment\/plan\d+/.test(pathname);

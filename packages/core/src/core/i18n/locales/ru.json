@@ -572,12 +572,12 @@
   "menu": {
     "pageTitle": "Меню",
     "transactionHistory": "История транзакций",
-    "referrals": "Реферальная программа",
+    "referrals": "Рефералы",
     "affiliates": "Делись и Зарабатывай",
     "subtitle": "Управление настройками аккаунта"
   },
   "referrals": {
-    "pageTitle": "Реферальная программа",
+    "pageTitle": "Рефералы",
     "hero": {
       "badge": "30 дней за друга",
       "title": "Бесплатная подписка за приглашение в JungleVPN",
@@ -837,7 +837,7 @@
       "cookies": "Cookie",
       "support": "Поддержка",
       "affiliate": "Партнёрство",
-      "referral": "Реферальная программа",
+      "referral": "Рефералы",
       "pricing": "Цены",
       "partnership": "Партнёрство",
       "howItWorks": "Как это работает",

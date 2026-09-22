@@ -8,8 +8,8 @@ export class YookassaPayment {
   @PrimaryColumn()
   id: string;
 
-  @Column({ type: 'int', nullable: false })
-  userId: number;
+  @Column({ nullable: true, type: 'int' })
+  userId: number | null;
 
   @Column({ nullable: false })
   amount: string;

@@ -11,13 +11,13 @@ import {
 } from '@heroui/react';
 import { IconChevronRight, IconHelpCircle, IconMail, IconRestore } from '@tabler/icons-react';
 import type { SubscriptionPlanDto } from '@workspace/types';
-import { SyntheticEvent } from 'react';
+import { SyntheticEvent, useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Logo from '../../assets/Logo.svg?react';
 import { FeaturesCard, Link, PaymentMethodIcons } from '../../components';
 import { useTermsStore } from '../../stores';
 import { Block, Container, Grid, GridItem } from '../../ui';
-import { formatPlanPrice } from '../../utils';
+import { formatPlanPrice, scrollToTop } from '../../utils';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
 import { planPeriodLabel } from './planSlug';
 
@@ -67,6 +67,10 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
     handleEmailChange,
     handleSubmit,
   } = props;
+
+  useEffect(() => {
+    scrollToTop();
+  }, []);
 
   const { t } = useTranslation();
   const { open: openTerms } = useTermsStore();

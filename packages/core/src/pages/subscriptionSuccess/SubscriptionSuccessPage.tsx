@@ -1,6 +1,7 @@
 import { Button } from '@heroui/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Loading } from '../../components';
 import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
@@ -13,7 +14,7 @@ export default function SubscriptionSuccessPage() {
   const { profileSubscriptionPath, paymentFailPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
   const successStickerUrl = getTelegramStickerUrl(coreEnv.successStickerFileId);
-
+  const [loading, setLoading] = useState<boolean>(true);
   // YooKassa returns the user here whether they paid or cancelled, so a
   // checkout started in this tab has its outcome confirmed before we claim
   // success. Anything other than an outright cancellation stays optimistic:
@@ -21,24 +22,24 @@ export default function SubscriptionSuccessPage() {
   useEffect(() => {
     const paymentId = takePendingYookassaPayment();
     if (!paymentId) return;
-
-    let abandoned = false;
+    setLoading(true);
     paymentsApi
-      .getYookassaPaymentStatus(paymentId)
+      .getPublicYookassaPaymentStatus(paymentId)
       .then(({ status }) => {
-        if (!abandoned && status === 'canceled') {
+        if (status === 'canceled' || status === 'pending') {
           navigate(paymentFailPath, { replace: true });
+          setLoading(false);
+        }
+        if (status === 'succeeded') {
+          setLoading(false);
         }
       })
       .catch(() => {
         // Status unknown — leave the optimistic success state in place.
       });
-
-    return () => {
-      abandoned = true;
-    };
   }, [paymentsApi, navigate, paymentFailPath]);
 
+  if (loading) return <Loading />;
   return (
     <main className='flex min-h-full flex-1 flex-col items-center px-6 pt-16 pb-10 sm:justify-center sm:pt-10'>
       <div className='flex w-full max-w-md flex-1 flex-col items-center sm:flex-none'>

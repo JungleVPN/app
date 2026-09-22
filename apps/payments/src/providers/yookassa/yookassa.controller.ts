@@ -5,7 +5,6 @@ import {
   Controller,
   Delete,
   Get,
-  Headers,
   HttpCode,
   Ip,
   Param,
@@ -135,8 +134,8 @@ export class YookassaController {
   @Post('public-create-session')
   @UseGuards(PublicCheckoutRateLimitGuard)
   async createPublicPaymentSession(
-    @Body() dto: CreatePublicYookassaSessionDto,
-    @Headers('origin') origin?: string,
+    @Body()
+    dto: CreatePublicYookassaSessionDto,
   ): Promise<PaymentSession> {
     const email = dto.email?.trim().toLocaleLowerCase() ?? '';
     if (!EMAIL_PATTERN.test(email)) {
@@ -145,16 +144,12 @@ export class YookassaController {
 
     await this.refuseIfAlreadySubscribed(email);
 
-    const userId = await this.remnaUserResolver.resolveOrCreateByEmail(email, {
-      inviterId: dto.inviterId,
-      origin,
-    });
-
     return this.yookassaService.createPaymentSession({
-      userId,
+      userId: null,
       selectedPeriod: dto.selectedPeriod,
       save_payment_method: true,
       confirmation: { type: 'redirect', return_url: dto.returnUrl },
+      email,
     });
   }
 

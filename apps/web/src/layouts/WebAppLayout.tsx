@@ -1,11 +1,10 @@
 import { usePaymentsApi, usePlatformStoreActions, useToltLanding } from '@workspace/core';
 import { CookieConsent, Header, IpStatusBar } from '@workspace/core/components';
 import { useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router';
+import { Outlet } from 'react-router';
 
 export function WebAppLayout() {
   const { setPlatformType } = usePlatformStoreActions();
-  const { pathname } = useLocation();
 
   const paymentsApi = usePaymentsApi();
 
