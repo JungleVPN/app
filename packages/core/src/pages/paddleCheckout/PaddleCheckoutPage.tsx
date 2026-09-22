@@ -8,7 +8,6 @@ import { useBackButton, useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useNavbarStore } from '../../stores';
 import { Container, Page } from '../../ui';
-import { PRICING_PATH } from '../../utils';
 import { isPaddleCheckoutState } from './paddleCheckoutState';
 import { getPaddleClientToken, getPaddleEnvironment } from './paddleEnv';
 
@@ -23,7 +22,7 @@ export default function PaddleCheckoutPage({ fallbackPath }: PaddleCheckoutPageP
   const { t } = useTranslation();
   const { state } = useLocation();
   const navigate = useNavigation();
-  const { paymentReturnPath } = useAppRoutes();
+  const { paymentReturnPath, publicPlansPath } = useAppRoutes();
   const [paddle, setPaddle] = useState<Paddle | undefined>();
   const hasOpenedCheckout = useRef(false);
   const { setNavbarVisible } = useNavbarStore();
@@ -43,8 +42,8 @@ export default function PaddleCheckoutPage({ fallbackPath }: PaddleCheckoutPageP
 
   useEffect(() => {
     if (checkout) return;
-    navigate(fallbackPath ?? PRICING_PATH, { replace: true });
-  }, [checkout, fallbackPath, navigate]);
+    navigate(fallbackPath ?? publicPlansPath, { replace: true });
+  }, [checkout, fallbackPath, navigate, publicPlansPath]);
 
   useEffect(() => {
     if (!checkout) return;

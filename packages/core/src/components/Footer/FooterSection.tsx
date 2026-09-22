@@ -88,7 +88,7 @@ export function FooterSection() {
               );
             })}
           </nav>
-          <PaymentMethodIcons />
+          <PaymentMethodIcons showAll />
         </Container>
 
         <div className={'bg-[#2a2a2a]'}>

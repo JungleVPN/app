@@ -22,6 +22,7 @@ const appRoutes = {
   paymentFailPath: '/payment/fail',
   authGateRedirectPath: '/connectEmail',
   affiliatesPath: '/affiliates',
+  publicPlansPath: '/plans',
   profileSubscriptionPath: '/profile/subscription',
   profilePaymentPath: '/profile/payments',
   paddleCheckoutPath: '/profile/checkout',

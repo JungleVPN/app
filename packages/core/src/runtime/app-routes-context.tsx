@@ -9,6 +9,7 @@ export interface AppRoutes {
   paymentFailPath: string;
   authGateRedirectPath: string;
   affiliatesPath: string;
+  publicPlansPath: string;
   profileSubscriptionPath: string;
   profilePaymentPath: string;
   paddleCheckoutPath: string;
