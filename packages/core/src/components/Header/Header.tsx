@@ -18,6 +18,7 @@ import {
   phCapture,
   scrollToTop,
 } from '../../utils';
+import { isProfilePath } from '../../utils/domain';
 import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { SupportButton } from '../SupportWidget/SupportButton';
@@ -42,6 +43,7 @@ export function Header() {
   const [isRu, setIsRu] = useState(false);
 
   const isLanding = isMarketingPath(pathname);
+  const isProfile = isProfilePath(pathname);
   const isTelegram = platformType === 'telegram';
   const hideAuthButtons = isPlansOrPaymentPlanPath(pathname);
 
@@ -132,7 +134,7 @@ export function Header() {
       <div
         className={`${isLanding ? 'hidden sm:flex' : ''} flex items-center justify-between gap-2 ms-auto`}
       >
-        {!isLanding && <SubscriptionLinkWidget />}
+        {isProfile && <SubscriptionLinkWidget />}
         {!isLanding && <SupportButton />}
         {!isRu && !isTelegram && <LanguageSwitcher />}
         {platformType === 'web' && !hideAuthButtons && <AuthButtons />}
