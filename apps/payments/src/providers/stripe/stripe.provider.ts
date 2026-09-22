@@ -194,16 +194,6 @@ export class StripeProvider {
     });
     await this.repository.save(record);
 
-    await this.analyticsClient.track({
-      event: 'checkout_started',
-      userId,
-      email: dto.metadata?.email ?? null,
-      provider: 'stripe',
-      purpose,
-      amount,
-      currency: 'EUR',
-    });
-
     return session;
   }
 

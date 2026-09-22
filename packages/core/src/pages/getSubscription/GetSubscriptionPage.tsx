@@ -1,4 +1,5 @@
-import { currentScope, GLOBAL_PAYMENT_PROVIDER } from '../../utils';
+import { useEffect } from 'react';
+import { currentScope, GLOBAL_PAYMENT_PROVIDER, phCapture } from '../../utils';
 import PaddleStartCheckoutPage from '../paddleGetSubscription/PaddleStartCheckoutPage';
 import RuStartCheckoutPage from '../ruGetSubscription/RuStartCheckoutPage';
 import StripeCheckoutPage from './StripeCheckoutPage';
@@ -15,6 +16,10 @@ import StripeCheckoutPage from './StripeCheckoutPage';
  * request hostname, which SSR only knows once a request is in flight.
  */
 export default function GetSubscriptionPage() {
+  useEffect(() => {
+    phCapture('getsub_page_viewed');
+  }, []);
+
   if (currentScope() === 'ru') return <RuStartCheckoutPage />;
 
   return GLOBAL_PAYMENT_PROVIDER === 'paddle' ? (

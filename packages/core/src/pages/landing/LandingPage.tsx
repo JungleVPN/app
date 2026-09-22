@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { useAuthStore } from '../../stores';
 import { Container, Reveal, RoundedSection } from '../../ui';
 import { phCapture } from '../../utils';
 import { BentoFeaturesStack } from './BentoFeaturesStack';
@@ -16,11 +15,9 @@ import { PricingSection } from './PricingSection';
 import { TrustSection } from './TrustSection';
 
 export default function LandingPage() {
-  const { rmnUser } = useAuthStore();
-
   useEffect(() => {
-    phCapture('landing_viewed', { userId: rmnUser?.id });
-  }, [rmnUser]);
+    phCapture('landing_viewed');
+  }, []);
 
   return (
     <div className='relative bg-[#1a1a1a]'>

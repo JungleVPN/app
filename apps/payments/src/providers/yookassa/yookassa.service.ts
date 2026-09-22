@@ -205,15 +205,6 @@ export class YookassaService {
     });
     await this.yookassaPaymentRepo.save(record);
 
-    await this.analyticsClient.track({
-      event: 'checkout_started',
-      userId,
-      provider: 'yookassa',
-      purpose,
-      amount: amountValue,
-      currency: 'RUB',
-    });
-
     this.logger.log(`Created Yookassa payment session ${payment.id} for user ${userId}`);
     return { id: payment.id, url: confirmationUrl };
   }
@@ -477,7 +468,7 @@ export class YookassaService {
       reason: cancellation_details.reason,
     } satisfies Payments.PaymentFailedEventPayload);
 
-    this.analyticsClient.track({
+    await this.analyticsClient.track({
       event: 'payment_failed',
       userId,
       provider: 'yookassa',
