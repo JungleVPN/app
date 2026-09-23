@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 const MAPBOX_ACCESS_TOKEN =
   'pk.eyJ1IjoicmFtYXp6YW5paWkiLCJhIjoiY211ZTMycWVkMDBtcTJ3cXR4ODZidTh3eCJ9.0H3UuR61OHYFXFZix-VZmw';
 
@@ -15,13 +17,14 @@ export const StaticLocationMap = ({
   longitude: number;
   location: string;
 }) => {
+  const { t } = useTranslation();
   const mapUrl = mapboxStaticMapUrl(latitude, longitude);
   return (
     <figure className='flex h-full flex-col overflow-hidden rounded-4xl border bg-white p-2 sm:p-3'>
       <div className='relative h-full aspect-[2.17/1] overflow-hidden rounded-3xl bg-[#edf3ff] lg:min-h-0 lg:flex-1 lg:aspect-auto'>
         <img
           src={mapUrl}
-          alt={`Map showing your approximate location: ${location}`}
+          alt={t('myIp.mapAlt', { location })}
           className='size-full object-cover'
           loading='lazy'
         />
@@ -30,7 +33,7 @@ export const StaticLocationMap = ({
         </span>
       </div>
       <figcaption className='px-3 pb-1 pt-3 text-sm text-[#707887]'>
-        Approximate location based on your IP address.
+        {t('myIp.approximateLocation')}
       </figcaption>
     </figure>
   );

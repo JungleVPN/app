@@ -1,5 +1,6 @@
 import { IconCompass, IconMapPin } from '@tabler/icons-react';
 import { motion, useReducedMotion } from 'framer-motion';
+import type { TFunction } from 'i18next';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRemnawaveApi } from '../../api';
@@ -17,17 +18,17 @@ function countryName(countryCode: string | null, language: string): string {
   }
 }
 
-function browserName(): string {
+function browserName(t: TFunction): string {
   if (typeof navigator === 'undefined') return '—';
   const agent = navigator.userAgent;
   if (agent.includes('Edg/')) return 'Microsoft Edge';
   if (agent.includes('Firefox/')) return 'Firefox';
   if (agent.includes('Chrome/')) return 'Chrome';
   if (agent.includes('Safari/')) return 'Safari';
-  return 'Unknown browser';
+  return t('myIp.browser.unknown');
 }
 
-function operatingSystem(): string {
+function operatingSystem(t: TFunction): string {
   if (typeof navigator === 'undefined') return '—';
   const agent = navigator.userAgent;
   if (agent.includes('Mac OS X')) return 'macOS';
@@ -35,7 +36,7 @@ function operatingSystem(): string {
   if (agent.includes('Android')) return 'Android';
   if (agent.includes('iPhone') || agent.includes('iPad')) return 'iOS';
   if (agent.includes('Linux')) return 'Linux';
-  return 'Unknown OS';
+  return t('myIp.os.unknown');
 }
 
 export const HeroSection = () => {
@@ -67,8 +68,8 @@ export const HeroSection = () => {
       : null;
   const detailFields = [
     [t('myIp.card.isp'), status?.isp ?? t('myIp.unavailable')],
-    [t('myIp.card.browser'), browserName()],
-    [t('myIp.card.os'), operatingSystem()],
+    [t('myIp.card.browser'), browserName(t)],
+    [t('myIp.card.os'), operatingSystem(t)],
   ] as const;
 
   return (
@@ -88,7 +89,7 @@ export const HeroSection = () => {
           {connectionFields.map(({ label, value, icon: Icon }) => (
             <motion.article
               key={label}
-              className='flex min-h-45 flex-col rounded-4xl border bg-white p-6 sm:min-h-52 sm:p-8'
+              className='flex min-h-36 flex-col rounded-4xl border bg-white p-6 sm:p-8'
               initial={reducedMotion ? false : { opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, ease: 'easeOut', delay: 0.15 }}
@@ -97,9 +98,7 @@ export const HeroSection = () => {
                 <span className='text-lg'>{label}</span>
                 <Icon size={30} stroke={1.6} aria-hidden='true' />
               </div>
-              <p className='mt-auto pt-10 text-xl font-bold tracking-[-0.04em] sm:text-2xl'>
-                {value}
-              </p>
+              <p className='mt-auto text-xl font-bold tracking-[-0.04em]'>{value}</p>
             </motion.article>
           ))}
 

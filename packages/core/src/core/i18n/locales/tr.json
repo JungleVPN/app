@@ -47,6 +47,9 @@
       "partnership": "İş Ortaklığı",
       "pricing": "Fiyatlar",
       "offer": "Neler sunuyoruz",
+      "tools": "Araçlar",
+      "myIp": "IP Adresim",
+      "myIpDescription": "Bağlantınızın neleri açığa çıkardığını görün",
       "inviteAndEarn": "Tavsiye et & kazan",
       "inviteAndEarnDescription": "Arkadaşlarını davet et, ücretsiz günler kazan",
       "locations": "Sunucu konumları",
@@ -1186,5 +1189,76 @@
     "yourIp": "IP adresiniz: {{ip}}",
     "protected": "Korunuyorsunuz!",
     "unprotected": "Korunmuyorsunuz!"
+  },
+  "myIp": {
+    "title": "Web siteleri sizin hakkınızda çok şey bilir",
+    "subtitle": "VPN olmadan gerçek verileriniz internetteki tüm hizmetlerin erişimine açıktır.",
+    "learn": "Gizliliğin temelleri",
+    "connection": {
+      "title": "Bir IP adresi sizin hakkınızda ne söyleyebilir?"
+    },
+    "unavailable": "Kullanılamıyor",
+    "mapAlt": "Yaklaşık konumunuzu gösteren harita: {{location}}",
+    "approximateLocation": "IP adresinize dayalı yaklaşık konum.",
+    "findPublicIp": {
+      "title": "Genel IP adresinizi nasıl bulursunuz?",
+      "body": "Genel IP adresinizi görmek için bu sayfanın en üstüne bakmanız yeterli. IP adresiniz, bağlantı konumunuz, internet servis sağlayıcınız ve bağlantınızın güvenli olup olmadığıyla ilgili bilgileri göreceksiniz."
+    },
+    "status": {
+      "checking": "Bağlantınız kontrol ediliyor",
+      "protected": "Bağlantınız korunuyor",
+      "unprotected": "Bağlantınız görünür durumda"
+    },
+    "card": {
+      "ip": "IP",
+      "location": "Konum",
+      "isp": "İnternet servis sağlayıcısı",
+      "dns": "DNS sağlayıcısı",
+      "browser": "Tarayıcı",
+      "os": "İşletim sistemi"
+    },
+    "browser": {
+      "unknown": "Bilinmeyen tarayıcı"
+    },
+    "os": {
+      "unknown": "Bilinmeyen işletim sistemi"
+    },
+    "whatIs": {
+      "title": "IP nedir?"
+    },
+    "reveal": {
+      "title": "IP adresiniz ve bağlantınız neleri açığa çıkarır?",
+      "body": "IP adresiniz dijital ev adresiniz gibidir. Ziyaret ettiğiniz her web sitesi bunu görebilir ve yaklaşık konumunuzu, internet sağlayıcınızı ve daha pek çok bilgiyi öğrenebilir."
+    },
+    "fingerprint": {
+      "title": "Web siteleri sizin hakkınızda daha da fazla bilgi toplayabilir",
+      "body": "Web siteleri, IP adresinizin ötesinde tarayıcı parmak izi yöntemiyle tarayıcınızı, işletim sisteminizi, ekran çözünürlüğünüzü, dil ayarlarınızı ve daha fazlasını tespit edebilir."
+    },
+    "vpn": {
+      "title": "IP adresinizi değiştirerek konumunuzu gizleyebilir misiniz?",
+      "body": "Evet, VPN kullanarak. Bir VPN sunucusuna bağlandığınızda web siteleri sizin IP adresiniz yerine sunucunun IP adresini görür. Bu, gerçek konumunuzu gizler ve gizliliğinizi korur."
+    },
+    "aboutCards": {
+      "ipAddress": {
+        "label": "127.0.0.1",
+        "paragraph1": "IP adresi; bilgisayarlar, tabletler ve akıllı telefonlar dahil olmak üzere internete bağlanan tüm cihazlara atanan benzersiz bir numaradır."
+      },
+      "publicIpAddresses": {
+        "label": "Genel IP adresleri",
+        "paragraph1": "Bunlar posta adresine benzetilebilir. Posta adresinizi vermeden bir arkadaşınızdan mektup alamadığınız gibi, IP adresinizi vermeden de bir web sitesinden resim veya metin indiremezsiniz."
+      },
+      "privateIpAddresses": {
+        "label": "Özel IP adresleri",
+        "paragraph1": "Bilgisayarınızın yalnızca genel bir IP adresi değil, aynı zamanda özel bir IP adresi de vardır. Özel IP adresleri, özel bir ağa bağlandığınızda atanır.",
+        "paragraph2": "Özel IP adresleri, internete bağlanmadan özel bir ağ içindeki bilgileri aktarmak için kullanılır. Genellikle 192.168 ile başlayan IP adresleri özel bir ağa aittir.",
+        "paragraph3": "Cihazınız ev ağınıza bağlandığında özel IP adresleri yönlendiriciniz tarafından atanır."
+      },
+      "versions": {
+        "label": "IP adresi sürümleri",
+        "paragraph1": "Şu anda kullanılan iki IP adresi standardı vardır: IP sürüm 4 (IPv4) ve IP sürüm 6 (IPv6). Biçimleri ve karakter sayıları farklıdır; ancak her ikisi de cihaz tanımlama ve konuma dayalı adresleme için kullanılır.",
+        "paragraph2": "IPv4, örneğin 170.0.0.1 gibi noktayla ayrılmış dört adet 1–3 basamaklı sayı kümesinden oluşur. Yaklaşık 4 milyar benzersiz kombinasyon sağlayabilir. Bağlı cihaz sayısı 4 milyarı aştığında yeni bir standarda, IPv6'ya ihtiyaç duyuldu.",
+        "paragraph3": "IPv6, örneğin 3ffe:1900:fe21:4545 gibi iki noktayla ayrılmış sekiz adet dört haneli onaltılık sayı grubundan oluşur. Öngörülebilir gelecek için yeterli olan 3,4×10^38 olası benzersiz kombinasyon sunar."
+      }
+    }
   }
 }

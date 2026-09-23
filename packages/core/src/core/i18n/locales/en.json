@@ -1200,6 +1200,10 @@
     "unavailable": "Unavailable",
     "mapAlt": "Map showing your approximate location: {{location}}",
     "approximateLocation": "Approximate location based on your IP address.",
+    "findPublicIp": {
+      "title": "How to find your public IP address",
+      "body": "To view your public IP address, simply look at the top of this page. You'll see information about your IP, including your connection location, internet service provider, and whether your connection is secure."
+    },
     "status": {
       "checking": "Checking your connection",
       "protected": "Your connection is protected",
@@ -1213,6 +1217,12 @@
       "browser": "Browser",
       "os": "Operating system"
     },
+    "browser": {
+      "unknown": "Unknown browser"
+    },
+    "os": {
+      "unknown": "Unknown operating system"
+    },
     "whatIs": { "title": "What is an IP?" },
     "reveal": {
       "title": "What your IP address and connection reveal",
@@ -1225,6 +1235,28 @@
     "vpn": {
       "title": "Can you hide your location by changing your IP address?",
       "body": "Yes, by using a VPN. When you connect to a VPN server, websites see the server's IP address instead of yours. This hides your real location and protects your privacy."
+    },
+    "aboutCards": {
+      "ipAddress": {
+        "label": "127.0.0.1",
+        "paragraph1": "An IP address is a unique number assigned to all devices, including computers, tablets, and smartphones, during an internet connection."
+      },
+      "publicIpAddresses": {
+        "label": "Public IP addresses",
+        "paragraph1": "They can be compared to a postal address. You can't get a letter from a friend if you don't give them your mailing address, and you can't download pictures and text from a website if you don't give them your IP address."
+      },
+      "privateIpAddresses": {
+        "label": "Private IP addresses",
+        "paragraph1": "Your computer has not only a public IP address, but also a private IP one. These are issued when you connect to a private network.",
+        "paragraph2": "Private IP addresses are used to transmit information within a private network without connecting to the Internet. Typically, private IP addresses begin with the number combination 192.168, which indicates that they belong to a private network.",
+        "paragraph3": "Private IP addresses are assigned by routers when the device is connected to your home network."
+      },
+      "versions": {
+        "label": "IP address versions",
+        "paragraph1": "There are two IP address standards currently in use: IP version 4 (IPv4) and IP version 6 (IPv6). The difference between them is the format and the number of characters. However, both standards are used for device identification and location-based addressing.",
+        "paragraph2": "IPv4 consists of four sets of 1–3 digits separated by a dot, for example, 170.0.0.1. The maximum number of possible unique combinations is about 4 billion. By the time the number of connected devices exceeded 4 billion, a new standard was needed: IPv6.",
+        "paragraph3": "IPv6 consists of eight groups of four hexadecimal digits separated by colons, for example, 3ffe:1900:fe21:4545. It creates 3.4×10^38 possible unique combinations, enough for the foreseeable future."
+      }
     }
   }
 }

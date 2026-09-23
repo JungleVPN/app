@@ -1,15 +1,18 @@
 import { Chip } from '@heroui/react';
 import { motion, useReducedMotion } from 'framer-motion';
+import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import CollectInfoIcon from '../../assets/icons/collect-info-icon.svg?react';
 import IpIcon from '../../assets/icons/ip-address-icon.svg?react';
 import { Grid, GridItem } from '../../ui';
 import { Span } from '../../ui/Grid/GridItem';
 
-const whatIsAnIpInfo = (): {
+const whatIsAnIpInfo = (
+  t: TFunction,
+): {
   id: string;
   label: string;
-  description: string;
+  paragraphs: string[];
   sm: Span | undefined;
   md: Span | undefined;
   lg: Span | undefined;
@@ -17,44 +20,40 @@ const whatIsAnIpInfo = (): {
   return [
     {
       id: 'ip-address',
-      label: '127.0.0.1',
-      description:
-        'An IP address is a unique number assigned to all devices, including computers, tablets, and smartphones, during an internet connection.',
+      label: t('myIp.aboutCards.ipAddress.label'),
+      paragraphs: [t('myIp.aboutCards.ipAddress.paragraph1')],
       sm: 12,
       md: 6,
       lg: 4,
     },
     {
-      id: 'Public IP addresses',
-      label: 'Public IP addresses',
-      description:
-        "They can be compared to a postal address. You can't get a letter from a friend if you don't give them your mailing address, and you can't download pictures and text from a website if you don't give them your IP address.",
+      id: 'public-ip-addresses',
+      label: t('myIp.aboutCards.publicIpAddresses.label'),
+      paragraphs: [t('myIp.aboutCards.publicIpAddresses.paragraph1')],
       sm: 12,
       md: 6,
       lg: 8,
     },
     {
-      id: 'Private IP addresses',
-      label: 'Private IP addresses',
-      description:
-        'Your computer has not only a public IP address, but also a private IP one. ' +
-        'These are issued when you connect to a private network. ' +
-        'Private IP addresses are used to transmit information within a private network without connecting to the Internet. ' +
-        'Typically, private IP addresses begin with the number combination 192.168. It indicates that they belong to a private network. ' +
-        'Private IP addresses are assigned by routers when the device is connected to your home network.',
+      id: 'private-ip-addresses',
+      label: t('myIp.aboutCards.privateIpAddresses.label'),
+      paragraphs: [
+        t('myIp.aboutCards.privateIpAddresses.paragraph1'),
+        t('myIp.aboutCards.privateIpAddresses.paragraph2'),
+        t('myIp.aboutCards.privateIpAddresses.paragraph3'),
+      ],
       sm: 12,
       md: 6,
       lg: 5,
     },
     {
       id: 'browser',
-      label: 'IP address versions',
-      description:
-        'There are two IP address standards currently in use: IP version 4 (IPv4) and IP version 6 (IPv6). The difference between them is the format and the number of characters. However, both standards are used for device identification and location-based addressing.\n' +
-        '\n' +
-        'IPv4 consists of four sets of 1-3 digits separated by a dot, for example, 170.0.0.1. The maximum number of possible unique combinations is about 4 billion. However, by the time the number of connected devices exceeded 4 billion, a new standard was needed, and that standard was IPv6.\n' +
-        '\n' +
-        'IPv6 consists of eight groups of four hexadecimal digits separated by colons, for example, 3ffe:1900:fe21:4545. Its length can be increased if necessary. This standard creates 3.4×10^38 possible unique combinations, which is enough for mankind "with reserve".',
+      label: t('myIp.aboutCards.versions.label'),
+      paragraphs: [
+        t('myIp.aboutCards.versions.paragraph1'),
+        t('myIp.aboutCards.versions.paragraph2'),
+        t('myIp.aboutCards.versions.paragraph3'),
+      ],
       sm: 12,
       md: 6,
       lg: 7,
@@ -128,7 +127,7 @@ export const About = () => {
           {t('myIp.whatIs.title')}
         </h2>
         <Grid className={'mt-8'}>
-          {whatIsAnIpInfo().map(({ id, label, description, sm, md, lg }) => (
+          {whatIsAnIpInfo(t).map(({ id, label, paragraphs, sm, md, lg }) => (
             <GridItem size={{ base: 12, sm, md, lg }} key={id}>
               <motion.div
                 className={'h-full'}
@@ -138,7 +137,11 @@ export const About = () => {
               >
                 <article className='rounded-4xl border bg-background p-6 sm:p-8 h-full'>
                   <span className='text-lg font-bold'>{label}</span>
-                  <p className='mt-16 text-base tracking-[-0.04em]'>{description}</p>
+                  <div className='mt-16 flex flex-col gap-4 text-base tracking-[-0.04em]'>
+                    {paragraphs.map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                  </div>
                 </article>
               </motion.div>
             </GridItem>
