@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { usePlatformStore } from '../../stores';
-import { currentScope, isLandingPath, isMarketingPath, PRICING_PATH } from '../../utils';
+import { currentScope, isMarketingPath, PRICING_PATH } from '../../utils';
 import { Link } from '../Link/Link';
 import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -22,11 +22,6 @@ export function MobileDrawer() {
   const isLanding = isMarketingPath(pathname);
   const isRu = currentScope() === 'ru';
   const isTelegram = platformType === 'telegram';
-
-  const scrollTo = (id: string) => {
-    setIsOpen(false);
-    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 150);
-  };
 
   return (
     <div className='flex items-center gap-2'>
@@ -88,25 +83,15 @@ export function MobileDrawer() {
                       {t(item.labelKey)}
                     </Link>
                   ))}
-                  {isLandingPath(pathname) && (
-                    <button
-                      type='button'
-                      className={navItemClass}
-                      onClick={() => scrollTo('partnership')}
-                    >
-                      {t('header.nav.partnership')}
-                    </button>
-                  )}
                 </nav>
               )}
 
-              {platformType === 'web' && <AuthButtons />}
-
               {!isRu && !isTelegram && (
-                <div className='flex items-center gap-2 px-3 py-2 mt-auto'>
+                <div className='mt-auto'>
                   <LanguageSwitcher />
                 </div>
               )}
+              {platformType === 'web' && <AuthButtons />}
             </Drawer.Body>
           </Drawer.Dialog>
         </Drawer.Content>

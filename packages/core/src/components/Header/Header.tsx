@@ -90,7 +90,7 @@ export function Header() {
     );
 
   const inner = (
-    <div className='flex items-center justify-between gap-16 min-h-15'>
+    <div className='flex items-center justify-between gap-8 lg:gap-24 min-h-15'>
       <Link
         href={getLink()}
         onClick={scrollToTop}
@@ -105,7 +105,7 @@ export function Header() {
       </Link>
 
       {isLanding && (
-        <nav className='hidden sm:flex items-center gap-6'>
+        <nav className='hidden lg:flex items-center gap-6'>
           <Link
             href={PRICING_PATH}
             className={navLinkClass}
@@ -134,17 +134,16 @@ export function Header() {
 
       {/* Desktop controls */}
       <div
-        className={`${isLanding ? 'hidden sm:flex' : ''} flex items-center justify-between gap-2 ms-auto`}
+        className={`${isLanding ? 'hidden md:flex' : ''} flex items-center justify-between gap-2 ml-auto`}
       >
         {isProfile && <SubscriptionLinkWidget />}
         {!isLanding && <SupportButton />}
         {!isRu && !isTelegram && <LanguageSwitcher />}
         {platformType === 'web' && !hideAuthButtons && <AuthButtons />}
       </div>
-
       {/* Mobile: hamburger only */}
       {platformType === 'web' && isLanding && (
-        <div className={'flex sm:hidden items-center gap-2 ms-auto'}>
+        <div className={'flex lg:hidden items-center gap-2'}>
           {!isLanding && <SubscriptionLinkWidget />}
           <MobileDrawer />
         </div>
