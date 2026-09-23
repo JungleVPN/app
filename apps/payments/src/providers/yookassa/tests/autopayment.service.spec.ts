@@ -51,8 +51,8 @@ describe('AutopaymentService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    process.env.ALLOWED_PERIOD = '1';
-    process.env.PRICE_RUB_MONTH_1 = '200';
+    process.env.ALLOWED_PERIODS_IN_DAYS = '1';
+    process.env.PRICE_RUB_DAYS_30 = '200';
     process.env.BOT_URL = 'http://bot:7080';
     process.env.BOT_NOTIFY_SECRET = 'secret';
     process.env.PAYMENT_DESCRIPTION = 'Test payment';
@@ -63,7 +63,7 @@ describe('AutopaymentService', () => {
     } as unknown as Repository<SavedPaymentMethod>;
 
     mockYkFindOne = vi.fn().mockResolvedValue({
-      selectedPeriod: 1,
+      selectedPeriod: 30,
       paymentMethodId: 'pm_1',
       amount: '200',
     });
@@ -100,8 +100,8 @@ describe('AutopaymentService', () => {
   });
 
   afterEach(() => {
-    delete process.env.ALLOWED_PERIOD;
-    delete process.env.PRICE_RUB_MONTH_1;
+    delete process.env.ALLOWED_PERIODS_IN_DAYS;
+    delete process.env.PRICE_RUB_DAYS_30;
     delete process.env.BOT_URL;
     delete process.env.BOT_NOTIFY_SECRET;
     delete process.env.PAYMENT_DESCRIPTION;
@@ -323,7 +323,7 @@ describe('AutopaymentService', () => {
           status: 'succeeded',
           amount: '200',
           userId: 1000,
-          selectedPeriod: 1,
+          selectedPeriod: 30,
           telegramId: 42,
           description: 'Test payment',
           paidAt: null,
@@ -496,7 +496,7 @@ describe('AutopaymentService', () => {
     // the amount of the previous row: a device-slot purchase, a promo price or
     // a since-changed price would otherwise be charged forever.
     it('charges the configured price for the renewed period, not the previous amount', async () => {
-      mockYkFindOne.mockResolvedValue({ selectedPeriod: 1, amount: '100' });
+      mockYkFindOne.mockResolvedValue({ selectedPeriod: 30, amount: '100' });
 
       await service.init(makePayload(42));
 

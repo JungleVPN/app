@@ -19,9 +19,9 @@ export const PublicPlansPage = () => {
   };
 
   const handleSubmit = () => {
-    const plan = sortedPlans.find((p) => p.period === selectedPeriod) ?? sortedPlans[0];
+    const plan = sortedPlans.find((p) => p.days === selectedPeriod) ?? sortedPlans[0];
     if (!plan) return;
-    phCapture('plan_selected', { months: plan.period });
+    phCapture('plan_selected', { months: plan.days });
     navigate(getSubscriptionPath(selectedPeriod));
   };
 

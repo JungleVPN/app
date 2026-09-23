@@ -31,7 +31,7 @@ export interface CreateYookassaSessionDto
   promoCode?: string | null;
   /** Subscription status from remnawave, when known — used to validate the promo. */
   userStatus?: string;
-  /** Subscription plan in months (1, 3, 6, 12). Defaults to the first allowed period. */
+  /** Subscription plan in days. Defaults to the first allowed period. */
   selectedPeriod: number;
 }
 

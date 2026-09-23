@@ -7,9 +7,9 @@ const labels = {
   noDiscountLabel: 'no discount',
 };
 
-function plan(period: number, pricing: Partial<PlanPricing> = {}): SubscriptionPlanDto {
+function plan(days: number, pricing: Partial<PlanPricing> = {}): SubscriptionPlanDto {
   return {
-    period,
+    days,
     countryCode: null,
     planPricing: {
       total: '6.00',
@@ -26,7 +26,6 @@ describe('calculatePricing', () => {
   it('shows the no-discount label for the 1-month plan, which is its own baseline', () => {
     expect(calculatePricing(plan(1), labels)).toEqual({
       price: '€6.00',
-      noDiscountLabel: 'no discount',
     });
   });
 

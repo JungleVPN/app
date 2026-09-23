@@ -114,8 +114,8 @@ describe('StripeWebhookService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.ALLOWED_PERIOD = '1';
-    process.env.PRICE_EUR_MONTH_1 = '2';
+    process.env.ALLOWED_PERIODS_IN_DAYS = '30';
+    process.env.PRICE_EUR_DAYS_30 = '2';
 
     mockFindOneBy = vi.fn().mockResolvedValue(null);
     mockUpdate = vi.fn().mockResolvedValue({ affected: 1 });
@@ -194,8 +194,8 @@ describe('StripeWebhookService', () => {
   });
 
   afterEach(() => {
-    delete process.env.PRICE_EUR_MONTH_1;
-    delete process.env.ALLOWED_PERIOD;
+    delete process.env.PRICE_EUR_DAYS_30;
+    delete process.env.ALLOWED_PERIODS_IN_DAYS;
   });
 
   describe('affiliate reporting', () => {
@@ -209,7 +209,7 @@ describe('StripeWebhookService', () => {
         // amount_paid is 200 cents; the service reports major units.
         amount: 2,
         currency: 'EUR',
-        periodMonths: 1,
+        period: 30,
         purpose: 'subscription',
       });
     });
@@ -239,7 +239,7 @@ describe('StripeWebhookService', () => {
 
       expect(mockHandleUserUpdates).toHaveBeenCalledWith(
         expect.objectContaining({
-          selectedPeriod: 1,
+          selectedPeriod: 30,
           userId: 1000,
         }),
       );
@@ -248,7 +248,7 @@ describe('StripeWebhookService', () => {
       );
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.succeeded'],
-        expect.objectContaining({ userId: 1000, provider: 'stripe', selectedPeriod: 1 }),
+        expect.objectContaining({ userId: 1000, provider: 'stripe', selectedPeriod: 30 }),
       );
     });
 

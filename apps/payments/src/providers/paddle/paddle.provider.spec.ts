@@ -3,7 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PaddleProvider } from './paddle.provider';
 
-const ENV_KEYS = ['PADDLE_PRICE_ID_MONTH_1', 'PADDLE_PRICE_ID_MONTH_3'] as const;
+const ENV_KEYS = ['PADDLE_PRICE_ID_DAYS_30', 'PADDLE_PRICE_ID_DAYS_180'] as const;
 
 describe('PaddleProvider', () => {
   let originalEnv: Record<string, string | undefined>;
@@ -44,13 +44,13 @@ describe('PaddleProvider', () => {
 
   describe('getPriceId', () => {
     it('resolves the configured catalog price id for the period', () => {
-      process.env.PADDLE_PRICE_ID_MONTH_3 = 'pri_month_3';
+      process.env.PADDLE_PRICE_ID_DAYS_3 = 'pri_month_3';
 
       expect(provider.getPriceId(3)).toBe('pri_month_3');
     });
 
     it('refuses a period with no configured price, rather than falling back to another plan', () => {
-      delete process.env.PADDLE_PRICE_ID_MONTH_3;
+      delete process.env.PADDLE_PRICE_ID_DAYS_3;
 
       expect(() => provider.getPriceId(3)).toThrow(BadRequestException);
     });
@@ -58,7 +58,7 @@ describe('PaddleProvider', () => {
 
   describe('buildCheckoutPayload', () => {
     beforeEach(() => {
-      process.env.PADDLE_PRICE_ID_MONTH_1 = 'pri_month_1';
+      process.env.PADDLE_PRICE_ID_DAYS_1 = 'pri_month_1';
     });
 
     it('returns the price id to bill', () => {

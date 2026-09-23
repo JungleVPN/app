@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { amountToMonths } from '../../utils/amount';
+import { amountToDays } from '../../utils/amount';
 
 /**
  * Converts a Stripe amount (in cents) to the display amount.
@@ -17,8 +17,8 @@ export function mapToCorrectAmount(amountInCents: number): number {
  * a configured EUR price (finding #12) — callers must never silently grant an
  * unrecognised amount.
  */
-export function mapEURAmountToMonthsNumber(amount: number): number {
-  return amountToMonths(mapToCorrectAmount(amount), 'EUR');
+export function mapEURAmountToDaysNumber(amount: number): number {
+  return amountToDays(mapToCorrectAmount(amount), 'EUR');
 }
 
 export const customerToId = (

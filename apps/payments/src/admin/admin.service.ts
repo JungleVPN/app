@@ -176,7 +176,7 @@ export class AdminService {
   }
 
   private async searchStripe(q: string): Promise<AdminPaymentDto[]> {
-    const selectedPeriod = Number(process.env.ALLOWED_PERIOD ?? 1);
+    const selectedPeriod = Number(process.env.ALLOWED_PERIODS_IN_DAYS ?? 30);
 
     const rows = await this.stripeRepo
       .createQueryBuilder('p')
@@ -210,7 +210,7 @@ export class AdminService {
   }
 
   private async searchPaddle(q: string): Promise<AdminPaymentDto[]> {
-    const selectedPeriod = Number(process.env.ALLOWED_PERIOD ?? 1);
+    const selectedPeriod = Number(process.env.ALLOWED_PERIODS_IN_DAYS ?? 30);
 
     const rows = await this.paddleRepo
       .createQueryBuilder('p')

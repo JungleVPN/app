@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { FeaturesCard } from '../../../components';
 import { Block, Page } from '../../../ui';
 import { formatPlanAmounts } from '../../../utils';
+import { formatPeriod } from '../../../utils/planPricing';
 
 interface PlansComponentProps {
   data: SubscriptionPlanDto[];
@@ -39,12 +40,12 @@ export const PlansComponent = (props: PlansComponentProps) => {
               <Tabs.List aria-label={t('plans.tabsAriaLabel')} className='w-full gap-2 p-0'>
                 {data.map((plan) => {
                   const amounts = formatPlanAmounts(plan.planPricing);
-                  const label = t('plans.month', { count: plan.period });
+                  const label = formatPeriod(plan.days, t);
 
                   return (
                     <Tabs.Tab
-                      key={plan.period}
-                      id={String(plan.period)}
+                      key={plan.days}
+                      id={String(plan.days)}
                       className='h-auto w-full rounded-2xl px-4 py-3 text-start'
                     >
                       <div className='flex w-full items-center justify-between'>
@@ -77,7 +78,7 @@ export const PlansComponent = (props: PlansComponentProps) => {
             </Tabs.ListContainer>
 
             {data.map((plan) => (
-              <Tabs.Panel key={plan.period} id={String(plan.period)} className='hidden'>
+              <Tabs.Panel key={plan.days} id={String(plan.days)} className='hidden'>
                 {null}
               </Tabs.Panel>
             ))}

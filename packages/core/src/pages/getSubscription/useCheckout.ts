@@ -6,7 +6,7 @@ import { usePlans } from '../../hooks';
 import { useAuthStore, usePlanByPeriod, usePlansStatus } from '../../stores';
 import { scrollToTop, validateEmail } from '../../utils';
 import { isActiveSubscriptionError, isThrottledError } from './checkoutErrors';
-import { monthsFromSlug } from './planSlug';
+import { daysFromSlug } from './planSlug';
 
 const EMPTY_EMAIL_ERROR = 'getSubscription.email_required_error';
 const INVALID_EMAIL_ERROR = 'getSubscription.email_invalid_error';
@@ -71,7 +71,7 @@ export function useCheckout(startCheckout: (request: CheckoutRequest) => Promise
   usePlans();
 
   const status = usePlansStatus();
-  const selectedPeriod = monthsFromSlug(planSlug);
+  const selectedPeriod = daysFromSlug(planSlug);
   const plan = usePlanByPeriod(selectedPeriod);
 
   const handleEmailChange = (value: string) => {

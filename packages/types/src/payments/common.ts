@@ -31,7 +31,7 @@ export type PlanPricing = {
  */
 export type SubscriptionPlanDto = {
   /** Subscription length in months. */
-  period: number;
+  days: number;
   planPricing: PlanPricing;
   /**
    * Country detected for this visitor while pricing, or null when it could not

@@ -6,6 +6,7 @@ import { useBackButton, useNavigation } from '../../../../hooks';
 import { useAuthStore, useNavbarStore } from '../../../../stores';
 import { Block, Page } from '../../../../ui';
 import { isAdminUser } from '../../../../utils';
+import { formatPeriod } from '../../../../utils/planPricing';
 import { DetailRow } from './components/DetailRow';
 import { useTransactionDetails } from './hooks/useTransactionDetails';
 
@@ -89,11 +90,7 @@ export default function TransactionDetailsPage() {
           />
           <DetailRow
             label={t('transactions.details.period')}
-            value={
-              payment.selectedPeriod != null
-                ? t('transactions.details.periodValue', { count: payment.selectedPeriod })
-                : null
-            }
+            value={payment.selectedPeriod != null ? formatPeriod(payment.selectedPeriod, t) : null}
             showSeparatorAbove
           />
           <DetailRow

@@ -407,17 +407,12 @@ export class StripeProvider {
       }
       return priceId;
     }
-    // No fallback to the monthly price: a period whose id is missing would
-    // otherwise be sold as a one-month subscription, and nothing downstream
-    // could tell — the invoice would map cleanly back to 1 month and the user
-    // would sit on a monthly cycle believing they bought a longer plan.
-    // An absent period still means the shortest plan; only a period that was
-    // asked for and has no price is a misconfiguration.
-    const months = selectedPeriod || 1;
-    const priceId = process.env[`STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_${months}`];
+
+    const period = selectedPeriod ?? 30;
+    const priceId = process.env[`STRIPE_PRICE_ID_DAYS_${period}`];
     if (!priceId) {
       throw new Error(
-        `Subscription price configuration missing: STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_${months} is not set for a ${months} month plan`,
+        `Subscription price configuration missing: STRIPE_PRICE_ID_DAYS_${period} is not set for a ${period} day plan`,
       );
     }
     return priceId;

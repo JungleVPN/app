@@ -319,22 +319,6 @@ export class YookassaService {
       return;
     }
 
-    // Replay guard, keyed solely on `paidAt` — the stamp this handler writes
-    // once fulfilment has actually happened.
-    //
-    // `record.status` is deliberately not consulted. It answers "what did we
-    // last write down", not "did this payment succeed": that question was
-    // already settled by validateWebhookPayload, which confirms the status
-    // against YooKassa's API before we get here. A row still reading 'pending'
-    // is simply an ordinary first delivery, and an autopayment row already
-    // reads 'succeeded' the moment it is created — guarding on status swallowed
-    // every renewal, which is how this check came to be removed in the first
-    // place.
-    //
-    // Keying on the stamp alone also fails safe: were the two fields ever to
-    // drift apart, this skips rather than extends a second time.
-    // Truthiness rather than `!== null`: an absent column must read as unstamped,
-    // never as already-handled.
     if (record.paidAt) {
       this.logger.log(`Payment ${id} already processed — ignoring duplicate webhook`);
       return;
@@ -359,6 +343,7 @@ export class YookassaService {
 
     await this.yookassaPaymentRepo.update(id, {
       status,
+      userId,
       paidAt: captured_at ? new Date(captured_at) : new Date(),
       url: null,
     });
@@ -402,7 +387,7 @@ export class YookassaService {
         chargeId: id,
         amount: Number(record.amount),
         currency: 'RUB',
-        periodMonths: record.selectedPeriod,
+        period: record.selectedPeriod,
         purpose: record.purpose,
       });
     }
@@ -423,7 +408,7 @@ export class YookassaService {
     await this.yookassaPaymentRepo.update(id, { status, url: null });
 
     if (!cancellation_details || !record) return;
-    const userId = metadata?.userId ? Number(metadata?.userId) : null;
+    const userId = metadata?.userId ? Number(metadata.userId) : (record.userId ?? null);
 
     if (!userId) return;
     // Autopayment: payment_method.saved=true means this charge used a stored method.

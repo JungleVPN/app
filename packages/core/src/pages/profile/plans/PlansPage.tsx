@@ -10,7 +10,7 @@ export default function PlansPage() {
   const navigate = useNavigation();
   const { profilePaymentPath } = useAppRoutes();
   const plans = usePlans();
-  const [selectedPeriod, setSelectedPeriod] = useState<number>(12);
+  const [selectedPeriod, setSelectedPeriod] = useState<number>(365);
 
   const { hasActiveMethod, isLoading } = useSavedPayment();
 
@@ -31,11 +31,11 @@ export default function PlansPage() {
   };
 
   const handleSubmit = () => {
-    const plan = sortedPlans.find((p) => p.period === selectedPeriod) ?? sortedPlans[0];
+    const plan = sortedPlans.find((p) => p.days === selectedPeriod) ?? sortedPlans[0];
     if (!plan) return;
-    phCapture('plan_selected', { months: plan.period });
+    phCapture('plan_selected', { months: plan.days });
     navigate(profilePaymentPath, {
-      state: { selectedPlan: { period: plan.period, pricing: plan.planPricing } },
+      state: { selectedPlan: { days: plan.days, pricing: plan.planPricing } },
     });
   };
 

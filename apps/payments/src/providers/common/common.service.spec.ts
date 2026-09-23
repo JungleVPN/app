@@ -3,14 +3,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CommonService } from './common.service';
 
 const ENV_KEYS = [
-  'ALLOWED_PERIOD',
+  'ALLOWED_PERIODS_IN_DAYS',
   'PUBLIC_DOMAIN_RU',
-  'PRICE_EUR_MONTH_1',
-  'PRICE_RUB_MONTH_1',
-  'PRICE_EUR_MONTH_3',
-  'PRICE_RUB_MONTH_3',
-  'PADDLE_PRICE_ID_MONTH_1',
-  'PADDLE_PRICE_ID_MONTH_3',
+
+  'PRICE_EUR_DAYS_30',
+  'PRICE_RUB_DAYS_30',
+  'PADDLE_PRICE_ID_DAYS_30',
+
+  'PRICE_EUR_DAYS_180',
+  'PRICE_RUB_DAYS_180',
+  'PADDLE_PRICE_ID_DAYS_180',
 ] as const;
 
 const RU_ORIGIN = 'https://thejungle.pro';
@@ -24,14 +26,15 @@ describe('CommonService.getPlans', () => {
   beforeEach(() => {
     originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
 
-    process.env.ALLOWED_PERIOD = '1,3';
+    process.env.ALLOWED_PERIODS_IN_DAYS = '30,180,365';
     process.env.PUBLIC_DOMAIN_RU = 'thejungle.pro';
-    process.env.PRICE_EUR_MONTH_1 = '6';
-    process.env.PRICE_RUB_MONTH_1 = '500';
-    process.env.PRICE_EUR_MONTH_3 = '15';
-    process.env.PRICE_RUB_MONTH_3 = '1200';
-    process.env.PADDLE_PRICE_ID_MONTH_1 = 'pri_month_1';
-    process.env.PADDLE_PRICE_ID_MONTH_3 = 'pri_month_3';
+    process.env.PRICE_EUR_DAYS_30 = '6';
+    process.env.PRICE_RUB_DAYS_30 = '500';
+    process.env.PRICE_RUB_DAYS_180 = '1500';
+    process.env.PRICE_EUR_DAYS_180 = '15';
+
+    process.env.PADDLE_PRICE_ID_DAYS_30 = 'pri_days_30';
+    process.env.PADDLE_PRICE_ID_DAYS_180 = 'pri_days_180';
 
     paddleClientService = { getPricePreview: vi.fn() };
     service = new CommonService(paddleClientService as never);
@@ -49,7 +52,7 @@ describe('CommonService.getPlans', () => {
       const plans = await service.getPlans({ origin: RU_ORIGIN, clientIp: '203.0.113.5' });
 
       expect(paddleClientService.getPricePreview).not.toHaveBeenCalled();
-      expect(plans.map((plan) => plan.period)).toEqual([1, 3]);
+      expect(plans.map((plan) => plan.days)).toEqual([30, 180]);
       expect(plans[0]?.planPricing).toEqual({
         total: '500',
         monthly: '500',
@@ -62,11 +65,11 @@ describe('CommonService.getPlans', () => {
     it('discounts a longer period against the 1-month rouble price', async () => {
       const plans = await service.getPlans({ origin: RU_ORIGIN, clientIp: null });
 
-      expect(plans.find((plan) => plan.period === 3)?.planPricing).toMatchObject({
-        total: '1200',
-        monthly: '400',
-        fullTotal: '1500',
-        discountPercent: 20,
+      expect(plans.find((plan) => plan.days === 180)?.planPricing).toMatchObject({
+        discountPercent: 50,
+        fullTotal: '3000',
+        monthly: '250',
+        total: '1500',
       });
     });
 
@@ -85,8 +88,8 @@ describe('CommonService.getPlans', () => {
         address: { countryCode: 'US' },
         details: {
           lineItems: [
-            { price: { id: 'pri_month_1' }, totals: { total: '999' } },
-            { price: { id: 'pri_month_3' }, totals: { total: '2499' } },
+            { price: { id: 'pri_days_30' }, totals: { total: '999' } },
+            { price: { id: 'pri_days_180' }, totals: { total: '2499' } },
           ],
         },
       });
@@ -95,28 +98,28 @@ describe('CommonService.getPlans', () => {
 
       expect(paddleClientService.getPricePreview).toHaveBeenCalledWith(
         [
-          { priceId: 'pri_month_1', quantity: 1 },
-          { priceId: 'pri_month_3', quantity: 1 },
+          { priceId: 'pri_days_30', quantity: 1 },
+          { priceId: 'pri_days_180', quantity: 1 },
         ],
         '203.0.113.5',
       );
-      expect(plans.find((plan) => plan.period === 1)).toEqual({
-        period: 1,
+      expect(plans.find((plan) => plan.days === 30)).toEqual({
+        days: 30,
         countryCode: 'US',
         planPricing: {
           total: '9.99',
           monthly: '9.99',
-          fullTotal: '9.99',
+          fullTotal: null,
           discountPercent: 0,
           currencyCode: 'USD',
         },
       });
-      expect(plans.find((plan) => plan.period === 3)?.planPricing).toEqual({
-        total: '24.99',
-        monthly: '8.33',
-        fullTotal: '29.97',
-        discountPercent: 17,
+      expect(plans.find((plan) => plan.days === 180)?.planPricing).toEqual({
         currencyCode: 'USD',
+        discountPercent: 0,
+        fullTotal: null,
+        monthly: '4.16',
+        total: '24.99',
       });
     });
 
@@ -124,12 +127,12 @@ describe('CommonService.getPlans', () => {
       paddleClientService.getPricePreview.mockResolvedValue({
         currencyCode: 'EUR',
         address: null,
-        details: { lineItems: [{ price: { id: 'pri_month_1' }, totals: { total: '699' } }] },
+        details: { lineItems: [{ price: { id: 'pri_days_30' }, totals: { total: '699' } }] },
       });
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: null });
 
-      expect(plans.find((plan) => plan.period === 1)?.countryCode).toBeNull();
+      expect(plans.find((plan) => plan.days === 30)?.countryCode).toBeNull();
     });
 
     it('falls back to the static EUR table when Paddle is unreachable', async () => {
@@ -137,18 +140,18 @@ describe('CommonService.getPlans', () => {
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
 
-      expect(plans.find((plan) => plan.period === 1)?.planPricing).toEqual({
-        total: '6.00',
-        monthly: '6.00',
-        fullTotal: '6.00',
+      expect(plans.find((plan) => plan.days === 30)?.planPricing).toEqual({
+        total: '6',
+        monthly: '6',
+        fullTotal: '6',
         discountPercent: 0,
         currencyCode: 'EUR',
       });
     });
 
     it('skips the Paddle lookup entirely when no period has a catalog price', async () => {
-      delete process.env.PADDLE_PRICE_ID_MONTH_1;
-      delete process.env.PADDLE_PRICE_ID_MONTH_3;
+      delete process.env.PADDLE_PRICE_ID_DAYS_30;
+      delete process.env.PADDLE_PRICE_ID_DAYS_180;
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
 
@@ -160,25 +163,25 @@ describe('CommonService.getPlans', () => {
       paddleClientService.getPricePreview.mockResolvedValue({
         currencyCode: 'USD',
         address: { countryCode: 'US' },
-        details: { lineItems: [{ price: { id: 'pri_month_1' }, totals: { total: '999' } }] },
+        details: { lineItems: [{ price: { id: 'pri_days_30' }, totals: { total: '999' } }] },
       });
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
 
-      expect(plans.find((plan) => plan.period === 1)?.planPricing.currencyCode).toBe('USD');
-      expect(plans.find((plan) => plan.period === 3)?.planPricing.currencyCode).toBe('EUR');
+      expect(plans.find((plan) => plan.days === 30)?.planPricing.currencyCode).toBe('USD');
+      expect(plans.find((plan) => plan.days === 180)?.planPricing.currencyCode).toBe('EUR');
     });
 
     it('renders a zero-decimal currency without cents', async () => {
       paddleClientService.getPricePreview.mockResolvedValue({
         currencyCode: 'JPY',
         address: { countryCode: 'JP' },
-        details: { lineItems: [{ price: { id: 'pri_month_1' }, totals: { total: '1200' } }] },
+        details: { lineItems: [{ price: { id: 'pri_days_30' }, totals: { total: '1200' } }] },
       });
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
 
-      expect(plans.find((plan) => plan.period === 1)?.planPricing).toMatchObject({
+      expect(plans.find((plan) => plan.days === 30)?.planPricing).toMatchObject({
         total: '1200',
         monthly: '1200',
         currencyCode: 'JPY',

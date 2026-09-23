@@ -1,4 +1,5 @@
 import type { PlanPricing, SubscriptionPlanDto } from '@workspace/types';
+import { TFunction } from 'i18next';
 import { formatPlanPrice } from './currency';
 
 export type PlanAmounts = {
@@ -33,7 +34,14 @@ export function formatPlanAmounts(pricing: PlanPricing): PlanAmounts {
 
 /** Longest commitment first, the order the plan pickers present. */
 export function sortPlansByPeriodDesc(plans: SubscriptionPlanDto[]): SubscriptionPlanDto[] {
-  return [...plans].sort((a, b) => b.period - a.period);
+  return [...plans].sort((a, b) => b.days - a.days);
+}
+
+export function formatPeriod(days: number, t: TFunction): string {
+  if (days === 30) return t('landing.pricing.period');
+  if (days === 90 || days === 180) return t('landing.pricing.monthsPeriod', { count: days / 30 });
+  if (days === 365) return t('landing.pricing.yearlyPeriod');
+  return t('landing.pricing.monthsPeriod', { count: days });
 }
 
 export type PriceCalculation = {
@@ -52,7 +60,7 @@ export function calculatePricing(
   const amounts = formatPlanAmounts(plan.planPricing);
   const price = amounts.monthly;
 
-  if (plan.period === 1) {
+  if (plan.days === 30) {
     return { price, noDiscountLabel: labels.noDiscountLabel };
   }
 

@@ -12,7 +12,7 @@ import { ToltService } from '../../tolt/tolt.service';
 import type { StripeInvoicePayload } from './stripe.types';
 import {
   customerToId,
-  mapEURAmountToMonthsNumber,
+  mapEURAmountToDaysNumber,
   mapToCorrectAmount,
   paymentIntentToId,
   subscriptionToId,
@@ -223,7 +223,7 @@ export class StripeWebhookService {
     if (!settled) return;
 
     if (await this.checkIdempotency(invoice)) return;
-    const selectedPeriod = mapEURAmountToMonthsNumber(invoice.subtotal);
+    const selectedPeriod = mapEURAmountToDaysNumber(invoice.subtotal);
 
     const isNewUser = !settled.userId;
     const userId = settled.userId ?? (await this.resolveUserForInvoice(settled));
@@ -279,7 +279,7 @@ export class StripeWebhookService {
         chargeId: invoice.id,
         amount: payload.amount,
         currency: 'EUR',
-        periodMonths: selectedPeriod,
+        period: selectedPeriod,
         purpose: 'subscription',
       });
     }

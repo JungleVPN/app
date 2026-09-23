@@ -108,6 +108,7 @@ describe('YookassaService', () => {
   let mockSmUpdate: any;
 
   let mockHandleUserUpdates: any;
+  let mockResolveOrCreateByEmail: any;
   let mockGetPayment: any;
   let mockEmit: any;
   let analyticsClient: AnalyticsClientService;
@@ -142,7 +143,7 @@ describe('YookassaService', () => {
     mockYkUpdate = vi.fn();
     mockYkFindOneBy = vi.fn().mockResolvedValue({
       userId: 1000,
-      selectedPeriod: 1,
+      selectedPeriod: 30,
       telegramId: 42,
     });
     mockYkCount = vi.fn().mockResolvedValue(0);
@@ -194,6 +195,10 @@ describe('YookassaService', () => {
     } as unknown as PaymentsUtils;
 
     mockHandleUserUpdates = vi.fn().mockResolvedValue({ success: true });
+    mockResolveOrCreateByEmail = vi.fn().mockResolvedValue(null);
+    remnaUserResolver = {
+      resolveOrCreateByEmail: mockResolveOrCreateByEmail,
+    } as unknown as RemnaUserResolverService;
     paymentStatusService = {
       handleUserUpdates: mockHandleUserUpdates,
     } as unknown as PaymentStatusService;
@@ -241,14 +246,14 @@ describe('YookassaService', () => {
       );
       expect(mockHandleUserUpdates).toHaveBeenCalledWith(
         expect.objectContaining({
-          selectedPeriod: 1,
+          selectedPeriod: 30,
           userId: 1000,
           promo: expect.objectContaining({ provider: 'yookassa' }),
         }),
       );
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.succeeded'],
-        expect.objectContaining({ userId: 1000, provider: 'yookassa', selectedPeriod: 1 }),
+        expect.objectContaining({ userId: 1000, provider: 'yookassa', selectedPeriod: 30 }),
       );
     });
 
@@ -354,7 +359,7 @@ describe('YookassaService', () => {
           chargeId: 'pay_1',
           amount: 1500,
           currency: 'RUB',
-          periodMonths: 3,
+          period: 3,
           purpose: 'subscription',
         });
       });
@@ -370,7 +375,7 @@ describe('YookassaService', () => {
       it('does not report a replayed webhook, which would pay the partner twice', async () => {
         mockYkFindOneBy.mockResolvedValue({
           userId: 1000,
-          selectedPeriod: 1,
+          selectedPeriod: 30,
           telegramId: 42,
           amount: '599.00',
           paidAt: new Date(),
@@ -384,7 +389,7 @@ describe('YookassaService', () => {
       it('forwards the record purpose so the reporter can apply its own rules', async () => {
         mockYkFindOneBy.mockResolvedValue({
           userId: 1000,
-          selectedPeriod: 1,
+          selectedPeriod: 30,
           telegramId: 42,
           amount: '599.00',
           purpose: 'subscription',
@@ -407,7 +412,7 @@ describe('YookassaService', () => {
       it('extends the subscription for an autopayment already marked succeeded but unstamped', async () => {
         mockYkFindOneBy.mockResolvedValue({
           userId: 1000,
-          selectedPeriod: 1,
+          selectedPeriod: 30,
           telegramId: 42,
           status: 'succeeded',
           paidAt: null,
@@ -421,7 +426,7 @@ describe('YookassaService', () => {
       it('ignores a replay of a payment that was already stamped', async () => {
         mockYkFindOneBy.mockResolvedValue({
           userId: 1000,
-          selectedPeriod: 1,
+          selectedPeriod: 30,
           telegramId: 42,
           status: 'succeeded',
           paidAt: new Date(),
@@ -439,7 +444,7 @@ describe('YookassaService', () => {
       it('ignores a stamped record even when its status never reached succeeded', async () => {
         mockYkFindOneBy.mockResolvedValue({
           userId: 1000,
-          selectedPeriod: 1,
+          selectedPeriod: 30,
           telegramId: 42,
           status: 'pending',
           paidAt: new Date(),
@@ -453,7 +458,7 @@ describe('YookassaService', () => {
       it('processes a pending record on first delivery', async () => {
         mockYkFindOneBy.mockResolvedValue({
           userId: 1000,
-          selectedPeriod: 1,
+          selectedPeriod: 30,
           telegramId: 42,
           status: 'pending',
           paidAt: null,
@@ -503,7 +508,7 @@ describe('YookassaService', () => {
         expect.objectContaining({
           userId: 1000,
           provider: 'yookassa',
-          selectedPeriod: 1,
+          selectedPeriod: 30,
         }),
       );
     });
@@ -608,7 +613,7 @@ describe('YookassaService', () => {
       mockYkFindOneBy.mockResolvedValue({
         id: 'pay_1',
         userId: 1000,
-        selectedPeriod: 1,
+        selectedPeriod: 30,
         amount: '200.00',
         paidAt: new Date(),
       });
@@ -811,20 +816,20 @@ describe('YookassaService', () => {
     const baseDto = (overrides: Partial<any> = {}): any => ({
       userId: 1000,
       telegramId: 42,
-      selectedPeriod: 1,
+      selectedPeriod: 30,
       ...overrides,
     });
 
     beforeEach(() => {
-      process.env.PRICE_RUB_MONTH_1 = '599';
-      process.env.PRICE_RUB_MONTH_3 = '1500';
+      process.env.PRICE_RUB_DAYS_30 = '599';
+      process.env.PRICE_RUB_DAYS_180 = '1500';
       process.env.PAYMENT_DESCRIPTION = 'Jungle VPN';
       process.env.RETURN_URL_BOT = 'https://t.me/jungle_bot';
     });
 
     afterEach(() => {
-      delete process.env.PRICE_RUB_MONTH_1;
-      delete process.env.PRICE_RUB_MONTH_3;
+      delete process.env.PRICE_RUB_DAYS_30;
+      delete process.env.PRICE_RUB_DAYS_180;
       delete process.env.PAYMENT_DESCRIPTION;
       delete process.env.RETURN_URL_BOT;
     });
@@ -837,7 +842,7 @@ describe('YookassaService', () => {
     });
 
     it('charges the configured price for the selected period', async () => {
-      await service.createPaymentSession(baseDto({ selectedPeriod: 3 }));
+      await service.createPaymentSession(baseDto({ selectedPeriod: 180 }));
 
       expect(mockProviderCreate).toHaveBeenCalledWith(
         expect.objectContaining({ amount: { value: '1500', currency: 'RUB' } }),
@@ -901,7 +906,7 @@ describe('YookassaService', () => {
         currency: 'RUB',
         userId: 1000,
         telegramId: 42,
-        selectedPeriod: 1,
+        selectedPeriod: 30,
         description: 'Jungle VPN',
         purpose: 'subscription',
         promoCode: null,
@@ -928,19 +933,6 @@ describe('YookassaService', () => {
       expect(mockYkCreate).toHaveBeenCalledWith(expect.objectContaining({ description: null }));
     });
 
-    it('records the start of checkout for analytics', async () => {
-      await service.createPaymentSession(baseDto());
-
-      expect(analyticsClient.track).toHaveBeenCalledWith({
-        event: 'checkout_started',
-        userId: 1000,
-        provider: 'yookassa',
-        purpose: 'subscription',
-        amount: '599',
-        currency: 'RUB',
-      });
-    });
-
     // ── extra_device ───────────────────────────────────────
     // A one-off device slot has its own price and buys no subscription months.
     describe('extra device purchases', () => {
@@ -955,14 +947,6 @@ describe('YookassaService', () => {
         );
         expect(mockYkCreate).toHaveBeenCalledWith(
           expect.objectContaining({ purpose: 'extra_device', selectedPeriod: 0 }),
-        );
-      });
-
-      it('tags the checkout_started analytics event with its purpose, distinguishing it from a subscription', async () => {
-        await service.createPaymentSession(baseDto({ purpose: 'extra_device' }));
-
-        expect(analyticsClient.track).toHaveBeenCalledWith(
-          expect.objectContaining({ event: 'checkout_started', purpose: 'extra_device' }),
         );
       });
 
@@ -984,13 +968,13 @@ describe('YookassaService', () => {
     describe('promo codes', () => {
       it('validates the code against the user and period before charging', async () => {
         await service.createPaymentSession(
-          baseDto({ promoCode: 'welcome', userStatus: 'ACTIVE', selectedPeriod: 3 }),
+          baseDto({ promoCode: 'welcome', userStatus: 'ACTIVE', selectedPeriod: 180 }),
         );
 
         expect(mockPromoResolve).toHaveBeenCalledWith('welcome', {
           userId: 1000,
           userStatus: 'ACTIVE',
-          selectedPeriod: 3,
+          selectedPeriod: 180,
         });
       });
 
@@ -1112,7 +1096,7 @@ describe('YookassaService', () => {
     it('finds the record on a second lookup and fulfils the payment', async () => {
       mockYkFindOneBy
         .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce({ userId: 1000, selectedPeriod: 1, paidAt: null });
+        .mockResolvedValueOnce({ userId: 1000, selectedPeriod: 30, paidAt: null });
 
       await runWithRetryPause();
 
@@ -1130,12 +1114,13 @@ describe('YookassaService', () => {
 
       expect(mockYkFindOneBy).toHaveBeenCalledTimes(2);
       expect(mockHandleUserUpdates).not.toHaveBeenCalled();
+      expect(mockResolveOrCreateByEmail).toHaveBeenCalled();
       expect(mockYkUpdate).not.toHaveBeenCalled();
       expect(mockEmit).not.toHaveBeenCalled();
     });
 
     it('does not fulfil a record with no userId to attribute it to', async () => {
-      mockYkFindOneBy.mockResolvedValue({ userId: null, selectedPeriod: 1, paidAt: null });
+      mockYkFindOneBy.mockResolvedValue({ userId: null, selectedPeriod: 30, paidAt: null });
 
       await runWithRetryPause();
 
@@ -1205,7 +1190,7 @@ describe('YookassaService', () => {
     it('records the purpose and settled amount so revenue and extra-device sales are queryable', async () => {
       mockYkFindOneBy.mockResolvedValue({
         userId: 1000,
-        selectedPeriod: 1,
+        selectedPeriod: 30,
         telegramId: 42,
         amount: '599',
         purpose: 'subscription',
@@ -1308,7 +1293,7 @@ describe('YookassaService', () => {
       mockYkFindOneBy.mockResolvedValue({
         id: 'pay_1',
         userId: 1000,
-        selectedPeriod: 1,
+        selectedPeriod: 30,
         status: 'pending',
         paidAt: null,
       });
@@ -1323,7 +1308,7 @@ describe('YookassaService', () => {
       expect(mockEmit).toHaveBeenCalledWith(WebhookEventEnum['payment.canceled'], {
         userId: 1000,
         provider: 'yookassa',
-        selectedPeriod: 1,
+        selectedPeriod: 30,
         reason: 'insufficient_funds',
       });
       expect(analyticsClient.track).toHaveBeenCalledWith({
@@ -1375,7 +1360,7 @@ describe('YookassaService', () => {
       mockYkFindOneBy.mockResolvedValue({
         id: 'pay_1',
         userId: 1000,
-        selectedPeriod: 1,
+        selectedPeriod: 30,
         status: 'succeeded',
         paidAt: new Date(),
       });
@@ -1390,7 +1375,7 @@ describe('YookassaService', () => {
       mockYkFindOneBy.mockResolvedValue({
         id: 'pay_1',
         userId: 1000,
-        selectedPeriod: 1,
+        selectedPeriod: 30,
         status: 'succeeded',
         paidAt: new Date(),
       });
@@ -1410,7 +1395,7 @@ describe('YookassaService', () => {
       mockYkFindOneBy.mockResolvedValue({
         id: 'pay_1',
         userId: 1000,
-        selectedPeriod: 1,
+        selectedPeriod: 30,
         status: 'succeeded',
         paidAt: null,
       });

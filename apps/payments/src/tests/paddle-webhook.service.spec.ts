@@ -101,7 +101,7 @@ describe('PaddleWebhookService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.PADDLE_PRICE_ID_MONTH_1 = 'pri_month_1';
+    process.env.PADDLE_PRICE_ID_DAYS_1 = 'pri_month_1';
 
     mockFindOneBy = vi.fn().mockResolvedValue(null);
     mockInsert = vi.fn().mockResolvedValue({});
@@ -167,7 +167,7 @@ describe('PaddleWebhookService', () => {
   });
 
   afterEach(() => {
-    delete process.env.PADDLE_PRICE_ID_MONTH_1;
+    delete process.env.PADDLE_PRICE_ID_DAYS_1;
   });
 
   describe('transaction.completed', () => {
@@ -370,7 +370,7 @@ describe('PaddleWebhookService', () => {
           chargeId: 'txn_1',
           amount: 2,
           currency: 'EUR',
-          periodMonths: 1,
+          period: 1,
           purpose: 'subscription',
         });
       });

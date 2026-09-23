@@ -18,7 +18,7 @@ export type ReportConversionInput = {
   /** Amount actually charged, in major units of `currency`. */
   amount: number;
   currency: ConversionCurrency;
-  periodMonths: number;
+  period: number;
   purpose?: string;
 };
 
@@ -34,7 +34,10 @@ export type CaptureReferralInput = {
 const AFF_PARAM = 'aff';
 
 /** Tolt accepts only these two; 3- and 6-month plans have no representation. */
-const INTERVAL_BY_MONTHS: Record<number, 'month' | 'year'> = { 1: 'month', 12: 'year' };
+const INTERVAL_BY_MONTHS: Record<number, 'month' | 'year'> = {
+  30: 'month',
+  365: 'year',
+};
 
 /** Extra device slots are one-offs that earn no commission and are never reported. */
 const earnsCommission = (purpose?: string): boolean => purpose !== 'extra_device';
@@ -49,8 +52,7 @@ const isReportableAmount = (amount: number): boolean => Number.isFinite(amount) 
  * untouched, while a wrong interval would have Tolt project renewal dates that
  * never arrive.
  */
-const intervalFor = (periodMonths: number): 'month' | 'year' | undefined =>
-  INTERVAL_BY_MONTHS[periodMonths];
+const intervalFor = (period: number): 'month' | 'year' | undefined => INTERVAL_BY_MONTHS[period];
 
 /** The Tolt payload for one settled charge. */
 const transactionFor = (args: {
@@ -59,7 +61,7 @@ const transactionFor = (args: {
   customerId: string;
   amountCents: number;
 }): ToltCreateTransactionInput => {
-  const interval = intervalFor(args.input.periodMonths);
+  const interval = intervalFor(args.input.period);
 
   return {
     amount: args.amountCents,

@@ -4,7 +4,7 @@ import * as process from 'node:process';
 import { BadRequestException } from '@nestjs/common';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import { PaymentStatusService } from '@payments/payment-status/payment-status.service';
-import { mapEURAmountToMonthsNumber } from '@payments/providers/stripe/stripe.utils';
+import { mapEURAmountToDaysNumber } from '@payments/providers/stripe/stripe.utils';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
 import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
@@ -313,39 +313,39 @@ describe('Security Audit', () => {
     });
   });
 
-  describe('[FINDING #12] mapEURAmountToMonthsNumber must throw on unrecognised amounts', () => {
+  describe('[FINDING #12] mapEURAmountToDaysNumber must throw on unrecognised amounts', () => {
     beforeEach(() => {
-      process.env.ALLOWED_PERIOD = '1';
-      process.env.PRICE_EUR_MONTH_1 = '5';
+      process.env.ALLOWED_PERIODS_IN_DAYS = '30';
+      process.env.PRICE_EUR_DAYS_30 = '5';
     });
 
     afterEach(() => {
-      delete process.env.ALLOWED_PERIOD;
-      delete process.env.PRICE_EUR_MONTH_1;
-      delete process.env.PRICE_EUR_MONTH_3;
+      delete process.env.ALLOWED_PERIODS_IN_DAYS;
+      delete process.env.PRICE_EUR_DAYS_30;
+      delete process.env.PRICE_EUR_DAYS_180;
     });
 
     it('throws for an amount not matching the configured price', () => {
-      expect(() => mapEURAmountToMonthsNumber(99900)).toThrow();
+      expect(() => mapEURAmountToDaysNumber(99900)).toThrow();
     });
 
     it('throws for amount = 0', () => {
-      expect(() => mapEURAmountToMonthsNumber(0)).toThrow();
+      expect(() => mapEURAmountToDaysNumber(0)).toThrow();
     });
 
     it('throws when no periods are configured', () => {
-      delete process.env.ALLOWED_PERIOD;
-      expect(() => mapEURAmountToMonthsNumber(500)).toThrow();
+      delete process.env.ALLOWED_PERIODS_IN_DAYS;
+      expect(() => mapEURAmountToDaysNumber(500)).toThrow();
     });
 
     it('returns correct months for the configured price', () => {
-      // 500 EUR cents = 5 EUR → matches PRICE_EUR_MONTH_1 = '5' → 1 month
-      expect(mapEURAmountToMonthsNumber(500)).toBe(1);
+      // 500 EUR cents = 5 EUR → matches PRICE_EUR_DAYS_1 = '5' → 1 month
+      expect(mapEURAmountToDaysNumber(500)).toBe(30);
 
       // Add a 3-month plan and verify it maps correctly
-      process.env.ALLOWED_PERIOD = '1,3';
-      process.env.PRICE_EUR_MONTH_3 = '12';
-      expect(mapEURAmountToMonthsNumber(1200)).toBe(3);
+      process.env.ALLOWED_PERIODS_IN_DAYS = '30,180';
+      process.env.PRICE_EUR_DAYS_180 = '12';
+      expect(mapEURAmountToDaysNumber(1200)).toBe(180);
     });
   });
 });

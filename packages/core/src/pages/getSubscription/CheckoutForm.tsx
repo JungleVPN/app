@@ -18,8 +18,8 @@ import { FeaturesCard, Link, PaymentMethodIcons } from '../../components';
 import { useTermsStore } from '../../stores';
 import { Block, Container, Grid, GridItem } from '../../ui';
 import { formatPlanPrice, scrollToTop } from '../../utils';
+import { formatPeriod } from '../../utils/planPricing';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
-import { planPeriodLabel } from './planSlug';
 
 interface CheckoutFormProps {
   isAuthenticated: boolean;
@@ -199,7 +199,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                           <Logo aria-hidden className='size-8 shrink-0 rounded-lg' />
                           <p className='text-base font-semibold'>
                             {t('getSubscription.order_item', {
-                              period: planPeriodLabel(selectedPeriod, t),
+                              period: formatPeriod(selectedPeriod, t),
                             })}
                           </p>
                         </div>

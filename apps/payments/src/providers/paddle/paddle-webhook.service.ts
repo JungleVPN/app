@@ -198,7 +198,7 @@ export class PaddleWebhookService {
         chargeId: transaction.id,
         amount,
         currency,
-        periodMonths: selectedPeriod,
+        period: selectedPeriod,
         purpose: 'subscription',
       });
     }

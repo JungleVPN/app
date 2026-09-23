@@ -82,11 +82,10 @@ export class PaddleProvider {
    * would otherwise be silently sold at the wrong price (mirrors Stripe's
    * `getPriceId`).
    */
-  getPriceId(selectedPeriod: number): string {
-    const months = selectedPeriod || 1;
-    const priceId = process.env[`PADDLE_PRICE_ID_MONTH_${months}`];
+  getPriceId(days: number): string {
+    const priceId = process.env[`PADDLE_PRICE_ID_DAYS_${days}`];
     if (!priceId) {
-      throw new BadRequestException(`No Paddle price configured for a ${months} month plan`);
+      throw new BadRequestException(`No Paddle price configured for a ${days} month plan`);
     }
     return priceId;
   }

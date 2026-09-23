@@ -4,7 +4,7 @@ import { PaddleClientService } from '@payments/providers/paddle/paddle-client.se
 import {
   buildPricing,
   type Currency,
-  enabledPeriodMonths,
+  enabledPeriods,
   getPriceForPeriod,
 } from '@payments/utils/amount';
 import { type SubscriptionPlanDto, scopeForOrigin } from '@workspace/types';
@@ -55,19 +55,17 @@ export class CommonService {
 
   /** Every enabled period priced from our own table for `currency`. */
   private buildPlans(currency: Currency): SubscriptionPlanDto[] {
-    const periods = enabledPeriodMonths();
-    // The 1-month price is the baseline every longer period's discount is measured against.
-    const basePrice = periods.includes(1) ? this.findPrice(currency, 1) : null;
+    const periods = enabledPeriods();
+    const basePrice = this.findPrice(currency, 30);
 
     return periods
-      .filter((period) => period !== 3)
-      .map((period): SubscriptionPlanDto | null => {
-        const total = this.findPrice(currency, period);
+      .map((days): SubscriptionPlanDto | null => {
+        const total = this.findPrice(currency, days);
         if (total === null) return null;
 
         return {
-          period,
-          planPricing: buildPricing({ currency, months: period, total, basePrice }),
+          days,
+          planPricing: buildPricing({ currency, days, total, basePrice }),
           countryCode: null,
         };
       })
@@ -82,8 +80,8 @@ export class CommonService {
    * but that only covers a location Paddle can't price, not Paddle being down.)
    */
   private async fetchPaddleQuote(clientIp: string | null): Promise<PaddleQuote | null> {
-    const pricedPeriods = enabledPeriodMonths()
-      .map((period) => ({ period, priceId: process.env[`PADDLE_PRICE_ID_MONTH_${period}`] }))
+    const pricedPeriods = enabledPeriods()
+      .map((period) => ({ period, priceId: process.env[`PADDLE_PRICE_ID_DAYS_${period}`] }))
       .filter((entry): entry is { period: number; priceId: string } => Boolean(entry.priceId));
 
     if (pricedPeriods.length === 0) return null;
@@ -128,17 +126,17 @@ export class CommonService {
 
 /** Re-prices the plans Paddle quoted, leaving any it didn't on their EUR pricing. */
 function applyPaddleQuote(plans: SubscriptionPlanDto[], quote: PaddleQuote): SubscriptionPlanDto[] {
-  const basePrice = quote.totalByPeriod.get(1) ?? null;
+  const basePrice = quote.totalByPeriod.get(30) ?? null;
 
   return plans.map((plan) => {
-    const total = quote.totalByPeriod.get(plan.period);
+    const total = quote.totalByPeriod.get(plan.days);
     if (total === undefined) return plan;
 
     return {
-      period: plan.period,
+      days: plan.days,
       planPricing: buildPricing({
         currency: quote.currencyCode,
-        months: plan.period,
+        days: plan.days,
         total,
         basePrice,
       }),

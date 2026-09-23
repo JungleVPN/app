@@ -144,646 +144,602 @@ const subscriptionDto = (
 ): CreateStripeSessionDto => ({
   userId: 1000,
   purchaseType: 'subscription',
-  selectedPeriod: 1,
+  selectedPeriod: 30,
   metadata: { email: 'test@example.com' },
   ...overrides,
 });
 
-describe('StripeProvider.createPayment', () => {
-  beforeEach(() => {
-    process.env.ALLOWED_PERIOD = '1,3,6,12';
-    process.env.PRICE_EUR_MONTH_1 = '6';
-    process.env.PRICE_EUR_MONTH_3 = '15';
-    process.env.PRICE_EUR_MONTH_6 = '26';
-    process.env.PRICE_EUR_MONTH_12 = '43';
-    process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1 = 'price_default';
-  });
-
-  afterEach(() => {
-    for (const key of [
-      'ALLOWED_PERIOD',
-      'PRICE_EUR_MONTH_1',
-      'PRICE_EUR_MONTH_3',
-      'PRICE_EUR_MONTH_6',
-      'PRICE_EUR_MONTH_12',
-      'STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1',
-      'STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1',
-      'STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_3',
-      'STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_6',
-      'STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_12',
-    ]) {
-      delete process.env[key];
-    }
-  });
-
-  describe('price ID selection', () => {
-    it('uses STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1 when no period-specific price ID is configured', async () => {
-      const { provider, mockCreateSession } = makeProvider({});
-
-      await provider.createPayment(subscriptionDto({ selectedPeriod: 1 }));
-
-      expect(mockCreateSession).toHaveBeenCalledWith(
-        expect.objectContaining({ line_items: [{ price: 'price_default', quantity: 1 }] }),
-      );
-    });
-
-    it('uses STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_3 when selectedPeriod is 3 and it is configured', async () => {
-      process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_3 = 'price_3months';
-      const { provider, mockCreateSession } = makeProvider({});
-
-      await provider.createPayment(subscriptionDto({ selectedPeriod: 3 }));
-
-      expect(mockCreateSession).toHaveBeenCalledWith(
-        expect.objectContaining({ line_items: [{ price: 'price_3months', quantity: 1 }] }),
-      );
-    });
-
-    it('uses STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_6 when selectedPeriod is 6 and it is configured', async () => {
-      process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_6 = 'price_6months';
-      const { provider, mockCreateSession } = makeProvider({});
-
-      await provider.createPayment(subscriptionDto({ selectedPeriod: 6 }));
-
-      expect(mockCreateSession).toHaveBeenCalledWith(
-        expect.objectContaining({ line_items: [{ price: 'price_6months', quantity: 1 }] }),
-      );
-    });
-
-    it('uses STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_12 when selectedPeriod is 12 and it is configured', async () => {
-      process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_12 = 'price_12months';
-      const { provider, mockCreateSession } = makeProvider({});
-
-      await provider.createPayment(subscriptionDto({ selectedPeriod: 12 }));
-
-      expect(mockCreateSession).toHaveBeenCalledWith(
-        expect.objectContaining({ line_items: [{ price: 'price_12months', quantity: 1 }] }),
-      );
-    });
-
-    // Falling back to the monthly price would sell the wrong plan without any
-    // signal: the user picks 6 months, Stripe opens a monthly subscription,
-    // `mapEURAmountToMonthsNumber` maps the charge back to 1 month, and they
-    // end up on a recurring monthly cycle believing they bought half a year.
-    // A missing price id is a misconfiguration and has to fail loudly.
-    it('refuses to sell a period whose price ID is not configured', async () => {
-      process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_3 = 'price_3months';
-      const { provider, mockCreateSession } = makeProvider({});
-
-      await expect(provider.createPayment(subscriptionDto({ selectedPeriod: 6 }))).rejects.toThrow(
-        /6 month/,
-      );
-      expect(mockCreateSession).not.toHaveBeenCalled();
-    });
-
-    it('defaults to period 1 when selectedPeriod is not provided', async () => {
-      process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1 = 'price_1month';
-      const { provider, mockCreateSession } = makeProvider({});
-
-      await provider.createPayment(subscriptionDto({ selectedPeriod: undefined }));
-
-      expect(mockCreateSession).toHaveBeenCalledWith(
-        expect.objectContaining({ line_items: [{ price: 'price_1month', quantity: 1 }] }),
-      );
-    });
-  });
-
-  describe('return URL', () => {
+describe('StripeProvider', () => {
+  describe('StripeProvider.createPayment', () => {
     beforeEach(() => {
-      process.env.CORS_ORIGIN = 'https://jungle-vpn.com,https://jungle.community';
+      process.env.ALLOWED_PERIODS_IN_DAYS = '30,180,365';
+      process.env.PRICE_EUR_DAYS_30 = '6';
+      process.env.PRICE_EUR_DAYS_180 = '26';
+      process.env.PRICE_EUR_DAYS_365 = '43';
+      process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_default';
     });
 
     afterEach(() => {
-      delete process.env.CORS_ORIGIN;
-      delete process.env.RETURN_URL_WEB;
-    });
-
-    it('sends the user back to the domain the payment was started from', async () => {
-      const { provider, mockCreateSession } = makeProvider({});
-
-      await provider.createPayment(
-        subscriptionDto({ selectedPeriod: 1 }),
-        'https://jungle.community',
-      );
-
-      expect(mockCreateSession).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success_url: 'https://jungle.community/payment/success',
-          cancel_url: 'https://jungle.community/payment/fail',
-        }),
-      );
-    });
-
-    it('falls back to RETURN_URL_WEB when the request origin is not one of the app domains', async () => {
-      process.env.RETURN_URL_WEB = 'https://fallback.example.com/profile/subscription';
-      const { provider, mockCreateSession } = makeProvider({});
-
-      await provider.createPayment(
-        subscriptionDto({ selectedPeriod: 1 }),
-        'https://evil.example.com',
-      );
-
-      expect(mockCreateSession).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success_url: 'https://fallback.example.com/profile/subscription',
-          cancel_url: 'https://fallback.example.com/profile/subscription',
-        }),
-      );
-    });
-  });
-
-  describe('hasActiveSubscription', () => {
-    /**
-     * Stands in for Stripe's list endpoint: filters by the requested status and
-     * returns at most one page, so a listing that relies on page ordering to
-     * find the active subscription behaves here as it would in production.
-     */
-    const stripeListOf = (subscriptions: { status: string }[]) =>
-      vi.fn(async ({ status, limit }: { status: string; limit?: number }) => {
-        const matching =
-          status === 'all' ? subscriptions : subscriptions.filter((s) => s.status === status);
-        return { data: matching.slice(0, limit ?? 10) };
-      });
-
-    it('finds an active subscription', async () => {
-      const { provider } = makeProvider({
-        mockSubscriptionsList: stripeListOf([{ status: 'active' }]),
-      });
-
-      await expect(provider.hasActiveSubscription('cus_1')).resolves.toBe(true);
-    });
-
-    it('finds a trialing subscription', async () => {
-      const { provider } = makeProvider({
-        mockSubscriptionsList: stripeListOf([{ status: 'trialing' }]),
-      });
-
-      await expect(provider.hasActiveSubscription('cus_1')).resolves.toBe(true);
-    });
-
-    it('reports none for a customer whose subscriptions have all ended', async () => {
-      const { provider } = makeProvider({
-        mockSubscriptionsList: stripeListOf([{ status: 'canceled' }, { status: 'incomplete' }]),
-      });
-
-      await expect(provider.hasActiveSubscription('cus_1')).resolves.toBe(false);
-    });
-
-    it('finds the active subscription of a customer with a long churn history', async () => {
-      // Every cancellation leaves a permanent subscription object behind, so a
-      // customer who has resubscribed often pushes the live one past the first
-      // page of an unfiltered listing.
-      const history = [
-        ...Array.from({ length: 12 }, () => ({ status: 'canceled' })),
-        { status: 'active' },
-      ];
-      const { provider } = makeProvider({ mockSubscriptionsList: stripeListOf(history) });
-
-      await expect(provider.hasActiveSubscription('cus_1')).resolves.toBe(true);
-    });
-
-    it('never pages through a customer’s canceled history to answer', async () => {
-      const list = stripeListOf([{ status: 'active' }]);
-      const { provider } = makeProvider({ mockSubscriptionsList: list });
-
-      await provider.hasActiveSubscription('cus_1');
-
-      for (const [params] of list.mock.calls) {
-        expect(params.status).not.toBe('all');
+      for (const key of [
+        'ALLOWED_PERIODS_IN_DAYS',
+        'PRICE_EUR_DAYS_30',
+        'PRICE_EUR_DAYS_180',
+        'PRICE_EUR_DAYS_365',
+        'STRIPE_PRICE_ID_DAYS_30',
+        'STRIPE_PRICE_ID_DAYS_180',
+        'STRIPE_PRICE_ID_DAYS_365',
+      ]) {
+        delete process.env[key];
       }
     });
+
+    describe('price ID selection', () => {
+      it('uses STRIPE_PRICE_ID_DAYS_30 when no period-specific price ID is configured', async () => {
+        const { provider, mockCreateSession } = makeProvider({});
+
+        await provider.createPayment(subscriptionDto({ selectedPeriod: 30 }));
+
+        expect(mockCreateSession).toHaveBeenCalledWith(
+          expect.objectContaining({ line_items: [{ price: 'price_default', quantity: 1 }] }),
+        );
+      });
+
+      it('uses STRIPE_PRICE_ID_DAYS_180 when selectedPeriod is 180 and it is configured', async () => {
+        process.env.STRIPE_PRICE_ID_DAYS_180 = 'price_3months';
+        const { provider, mockCreateSession } = makeProvider({});
+
+        await provider.createPayment(subscriptionDto({ selectedPeriod: 180 }));
+
+        expect(mockCreateSession).toHaveBeenCalledWith(
+          expect.objectContaining({ line_items: [{ price: 'price_3months', quantity: 1 }] }),
+        );
+      });
+
+      it('uses STRIPE_PRICE_ID_DAYS_365 when selectedPeriod is 365 and it is configured', async () => {
+        process.env.STRIPE_PRICE_ID_DAYS_365 = 'price_12months';
+        const { provider, mockCreateSession } = makeProvider({});
+
+        await provider.createPayment(subscriptionDto({ selectedPeriod: 365 }));
+
+        expect(mockCreateSession).toHaveBeenCalledWith(
+          expect.objectContaining({ line_items: [{ price: 'price_12months', quantity: 1 }] }),
+        );
+      });
+
+      // Falling back to the monthly price would sell the wrong plan without any
+      // signal: the user picks 6 months, Stripe opens a monthly subscription,
+      // `mapEURAmountToDaysNumber` maps the charge back to 1 month, and they
+      // end up on a recurring monthly cycle believing they bought half a year.
+      // A missing price id is a misconfiguration and has to fail loudly.
+      it('refuses to sell a period whose price ID is not configured', async () => {
+        process.env.STRIPE_PRICE_ID_DAYS_180 = 'price_3months';
+        const { provider, mockCreateSession } = makeProvider({});
+
+        await expect(
+          provider.createPayment(subscriptionDto({ selectedPeriod: 365 })),
+        ).rejects.toThrow(/365 day/);
+        expect(mockCreateSession).not.toHaveBeenCalled();
+      });
+
+      it('defaults to period 1 when selectedPeriod is not provided', async () => {
+        process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_1month';
+        const { provider, mockCreateSession } = makeProvider({});
+
+        await provider.createPayment(subscriptionDto({ selectedPeriod: undefined }));
+
+        expect(mockCreateSession).toHaveBeenCalledWith(
+          expect.objectContaining({ line_items: [{ price: 'price_1month', quantity: 1 }] }),
+        );
+      });
+    });
+
+    describe('return URL', () => {
+      beforeEach(() => {
+        process.env.CORS_ORIGIN = 'https://jungle-vpn.com,https://jungle.community';
+      });
+
+      afterEach(() => {
+        delete process.env.CORS_ORIGIN;
+        delete process.env.RETURN_URL_WEB;
+      });
+
+      it('sends the user back to the domain the payment was started from', async () => {
+        const { provider, mockCreateSession } = makeProvider({});
+
+        await provider.createPayment(
+          subscriptionDto({ selectedPeriod: 30 }),
+          'https://jungle.community',
+        );
+
+        expect(mockCreateSession).toHaveBeenCalledWith(
+          expect.objectContaining({
+            success_url: 'https://jungle.community/payment/success',
+            cancel_url: 'https://jungle.community/payment/fail',
+          }),
+        );
+      });
+
+      it('falls back to RETURN_URL_WEB when the request origin is not one of the app domains', async () => {
+        process.env.RETURN_URL_WEB = 'https://fallback.example.com/profile/subscription';
+        const { provider, mockCreateSession } = makeProvider({});
+
+        await provider.createPayment(
+          subscriptionDto({ selectedPeriod: 30 }),
+          'https://evil.example.com',
+        );
+
+        expect(mockCreateSession).toHaveBeenCalledWith(
+          expect.objectContaining({
+            success_url: 'https://fallback.example.com/profile/subscription',
+            cancel_url: 'https://fallback.example.com/profile/subscription',
+          }),
+        );
+      });
+    });
+
+    describe('hasActiveSubscription', () => {
+      /**
+       * Stands in for Stripe's list endpoint: filters by the requested status and
+       * returns at most one page, so a listing that relies on page ordering to
+       * find the active subscription behaves here as it would in production.
+       */
+      const stripeListOf = (subscriptions: { status: string }[]) =>
+        vi.fn(async ({ status, limit }: { status: string; limit?: number }) => {
+          const matching =
+            status === 'all' ? subscriptions : subscriptions.filter((s) => s.status === status);
+          return { data: matching.slice(0, limit ?? 10) };
+        });
+
+      it('finds an active subscription', async () => {
+        const { provider } = makeProvider({
+          mockSubscriptionsList: stripeListOf([{ status: 'active' }]),
+        });
+
+        await expect(provider.hasActiveSubscription('cus_1')).resolves.toBe(true);
+      });
+
+      it('finds a trialing subscription', async () => {
+        const { provider } = makeProvider({
+          mockSubscriptionsList: stripeListOf([{ status: 'trialing' }]),
+        });
+
+        await expect(provider.hasActiveSubscription('cus_1')).resolves.toBe(true);
+      });
+
+      it('reports none for a customer whose subscriptions have all ended', async () => {
+        const { provider } = makeProvider({
+          mockSubscriptionsList: stripeListOf([{ status: 'canceled' }, { status: 'incomplete' }]),
+        });
+
+        await expect(provider.hasActiveSubscription('cus_1')).resolves.toBe(false);
+      });
+
+      it('finds the active subscription of a customer with a long churn history', async () => {
+        // Every cancellation leaves a permanent subscription object behind, so a
+        // customer who has resubscribed often pushes the live one past the first
+        // page of an unfiltered listing.
+        const history = [
+          ...Array.from({ length: 12 }, () => ({ status: 'canceled' })),
+          { status: 'active' },
+        ];
+        const { provider } = makeProvider({ mockSubscriptionsList: stripeListOf(history) });
+
+        await expect(provider.hasActiveSubscription('cus_1')).resolves.toBe(true);
+      });
+
+      it('never pages through a customer’s canceled history to answer', async () => {
+        const list = stripeListOf([{ status: 'active' }]);
+        const { provider } = makeProvider({ mockSubscriptionsList: list });
+
+        await provider.hasActiveSubscription('cus_1');
+
+        for (const [params] of list.mock.calls) {
+          expect(params.status).not.toBe('all');
+        }
+      });
+    });
+
+    // "No subscription" is the unsafe answer to a failed lookup: it is what routes
+    // an existing subscriber into a second subscription and bills them twice.
+    describe('when the subscription lookup fails', () => {
+      beforeEach(() => {
+        process.env.ALLOWED_PERIODS_IN_DAYS = '30,180,365';
+        process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_month_1';
+      });
+
+      it('surfaces the failure instead of reporting no subscription', async () => {
+        const { provider } = makeProvider({
+          mockSubscriptionsList: vi.fn().mockRejectedValue(new Error('rate limited')),
+        });
+
+        await expect(provider.hasActiveSubscription('cus_1')).rejects.toThrow('rate limited');
+      });
+
+      it('never opens a second checkout for a customer who may already be subscribed', async () => {
+        const { provider, mockCreateSession } = makeProvider({
+          mockRepoFindOne: vi.fn().mockResolvedValue({ customer: 'cus_1' }),
+          mockSubscriptionsList: vi.fn().mockRejectedValue(new Error('rate limited')),
+        });
+
+        await expect(provider.createPayment(subscriptionDto())).rejects.toThrow('rate limited');
+        expect(mockCreateSession).not.toHaveBeenCalled();
+      });
+
+      // Status no longer asks Stripe anything, so the portal is where a Stripe
+      // outage can still be met. A portal it cannot mint is reported as "no URL",
+      // never as "you have no subscription".
+      it('never tells a payer their subscription does not exist', async () => {
+        const { provider } = makeProvider({
+          mockRepoFindOne: vi.fn().mockResolvedValue({ customer: 'cus_1' }),
+          mockPortalCreate: vi.fn().mockRejectedValue(new Error('rate limited')),
+        });
+
+        await expect(provider.getPortalUrl(1000)).resolves.toEqual({ portalUrl: null });
+      });
+    });
   });
 
-  // "No subscription" is the unsafe answer to a failed lookup: it is what routes
-  // an existing subscriber into a second subscription and bills them twice.
-  describe('when the subscription lookup fails', () => {
+  /**
+   * The metadata an anonymous checkout assembles — the payer email, the `?ref=`
+   * inviter and the signup origin — is what the Stripe webhook reads back off the
+   * customer to create the account once the charge settles. It used to be written
+   * only when a customer was created, so a payer whose earlier attempt had already
+   * minted one had this attempt's referral and origin silently dropped.
+   */
+  describe('StripeProvider.createPayment — anonymous checkout metadata', () => {
     beforeEach(() => {
-      process.env.ALLOWED_PERIOD = '1,3,6,12';
-      process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1 = 'price_month_1';
+      process.env.ALLOWED_PERIODS_IN_DAYS = '1,3,6,12';
+      process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_default';
     });
 
-    it('surfaces the failure instead of reporting no subscription', async () => {
-      const { provider } = makeProvider({
-        mockSubscriptionsList: vi.fn().mockRejectedValue(new Error('rate limited')),
-      });
-
-      await expect(provider.hasActiveSubscription('cus_1')).rejects.toThrow('rate limited');
+    afterEach(() => {
+      delete process.env.ALLOWED_PERIODS_IN_DAYS;
+      delete process.env.STRIPE_PRICE_ID_DAYS_30;
     });
 
-    it('never opens a second checkout for a customer who may already be subscribed', async () => {
-      const { provider, mockCreateSession } = makeProvider({
-        mockRepoFindOne: vi.fn().mockResolvedValue({ customer: 'cus_1' }),
-        mockSubscriptionsList: vi.fn().mockRejectedValue(new Error('rate limited')),
-      });
-
-      await expect(provider.createPayment(subscriptionDto())).rejects.toThrow('rate limited');
-      expect(mockCreateSession).not.toHaveBeenCalled();
-    });
-
-    // Status no longer asks Stripe anything, so the portal is where a Stripe
-    // outage can still be met. A portal it cannot mint is reported as "no URL",
-    // never as "you have no subscription".
-    it('never tells a payer their subscription does not exist', async () => {
-      const { provider } = makeProvider({
-        mockRepoFindOne: vi.fn().mockResolvedValue({ customer: 'cus_1' }),
-        mockPortalCreate: vi.fn().mockRejectedValue(new Error('rate limited')),
-      });
-
-      await expect(provider.getPortalUrl(1000)).resolves.toEqual({ portalUrl: null });
-    });
-  });
-});
-
-/**
- * The metadata an anonymous checkout assembles — the payer email, the `?ref=`
- * inviter and the signup origin — is what the Stripe webhook reads back off the
- * customer to create the account once the charge settles. It used to be written
- * only when a customer was created, so a payer whose earlier attempt had already
- * minted one had this attempt's referral and origin silently dropped.
- */
-describe('StripeProvider.createPayment — anonymous checkout metadata', () => {
-  beforeEach(() => {
-    process.env.ALLOWED_PERIOD = '1,3,6,12';
-    process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1 = 'price_default';
-  });
-
-  afterEach(() => {
-    delete process.env.ALLOWED_PERIOD;
-    delete process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1;
-  });
-
-  const anonymousDto = (
-    overrides: Partial<CreateStripeSessionDto> = {},
-  ): CreateStripeSessionDto => ({
-    userId: null,
-    purchaseType: 'subscription',
-    selectedPeriod: 1,
-    metadata: {
-      email: 'payer@example.com',
-      inviterId: '42',
-      signupOrigin: 'https://jungle-vpn.com',
-    },
-    ...overrides,
-  });
-
-  /** An existing Stripe customer for `payer@example.com`, with the given metadata. */
-  const customerOnFile = (metadata: Record<string, string>): CustomersListMock =>
-    vi.fn(async () => ({ data: [{ id: 'cus_existing', metadata }] }));
-
-  it('carries the referral onto a customer that was created without one', async () => {
-    const { provider, mockCustomersUpdate } = makeProvider({
-      mockCustomersList: customerOnFile({ email: 'payer@example.com' }),
-    });
-
-    await provider.createPayment(anonymousDto());
-
-    expect(mockCustomersUpdate).toHaveBeenCalledWith('cus_existing', {
-      metadata: { inviterId: '42', signupOrigin: 'https://jungle-vpn.com' },
-    });
-  });
-
-  it('keeps the attribution already on file rather than overwriting it', async () => {
-    const { provider, mockCustomersUpdate } = makeProvider({
-      mockCustomersList: customerOnFile({
-        email: 'payer@example.com',
-        inviterId: '7',
-        signupOrigin: 'https://jungle-vpn.com',
-      }),
-    });
-
-    await provider.createPayment(anonymousDto());
-
-    expect(mockCustomersUpdate).not.toHaveBeenCalled();
-  });
-
-  // Once the account exists the webhook never reads these keys again, so there
-  // is nothing to back-fill and no reason to spend a Stripe write on it.
-  it('leaves a customer whose account already exists untouched', async () => {
-    const { provider, mockCustomersUpdate } = makeProvider({
-      mockCustomersList: customerOnFile({ email: 'payer@example.com', userId: '1000' }),
-    });
-
-    await provider.createPayment(anonymousDto());
-
-    expect(mockCustomersUpdate).not.toHaveBeenCalled();
-  });
-
-  // Losing the referral is bad; losing the sale is worse.
-  it('still opens the checkout when the back-fill fails', async () => {
-    const { provider, mockCreateSession } = makeProvider({
-      mockCustomersList: customerOnFile({ email: 'payer@example.com' }),
-      mockCustomersUpdate: vi.fn().mockRejectedValue(new Error('rate limited')),
-    });
-
-    await expect(provider.createPayment(anonymousDto())).resolves.toMatchObject({ id: 'cs_1' });
-    expect(mockCreateSession).toHaveBeenCalled();
-  });
-
-  // The reason the lookup exists at all: a second customer for the same address
-  // is a second subscription billed against a payer who already has one.
-  it('bills the customer it found rather than minting a second one', async () => {
-    const { provider, mockCreateSession, mockCustomersCreate } = makeProvider({
-      mockCustomersList: customerOnFile({ email: 'payer@example.com' }),
-    });
-
-    await provider.createPayment(anonymousDto());
-
-    expect(mockCustomersCreate).not.toHaveBeenCalled();
-    expect(mockCreateSession).toHaveBeenCalledWith(
-      expect.objectContaining({ customer: 'cus_existing' }),
-    );
-  });
-
-  // Stripe reads an empty metadata value as "delete this key", so a blank is
-  // never something to write — and on its own it is not a reason to write at all.
-  it('ignores a blank metadata value rather than writing it', async () => {
-    const { provider, mockCustomersUpdate } = makeProvider({
-      mockCustomersList: customerOnFile({ email: 'payer@example.com' }),
-    });
-
-    await provider.createPayment(
-      anonymousDto({ metadata: { email: 'payer@example.com', inviterId: '' } }),
-    );
-
-    expect(mockCustomersUpdate).not.toHaveBeenCalled();
-  });
-
-  it('writes the metadata itself when there is no customer to reuse', async () => {
-    const { provider, mockCustomersCreate, mockCustomersUpdate } = makeProvider({});
-
-    await provider.createPayment(anonymousDto());
-
-    expect(mockCustomersCreate).toHaveBeenCalledWith({
-      email: 'payer@example.com',
+    const anonymousDto = (
+      overrides: Partial<CreateStripeSessionDto> = {},
+    ): CreateStripeSessionDto => ({
+      userId: null,
+      purchaseType: 'subscription',
+      selectedPeriod: 30,
       metadata: {
         email: 'payer@example.com',
         inviterId: '42',
         signupOrigin: 'https://jungle-vpn.com',
       },
-    });
-    expect(mockCustomersUpdate).not.toHaveBeenCalled();
-  });
-});
-
-/**
- * A Tolt referral is a new-customer commission, so it may only ride on a payer's
- * first-ever successful payment. An anonymous checkout carries no userId, so the
- * history has to be read off the Stripe customer the email resolved to.
- */
-describe('StripeProvider.createPayment — referral attribution', () => {
-  beforeEach(() => {
-    process.env.ALLOWED_PERIOD = '1,3,6,12';
-    process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1 = 'price_default';
-  });
-
-  afterEach(() => {
-    delete process.env.ALLOWED_PERIOD;
-    delete process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1;
-  });
-
-  const referredAnonymousDto = (): CreateStripeSessionDto => ({
-    userId: null,
-    purchaseType: 'subscription',
-    selectedPeriod: 1,
-    metadata: { email: 'payer@example.com' },
-    toltReferralId: 'tolt_1',
-  });
-
-  const customerOnFile = (): CustomersListMock =>
-    vi.fn(async () => ({ data: [{ id: 'cus_existing', metadata: {} }] }));
-
-  /** The tolt_referral the session was opened with, or undefined. */
-  const referralOnSession = (mockCreateSession: ReturnType<typeof vi.fn>) =>
-    mockCreateSession.mock.calls[0][0].metadata.tolt_referral;
-
-  it('drops the referral when the email already has a settled Stripe payment', async () => {
-    const mockRepoExists = vi.fn().mockResolvedValue(true);
-    const { provider, mockCreateSession } = makeProvider({
-      mockCustomersList: customerOnFile(),
-      mockRepoExists,
+      ...overrides,
     });
 
-    await provider.createPayment(referredAnonymousDto());
+    /** An existing Stripe customer for `payer@example.com`, with the given metadata. */
+    const customerOnFile = (metadata: Record<string, string>): CustomersListMock =>
+      vi.fn(async () => ({ data: [{ id: 'cus_existing', metadata }] }));
 
-    expect(mockRepoExists).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ customer: 'cus_existing' }),
-      }),
-    );
-    expect(referralOnSession(mockCreateSession)).toBeNull();
-  });
-
-  it('attributes the referral when the customer on file has never paid', async () => {
-    const { provider, mockCreateSession } = makeProvider({
-      mockCustomersList: customerOnFile(),
-      mockRepoExists: vi.fn().mockResolvedValue(false),
-    });
-
-    await provider.createPayment(referredAnonymousDto());
-
-    expect(referralOnSession(mockCreateSession)).toBe('tolt_1');
-  });
-
-  it('attributes the referral when the email has no Stripe customer at all', async () => {
-    const mockRepoExists = vi.fn().mockResolvedValue(false);
-    const { provider, mockCreateSession } = makeProvider({ mockRepoExists });
-
-    await provider.createPayment(referredAnonymousDto());
-
-    expect(mockRepoExists).not.toHaveBeenCalled();
-    expect(referralOnSession(mockCreateSession)).toBe('tolt_1');
-  });
-});
-
-/**
- * `openSession` is what the controllers actually call: it prices the request,
- * opens the session, and — only for a real checkout — records the pending sale
- * and the start of the funnel.
- */
-describe('StripeProvider.openSession', () => {
-  beforeEach(() => {
-    process.env.PRICE_EUR_MONTH_1 = '10';
-    process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1 = 'price_1';
-  });
-
-  afterEach(() => {
-    delete process.env.PRICE_EUR_MONTH_1;
-    delete process.env.STRIPE_SUBSCRIPTION_PRICE_ID_MONTH_1;
-    delete process.env.EXTRA_DEVICE_PRICE_EUR;
-    delete process.env.STRIPE_EXTRA_DEVICE_PRICE_ID;
-  });
-
-  it('records the pending sale for a checkout session', async () => {
-    const { provider, mockRepoSave } = makeProvider({});
-
-    await provider.openSession(subscriptionDto(), 'https://app.test');
-
-    expect(mockRepoSave).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'cs_1', status: 'pending', amount: 10, paidAt: null }),
-    );
-  });
-
-  it('records the start of checkout for analytics, tagged with its purpose', async () => {
-    const { provider, mockTrack } = makeProvider({});
-
-    await provider.openSession(subscriptionDto({ userId: 42 }), 'https://app.test');
-
-    expect(mockTrack).toHaveBeenCalledWith({
-      event: 'checkout_started',
-      userId: 42,
-      email: 'test@example.com',
-      provider: 'stripe',
-      purpose: 'subscription',
-      amount: '10',
-      currency: 'EUR',
-    });
-  });
-
-  it('tags an extra-device checkout with its purpose', async () => {
-    process.env.EXTRA_DEVICE_PRICE_EUR = '5';
-    process.env.STRIPE_EXTRA_DEVICE_PRICE_ID = 'price_device';
-    const { provider, mockTrack } = makeProvider({});
-
-    await provider.openSession(
-      subscriptionDto({ purchaseType: 'extra_device' }),
-      'https://app.test',
-    );
-
-    expect(mockTrack).toHaveBeenCalledWith(
-      expect.objectContaining({ event: 'checkout_started', purpose: 'extra_device' }),
-    );
-  });
-
-  describe('when the subscriber is sent to the billing portal instead', () => {
-    // A customer with a live subscription is routed to the portal rather than
-    // being sold a second one.
-    const portalProvider = () =>
-      makeProvider({
-        mockRepoFindOne: vi.fn().mockResolvedValue({ customer: 'cus_1' }),
-        mockSubscriptionsList: vi.fn().mockResolvedValue({ data: [{ status: 'active' }] }),
+    it('carries the referral onto a customer that was created without one', async () => {
+      const { provider, mockCustomersUpdate } = makeProvider({
+        mockCustomersList: customerOnFile({ email: 'payer@example.com' }),
       });
 
-    it('records no sale, because opening the portal buys nothing', async () => {
-      const { provider, mockRepoSave } = portalProvider();
+      await provider.createPayment(anonymousDto());
+
+      expect(mockCustomersUpdate).toHaveBeenCalledWith('cus_existing', {
+        metadata: { inviterId: '42', signupOrigin: 'https://jungle-vpn.com' },
+      });
+    });
+
+    it('keeps the attribution already on file rather than overwriting it', async () => {
+      const { provider, mockCustomersUpdate } = makeProvider({
+        mockCustomersList: customerOnFile({
+          email: 'payer@example.com',
+          inviterId: '7',
+          signupOrigin: 'https://jungle-vpn.com',
+        }),
+      });
+
+      await provider.createPayment(anonymousDto());
+
+      expect(mockCustomersUpdate).not.toHaveBeenCalled();
+    });
+
+    // Once the account exists the webhook never reads these keys again, so there
+    // is nothing to back-fill and no reason to spend a Stripe write on it.
+    it('leaves a customer whose account already exists untouched', async () => {
+      const { provider, mockCustomersUpdate } = makeProvider({
+        mockCustomersList: customerOnFile({ email: 'payer@example.com', userId: '1000' }),
+      });
+
+      await provider.createPayment(anonymousDto());
+
+      expect(mockCustomersUpdate).not.toHaveBeenCalled();
+    });
+
+    // Losing the referral is bad; losing the sale is worse.
+    it('still opens the checkout when the back-fill fails', async () => {
+      const { provider, mockCreateSession } = makeProvider({
+        mockCustomersList: customerOnFile({ email: 'payer@example.com' }),
+        mockCustomersUpdate: vi.fn().mockRejectedValue(new Error('rate limited')),
+      });
+
+      await expect(provider.createPayment(anonymousDto())).resolves.toMatchObject({ id: 'cs_1' });
+      expect(mockCreateSession).toHaveBeenCalled();
+    });
+
+    // The reason the lookup exists at all: a second customer for the same address
+    // is a second subscription billed against a payer who already has one.
+    it('bills the customer it found rather than minting a second one', async () => {
+      const { provider, mockCreateSession, mockCustomersCreate } = makeProvider({
+        mockCustomersList: customerOnFile({ email: 'payer@example.com' }),
+      });
+
+      await provider.createPayment(anonymousDto());
+
+      expect(mockCustomersCreate).not.toHaveBeenCalled();
+      expect(mockCreateSession).toHaveBeenCalledWith(
+        expect.objectContaining({ customer: 'cus_existing' }),
+      );
+    });
+
+    // Stripe reads an empty metadata value as "delete this key", so a blank is
+    // never something to write — and on its own it is not a reason to write at all.
+    it('ignores a blank metadata value rather than writing it', async () => {
+      const { provider, mockCustomersUpdate } = makeProvider({
+        mockCustomersList: customerOnFile({ email: 'payer@example.com' }),
+      });
+
+      await provider.createPayment(
+        anonymousDto({ metadata: { email: 'payer@example.com', inviterId: '' } }),
+      );
+
+      expect(mockCustomersUpdate).not.toHaveBeenCalled();
+    });
+
+    it('writes the metadata itself when there is no customer to reuse', async () => {
+      const { provider, mockCustomersCreate, mockCustomersUpdate } = makeProvider({});
+
+      await provider.createPayment(anonymousDto());
+
+      expect(mockCustomersCreate).toHaveBeenCalledWith({
+        email: 'payer@example.com',
+        metadata: {
+          email: 'payer@example.com',
+          inviterId: '42',
+          signupOrigin: 'https://jungle-vpn.com',
+        },
+      });
+      expect(mockCustomersUpdate).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * A Tolt referral is a new-customer commission, so it may only ride on a payer's
+   * first-ever successful payment. An anonymous checkout carries no userId, so the
+   * history has to be read off the Stripe customer the email resolved to.
+   */
+  describe('StripeProvider.createPayment — referral attribution', () => {
+    beforeEach(() => {
+      process.env.ALLOWED_PERIODS_IN_DAYS = '30,180,365';
+      process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_default';
+    });
+
+    afterEach(() => {
+      delete process.env.ALLOWED_PERIODS_IN_DAYS;
+      delete process.env.STRIPE_PRICE_ID_DAYS_30;
+    });
+
+    const referredAnonymousDto = (): CreateStripeSessionDto => ({
+      userId: null,
+      purchaseType: 'subscription',
+      selectedPeriod: 30,
+      metadata: { email: 'payer@example.com' },
+      toltReferralId: 'tolt_1',
+    });
+
+    const customerOnFile = (): CustomersListMock =>
+      vi.fn(async () => ({ data: [{ id: 'cus_existing', metadata: {} }] }));
+
+    /** The tolt_referral the session was opened with, or undefined. */
+    const referralOnSession = (mockCreateSession: ReturnType<typeof vi.fn>) =>
+      mockCreateSession.mock.calls[0][0].metadata.tolt_referral;
+
+    it('drops the referral when the email already has a settled Stripe payment', async () => {
+      const mockRepoExists = vi.fn().mockResolvedValue(true);
+      const { provider, mockCreateSession } = makeProvider({
+        mockCustomersList: customerOnFile(),
+        mockRepoExists,
+      });
+
+      await provider.createPayment(referredAnonymousDto());
+
+      expect(mockRepoExists).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ customer: 'cus_existing' }),
+        }),
+      );
+      expect(referralOnSession(mockCreateSession)).toBeNull();
+    });
+
+    it('attributes the referral when the customer on file has never paid', async () => {
+      const { provider, mockCreateSession } = makeProvider({
+        mockCustomersList: customerOnFile(),
+        mockRepoExists: vi.fn().mockResolvedValue(false),
+      });
+
+      await provider.createPayment(referredAnonymousDto());
+
+      expect(referralOnSession(mockCreateSession)).toBe('tolt_1');
+    });
+
+    it('attributes the referral when the email has no Stripe customer at all', async () => {
+      const mockRepoExists = vi.fn().mockResolvedValue(false);
+      const { provider, mockCreateSession } = makeProvider({ mockRepoExists });
+
+      await provider.createPayment(referredAnonymousDto());
+
+      expect(mockRepoExists).not.toHaveBeenCalled();
+      expect(referralOnSession(mockCreateSession)).toBe('tolt_1');
+    });
+  });
+
+  /**
+   * `openSession` is what the controllers actually call: it prices the request,
+   * opens the session, and — only for a real checkout — records the pending sale
+   * and the start of the funnel.
+   */
+  describe('StripeProvider.openSession', () => {
+    beforeEach(() => {
+      process.env.PRICE_EUR_DAYS_30 = '10';
+      process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_1';
+    });
+
+    afterEach(() => {
+      delete process.env.PRICE_EUR_DAYS_30;
+      delete process.env.STRIPE_PRICE_ID_DAYS_30;
+      delete process.env.EXTRA_DEVICE_PRICE_EUR;
+      delete process.env.STRIPE_EXTRA_DEVICE_PRICE_ID;
+    });
+
+    it('records the pending sale for a checkout session', async () => {
+      const { provider, mockRepoSave } = makeProvider({});
 
       await provider.openSession(subscriptionDto(), 'https://app.test');
 
-      expect(mockRepoSave).not.toHaveBeenCalled();
+      expect(mockRepoSave).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'cs_1', status: 'pending', amount: 10, paidAt: null }),
+      );
     });
 
-    it('reports no checkout started, because none was', async () => {
-      const { provider, mockTrack } = portalProvider();
+    describe('when the subscriber is sent to the billing portal instead', () => {
+      // A customer with a live subscription is routed to the portal rather than
+      // being sold a second one.
+      const portalProvider = () =>
+        makeProvider({
+          mockRepoFindOne: vi.fn().mockResolvedValue({ customer: 'cus_1' }),
+          mockSubscriptionsList: vi.fn().mockResolvedValue({ data: [{ status: 'active' }] }),
+        });
 
-      await provider.openSession(subscriptionDto(), 'https://app.test');
+      it('records no sale, because opening the portal buys nothing', async () => {
+        const { provider, mockRepoSave } = portalProvider();
 
-      expect(mockTrack).not.toHaveBeenCalled();
+        await provider.openSession(subscriptionDto(), 'https://app.test');
+
+        expect(mockRepoSave).not.toHaveBeenCalled();
+      });
+
+      it('reports no checkout started, because none was', async () => {
+        const { provider, mockTrack } = portalProvider();
+
+        await provider.openSession(subscriptionDto(), 'https://app.test');
+
+        expect(mockTrack).not.toHaveBeenCalled();
+      });
+
+      it('still returns the portal session to the caller', async () => {
+        const { provider } = portalProvider();
+
+        const session = await provider.openSession(subscriptionDto(), 'https://app.test');
+
+        expect(session).toMatchObject({ object: 'billing_portal.session' });
+      });
     });
 
-    it('still returns the portal session to the caller', async () => {
-      const { provider } = portalProvider();
+    it('rejects an unusable period before reaching Stripe', async () => {
+      const { provider, mockCreateSession } = makeProvider({});
 
-      const session = await provider.openSession(subscriptionDto(), 'https://app.test');
-
-      expect(session).toMatchObject({ object: 'billing_portal.session' });
-    });
-  });
-
-  it('rejects an unusable period before reaching Stripe', async () => {
-    const { provider, mockCreateSession } = makeProvider({});
-
-    await expect(
-      provider.openSession(subscriptionDto({ selectedPeriod: 7 }), 'https://app.test'),
-    ).rejects.toThrow(BadRequestException);
-    expect(mockCreateSession).not.toHaveBeenCalled();
-  });
-});
-
-/**
- * Subscription status is answered from our own `saved_payment_methods` rows,
- * which the Stripe webhooks maintain: a paid invoice activates a row, a
- * cancelled subscription deletes it. Stripe's API is not consulted — this
- * question is asked on every profile load.
- */
-describe('StripeProvider.getSubscriptionStatus', () => {
-  const stripeRow = (overrides: Record<string, unknown> = {}) => ({
-    id: 'row-1',
-    userId: 42,
-    provider: 'stripe',
-    paymentMethodId: 'sub_123',
-    paymentMethodType: 'stripe',
-    title: null,
-    card: null,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    ...overrides,
-  });
-
-  it('reports an active subscription from the row the webhook wrote', async () => {
-    const { provider } = makeProvider({
-      mockSavedMethodFind: vi.fn().mockResolvedValue([stripeRow()]),
-    });
-
-    const status = await provider.getSubscriptionStatus(42);
-
-    expect(status.active).toBe(true);
-    expect(status.methods).toHaveLength(1);
-    expect(status.methods[0]?.paymentMethodId).toBe('sub_123');
-  });
-
-  it('reports no subscription for a user with no saved Stripe row', async () => {
-    const { provider } = makeProvider({});
-
-    await expect(provider.getSubscriptionStatus(42)).resolves.toEqual({
-      active: false,
-      methods: [],
+      await expect(
+        provider.openSession(subscriptionDto({ selectedPeriod: 7 }), 'https://app.test'),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockCreateSession).not.toHaveBeenCalled();
     });
   });
 
-  // The reason for reading our own rows at all: this runs on every profile load.
-  it('never calls the Stripe API to answer the question', async () => {
-    const { provider, mockPortalCreate } = makeProvider({
-      mockSavedMethodFind: vi.fn().mockResolvedValue([stripeRow()]),
-      mockSubscriptionsList: vi.fn().mockRejectedValue(new Error('should not be called')),
+  /**
+   * Subscription status is answered from our own `saved_payment_methods` rows,
+   * which the Stripe webhooks maintain: a paid invoice activates a row, a
+   * cancelled subscription deletes it. Stripe's API is not consulted — this
+   * question is asked on every profile load.
+   */
+  describe('StripeProvider.getSubscriptionStatus', () => {
+    const stripeRow = (overrides: Record<string, unknown> = {}) => ({
+      id: 'row-1',
+      userId: 42,
+      provider: 'stripe',
+      paymentMethodId: 'sub_123',
+      paymentMethodType: 'stripe',
+      title: null,
+      card: null,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...overrides,
     });
 
-    await expect(provider.getSubscriptionStatus(42)).resolves.toMatchObject({ active: true });
-    expect(mockPortalCreate).not.toHaveBeenCalled();
+    it('reports an active subscription from the row the webhook wrote', async () => {
+      const { provider } = makeProvider({
+        mockSavedMethodFind: vi.fn().mockResolvedValue([stripeRow()]),
+      });
+
+      const status = await provider.getSubscriptionStatus(42);
+
+      expect(status.active).toBe(true);
+      expect(status.methods).toHaveLength(1);
+      expect(status.methods[0]?.paymentMethodId).toBe('sub_123');
+    });
+
+    it('reports no subscription for a user with no saved Stripe row', async () => {
+      const { provider } = makeProvider({});
+
+      await expect(provider.getSubscriptionStatus(42)).resolves.toEqual({
+        active: false,
+        methods: [],
+      });
+    });
+
+    // The reason for reading our own rows at all: this runs on every profile load.
+    it('never calls the Stripe API to answer the question', async () => {
+      const { provider, mockPortalCreate } = makeProvider({
+        mockSavedMethodFind: vi.fn().mockResolvedValue([stripeRow()]),
+        mockSubscriptionsList: vi.fn().mockRejectedValue(new Error('should not be called')),
+      });
+
+      await expect(provider.getSubscriptionStatus(42)).resolves.toMatchObject({ active: true });
+      expect(mockPortalCreate).not.toHaveBeenCalled();
+    });
+
+    // YooKassa cards and Stripe subscriptions share one table, so an unscoped
+    // read would report a YooKassa payer as a Stripe subscriber.
+    it("asks only for this user's rows, scoped to Stripe and still active", async () => {
+      const { provider, mockSavedMethodFind } = makeProvider({});
+
+      await provider.getSubscriptionStatus(42);
+
+      expect(mockSavedMethodFind).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { userId: 42, provider: 'stripe', isActive: true } }),
+      );
+    });
   });
 
-  // YooKassa cards and Stripe subscriptions share one table, so an unscoped
-  // read would report a YooKassa payer as a Stripe subscriber.
-  it("asks only for this user's rows, scoped to Stripe and still active", async () => {
-    const { provider, mockSavedMethodFind } = makeProvider({});
+  /**
+   * The Billing Portal is the one thing only Stripe can produce, so it stays a
+   * live call — made when the user presses "manage", not on every page load.
+   */
+  describe('StripeProvider.getPortalUrl', () => {
+    it('mints a fresh portal URL for a customer we know', async () => {
+      const { provider } = makeProvider({
+        mockRepoFindOne: vi.fn().mockResolvedValue({ customer: 'cus_1' }),
+      });
 
-    await provider.getSubscriptionStatus(42);
-
-    expect(mockSavedMethodFind).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { userId: 42, provider: 'stripe', isActive: true } }),
-    );
-  });
-});
-
-/**
- * The Billing Portal is the one thing only Stripe can produce, so it stays a
- * live call — made when the user presses "manage", not on every page load.
- */
-describe('StripeProvider.getPortalUrl', () => {
-  it('mints a fresh portal URL for a customer we know', async () => {
-    const { provider } = makeProvider({
-      mockRepoFindOne: vi.fn().mockResolvedValue({ customer: 'cus_1' }),
+      await expect(provider.getPortalUrl(42)).resolves.toEqual({
+        portalUrl: 'https://portal.test',
+      });
     });
 
-    await expect(provider.getPortalUrl(42)).resolves.toEqual({
-      portalUrl: 'https://portal.test',
-    });
-  });
+    it('reports no URL for a user who has never paid through Stripe', async () => {
+      const { provider, mockPortalCreate } = makeProvider({
+        mockRepoFindOne: vi.fn().mockResolvedValue(null),
+      });
 
-  it('reports no URL for a user who has never paid through Stripe', async () => {
-    const { provider, mockPortalCreate } = makeProvider({
-      mockRepoFindOne: vi.fn().mockResolvedValue(null),
+      await expect(provider.getPortalUrl(42)).resolves.toEqual({ portalUrl: null });
+      expect(mockPortalCreate).not.toHaveBeenCalled();
     });
-
-    await expect(provider.getPortalUrl(42)).resolves.toEqual({ portalUrl: null });
-    expect(mockPortalCreate).not.toHaveBeenCalled();
   });
 });

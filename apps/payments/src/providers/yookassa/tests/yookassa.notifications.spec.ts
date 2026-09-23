@@ -162,8 +162,8 @@ describe('YooKassa payment notifications', () => {
     process.env.REMNAWAVE_URL = 'http://remnawave:3002/remnawave';
     process.env.INTER_SERVICE_SECRET = 'inter-secret';
     process.env.PAYMENT_DESCRIPTION = 'Jungle VPN';
-    process.env.ALLOWED_PERIOD = '1';
-    process.env.PRICE_RUB_MONTH_1 = '599';
+    process.env.ALLOWED_PERIODS_IN_DAYS = '1';
+    process.env.PRICE_RUB_DAYS_30 = '599';
     // Without Zoho credentials the mailer short-circuits and sends nothing.
     process.env.ZOHO_CLIENT_ID = 'zc';
     process.env.ZOHO_CLIENT_SECRET = 'zs';
@@ -189,13 +189,13 @@ describe('YooKassa payment notifications', () => {
     mockYkFindOneBy = vi.fn().mockResolvedValue({
       id: 'pay_1',
       userId: 1000,
-      selectedPeriod: 1,
+      selectedPeriod: 30,
       amount: '599.00',
       purpose: 'subscription',
       status: 'pending',
       paidAt: null,
     });
-    mockYkFindOne = vi.fn().mockResolvedValue({ selectedPeriod: 1, amount: '599.00' });
+    mockYkFindOne = vi.fn().mockResolvedValue({ selectedPeriod: 30, amount: '599.00' });
     mockYkCount = vi.fn().mockResolvedValue(1);
 
     const yookassaPaymentRepo = {
@@ -266,8 +266,8 @@ describe('YooKassa payment notifications', () => {
       'REMNAWAVE_URL',
       'INTER_SERVICE_SECRET',
       'PAYMENT_DESCRIPTION',
-      'ALLOWED_PERIOD',
-      'PRICE_RUB_MONTH_1',
+      'ALLOWED_PERIODS_IN_DAYS',
+      'PRICE_RUB_DAYS_30',
       'ZOHO_CLIENT_ID',
       'ZOHO_CLIENT_SECRET',
       'ZOHO_REFRESH_TOKEN',
@@ -279,309 +279,313 @@ describe('YooKassa payment notifications', () => {
 
   // ── Successful payment ─────────────────────────────────────────────────────
 
-  describe('when a payment succeeds', () => {
-    it('tells the bot to congratulate the paying user', async () => {
-      await yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1');
-      await settle();
+  describe('Service', () => {
+    describe('when a payment succeeds', () => {
+      it('tells the bot to congratulate the paying user', async () => {
+        await yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1');
+        await settle();
 
-      expect(botNotifications()).toEqual([
-        {
-          eventType: 'payment.succeeded',
-          payload: {
-            userId: 1000,
-            provider: 'yookassa',
-            selectedPeriod: 1,
-            purpose: 'subscription',
-            isFirstPayment: false,
+        expect(botNotifications()).toEqual([
+          {
+            eventType: 'payment.succeeded',
+            payload: {
+              userId: 1000,
+              provider: 'yookassa',
+              selectedPeriod: 30,
+              purpose: 'subscription',
+              isFirstPayment: false,
+            },
+            user: remnawaveUser,
           },
-          user: remnawaveUser,
-        },
-      ]);
-    });
-
-    it('authenticates the bot call with the shared secret', async () => {
-      await yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1');
-      await settle();
-
-      const call = mockAxiosPost.mock.calls.find(([url]) =>
-        String(url).includes('/notify/payment'),
-      );
-      expect(call?.[0]).toBe('http://bot:7080/bot/notify/payment');
-      expect(call?.[2]).toMatchObject({ headers: { 'x-bot-secret': 'bot-secret' } });
-    });
-
-    it('flags a first payment so the bot can send an onboarding message', async () => {
-      mockYkCount.mockResolvedValue(0);
-
-      await yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1');
-      await settle();
-
-      expect(botNotifications()[0].payload).toMatchObject({ isFirstPayment: true });
-    });
-
-    it('emails the user a payment confirmation alongside the bot notification', async () => {
-      await yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1');
-      await settle();
-
-      expect(sentEmails()).toHaveLength(1);
-      expect(sentEmails()[0].toAddress).toBe('user@example.test');
-    });
-
-    // The user has no Telegram account to message; the flow must not blow up.
-    it('skips the bot call for a user with no telegram id', async () => {
-      mockAxiosGet.mockImplementation(async (url: string) => {
-        if (url.includes('/metadata')) return { data: { lang: 'en' } };
-        return { data: { ...remnawaveUser, telegramId: null } };
+        ]);
       });
 
-      await yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1');
-      await settle();
+      it('authenticates the bot call with the shared secret', async () => {
+        await yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1');
+        await settle();
 
-      expect(botNotifications()).toEqual([]);
-    });
-
-    // Notification is a side effect of a payment that has already settled;
-    // a bot outage must never surface as a failed webhook.
-    it('completes the payment even when the bot is unreachable', async () => {
-      mockAxiosPost.mockRejectedValue({ isAxiosError: true, message: 'ECONNREFUSED' });
-
-      await expect(
-        yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1'),
-      ).resolves.toBeUndefined();
-      await settle();
-    });
-
-    it('completes the payment even when the user cannot be loaded', async () => {
-      mockAxiosGet.mockRejectedValue({ isAxiosError: true, response: { status: 404 } });
-
-      await expect(
-        yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1'),
-      ).resolves.toBeUndefined();
-      await settle();
-
-      expect(botNotifications()).toEqual([]);
-    });
-  });
-
-  // ── Failed one-off payment ─────────────────────────────────────────────────
-
-  describe('when a payment is canceled', () => {
-    it('tells the bot why the renewal failed', async () => {
-      mockGetPayment.mockResolvedValue({ status: 'canceled' });
-
-      await yookassaService.handleWebhook(canceledWebhook(), '127.0.0.1');
-      await settle();
-
-      expect(botNotifications()).toEqual([
-        {
-          eventType: 'payment.canceled',
-          payload: {
-            userId: 1000,
-            provider: 'yookassa',
-            selectedPeriod: 1,
-            reason: 'insufficient_funds',
-          },
-          user: remnawaveUser,
-        },
-      ]);
-    });
-
-    // payment.canceled has no email listener: the user is already told in
-    // Telegram, and the autopayment failures below are the ones worth mailing.
-    it('sends no email for a canceled one-off payment', async () => {
-      mockGetPayment.mockResolvedValue({ status: 'canceled' });
-
-      await yookassaService.handleWebhook(canceledWebhook(), '127.0.0.1');
-      await settle();
-
-      expect(sentEmails()).toEqual([]);
-    });
-  });
-
-  // ── Autopayment failures ───────────────────────────────────────────────────
-
-  describe('when an autopayment cannot be charged', () => {
-    beforeEach(() => {
-      mockSmFindOneBy.mockResolvedValue({
-        userId: 1000,
-        provider: 'yookassa',
-        paymentMethodId: 'pm_1',
-        isActive: true,
-      });
-    });
-
-    it('notifies the bot and emails the user when the card has no funds', async () => {
-      mockProviderCreate.mockResolvedValue({
-        id: 'pay_x',
-        status: 'canceled',
-        cancellation_details: { reason: 'insufficient_funds', party: 'payment_network' },
+        const call = mockAxiosPost.mock.calls.find(([url]) =>
+          String(url).includes('/notify/payment'),
+        );
+        expect(call?.[0]).toBe('http://bot:7080/bot/notify/payment');
+        expect(call?.[2]).toMatchObject({ headers: { 'x-bot-secret': 'bot-secret' } });
       });
 
-      await autopaymentService.init(remnaPayload());
-      await settle();
+      it('flags a first payment so the bot can send an onboarding message', async () => {
+        mockYkCount.mockResolvedValue(0);
 
-      expect(botNotifications()).toEqual([
-        {
-          eventType: 'payment.insufficient_funds',
-          payload: { userId: 1000, provider: 'yookassa', reason: 'insufficient_funds' },
-          user: remnawaveUser,
-        },
-      ]);
-      expect(sentEmails()).toHaveLength(1);
-      expect(sentEmails()[0]).toMatchObject({
-        toAddress: 'user@example.test',
-        fromAddress: '"JungleVPN Subscription" <notification@jungle-vpn.com>',
-      });
-    });
+        await yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1');
+        await settle();
 
-    // A declined card is a bank decision the user must act on themselves, but
-    // it carries no email template — Telegram is the only channel.
-    it('notifies only the bot when the card is declined', async () => {
-      mockProviderCreate.mockResolvedValue({
-        id: 'pay_x',
-        status: 'canceled',
-        cancellation_details: { reason: 'general_decline', party: 'payment_network' },
+        expect(botNotifications()[0].payload).toMatchObject({ isFirstPayment: true });
       });
 
-      await autopaymentService.init(remnaPayload());
-      await settle();
+      it('emails the user a payment confirmation alongside the bot notification', async () => {
+        await yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1');
+        await settle();
 
-      expect(botNotifications().map((n) => n.eventType)).toEqual(['payment.general_decline']);
-      expect(sentEmails()).toEqual([]);
-    });
-
-    it('notifies only the bot when every retry is exhausted', async () => {
-      mockProviderCreate.mockResolvedValue({
-        id: 'pay_x',
-        status: 'canceled',
-        cancellation_details: { reason: 'payment_method_restricted', party: 'payment_network' },
+        expect(sentEmails()).toHaveLength(1);
+        expect(sentEmails()[0].toAddress).toBe('user@example.test');
       });
 
-      await autopaymentService.init(remnaPayload());
-      await settle();
-
-      expect(botNotifications().map((n) => n.eventType)).toEqual(['payment.autopayment_exhausted']);
-      expect(sentEmails()).toEqual([]);
-    });
-
-    it('sends nothing at all when the charge succeeds', async () => {
-      mockProviderCreate.mockResolvedValue({
-        id: 'pay_ok',
-        status: 'succeeded',
-        amount: { value: '599.00', currency: 'RUB' },
-      });
-
-      await autopaymentService.init(remnaPayload());
-      await settle();
-
-      expect(botNotifications()).toEqual([]);
-      expect(sentEmails()).toEqual([]);
-    });
-  });
-
-  // ── No method to charge ────────────────────────────────────────────────────
-
-  describe('when the user has no method to charge', () => {
-    beforeEach(() => {
-      mockSmFindOneBy.mockResolvedValue(null);
-    });
-
-    it('notifies the bot that there is nothing to charge', async () => {
-      await autopaymentService.init(remnaPayload());
-      await settle();
-
-      expect(botNotifications()).toEqual([
-        {
-          eventType: 'payment.no_active_method',
-          payload: { userId: 1000, provider: 'yookassa', reason: 'no_active_method' },
-          user: remnawaveUser,
-        },
-      ]);
-    });
-
-    // Only the mailer's `payment.no_active_method` listener should fire —
-    // sending the 24h expiry countdown on top would double-email the user.
-    it('sends only the no-method notice, not the 24 hour expiry countdown', async () => {
-      await autopaymentService.init(remnaPayload());
-      await settle();
-
-      const subjects = sentEmails().map((email) => email.subject);
-      expect(subjects).toHaveLength(1);
-      expect(sentEmails().every((email) => email.toAddress === 'user@example.test')).toBe(true);
-    });
-
-    // Locale comes from the user's remnawave metadata, so a Russian-speaking
-    // customer is not mailed in English.
-    it('writes the email in the language the user has chosen', async () => {
-      const subjectsFor = async (lang: string) => {
-        mockAxiosPost.mockClear();
+      // The user has no Telegram account to message; the flow must not blow up.
+      it('skips the bot call for a user with no telegram id', async () => {
         mockAxiosGet.mockImplementation(async (url: string) => {
-          if (url.includes('/metadata')) return { data: { lang } };
+          if (url.includes('/metadata')) return { data: { lang: 'en' } };
+          return { data: { ...remnawaveUser, telegramId: null } };
+        });
+
+        await yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1');
+        await settle();
+
+        expect(botNotifications()).toEqual([]);
+      });
+
+      // Notification is a side effect of a payment that has already settled;
+      // a bot outage must never surface as a failed webhook.
+      it('completes the payment even when the bot is unreachable', async () => {
+        mockAxiosPost.mockRejectedValue({ isAxiosError: true, message: 'ECONNREFUSED' });
+
+        await expect(
+          yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1'),
+        ).resolves.toBeUndefined();
+        await settle();
+      });
+
+      it('completes the payment even when the user cannot be loaded', async () => {
+        mockAxiosGet.mockRejectedValue({ isAxiosError: true, response: { status: 404 } });
+
+        await expect(
+          yookassaService.handleWebhook(succeededWebhook(), '127.0.0.1'),
+        ).resolves.toBeUndefined();
+        await settle();
+
+        expect(botNotifications()).toEqual([]);
+      });
+    });
+
+    // ── Failed one-off payment ─────────────────────────────────────────────────
+
+    describe('when a payment is canceled', () => {
+      it('tells the bot why the renewal failed', async () => {
+        mockGetPayment.mockResolvedValue({ status: 'canceled' });
+
+        await yookassaService.handleWebhook(canceledWebhook(), '127.0.0.1');
+        await settle();
+
+        expect(botNotifications()).toEqual([
+          {
+            eventType: 'payment.canceled',
+            payload: {
+              userId: 1000,
+              provider: 'yookassa',
+              selectedPeriod: 30,
+              reason: 'insufficient_funds',
+            },
+            user: remnawaveUser,
+          },
+        ]);
+      });
+
+      // payment.canceled has no email listener: the user is already told in
+      // Telegram, and the autopayment failures below are the ones worth mailing.
+      it('sends no email for a canceled one-off payment', async () => {
+        mockGetPayment.mockResolvedValue({ status: 'canceled' });
+
+        await yookassaService.handleWebhook(canceledWebhook(), '127.0.0.1');
+        await settle();
+
+        expect(sentEmails()).toEqual([]);
+      });
+    });
+
+    // ── Autopayment failures ───────────────────────────────────────────────────
+
+    describe('when an autopayment cannot be charged', () => {
+      beforeEach(() => {
+        mockSmFindOneBy.mockResolvedValue({
+          userId: 1000,
+          provider: 'yookassa',
+          paymentMethodId: 'pm_1',
+          isActive: true,
+        });
+      });
+
+      it('notifies the bot and emails the user when the card has no funds', async () => {
+        mockProviderCreate.mockResolvedValue({
+          id: 'pay_x',
+          status: 'canceled',
+          cancellation_details: { reason: 'insufficient_funds', party: 'payment_network' },
+        });
+
+        await autopaymentService.init(remnaPayload());
+        await settle();
+
+        expect(botNotifications()).toEqual([
+          {
+            eventType: 'payment.insufficient_funds',
+            payload: { userId: 1000, provider: 'yookassa', reason: 'insufficient_funds' },
+            user: remnawaveUser,
+          },
+        ]);
+        expect(sentEmails()).toHaveLength(1);
+        expect(sentEmails()[0]).toMatchObject({
+          toAddress: 'user@example.test',
+          fromAddress: '"JungleVPN Subscription" <notification@jungle-vpn.com>',
+        });
+      });
+
+      // A declined card is a bank decision the user must act on themselves, but
+      // it carries no email template — Telegram is the only channel.
+      it('notifies only the bot when the card is declined', async () => {
+        mockProviderCreate.mockResolvedValue({
+          id: 'pay_x',
+          status: 'canceled',
+          cancellation_details: { reason: 'general_decline', party: 'payment_network' },
+        });
+
+        await autopaymentService.init(remnaPayload());
+        await settle();
+
+        expect(botNotifications().map((n) => n.eventType)).toEqual(['payment.general_decline']);
+        expect(sentEmails()).toEqual([]);
+      });
+
+      it('notifies only the bot when every retry is exhausted', async () => {
+        mockProviderCreate.mockResolvedValue({
+          id: 'pay_x',
+          status: 'canceled',
+          cancellation_details: { reason: 'payment_method_restricted', party: 'payment_network' },
+        });
+
+        await autopaymentService.init(remnaPayload());
+        await settle();
+
+        expect(botNotifications().map((n) => n.eventType)).toEqual([
+          'payment.autopayment_exhausted',
+        ]);
+        expect(sentEmails()).toEqual([]);
+      });
+
+      it('sends nothing at all when the charge succeeds', async () => {
+        mockProviderCreate.mockResolvedValue({
+          id: 'pay_ok',
+          status: 'succeeded',
+          amount: { value: '599.00', currency: 'RUB' },
+        });
+
+        await autopaymentService.init(remnaPayload());
+        await settle();
+
+        expect(botNotifications()).toEqual([]);
+        expect(sentEmails()).toEqual([]);
+      });
+    });
+
+    // ── No method to charge ────────────────────────────────────────────────────
+
+    describe('when the user has no method to charge', () => {
+      beforeEach(() => {
+        mockSmFindOneBy.mockResolvedValue(null);
+      });
+
+      it('notifies the bot that there is nothing to charge', async () => {
+        await autopaymentService.init(remnaPayload());
+        await settle();
+
+        expect(botNotifications()).toEqual([
+          {
+            eventType: 'payment.no_active_method',
+            payload: { userId: 1000, provider: 'yookassa', reason: 'no_active_method' },
+            user: remnawaveUser,
+          },
+        ]);
+      });
+
+      // Only the mailer's `payment.no_active_method` listener should fire —
+      // sending the 24h expiry countdown on top would double-email the user.
+      it('sends only the no-method notice, not the 24 hour expiry countdown', async () => {
+        await autopaymentService.init(remnaPayload());
+        await settle();
+
+        const subjects = sentEmails().map((email) => email.subject);
+        expect(subjects).toHaveLength(1);
+        expect(sentEmails().every((email) => email.toAddress === 'user@example.test')).toBe(true);
+      });
+
+      // Locale comes from the user's remnawave metadata, so a Russian-speaking
+      // customer is not mailed in English.
+      it('writes the email in the language the user has chosen', async () => {
+        const subjectsFor = async (lang: string) => {
+          mockAxiosPost.mockClear();
+          mockAxiosGet.mockImplementation(async (url: string) => {
+            if (url.includes('/metadata')) return { data: { lang } };
+            return { data: remnawaveUser };
+          });
+
+          await autopaymentService.init(remnaPayload());
+          await settle();
+          return sentEmails().map((email) => email.subject);
+        };
+
+        const english = await subjectsFor('en');
+        const russian = await subjectsFor('ru');
+
+        expect(english).toHaveLength(1);
+        expect(russian).toHaveLength(1);
+        expect(russian).not.toEqual(english);
+        expect(english.join(' ')).toMatch(/[a-z]/i);
+        expect(russian.join(' ')).toMatch(/[а-яё]/i);
+      });
+
+      // An unrecognised or missing locale falls back to English rather than
+      // failing to render.
+      it('falls back to English when the panel reports no usable locale', async () => {
+        mockAxiosGet.mockImplementation(async (url: string) => {
+          if (url.includes('/metadata')) return { data: { lang: 'de' } };
           return { data: remnawaveUser };
         });
 
         await autopaymentService.init(remnaPayload());
         await settle();
-        return sentEmails().map((email) => email.subject);
-      };
 
-      const english = await subjectsFor('en');
-      const russian = await subjectsFor('ru');
-
-      expect(english).toHaveLength(1);
-      expect(russian).toHaveLength(1);
-      expect(russian).not.toEqual(english);
-      expect(english.join(' ')).toMatch(/[a-z]/i);
-      expect(russian.join(' ')).toMatch(/[а-яё]/i);
-    });
-
-    // An unrecognised or missing locale falls back to English rather than
-    // failing to render.
-    it('falls back to English when the panel reports no usable locale', async () => {
-      mockAxiosGet.mockImplementation(async (url: string) => {
-        if (url.includes('/metadata')) return { data: { lang: 'de' } };
-        return { data: remnawaveUser };
+        expect(
+          sentEmails()
+            .map((email) => email.subject)
+            .join(' '),
+        ).not.toMatch(/[а-яё]/i);
       });
 
-      await autopaymentService.init(remnaPayload());
-      await settle();
+      // Nothing to send to, so the mail step is skipped rather than failing.
+      // The address is read from the event payload for the expiry countdown and
+      // from the panel for the no-method notice, so both sources must be empty.
+      it('sends no email to a user with no address on file', async () => {
+        mockAxiosGet.mockImplementation(async (url: string) => {
+          if (url.includes('/metadata')) return { data: { lang: 'en' } };
+          return { data: { ...remnawaveUser, email: null } };
+        });
 
-      expect(
-        sentEmails()
-          .map((email) => email.subject)
-          .join(' '),
-      ).not.toMatch(/[а-яё]/i);
-    });
+        await autopaymentService.init(remnaPayload({ email: null }));
+        await settle();
 
-    // Nothing to send to, so the mail step is skipped rather than failing.
-    // The address is read from the event payload for the expiry countdown and
-    // from the panel for the no-method notice, so both sources must be empty.
-    it('sends no email to a user with no address on file', async () => {
-      mockAxiosGet.mockImplementation(async (url: string) => {
-        if (url.includes('/metadata')) return { data: { lang: 'en' } };
-        return { data: { ...remnawaveUser, email: null } };
+        expect(sentEmails()).toEqual([]);
+        expect(botNotifications()).toHaveLength(1);
       });
 
-      await autopaymentService.init(remnaPayload({ email: null }));
-      await settle();
+      // Mail is a best-effort channel; the Telegram notification is what the user
+      // will actually see, and it must survive a mail provider outage.
+      it('still notifies the bot when the mailer is down', async () => {
+        mockAxiosPost.mockImplementation(async (url: string) => {
+          if (url.includes('/oauth/v2/token')) throw new Error('zoho unavailable');
+          return { data: { ok: true } };
+        });
 
-      expect(sentEmails()).toEqual([]);
-      expect(botNotifications()).toHaveLength(1);
-    });
+        await expect(autopaymentService.init(remnaPayload())).resolves.toBeUndefined();
+        await settle();
 
-    // Mail is a best-effort channel; the Telegram notification is what the user
-    // will actually see, and it must survive a mail provider outage.
-    it('still notifies the bot when the mailer is down', async () => {
-      mockAxiosPost.mockImplementation(async (url: string) => {
-        if (url.includes('/oauth/v2/token')) throw new Error('zoho unavailable');
-        return { data: { ok: true } };
+        expect(botNotifications()).toHaveLength(1);
+        expect(sentEmails()).toEqual([]);
       });
-
-      await expect(autopaymentService.init(remnaPayload())).resolves.toBeUndefined();
-      await settle();
-
-      expect(botNotifications()).toHaveLength(1);
-      expect(sentEmails()).toEqual([]);
     });
   });
 });

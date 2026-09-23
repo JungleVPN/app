@@ -16,7 +16,6 @@ import {
   type RecordToltClickDto,
   type RecordToltClickResponse,
   SavedMethodDto,
-  type SubscriptionPlanDto,
   type TelegramStarsInvoiceResponse,
   type ValidatePromoDto,
   type ValidatePromoResponse,
@@ -25,10 +24,6 @@ import type { ApiClient } from '../client';
 
 export function createPaymentsApi(client: ApiClient) {
   return {
-    async getSubscriptionPlans(): Promise<SubscriptionPlanDto[]> {
-      return client.get<SubscriptionPlanDto[]>(apiRoutes.payments.plans);
-    },
-
     async createYookassaSession(
       dto: Omit<CreateYookassaSessionDto, 'amount'>,
     ): Promise<PaymentSession> {
