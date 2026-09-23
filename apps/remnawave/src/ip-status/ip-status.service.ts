@@ -10,6 +10,10 @@ export const NODE_CACHE_TTL_MS = 5 * 60 * 1000;
 export type IpStatus = {
   ip: string | null;
   countryCode: string | null;
+  city: string | null;
+  isp: string | null;
+  latitude: number | null;
+  longitude: number | null;
   /** `null` means "we could not tell" — never render that as "not protected". */
   protected: boolean | null;
 };
@@ -28,23 +32,32 @@ export class IpStatusService {
 
   async resolve(rawIp: string | undefined | null): Promise<IpStatus> {
     const ip = normalizeIp(rawIp);
-    if (!ip) return { ip: null, countryCode: null, protected: null };
+    if (!ip)
+      return {
+        ip: null,
+        countryCode: null,
+        city: null,
+        isp: null,
+        latitude: null,
+        longitude: null,
+        protected: null,
+      };
 
-    const nodeIps = await this.getNodeIps();
+    const [nodeIps, geo] = await Promise.all([this.getNodeIps(), this.geoLookup.lookup(ip)]);
 
     // No node list at all — the honest answer is "unknown". Saying "not
     // protected" here would tell every connected customer they are exposed
     // for as long as the panel is unreachable.
     if (!nodeIps) {
-      return { ip, countryCode: await this.geoLookup.lookupCountry(ip), protected: null };
+      return { ip, ...geo, protected: null };
     }
 
     const nodeCountry = nodeIps.get(ip);
     if (nodeCountry !== undefined) {
-      return { ip, countryCode: nodeCountry, protected: true };
+      return { ip, ...geo, countryCode: nodeCountry, protected: true };
     }
 
-    return { ip, countryCode: await this.geoLookup.lookupCountry(ip), protected: false };
+    return { ip, ...geo, protected: false };
   }
 
   private async getNodeIps(): Promise<Map<string, string> | null> {

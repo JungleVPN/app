@@ -150,6 +150,9 @@ export const LOCATIONS_PATH = '/locations';
 /** The public explainer page answering "what is a VPN?". */
 export const WHAT_IS_VPN_PATH = '/what-is-vpn';
 
+/** The public connection-status tool reached from the header's Tools menu. */
+export const MY_IP_PATH = '/my-ip';
+
 /**
  * True for the public marketing surfaces — the landing pages, the pricing page,
  * the referrals page, the locations page and the "what is a VPN" explainer —
@@ -161,7 +164,8 @@ export function isMarketingPath(pathname: string): boolean {
     pathname === PRICING_PATH ||
     pathname === REFERRALS_PATH ||
     pathname === LOCATIONS_PATH ||
-    pathname === WHAT_IS_VPN_PATH
+    pathname === WHAT_IS_VPN_PATH ||
+    pathname === MY_IP_PATH
   );
 }
 
@@ -183,6 +187,7 @@ export const CRAWLABLE_PATHS: ReadonlySet<string> = new Set([
   ...LANDING_PATHS,
   PRICING_PATH,
   WHAT_IS_VPN_PATH,
+  MY_IP_PATH,
   '/terms',
   '/privacy',
   '/cookies',

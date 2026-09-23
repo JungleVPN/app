@@ -35,6 +35,7 @@ export {
   LANDING_PATHS,
   LOCATIONS_PATH,
   localePolicyForHost,
+  MY_IP_PATH,
   markdownPathFor,
   normalizeHostname,
   PRICING_PATH,

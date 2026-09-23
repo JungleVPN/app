@@ -3,6 +3,7 @@ import { getDirection, i18n } from '@workspace/core/core/i18n';
 import {
   LandingPage,
   LocationsPage,
+  MyIpPage,
   PricingPage,
   ReferralsPage,
   WhatIsVpnPage,
@@ -175,6 +176,7 @@ async function renderPage(request: Request, hostname: string) {
     ReferralsPage,
     LocationsPage,
     WhatIsVpnPage,
+    MyIpPage,
   );
   const handler = createStaticHandler(routes);
   const context = await handler.query(request);

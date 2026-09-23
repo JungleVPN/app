@@ -47,6 +47,9 @@
       "partnership": "Partnership",
       "pricing": "Prices",
       "offer": "What we offer",
+      "tools": "Tools",
+      "myIp": "My IP",
+      "myIpDescription": "See what your connection reveals",
       "inviteAndEarn": "Refer & Earn",
       "inviteAndEarnDescription": "Invite friends and get free subscription days",
       "locations": "Server locations",
@@ -1186,5 +1189,42 @@
     "yourIp": "Your IP: {{ip}}",
     "protected": "You are protected!",
     "unprotected": "You are not protected!"
+  },
+  "myIp": {
+    "title": "Websites know a lot about you",
+    "subtitle": "Without a VPN, your real data is available to all services on the Internet.",
+    "learn": "Privacy basics",
+    "connection": {
+      "title": "What an IP address can tell you?"
+    },
+    "unavailable": "Unavailable",
+    "mapAlt": "Map showing your approximate location: {{location}}",
+    "approximateLocation": "Approximate location based on your IP address.",
+    "status": {
+      "checking": "Checking your connection",
+      "protected": "Your connection is protected",
+      "unprotected": "Your connection is visible"
+    },
+    "card": {
+      "ip": "IP",
+      "location": "Location",
+      "isp": "ISP",
+      "dns": "DNS provider",
+      "browser": "Browser",
+      "os": "Operating system"
+    },
+    "whatIs": { "title": "What is an IP?" },
+    "reveal": {
+      "title": "What your IP address and connection reveal",
+      "body": "Your IP address is like your digital home address. Every website you visit can see it and learn your approximate location, internet provider, and more."
+    },
+    "fingerprint": {
+      "title": "Websites can collect even more information about you",
+      "body": "Beyond your IP address, websites can detect your browser, operating system, screen resolution, language settings, and more through browser fingerprinting."
+    },
+    "vpn": {
+      "title": "Can you hide your location by changing your IP address?",
+      "body": "Yes, by using a VPN. When you connect to a VPN server, websites see the server's IP address instead of yours. This hides your real location and protects your privacy."
+    }
   }
 }

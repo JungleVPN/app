@@ -1,6 +1,7 @@
 import {
   LandingPage,
   LocationsPage,
+  MyIpPage,
   PricingPage,
   ReferralsPage,
   WhatIsVpnPage,
@@ -15,6 +16,7 @@ export const routes = createRoutes(
   ReferralsPage,
   LocationsPage,
   WhatIsVpnPage,
+  MyIpPage,
 ) as RouteObject[];
 
 /**

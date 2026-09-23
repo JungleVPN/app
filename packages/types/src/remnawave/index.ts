@@ -82,5 +82,9 @@ export type StreamedUserDto = GetUsersStreamResponseDto['users'][number];
 export type IpStatusDto = {
   ip: string | null;
   countryCode: string | null;
+  city: string | null;
+  isp: string | null;
+  latitude: number | null;
+  longitude: number | null;
   protected: boolean | null;
 };

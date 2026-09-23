@@ -5,6 +5,7 @@ export { default as LandingPage } from './landing/LandingPage';
 export { default as LocationsPage } from './locations/LocationsPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';
 export { default as LoginPage } from './login/LoginPage';
+export { default as MyIpPage } from './myIp/MyIpPage';
 export { default as PaddleCheckoutPage } from './paddleCheckout/PaddleCheckoutPage';
 export { ProtectedPaddleCheckoutPage } from './paddleCheckout/protected';
 export { PublicPlansPage } from './plans/PlansPage';

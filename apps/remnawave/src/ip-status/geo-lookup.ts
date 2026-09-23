@@ -11,6 +11,14 @@ const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
  */
 const CACHE_MAX_ENTRIES = 3_000;
 
+export type IpGeoData = {
+  countryCode: string | null;
+  city: string | null;
+  isp: string | null;
+  latitude: number | null;
+  longitude: number | null;
+};
+
 /**
  * Country of an address we do *not* own.
  *
@@ -21,45 +29,62 @@ const CACHE_MAX_ENTRIES = 3_000;
 @Injectable()
 export class GeoLookup {
   private readonly logger = new Logger(GeoLookup.name);
-  private readonly cache = new Map<string, { countryCode: string | null; expiresAt: number }>();
+  private readonly cache = new Map<string, IpGeoData & { expiresAt: number }>();
 
-  async lookupCountry(ip: string): Promise<string | null> {
+  async lookup(ip: string): Promise<IpGeoData> {
     const key = normalizeIp(ip);
-    if (!key) return null;
+    if (!key) return { countryCode: null, city: null, isp: null, latitude: null, longitude: null };
 
     const cached = this.cache.get(key);
-    if (cached && cached.expiresAt > Date.now()) return cached.countryCode;
+    if (cached && cached.expiresAt > Date.now()) return cached;
 
-    const countryCode = await this.fetchCountry(key);
-    this.remember(key, countryCode);
-    return countryCode;
+    const data = await this.fetch(key);
+    this.remember(key, data);
+    return data;
   }
 
-  private async fetchCountry(ip: string): Promise<string | null> {
+  async lookupCountry(ip: string): Promise<string | null> {
+    return (await this.lookup(ip)).countryCode;
+  }
+
+  private async fetch(ip: string): Promise<IpGeoData> {
     try {
       const response = await fetch(
-        `https://ipwho.is/${encodeURIComponent(ip)}?fields=country_code`,
+        `https://ipwho.is/${encodeURIComponent(ip)}?fields=city,country_code,latitude,longitude,connection.isp`,
         {
           signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS),
         },
       );
-      if (!response.ok) return null;
+      if (!response.ok)
+        return { countryCode: null, city: null, isp: null, latitude: null, longitude: null };
 
-      const body = (await response.json()) as { country_code?: string };
-      return body.country_code ?? null;
+      const body = (await response.json()) as {
+        connection?: { isp?: string | null };
+        city?: string;
+        country_code?: string;
+        latitude?: number;
+        longitude?: number;
+      };
+      return {
+        countryCode: body.country_code ?? null,
+        city: body.city ?? null,
+        isp: body.connection?.isp ?? null,
+        latitude: body.latitude ?? null,
+        longitude: body.longitude ?? null,
+      };
     } catch (e) {
       // A banner with no flag is a cosmetic loss; it must never fail the
       // request or delay it past the timeout above.
       this.logger.warn(`Geo lookup failed for ${ip}: ${(e as Error).message}`);
-      return null;
+      return { countryCode: null, city: null, isp: null, latitude: null, longitude: null };
     }
   }
 
-  private remember(ip: string, countryCode: string | null) {
+  private remember(ip: string, data: IpGeoData) {
     if (this.cache.size >= CACHE_MAX_ENTRIES) {
       const oldest = this.cache.keys().next();
       if (!oldest.done) this.cache.delete(oldest.value);
     }
-    this.cache.set(ip, { countryCode, expiresAt: Date.now() + CACHE_TTL_MS });
+    this.cache.set(ip, { ...data, expiresAt: Date.now() + CACHE_TTL_MS });
   }
 }

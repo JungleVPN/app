@@ -24,22 +24,30 @@ function makeService({
   nodes = NODES as unknown[],
   panelFails = false,
   country = 'PT',
+  city = 'Lisbon',
+  isp = 'Test ISP',
+  latitude = 38.7223,
+  longitude = -9.1393,
 }: {
   nodes?: unknown[];
   panelFails?: boolean;
   country?: string | null;
+  city?: string | null;
+  isp?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 } = {}) {
   const request = vi.fn(async () => {
     if (panelFails) throw new Error('panel down');
     return nodes;
   });
-  const lookupCountry = vi.fn(async () => country);
+  const lookup = vi.fn(async () => ({ countryCode: country, city, isp, latitude, longitude }));
 
   const service = new IpStatusService(
     { request } as unknown as RemnaPanelClient,
-    { lookupCountry } as unknown as GeoLookup,
+    { lookup } as unknown as GeoLookup,
   );
-  return { service, request, lookupCountry };
+  return { service, request, lookup };
 }
 
 beforeEach(() => {
@@ -54,28 +62,36 @@ describe('IpStatusService.resolve', () => {
     expect(await service.resolve('152.53.3.94')).toEqual({
       ip: '152.53.3.94',
       countryCode: 'AT',
+      city: 'Lisbon',
+      isp: 'Test ISP',
+      latitude: 38.7223,
+      longitude: -9.1393,
       protected: true,
     });
   });
 
   it("takes a protected visitor's country from their exit node, with no geo lookup", async () => {
-    const { service, lookupCountry } = makeService();
+    const { service, lookup } = makeService();
 
     const status = await service.resolve('65.108.214.39');
 
     expect(status.countryCode).toBe('FI');
-    expect(lookupCountry).not.toHaveBeenCalled();
+    expect(lookup).toHaveBeenCalledWith('65.108.214.39');
   });
 
   it('reports an unrecognised address as unprotected and geolocates it', async () => {
-    const { service, lookupCountry } = makeService({ country: 'PT' });
+    const { service, lookup } = makeService({ country: 'PT' });
 
     expect(await service.resolve('81.84.17.141')).toEqual({
       ip: '81.84.17.141',
       countryCode: 'PT',
+      city: 'Lisbon',
+      isp: 'Test ISP',
+      latitude: 38.7223,
+      longitude: -9.1393,
       protected: false,
     });
-    expect(lookupCountry).toHaveBeenCalledWith('81.84.17.141');
+    expect(lookup).toHaveBeenCalledWith('81.84.17.141');
   });
 
   it('matches the IPv4-mapped form Express reports for a dual-stack client', async () => {
@@ -90,6 +106,10 @@ describe('IpStatusService.resolve', () => {
     expect(await service.resolve('81.84.17.141')).toEqual({
       ip: '81.84.17.141',
       countryCode: null,
+      city: 'Lisbon',
+      isp: 'Test ISP',
+      latitude: 38.7223,
+      longitude: -9.1393,
       protected: false,
     });
   });
@@ -119,7 +139,15 @@ describe('IpStatusService.resolve', () => {
     const request = vi.fn().mockResolvedValueOnce(NODES).mockRejectedValue(new Error('panel down'));
     const service = new IpStatusService(
       { request } as unknown as RemnaPanelClient,
-      { lookupCountry: vi.fn(async () => 'PT') } as unknown as GeoLookup,
+      {
+        lookup: vi.fn(async () => ({
+          countryCode: 'PT',
+          city: 'Lisbon',
+          isp: 'Test ISP',
+          latitude: 38.7223,
+          longitude: -9.1393,
+        })),
+      } as unknown as GeoLookup,
     );
 
     await service.resolve('152.53.3.94');
@@ -134,15 +162,27 @@ describe('IpStatusService.resolve', () => {
     expect(await service.resolve('152.53.3.94')).toEqual({
       ip: '152.53.3.94',
       countryCode: 'PT',
+      city: 'Lisbon',
+      isp: 'Test ISP',
+      latitude: 38.7223,
+      longitude: -9.1393,
       protected: null,
     });
   });
 
   it('reports an unreadable client address as unknown without calling out', async () => {
-    const { service, request, lookupCountry } = makeService();
+    const { service, request, lookup } = makeService();
 
-    expect(await service.resolve('')).toEqual({ ip: null, countryCode: null, protected: null });
+    expect(await service.resolve('')).toEqual({
+      ip: null,
+      countryCode: null,
+      city: null,
+      isp: null,
+      latitude: null,
+      longitude: null,
+      protected: null,
+    });
     expect(request).not.toHaveBeenCalled();
-    expect(lookupCountry).not.toHaveBeenCalled();
+    expect(lookup).not.toHaveBeenCalled();
   });
 });

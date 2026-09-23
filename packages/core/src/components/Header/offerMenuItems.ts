@@ -1,5 +1,5 @@
-import { IconHeartHandshake, IconShieldQuestion, IconWorld } from '@tabler/icons-react';
-import { LOCATIONS_PATH, REFERRALS_PATH, WHAT_IS_VPN_PATH } from '../../utils';
+import { IconHeartHandshake, IconMapPin, IconShieldQuestion, IconWorld } from '@tabler/icons-react';
+import { LOCATIONS_PATH, MY_IP_PATH, REFERRALS_PATH, WHAT_IS_VPN_PATH } from '../../utils';
 
 export const OFFER_MENU_ITEMS = [
   {
@@ -25,6 +25,16 @@ export const OFFER_MENU_ITEMS = [
   },
 ] as const;
 
+export const TOOLS_MENU_ITEMS = [
+  {
+    id: 'my-ip',
+    labelKey: 'header.nav.myIp',
+    descriptionKey: 'header.nav.myIpDescription',
+    icon: IconMapPin,
+    path: MY_IP_PATH,
+  },
+] as const;
+
 export function pathForOfferItem(id: string): string | null {
-  return OFFER_MENU_ITEMS.find((item) => item.id === id)?.path ?? null;
+  return [...OFFER_MENU_ITEMS, ...TOOLS_MENU_ITEMS].find((item) => item.id === id)?.path ?? null;
 }
