@@ -57,7 +57,7 @@ export class CommonService {
   private buildPlans(currency: Currency): SubscriptionPlanDto[] {
     const periods = enabledPeriods();
     const basePrice = this.findPrice(currency, 30);
-
+    console.log(basePrice);
     return periods
       .map((days): SubscriptionPlanDto | null => {
         const total = this.findPrice(currency, days);

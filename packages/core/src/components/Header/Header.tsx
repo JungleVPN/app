@@ -1,4 +1,4 @@
-import { Avatar, Button } from '@heroui/react';
+import { Avatar } from '@heroui/react';
 import { useAuthStore } from '@workspace/core';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,6 @@ import { usePlatformStore } from '../../stores';
 import { Container } from '../../ui';
 import {
   currentScope,
-  isLandingPath,
   isMarketingPath,
   isPlansOrPaymentPlanPath,
   PRICING_PATH,
@@ -118,17 +117,6 @@ export function Header() {
           </Link>
           <OfferMenu triggerClassName={navItemClass} />
           <ToolsMenu triggerClassName={navItemClass} />
-          {isLandingPath(pathname) && (
-            <Button
-              className={navLinkClass}
-              onClick={() => {
-                phCapture('landing_partnership_link_clicked');
-                document.getElementById('partnership')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              {t('header.nav.partnership')}
-            </Button>
-          )}
         </nav>
       )}
 

@@ -88,7 +88,7 @@ export function getExtraDevicePrice(currency: Currency): string {
  * Throws when the period has no price configured.
  */
 export function getPriceForPeriod(currency: Currency, days: number): string {
-  const price = getPriceIdForPeriod(days);
+  const price = currency === 'RUB' ? priceForPeriod(currency, days) : getPriceIdForPeriod(days);
   if (!price || Number(price) <= 0) {
     throw new Error(`No ${currency} price configured for a ${days} days plan`);
   }
