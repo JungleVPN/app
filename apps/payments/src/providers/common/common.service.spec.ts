@@ -4,6 +4,7 @@ import { CommonService } from './common.service';
 
 const ENV_KEYS = [
   'ALLOWED_PERIODS_IN_DAYS',
+  'GLOBAL_PAYMENT_PROVIDER',
   'PUBLIC_DOMAIN_RU',
 
   'PRICE_EUR_DAYS_30',
@@ -27,6 +28,7 @@ describe('CommonService.getPlans', () => {
     originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
 
     process.env.ALLOWED_PERIODS_IN_DAYS = '30,180,365';
+    process.env.GLOBAL_PAYMENT_PROVIDER = 'paddle';
     process.env.PUBLIC_DOMAIN_RU = 'thejungle.pro';
     process.env.PRICE_EUR_DAYS_30 = '6';
     process.env.PRICE_RUB_DAYS_30 = '500';
@@ -82,6 +84,15 @@ describe('CommonService.getPlans', () => {
   });
 
   describe('global storefront', () => {
+    it('keeps the static EUR table when Stripe is the active provider', async () => {
+      process.env.GLOBAL_PAYMENT_PROVIDER = 'stripe';
+
+      const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
+
+      expect(paddleClientService.getPricePreview).not.toHaveBeenCalled();
+      expect(plans.find((plan) => plan.days === 30)?.planPricing.currencyCode).toBe('EUR');
+    });
+
     it("quotes every Paddle-priced period in the currency Paddle resolves for the visitor's IP", async () => {
       paddleClientService.getPricePreview.mockResolvedValue({
         currencyCode: 'USD',
@@ -109,15 +120,15 @@ describe('CommonService.getPlans', () => {
         planPricing: {
           total: '9.99',
           monthly: '9.99',
-          fullTotal: null,
+          fullTotal: '9.99',
           discountPercent: 0,
           currencyCode: 'USD',
         },
       });
       expect(plans.find((plan) => plan.days === 180)?.planPricing).toEqual({
         currencyCode: 'USD',
-        discountPercent: 0,
-        fullTotal: null,
+        discountPercent: 58,
+        fullTotal: '59.94',
         monthly: '4.16',
         total: '24.99',
       });

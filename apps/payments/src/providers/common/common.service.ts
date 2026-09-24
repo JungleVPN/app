@@ -116,11 +116,9 @@ export class CommonService {
 
   /** The configured price for a period, or null when this currency doesn't price it. */
   private findPrice(currency: Currency, period: number): number | null {
-    try {
-      return Number(getPriceForPeriod(currency, period));
-    } catch {
-      return null;
-    }
+    const value = getPriceForPeriod(currency, period);
+
+    return value ? Number(value) : null;
   }
 }
 

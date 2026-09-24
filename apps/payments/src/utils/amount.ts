@@ -1,4 +1,5 @@
-import { type PlanPricing } from '@workspace/types';
+import * as process from 'node:process';
+import { PaymentMethod, type PlanPricing } from '@workspace/types';
 
 export type Currency = 'RUB' | 'EUR';
 
@@ -8,8 +9,36 @@ const priceEnvKeys = (currency: Currency, period: number) => [`PRICE_${currency}
 
 const priceForPeriod = (currency: Currency, period: number): string | undefined =>
   priceEnvKeys(currency, period)
-    .map((key) => process.env[key])
+    .map((key) => {
+      return process.env[key];
+    })
     .find(Boolean);
+
+/**
+ * The global provider is configured for both the backend and browser builds.
+ * `PUBLIC_` is retained for the existing deployment environment; the server-only
+ * form takes precedence when it is present.
+ */
+export function getGlobalPaymentProvider(): PaymentMethod {
+  const configured = process.env.GLOBAL_PAYMENT_PROVIDER;
+  return configured?.toUpperCase() as PaymentMethod;
+}
+
+/** The active global provider's catalog price id for one subscription period. */
+export function getPriceIdForPeriod(days: number): string {
+  const provider = getGlobalPaymentProvider();
+  console.log(provider);
+  const key = `${provider}_PRICE_ID_DAYS_${days}`;
+  const priceId = process.env[key];
+  console.log(priceId);
+  if (!priceId) {
+    throw new Error(
+      `Subscription price configuration missing: ${key} is not set for a ${days} day plan`,
+    );
+  }
+
+  return priceId;
+}
 
 export function enabledPeriods(): number[] {
   const configuredPeriods = process.env.ALLOWED_PERIODS_IN_DAYS;
@@ -61,9 +90,9 @@ export function getExtraDevicePrice(currency: Currency): string {
  * Throws when the period has no price configured.
  */
 export function getPriceForPeriod(currency: Currency, days: number): string {
-  const price = priceForPeriod(currency, days);
+  const price = getPriceIdForPeriod(days);
   if (!price || Number(price) <= 0) {
-    throw new Error(`No ${currency} price configured for a ${days} month plan`);
+    throw new Error(`No ${currency} price configured for a ${days} days plan`);
   }
 
   return price;
