@@ -1,6 +1,6 @@
 /**
  * Which language a hostname is served in. The RU domains are Russian-only; every other
- * host falls back to the global languages (en, ar).
+ * host falls back to the global languages (en, ar, tr, id).
  */
 
 import { normalizeHostname, parseDomains, scopeForOrigin, type UserScope } from '@workspace/types';
@@ -29,7 +29,7 @@ export function resolveLocaleForHost(
 
 const RU_ONLY: readonly string[] = ['ru'];
 /** Languages a global host may serve. None besides English has a domain of its own. */
-const GLOBAL: readonly string[] = ['en', 'ar', 'tr'];
+const GLOBAL: readonly string[] = ['en', 'ar', 'tr', 'id'];
 
 /**
  * The languages a host is allowed to serve, or `null` when the host is not one of the
@@ -123,8 +123,8 @@ const GLOBAL_PATH_LOCALES: readonly string[] = GLOBAL.filter((locale) => locale 
 
 /**
  * The landing-page paths that mirror a language in the URL: `/` and `/en` are
- * English, `/ar` is Arabic, `/tr` is Turkish. Shared by SSR locale resolution, the
- * header's landing-page layout check, and the language switcher's URL sync — see
+ * English, `/ar` is Arabic, `/tr` is Turkish and `/id` is Indonesian. Shared by SSR
+ * locale resolution, the header's landing-page layout check, and the language switcher's URL sync — see
  * resolveLocaleForRequest, Header.tsx, AuthButtons.tsx and LanguageSwitcher.tsx.
  */
 export const LANDING_PATHS: ReadonlySet<string> = new Set([
@@ -207,7 +207,7 @@ export function markdownPathFor(pathname: string): string {
 }
 
 /**
- * The language to render for a given host + path. An exact `/en`, `/ar` or `/tr`
+ * The language to render for a given host + path. An exact `/en`, `/ar`, `/tr` or `/id`
  * landing path wins on the global domain and on any unrestricted host (Mini App,
  * previews, localhost during development); `/` and every other path fall back to
  * the host's normal resolution. RU-only hosts always render Russian, path or not.

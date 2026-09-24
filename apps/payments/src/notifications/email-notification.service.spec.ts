@@ -344,10 +344,13 @@ describe('EmailNotificationService', () => {
 
       const english = await subjectsFor('en');
       const russian = await subjectsFor('ru');
+      const indonesian = await subjectsFor('id');
 
       expect(english).not.toEqual(russian);
+      expect(indonesian).not.toEqual(english);
       expect(english).toMatch(/[a-z]/i);
       expect(russian).toMatch(/[а-яё]/i);
+      expect(indonesian).toContain('Pembayaran diterima');
     });
 
     it('logs and swallows a send failure without throwing', async () => {
@@ -434,7 +437,7 @@ describe('EmailNotificationService', () => {
       expect(html).not.toContain('web.thejungle.pro');
     });
 
-    it("links to the global domain for a 'global' user whose lang is \"ru\"", async () => {
+    it('links to the global domain for a \'global\' user whose lang is "ru"', async () => {
       const html = await ctaUrlFor('global', { lang: 'ru' });
 
       expect(html).toContain('https://jungle-vpn.com');

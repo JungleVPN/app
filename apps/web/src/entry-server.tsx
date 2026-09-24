@@ -75,13 +75,22 @@ const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
       'Bağlantınızı güvence altına alın, gizliliğinizi koruyarak gezinin ve tüm cihazlarınız için tek bir VPN ile herkese açık Wi-Fi ağlarında güvende kalın.',
     ogLocale: 'tr_TR',
   },
+  id: {
+    locale: 'id',
+    lang: 'id',
+    title: 'JungleVPN — VPN Cepat dan Aman',
+    description:
+      'Lindungi koneksi Anda, jelajahi internet secara privat, dan tetap aman di Wi-Fi publik—cukup dengan satu VPN untuk semua perangkat Anda.',
+    ogLocale: 'id_ID',
+  },
 };
 
 /** Landing-page paths per language, for the SSR head's hreflang alternates. */
-const LANDING_PATH_BY_LOCALE: Record<'en' | 'ar' | 'tr', string> = {
+const LANDING_PATH_BY_LOCALE: Record<'en' | 'ar' | 'tr' | 'id', string> = {
   en: '/en',
   ar: '/ar',
   tr: '/tr',
+  id: '/id',
 };
 
 function resolveConfig(hostname: string, pathname: string): DomainConfig {
@@ -92,7 +101,7 @@ function resolveConfig(hostname: string, pathname: string): DomainConfig {
 
 /**
  * hreflang alternates for the global domain's landing languages, plus an x-default.
- * RU-only hosts don't offer /en or /ar, so they get none of these.
+ * RU-only hosts don't offer global-language paths, so they get none of these.
  */
 function landingAlternateLinks(config: DomainConfig, hostname: string, pathname: string): string {
   if (config.locale === 'ru' || !isLandingPath(pathname)) return '';
@@ -129,7 +138,7 @@ function isRuOnlyHost(hostname: string): boolean {
   return policy?.length === 1 && policy[0] === 'ru';
 }
 
-/** The /llms.txt body for the requesting host, omitting /en, /ar, /tr on RU-only domains. */
+/** The /llms.txt body for the requesting host, omitting global locales on RU-only domains. */
 export function llmsTxt(hostname: string): string {
   return buildLlmsTxt(`https://${hostname}`, { ruOnly: isRuOnlyHost(hostname) });
 }

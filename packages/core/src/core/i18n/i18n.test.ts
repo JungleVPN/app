@@ -89,6 +89,11 @@ describe('global domain path routing', () => {
     expect(i18n.resolvedLanguage).toBe('tr');
   });
 
+  it('serves Indonesian on the /id path', async () => {
+    const i18n = await bootI18n({ hostname: 'jungle-vpn.com', language: 'en-GB', pathname: '/id' });
+    expect(i18n.resolvedLanguage).toBe('id');
+  });
+
   it('lets the URL path win over a previously cached choice', async () => {
     localStorage.setItem('i18nextLng', 'en');
     const i18n = await bootI18n({ hostname: 'jungle-vpn.com', language: 'en-GB', pathname: '/ar' });

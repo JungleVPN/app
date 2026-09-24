@@ -1,5 +1,5 @@
 export interface LlmsTxtOptions {
-  /** RU domains don't serve /en, /ar or /tr, so those links would 404 there. */
+  /** RU domains don't serve global-language paths, so those links would 404 there. */
   ruOnly: boolean;
 }
 
@@ -12,6 +12,7 @@ export function buildLlmsTxt(origin: string, { ruOnly }: LlmsTxtOptions): string
         `- [English](${origin}/en): English landing page`,
         `- [Arabic](${origin}/ar): Arabic landing page`,
         `- [Turkish](${origin}/tr): Turkish landing page`,
+        `- [Indonesian](${origin}/id): Indonesian landing page`,
       ];
 
   return [

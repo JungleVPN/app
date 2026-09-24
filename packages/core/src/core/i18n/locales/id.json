@@ -1,0 +1,1268 @@
+{
+  "common": {
+    "features": {
+      "title": "Yang termasuk dalam langganan:"
+    },
+    "cta": "Coba Sekarang"
+  },
+  "main": {
+    "page": {
+      "component": {
+        "buy": "Beli langganan",
+        "no-sub": "Anda tidak memiliki langganan",
+        "podpiska": "Langganan",
+        "error-connect": "Kesalahan koneksi",
+        "error-parse-appconfig": "Kesalahan pemrosesan konfigurasi aplikasi",
+        "ERR_FATCH_USER": "Terjadi kesalahan saat mendapatkan pengguna",
+        "ERR_GET_SUB_LINK": "Terjadi kesalahan saat mendapatkan tautan berlangganan",
+        "ERR_PARSE_APPCONFIG": "Terjadi kesalahan saat mengurai konfigurasi aplikasi",
+        "missing_id": "ID langganan tidak ada. Harap berikan ?id=YOUR_SHORT_UUID di URL.",
+        "refresh": "Segarkan"
+      }
+    }
+  },
+  "login": {
+    "title": "Masuk atau Daftar",
+    "email_label": "Email",
+    "email_placeholder": "Email Anda",
+    "submit": "Lanjutkan"
+  },
+  "confirm": {
+    "title": "Masukkan kode yang Anda terima",
+    "submit": "Masuk",
+    "resend_in": "Kirim ulang dalam {{timer}}s",
+    "resend_otp": "Kirim ulang OTP",
+    "hint": "Anda akan menerima email berisi kode yang perlu dimasukkan",
+    "error_invalid_code": "Kodenya salah. Silakan coba lagi."
+  },
+  "header": {
+    "title": "JungleVPN",
+    "profile": "Profil",
+    "logout": "Keluar",
+    "login": "Masuk",
+    "cta": "Coba Sekarang",
+    "menu": "Menu",
+    "logoAlt": "Logo JungleVPN",
+    "nav": {
+      "partnership": "Kemitraan",
+      "pricing": "Harga",
+      "offer": "Apa yang kami tawarkan",
+      "tools": "Alat",
+      "myIp": "IP saya",
+      "myIpDescription": "Lihat apa yang diungkapkan koneksi Anda",
+      "inviteAndEarn": "Ajak Teman & Raih Hadiah",
+      "inviteAndEarnDescription": "Ajak teman dan dapatkan tambahan masa langganan gratis",
+      "locations": "Lokasi server",
+      "locationsDescription": "Server VPN di seluruh dunia",
+      "whatIsVpn": "Apa itu VPN?",
+      "whatIsVpnDescription": "Panduan sederhana tentang cara kerja VPN"
+    },
+    "support": {
+      "telegram": "Telegram",
+      "email": "Email"
+    }
+  },
+  "cookieConsent": {
+    "description": "Kami dan pihak ketiga terpilih menggunakan cookie hanya untuk meningkatkan pengalaman dan melakukan pengukuran. Kami tidak pernah menjual informasi pribadi Anda. Untuk informasi selengkapnya, baca <policyLink>Kebijakan Cookie</policyLink> kami.",
+    "accept": "Terima cookie",
+    "deny": "Tolak"
+  },
+  "languages": {
+    "nativeRu": "Русский",
+    "nativeEn": "English",
+    "nativeAr": "العربية",
+    "nativeTr": "Türkçe",
+    "nativeId": "Bahasa Indonesia"
+  },
+  "profileTabs": {
+    "ariaLabel": "Bagian profil",
+    "subscription": "Langganan",
+    "payment": "Pembayaran",
+    "devices": "Perangkat",
+    "menu": "Menu"
+  },
+  "affiliate": {
+    "chip": "Saldo",
+    "description": "Hanya berlaku untuk metode pembayaran di luar Rusia",
+    "actionLabel": "Jadi Mitra",
+    "heroTitle": "Bagikan & Dapatkan Komisi",
+    "heroSubtitle": "Dapatkan komisi hingga {{rate}}% dari setiap pengguna yang Anda ajak",
+    "conditionsTitle": "Ketentuan program",
+    "firstPaymentLabel": "Komisi pembayaran pertama",
+    "recurringLabel": "Komisi pembayaran berulang",
+    "benefitsTitle": "Mengapa bergabung?",
+    "benefit1Label": "{{rate}}% pada pembayaran pertama",
+    "benefit1Desc": "Imbalan langsung untuk setiap teman baru",
+    "benefit2Label": "Komisi berulang {{rate}}%.",
+    "benefit2Desc": "Penghasilan pasif pada setiap perpanjangan",
+    "benefit3Label": "Pencairan bulanan",
+    "benefit3Desc": "Dana dicairkan setiap bulan setelah tanggal 15",
+    "benefit4Label": "Tidak ada biaya",
+    "benefit4Desc": "Seluruh penghasilan menjadi milik Anda"
+  },
+  "devices": {
+    "pageTitle": "Perangkat",
+    "pageSubtitle": "Kelola perangkat Anda yang terhubung",
+    "listHeading": "Perangkat yang terhubung",
+    "noDevices": "Belum ada perangkat yang terhubung.",
+    "unknownDevice": "Perangkat tidak dikenal",
+    "deleteDeviceLabel": "Hapus perangkat",
+    "deleteDevice": {
+      "title": "Hapus perangkat?",
+      "body": "Sesi ini akan dihapus dan Anda perlu mengimpor tautan Anda sekali lagi.",
+      "cancel": "Batalkan",
+      "confirm": "Hapus"
+    },
+    "extraDevice": {
+      "heading": "Batas perangkat tercapai",
+      "description": "Anda dapat membeli slot tambahan untuk menghubungkan satu perangkat lagi.",
+      "payButton": "{{price}}",
+      "openButton": "Tambahkan perangkat tambahan"
+    },
+    "extraDevicePurchase": {
+      "pageTitle": "Butuh lebih banyak?",
+      "pageSubtitle": "Di sini Anda dapat membeli slot tambahan",
+      "description": "Pembayaran satu kali untuk 1 slot perangkat tambahan.",
+      "priceRubButton": "{{amount}} ₽ / perangkat",
+      "priceEurButton": "{{amount}} € / perangkat",
+      "priceStarsButton": "{{amount}} ⭐ / perangkat",
+      "starsInvoiceTitle": "Slot perangkat tambahan",
+      "starsInvoiceDescription": "Pembayaran satu kali untuk slot perangkat tambahan",
+      "starsSuccessDescription": "Slot perangkat tambahan telah ditambahkan ke akun Anda.",
+      "starsErrorFetch": "Gagal membuat faktur Stars. Silakan coba lagi."
+    }
+  },
+  "payment": {
+    "pageTitle": "Pembayaran",
+    "pageSubtitle": "Kelola metode pembayaran Anda di sini",
+    "methodsHeading": "Metode pembayaran yang disimpan",
+    "emptyMethods": "Belum ada metode pembayaran yang disimpan.",
+    "payButton": "Bayar {{amount}} ₽",
+    "priceRubButton": "{{amount}} ₽ / bulan",
+    "priceEurButton": "{{amount}} € / bulan",
+    "priceStarsButton": "{{amount}} ⭐ / bulan",
+    "planPriceButton": "{{price}} · {{period}}",
+    "planPriceStarsButton_one": "{{amount}} ⭐ · {{count}} bulan",
+    "planPriceStarsButton_other": "{{amount}} ⭐ · {{count}} bulan",
+    "extendButton": "Perpanjang",
+    "selectMethodHeading": "Metode pembayaran",
+    "methodYookassa": "Kartu dan SBP",
+    "methodStripe": "Kartu internasional",
+    "methodStars": "Telegram Stars",
+    "stripeSubscriptionHeading": "Langganan Stripe",
+    "stripeSubscriptionDescription": "Langganan Anda diperpanjang secara otomatis. Kelola paket Anda, metode pembayaran, atau batalkan kapan saja di portal penagihan.",
+    "stripeSubscriptionActive": "Aktif",
+    "stripeManageButton": "Kelola langganan",
+    "autoRenewalHint": "Berarti metode pembayaran disimpan untuk perpanjangan otomatis",
+    "savedMethodsDescription": "Anda memiliki metode pembayaran tersimpan yang akan digunakan untuk memperpanjang langganan secara otomatis. Jika ingin membayar secara manual, cukup hapus metode tersebut.",
+    "deleteMethod": {
+      "title": "Hapus metode pembayaran?",
+      "body": "Kartu ini akan dihapus dan perpanjangan otomatis akan dinonaktifkan. Kartu baru akan ditambahkan pada pembayaran manual berikutnya",
+      "cancel": "Batalkan",
+      "confirm": "Hapus"
+    },
+    "stars": {
+      "buttonLabel": "Bayar dengan Stars ⭐",
+      "invoiceTitle": "{{period}}-bulan VPN",
+      "invoiceDescription": "{{period}}-bulan JungleVPN",
+      "errorFetch": "Gagal membuat faktur Stars. Silakan coba lagi.",
+      "orDivider": "atau",
+      "success": {
+        "title": "Pembayaran berhasil",
+        "description": "Langganan Anda telah diperpanjang. Tanggal kedaluwarsa yang baru adalah {{expireAt}}",
+        "confirm": "Hebat!"
+      }
+    },
+    "promo": {
+      "title": "Punya kode promo?",
+      "subtitle": "Masukkan kode promo Anda untuk membuka bonus, atau lanjutkan tanpa kode promo.",
+      "placeholder": "Kode promo",
+      "continue": "Lanjutkan ke pembayaran",
+      "alert": {
+        "invalid": "Kode promo tidak valid.",
+        "notActiveYet": "Kode promo ini belum aktif.",
+        "expired": "Kode promo ini telah kedaluwarsa.",
+        "notEligible": "Anda tidak berhak mendapatkan kode promo ini.",
+        "notNewUser": "Kode promo ini hanya untuk pengguna baru.",
+        "limitReached": "Kode promo ini telah mencapai batas penggunaannya.",
+        "alreadyUsed": "Anda sudah menggunakan kode promo ini."
+      }
+    }
+  },
+  "a11y": {
+    "otpCode": "Kode sekali pakai",
+    "platform": "Platform",
+    "deletePaymentMethod": "Hapus metode pembayaran",
+    "removeCard": "Hapus kartu",
+    "language": "Bahasa",
+    "appsTabs": "Aplikasi",
+    "support": "Dukungan",
+    "copySupportEmail": "Salin alamat email",
+    "back": "Kembali",
+    "scrollLeft": "Gulir ke kiri",
+    "scrollRight": "Gulir ke kanan"
+  },
+  "errorBoundary": {
+    "title": "Ada yang tidak beres",
+    "reload": "Muat ulang"
+  },
+  "errors": {
+    "unknown": "Ada yang tidak beres"
+  },
+  "connectEmailPage": {
+    "enter_email": "Email",
+    "email_placeholder": "contoh@gmail.com",
+    "email_description": "Diperlukan untuk mengelola langganan Anda",
+    "error_empty_email": "Silakan masukkan alamat email Anda",
+    "error_invalid_email": "Silakan masukkan alamat email yang valid",
+    "error_failed_to_create": "Gagal membuat langganan. Silakan coba lagi.",
+    "order_summary": "Pesanan Anda",
+    "item_name": "Langganan JungleVPN",
+    "discount": "Masa percobaan 3 hari",
+    "submit_button": "Dapatkan Langganan",
+    "features_title": "Termasuk dalam langganan",
+    "feature_devices": "VPN untuk semua perangkat Anda",
+    "feature_traffic": "Lalu lintas tidak terbatas. Server cepat",
+    "feature_support": "Dukungan ramah 24/7"
+  },
+  "terms": {
+    "pageTitle": "Ketentuan Penggunaan",
+    "paymentConsentLead": "Dengan menyelesaikan pembelian, Anda menyetujui ",
+    "paymentLinkLabel": "Ketentuan Penggunaan.",
+    "footer": "Dengan menggunakan Layanan (termasuk dengan memulai bot dan/atau mengirimkan perintah /start), Pengguna mengonfirmasi bahwa mereka telah membaca Perjanjian ini dan menerima ketentuannya secara penuh.",
+    "dialog": {
+      "title": "Ketentuan berlangganan",
+      "activationTitle": "Aktivasi berlangganan",
+      "activationBody": "Langganan akan diaktifkan setelah konfirmasi pembayaran dikirim ke email Anda. Untuk membayar secara manual, hapus kartu yang tersimpan terlebih dahulu.",
+      "autoRenewalTitle": "Perpanjangan otomatis",
+      "autoRenewalLead": "Langganan Anda akan diperpanjang secara otomatis pada akhir periode berlangganan awal. Anda dapat mematikan perpanjangan otomatis kapan saja di akun Anda",
+      "renewalCostTitle": "Biaya perpanjangan",
+      "renewalCostLead": "Perpanjangan dikenakan tarif yang sama dengan langganan awal. Jika biayanya berubah, kami akan memberi tahu Anda terlebih dahulu melalui email. Butuh bantuan? ",
+      "supportLink": "Hubungi tim dukungan kami.",
+      "agreementsTitle": "Perjanjian",
+      "agreementsLead": "Dengan berlangganan JungleVPN, Anda menyetujui ",
+      "termsOfServiceLink": "Ketentuan Layanan",
+      "agreementsMid": " serta ",
+      "privacyPolicyLink": "Kebijakan Privasi",
+      "agreementsTail": ".",
+      "confirmButton": "Konfirmasikan"
+    },
+    "s1": {
+      "h": "1. Ketentuan umum",
+      "i1": "Perjanjian Pengguna ini (\"Perjanjian\") mengatur penggunaan layanan daring (\"Layanan\") yang disediakan oleh Pengelola.",
+      "i2": "Dengan menggunakan Layanan, termasuk meluncurkan bot, mendaftar, membayar layanan, atau mengakses materi, Pengguna mengonfirmasi bahwa mereka telah membaca Perjanjian ini sepenuhnya dan menerimanya secara keseluruhan.",
+      "i3": "Jika Pengguna tidak menyetujui ketentuan Perjanjian, Pengguna harus berhenti menggunakan Layanan.",
+      "i4": "Layanan ini ditujukan untuk individu berusia 18 tahun ke atas. Dengan menggunakan Layanan, Anda mengonfirmasi bahwa Anda memenuhi persyaratan usia ini."
+    },
+    "s2": {
+      "h": "2. Sifat jasa dan barang digital",
+      "i1": "Layanan menyediakan barang digital dan layanan tidak berwujud, termasuk namun tidak terbatas pada: materi informasi, program pelatihan, konsultasi, produk digital, dan penawaran layanan.",
+      "i2_lead": "Materi yang disediakan melalui Layanan dapat mencakup:",
+      "i2_u1": "informasi dari sumber terbuka;",
+      "i2_u2": "materi asli dari Pengelola dan/atau pihak ketiga;",
+      "i2_u3": "tinjauan analitis, kompilasi, rekomendasi, dan data terstruktur.",
+      "i3": "Pengguna memahami dan menyetujui bahwa nilai barang dan layanan digital Layanan terletak pada penataan, analisis, presentasi, dukungan, dan pembaruan, bukan pada eksklusivitas informasi individual.",
+      "i4": "Layanan tidak mengklaim atau menjamin keunikan, eksklusivitas, atau tidak tersedianya elemen material individual di luar Layanan."
+    },
+    "s3": {
+      "h": "3. Penafian jaminan dan tanggung jawab",
+      "i1": "Layanan disediakan berdasarkan \"APA ADANYA\".",
+      "i2_lead": "Pengelola tidak menjamin:",
+      "i2_u1": "bahwa Layanan akan memenuhi harapan Pengguna;",
+      "i2_u2": "segala hasil finansial, komersial, profesional, atau lainnya;",
+      "i2_u3": "pengoperasian Layanan tanpa gangguan atau bebas kesalahan.",
+      "i3_lead": "Pengelola tidak bertanggung jawab atas:",
+      "i3_u1": "segala kerugian langsung atau tidak langsung, termasuk hilangnya keuntungan;",
+      "i3_u2": "konsekuensi Pengguna menerapkan materi yang diterima;",
+      "i3_u3": "tindakan atau kelambanan pihak ketiga;",
+      "i3_u4": "kegagalan teknis sementara dan pembatasan akses.",
+      "i4": "Segala keputusan dalam penerapan materi, rekomendasi, dan layanan dibuat oleh Pengguna secara mandiri dan atas risikonya sendiri."
+    },
+    "s4": {
+      "h": "4. Penggunaan yang halal",
+      "i1": "Layanan ini tidak dimaksudkan untuk mendorong, mengatur, atau memfasilitasi aktivitas yang melanggar hukum.",
+      "i2": "Pengguna berjanji untuk menggunakan Layanan hanya sesuai dengan hukum yang berlaku dan aturan pihak ketiga.",
+      "i3": "Tanggung jawab atas penggunaan materi dan layanan Layanan secara sah sepenuhnya berada di tangan Pengguna.",
+      "i4_lead": "Penggunaan Layanan berikut ini sangat dilarang:",
+      "i4_u1": "menggunakan Layanan di yurisdiksi mana pun yang penggunaannya dilarang atau memerlukan lisensi yang tidak dimiliki Pengguna;",
+      "i4_u2": "mengakses, mentransmisikan, atau mendistribusikan konten ilegal, termasuk namun tidak terbatas pada materi pelecehan seksual terhadap anak-anak, konten yang mempromosikan terorisme, atau materi yang melanggar hak pihak ketiga;",
+      "i4_u3": "akses tidak sah ke sistem komputer, jaringan, atau data;",
+      "i4_u4": "penyebaran malware, virus, atau kode berbahaya lainnya;",
+      "i4_u5": "mengirimkan komunikasi massal yang tidak diminta (spam);",
+      "i4_u6": "menjual kembali atau mendistribusikan ulang Layanan tanpa izin tertulis terlebih dahulu dari Pengelola;",
+      "i4_u7": "aktivitas lain apa pun yang melanggar hukum atau peraturan yang berlaku di yurisdiksi Pengguna.",
+      "i5": "Pengelola berhak segera menghentikan akses tanpa pengembalian dana jika mendeteksi penggunaan yang dilarang."
+    },
+    "s5": {
+      "h": "5. Kekayaan intelektual",
+      "i1": "Semua materi yang dipublikasikan dalam Layanan dilindungi oleh undang-undang kekayaan intelektual.",
+      "i2": "Pengguna tidak boleh menyalin, mendistribusikan, menjual kembali, mentransfer kepada pihak ketiga, atau menggunakan materi Layanan tanpa izin dari pemegang hak.",
+      "i3": "Pelanggaran hak kekayaan intelektual dapat mengakibatkan akses ke Layanan dibatasi tanpa kompensasi."
+    },
+    "s6": {
+      "h": "6. Pembatasan akses",
+      "i1_lead": "Pengelola dapat menangguhkan atau membatasi akses Pengguna ke Layanan apabila:",
+      "i1_u1": "pelanggaran terhadap Perjanjian ini;",
+      "i1_u2": "mendeteksi penyalahgunaan;",
+      "i1_u3": "persyaratan hukum atau penyedia pembayaran.",
+      "i2": "Pembatasan akses tidak membebaskan Pengguna dari kewajiban yang timbul sebelumnya.",
+      "i3": "Pengelola berhak menolak memberikan layanan kepada Pengguna yang tindakannya dapat meningkatkan risiko bagi Layanan, penyedia pembayaran, atau pihak ketiga."
+    },
+    "s7": {
+      "h": "7. Pembayaran",
+      "i1": "Pembayaran untuk layanan dan barang digital dilakukan sesuai ketentuan yang tercantum dalam Layanan sebelum pembayaran.",
+      "i6": "Pengguna mengonfirmasi bahwa mereka tidak akan melakukan pembalikan pembayaran (chargeback) melalui sistem pembayaran tanpa terlebih dahulu menghubungi dukungan Layanan."
+    },
+    "s8": {
+      "h": "8. Debit otomatis",
+      "u1": "Saat berlangganan JungleVPN, Anda setuju untuk membayar biaya yang berlaku dan pajak apa pun berdasarkan lokasi Anda.",
+      "u2": "Harga berlangganan dapat berubah. Kami akan memberi tahu Anda terlebih dahulu jika ada kenaikan harga.",
+      "u3": "Langganan JungleVPN diperpanjang secara otomatis pada akhir setiap periode berlangganan hingga Anda membatalkan. Metode pembayaran Anda akan dikenakan biaya 24 jam sebelum tanggal akhir berlangganan.",
+      "u4": "Dengan memasukkan detail pembayaran, Anda menyetujui perpanjangan langganan otomatis. Anda dapat mematikan perpanjangan otomatis kapan saja di akun JungleVPN Anda atau dengan menghubungi dukungan.",
+      "u5": "Jika kami tidak dapat memproses pembayaran langganan, kami dapat menangguhkan akses Anda ke Layanan kami hingga pembayaran diterima.",
+      "u6": "Langganan JungleVPN dibayar melalui penyedia pembayaran pihak ketiga."
+    },
+    "s9": {
+      "h": "9. Privasi & Perlindungan Data",
+      "i1": "Pengelola mengumpulkan dan memproses data pribadi terbatas yang diperlukan untuk mengoperasikan Layanan, termasuk alamat email, ID pengguna Telegram, pengenal transaksi pembayaran, alamat IP, serta data teknis perangkat dan koneksi.",
+      "i2": "Data diproses berdasarkan dasar hukum berikut berdasarkan Peraturan UE 2016/679 (GDPR): (a) pelaksanaan kontrak — untuk menyediakan Layanan langganan Anda; (b) kewajiban hukum — untuk mematuhi hukum yang berlaku; (c) kepentingan yang sah — untuk mencegah penipuan dan memastikan keamanan jaringan.",
+      "i3": "Pemroses pihak ketiga berikut dapat menerima data Anda sehubungan dengan pemberian layanan: Stripe, Inc. (pemrosesan pembayaran); Telegram Messenger Inc.(platform bot); penyedia analitik dan infrastruktur jika diperlukan. Setiap pemroses terikat oleh perjanjian pemrosesan data.",
+      "i4": "Data pribadi disimpan selama masa berlaku akun Anda dan hingga 3 tahun setelahnya untuk tujuan hukum dan akuntansi, kecuali periode penyimpanan yang lebih lama diwajibkan oleh hukum.",
+      "i5_lead": "Berdasarkan GDPR dan hukum UE yang berlaku, Anda berhak untuk:",
+      "i5_u1": "mengakses data pribadi Anda dan mendapatkan salinannya (Pasal 15 GDPR);",
+      "i5_u2": "memperbaiki data yang tidak akurat atau tidak lengkap (Pasal 16 GDPR);",
+      "i5_u3": "meminta penghapusan data Anda jika tidak ada dasar hukum untuk penyimpanannya (Pasal 17 GDPR);",
+      "i5_u4": "menerima data Anda dalam format portabel (Pasal 20 GDPR);",
+      "i5_u5": "menolak pemrosesan berdasarkan kepentingan yang sah (Pasal 21 GDPR);",
+      "i5_u6": "menarik persetujuan kapan pun jika pemrosesan didasarkan pada persetujuan (Pasal 7 GDPR).",
+      "i6": "Untuk menggunakan hak-hak ini, hubungi dukungan melalui bot. Kami akan merespons dalam waktu 30 hari sebagaimana diwajibkan oleh hukum.",
+      "i7": "Anda berhak mengajukan keluhan kepada otoritas pengawas perlindungan data Portugal (CNPD — Comissão Nacional de Proteção de Dados, www.cnpd.pt) atau kepada otoritas pengawas di negara tempat tinggal Anda di UE."
+    },
+    "s10": {
+      "h": "10. Perubahan ketentuan",
+      "i1": "Pengelola dapat mengubah Perjanjian ini.",
+      "i2": "Versi Perjanjian saat ini dipublikasikan di Layanan.",
+      "i3": "Penggunaan Layanan yang berkelanjutan berarti Pengguna menyetujui ketentuan yang diperbarui."
+    },
+    "s11": {
+      "h": "11. Informasi kontak",
+      "i1": "Untuk segala pertanyaan, Pengguna dapat menghubungi dukungan melalui formulir di bot."
+    },
+    "s12": {
+      "h": "12. Jaminan Uang Kembali",
+      "i1": "Kepuasan Anda dengan JungleVPN adalah prioritas utama kami. Jika Anda tidak sepenuhnya puas dengan Layanan berbayar kami, kami menawarkan jaminan uang kembali 30 hari. Anda dapat meminta pengembalian dana dalam waktu 30 hari sejak pembelian awal, dan kami akan mengembalikan dana pembayaran Anda sepenuhnya.",
+      "i2": "Sebelum meminta pengembalian dana, sebaiknya hubungi tim dukungan kami di t.me/JungleVPN_support_bot agar kami dapat mencoba menyelesaikan masalah apa pun yang mungkin Anda alami.",
+      "i3": "Untuk langganan bulanan, jangka waktu pengembalian dana 30 hari hanya berlaku untuk pembelian awal. Setelah langganan bulanan diperpanjang, langganan tersebut tidak lagi memenuhi syarat untuk mendapatkan pengembalian dana berdasarkan jaminan uang kembali kami.",
+      "i4": "Dalam kasus yang luar biasa, kami dapat mempertimbangkan untuk menawarkan pengembalian dana sebagian setelah jangka waktu 30 hari jika Anda dapat menunjukkan bahwa Layanan kami tidak tersedia atau tidak dapat digunakan untuk sebagian besar masa berlangganan Anda, dan Anda melakukan upaya yang wajar untuk menghubungi kami mengenai masalah tersebut. Pengembalian dana sebagian akan diprorata berdasarkan jumlah hari Layanan tidak tersedia selama periode berlangganan Anda.",
+      "i5": "Pengembalian dana akan diberikan hanya ke sumber pembayaran asli yang digunakan untuk pembelian. Kami tidak akan memproses pengembalian dana ke rekening alternatif, dompet pihak ketiga, atau transfer bank. Anda menanggung biaya konversi mata uang atau biaya transaksi.",
+      "i6": "JungleVPN berhak menahan pengembalian dana jika kami menentukan bahwa Anda telah melanggar Ketentuan Layanan kami. Kami juga berhak memverifikasi informasi akun Anda sebelum memproses pengembalian dana, yang mungkin mengakibatkan penundaan singkat.",
+      "i7": "Pajak atau biaya apa pun yang dibebankan pada pembelian JungleVPN Anda ditentukan oleh lokasi Anda dan undang-undang perpajakan yang berlaku. Jumlah pengembalian dana tidak termasuk pajak apa pun yang harus dipungut JungleVPN.",
+      "i8": "Menghapus akun Anda tidak secara otomatis membuat Anda memenuhi syarat untuk mendapatkan pengembalian dana. Jika Anda menghapus akun Anda, Anda akan kehilangan akses ke JungleVPN, namun Anda tidak akan menerima pengembalian dana untuk bagian mana pun dari periode berlangganan Anda yang belum terpakai."
+    },
+    "s13": {
+      "h": "13. Hukum & Yurisdiksi yang Mengatur",
+      "i1": "Perjanjian ini diatur oleh dan ditafsirkan sesuai dengan hukum Portugal dan, jika berlaku, hukum Uni Eropa.",
+      "i2": "Setiap perselisihan yang timbul akibat atau sehubungan dengan Perjanjian ini akan tunduk pada yurisdiksi eksklusif pengadilan yang berwenang di Portugal.",
+      "i3": "Jika Anda adalah konsumen yang tinggal di Uni Eropa, Anda tetap mendapatkan manfaat dari ketentuan wajib perlindungan konsumen menurut hukum negara tempat tinggal Anda yang tidak dapat dikecualikan berdasarkan kontrak.",
+      "i4": "Komisi Eropa menyediakan platform penyelesaian sengketa online untuk konsumen: https://ec.europa.eu/consumers/odr"
+    },
+    "s14": {
+      "h": "14. Batasan Geografis & Legalitas VPN",
+      "i1": "Layanan ini menyediakan teknologi VPN (Virtual Private Network). Undang-undang yang mengatur penggunaan VPN sangat bervariasi menurut negara dan yurisdiksi.",
+      "i2": "Pengguna bertanggung jawab sepenuhnya untuk memverifikasi bahwa penggunaan layanan VPN diizinkan berdasarkan undang-undang negara tempat tinggal mereka dan negara mana pun dari mana mereka mengakses Layanan, dan untuk mematuhi semua undang-undang dan peraturan setempat yang berlaku.",
+      "i3_lead": "Layanan mungkin tidak tersedia, diblokir, atau dibatasi di yurisdiksi tertentu, termasuk namun tidak terbatas pada:",
+      "i3_u1": "negara di mana penggunaan VPN dilarang atau tunduk pada persyaratan perizinan;",
+      "i3_u2": "negara atau wilayah yang terkena sanksi internasional;",
+      "i3_u3": "wilayah tempat Pengelola menetapkan bahwa pengoperasian Layanan menimbulkan risiko hukum atau kepatuhan yang tidak dapat diterima.",
+      "i4": "Pengelola tidak mendorong atau memfasilitasi penggunaan Layanan yang melanggar hukum. Pengguna bertanggung jawab sepenuhnya atas setiap pelanggaran hukum setempat akibat penggunaan Layanan."
+    },
+    "s15": {
+      "h": "15. Sanksi & Kontrol Ekspor",
+      "i1": "Layanan ini tidak tersedia bagi individu atau entitas yang berlokasi di, atau biasanya bertempat tinggal di, negara atau wilayah yang tunduk pada sanksi internasional yang komprehensif, termasuk yang dikelola oleh Uni Eropa, Perserikatan Bangsa-Bangsa, dan Republik Portugis.",
+      "i2": "Dengan menggunakan Layanan, Anda menyatakan dan menjamin bahwa Anda tidak berlokasi di, di bawah kendali, atau warga negara atau penduduk negara atau wilayah yang terkena sanksi, dan bahwa Anda tidak terdaftar dalam sanksi yang berlaku atau daftar pihak terbatas.",
+      "i3": "Pengelola berhak segera menghentikan akses tanpa pengembalian dana jika Pengguna diketahui melanggar bagian ini."
+    }
+  },
+  "privacy": {
+    "pageTitle": "Kebijakan Privasi",
+    "footer": "Kebijakan Privasi ini adalah bagian dari Ketentuan Penggunaan JungleVPN. Dengan menggunakan Layanan, Anda mengonfirmasi bahwa Anda telah membaca Kebijakan ini dan menyetujui praktik data yang dijelaskan di dalamnya.",
+    "s1": {
+      "h": "1. Pendahuluan",
+      "i1": "Kebijakan Privasi ini menjelaskan cara Pengelola mengumpulkan, menggunakan, mengungkapkan, dan melindungi data pribadi yang berkaitan dengan situs web, bot Telegram, dan aplikasi JungleVPN (secara bersama-sama disebut \"Layanan\").",
+      "i2": "Dengan menggunakan Layanan, Anda mengakui bahwa Anda telah membaca dan memahami Kebijakan ini dan menyetujui praktik data yang dijelaskan di sini.",
+      "i3": "Kebijakan ini harus dibaca bersama dengan Ketentuan Penggunaan kami. Jika kedua dokumen tersebut tumpang tindih mengenai perlindungan data, Kebijakan ini yang akan mengaturnya."
+    },
+    "s2": {
+      "h": "2. Komitmen Tanpa Pencatatan Kami",
+      "i1": "JungleVPN tidak memantau, mencatat, atau menyimpan riwayat penjelajahan, kueri DNS, tujuan koneksi, maupun isi lalu lintas Anda saat terhubung ke server VPN kami.",
+      "i2": "Kami tidak melacak situs web, aplikasi, atau layanan mana yang Anda akses melalui Layanan, dan informasi ini tidak pernah ditautkan ke akun Anda.",
+      "i3": "Data yang dijelaskan dalam Kebijakan ini hanya mencakup data yang diperlukan untuk mengoperasikan akun, memproses pembayaran, dan menjaga keamanan Layanan—bukan aktivitas Anda di internet saat terhubung."
+    },
+    "s3": {
+      "h": "3. Informasi yang Kami Kumpulkan",
+      "i1_lead": "Data akun:",
+      "i1_u1": "alamat email;",
+      "i1_u2": "ID pengguna dan nama pengguna Telegram;",
+      "i1_u3": "preferensi bahasa dan antarmuka.",
+      "i2_lead": "Data pembayaran:",
+      "i2_u1": "jumlah transaksi dan mata uang;",
+      "i2_u2": "4 digit terakhir kartu pembayaran, jika ada;",
+      "i2_u3": "negara penagihan;",
+      "i2_u4": "pengidentifikasi transaksi pemroses pembayaran — detail kartu lengkap ditangani langsung oleh pemroses pembayaran kami dan tidak pernah kami simpan.",
+      "i3_lead": "Data komunikasi:",
+      "i3_u1": "pesan yang Anda kirim ke tim dukungan kami;",
+      "i3_u2": "detail versi perangkat dan aplikasi yang Anda bagikan untuk pemecahan masalah.",
+      "i4_lead": "Data teknis & keamanan:",
+      "i4_u1": "Alamat IP yang digunakan untuk mengakses situs web, bot, dan sistem akun kami (bukan sesi penjelajahan VPN Anda);",
+      "i4_u2": "autentikasi dan stempel waktu aktivitas akun;",
+      "i4_u3": "perangkat, sistem operasi, dan versi aplikasi;",
+      "i4_u4": "laporan kerusakan gabungan dan data diagnostik yang digunakan untuk memperbaiki bug."
+    },
+    "s4": {
+      "h": "4. Bagaimana Kami Menggunakan Informasi Anda",
+      "i1": "Untuk membuat, mengautentikasi, dan mengelola akun Anda.",
+      "i2": "Untuk menyediakan, memelihara, dan meningkatkan Layanan, termasuk keandalan koneksi dan kinerja aplikasi.",
+      "i3": "Untuk memproses pembayaran, mencegah penipuan, dan mendeteksi penyalahgunaan Layanan.",
+      "i4": "Untuk menanggapi permintaan dukungan dan menyampaikan pemberitahuan layanan penting, seperti perubahan pada kebijakan ini atau langganan Anda.",
+      "i5": "Untuk mematuhi kewajiban hukum dan menegakkan Ketentuan Penggunaan kami."
+    },
+    "s5": {
+      "h": "5. Pembagian & Keterbukaan Informasi",
+      "i1": "Kami tidak menjual atau memperdagangkan data pribadi Anda.",
+      "i2_lead": "Kami berbagi data hanya dengan:",
+      "i2_u1": "penyedia layanan tepercaya yang membantu pemrosesan pembayaran, dukungan pelanggan, pengiriman email, analitik, dan periklanan. Penyedia ini terikat oleh perjanjian kerahasiaan yang ketat;",
+      "i2_u3": "penyedia infrastruktur, analitik, dan dukungan yang terikat oleh kewajiban kerahasiaan dan memproses data hanya berdasarkan instruksi kami;",
+      "i2_u4": "otoritas yang berwenang, jika diwajibkan oleh hukum atau untuk melindungi hak sah kami. Kami meninjau dengan cermat setiap permintaan dan hanya memberikan data minimum yang diperlukan. Kami hanya akan memenuhi permintaan dari negara-negara yang rezim politiknya diakui secara luas sebagai negara demokratis, berdasarkan standar dan indeks internasional yang diterima secara luas."
+    },
+    "s6": {
+      "h": "6. Lokasi Server VPN",
+      "i1": "JungleVPN menawarkan server di berbagai negara di seluruh dunia untuk memberikan kecepatan dan konektivitas terbaik kepada pengguna kami. Meskipun kami bertujuan untuk memilih yurisdiksi dengan perlindungan privasi yang kuat, beberapa server kami mungkin berlokasi di negara-negara dengan tingkat demokrasi yang lebih rendah menurut standar dan indeks internasional yang diakui secara luas.",
+      "i2": "Saat Anda terhubung ke server di lokasi ini, JungleVPN akan menampilkan peringatan untuk memberi tahu Anda tentang potensi risikonya. Risiko ini mencakup peningkatan kemungkinan pemerintah daerah berupaya mengganggu lalu lintas internet Anda atau meminta akses ke data pengguna. JungleVPN tidak menyarankan penggunaan server ini jika Anda khawatir tentang kemungkinan campur tangan atau pengawasan pemerintah.",
+      "i3": "Untuk meminimalkan risiko, kami merekomendasikan untuk terhubung ke server di negara-negara dengan institusi demokrasi yang kuat dan undang-undang privasi yang kuat. JungleVPN tidak bekerja secara langsung dengan pemerintah di negara-negara dengan demokrasi rendah dan tidak mentransfer data pengguna apa pun kepada mereka. Namun, JungleVPN tidak bertanggung jawab atas tindakan apa pun yang diambil oleh pemerintah daerah di negara tersebut.",
+      "i4": "Harap pertimbangkan informasi ini saat memilih lokasi server. Jika Anda memiliki pertanyaan atau kekhawatiran tentang privasi di lokasi tertentu, hubungi tim dukungan kami untuk mendapatkan saran."
+    },
+    "s7": {
+      "h": "7. Retensi Data",
+      "u1": "Data akun dan penagihan disimpan selama durasi akun Anda, atau hingga Anda menghapusnya sendiri, sesuai dengan Ketentuan Penggunaan kami.",
+      "u2": "Komunikasi dukungan dipertahankan hingga 3 tahun setelah tiket diselesaikan.",
+      "u3": "Data diagnostik teknis, seperti laporan kerusakan, disimpan selama maksimal 6 bulan."
+    },
+    "s8": {
+      "h": "8. Hak Privasi Anda",
+      "i1": "Anda memiliki hak atas data pribadi Anda berdasarkan GDPR dan undang-undang perlindungan data lainnya yang berlaku.",
+      "i2_lead": "Anda mungkin:",
+      "i2_u1": "mengakses data pribadi Anda dan mendapatkan salinannya (Pasal 15 GDPR);",
+      "i2_u2": "memperbaiki data yang tidak akurat atau tidak lengkap (Pasal 16 GDPR);",
+      "i2_u3": "meminta penghapusan data Anda jika tidak ada dasar hukum untuk penyimpanannya (Pasal 17 GDPR);",
+      "i2_u4": "menerima data Anda dalam format portabel (Pasal 20 GDPR);",
+      "i2_u5": "menolak pemrosesan berdasarkan kepentingan yang sah (Pasal 21 GDPR);",
+      "i2_u6": "menarik persetujuan kapan pun jika pemrosesan didasarkan pada persetujuan (Pasal 7 GDPR).",
+      "i3": "Untuk menggunakan hak-hak ini, hubungi kami melalui email atau bot Telegram kami. Kami akan menanggapi permintaan terverifikasi dalam waktu 30 hari.",
+      "i4": "Anda berhak mengajukan keluhan kepada otoritas pengawas perlindungan data Portugal (CNPD — Comissão Nacional de Proteção de Dados, www.cnpd.pt) atau kepada otoritas pengawas di negara tempat tinggal Anda di UE."
+    },
+    "s9": {
+      "h": "9. Tindakan Keamanan",
+      "i1": "Kami menggunakan perlindungan standar industri untuk melindungi data Anda, termasuk enkripsi saat transit dan saat disimpan, kontrol akses, dan pemantauan terhadap akses yang tidak sah.",
+      "i2": "Tidak ada metode transmisi atau penyimpanan yang sepenuhnya aman. Jika kami mengetahui adanya pelanggaran data yang memengaruhi data pribadi Anda, kami akan memberi tahu Anda dan otoritas terkait sebagaimana diwajibkan oleh hukum."
+    },
+    "s10": {
+      "h": "10. Transfer Data Internasional",
+      "i1": "Data Anda mungkin diproses di negara-negara di luar negara tempat tinggal Anda, termasuk di luar Wilayah Ekonomi Eropa.",
+      "i2": "Jika hal ini terjadi, kami mengandalkan perlindungan yang sesuai, seperti klausul kontrak standar yang disetujui oleh Komisi Eropa, untuk memastikan data Anda menerima tingkat perlindungan yang setara."
+    },
+    "s11": {
+      "h": "11. Privasi Anak",
+      "i1": "Layanan ini ditujukan untuk individu berusia 18 tahun ke atas, sesuai dengan Ketentuan Penggunaan kami.",
+      "i2": "Kami tidak dengan sengaja mengumpulkan data pribadi dari anak di bawah umur. Jika kami mengetahui bahwa kami telah melakukannya, kami akan segera menghapusnya."
+    },
+    "s12": {
+      "h": "12. Perubahan Kebijakan Ini",
+      "i1": "Kami dapat memperbarui Kebijakan ini dari waktu ke waktu.",
+      "i2": "Perubahan material akan dikomunikasikan melalui email atau pemberitahuan penting dalam Layanan sebelum perubahan tersebut berlaku.",
+      "i3": "Melanjutkan penggunaan Layanan setelah perubahan berlaku berarti Anda menerima Kebijakan yang diperbarui."
+    },
+    "s13": {
+      "h": "13. Hubungi Kami",
+      "i1_lead": "Untuk pertanyaan apa pun tentang Kebijakan ini atau data pribadi Anda, hubungi tim dukungan kami melalui ",
+      "i1_botLink": "Bot Telegram",
+      "i1_mid": " atau melalui email di ",
+      "i1_emailLink": "dukungan@jungle-vpn.com",
+      "i1_tail": "."
+    }
+  },
+  "cookies": {
+    "pageTitle": "Kebijakan Cookie",
+    "footer": "Kebijakan Cookie ini adalah bagian dari Ketentuan Penggunaan dan Kebijakan Privasi JungleVPN. Dengan terus menggunakan Layanan, Anda mengakui bahwa Anda telah membaca dan memahami cara kami menggunakan cookie.",
+    "s1": {
+      "h": "1. Pendahuluan",
+      "i1": "Kebijakan Cookie ini menjelaskan bagaimana JungleVPN menggunakan cookie dan teknologi pelacakan serupa di situs web kami, bot Telegram, dan aplikasi (bersama-sama disebut \"Layanan\"), dan bagaimana Anda dapat mengontrolnya.",
+      "i2": "Cookie adalah file kecil yang disimpan di perangkat Anda yang memungkinkan situs atau aplikasi mengingat informasi tentang kunjungan Anda. Kami menggunakan cookie yang ditetapkan langsung oleh kami (\"pihak pertama\") dan cookie yang ditetapkan oleh layanan yang kami andalkan (\"pihak ketiga\").",
+      "i3": "Kapan pun kami mengandalkan persetujuan Anda, Anda dapat membatalkannya kapan saja — lihat Bagian 5, Mengelola Preferensi Anda."
+    },
+    "s2": {
+      "h": "2. Bagaimana Kami Menggunakan Cookie",
+      "i1_lead": "Cookie yang diperlukan — diperlukan agar Layanan dapat berfungsi dan selalu aktif:",
+      "i1_u1": "membuat Anda tetap masuk dan mengingat preferensi bahasa dan antarmuka Anda;",
+      "i1_u2": "mengenali kode rujukan atau tautan pemasaran yang Anda terima, sehingga dapat dikreditkan dengan benar.",
+      "i2_lead": "Cookie pengukuran — hanya digunakan setelah Anda menerimanya, untuk memahami bagaimana Layanan digunakan dan untuk menemukan serta memperbaiki masalah:",
+      "i2_u1": "tampilan halaman, penggunaan fitur, dan diagnostik kesalahan dan kerusakan, dikumpulkan melalui PostHog (lihat Bagian 3)."
+    },
+    "s3": {
+      "h": "3. Layanan Pihak Ketiga",
+      "i1": "PostHog adalah layanan analitik dan pelacakan yang kami gunakan di seluruh Layanan. Ini menyediakan analisis produk, pemutaran ulang sesi, dan pelacakan kesalahan sehingga kami dapat memahami penggunaan dan memperbaiki bug.",
+      "i2_lead": "Melalui PostHog kami dapat mengumpulkan:",
+      "i2_u1": "halaman dilihat, fitur yang digunakan, dan tombol diklik;",
+      "i2_u2": "pemutaran ulang interaksi di layar — aktivitas klik, menggulir, dan mengetik; teks yang diketik ke dalam kolom masukan disembunyikan dan tidak pernah diambil;",
+      "i2_u3": "jenis perangkat dan browser, perkiraan lokasi yang diperoleh dari alamat IP Anda, dan log kesalahan konsol.",
+      "i3": "PostHog memproses data ini di Uni Eropa. Sebelum Anda menentukan pilihan pada banner cookie, data dikumpulkan tanpa pengenal tetap (\"mode tanpa cookie\"); setelah Anda menerimanya, aktivitas dari seluruh kunjungan Anda akan ditautkan untuk memberikan gambaran yang lebih lengkap tentang penggunaan Layanan."
+    },
+    "s4": {
+      "h": "4. Cookie yang Kami Tetapkan",
+      "lead": "Tabel di bawah mencantumkan cookie yang saat ini ditetapkan oleh situs kami.",
+      "table": {
+        "name": "Cookie",
+        "purpose": "Tujuan",
+        "duration": "Durasi"
+      },
+      "rows": {
+        "jvReferral": {
+          "name": "jv_referral",
+          "purpose": "Mengingat kode referensi yang Anda gunakan, sehingga pengguna yang merujuk dapat dikreditkan.",
+          "duration": "30 hari"
+        },
+        "jvAttr": {
+          "name": "jv_attr",
+          "purpose": "Mengingat kampanye atau tautan mana yang membawa Anda ke situs, untuk atribusi pemasaran.",
+          "duration": "30 hari"
+        },
+        "postHog": {
+          "name": "ph__*_posthog",
+          "purpose": "Ditetapkan hanya setelah Anda menerima cookie pengukuran; menghubungkan aktivitas dari seluruh kunjungan Anda ke profil PostHog yang sama.",
+          "duration": "1 tahun"
+        }
+      }
+    },
+    "s5": {
+      "h": "5. Mengelola Preferensi Anda",
+      "i1": "Saat Anda pertama kali berkunjung, spanduk memungkinkan Anda menerima atau menolak cookie pengukuran. Penolakan tidak menghentikan Layanan untuk mengukur penggunaan anonim — hal ini hanya mencegah PostHog menghubungkan aktivitas tersebut ke pengidentifikasi tetap.",
+      "i2": "Anda dapat mengubah pilihan Anda kapan saja dengan menghapus cookie browser dan data situs untuk domain kami, yang akan mengembalikan spanduk tersebut.",
+      "i3": "Sebagian besar browser juga memungkinkan Anda melihat, memblokir, atau menghapus cookie secara langsung di pengaturannya (misalnya, Chrome, Firefox, Safari, dan Edge masing-masing memiliki bagian \"Cookie dan data situs\"). Memblokir cookie yang diperlukan dapat mencegah sebagian Layanan berfungsi."
+    },
+    "s6": {
+      "h": "6. Kebijakan Terkait",
+      "i1_lead": "Kebijakan Cookie ini harus dibaca bersama ",
+      "i1_link": "Kebijakan Privasi",
+      "i1_tail": ", yang mencakup data pribadi apa yang kami kumpulkan, alasannya, dan hak Anda atas data tersebut."
+    },
+    "s7": {
+      "h": "7. Perubahan Kebijakan Ini",
+      "i1": "Kami dapat memperbarui Kebijakan Cookie ini dari waktu ke waktu untuk mencerminkan perubahan pada cookie dan layanan yang kami gunakan.",
+      "i2": "Perubahan material akan dikomunikasikan melalui email atau pemberitahuan penting dalam Layanan sebelum perubahan tersebut berlaku."
+    },
+    "s8": {
+      "h": "8. Hubungi Kami",
+      "i1_lead": "Untuk pertanyaan apa pun tentang Kebijakan ini, hubungi tim dukungan kami melalui ",
+      "i1_botLink": "Bot Telegram",
+      "i1_mid": " atau melalui email di ",
+      "i1_emailLink": "dukungan@jungle-vpn.com",
+      "i1_tail": "."
+    }
+  },
+  "menu": {
+    "pageTitle": "Menu",
+    "transactionHistory": "Riwayat Transaksi",
+    "referrals": "Program Rujukan",
+    "affiliates": "Bagikan dan Dapatkan Komisi",
+    "subtitle": "Kelola pengaturan akun Anda"
+  },
+  "referrals": {
+    "pageTitle": "Program Rujukan",
+    "hero": {
+      "badge": "30 hari per teman",
+      "title": "Dapatkan langganan gratis dengan mengajak teman menggunakan JungleVPN",
+      "subtitle": "Ajak teman menggunakan JungleVPN dan dapatkan tambahan masa langganan 30 hari untuk setiap teman yang mendaftar.",
+      "cta": "Undang teman"
+    },
+    "howItWorks": {
+      "badge": "Panduan cepat",
+      "title": "Bagaimana cara kerjanya?",
+      "subtitle": "Ikuti langkah-langkah berikut untuk mendapatkan tambahan masa langganan gratis",
+      "share": {
+        "title": "Bagikan tautan rujukan Anda kepada teman",
+        "description": "Cukup salin dari akun Anda dan kirimkan sesuka Anda."
+      },
+      "subscribe": {
+        "title": "Teman Anda berlangganan JungleVPN",
+        "description": "Mereka memilih paket apa pun dan menikmati internet pribadi."
+      },
+      "reward": {
+        "title": "Anda berdua mendapatkan tambahan masa langganan 30 hari",
+        "description": "Dikreditkan segera setelah teman Anda membayar langganannya."
+      }
+    },
+    "inviteBanner": {
+      "title": "Ajak teman dan dapatkan tambahan masa langganan gratis",
+      "cta": "Undang sekarang"
+    },
+    "step1": {
+      "title": "Bagikan tautan rujukan Anda kepada teman",
+      "copy": "Salin",
+      "copied": "Disalin"
+    },
+    "step2": {
+      "title": "Teman Anda berlangganan JungleVPN",
+      "description": "Hanya pengguna baru."
+    },
+    "step3": {
+      "title": "Teman Anda mendapatkan langganan 30 hari",
+      "description": "Diberikan segera setelah mereka membayar langganan."
+    },
+    "step4": {
+      "title": "Anda mendapatkan tambahan masa langganan 30 hari",
+      "description": "Diberikan segera setelah teman Anda membayar langganan."
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "JungleVPN",
+      "subtitle": "Lindungi koneksi, jelajahi internet secara privat, dan tetap aman di Wi-Fi publik—cukup dengan satu VPN untuk semua perangkat Anda.",
+      "cta": "Coba sekarang",
+      "login": "Masuk",
+      "guarantee": "Jaminan uang kembali 30 hari",
+      "features": {
+        "feature1": "Lalu lintas tanpa batas di semua perangkat Anda",
+        "feature2": "Server cepat di berbagai lokasi",
+        "feature3": "Tim dukungan yang peduli 24/7"
+      },
+      "stats": {
+        "locations": {
+          "value": "6+",
+          "label": "lokasi"
+        },
+        "traffic": {
+          "value": "Tanpa batas",
+          "label": "lalu lintas"
+        },
+        "devices": {
+          "value": "Semua",
+          "label": "perangkat"
+        }
+      },
+      "bento": {
+        "speed": {
+          "title": "Kecepatan tidak terbatas",
+          "description": "Streaming dan panggilan tanpa perlambatan."
+        },
+        "privacy": {
+          "title": "Lalu lintas tidak terbatas",
+          "description": "Telusuri sebanyak yang Anda mau!"
+        },
+        "devices": {
+          "title": "Kebijakan tanpa pencatatan",
+          "description": "Semua yang Anda lakukan online adalah milik Anda"
+        }
+      }
+    },
+    "howItWorks": {
+      "chip": "Mulai di sini",
+      "titleStart": "Cukup",
+      "titleBrand": "tiga langkah mudah",
+      "subtitle": "Penyiapan tiga langkah sederhana yang dirancang untuk membuat Anda terhubung dengan cepat dan aman.",
+      "install": {
+        "title": "Instal aplikasinya",
+        "description": "Unduh dan instal aplikasi di perangkat Anda. Didukung di semua platform."
+      },
+      "subscribe": {
+        "title": "Tambahkan tautan Anda",
+        "description": "Buka tautan langganan pribadi Anda dan impor ke dalam aplikasi. Pengaturan koneksi Anda ditambahkan secara otomatis — tidak diperlukan pengaturan server manual."
+      },
+      "connect": {
+        "title": "Hubungkan dan gunakan JungleVPN",
+        "description": "Buka aplikasi, pilih koneksi yang diinginkan, lalu ketuk Hubungkan. Konfigurasi VPN Anda siap digunakan dan Anda dapat mengakses lokasi server yang termasuk dalam langganan JungleVPN."
+      },
+      "note": "Catatan: Kami menyediakan beragam paket yang dapat Anda pilih. Metode pembayaran yang diterima meliputi kartu kredit, Apple Pay, dan PayPal."
+    },
+    "trust": {
+      "chip": "Mengutamakan privasi",
+      "title": "Dipercaya oleh ribuan orang",
+      "users": "Tepercaya di seluruh dunia untuk penjelajahan pribadi, koneksi aman di jaringan publik, dan akses andal saat bepergian.",
+      "countries": "Jaringan lokasi server yang terdistribusi memberi Anda kendali atas bagaimana dan di mana Anda terhubung, sehingga Anda dapat memilih apa yang sesuai dengan kebutuhan Anda sambil tetap aman.",
+      "servers": "Infrastruktur berkecepatan tinggi dibangun untuk kinerja sehari-hari yang stabil dalam penelusuran, streaming, panggilan video, dan aktivitas intensif data lainnya, yang terus dipantau keandalan dan kualitasnya."
+    },
+    "testimonials": {
+      "chip": "Dipercaya oleh ribuan orang",
+      "title": "Mengapa pelanggan menyukai JungleVPN",
+      "setup": {
+        "quote": "Penyiapannya hanya memakan waktu sekitar lima menit. Saya menginstal HAPP, mengimpor tautan langganan, dan langsung terhubung—tanpa perlu memahami pengaturan server.",
+        "name": "Bilal Ahmad"
+      },
+      "remote": {
+        "quote": "Saya bekerja dari kafe hampir setiap hari, jadi koneksi terenkripsi di Wi-Fi publik adalah alasan utama saya berlangganan. VPN-nya terus aktif dan saya tidak perlu memikirkannya lagi.",
+        "name": "Briana Patton"
+      },
+      "routing": {
+        "quote": "Perutean cerdas ternyata menjadi fitur yang sangat berguna bagi saya. Hanya lalu lintas yang membutuhkan VPN yang melewatinya, sehingga aplikasi perbankan dan aplikasi lokal saya tetap berfungsi seperti biasa.",
+        "name": "Umar Raza"
+      },
+      "calls": {
+        "quote": "Panggilan video saya tidak lagi tersendat pada malam hari ketika koneksi melambat. Saya juga tidak perlu berpindah lokasi untuk mendapatkan koneksi yang stabil.",
+        "name": "Farhan Siddiqui"
+      },
+      "multiDevice": {
+        "quote": "Satu langganan di ponsel, laptop, dan laptop pasangan saya. Itu adalah faktor penentu bagi kami.",
+        "name": "Aliza Khan"
+      },
+      "support": {
+        "quote": "Saya punya pertanyaan tentang langganan dan mendapat jawaban dari orang sungguhan dalam waktu sekitar sepuluh menit. Tidak dipingpong lewat tiket, tanpa bot.",
+        "name": "David Chen"
+      },
+      "dataCap": {
+        "quote": "Tidak ada batasan data bulanan berarti saya tidak lagi menjatah streaming atau mengunduh. Saya biasanya mencapai batas VPN gratis lama saya dalam seminggu.",
+        "name": "Sara Mitchell"
+      },
+      "privacy": {
+        "quote": "Yang saya inginkan adalah kebijakan privasi yang jelas dan koneksi yang tidak terputus. Itulah yang saya dapatkan, dan saya dapat memeriksa semuanya sebelum membayar.",
+        "name": "Priya Nair"
+      }
+    },
+    "features": {
+      "title": "Mengapa orang memilih JungleVPN",
+      "titleStart": "Mengapa orang memilih",
+      "titleBrand": "JungleVPN",
+      "subtitle": "Penyiapan sederhana, penggunaan sehari-hari yang andal, dan dukungan saat Anda membutuhkannya.",
+      "ready": {
+        "title": "Siap dalam hitungan menit",
+        "description": "Impor tautan langganan Anda lalu hubungkan—tanpa pengaturan manual atau konfigurasi teknis."
+      },
+      "money": {
+        "title": "Jaminan uang kembali 30 hari",
+        "description": "Tidak cocok untukmu? Hubungi kami dalam waktu 30 hari setelah pembelian untuk pengembalian dana langsung."
+      },
+      "globe": {
+        "title": "Gunakan di seluruh perangkat Anda",
+        "description": "Satu langganan mencakup semua perangkat Anda, sehingga Anda tetap terhubung di rumah, di kantor, atau saat bepergian."
+      },
+      "support": {
+        "title": "Dukungan manusia",
+        "description": "Dapatkan bantuan dari tim dukungan nyata terkait masalah penyiapan, langganan, atau koneksi — biasanya dalam waktu 10 menit."
+      }
+    },
+    "countries": {
+      "label": "Server di 6+ negara",
+      "names": {
+        "us": "Amerika Serikat",
+        "de": "Jerman",
+        "nl": "Belanda",
+        "at": "Austria",
+        "fi": "Finlandia",
+        "ru": "Rusia"
+      }
+    },
+    "pricing": {
+      "title": "Paket kami",
+      "subtitle": "Pilih paket yang paling cocok untuk Anda. Setiap paket mencakup fitur inti yang sama.",
+      "period": "1 bulan",
+      "interval": "/ bulan",
+      "guarantee": "Jaminan uang kembali 30 hari",
+      "cta": "Pilih paket",
+      "advantage1": "Kecepatan & data tidak terbatas",
+      "advantage2": "Berfungsi di semua perangkat Anda",
+      "advantage3": "Akses aman di mana pun Anda berada",
+      "advantage4": "Dukungan kapan pun Anda membutuhkannya",
+      "badge": "Pilihan terbaik",
+      "totalLabel": "Jumlah",
+      "noDiscount": "Fleksibilitas maksimal. Batalkan kapan saja.",
+      "discount": "Hemat {{percent}}%",
+      "monthlySubtitle": "Fleksibilitas maksimum. Batalkan kapan saja.",
+      "yearlyPeriod": "1 tahun",
+      "yearlyDiscount": "Hemat 40% — harga bulanan terendah",
+      "daysPeriod": "{{count}} hari",
+      "monthsPeriod": "{{count}} bulan",
+      "includesTitle": "Semua paket meliputi:",
+      "includes1": "Lalu lintas tidak terbatas",
+      "includes2": "Akses ke semua lokasi server",
+      "includes3": "Semua perangkat Anda",
+      "includes4": "Dukungan manusia",
+      "includes5": "Perutean cerdas",
+      "ctaPlan": "Pilih {{period}}",
+      "discountBest": "Hemat {{percent}}% — harga bulanan terendah",
+      "badgeValue": "Nilai terbaik"
+    },
+    "faq": {
+      "title": "Ada pertanyaan sebelum Anda terhubung?",
+      "q1": {
+        "question": "Bagaimana cara mengatur JungleVPN?",
+        "answer": "Instal HAPP di perangkat Anda, buka tautan berlangganan JungleVPN pribadi Anda, dan impor ke dalam aplikasi. Pengaturan koneksi Anda ditambahkan secara otomatis, jadi tidak perlu mengkonfigurasi server secara manual. Dalam kebanyakan kasus, penyiapan hanya memerlukan waktu beberapa menit."
+      },
+      "q2": {
+        "question": "Di perangkat mana saya dapat menggunakan JungleVPN?",
+        "answer": "JungleVPN berfungsi di semua platform. Satu langganan dapat digunakan di semua perangkat Anda, sehingga Anda dapat melindungi ponsel, laptop, dan perangkat lain yang didukung dengan satu paket."
+      },
+      "q4": {
+        "question": "Apa yang terjadi jika saya tidak puas setelah membeli?",
+        "answer": "JungleVPN menyertakan jaminan uang kembali 30 hari. Jika layanan tidak tepat untuk Anda, hubungi tim dukungan kami dalam periode pengembalian dana yang memenuhi syarat dan kami akan memandu Anda melalui proses pengembalian dana sesuai dengan ketentuan yang berlaku."
+      },
+      "subtitle": "Semua yang perlu Anda ketahui tentang penyiapan, perangkat, privasi, dan langganan Anda.",
+      "q5": {
+        "question": "Informasi apa yang dikumpulkan JungleVPN?",
+        "answer": "JungleVPN dirancang dengan mempertimbangkan privasi dan bertujuan untuk meminimalkan pemrosesan data yang tidak perlu. Kami menjelaskan dengan jelas informasi apa saja yang diperlukan untuk mengoperasikan akun, langganan, dan layanan Anda dalam Kebijakan Privasi kami, termasuk cara informasi tersebut digunakan dan disimpan."
+      }
+    },
+    "partnership": {
+      "title": "Bagikan JungleVPN. Dapatkan imbalan.",
+      "subtitle": "Pilih program yang cocok untuk Anda — dapatkan komisi sebagai mitra atau undang teman dan terima hadiah bersama.",
+      "learnMore": "Pelajari lebih lanjut",
+      "affiliate": {
+        "title": "Program Afiliasi",
+        "description": "Terbaik untuk kreator & mitra. Ubah audiens Anda menjadi aliran pendapatan berulang. Bagikan tautan mitra JungleVPN unik Anda dan dapatkan komisi dari langganan yang memenuhi syarat yang dihasilkan melalui referensi Anda.",
+        "cta": "Menjadi mitra →"
+      },
+      "referral": {
+        "title": "Program Rujukan",
+        "description": "Terbaik untuk pengguna JungleVPN. Undang teman menggunakan tautan rujukan pribadi Anda. Saat mereka bergabung melalui undangan Anda, Anda berdua dapat menerima hadiahnya.",
+        "cta": "Undang teman →"
+      }
+    },
+    "cta": {
+      "title": "Dapatkan JungleVPN hari ini",
+      "subtitle": "Tidak puas? Dapatkan pengembalian dana penuh, tanpa pertanyaan."
+    },
+    "trialPeriodBanner": {
+      "title": "Uji coba {{days}} hari hanya untuk {{price}} {{currency}}"
+    },
+    "footer": {
+      "copyright": "© {{year}} JungleVPN. Semua hak dilindungi undang-undang.",
+      "terms": "Ketentuan",
+      "privacy": "Privasi",
+      "cookies": "Cookie",
+      "support": "Dukungan",
+      "affiliate": "Afiliasi",
+      "referral": "Rujukan",
+      "pricing": "Harga",
+      "partnership": "Kemitraan",
+      "howItWorks": "Cara Kerjanya",
+      "faq": "Pertanyaan Umum",
+      "locations": "Lokasi",
+      "whatIsVpn": "Apa itu VPN?"
+    },
+    "bento": {
+      "titleStart": "Semua yang Anda butuhkan,",
+      "titleBrand": "sudah tersedia",
+      "subtitle": "Teknologi yang berfokus pada privasi, akses fleksibel, dan alat yang dirancang untuk penggunaan sehari-hari.",
+      "learnMore": "Pelajari lebih lanjut",
+      "affiliate": {
+        "title": "Program Afiliasi",
+        "description": "Dapatkan komisi dengan memperkenalkan JungleVPN kepada audiens Anda, dengan tautan rujukan unik dan pelacakan konversi dan hadiah yang transparan."
+      },
+      "security": {
+        "title": "Aman berdasarkan desain",
+        "description": "Koneksi Anda dienkripsi antara perangkat Anda dan server JungleVPN, melindungi lalu lintas Anda di jaringan publik dan tidak tepercaya."
+      },
+      "referral": {
+        "title": "Program Rujukan",
+        "description": "Undang teman menggunakan tautan rujukan pribadi Anda dan dapatkan imbalan saat mereka bergabung. Berbagi sederhana, imbalan jelas."
+      },
+      "privacy": {
+        "title": "Mengutamakan privasi",
+        "description": "JungleVPN dibuat untuk meminimalkan pengumpulan data yang tidak perlu dan menjaga privasi koneksi Anda."
+      },
+      "speed": {
+        "title": "Lalu lintas tidak terbatas",
+        "description": "Jelajahi, streaming, lakukan panggilan video, dan gunakan layanan online tanpa batas lalu lintas bulanan."
+      },
+      "smartRouting": {
+        "title": "Satu VPN untuk semua perangkat Anda",
+        "description": "Instal JungleVPN di perangkat mana pun — kami menawarkan beragam aplikasi yang kompatibel."
+      }
+    },
+    "comparison": {
+      "chip": "Mari kita bandingkan",
+      "titleStart": "JungleVPN vs",
+      "titleBrand": "VPN gratis",
+      "subtitle": "VPN gratis dapat berguna untuk penggunaan sesekali, namun sering kali memerlukan pengorbanan dalam hal kecepatan, pilihan server, dukungan, dan privasi. Inilah cara JungleVPN dirancang untuk penggunaan sehari-hari yang lebih konsisten.",
+      "header": {
+        "feature": "Fitur",
+        "ours": "JungleVPN",
+        "theirs": "VPN Gratis pada Umumnya"
+      },
+      "rows": {
+        "traffic": {
+          "feature": "Lalu lintas",
+          "ours": "Tidak terbatas",
+          "theirs": "Seringkali terbatas"
+        },
+        "locations": {
+          "feature": "Lokasi server",
+          "ours": "Berbagai lokasi di seluruh dunia",
+          "theirs": "Biasanya lebih sedikit lokasi dan lebih sedikit pilihan"
+        },
+        "performance": {
+          "feature": "Kinerja",
+          "ours": "Infrastruktur berkecepatan tinggi",
+          "theirs": "Kecepatan mungkin dibatasi selama periode sibuk"
+        },
+        "devices": {
+          "feature": "Dukungan perangkat",
+          "ours": "Semua perangkat Anda",
+          "theirs": "Batasan perangkat bervariasi"
+        },
+        "support": {
+          "feature": "Dukungan pelanggan",
+          "ours": "Dukungan manusia 24/7",
+          "theirs": "Balasan otomatis"
+        },
+        "privacy": {
+          "feature": "Melacak aktivitas online Anda",
+          "ours": "Kebijakan tanpa pencatatan",
+          "theirs": "Mungkin"
+        },
+        "advertising": {
+          "feature": "Periklanan",
+          "ours": "Tidak ada iklan",
+          "theirs": "Bergantung pada iklan"
+        },
+        "setup": {
+          "feature": "Pengaturan koneksi",
+          "ours": "Pengaturan sederhana melalui HAPP dan tautan berlangganan pribadi Anda",
+          "theirs": "Pengaturan dan protokol yang tersedia berbeda-beda menurut penyedia"
+        },
+        "smartRouting": {
+          "feature": "Perutean cerdas",
+          "ours": "Rutekan lalu lintas melalui VPN hanya jika diperlukan",
+          "theirs": "Seringkali tidak tersedia"
+        },
+        "bestFor": {
+          "feature": "Terbaik untuk",
+          "ours": "Penggunaan sehari-hari yang andal, perjalanan, Wi-Fi publik, dan banyak perangkat",
+          "theirs": "Penggunaan VPN sesekali atau dasar"
+        }
+      }
+    },
+    "info": {
+      "what": {
+        "title": "Apa itu VPN?",
+        "subtitle": "VPN (Virtual Private Network) membuat koneksi terenkripsi antara perangkat Anda dan server VPN, membantu melindungi lalu lintas Anda dan mengurangi jumlah informasi koneksi yang terlihat oleh penyedia internet dan jaringan lokal Anda.",
+        "encryption": {
+          "title": "Enkripsi",
+          "description": "Lalu lintas internet Anda dienkripsi sebelum meninggalkan perangkat dan tetap terlindungi hingga mencapai server VPN. Ini membantu mengurangi risiko penyadapan saat menggunakan jaringan publik atau tidak tepercaya."
+        },
+        "masking": {
+          "title": "Perlindungan Alamat IP",
+          "description": "Saat Anda terhubung melalui JungleVPN, situs web akan melihat alamat IP server VPN, bukan alamat IP rumah Anda. Ini menambahkan lapisan privasi tambahan dan memungkinkan Anda terhubung melalui lokasi server yang tersedia."
+        },
+        "tunnel": {
+          "title": "Terowongan VPN Aman",
+          "description": "Perangkat Anda berkomunikasi dengan server JungleVPN melalui terowongan VPN terenkripsi. Ini membantu melindungi koneksi Anda di hotel, bandara, kafe, dan jaringan lain yang mungkin tidak sepenuhnya Anda percayai."
+        }
+      },
+      "why": {
+        "title": "Mengapa JungleVPN Cocok untuk Kehidupan Sehari-hari",
+        "subtitle": "Lindungi koneksi Anda di rumah, saat bepergian, dan di jaringan publik — tanpa menambah kerumitan yang tidak perlu pada cara Anda menggunakan internet.",
+        "wifi": {
+          "title": "Tetap Lebih Aman di Wi-Fi Publik",
+          "description": "Jaringan publik di hotel, bandara, dan kafe tidak selalu merupakan jaringan yang Anda kendalikan. JungleVPN mengenkripsi koneksi Anda antara perangkat dan server VPN, membantu melindungi lalu lintas Anda di jaringan yang tidak tepercaya."
+        },
+        "privacy": {
+          "title": "Jaga Koneksi Anda Lebih Pribadi",
+          "description": "VPN membantu mengurangi jumlah informasi koneksi yang terlihat oleh penyedia internet dan jaringan lokal Anda. Lalu lintas Anda berjalan melalui koneksi VPN terenkripsi, bukan langsung melalui jaringan yang Anda gunakan."
+        },
+        "travel": {
+          "title": "Tetap Terhubung Saat Bepergian",
+          "description": "Gunakan lokasi server JungleVPN yang tersedia saat Anda jauh dari rumah dan memerlukan koneksi yang aman dan familier untuk penelusuran sehari-hari, pekerjaan, panggilan, dan layanan online."
+        },
+        "smartRouting": {
+          "title": "Perutean Cerdas untuk Penggunaan Sehari-hari",
+          "description": "Hanya lalu lintas yang memerlukan perlindungan VPN yang dirutekan melalui VPN, sedangkan koneksi lainnya tetap berjalan langsung. Ini mengurangi perpindahan yang tidak perlu dan membantu aplikasi serta layanan sehari-hari berfungsi lebih alami."
+        }
+      },
+      "stats": {
+        "speed": "Kecepatan server maksimal",
+        "countries": "Negara server",
+        "guarantee_value": "30 hari",
+        "guarantee": "Jaminan uang kembali",
+        "support_value": "~10m",
+        "support": "Rata-rata waktu respons dukungan"
+      },
+      "devices": {
+        "title": "Berfungsi di semua platform",
+        "subtitle": "Satu langganan mencakup semua perangkat Anda — tanpa biaya tambahan, tanpa batasan.",
+        "ios": "iOS",
+        "android": "Android",
+        "macos": "macOS",
+        "windows": "Windows",
+        "appleTv": "Apple TV",
+        "androidTv": "Android TV",
+        "cta": "Hubungkan"
+      }
+    },
+    "locations": {
+      "hero": {
+        "title": "Lokasi JungleVPN di seluruh dunia",
+        "subtitle": "Server VPN berlokasi di seluruh dunia. Gunakan internet seolah-olah Anda berada di Amerika Utara atau Selatan, Eropa atau Asia.",
+        "mapAlt": "Peta dunia menunjukkan lokasi server JungleVPN"
+      },
+      "benefits": {
+        "devices": {
+          "title": "Satu VPN untuk semua perangkat Anda",
+          "description": "Instal JungleVPN di perangkat mana pun — kami menawarkan beragam aplikasi yang kompatibel."
+        },
+        "traffic": {
+          "title": "Lalu lintas tidak terbatas",
+          "description": "Jelajahi, streaming, lakukan panggilan video, dan gunakan layanan online tanpa batas lalu lintas bulanan."
+        }
+      },
+      "world": {
+        "title": "JungleVPN — tetap bersama Anda di seluruh dunia",
+        "subtitle": "Setiap orang berhak mendapatkan akses ke internet pribadi yang aman.",
+        "everywhere": {
+          "title": "Lindungi koneksi Anda di mana saja",
+          "description": "Bekerja di seluruh dunia."
+        },
+        "travel": {
+          "title": "Perjalanan yang nyaman",
+          "description": "Kami membantu Anda mengakses situs dan layanan favorit Anda saat bepergian."
+        },
+        "wifi": {
+          "title": "Koneksi Wi-Fi yang aman",
+          "description": "Pastikan Anda tetap aman di jaringan publik."
+        },
+        "private": {
+          "title": "Penjelajahan pribadi, selalu",
+          "description": "JungleVPN mengenkripsi lalu lintas dan menjaga data pribadi Anda dari pihak yang ingin mengintip."
+        }
+      }
+    },
+    "whatIsVpn": {
+      "hero": {
+        "title": "Apa itu VPN, dalam bahasa sederhana?",
+        "subtitle": "VPN membangun terowongan terenkripsi antara perangkat Anda dan server yang Anda percaya. Inilah maknanya dalam praktik, apa yang dilindungi, dan apa yang tidak."
+      },
+      "how": {
+        "title": "Cara kerja koneksi VPN",
+        "subtitle": "Empat langkah terjadi setiap kali Anda mengetuk sambungkan — biasanya dalam waktu kurang dari satu detik.",
+        "connect": {
+          "title": "1. Perangkat Anda terhubung",
+          "description": "Aplikasi VPN membuka koneksi ke server JungleVPN di negara yang Anda pilih."
+        },
+        "encrypt": {
+          "title": "2. Lalu lintas dienkripsi",
+          "description": "Semua data yang keluar dari perangkat Anda dienkripsi terlebih dahulu, sehingga jaringan Wi-Fi kafe, router, dan penyedia internet hanya melihat data acak, bukan situs yang Anda buka."
+        },
+        "tunnel": {
+          "title": "3. Lalu lintas melewati terowongan",
+          "description": "Lalu lintas terenkripsi melewati terowongan ke server VPN, yang mendekripsinya dan meneruskan permintaan atas nama Anda."
+        },
+        "exit": {
+          "title": "4. Situs merespons server",
+          "description": "Situs web melihat alamat IP dan lokasi server, bukan IP rumah Anda. Jawabannya datang kembali melalui terowongan terenkripsi yang sama."
+        }
+      },
+      "useCases": {
+        "title": "Ketika VPN benar-benar membantu",
+        "subtitle": "Bukan sihir — beberapa situasi sehari-hari yang sangat konkret.",
+        "wifi": {
+          "title": "Wi-Fi publik",
+          "description": "Bandara, hotel, dan kafe menjalankan jaringan yang tidak dapat Anda verifikasi. Enkripsi membuat lalu lintas Anda tidak dapat dibaca oleh orang lain."
+        },
+        "travel": {
+          "title": "Bepergian",
+          "description": "Terhubung melalui server di negara asal Anda untuk tetap menggunakan situs dan layanan yang biasanya Anda andalkan saat berada di luar negeri."
+        },
+        "privacy": {
+          "title": "Privasi sehari-hari",
+          "description": "Penyedia internet dan jaringan yang Anda gunakan hanya dapat melihat jauh lebih sedikit informasi tentang situs yang Anda kunjungi."
+        },
+        "work": {
+          "title": "Bekerja dari jarak jauh",
+          "description": "Satu koneksi terenkripsi mencakup laptop, ponsel, dan tablet Anda di mana pun Anda bekerja pada hari itu."
+        }
+      },
+      "myths": {
+        "title": "Apa yang bukan VPN",
+        "subtitle": "Memperjelas batasan lebih penting daripada pemasaran.",
+        "anonymity": {
+          "myth": "“VPN menjadikan saya anonim.”",
+          "fact": "VPN menyembunyikan alamat IP dan mengenkripsi lalu lintas Anda. Namun, VPN tidak membuat Anda keluar dari akun, menghapus cookie, atau mencegah sidik jari browser."
+        },
+        "speed": {
+          "myth": "“VPN selalu memperlambat segalanya.”",
+          "fact": "Lalu lintas menempuh rute yang lebih panjang, sehingga sedikit latensi tidak dapat dihindari. Namun, jika Anda menggunakan server terdekat dengan kapasitas memadai, perbedaannya biasanya tidak terasa."
+        },
+        "legal": {
+          "myth": "“VPN menggantikan antivirus.”",
+          "fact": "VPN melindungi data saat transit. Itu tidak dapat menghentikan Anda mengunduh malware atau memberikan kata sandi Anda ke halaman phishing."
+        }
+      }
+    }
+  },
+  "transactions": {
+    "pageTitle": "Riwayat Transaksi",
+    "noTransactions": "Belum ada transaksi",
+    "noPaymentsFound": "Tidak ada pembayaran yang ditemukan",
+    "searchAriaLabel": "Cari",
+    "details": {
+      "pageTitle": "Detail Transaksi",
+      "title": "Detail Pembayaran",
+      "paymentId": "ID pembayaran",
+      "userId": "ID Pengguna",
+      "telegramId": "ID Telegram",
+      "provider": "Penyedia",
+      "status": "Status",
+      "amount": "Jumlah",
+      "period": "Periode",
+      "periodValue": "{{count}} bulan",
+      "starsValue": "{{amount}} Stars",
+      "createdAt": "Dibuat",
+      "paidAt": "Dibayar Pada",
+      "copy": "Salin {{label}}"
+    }
+  },
+  "plans": {
+    "pageTitle": "Pilih paket",
+    "pageDescription": "Kartu tertaut akan dikenakan biaya berdasarkan paket yang dipilih",
+    "tabsAriaLabel": "Pilih paket berlangganan",
+    "month_one": "{{count}} bulan",
+    "month_other": "{{count}} bulan",
+    "perMonth": "per bulan",
+    "continueButton": "Lanjutkan",
+    "year_one": "{{count}} tahun",
+    "year_other": "{{count}} tahun"
+  },
+  "subscriptionLinkWidget": {
+    "getLink": "Tambahkan perangkat baru",
+    "scanQrCode": "Pindai kode QR",
+    "copyLink": "Salin tautan",
+    "linkCopied": "Disalin",
+    "addToDeviceTitle": "Tambahkan ke perangkat lain",
+    "addToDeviceSteps": {
+      "step1": "Pindai kode QR dari aplikasi di perangkat lain atau ikuti tautan dari QR.",
+      "step2": "Atau cukup salin tautannya dan ikuti petunjuknya."
+    }
+  },
+  "subscriptionFail": {
+    "title": "Pembayaran belum selesai",
+    "description": "Tidak ada dana yang ditarik. Anda dapat memilih paket dan mencoba lagi.",
+    "retry": "Coba lagi"
+  },
+  "subscriptionSuccess": {
+    "title": "Langganan Anda sudah siap",
+    "description": "Nikmati internet yang bebas dan privat",
+    "connect": "Hubungkan"
+  },
+  "getSubscription": {
+    "step_email_title": "Masukkan email untuk akun JungleVPN Anda",
+    "email_placeholder": "email@contoh.com",
+    "email_description": "Diperlukan untuk mengelola langganan Anda",
+    "email_hint_label": "Mengapa kami membutuhkan email Anda",
+    "email_hint": "Jika Anda pernah menggunakan JungleVPN sebelumnya, kami akan menambahkan langganan ke akun Anda yang sudah ada. Jika tidak, kami akan membuat akun baru dengan email ini.",
+    "email_required_error": "Silakan masukkan alamat email Anda",
+    "email_invalid_error": "Silakan masukkan alamat email yang valid",
+    "checkout_error": "Kami tidak dapat memulai pembayaran. Silakan coba lagi.",
+    "throttled_error": "Terlalu banyak upaya. Harap tunggu beberapa menit dan coba lagi.",
+    "active_subscription_error": "Anda sudah memiliki langganan aktif di email ini. Kelola dari profil Anda.",
+    "terms_link": "Ketentuan berlangganan",
+    "step_payment_title": "Pilih metode pembayaran",
+    "card_method": "Kartu kredit atau debit",
+    "submit": "Lanjutkan ke pembayaran",
+    "order_title": "Pesanan Anda",
+    "order_item": "JungleVPN untuk {{period}}",
+    "discount": "Diskon {{percent}}%",
+    "plan_unavailable_title": "Paket ini tidak tersedia",
+    "plan_unavailable_description": "Pilih durasi langganan di <1>halaman harga</1>.",
+    "features_title": "Termasuk dalam langganan",
+    "guarantee": "Jaminan uang kembali 30 hari",
+    "active_dialog": {
+      "title": "Anda sudah berlangganan",
+      "description": "<1>{{email}}</1> sudah memiliki langganan JungleVPN yang aktif, jadi tidak ada yang perlu dibeli di sini.",
+      "hint": "Masuk untuk melihat paket, faktur, dan metode pembayaran Anda.",
+      "to_profile": "Buka profil",
+      "login": "Masuk",
+      "use_another_email": "Gunakan email lain"
+    }
+  },
+  "paymentFooter": {
+    "copyright": "© {{year}} JungleVPN. Semua hak dilindungi undang-undang.",
+    "terms": "Ketentuan Layanan",
+    "support": "Hubungi kami"
+  },
+  "paddleCheckout": {
+    "title": "Pembayaran",
+    "subtitle": "Selesaikan pembayaran Anda untuk mengaktifkan langganan Anda"
+  },
+  "ipStatus": {
+    "yourIp": "IP Anda: {{ip}}",
+    "protected": "Anda dilindungi!",
+    "unprotected": "Anda tidak dilindungi!"
+  },
+  "myIp": {
+    "title": "Situs web mengetahui banyak hal tentang Anda",
+    "subtitle": "Tanpa VPN, data asli Anda tersedia untuk semua layanan di Internet.",
+    "learn": "Pelajari dasar-dasar privasi",
+    "connection": {
+      "title": "Informasi apa yang dapat diungkapkan alamat IP Anda?"
+    },
+    "unavailable": "Tidak tersedia",
+    "mapAlt": "Peta yang menunjukkan perkiraan lokasi Anda: {{location}}",
+    "approximateLocation": "Perkiraan lokasi berdasarkan alamat IP Anda.",
+    "findPublicIp": {
+      "title": "Cara menemukan alamat IP publik Anda",
+      "body": "Untuk melihat alamat IP publik Anda, cukup lihat di bagian atas halaman ini. Anda akan melihat informasi tentang IP Anda, termasuk lokasi koneksi Anda, penyedia layanan internet, dan apakah koneksi Anda aman."
+    },
+    "status": {
+      "checking": "Memeriksa koneksi Anda",
+      "protected": "Koneksi Anda terlindungi",
+      "unprotected": "Koneksi Anda terlihat"
+    },
+    "card": {
+      "ip": "IP",
+      "location": "Lokasi",
+      "isp": "ISP",
+      "dns": "Penyedia DNS",
+      "browser": "Peramban",
+      "os": "Sistem operasi"
+    },
+    "browser": {
+      "unknown": "Peramban tidak dikenal"
+    },
+    "os": {
+      "unknown": "Sistem operasi tidak dikenal"
+    },
+    "whatIs": {
+      "title": "Apa itu IP?"
+    },
+    "reveal": {
+      "title": "Apa yang diungkapkan alamat IP dan koneksi Anda",
+      "body": "Alamat IP ibarat alamat rumah digital Anda. Setiap situs web yang dikunjungi dapat melihatnya dan mengetahui perkiraan lokasi, penyedia internet, serta informasi lainnya tentang Anda."
+    },
+    "fingerprint": {
+      "title": "Situs web dapat mengumpulkan lebih banyak informasi tentang Anda",
+      "body": "Selain alamat IP Anda, situs web dapat mendeteksi browser Anda, sistem operasi, resolusi layar, pengaturan bahasa, dan lainnya melalui sidik jari browser."
+    },
+    "vpn": {
+      "title": "Bisakah Anda menyembunyikan lokasi Anda dengan mengubah alamat IP Anda?",
+      "body": "Ya, dengan menggunakan VPN. Saat Anda terhubung ke server VPN, situs web akan melihat alamat IP server, bukan alamat Anda. Ini menyembunyikan lokasi Anda yang sebenarnya dan melindungi privasi Anda."
+    },
+    "aboutCards": {
+      "ipAddress": {
+        "label": "127.0.0.1",
+        "paragraph1": "Alamat IP adalah nomor unik yang diberikan kepada setiap perangkat, termasuk komputer, tablet, dan ponsel, saat terhubung ke internet."
+      },
+      "publicIpAddresses": {
+        "label": "Alamat IP publik",
+        "paragraph1": "Alamat ini dapat diibaratkan sebagai alamat pos. Anda tidak dapat menerima surat dari teman tanpa memberikan alamat pos, dan Anda tidak dapat mengunduh gambar atau teks dari situs web tanpa memberikan alamat IP."
+      },
+      "privateIpAddresses": {
+        "label": "Alamat IP pribadi",
+        "paragraph1": "Komputer Anda tidak hanya memiliki alamat IP publik, tetapi juga alamat IP privat. Alamat ini diberikan saat Anda terhubung ke jaringan privat.",
+        "paragraph2": "Alamat IP pribadi digunakan untuk mengirimkan informasi dalam jaringan pribadi tanpa terhubung ke Internet. Biasanya, alamat IP pribadi dimulai dengan kombinasi angka 192.168, yang menunjukkan bahwa alamat tersebut milik jaringan pribadi.",
+        "paragraph3": "Alamat IP pribadi diberikan oleh router saat perangkat terhubung ke jaringan rumah Anda."
+      },
+      "versions": {
+        "label": "Versi alamat IP",
+        "paragraph1": "Ada dua standar alamat IP yang saat ini digunakan: IP versi 4 (IPv4) dan IP versi 6 (IPv6). Perbedaannya terletak pada format dan jumlah karakternya. Namun, kedua standar tersebut digunakan untuk identifikasi perangkat dan pengalamatan berbasis lokasi.",
+        "paragraph2": "IPv4 terdiri dari empat set 1–3 digit yang dipisahkan oleh sebuah titik, misalnya 170.0.0.1. Jumlah maksimum kemungkinan kombinasi unik adalah sekitar 4 miliar. Pada saat jumlah perangkat yang terhubung melebihi 4 miliar, diperlukan standar baru: IPv6.",
+        "paragraph3": "IPv6 terdiri dari delapan kelompok empat digit heksadesimal yang dipisahkan oleh titik dua, misalnya 3ffe:1900:fe21:4545. Ini menciptakan 3,4×10^38 kemungkinan kombinasi unik, cukup untuk masa mendatang."
+      }
+    }
+  }
+}

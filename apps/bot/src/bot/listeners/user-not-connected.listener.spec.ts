@@ -210,7 +210,7 @@ describe('UserNotConnectedListener', () => {
       expect(html).not.toContain('jungle-vpn.com');
     });
 
-    it("links to the global domain for a 'global' user whose lang is \"ru\"", async () => {
+    it('links to the global domain for a \'global\' user whose lang is "ru"', async () => {
       const html = await emailHtmlFor('global', 'ru');
 
       expect(html).toContain('https://jungle-vpn.com');
@@ -236,6 +236,7 @@ describe('UserNotConnectedListener', () => {
 
     it('still picks the email language from the user lang', async () => {
       expect(await emailHtmlFor('global', 'ru')).toContain('lang="ru"');
+      expect(await emailHtmlFor('global', 'id')).toContain('lang="id"');
     });
 
     // The panel ships `user.not_connected` with activeInternalSquads always empty

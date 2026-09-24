@@ -11,6 +11,7 @@ import { isLandingPath } from '../../utils';
 const LANGUAGE_FLAGS: Record<string, string> = {
   ar: '🇦🇪',
   en: '🇬🇧',
+  id: '🇮🇩',
   tr: '🇹🇷',
 };
 
@@ -33,7 +34,7 @@ export function LanguageSwitcher() {
     if (rmnUser?.id) {
       await remnawaveApi.upsertMyMetadata({ lang: newLocale });
     }
-    // Only the landing page is mirrored in the URL (/, /en, /ar) — elsewhere the
+    // Only the landing page is mirrored in the URL (/, /en, /ar, /tr, /id) — elsewhere the
     // language switch stays purely client-side and the path is left alone.
     if (isLandingPath(location.pathname)) {
       navigate(pathForLocale(newLocale), { replace: true });
@@ -67,6 +68,12 @@ export function LanguageSwitcher() {
             <Dropdown.Item id='tr' textValue={t('languages.nativeTr')}>
               <span aria-hidden='true'>{LANGUAGE_FLAGS.tr}</span>
               <Label>{t('languages.nativeTr')}</Label>
+            </Dropdown.Item>
+          )}
+          {isLocaleAllowed('id') && (
+            <Dropdown.Item id='id' textValue={t('languages.nativeId')}>
+              <span aria-hidden='true'>{LANGUAGE_FLAGS.id}</span>
+              <Label>{t('languages.nativeId')}</Label>
             </Dropdown.Item>
           )}
         </Dropdown.Menu>

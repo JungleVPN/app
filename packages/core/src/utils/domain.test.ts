@@ -119,7 +119,7 @@ describe('localePolicyForHost', () => {
   });
 
   it('allows the global languages on jungle-vpn.com, so a ru-RU browser cannot force Russian', () => {
-    expect(localePolicyForHost('jungle-vpn.com', domains)).toEqual(['en', 'ar', 'tr']);
+    expect(localePolicyForHost('jungle-vpn.com', domains)).toEqual(['en', 'ar', 'tr', 'id']);
   });
 
   it('applies the Russian policy to prefix-matched staging hosts', () => {
@@ -127,7 +127,12 @@ describe('localePolicyForHost', () => {
   });
 
   it('applies the global policy to prefix-matched staging hosts', () => {
-    expect(localePolicyForHost('eu-stage-web.thejungle.pro', domains)).toEqual(['en', 'ar', 'tr']);
+    expect(localePolicyForHost('eu-stage-web.thejungle.pro', domains)).toEqual([
+      'en',
+      'ar',
+      'tr',
+      'id',
+    ]);
   });
 
   it.each([
@@ -139,7 +144,7 @@ describe('localePolicyForHost', () => {
 });
 
 describe('isLandingPath', () => {
-  it.each(['/', '/en', '/ar', '/tr'])('is true for the landing path %s', (pathname) => {
+  it.each(['/', '/en', '/ar', '/tr', '/id'])('is true for the landing path %s', (pathname) => {
     expect(isLandingPath(pathname)).toBe(true);
   });
 
@@ -171,6 +176,7 @@ describe('isCrawlablePath', () => {
     '/en',
     '/ar',
     '/tr',
+    '/id',
     '/terms',
     '/privacy',
     '/cookies',
@@ -221,6 +227,10 @@ describe('resolveLocaleForRequest', () => {
     expect(resolveLocaleForRequest('jungle-vpn.com', '/tr', domains)).toBe('tr');
   });
 
+  it('serves Indonesian on the global domain /id path', () => {
+    expect(resolveLocaleForRequest('jungle-vpn.com', '/id', domains)).toBe('id');
+  });
+
   it('falls back to English on the global domain for an unknown path segment', () => {
     expect(resolveLocaleForRequest('jungle-vpn.com', '/subscribe', domains)).toBe('en');
   });
@@ -229,9 +239,10 @@ describe('resolveLocaleForRequest', () => {
     expect(resolveLocaleForRequest('www.thejungle.pro', '/ar', domains)).toBe('ru');
   });
 
-  it('applies /en and /ar path routing on unrestricted hosts too (e.g. localhost)', () => {
+  it('applies global-language path routing on unrestricted hosts too (e.g. localhost)', () => {
     expect(resolveLocaleForRequest('localhost', '/ar', domains)).toBe('ar');
     expect(resolveLocaleForRequest('localhost', '/en', domains)).toBe('en');
+    expect(resolveLocaleForRequest('localhost', '/id', domains)).toBe('id');
   });
 
   it('falls back to the hostname resolution on unrestricted hosts with no /en or /ar path', () => {
@@ -239,7 +250,8 @@ describe('resolveLocaleForRequest', () => {
     expect(resolveLocaleForRequest('localhost', '/login', domains)).toBe('en');
   });
 
-  it('only matches the exact /en and /ar landing paths, not a leading segment on a deeper route', () => {
+  it('only matches exact language landing paths, not a leading segment on a deeper route', () => {
     expect(resolveLocaleForRequest('jungle-vpn.com', '/ar/nested', domains)).toBe('en');
+    expect(resolveLocaleForRequest('jungle-vpn.com', '/id/nested', domains)).toBe('en');
   });
 });

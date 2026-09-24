@@ -1,10 +1,12 @@
-export type EmailLocale = 'en' | 'ru' | 'ar' | 'tr';
+export type EmailLocale = 'en' | 'ru' | 'ar' | 'tr' | 'id';
 export type ExpiryEmailLocale = EmailLocale;
 
 const RTL_LOCALES: ReadonlySet<EmailLocale> = new Set(['ar']);
 
 export function isSupportedEmailLocale(locale: string): locale is EmailLocale {
-  return locale === 'en' || locale === 'ru' || locale === 'ar' || locale === 'tr';
+  return (
+    locale === 'en' || locale === 'ru' || locale === 'ar' || locale === 'tr' || locale === 'id'
+  );
 }
 
 // ── Shared shell ──────────────────────────────────────────────────────────────
@@ -114,6 +116,7 @@ const SIGN_OFF: Record<EmailLocale, string> = {
   ru: '— JungleVPN 🌴',
   ar: '— JungleVPN 🌴',
   tr: '— JungleVPN 🌴',
+  id: '— JungleVPN 🌴',
 };
 
 const SUPPORT_COPY: Record<EmailLocale, { prompt: string; linkLabel: string }> = {
@@ -121,6 +124,7 @@ const SUPPORT_COPY: Record<EmailLocale, { prompt: string; linkLabel: string }> =
   ru: { prompt: 'Вопросы по аккаунту?', linkLabel: 'Написать в поддержку' },
   ar: { prompt: 'أسئلة بخصوص حسابك؟', linkLabel: 'تواصل مع الدعم' },
   tr: { prompt: 'Hesabınla ilgili sorun mu var?', linkLabel: 'Destek ile iletişime geç' },
+  id: { prompt: 'Ada pertanyaan tentang akun Anda?', linkLabel: 'Hubungi dukungan' },
 };
 
 const FOOTER_NOTICE: Record<EmailLocale, string> = {
@@ -128,6 +132,7 @@ const FOOTER_NOTICE: Record<EmailLocale, string> = {
   ru: 'Ты получил это письмо, потому что у тебя есть аккаунт Jungle VPN.',
   ar: 'تصلك هذه الرسالة لأن لديك حسابًا في Jungle VPN.',
   tr: 'Bu e-postayı bir Jungle VPN hesabın olduğu için alıyorsun.',
+  id: 'Anda menerima email ini karena memiliki akun Jungle VPN.',
 };
 
 // ── Expiry reminder ──────────────────────────────────────────────────────────
@@ -182,6 +187,14 @@ const EXPIRY_COPY: Record<EmailLocale, ExpiryEmailCopy> = {
     planEndsLabel: 'Bitiş tarihi',
     bodyCopy: 'Kesintisiz bağlı kalmak için bu tarihten önce aboneliğini yenile.',
     ctaLabel: 'Aboneliği yenile',
+  },
+  id: {
+    subject: (days) => `Langganan Anda akan berakhir dalam ${days} hari`,
+    kicker: 'Status langganan',
+    headline: (days) => `Berakhir dalam ${days} hari`,
+    planEndsLabel: 'Paket berakhir',
+    bodyCopy: 'Perpanjang sebelum tanggal ini agar koneksi Anda tidak terputus.',
+    ctaLabel: 'Perpanjang langganan',
   },
 };
 
@@ -311,6 +324,26 @@ const PAYMENT_ISSUE_COPY: Record<EmailLocale, Record<PaymentIssueReason, Payment
       ctaLabel: 'Ödeme yöntemini güncelle',
     },
   },
+  id: {
+    no_active_method: {
+      subject: 'Langganan tidak dapat diperpanjang — tidak ada metode pembayaran aktif',
+      kicker: 'Pembayaran gagal',
+      headline: 'Tidak ada metode pembayaran aktif',
+      detailLabel: 'Akses berakhir',
+      bodyCopy:
+        'Anda tidak memiliki metode pembayaran tersimpan, sehingga kami tidak dapat memperpanjang langganan secara otomatis. Perpanjang langganan agar akses Anda tidak terputus.',
+      ctaLabel: 'Perpanjang langganan',
+    },
+    insufficient_funds: {
+      subject: 'Langganan tidak dapat diperpanjang — saldo tidak mencukupi',
+      kicker: 'Pembayaran gagal',
+      headline: 'Pembayaran perpanjangan gagal',
+      detailLabel: 'Akses berakhir',
+      bodyCopy:
+        'Kami mencoba menagih metode pembayaran tersimpan, tetapi saldonya tidak mencukupi. Tambah saldo atau perbarui metode pembayaran sebelum tanggal di bawah agar akses Anda tidak terputus.',
+      ctaLabel: 'Perbarui metode pembayaran',
+    },
+  },
 };
 
 export function buildPaymentIssueSubject(locale: EmailLocale, reason: PaymentIssueReason): string {
@@ -367,6 +400,14 @@ const PAYMENT_SUCCESS_COPY: Record<EmailLocale, PaymentSuccessCopy> = {
     detailLabel: 'Şu tarihe kadar aktif',
     bodyCopy: 'Ödemen için teşekkürler! Aboneliğin aktif ve kullanıma hazır.',
     ctaLabel: 'Aboneliği yönet',
+  },
+  id: {
+    subject: 'Pembayaran diterima — langganan Anda aktif',
+    kicker: 'Pembayaran berhasil',
+    headline: 'Langganan aktif',
+    detailLabel: 'Aktif hingga',
+    bodyCopy: 'Terima kasih atas pembayaran Anda! Langganan sudah aktif dan siap digunakan.',
+    ctaLabel: 'Kelola langganan',
   },
 };
 
