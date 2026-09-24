@@ -9,12 +9,13 @@ import { initReactI18next } from 'react-i18next';
 import { configuredDomains, currentScope, localePolicyForHost } from '../../utils';
 import ar from './locales/ar.json';
 import en from './locales/en.json';
+import hi from './locales/hi.json';
 import id from './locales/id.json';
 import ru from './locales/ru.json';
 import tr from './locales/tr.json';
 
 export const DEFAULT_LOCALE = import.meta.env.PUBLIC_DEFAULT_LOCALE || 'en';
-export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'tr', 'id', 'fa'] as const;
+export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'tr', 'id', 'hi', 'fa'] as const;
 
 /** Persian reuses Arabic until a dedicated translation file exists. */
 const resources = {
@@ -23,6 +24,7 @@ const resources = {
   ar: { translation: ar },
   tr: { translation: tr },
   id: { translation: id },
+  hi: { translation: hi },
   fa: { translation: ar },
 } as const;
 
@@ -71,10 +73,10 @@ i18n
     detection: {
       // htmlTag excluded: index.html ships a static lang="en" attribute, which would
       // win over a previously cached/selected language on every reload.
-      // path goes first everywhere: /en, /ar, /tr and /id route the language explicitly and
+      // path goes first everywhere: global-language routes select the language explicitly and
       // should win over a stale cached choice. It only ever matches a segment that's
       // in supportedLngs, so RU-only hosts (locked below anyway) and hosts without
-      // an /en, /ar, /tr or /id path are unaffected.
+      // a global-language path are unaffected.
       order: ['path', 'localStorage', 'navigator'],
       lookupFromPathIndex: 0,
       caches: ['localStorage'],

@@ -1,11 +1,16 @@
-export type EmailLocale = 'en' | 'ru' | 'ar' | 'tr' | 'id';
+export type EmailLocale = 'en' | 'ru' | 'ar' | 'tr' | 'id' | 'hi';
 export type ExpiryEmailLocale = EmailLocale;
 
 const RTL_LOCALES: ReadonlySet<EmailLocale> = new Set(['ar']);
 
 export function isSupportedEmailLocale(locale: string): locale is EmailLocale {
   return (
-    locale === 'en' || locale === 'ru' || locale === 'ar' || locale === 'tr' || locale === 'id'
+    locale === 'en' ||
+    locale === 'ru' ||
+    locale === 'ar' ||
+    locale === 'tr' ||
+    locale === 'id' ||
+    locale === 'hi'
   );
 }
 
@@ -117,6 +122,7 @@ const SIGN_OFF: Record<EmailLocale, string> = {
   ar: '— JungleVPN 🌴',
   tr: '— JungleVPN 🌴',
   id: '— JungleVPN 🌴',
+  hi: '— JungleVPN 🌴',
 };
 
 const SUPPORT_COPY: Record<EmailLocale, { prompt: string; linkLabel: string }> = {
@@ -125,6 +131,7 @@ const SUPPORT_COPY: Record<EmailLocale, { prompt: string; linkLabel: string }> =
   ar: { prompt: 'أسئلة بخصوص حسابك؟', linkLabel: 'تواصل مع الدعم' },
   tr: { prompt: 'Hesabınla ilgili sorun mu var?', linkLabel: 'Destek ile iletişime geç' },
   id: { prompt: 'Ada pertanyaan tentang akun Anda?', linkLabel: 'Hubungi dukungan' },
+  hi: { prompt: 'अपने खाते से जुड़ा कोई सवाल है?', linkLabel: 'सहायता टीम से संपर्क करें' },
 };
 
 const FOOTER_NOTICE: Record<EmailLocale, string> = {
@@ -133,6 +140,7 @@ const FOOTER_NOTICE: Record<EmailLocale, string> = {
   ar: 'تصلك هذه الرسالة لأن لديك حسابًا في Jungle VPN.',
   tr: 'Bu e-postayı bir Jungle VPN hesabın olduğu için alıyorsun.',
   id: 'Anda menerima email ini karena memiliki akun Jungle VPN.',
+  hi: 'आपको यह ईमेल इसलिए मिला है क्योंकि आपका Jungle VPN खाता है।',
 };
 
 // ── Expiry reminder ──────────────────────────────────────────────────────────
@@ -195,6 +203,14 @@ const EXPIRY_COPY: Record<EmailLocale, ExpiryEmailCopy> = {
     planEndsLabel: 'Paket berakhir',
     bodyCopy: 'Perpanjang sebelum tanggal ini agar koneksi Anda tidak terputus.',
     ctaLabel: 'Perpanjang langganan',
+  },
+  hi: {
+    subject: (days) => `आपकी सदस्यता ${days} दिन में समाप्त हो जाएगी`,
+    kicker: 'सदस्यता की स्थिति',
+    headline: (days) => `${days} दिन में समाप्त होगी`,
+    planEndsLabel: 'प्लान समाप्त होने की तारीख',
+    bodyCopy: 'बिना रुकावट जुड़े रहने के लिए इस तारीख से पहले अपनी सदस्यता नवीनीकृत करें।',
+    ctaLabel: 'सदस्यता नवीनीकृत करें',
   },
 };
 
@@ -344,6 +360,26 @@ const PAYMENT_ISSUE_COPY: Record<EmailLocale, Record<PaymentIssueReason, Payment
       ctaLabel: 'Perbarui metode pembayaran',
     },
   },
+  hi: {
+    no_active_method: {
+      subject: 'सदस्यता नवीनीकृत नहीं हो सकी — कोई सक्रिय भुगतान विधि नहीं है',
+      kicker: 'भुगतान विफल',
+      headline: 'कोई सक्रिय भुगतान विधि नहीं है',
+      detailLabel: 'एक्सेस समाप्त होने की तारीख',
+      bodyCopy:
+        'आपके खाते में कोई भुगतान विधि सेव नहीं है, इसलिए सदस्यता अपने-आप नवीनीकृत नहीं हो सकी। बिना रुकावट एक्सेस जारी रखने के लिए अपनी सदस्यता नवीनीकृत करें।',
+      ctaLabel: 'सदस्यता नवीनीकृत करें',
+    },
+    insufficient_funds: {
+      subject: 'सदस्यता नवीनीकृत नहीं हो सकी — पर्याप्त बैलेंस नहीं है',
+      kicker: 'भुगतान विफल',
+      headline: 'नवीनीकरण का भुगतान विफल रहा',
+      detailLabel: 'एक्सेस समाप्त होने की तारीख',
+      bodyCopy:
+        'हमने आपकी सेव की गई भुगतान विधि से शुल्क लेने की कोशिश की, लेकिन पर्याप्त बैलेंस नहीं था। बिना रुकावट एक्सेस जारी रखने के लिए नीचे दी गई तारीख से पहले बैलेंस जोड़ें या भुगतान विधि अपडेट करें।',
+      ctaLabel: 'भुगतान विधि अपडेट करें',
+    },
+  },
 };
 
 export function buildPaymentIssueSubject(locale: EmailLocale, reason: PaymentIssueReason): string {
@@ -408,6 +444,14 @@ const PAYMENT_SUCCESS_COPY: Record<EmailLocale, PaymentSuccessCopy> = {
     detailLabel: 'Aktif hingga',
     bodyCopy: 'Terima kasih atas pembayaran Anda! Langganan sudah aktif dan siap digunakan.',
     ctaLabel: 'Kelola langganan',
+  },
+  hi: {
+    subject: 'भुगतान मिल गया — आपकी सदस्यता सक्रिय है',
+    kicker: 'भुगतान सफल',
+    headline: 'सदस्यता सक्रिय है',
+    detailLabel: 'इस तारीख तक सक्रिय',
+    bodyCopy: 'भुगतान के लिए धन्यवाद! आपकी सदस्यता सक्रिय है और इस्तेमाल के लिए तैयार है।',
+    ctaLabel: 'सदस्यता प्रबंधित करें',
   },
 };
 

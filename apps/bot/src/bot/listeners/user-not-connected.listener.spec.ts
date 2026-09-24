@@ -237,6 +237,7 @@ describe('UserNotConnectedListener', () => {
     it('still picks the email language from the user lang', async () => {
       expect(await emailHtmlFor('global', 'ru')).toContain('lang="ru"');
       expect(await emailHtmlFor('global', 'id')).toContain('lang="id"');
+      expect(await emailHtmlFor('global', 'hi')).toContain('lang="hi"');
     });
 
     // The panel ships `user.not_connected` with activeInternalSquads always empty

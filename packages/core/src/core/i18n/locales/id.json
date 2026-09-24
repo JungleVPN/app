@@ -72,7 +72,8 @@
     "nativeEn": "English",
     "nativeAr": "العربية",
     "nativeTr": "Türkçe",
-    "nativeId": "Bahasa Indonesia"
+    "nativeId": "Bahasa Indonesia",
+    "nativeHi": "हिन्दी"
   },
   "profileTabs": {
     "ariaLabel": "Bagian profil",

@@ -49,6 +49,11 @@ export function createRoutes(
           Component: LandingLayout,
           children: [{ index: true, Component: Landing }],
         },
+        {
+          path: '/hi',
+          Component: LandingLayout,
+          children: [{ index: true, Component: Landing }],
+        },
 
         {
           path: '/pricing',
