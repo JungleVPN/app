@@ -12,8 +12,8 @@ export default function PricingPage() {
   }, []);
 
   return (
-    <div className='relative bg-[#1a1a1a]'>
-      <div className={'relative lg:sticky top-0 z-10 bg-gray-100 overflow-hidden'}>
+    <>
+      <div className={'bg-gray-100 overflow-hidden'}>
         <Container className='pt-40 pb-10'>
           <PricingSection surface='light' animateOnMount />
         </Container>
@@ -32,6 +32,6 @@ export default function PricingPage() {
           </Reveal>
         </Container>
       </RoundedSection>
-    </div>
+    </>
   );
 }

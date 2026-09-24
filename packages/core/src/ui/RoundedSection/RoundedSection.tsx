@@ -20,7 +20,7 @@ export function RoundedSection({
   rounded = false,
 }: RoundedSectionProps) {
   const classes = [
-    `flex flex-col z-20 gap-48 relative ${variant === 'primary' ? 'bg-background' : 'bg-white'} ${rounded ? 'rounded-t-[3rem] rounded-b-[3rem]' : ''} py-12 md:py-8`,
+    `flex flex-col z-20 gap-48 relative ${variant === 'primary' ? 'bg-background' : 'bg-white'} ${rounded ? 'rounded-t-[1.5rem] rounded-b-[1.5rem]' : ''} py-12 md:py-8`,
     className,
   ]
     .filter(Boolean)

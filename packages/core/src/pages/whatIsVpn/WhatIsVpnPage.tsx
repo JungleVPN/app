@@ -27,7 +27,7 @@ export default function WhatIsVpnPage() {
     <div className='relative bg-[#1a1a1a]'>
       <HeroSection />
 
-      <RoundedSection rounded className='z-20'>
+      <RoundedSection className='z-20'>
         <div className='flex flex-col gap-24 md:gap-32'>
           {SECTIONS.map(({ key, content }) => (
             <Container key={key}>
