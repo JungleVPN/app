@@ -7,6 +7,7 @@ import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStore } from '../../stores';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 import { PRICING_PATH } from '../../utils';
 import { BrandTitle } from './BrandTitle';
 
@@ -52,7 +53,7 @@ export function HeroSection() {
           <Heading>
             <BrandTitle />
           </Heading>
-          <p className='text-base text-white lg:text-md'>{t('landing.hero.subtitle')}</p>
+          <Paragraph className={'text-white'}>{t('landing.hero.subtitle')}</Paragraph>
         </div>
 
         <div className='flex flex-col md:flex-row gap-4'>

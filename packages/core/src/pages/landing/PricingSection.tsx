@@ -6,6 +6,7 @@ import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { useNavigation, usePlans } from '../../hooks';
 import { Grid, GridItem } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 import { calculatePricing, cn, mapPlans } from '../../utils';
 import { formatPeriod } from '../../utils/planPricing';
 import { planSlug } from '../getSubscription/planSlug';
@@ -43,26 +44,13 @@ function buildPlanOrders(plans: SubscriptionPlanDto[]): Map<number, PlanOrder> {
 }
 
 /**
- * The section sits on the white landing page and on the dark gradient hero of
- * the pricing page, so its copy colours follow the surface it is placed on.
- */
-type Surface = 'light' | 'dark';
-
-const BODY_CLASS: Record<Surface, string> = {
-  light: 'text-muted',
-  dark: 'text-white/70',
-};
-
-/**
  * `animateOnMount` staggers the cards in as the page loads — used on the pricing page,
  * where the plans are the hero. On the landing page the section sits far below the fold,
  * so the animation would play unseen and the cards are rendered static instead.
  */
 export function PricingSection({
-  surface = 'light',
   animateOnMount = false,
 }: {
-  surface?: Surface;
   animateOnMount?: boolean;
 } = {}) {
   const { t } = useTranslation();
@@ -87,9 +75,7 @@ export function PricingSection({
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <Heading>{t('landing.pricing.title')}</Heading>
-        <p className={cn('text-base lg:text-md', BODY_CLASS[surface])}>
-          {t('landing.pricing.subtitle')}
-        </p>
+        <Paragraph>{t('landing.pricing.subtitle')}</Paragraph>
       </div>
 
       <div className='flex flex-col items-center gap-8'>

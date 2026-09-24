@@ -10,6 +10,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from '../../hooks';
 import { useSubscription } from '../../stores';
 import { Block, Grid, GridItem } from '../../ui';
+import { Paragraph } from '../../ui/Paragraph';
 import { formatDate } from '../../utils';
 import classes from './subscriptionInfoCards.module.css';
 
@@ -44,8 +45,8 @@ const CardItem = ({ icon, label, value, color }: CardItemProps) => {
           {icon}
         </Surface>
         <div className='flex min-w-0 flex-1 flex-col gap-0.5'>
-          <p className={`${classes.label} text-xs font-medium uppercase text-muted`}>{label}</p>
-          <p className={`${classes.value} text-sm font-semibold text-foreground`}>{value}</p>
+          <Paragraph>{label}</Paragraph>
+          <Paragraph>{value}</Paragraph>
         </div>
       </div>
     </Surface>

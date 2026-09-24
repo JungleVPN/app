@@ -1,4 +1,5 @@
 import { Surface } from '@heroui/react';
+import { Paragraph } from '../../../../../ui/Paragraph';
 import { getColorGradientSolid, getLocalizedText } from '../../../../../utils';
 import { ThemeIconComponent } from '../../../../ThemeIcon/ThemeIcon';
 import { BlockButtons } from '../../BlockButton/BlockButtons';
@@ -36,14 +37,12 @@ export const TimelineBlockRenderer = ({
                 ) : null}
               </div>
               <div className='min-w-0 flex-1 pb-4'>
-                <p
-                  className='text-sm font-semibold text-foreground'
+                <Paragraph
                   dangerouslySetInnerHTML={{
                     __html: getLocalizedText(block.title, currentLang),
                   }}
                 />
-                <p
-                  className='mt-1 text-xs leading-relaxed text-muted'
+                <Paragraph
                   dangerouslySetInnerHTML={{
                     __html: getLocalizedText(block.description, currentLang),
                   }}

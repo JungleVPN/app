@@ -1,5 +1,6 @@
 import { Card } from '@heroui/react';
 import type { ReactNode } from 'react';
+import { Paragraph } from '../../ui/Paragraph';
 import { cn } from '../../utils';
 
 interface WalletStepProps {
@@ -21,8 +22,8 @@ export function Step({ step, title, icon, description, className, children }: Wa
           </span>
         )}
         <div>
-          <p className='font-bold'>{title}</p>
-          {description && <p className='text-sm text-muted'>{description}</p>}
+          <Paragraph>{title}</Paragraph>
+          {description && <Paragraph>{description}</Paragraph>}
         </div>
         {children}
       </Card.Content>

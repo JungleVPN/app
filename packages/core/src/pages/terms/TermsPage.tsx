@@ -6,6 +6,7 @@ import { useBackButton, useNavigation } from '../../hooks';
 import { useNavbarStore } from '../../stores';
 import { Page } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 import { scrollToTop } from '../../utils';
 
 const olClass =
@@ -272,7 +273,7 @@ export default function TermsPage() {
           </ol>
         </section>
 
-        <p className='text-sm leading-relaxed text-muted'>{t('terms.footer')}</p>
+        <Paragraph>{t('terms.footer')}</Paragraph>
       </Surface>
     </Page>
   );

@@ -5,6 +5,7 @@ import PriceBenefitsIcon from '../../assets/icons/price-benefits-icon.svg?react'
 import IconReady from '../../assets/icons/ready-small-icon.svg?react';
 import IconSupport from '../../assets/icons/support-small-icon.svg?react';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 const BENEFITS = [
   {
@@ -48,7 +49,7 @@ export function BenefitsSection() {
               {t('landing.features.titleBrand')}
             </span>
           </Heading>
-          <p className='text-muted text-base lg:text-md'>{t('landing.features.subtitle')}</p>
+          <Paragraph>{t('landing.features.subtitle')}</Paragraph>
         </div>
 
         <div className='grid grid-cols-1 gap-8 sm:grid-cols-2'>
@@ -56,7 +57,7 @@ export function BenefitsSection() {
             <div key={benefit.key} className='flex flex-col gap-3'>
               <benefit.Icon className='h-10 w-auto text-purple-400 mr-auto' aria-hidden='true' />
               <Heading as='h3'>{'title' in benefit ? benefit.title : t(benefit.titleKey)}</Heading>
-              <p className='text-muted text-sm leading-relaxed'>{t(benefit.descriptionKey)}</p>
+              <Paragraph>{t(benefit.descriptionKey)}</Paragraph>
             </div>
           ))}
         </div>

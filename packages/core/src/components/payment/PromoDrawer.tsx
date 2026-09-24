@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { TgsSticker } from '../../ui';
+import { Paragraph } from '../../ui/Paragraph';
 
 interface Props {
   isOpen: boolean;
@@ -44,7 +45,7 @@ export function PromoDrawer({ isOpen, isPending, onClose, onContinue }: Props) {
             <Drawer.Heading className='text-center'>{t('payment.promo.title')}</Drawer.Heading>
           </Drawer.Header>
           <Drawer.Body className='flex flex-col gap-4'>
-            <p className='text-center text-sm text-muted'>{t('payment.promo.subtitle')}</p>
+            <Paragraph>{t('payment.promo.subtitle')}</Paragraph>
             <TextField className='w-full' variant='secondary' name='promoCode'>
               <Input
                 autoCapitalize='characters'

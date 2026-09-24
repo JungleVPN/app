@@ -5,6 +5,7 @@ import IconMoneyBack from '../../assets/icons/money-back.svg?react';
 import IconReady from '../../assets/icons/ready-icon.svg?react';
 import { coreEnv } from '../../env';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 const FEATURES = [
   { key: 'ready', Icon: IconReady },
@@ -26,7 +27,7 @@ export function FeaturesSection() {
               {t('landing.features.titleBrand')}
             </span>
           </Heading>
-          <p className='text-muted mt-3 text-base lg:text-md'>{t('landing.features.subtitle')}</p>
+          <Paragraph>{t('landing.features.subtitle')}</Paragraph>
         </div>
 
         <div className='grid grid-cols-1 border-t border-divider sm:grid-cols-2'>
@@ -38,9 +39,9 @@ export function FeaturesSection() {
               <Icon className='h-25 lg:h-40 w-auto' aria-hidden='true' />
               <div className='flex flex-col gap-2'>
                 <Heading as='h3'>{t(`landing.features.${key}.title`)}</Heading>
-                <p className='text-muted text-sm leading-relaxed sm:text-base'>
+                <Paragraph>
                   {t(`landing.features.${key}.description`, { deviceLimit: coreEnv.deviceLimit })}
-                </p>
+                </Paragraph>
               </div>
             </div>
           ))}

@@ -2,6 +2,7 @@ import { Button } from '@heroui/react';
 import { IconArrowRight } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useSubscriptionLinkDialogStore } from '../../../../stores';
+import { Paragraph } from '../../../../ui/Paragraph';
 
 export function ExtraDeviceBlock() {
   const { t } = useTranslation();
@@ -21,7 +22,7 @@ export function ExtraDeviceBlock() {
         {t('devices.extraDevice.openButton')}
         <IconArrowRight size={20} stroke={2} className='rtl:-scale-x-100' />
       </Button>
-      <p className='px-4 mt-1 text-xs text-muted'>{t('devices.extraDevice.description')}</p>
+      <Paragraph>{t('devices.extraDevice.description')}</Paragraph>
     </div>
   );
 }

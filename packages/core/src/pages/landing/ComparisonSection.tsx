@@ -6,6 +6,7 @@ import privacy_dark from '../../assets/lottie/privacy_dark.lottie?url';
 import { useTheme } from '../../hooks';
 import { LottieIcon } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 type Row = {
   feature: string;
@@ -38,7 +39,7 @@ export function ComparisonSection() {
               {t('landing.comparison.titleBrand')}
             </span>
           </Heading>
-          <p className='text-base text-muted lg:text-md'>{t('landing.comparison.subtitle')}</p>
+          <Paragraph>{t('landing.comparison.subtitle')}</Paragraph>
         </div>
         <LottieIcon
           loop={false}

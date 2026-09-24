@@ -2,6 +2,7 @@ import { Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '../../hooks';
 import { Heading } from '../../ui';
+import { Paragraph } from '../../ui/Paragraph';
 import { PRICING_PATH } from '../../utils';
 
 export function CTASection({ onCtaClick }: { onCtaClick?: () => void } = {}) {
@@ -16,9 +17,7 @@ export function CTASection({ onCtaClick }: { onCtaClick?: () => void } = {}) {
             <Heading as='h2' className={'text-white'}>
               {t('landing.cta.title')}
             </Heading>
-            <p className='text-base text-white/80 lg:text-md px-4 lg:px-48'>
-              {t('landing.cta.subtitle')}
-            </p>
+            <Paragraph className={'text-white'}>{t('landing.cta.subtitle')}</Paragraph>
           </div>
 
           <Button

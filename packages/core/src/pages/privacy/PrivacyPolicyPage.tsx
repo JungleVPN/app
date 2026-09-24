@@ -6,6 +6,7 @@ import { coreEnv } from '../../env';
 import { useBackButton, useNavigation } from '../../hooks';
 import { useNavbarStore } from '../../stores';
 import { Heading, Page } from '../../ui';
+import { Paragraph } from '../../ui/Paragraph';
 import { scrollToTop } from '../../utils';
 
 const olClass =
@@ -239,7 +240,7 @@ export default function PrivacyPolicyPage() {
           </ol>
         </section>
 
-        <p className='text-sm leading-relaxed text-muted'>{t('privacy.footer')}</p>
+        <Paragraph>{t('privacy.footer')}</Paragraph>
       </Surface>
     </Page>
   );

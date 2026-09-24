@@ -18,6 +18,7 @@ import { FeaturesCard, Link, PaymentMethodIcons } from '../../components';
 import { useTermsStore } from '../../stores';
 import { Block, Container, Grid, GridItem } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 import { formatPlanPrice, scrollToTop } from '../../utils';
 import { formatPeriod } from '../../utils/planPricing';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
@@ -133,9 +134,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                             </Button>
                             <Tooltip.Content placement='bottom' showArrow className='max-w-72'>
                               <Tooltip.Arrow />
-                              <p className='text-sm wrap-break-word [word-break:normal]'>
-                                {t('getSubscription.email_hint')}
-                              </p>
+                              <Paragraph>{t('getSubscription.email_hint')}</Paragraph>
                             </Tooltip.Content>
                           </Tooltip>
                         </div>
@@ -179,7 +178,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                     <PaymentMethodIcons className='gap-3' />
                   </div>
 
-                  {checkoutError && <p className='text-sm text-danger'>{checkoutError}</p>}
+                  {checkoutError && <Paragraph>{checkoutError}</Paragraph>}
                 </div>
               </Block>
             </Form>
@@ -196,11 +195,11 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                       <div className='flex items-start justify-between gap-4'>
                         <div className='flex items-center gap-3'>
                           <Logo aria-hidden className='size-8 shrink-0 rounded-lg' />
-                          <p className='text-base font-semibold'>
+                          <Paragraph>
                             {t('getSubscription.order_item', {
                               period: formatPeriod(selectedPeriod, t),
                             })}
-                          </p>
+                          </Paragraph>
                         </div>
                         <div className='flex shrink-0 items-baseline gap-2'>
                           {pricing.discountPercent > 0 && !plan?.isTrial && pricing.fullTotal && (
@@ -227,15 +226,13 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                     </div>
                   ) : (
                     <div className='flex flex-col gap-2'>
-                      <p className='text-base font-semibold'>
-                        {t('getSubscription.plan_unavailable_title')}
-                      </p>
-                      <p className='text-sm text-muted'>
+                      <Paragraph>{t('getSubscription.plan_unavailable_title')}</Paragraph>
+                      <Paragraph>
                         <Trans
                           i18nKey='getSubscription.plan_unavailable_description'
                           components={{ 1: <Link className='underline' href='/#pricing' /> }}
                         />
-                      </p>
+                      </Paragraph>
                     </div>
                   )}
                   <FeaturesCard
@@ -249,7 +246,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                 <span className='flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary'>
                   <IconRestore stroke={2} />
                 </span>
-                <p className='text-sm font-medium'>{t('getSubscription.guarantee')}</p>
+                <Paragraph>{t('getSubscription.guarantee')}</Paragraph>
               </div>
             </div>
           </GridItem>

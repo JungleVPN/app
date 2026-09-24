@@ -1,5 +1,6 @@
 import { Surface } from '@heroui/react';
 import type { IInfoBlockProps } from '../../types/infoBlock';
+import { Paragraph } from '../../ui/Paragraph';
 
 const colorGradients: Record<string, { background: string; border: string }> = {
   blue: {
@@ -61,9 +62,9 @@ export const InfoBlock = (props: IInfoBlockProps) => {
           >
             {icon}
           </Surface>
-          <p className='truncate text-xs font-medium text-muted'>{title}</p>
+          <Paragraph>{title}</Paragraph>
         </div>
-        <p className='truncate text-sm font-semibold text-foreground'>{value}</p>
+        <Paragraph>{value}</Paragraph>
       </div>
     </Surface>
   );

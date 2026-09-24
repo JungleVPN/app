@@ -2,7 +2,7 @@ import { Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import InviteArtwork from '../../assets/icons/invite-icon.svg?react';
 import { useNavigation, usePlans } from '../../hooks';
-import { Heading } from '../../ui/Heading';
+import { Heading, Paragraph } from '../../ui';
 import { planSlug } from '../getSubscription/planSlug';
 
 export function TrialPeriodBanner() {
@@ -25,7 +25,7 @@ export function TrialPeriodBanner() {
               currency: plan.planPricing.currencyCode,
             })}
           </Heading>
-          <p className='text-base text-white/80 lg:text-md'>{t('landing.cta.subtitle')}</p>
+          <Paragraph className={'text-white'}>{t('landing.cta.subtitle')}</Paragraph>
           <Button
             size='lg'
             className='bg-white text-black font-semibold shadow-lg w-2/4'

@@ -2,13 +2,13 @@ import { Chip, type ChipProps, Surface } from '@heroui/react';
 import React, { PropsWithChildren } from 'react';
 import { BackButton } from './BackButton';
 import { Heading } from './Heading';
+import { Paragraph } from './Paragraph';
 
 interface PageProps extends PropsWithChildren {
   icon?: string | React.ReactElement;
   chip?: string;
   chipColor?: ChipProps['color'];
   title: string;
-  subtitleClassName?: string;
   subtitle?: string;
   description?: string;
   showBackButton?: boolean;
@@ -20,7 +20,6 @@ export function Page(props: PageProps) {
     chip,
     chipColor,
     title,
-    subtitleClassName,
     subtitle,
     description,
     showBackButton = true,
@@ -39,8 +38,8 @@ export function Page(props: PageProps) {
       </div>
       {chip && <Chip color={chipColor}>{chip}</Chip>}
       <Heading>{title}</Heading>
-      <p className={subtitleClassName ?? 'text-md text-center text-muted m-1'}>{subtitle}</p>
-      <p className={'text-sm text-muted'}>{description}</p>
+      <Paragraph>{subtitle}</Paragraph>
+      <Paragraph>{description}</Paragraph>
       <div className={'mt-5 flex w-full flex-col py-2'}>{children}</div>
     </Surface>
   );

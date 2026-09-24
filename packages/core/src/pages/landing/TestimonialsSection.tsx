@@ -3,6 +3,7 @@ import { IconArrowLeft, IconArrowRight, IconStarFilled } from '@tabler/icons-rea
 import type { KeenSliderInstance } from 'keen-slider/react';
 import { useKeenSlider } from 'keen-slider/react';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 import 'keen-slider/keen-slider.min.css';
 import { useTranslation } from 'react-i18next';
 import { Container } from '../../ui';
@@ -26,9 +27,9 @@ function TestimonialCard({ quote, name }: { quote: string; name: string }) {
       variant='secondary'
       className='flex h-full flex-col justify-between gap-6 p-5 border-gray-500 border border-solid bg-white'
     >
-      <p className='text-sm leading-relaxed text-foreground'>{quote}</p>
+      <Paragraph>{quote}</Paragraph>
       <div className='flex items-center justify-between gap-3'>
-        <p className='text-sm font-medium text-muted'>{name}</p>
+        <Paragraph>{name}</Paragraph>
         {/*<IconExternalLink size={16} className='shrink-0 text-muted' />*/}
       </div>
     </Card>

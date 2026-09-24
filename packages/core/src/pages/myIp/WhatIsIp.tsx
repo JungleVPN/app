@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Grid } from '../../ui';
 import { GridItem, Span } from '../../ui/Grid/GridItem';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 const whatIsAnIpInfo = (
   t: TFunction,
@@ -83,7 +84,7 @@ export const WhatIsIp = () => {
                 <span className='text-lg font-bold'>{label}</span>
                 <div className='mt-16 flex flex-col gap-4 text-base tracking-[-0.04em]'>
                   {paragraphs.map((paragraph) => (
-                    <p key={paragraph}>{paragraph}</p>
+                    <Paragraph key={paragraph}>{paragraph}</Paragraph>
                   ))}
                 </div>
               </article>

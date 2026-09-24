@@ -9,6 +9,7 @@ import {
   useSubscriptionInfoStore,
   useSubscriptionLinkDialogStore,
 } from '../../stores';
+import { Paragraph } from '../../ui/Paragraph';
 
 export const SubscriptionLinkDialog = () => {
   const qrState = useSubscriptionLinkDialogStore();
@@ -57,16 +58,10 @@ export const SubscriptionLinkDialog = () => {
                   className='w-56 h-56 rounded-xl'
                 />
               )}
-              {isDesktop && (
-                <p className='text-center text-base font-semibold'>
-                  {t('subscriptionLinkWidget.scanQrCode')}
-                </p>
-              )}
+              {isDesktop && <Paragraph>{t('subscriptionLinkWidget.scanQrCode')}</Paragraph>}
 
               <div className='w-full'>
-                <p className='mb-1 text-sm font-semibold text-foreground'>
-                  {t('subscriptionLinkWidget.addToDeviceTitle')}
-                </p>
+                <Paragraph>{t('subscriptionLinkWidget.addToDeviceTitle')}</Paragraph>
                 <ol className='list-decimal list-inside text-sm text-muted flex flex-col gap-1'>
                   <li>{t('subscriptionLinkWidget.addToDeviceSteps.step1')}</li>
                   <li>{t('subscriptionLinkWidget.addToDeviceSteps.step2')}</li>

@@ -2,6 +2,7 @@ import { IconEyeOff, IconKey, IconNetwork } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Grid, GridItem } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 const CONCEPT_CARDS = [
   {
@@ -34,9 +35,7 @@ export const WhatIsVPN = () => {
     <>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <Heading as='h2'>{t('landing.info.what.title')}</Heading>
-        <p className='max-w-2xl text-base text-muted lg:text-md'>
-          {t('landing.info.what.subtitle')}
-        </p>
+        <Paragraph>{t('landing.info.what.subtitle')}</Paragraph>
       </div>
 
       <Grid>
@@ -49,9 +48,7 @@ export const WhatIsVPN = () => {
               <span className={`relative ${color}`}>{icon}</span>
               <div className='relative'>
                 <Heading as='h3'>{t(`landing.info.what.${key}.title`)}</Heading>
-                <p className='mt-1 text-sm leading-relaxed text-muted'>
-                  {t(`landing.info.what.${key}.description`)}
-                </p>
+                <Paragraph>{t(`landing.info.what.${key}.description`)}</Paragraph>
               </div>
             </div>
           </GridItem>

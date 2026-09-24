@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import * as MarqueeModule from 'react-fast-marquee';
 import { useTranslation } from 'react-i18next';
+import { Heading } from '../../ui';
 
 /**
  * react-fast-marquee is CJS (`exports.default = Component`, `__esModule: true`, no
@@ -43,10 +44,10 @@ export function CountriesMarquee() {
   const { t } = useTranslation();
 
   return (
-    <section>
-      <p className='mb-6 text-center text-lg font-medium uppercase tracking-widest text-muted'>
+    <section className={'flex flex-col gap-4'}>
+      <Heading as='h3' className={'text-center'}>
         {t('landing.countries.label')}
-      </p>
+      </Heading>
       <div dir='ltr'>
         <Marquee pauseOnHover>
           {MARQUEE_COUNTRIES.map(({ flag, code, id }) => (

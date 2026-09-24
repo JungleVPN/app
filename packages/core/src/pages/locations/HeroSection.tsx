@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '../../hooks';
 import { BlurInWords, Container } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 import { PRICING_PATH } from '../../utils';
 import { WorldMap } from '../landing/WorldMap';
 
@@ -85,10 +86,10 @@ export function HeroSection() {
             {t('common.cta')}
           </Button>
 
-          <p className='flex items-center gap-2 text-sm text-white/70'>
+          <Paragraph>
             <IconShieldCheck size={18} />
             {t('landing.hero.guarantee')}
-          </p>
+          </Paragraph>
         </motion.div>
       </Container>
 
@@ -119,7 +120,7 @@ export function HeroSection() {
                   <Icon size={28} className='shrink-0' />
                   <Heading as='h2'>{t(titleKey)}</Heading>
                 </div>
-                <p className='text-sm text-white/70'>{t(descriptionKey)}</p>
+                <Paragraph>{t(descriptionKey)}</Paragraph>
               </motion.li>
             ))}
           </motion.ul>

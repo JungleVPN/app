@@ -3,6 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import type { SavedMethodDto } from '@workspace/types';
 import { useTranslation } from 'react-i18next';
 import { formatSavedMethodLabel, resolveMethodIcon } from '../../ui';
+import { Paragraph } from '../../ui/Paragraph';
 
 export interface SavedMethodRowProps {
   method: SavedMethodDto;
@@ -32,9 +33,7 @@ export function SavedMethodRow({
         </span>
 
         <div className='min-w-0 flex-1'>
-          <p className='text-sm font-medium leading-tight text-foreground'>
-            {formatSavedMethodLabel(method)}
-          </p>
+          <Paragraph>{formatSavedMethodLabel(method)}</Paragraph>
           {method.card?.cardType ? (
             <Chip className='mt-1 w-fit' color='default' size='sm' variant='tertiary'>
               <Chip.Label>{method.card.cardType}</Chip.Label>
@@ -57,7 +56,7 @@ export function SavedMethodRow({
             </Button>
             <Tooltip.Content placement='left' showArrow>
               <Tooltip.Arrow />
-              <p className='text-sm'>{t('a11y.removeCard')}</p>
+              <Paragraph>{t('a11y.removeCard')}</Paragraph>
             </Tooltip.Content>
           </Tooltip>
         ) : null}
@@ -77,7 +76,7 @@ export function SavedMethodRow({
               <AlertDialog.Heading>{t('payment.deleteMethod.title')}</AlertDialog.Heading>
             </AlertDialog.Header>
             <AlertDialog.Body>
-              <p className='text-sm text-muted'>{t('payment.deleteMethod.body')}</p>
+              <Paragraph>{t('payment.deleteMethod.body')}</Paragraph>
             </AlertDialog.Body>
             <AlertDialog.Footer>
               <Button slot='close' variant='tertiary'>

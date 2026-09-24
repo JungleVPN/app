@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import Logo from '../../assets/Logo_dark.svg?react';
+import { Paragraph } from '../../ui/Paragraph';
 import { phConsentStatus, phOptIn, phOptOut } from '../../utils';
 import { Link } from '../Link/Link';
 
@@ -32,7 +33,7 @@ export function CookieConsent() {
       <Surface variant='tertiary' className='flex flex-col gap-4 rounded-3xl p-5'>
         <div className='flex items-start gap-3'>
           <Logo aria-hidden width={32} height={32} className='shrink-0' />
-          <p className='text-sm'>
+          <Paragraph>
             <Trans
               i18nKey='cookieConsent.description'
               components={{
@@ -41,7 +42,7 @@ export function CookieConsent() {
                 ),
               }}
             />
-          </p>
+          </Paragraph>
         </div>
         <div className='flex justify-end gap-2'>
           <Button variant='outline' onPress={() => choose(false)}>

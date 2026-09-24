@@ -2,6 +2,7 @@ import { Button, Separator } from '@heroui/react';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useClipboard } from '../../../../../hooks';
+import { Paragraph } from '../../../../../ui/Paragraph';
 
 interface DetailRowProps {
   label: string;
@@ -23,10 +24,8 @@ export function DetailRow({ label, value, showSeparatorAbove, copyable }: Detail
 
       <div className='flex min-h-[52px] items-center gap-3 px-4 py-2.5'>
         <div className='min-w-0 flex-1'>
-          <p className='text-xs font-semibold tracking-wide text-muted uppercase'>{label}</p>
-          <p className='mt-0.5 break-all text-sm font-medium leading-tight text-foreground'>
-            {displayValue}
-          </p>
+          <Paragraph>{label}</Paragraph>
+          <Paragraph>{displayValue}</Paragraph>
         </div>
 
         {copyable && value != null && (

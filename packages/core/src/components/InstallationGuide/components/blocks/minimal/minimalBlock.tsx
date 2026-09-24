@@ -1,4 +1,5 @@
 import { Surface } from '@heroui/react';
+import { Paragraph } from '../../../../../ui/Paragraph';
 import { getColorGradient, getLocalizedText } from '../../../../../utils';
 import { ThemeIconComponent } from '../../../../ThemeIcon/ThemeIcon';
 import { BlockButtons } from '../../BlockButton/BlockButtons';
@@ -23,15 +24,13 @@ export const MinimalBlockRenderer = ({
                 gradientStyle={gradientStyle}
                 svgIconKey={block.svgIconKey}
               />
-              <p
-                className='text-sm font-medium text-foreground'
+              <Paragraph
                 dangerouslySetInnerHTML={{
                   __html: getLocalizedText(block.title, currentLang),
                 }}
               />
             </div>
-            <p
-              className='text-xs leading-relaxed text-muted'
+            <Paragraph
               dangerouslySetInnerHTML={{
                 __html: getLocalizedText(block.description, currentLang),
               }}

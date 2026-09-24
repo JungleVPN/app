@@ -15,7 +15,7 @@ export default function PricingPage() {
     <>
       <div className={'bg-gray-100 overflow-hidden'}>
         <Container className='pt-40 pb-10'>
-          <PricingSection surface='light' animateOnMount />
+          <PricingSection animateOnMount />
         </Container>
       </div>
 

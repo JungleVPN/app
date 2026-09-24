@@ -13,6 +13,7 @@ import { coreEnv, getTelegramStickerUrl } from '../../../env';
 import { useBackButton, useNavigation } from '../../../hooks';
 import { useNavbarStore } from '../../../stores';
 import { Block, Page, TgsSticker } from '../../../ui';
+import { Paragraph } from '../../../ui/Paragraph';
 
 export default function AffiliatePage() {
   const { t } = useTranslation();
@@ -89,8 +90,8 @@ export default function AffiliatePage() {
                 {benefit.icon}
               </div>
               <div className='flex flex-col'>
-                <p className='text-sm font-semibold'>{benefit.label}</p>
-                <p className='text-xs text-muted'>{benefit.desc}</p>
+                <Paragraph>{benefit.label}</Paragraph>
+                <Paragraph>{benefit.desc}</Paragraph>
               </div>
             </div>
             {index < benefits.length - 1 && <Separator variant='default' className='shrink-0' />}

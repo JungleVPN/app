@@ -7,6 +7,7 @@ import { useNavigation } from '../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import { TgsSticker } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 import { takePendingYookassaPayment } from '../../utils';
 
 export default function SubscriptionSuccessPage() {
@@ -56,9 +57,7 @@ export default function SubscriptionSuccessPage() {
 
           <div className='flex flex-col items-center gap-3 text-center'>
             <Heading>{t('subscriptionSuccess.title')}</Heading>
-            <p className='text-base text-muted text-balance sm:text-lg'>
-              {t('subscriptionSuccess.description')}
-            </p>
+            <Paragraph>{t('subscriptionSuccess.description')}</Paragraph>
           </div>
         </div>
 

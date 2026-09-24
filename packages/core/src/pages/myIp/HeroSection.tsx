@@ -7,6 +7,7 @@ import { useRemnawaveApi } from '../../api';
 import { useIpStatus } from '../../hooks';
 import { Grid, GridItem } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 import { phCapture } from '../../utils';
 import { StaticLocationMap } from './StaticLocationMap';
 
@@ -81,7 +82,7 @@ export const HeroSection = () => {
         transition={{ duration: 0.55, ease: 'easeOut' }}
       >
         <Heading>{t('myIp.title')}</Heading>
-        <p className='mt-4 text-sm text-muted md:text-lg'>{t('myIp.subtitle')}</p>
+        <Paragraph>{t('myIp.subtitle')}</Paragraph>
       </motion.div>
       <Grid className='mt-8 gap-4'>
         <GridItem size={{ lg: 7, md: 6 }} className={'flex flex-col gap-4'}>
@@ -97,7 +98,7 @@ export const HeroSection = () => {
                 <span className='text-lg'>{label}</span>
                 <Icon size={30} stroke={1.6} aria-hidden='true' />
               </div>
-              <p className='mt-auto text-xl font-bold tracking-[-0.04em]'>{value}</p>
+              <Paragraph>{value}</Paragraph>
             </motion.article>
           ))}
 

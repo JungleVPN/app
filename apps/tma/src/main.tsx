@@ -1,3 +1,4 @@
+import { Paragraph } from '@workspace/core/ui';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
@@ -92,11 +93,11 @@ void (async () => {
           {message}
         </pre>
         {import.meta.env.DEV ? (
-          <p style={{ marginTop: 12, opacity: 0.85 }}>
+          <Paragraph style={{ marginTop: 12, opacity: 0.85 }}>
             If you opened this URL in a normal browser, launch params are mocked in dev only. For
             real Telegram behavior, open the app inside Telegram (same tunnel URL as the Mini App
             URL).
-          </p>
+          </Paragraph>
         ) : null}
       </div>,
     );

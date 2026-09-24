@@ -4,7 +4,7 @@ import AllDevicesIcon from '../../assets/icons/all-devices-icon.svg?react';
 import PrivacyFirstIcon from '../../assets/icons/privacy-first-icon.svg?react';
 import SecureByDesignIcon from '../../assets/icons/secure-by-design-icon.svg?react';
 import UnlimitedTrafficIcon from '../../assets/icons/unlimited-traffic-icon.svg?react';
-import { Heading } from '../../ui/Heading';
+import { Heading, Paragraph } from '../../ui';
 
 type BentoCellProps = {
   icon: ReactNode;
@@ -28,7 +28,7 @@ function BentoCell({ icon, title, description, className }: BentoCellProps) {
         <Heading as='h3' className={'text-white'}>
           {title}
         </Heading>
-        <p className='mt-1.5 text-xs leading-relaxed text-slate-400'>{description}</p>
+        <Paragraph className={'text-muted'}>{description}</Paragraph>
       </div>
     </div>
   );

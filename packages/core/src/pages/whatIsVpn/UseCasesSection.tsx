@@ -9,6 +9,7 @@ import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Grid, GridItem } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 type UseCase = {
   key: string;
@@ -66,9 +67,7 @@ export function UseCasesSection() {
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <Heading as='h2'>{t('landing.whatIsVpn.useCases.title')}</Heading>
-        <p className='max-w-2xl text-base text-muted lg:text-md'>
-          {t('landing.whatIsVpn.useCases.subtitle')}
-        </p>
+        <Paragraph>{t('landing.whatIsVpn.useCases.subtitle')}</Paragraph>
       </div>
 
       <motion.div
@@ -90,9 +89,7 @@ export function UseCasesSection() {
                 </span>
                 <div className='relative'>
                   <Heading as='h3'>{t(`landing.whatIsVpn.useCases.${key}.title`)}</Heading>
-                  <p className='mt-1 text-sm leading-relaxed text-[#1a1a1a]/70 text-pretty'>
-                    {t(`landing.whatIsVpn.useCases.${key}.description`)}
-                  </p>
+                  <Paragraph>{t(`landing.whatIsVpn.useCases.${key}.description`)}</Paragraph>
                 </div>
               </motion.div>
             </GridItem>

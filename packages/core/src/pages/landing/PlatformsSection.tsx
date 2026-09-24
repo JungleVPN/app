@@ -7,6 +7,7 @@ import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStore } from '../../stores';
 import { Heading } from '../../ui';
+import { Paragraph } from '../../ui/Paragraph';
 import { PRICING_PATH } from '../../utils';
 
 export function PlatformsSection() {
@@ -29,9 +30,7 @@ export function PlatformsSection() {
       <div className='flex flex-col md:flex-row gap-12 lg:flex-row lg:items-center lg:justify-between'>
         <div className='flex flex-col items-center gap-4 text-center md:items-start lg:text-left'>
           <Heading as='h2'>{t('landing.info.devices.title')}</Heading>
-          <p className='max-w-md text-base text-muted text-start lg:text-md pr-6'>
-            {t('landing.info.devices.subtitle')}
-          </p>
+          <Paragraph>{t('landing.info.devices.subtitle')}</Paragraph>
           <Button
             size='lg'
             variant='primary'

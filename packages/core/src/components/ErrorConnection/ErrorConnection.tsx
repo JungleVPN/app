@@ -1,5 +1,6 @@
 import { Button, Surface } from '@heroui/react';
 import { useTranslation as useI18nextTranslation } from 'react-i18next';
+import { Paragraph } from '../../ui/Paragraph';
 
 export function ErrorConnection() {
   const { t } = useI18nextTranslation();
@@ -13,9 +14,7 @@ export function ErrorConnection() {
       >
         &#x26A0;
       </Surface>
-      <p className='max-w-xs text-center text-sm text-muted'>
-        {t('main.page.component.error-connect')}
-      </p>
+      <Paragraph>{t('main.page.component.error-connect')}</Paragraph>
       <Button variant='secondary' onPress={() => window.location.reload()}>
         {t('main.page.component.refresh')}
       </Button>

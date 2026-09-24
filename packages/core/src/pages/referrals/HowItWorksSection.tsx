@@ -5,6 +5,7 @@ import BonusIcon from '../../assets/icons/bonus-icon.svg?react';
 import BuyIcon from '../../assets/icons/buy-icon.svg?react';
 import ShareIcon from '../../assets/icons/share-icon.svg?react';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 type Step = {
   key: 'share' | 'subscribe' | 'reward';
@@ -33,9 +34,7 @@ export function HowItWorksSection() {
 
         <Heading as='h2'>{t('referrals.howItWorks.title')}</Heading>
 
-        <p className='max-w-2xl text-sm md:text-base text-muted'>
-          {t('referrals.howItWorks.subtitle')}
-        </p>
+        <Paragraph>{t('referrals.howItWorks.subtitle')}</Paragraph>
       </div>
 
       <ol className='flex flex-col gap-6'>
@@ -50,7 +49,7 @@ export function HowItWorksSection() {
                 }`}
               >
                 <Heading as='h3'>{t(`referrals.howItWorks.${key}.title`)}</Heading>
-                <p className='text-sm text-muted'>{t(`referrals.howItWorks.${key}.description`)}</p>
+                <Paragraph>{t(`referrals.howItWorks.${key}.description`)}</Paragraph>
               </div>
 
               <div

@@ -9,6 +9,7 @@ import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Grid, GridItem } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 type Step = { key: string; icon: TablerIcon };
 
@@ -34,9 +35,7 @@ export function HowVpnWorksSection() {
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <Heading as='h2'>{t('landing.whatIsVpn.how.title')}</Heading>
-        <p className='max-w-2xl text-base text-muted lg:text-md'>
-          {t('landing.whatIsVpn.how.subtitle')}
-        </p>
+        <Paragraph>{t('landing.whatIsVpn.how.subtitle')}</Paragraph>
       </div>
 
       <motion.div
@@ -56,9 +55,7 @@ export function HowVpnWorksSection() {
                   <Icon size={24} stroke={2} aria-hidden='true' />
                 </span>
                 <Heading as='h3'>{t(`landing.whatIsVpn.how.${key}.title`)}</Heading>
-                <p className='text-sm leading-relaxed text-muted text-pretty'>
-                  {t(`landing.whatIsVpn.how.${key}.description`)}
-                </p>
+                <Paragraph>{t(`landing.whatIsVpn.how.${key}.description`)}</Paragraph>
                 {index < STEPS.length - 1 && (
                   <span className='pointer-events-none absolute top-13 -end-3 hidden h-px w-6 bg-linear-to-r from-purple-400 to-yellow-400 lg:block' />
                 )}

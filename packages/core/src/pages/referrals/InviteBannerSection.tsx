@@ -16,7 +16,9 @@ export function InviteBannerSection() {
     <section>
       <div className='flex flex-col items-center gap-10 overflow-hidden rounded-4xl bg-linear-to-r from-purple-400 to-yellow-400 px-8 py-12 md:flex-row md:justify-between md:px-16 md:py-16'>
         <div className='flex flex-col items-center gap-8 text-center md:items-start md:text-start'>
-          <Heading as='h2'>{t('referrals.inviteBanner.title')}</Heading>
+          <Heading as='h2' className={'text-white'}>
+            {t('referrals.inviteBanner.title')}
+          </Heading>
 
           <Button
             size='lg'

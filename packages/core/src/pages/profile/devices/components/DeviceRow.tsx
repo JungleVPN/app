@@ -2,6 +2,7 @@ import { Button, Separator } from '@heroui/react';
 import { IconTrash } from '@tabler/icons-react';
 import { HwidDeviceDto } from '@workspace/types';
 import { useTranslation } from 'react-i18next';
+import { Paragraph } from '../../../../ui/Paragraph';
 import { extractAppName, resolveDeviceIcon } from '../utils/devices.utils';
 
 interface DeviceRowProps {
@@ -29,10 +30,8 @@ export function DeviceRow({
           <AppIcon stroke={1.25} size={24} />
         </span>
         <div className='min-w-0 flex-1'>
-          <p className='text-sm font-medium leading-tight text-foreground'>
-            {device.deviceModel || t('devices.unknownDevice')}
-          </p>
-          {appName && <p className='mt-0.5 text-xs text-muted'>{appName}</p>}
+          <Paragraph>{device.deviceModel || t('devices.unknownDevice')}</Paragraph>
+          {appName && <Paragraph>{appName}</Paragraph>}
         </div>
         <Button
           aria-label={t('devices.deleteDeviceLabel')}

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useBackButton, useNavigation } from '../../../../hooks';
 import { useAuthStore, useNavbarStore } from '../../../../stores';
 import { Block, Page } from '../../../../ui';
+import { Paragraph } from '../../../../ui/Paragraph';
 import { isAdminUser } from '../../../../utils';
 import { formatPeriod } from '../../../../utils/planPricing';
 import { DetailRow } from './components/DetailRow';
@@ -46,7 +47,7 @@ export default function TransactionDetailsPage() {
         </div>
       )}
 
-      {error && !isLoading && <p className='mt-6 text-center text-sm text-red-400'>{error}</p>}
+      {error && !isLoading && <Paragraph>{error}</Paragraph>}
 
       {payment && !isLoading && (
         <Block variant='secondary' title={t('transactions.details.title')}>

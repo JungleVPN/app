@@ -3,6 +3,7 @@ import { IconArrowRight, IconCheck, IconMail } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Loading } from '../../components';
 import { Block } from '../../ui';
+import { Paragraph } from '../../ui/Paragraph';
 import styles from './connectEmailPage.module.css';
 import { useConnectEmail } from './useConnectEmail';
 
@@ -23,7 +24,7 @@ export default function ConnectEmailPage() {
     <Form className={'px-4 pt-2'}>
       <div className='flex max-w-5xl flex-col gap-3'>
         <div className='flex flex-col gap-2'>
-          <p className='text-base font-medium ms-4'>{t('connectEmailPage.enter_email')}</p>
+          <Paragraph>{t('connectEmailPage.enter_email')}</Paragraph>
           <TextField isInvalid={hasError} isRequired name='email' id={'email'} type='email'>
             <div className='relative w-full'>
               <span className={styles.inputIcon}>
@@ -51,19 +52,19 @@ export default function ConnectEmailPage() {
 
         <Block className={'p-4'}>
           <div className={styles.orderSummary}>
-            <p className={styles.summaryTitle}>{t('connectEmailPage.order_summary')}</p>
+            <Paragraph>{t('connectEmailPage.order_summary')}</Paragraph>
 
             <div className={styles.itemRow}>
               <div className={styles.itemLabel}>
                 <div className='flex flex-col gap-0.5'>
-                  <p className={styles.itemName}>{t('connectEmailPage.item_name')}</p>
+                  <Paragraph>{t('connectEmailPage.item_name')}</Paragraph>
                   <Chip color='warning' size='sm' className={'w-fit'} variant='secondary'>
                     <Chip.Label>{t('connectEmailPage.discount')}</Chip.Label>
                   </Chip>
                 </div>
               </div>
               <div className={styles.priceColumn}>
-                <p className={styles.currentPrice}>0 ₽</p>
+                <Paragraph>0 ₽</Paragraph>
               </div>
             </div>
 
@@ -75,14 +76,14 @@ export default function ConnectEmailPage() {
             </Button>
 
             <div className='flex flex-col gap-4'>
-              <p className={styles.featuresTitle}>{t('connectEmailPage.features_title')}</p>
+              <Paragraph>{t('connectEmailPage.features_title')}</Paragraph>
               <div className={styles.featuresList}>
                 {features.map((feature) => (
                   <div key={feature} className={styles.featureItem}>
                     <div className={styles.featureIcon}>
                       <IconCheck size={18} stroke={3} />
                     </div>
-                    <p className='text-sm text-foreground/80'>{feature}</p>
+                    <Paragraph>{feature}</Paragraph>
                   </div>
                 ))}
               </div>

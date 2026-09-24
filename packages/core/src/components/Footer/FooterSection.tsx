@@ -4,6 +4,7 @@ import Logo from '../../assets/Logo_dark.svg?react';
 import LogoDark from '../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../hooks';
 import { Container } from '../../ui';
+import { Paragraph } from '../../ui/Paragraph';
 import { LOCATIONS_PATH, scrollToTop, WHAT_IS_VPN_PATH } from '../../utils';
 import { LanguageSwitcher } from '../Header/LanguageSwitcher';
 import { PaymentMethodIcons } from '../PaymentMethods/PaymentMethodIcons';
@@ -58,7 +59,7 @@ export function FooterSection() {
             ) : (
               <Logo aria-label={t('header.logoAlt')} width={56} height={56} />
             )}
-            <p className='text-lg'>JungleVPN</p>
+            <Paragraph>JungleVPN</Paragraph>
           </button>
         </Container>
 
@@ -93,9 +94,9 @@ export function FooterSection() {
 
         <div className={'bg-[#2a2a2a]'}>
           <Container className='flex flex-wrap items-center justify-between gap-6  py-8'>
-            <p className='text-sm mix-blend-normal'>
+            <Paragraph>
               {t('landing.footer.copyright', { year: new Date().getFullYear() })}
-            </p>
+            </Paragraph>
             <nav className='flex flex-col-reverse gap-2'>
               <div className='flex items-center gap-4'>
                 <SupportButton variant='inline' label={t('paymentFooter.support')} />

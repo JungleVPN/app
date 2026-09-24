@@ -5,6 +5,7 @@ import { Fragment, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavbarStore, useTermsStore } from '../../../../stores';
 import { Block } from '../../../../ui';
+import { Paragraph } from '../../../../ui/Paragraph';
 
 interface SavedMethodProps {
   savedMethods: SavedMethodDto[] | null;
@@ -35,7 +36,7 @@ export function SavedMethod({
       {!hasManagedSubscription && (
         <span className={'mb-3'}>{t('payment.savedMethodsDescription')}</span>
       )}
-      <p className='text-start text-xs text-muted'>
+      <Paragraph>
         {t('terms.paymentConsentLead')}
         <button
           className='cursor-pointer underline underline-offset-2'
@@ -44,7 +45,7 @@ export function SavedMethod({
         >
           {t('terms.paymentLinkLabel')}
         </button>
-      </p>
+      </Paragraph>
     </>
   );
 

@@ -4,6 +4,7 @@ import referrals from '../../assets/lottie/referrals.lottie?url';
 import { ContentCard } from '../../components/ContentCard';
 import { Grid, GridItem, LottieIcon } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 const PARTNERSHIP_KEYS = ['affiliate', 'referral'] as const;
 
@@ -19,7 +20,7 @@ export function PartnershipSection() {
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <Heading as='h2'>{t('landing.partnership.title')}</Heading>
-        <p className='text-muted text-base lg:text-md'>{t('landing.partnership.subtitle')}</p>
+        <Paragraph>{t('landing.partnership.subtitle')}</Paragraph>
       </div>
 
       <Grid>

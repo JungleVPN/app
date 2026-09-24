@@ -1,6 +1,7 @@
 import { Card } from '@heroui/react';
 import type { PropsWithChildren, ReactNode } from 'react';
 import { Heading } from '../Heading';
+import { Paragraph } from '../Paragraph';
 
 type BlockProps = PropsWithChildren<{
   title?: string;
@@ -32,7 +33,7 @@ export function Block({
         <Card.Content className='flex flex-col gap-0 p-0'>{children}</Card.Content>
       </Card>
 
-      {description && <p className='px-4 text-xs text-muted'>{description}</p>}
+      {description && <Paragraph>{description}</Paragraph>}
     </div>
   );
 }

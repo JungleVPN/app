@@ -38,9 +38,7 @@ export default function LandingPage() {
       </div>
       <RoundedSection className='z-20' rounded>
         <Container>
-          <Reveal>
-            <TrustSection />
-          </Reveal>
+          <TrustSection />
         </Container>
         <Reveal>
           <CountriesMarquee />

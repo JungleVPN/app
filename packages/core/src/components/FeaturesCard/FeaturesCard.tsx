@@ -2,6 +2,7 @@ import { Chip } from '@heroui/react';
 import { IconCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Block } from '../../ui';
+import { Paragraph } from '../../ui/Paragraph';
 
 type FeaturesCardProps = {
   badge?: string;
@@ -29,7 +30,7 @@ export function FeaturesCard({ badge, title, description, className = 'p-4' }: F
                 <Chip.Label>{badge}</Chip.Label>
               </Chip>
             )}
-            {title && <p className='text-sm font-medium'>{title}</p>}
+            {title && <Paragraph>{title}</Paragraph>}
           </div>
         )}
         <div className='flex flex-col gap-2'>
@@ -38,7 +39,7 @@ export function FeaturesCard({ badge, title, description, className = 'p-4' }: F
               <div className='flex h-5 w-5 shrink-0 items-center justify-center rounded-full'>
                 <IconCheck size={12} stroke={3} />
               </div>
-              <p className='text-sm '>{feature}</p>
+              <Paragraph>{feature}</Paragraph>
             </div>
           ))}
         </div>

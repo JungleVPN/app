@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher, Link, SupportButton } from '../../components';
 import { Container } from '../../ui';
+import { Paragraph } from '../../ui/Paragraph';
 
 export function SecondaryFooter() {
   const { t } = useTranslation();
@@ -10,9 +11,9 @@ export function SecondaryFooter() {
       <Container maxWidth='lg'>
         <div className='flex flex-col items-center justify-between gap-4 py-5 sm:flex-row'>
           <div className='flex flex-wrap items-center justify-center gap-x-6 gap-y-2'>
-            <p className='text-sm text-muted'>
+            <Paragraph>
               {t('paymentFooter.copyright', { year: new Date().getFullYear() })}
-            </p>
+            </Paragraph>
             <Link
               className='text-sm text-muted underline underline-offset-2 transition-colors hover:text-foreground'
               href='/terms'

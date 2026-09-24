@@ -5,6 +5,7 @@ import RoutingIcon from '../../assets/icons/routing-icon.svg?react';
 import SecurityIcon from '../../assets/icons/security-icon.svg?react';
 import { BlurInWords, Grid, GridItem } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 const USE_CASE_CARDS = [
   { key: 'wifi', icon: <FreedomIcon />, color: 'text-blue-500' },
@@ -29,9 +30,7 @@ export function InfoSection() {
       {/* ── Why you need a VPN ── */}
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <Heading as='h2'>{t('landing.info.why.title')}</Heading>
-        <p className='max-w-2xl text-base text-muted lg:text-md'>
-          {t('landing.info.why.subtitle')}
-        </p>
+        <Paragraph>{t('landing.info.why.subtitle')}</Paragraph>
       </div>
 
       <Grid className='mb-4'>

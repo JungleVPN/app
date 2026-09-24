@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '../../hooks';
 import { BlurInWords, Container } from '../../ui';
+import { Paragraph } from '../../ui/Paragraph';
 import { PRICING_PATH } from '../../utils';
 
 /**
@@ -61,10 +62,10 @@ export function HeroSection() {
             {t('common.cta')}
           </Button>
 
-          <p className='flex items-center gap-2 text-sm text-white/70'>
+          <Paragraph>
             <IconShieldCheck size={18} />
             {t('landing.hero.guarantee')}
-          </p>
+          </Paragraph>
         </motion.div>
       </Container>
     </section>

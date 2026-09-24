@@ -3,6 +3,7 @@ import CollectInfoIcon from '../../assets/icons/collect-info-icon.svg?react';
 import IpIcon from '../../assets/icons/ip-address-icon.svg?react';
 import { Grid, GridItem } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 export const About = () => {
   const { t } = useTranslation();
@@ -17,7 +18,7 @@ export const About = () => {
             <GridItem size={{ base: 12, md: 6 }} className='md:order-1'>
               <div className='flex flex-col justify-center gap-3 rounded-4xl bg-[#f2ecfd] px-8 py-14 text-center h-full'>
                 <Heading as='h3'>{t('myIp.reveal.title')}</Heading>
-                <p className='text-sm text-muted'>{t('myIp.reveal.body')}</p>
+                <Paragraph>{t('myIp.reveal.body')}</Paragraph>
               </div>
             </GridItem>
 
@@ -38,7 +39,7 @@ export const About = () => {
             <GridItem size={{ base: 12, md: 6 }} className='md:order-2'>
               <div className='flex flex-col justify-center gap-3 rounded-4xl bg-[#f2ecfd] px-8 py-14 text-center h-full'>
                 <Heading as='h3'>{t('myIp.fingerprint.title')}</Heading>
-                <p className='text-sm text-muted'>{t('myIp.fingerprint.body')}</p>
+                <Paragraph>{t('myIp.fingerprint.body')}</Paragraph>
               </div>
             </GridItem>
 

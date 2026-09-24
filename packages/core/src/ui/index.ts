@@ -7,6 +7,7 @@ export { GridItem } from './Grid/GridItem';
 export { Heading, type HeadingElement, type HeadingProps } from './Heading';
 export { LottieIcon } from './LottieIcon';
 export { Page } from './Page';
+export { Paragraph, type ParagraphProps } from './Paragraph';
 export { Reveal } from './Reveal';
 export { RoundedSection } from './RoundedSection/RoundedSection';
 export * from './savedMethodDisplay';

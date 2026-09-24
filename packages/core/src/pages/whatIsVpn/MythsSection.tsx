@@ -2,6 +2,7 @@ import { IconCheck, IconX } from '@tabler/icons-react';
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 /** Where a VPN's protection stops — stated plainly rather than implied. */
 const MYTH_KEYS = ['anonymity', 'speed', 'legal'] as const;
@@ -19,9 +20,7 @@ export function MythsSection() {
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <Heading as='h2'>{t('landing.whatIsVpn.myths.title')}</Heading>
-        <p className='max-w-2xl text-base text-muted lg:text-md'>
-          {t('landing.whatIsVpn.myths.subtitle')}
-        </p>
+        <Paragraph>{t('landing.whatIsVpn.myths.subtitle')}</Paragraph>
       </div>
 
       <motion.ul
@@ -37,18 +36,18 @@ export function MythsSection() {
             variants={MYTH_ROW}
             className='flex flex-col gap-4 rounded-3xl bg-surface p-6 sm:p-7'
           >
-            <p className='flex items-start gap-3 text-base font-semibold text-foreground text-pretty'>
+            <Paragraph>
               <span className='mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-500'>
                 <IconX size={16} stroke={2.5} aria-hidden='true' />
               </span>
               {t(`landing.whatIsVpn.myths.${key}.myth`)}
-            </p>
-            <p className='flex items-start gap-3 text-sm leading-relaxed text-muted text-pretty'>
+            </Paragraph>
+            <Paragraph>
               <span className='mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600'>
                 <IconCheck size={16} stroke={2.5} aria-hidden='true' />
               </span>
               {t(`landing.whatIsVpn.myths.${key}.fact`)}
-            </p>
+            </Paragraph>
           </motion.li>
         ))}
       </motion.ul>

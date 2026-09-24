@@ -8,6 +8,7 @@ import { useBackButton, useNavigation } from '../../hooks';
 import { useNavbarStore } from '../../stores';
 import { Page } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 import { scrollToTop } from '../../utils';
 
 const olClass =
@@ -94,7 +95,7 @@ export default function CookiePolicyPage() {
           <Heading as='h2' id='cookies-s4'>
             {t('cookies.s4.h')}
           </Heading>
-          <p className='text-sm leading-relaxed text-muted'>{t('cookies.s4.lead')}</p>
+          <Paragraph>{t('cookies.s4.lead')}</Paragraph>
           <div className='overflow-x-auto rounded-2xl border border-border'>
             <table className='w-full text-start text-sm'>
               <thead>
@@ -189,7 +190,7 @@ export default function CookiePolicyPage() {
           </ol>
         </section>
 
-        <p className='text-sm leading-relaxed text-muted'>{t('cookies.footer')}</p>
+        <Paragraph>{t('cookies.footer')}</Paragraph>
       </Surface>
     </Page>
   );

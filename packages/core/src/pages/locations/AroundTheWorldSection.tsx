@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import AroundTheWorldIcon from '../../assets/icons/around-the-world-icon.svg?react';
 import { Container } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 type Feature = {
   key: string;
@@ -50,9 +51,7 @@ function FeatureItem({ feature, side }: { feature: Feature; side: Side }) {
       </span>
 
       <Heading as='h3'>{t(`landing.locations.world.${key}.title`)}</Heading>
-      <p className='text-sm md:text-base text-[#1a1a1a]/70 text-pretty'>
-        {t(`landing.locations.world.${key}.description`)}
-      </p>
+      <Paragraph>{t(`landing.locations.world.${key}.description`)}</Paragraph>
     </li>
   );
 }
@@ -64,9 +63,7 @@ export function AroundTheWorldSection() {
     <section className='flex flex-col gap-12'>
       <Container maxWidth='md' className='flex flex-col items-center gap-4 text-center'>
         <Heading as='h2'>{t('landing.locations.world.title')}</Heading>
-        <p className='text-base md:text-md text-[#1a1a1a]/70'>
-          {t('landing.locations.world.subtitle')}
-        </p>
+        <Paragraph>{t('landing.locations.world.subtitle')}</Paragraph>
       </Container>
 
       <Container className='grid items-center gap-10 lg:grid-cols-[1fr_minmax(0,20rem)_1fr] lg:gap-16'>

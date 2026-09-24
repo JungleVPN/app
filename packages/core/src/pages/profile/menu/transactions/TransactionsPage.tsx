@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useBackButton, useNavigation } from '../../../../hooks';
 import { useAuthStoreInfo, useNavbarStore } from '../../../../stores';
 import { BackButton, Block } from '../../../../ui';
+import { Paragraph } from '../../../../ui/Paragraph';
 import { isAdminUser } from '../../../../utils';
 import { PaymentRow } from './components/PaymentRow';
 import { useAdminSearch } from './hooks/useAdminSearch';
@@ -57,9 +58,9 @@ export default function TransactionsPage() {
       <Spinner color='accent' size='md' />
     </div>
   ) : activeItems.length === 0 ? (
-    <p className='px-4 py-6 text-center text-sm text-muted'>
+    <Paragraph>
       {isSearchMode ? t('transactions.noPaymentsFound') : t('transactions.noTransactions')}
-    </p>
+    </Paragraph>
   ) : (
     <ListBox
       aria-label={t('transactions.pageTitle')}
@@ -101,7 +102,7 @@ export default function TransactionsPage() {
         </div>
       )}
 
-      {searchError && <p className='mt-3 text-center text-sm text-red-400'>{searchError}</p>}
+      {searchError && <Paragraph>{searchError}</Paragraph>}
 
       <div className={'flex w-full items-center gap-2 py-2 mb-4'}>
         <BackButton />

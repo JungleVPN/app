@@ -2,6 +2,7 @@ import { Button, Surface } from '@heroui/react';
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { i18n } from '../core/i18n';
 import { Heading } from '../ui/Heading';
+import { Paragraph } from '../ui/Paragraph';
 
 interface Props {
   children: ReactNode;
@@ -38,7 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
           variant='transparent'
         >
           <Heading as='h2'>{i18n.t('errorBoundary.title')}</Heading>
-          <p className='text-center text-sm text-muted'>{this.state.error?.message}</p>
+          <Paragraph>{this.state.error?.message}</Paragraph>
           <Button variant='secondary' onPress={() => window.location.reload()}>
             {i18n.t('errorBoundary.reload')}
           </Button>

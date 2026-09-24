@@ -2,6 +2,7 @@ import { AlertDialog, Button } from '@heroui/react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
+import { Paragraph } from '../../ui/Paragraph';
 
 /**
  * Shown when the payer email on the anonymous checkout already has an active
@@ -44,14 +45,14 @@ export function ActiveSubscriptionDialog({
           </AlertDialog.Header>
           <AlertDialog.Body>
             <div className='flex flex-col gap-3 text-sm text-muted'>
-              <p>
+              <Paragraph>
                 <Trans
                   i18nKey='getSubscription.active_dialog.description'
                   values={{ email }}
                   components={{ 1: <span className='font-semibold text-foreground' /> }}
                 />
-              </p>
-              <p>{t('getSubscription.active_dialog.hint')}</p>
+              </Paragraph>
+              <Paragraph>{t('getSubscription.active_dialog.hint')}</Paragraph>
             </div>
           </AlertDialog.Body>
           {isLoggedIn ? (

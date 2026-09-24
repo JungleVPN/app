@@ -4,6 +4,7 @@ import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { useNavigation } from '../../hooks';
 import { TgsSticker } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 import { PRICING_PATH } from '../../utils';
 
 export default function SubscriptionFailPage() {
@@ -21,9 +22,7 @@ export default function SubscriptionFailPage() {
 
           <div className='flex flex-col items-center gap-3 text-center'>
             <Heading>{t('subscriptionFail.title')}</Heading>
-            <p className='text-base text-muted text-balance sm:text-lg'>
-              {t('subscriptionFail.description')}
-            </p>
+            <Paragraph>{t('subscriptionFail.description')}</Paragraph>
           </div>
         </div>
 

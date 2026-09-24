@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Container } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 
 const FAQ_ICONS: ReactNode[] = [
   <IconDownload size={20} key={1} />,
@@ -21,7 +22,7 @@ export function FAQSection({ variant = 'primary' }: { variant?: 'primary' | 'sec
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
         <Heading as='h2'>{t('landing.faq.title')}</Heading>
-        <p className='max-w-2xl text-base text-muted lg:text-md'>{t('landing.faq.subtitle')}</p>
+        <Paragraph>{t('landing.faq.subtitle')}</Paragraph>
       </div>
       <Container
         maxWidth={'sm'}

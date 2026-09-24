@@ -7,6 +7,7 @@ import { coreEnv, getTelegramStickerUrl } from '../../../../env';
 import { useBackButton, useClipboard, useNavigation } from '../../../../hooks';
 import { useAuthStoreInfo, useNavbarStore, usePlatformStore } from '../../../../stores';
 import { Page, TgsSticker } from '../../../../ui';
+import { Paragraph } from '../../../../ui/Paragraph';
 import { currentScope } from '../../../../utils';
 
 export default function ReferralsPage() {
@@ -41,7 +42,7 @@ export default function ReferralsPage() {
       <div className='flex w-full flex-col gap-3'>
         <Step step={1} title={t('referrals.step1.title')}>
           <div className='flex items-center gap-2 rounded-xl bg-default-100 py-2'>
-            <p className='flex-1 truncate text-sm text-muted'>{referralLink}</p>
+            <Paragraph>{referralLink}</Paragraph>
           </div>
           <Button
             size='sm'

@@ -15,6 +15,7 @@ import { ReactNode, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PlatformType, useNavbarStore, useTermsStore } from '../../../../stores';
 import { Block } from '../../../../ui';
+import { Paragraph } from '../../../../ui/Paragraph';
 import { validateEmail } from '../../../../utils';
 
 interface PaymentFormProps {
@@ -164,7 +165,7 @@ export function PaymentForm({
           {buttonLabel}
           <IconArrowRight size={20} stroke={2} className='rtl:-scale-x-100' />
         </Button>
-        <p className='ps-4 mt-1 text-start text-xs text-muted'>
+        <Paragraph>
           {t('terms.paymentConsentLead')}
           <button
             className='cursor-pointer underline underline-offset-2'
@@ -173,11 +174,9 @@ export function PaymentForm({
           >
             {t('terms.paymentLinkLabel')}
           </button>
-        </p>
+        </Paragraph>
       </div>
-      {(starsError || paymentError) && (
-        <p className='px-4 text-xs text-danger'>{starsError ?? paymentError}</p>
-      )}
+      {(starsError || paymentError) && <Paragraph>{starsError ?? paymentError}</Paragraph>}
       {children}
 
       {enablePromo && (

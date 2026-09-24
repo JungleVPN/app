@@ -10,6 +10,7 @@ import { useAppRoutes } from '../../runtime';
 import { useAuthStore } from '../../stores';
 import { Grid, GridItem } from '../../ui';
 import { Heading } from '../../ui/Heading';
+import { Paragraph } from '../../ui/Paragraph';
 import { PRICING_PATH } from '../../utils';
 
 type StepKey = 'install' | 'subscribe' | 'connect';
@@ -35,9 +36,7 @@ function StepCard({ step }: { step: Step }) {
       {step.icon}
       <div className='flex flex-col gap-3'>
         <Heading as='h3'>{t(`landing.howItWorks.${step.key}.title`)}</Heading>
-        <p className='text-muted text-sm leading-relaxed'>
-          {t(`landing.howItWorks.${step.key}.description`)}
-        </p>
+        <Paragraph>{t(`landing.howItWorks.${step.key}.description`)}</Paragraph>
       </div>
     </Card>
   );
@@ -76,9 +75,7 @@ export function HowItWorksSection() {
       </Grid>
 
       <div className='flex flex-col gap-3 justify-center items-center'>
-        <p className='text-muted mx-auto text-center text-sm leading-relaxed'>
-          {t('landing.howItWorks.note')}
-        </p>
+        <Paragraph>{t('landing.howItWorks.note')}</Paragraph>
         <div className='flex items-start gap-3'>
           <Button
             size='lg'

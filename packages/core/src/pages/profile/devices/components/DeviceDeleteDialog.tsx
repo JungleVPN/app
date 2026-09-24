@@ -1,5 +1,6 @@
 import { AlertDialog, Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
+import { Paragraph } from '../../../../ui/Paragraph';
 
 interface DeviceDeleteDialogProps {
   isOpen: boolean;
@@ -19,7 +20,7 @@ export function DeviceDeleteDialog({ isOpen, onOpenChange, onConfirm }: DeviceDe
             <AlertDialog.Heading>{t('devices.deleteDevice.title')}</AlertDialog.Heading>
           </AlertDialog.Header>
           <AlertDialog.Body>
-            <p className='text-sm text-muted'>{t('devices.deleteDevice.body')}</p>
+            <Paragraph>{t('devices.deleteDevice.body')}</Paragraph>
           </AlertDialog.Body>
           <AlertDialog.Footer>
             <Button slot='close' variant='tertiary'>

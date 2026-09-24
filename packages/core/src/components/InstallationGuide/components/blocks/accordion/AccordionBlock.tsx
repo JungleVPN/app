@@ -1,5 +1,6 @@
 import { Button, Disclosure, DisclosureGroup, Separator, Surface } from '@heroui/react';
 import { useState } from 'react';
+import { Paragraph } from '../../../../../ui/Paragraph';
 import { getLocalizedText, vibrate } from '../../../../../utils';
 import { BlockButtons } from '../../BlockButton/BlockButtons';
 import type { IBlockRendererProps } from '../rendererBlock.interface';
@@ -46,8 +47,7 @@ export const AccordionBlockRenderer = ({ blocks, currentLang }: IBlockRendererPr
                 </Disclosure.Heading>
                 <Disclosure.Content>
                   <Disclosure.Body className='px-3 pb-3'>
-                    <p
-                      className='text-xs leading-relaxed text-muted'
+                    <Paragraph
                       // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
                       dangerouslySetInnerHTML={{
                         __html: getLocalizedText(block.description, currentLang),

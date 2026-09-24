@@ -2,6 +2,7 @@ import { AlertDialog, Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { Link, SupportPopover } from '../../../../components';
 import { useTermsStore } from '../../../../stores';
+import { Paragraph } from '../../../../ui/Paragraph';
 
 export function TermsDialog() {
   const { t } = useTranslation();
@@ -18,22 +19,16 @@ export function TermsDialog() {
           <AlertDialog.Body>
             <div className='flex flex-col gap-4 text-sm'>
               <div>
-                <p className='mb-1 font-semibold text-foreground'>
-                  {t('terms.dialog.activationTitle')}
-                </p>
-                <p className='text-muted'>{t('terms.dialog.activationBody')}</p>
+                <Paragraph>{t('terms.dialog.activationTitle')}</Paragraph>
+                <Paragraph>{t('terms.dialog.activationBody')}</Paragraph>
               </div>
               <div>
-                <p className='mb-1 font-semibold text-foreground'>
-                  {t('terms.dialog.autoRenewalTitle')}
-                </p>
-                <p className='text-muted'>{t('terms.dialog.autoRenewalLead')}</p>
+                <Paragraph>{t('terms.dialog.autoRenewalTitle')}</Paragraph>
+                <Paragraph>{t('terms.dialog.autoRenewalLead')}</Paragraph>
               </div>
               <div>
-                <p className='mb-1 font-semibold text-foreground'>
-                  {t('terms.dialog.renewalCostTitle')}
-                </p>
-                <p className='text-muted'>
+                <Paragraph>{t('terms.dialog.renewalCostTitle')}</Paragraph>
+                <Paragraph>
                   {t('terms.dialog.renewalCostLead')}
                   <SupportPopover
                     trigger={
@@ -45,13 +40,11 @@ export function TermsDialog() {
                       </Button>
                     }
                   />
-                </p>
+                </Paragraph>
               </div>
               <div>
-                <p className='mb-1 font-semibold text-foreground'>
-                  {t('terms.dialog.agreementsTitle')}
-                </p>
-                <p className='text-muted'>
+                <Paragraph>{t('terms.dialog.agreementsTitle')}</Paragraph>
+                <Paragraph>
                   {t('terms.dialog.agreementsLead')}
                   <Link className='underline underline-offset-2' href='/terms' onClick={close}>
                     {t('terms.dialog.termsOfServiceLink')}
@@ -61,7 +54,7 @@ export function TermsDialog() {
                     {t('terms.dialog.privacyPolicyLink')}
                   </Link>
                   {t('terms.dialog.agreementsTail')}
-                </p>
+                </Paragraph>
               </div>
             </div>
           </AlertDialog.Body>
