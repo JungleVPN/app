@@ -587,11 +587,13 @@ describe('StripeProvider', () => {
    */
   describe('StripeProvider.openSession', () => {
     beforeEach(() => {
+      process.env.GLOBAL_PAYMENT_PROVIDER = 'stripe';
       process.env.PRICE_EUR_DAYS_30 = '10';
-      process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_1';
+      process.env.STRIPE_PRICE_ID_DAYS_30 = '10';
     });
 
     afterEach(() => {
+      delete process.env.GLOBAL_PAYMENT_PROVIDER;
       delete process.env.PRICE_EUR_DAYS_30;
       delete process.env.STRIPE_PRICE_ID_DAYS_30;
       delete process.env.EXTRA_DEVICE_PRICE_EUR;

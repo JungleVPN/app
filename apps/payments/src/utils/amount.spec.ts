@@ -33,10 +33,12 @@ describe('getPriceIdForPeriod', () => {
     expect(getPriceIdForPeriod(30)).toBe('price_30');
   });
 
-  it('uses the public deployment setting when the server setting is absent', () => {
+  it('requires the server-side provider setting', () => {
     delete process.env.GLOBAL_PAYMENT_PROVIDER;
     process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_30';
 
-    expect(getPriceIdForPeriod(30)).toBe('price_30');
+    expect(() => getPriceIdForPeriod(30)).toThrow(
+      'Subscription price configuration missing: undefined_PRICE_ID_DAYS_30',
+    );
   });
 });

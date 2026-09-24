@@ -7,13 +7,13 @@ const ENV_KEYS = [
   'GLOBAL_PAYMENT_PROVIDER',
   'PUBLIC_DOMAIN_RU',
 
-  'PRICE_EUR_DAYS_30',
   'PRICE_RUB_DAYS_30',
   'PADDLE_PRICE_ID_DAYS_30',
+  'STRIPE_PRICE_ID_DAYS_30',
 
-  'PRICE_EUR_DAYS_180',
   'PRICE_RUB_DAYS_180',
   'PADDLE_PRICE_ID_DAYS_180',
+  'STRIPE_PRICE_ID_DAYS_180',
 ] as const;
 
 const RU_ORIGIN = 'https://thejungle.pro';
@@ -27,16 +27,16 @@ describe('CommonService.getPlans', () => {
   beforeEach(() => {
     originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
 
-    process.env.ALLOWED_PERIODS_IN_DAYS = '30,180,365';
+    process.env.ALLOWED_PERIODS_IN_DAYS = '30,180';
     process.env.GLOBAL_PAYMENT_PROVIDER = 'paddle';
     process.env.PUBLIC_DOMAIN_RU = 'thejungle.pro';
-    process.env.PRICE_EUR_DAYS_30 = '6';
     process.env.PRICE_RUB_DAYS_30 = '500';
     process.env.PRICE_RUB_DAYS_180 = '1500';
-    process.env.PRICE_EUR_DAYS_180 = '15';
 
-    process.env.PADDLE_PRICE_ID_DAYS_30 = 'pri_days_30';
-    process.env.PADDLE_PRICE_ID_DAYS_180 = 'pri_days_180';
+    process.env.PADDLE_PRICE_ID_DAYS_30 = '6';
+    process.env.PADDLE_PRICE_ID_DAYS_180 = '15';
+    process.env.STRIPE_PRICE_ID_DAYS_30 = '6';
+    process.env.STRIPE_PRICE_ID_DAYS_180 = '15';
 
     paddleClientService = { getPricePreview: vi.fn() };
     service = new CommonService(paddleClientService as never);
@@ -86,6 +86,8 @@ describe('CommonService.getPlans', () => {
   describe('global storefront', () => {
     it('keeps the static EUR table when Stripe is the active provider', async () => {
       process.env.GLOBAL_PAYMENT_PROVIDER = 'stripe';
+      delete process.env.PADDLE_PRICE_ID_DAYS_30;
+      delete process.env.PADDLE_PRICE_ID_DAYS_180;
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
 
@@ -99,8 +101,8 @@ describe('CommonService.getPlans', () => {
         address: { countryCode: 'US' },
         details: {
           lineItems: [
-            { price: { id: 'pri_days_30' }, totals: { total: '999' } },
-            { price: { id: 'pri_days_180' }, totals: { total: '2499' } },
+            { price: { id: '6' }, totals: { total: '999' } },
+            { price: { id: '15' }, totals: { total: '2499' } },
           ],
         },
       });
@@ -109,14 +111,15 @@ describe('CommonService.getPlans', () => {
 
       expect(paddleClientService.getPricePreview).toHaveBeenCalledWith(
         [
-          { priceId: 'pri_days_30', quantity: 1 },
-          { priceId: 'pri_days_180', quantity: 1 },
+          { priceId: '6', quantity: 1 },
+          { priceId: '15', quantity: 1 },
         ],
         '203.0.113.5',
       );
       expect(plans.find((plan) => plan.days === 30)).toEqual({
         days: 30,
         countryCode: 'US',
+        isTrial: false,
         planPricing: {
           total: '9.99',
           monthly: '9.99',
@@ -138,7 +141,7 @@ describe('CommonService.getPlans', () => {
       paddleClientService.getPricePreview.mockResolvedValue({
         currencyCode: 'EUR',
         address: null,
-        details: { lineItems: [{ price: { id: 'pri_days_30' }, totals: { total: '699' } }] },
+        details: { lineItems: [{ price: { id: '6' }, totals: { total: '699' } }] },
       });
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: null });
@@ -161,6 +164,7 @@ describe('CommonService.getPlans', () => {
     });
 
     it('skips the Paddle lookup entirely when no period has a catalog price', async () => {
+      process.env.GLOBAL_PAYMENT_PROVIDER = 'stripe';
       delete process.env.PADDLE_PRICE_ID_DAYS_30;
       delete process.env.PADDLE_PRICE_ID_DAYS_180;
 
@@ -174,7 +178,7 @@ describe('CommonService.getPlans', () => {
       paddleClientService.getPricePreview.mockResolvedValue({
         currencyCode: 'USD',
         address: { countryCode: 'US' },
-        details: { lineItems: [{ price: { id: 'pri_days_30' }, totals: { total: '999' } }] },
+        details: { lineItems: [{ price: { id: '6' }, totals: { total: '999' } }] },
       });
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
@@ -187,7 +191,7 @@ describe('CommonService.getPlans', () => {
       paddleClientService.getPricePreview.mockResolvedValue({
         currencyCode: 'JPY',
         address: { countryCode: 'JP' },
-        details: { lineItems: [{ price: { id: 'pri_days_30' }, totals: { total: '1200' } }] },
+        details: { lineItems: [{ price: { id: '6' }, totals: { total: '1200' } }] },
       });
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });

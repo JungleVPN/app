@@ -9,20 +9,27 @@ import {
 describe('provider-agnostic amount config', () => {
   beforeEach(() => {
     process.env.ALLOWED_PERIODS_IN_DAYS = '30,180';
+    process.env.GLOBAL_PAYMENT_PROVIDER = 'paddle';
     process.env.PRICE_RUB_DAYS_30 = '200';
     process.env.PRICE_RUB_DAYS_180 = '882';
     process.env.PRICE_EUR_DAYS_30 = '6';
     process.env.PRICE_EUR_DAYS_180 = '15';
+    process.env.PADDLE_PRICE_ID_DAYS_30 = '6';
+    process.env.PADDLE_PRICE_ID_DAYS_180 = '15';
   });
 
   afterEach(() => {
     delete process.env.ALLOWED_PERIODS_IN_DAYS;
+    delete process.env.GLOBAL_PAYMENT_PROVIDER;
     delete process.env.PRICE_RUB_DAYS_30;
     delete process.env.PRICE_RUB_DAYS_180;
     delete process.env.PRICE_RUB_DAYS_365;
     delete process.env.PRICE_EUR_DAYS_30;
     delete process.env.PRICE_EUR_DAYS_180;
     delete process.env.PRICE_EUR_DAYS_365;
+    delete process.env.PADDLE_PRICE_ID_DAYS_30;
+    delete process.env.PADDLE_PRICE_ID_DAYS_180;
+    delete process.env.PADDLE_PRICE_ID_DAYS_365;
   });
 
   describe('amountToDays', () => {
@@ -70,6 +77,8 @@ describe('provider-agnostic amount config', () => {
       process.env.PRICE_RUB_DAYS_365 = '1440';
       process.env.PRICE_EUR_DAYS_180 = '26.4';
       process.env.PRICE_EUR_DAYS_365 = '43.2';
+      process.env.PADDLE_PRICE_ID_DAYS_180 = '26.4';
+      process.env.PADDLE_PRICE_ID_DAYS_365 = '43.2';
 
       expect(getPriceForPeriod('RUB', 180)).toBe('882');
       expect(getPriceForPeriod('RUB', 365)).toBe('1440');
@@ -82,7 +91,7 @@ describe('provider-agnostic amount config', () => {
     });
 
     it('throws when the price env var is not set', () => {
-      delete process.env.PRICE_EUR_DAYS_1;
+      delete process.env.PADDLE_PRICE_ID_DAYS_1;
       expect(() => getPriceForPeriod('EUR', 1)).toThrow();
     });
   });
