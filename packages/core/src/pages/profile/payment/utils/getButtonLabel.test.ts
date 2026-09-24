@@ -1,14 +1,13 @@
 import type { PlanPricing } from '@workspace/types';
+import { createInstance } from 'i18next';
 import { describe, expect, it } from 'vitest';
+import en from '../../../../core/i18n/locales/en.json';
+import ru from '../../../../core/i18n/locales/ru.json';
 import { getButtonLabel } from './getButtonLabel';
 
-const t = (key: string, params?: Record<string, unknown>): string => {
-  if (!params) return key;
-  const parts = Object.entries(params)
-    .map(([k, v]) => `${k}=${v}`)
-    .join(',');
-  return `${key}:${parts}`;
-};
+const i18n = createInstance();
+await i18n.init({ lng: 'en', resources: { en: { translation: en }, ru: { translation: ru } } });
+const t = i18n.getFixedT('en');
 
 function pricing(overrides: Partial<PlanPricing> = {}): PlanPricing {
   return {
@@ -23,23 +22,31 @@ function pricing(overrides: Partial<PlanPricing> = {}): PlanPricing {
 
 describe('getButtonLabel', () => {
   it("labels the button with the plan's total in the currency the backend quoted", () => {
-    expect(getButtonLabel({ period: 12, pricing: pricing() }, t)).toBe(
-      'payment.planPriceButton:price=€43.20,count=12',
-    );
+    expect(getButtonLabel({ days: 365, pricing: pricing() }, t)).toBe('€43.20 · 1 year');
   });
 
   it('follows the quoted currency rather than the payment method', () => {
     const label = getButtonLabel(
-      { period: 3, pricing: pricing({ total: '1200', currencyCode: 'RUB' }) },
+      { days: 90, pricing: pricing({ total: '1200', currencyCode: 'RUB' }) },
       t,
     );
 
-    expect(label).toMatch(/^payment\.planPriceButton:price=.*1[\s,]?200.*,count=3$/);
+    expect(label).toMatch(/1[\s,]?200.* · 3 months$/);
   });
 
-  it('pluralises against the selected period', () => {
-    expect(getButtonLabel({ period: 1, pricing: pricing({ total: '6.00' }) }, t)).toBe(
-      'payment.planPriceButton:price=€6.00,count=1',
+  it.each([
+    [7, '7 days'],
+    [30, '1 month'],
+    [90, '3 months'],
+    [180, '6 months'],
+    [365, '1 year'],
+  ])('formats a %i-day plan as %s', (days, period) => {
+    expect(getButtonLabel({ days, pricing: pricing() }, t)).toBe(`€43.20 · ${period}`);
+  });
+
+  it('uses the translated duration', () => {
+    expect(getButtonLabel({ days: 7, pricing: pricing() }, i18n.getFixedT('ru'))).toBe(
+      '€43.20 · 7 дней',
     );
   });
 });

@@ -1,19 +1,18 @@
 import type { PlanPricing } from '@workspace/types';
+import type { TFunction } from 'i18next';
 import { formatPlanPrice } from '../../../../utils';
+import { formatPeriod } from '../../../../utils/planPricing';
 
-export type SelectedPlan = { period: number; pricing: PlanPricing };
+export type SelectedPlan = { days: number; pricing: PlanPricing };
 
 /**
  * The pay button's label. The price is already quoted in the currency this
  * visitor will be charged, whichever provider ends up taking the payment —
  * so the label no longer varies by method.
  */
-export function getButtonLabel(
-  selectedPlan: SelectedPlan,
-  t: (key: string, params?: Record<string, unknown>) => string,
-): string {
+export function getButtonLabel(selectedPlan: SelectedPlan, t: TFunction): string {
   return t('payment.planPriceButton', {
     price: formatPlanPrice(selectedPlan.pricing, selectedPlan.pricing.total),
-    count: selectedPlan.period,
+    period: formatPeriod(selectedPlan.days, t),
   });
 }

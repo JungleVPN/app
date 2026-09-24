@@ -43,7 +43,7 @@ export default function PaymentPage() {
     isPaddlePaying,
     paddleError,
     validatePromo,
-  } = usePayment(selectedPlan?.period ?? 30);
+  } = usePayment(selectedPlan?.days ?? 30);
 
   useEffect(() => {
     phCapture('payments_viewed');
