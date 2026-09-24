@@ -30,6 +30,7 @@ export const coreEnv = {
   affiliatePortalUrl: (import.meta.env.PUBLIC_AFFILIATE_PORTAL_URL ?? '') as string,
   supabaseUrl: (import.meta.env.PUBLIC_SUPABASE_URL ?? '') as string,
   supabaseAnonKey: (import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '') as string,
+  mapboxAccessToken: (import.meta.env.PUBLIC_MAPBOX_ACCESS_TOKEN ?? '') as string,
 
   extraDevicePriceRUB: Number(import.meta.env.PUBLIC_EXTRA_DEVICE_PRICE_RUB ?? ''),
   extraDevicePriceEUR: Number(import.meta.env.PUBLIC_EXTRA_DEVICE_PRICE_EUR ?? ''),
