@@ -27,10 +27,8 @@ export function getGlobalPaymentProvider(): PaymentMethod {
 /** The active global provider's catalog price id for one subscription period. */
 export function getPriceIdForPeriod(days: number): string {
   const provider = getGlobalPaymentProvider();
-  console.log(provider);
   const key = `${provider}_PRICE_ID_DAYS_${days}`;
   const priceId = process.env[key];
-  console.log(priceId);
   if (!priceId) {
     throw new Error(
       `Subscription price configuration missing: ${key} is not set for a ${days} day plan`,

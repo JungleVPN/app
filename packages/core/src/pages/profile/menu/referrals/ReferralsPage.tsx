@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { Step } from '../../../../components';
 import { coreEnv, getTelegramStickerUrl } from '../../../../env';
 import { useBackButton, useClipboard, useNavigation } from '../../../../hooks';
-import { useAuthStoreInfo, useNavbarStore } from '../../../../stores';
+import { useAuthStoreInfo, useNavbarStore, usePlatformStore } from '../../../../stores';
 import { Page, TgsSticker } from '../../../../ui';
+import { currentScope } from '../../../../utils';
 
 export default function ReferralsPage() {
   const { t } = useTranslation();
@@ -14,6 +15,7 @@ export default function ReferralsPage() {
   const { copy, copied } = useClipboard();
   const { setNavbarVisible } = useNavbarStore();
   const { rmnUser } = useAuthStoreInfo();
+  const { platformType } = usePlatformStore();
 
   useBackButton(() => navigate(-1));
 
@@ -25,7 +27,11 @@ export default function ReferralsPage() {
   }, [setNavbarVisible]);
 
   const stickerUrl = getTelegramStickerUrl(coreEnv.referralsStickerFileId);
-  const referralLink = `${coreEnv.webAppUrl}/?ref=${rmnUser?.id}`;
+  const formattedUrl = coreEnv.ruUrl.split(',')[0];
+  const scope = currentScope();
+
+  const domain = platformType === 'telegram' || scope === 'ru' ? formattedUrl : coreEnv.globalUrl;
+  const referralLink = `${domain}/?ref=${rmnUser?.id}`;
 
   return (
     <Page
