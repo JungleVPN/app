@@ -2,7 +2,7 @@ import { Key, useState } from 'react';
 import { useNavigation, usePlans } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { Container } from '../../ui';
-import { phCapture, sortPlansByPeriodDesc } from '../../utils';
+import { mapPlans, phCapture } from '../../utils';
 import { PlansComponent } from '../profile/plans/PlansComponent';
 
 export const PublicPlansPage = () => {
@@ -12,7 +12,7 @@ export const PublicPlansPage = () => {
   const plans = usePlans();
   const [selectedPeriod, setSelectedPeriod] = useState<number>(12);
 
-  const sortedPlans = sortPlansByPeriodDesc(plans);
+  const sortedPlans = mapPlans(plans);
 
   const handleSelectionChange = (key: Key) => {
     setSelectedPeriod(Number(key));

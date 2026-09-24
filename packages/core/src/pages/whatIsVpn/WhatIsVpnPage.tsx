@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { Container, Reveal, RoundedSection } from '../../ui';
 import { phCapture } from '../../utils';
-import { CTASection } from '../landing/CTASection';
 import { FAQSection } from '../landing/FAQSection';
+import { TrialPeriodBanner } from '../landing/TrialPeriodBanner';
 import { WhatIsVPN } from '../landing/WhatIsVPN';
 import { HeroSection } from './HeroSection';
 import { HowVpnWorksSection } from './HowVpnWorksSection';
@@ -15,7 +15,7 @@ const SECTIONS = [
   { key: 'useCases', content: <UseCasesSection /> },
   { key: 'myths', content: <MythsSection /> },
   { key: 'faq', content: <FAQSection variant='secondary' /> },
-  { key: 'cta', content: <CTASection /> },
+  { key: 'cta', content: <TrialPeriodBanner /> },
 ] as const;
 
 export default function WhatIsVpnPage() {

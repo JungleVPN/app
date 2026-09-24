@@ -783,6 +783,7 @@
       "monthlySubtitle": "подходит для старта",
       "yearlyPeriod": "1 год",
       "yearlyDiscount": "скидка 50%",
+      "daysPeriod": "{{count}} дней",
       "monthsPeriod": "{{count}} месяцев",
       "includesTitle": "Во все тарифы входит:",
       "includes1": "Безлимитный трафик",
@@ -832,6 +833,9 @@
     "cta": {
       "title": "Подключите JungleVPN сегодня",
       "subtitle": "Не понравилось? Вернём деньги полностью, без лишних вопросов."
+    },
+    "trialPeriodBanner": {
+      "title": "{{days}} дней пробного периода всего за {{price}} {{currency}}"
     },
     "footer": {
       "copyright": "© {{year}} JungleVPN. Все права защищены.",

@@ -38,4 +38,5 @@ export type SubscriptionPlanDto = {
    * be. Used to prefill checkout so the payer skips the address step.
    */
   countryCode: string | null;
+  isTrial: boolean;
 };

@@ -33,11 +33,12 @@ export function formatPlanAmounts(pricing: PlanPricing): PlanAmounts {
 }
 
 /** Longest commitment first, the order the plan pickers present. */
-export function sortPlansByPeriodDesc(plans: SubscriptionPlanDto[]): SubscriptionPlanDto[] {
-  return [...plans].sort((a, b) => b.days - a.days);
+export function mapPlans(plans: SubscriptionPlanDto[]): SubscriptionPlanDto[] {
+  return [...plans].sort((a, b) => b.days - a.days).filter((plan) => !plan.isTrial);
 }
 
 export function formatPeriod(days: number, t: TFunction): string {
+  if (days === 7) return t('landing.pricing.daysPeriod', { count: days });
   if (days === 30) return t('landing.pricing.period');
   if (days === 90 || days === 180) return t('landing.pricing.monthsPeriod', { count: days / 30 });
   if (days === 365) return t('landing.pricing.yearlyPeriod');

@@ -331,6 +331,8 @@ export class YookassaService {
     });
     const isFirstPayment = priorSucceeded === 0;
 
+    const isTrialPayment = record.selectedPeriod === 7;
+
     // Extend subscription BEFORE writing the idempotency stamp.
     // If this throws, paidAt remains null so YooKassa's next retry will re-enter
     // and try again once remnawave recovers — rather than being locked out forever.
@@ -369,7 +371,12 @@ export class YookassaService {
         currency: 'RUB',
       });
 
-      if (payment_method && isSavablePaymentMethod(payment_method) && payment_method.saved) {
+      if (
+        payment_method &&
+        isSavablePaymentMethod(payment_method) &&
+        payment_method.saved &&
+        !isTrialPayment
+      ) {
         await this.activatePaymentMethod({ userId, payment_method });
       }
 

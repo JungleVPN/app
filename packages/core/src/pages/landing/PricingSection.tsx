@@ -5,12 +5,12 @@ import { PaymentMethodIcons } from '../../components';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { useNavigation, usePlans } from '../../hooks';
 import { Grid, GridItem } from '../../ui';
-import { calculatePricing, cn } from '../../utils';
+import { calculatePricing, cn, mapPlans } from '../../utils';
 import { formatPeriod } from '../../utils/planPricing';
 import { planSlug } from '../getSubscription/planSlug';
 
 const HIGHLIGHTED_PLAN_PERIOD = 365;
-const HIGHLIGHTED_DESKTOP_POSITION = 2;
+const HIGHLIGHTED_DESKTOP_POSITION = 1;
 
 const ORDER_CLASSES = ['order-0', 'order-2', 'order-1', 'order-3'] as const;
 const LG_ORDER_CLASSES = ['lg:order-0', 'lg:order-2', 'lg:order-1', 'lg:order-3'] as const;
@@ -72,6 +72,7 @@ export function PricingSection({
   const { t } = useTranslation();
   const navigate = useNavigation();
   const plans = usePlans();
+  const formattedPlans = mapPlans(plans);
 
   const handleCtaClick = (months: number) => navigate(`/payment/${planSlug(months)}`);
 
@@ -104,7 +105,7 @@ export function PricingSection({
 
       <div className='flex flex-col items-center gap-8'>
         <Grid>
-          {plans.map((plan) => {
+          {formattedPlans.map((plan) => {
             const isHighlighted = plan.days === HIGHLIGHTED_PLAN_PERIOD;
             const pricing = calculatePricing(plan, {
               discountLabel: (percent: number) =>

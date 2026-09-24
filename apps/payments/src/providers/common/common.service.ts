@@ -57,7 +57,7 @@ export class CommonService {
   private buildPlans(currency: Currency): SubscriptionPlanDto[] {
     const periods = enabledPeriods();
     const basePrice = this.findPrice(currency, 30);
-    console.log(basePrice);
+
     return periods
       .map((days): SubscriptionPlanDto | null => {
         const total = this.findPrice(currency, days);
@@ -67,6 +67,7 @@ export class CommonService {
           days,
           planPricing: buildPricing({ currency, days, total, basePrice }),
           countryCode: null,
+          isTrial: days === 7,
         };
       })
       .filter((plan): plan is SubscriptionPlanDto => plan !== null);
@@ -139,6 +140,7 @@ function applyPaddleQuote(plans: SubscriptionPlanDto[], quote: PaddleQuote): Sub
         basePrice,
       }),
       countryCode: quote.countryCode,
+      isTrial: plan.days === 7,
     };
   });
 }

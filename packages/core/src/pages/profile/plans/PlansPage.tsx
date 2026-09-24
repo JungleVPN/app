@@ -2,7 +2,7 @@ import { Key, useEffect, useState } from 'react';
 import { Loading } from '../../../components';
 import { useNavigation, usePlans } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
-import { phCapture, sortPlansByPeriodDesc } from '../../../utils';
+import { mapPlans, phCapture } from '../../../utils';
 import { useSavedPayment } from '../payment/hooks/useSavedPayment';
 import { PlansComponent } from './PlansComponent';
 
@@ -24,7 +24,7 @@ export default function PlansPage() {
     }
   });
 
-  const sortedPlans = sortPlansByPeriodDesc(plans);
+  const sortedPlans = mapPlans(plans);
 
   const handleSelectionChange = (key: Key) => {
     setSelectedPeriod(Number(key));

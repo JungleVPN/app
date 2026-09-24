@@ -21,7 +21,12 @@ export default function SubscriptionSuccessPage() {
   // 'pending' resolves through the webhook moments later.
   useEffect(() => {
     const paymentId = takePendingYookassaPayment();
-    if (!paymentId) return;
+    console.log(paymentId);
+    if (!paymentId) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     paymentsApi
       .getPublicYookassaPaymentStatus(paymentId)

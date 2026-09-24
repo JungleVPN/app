@@ -776,6 +776,7 @@
       "monthlySubtitle": "Maksimum esneklik. İstediğiniz zaman iptal edin.",
       "yearlyPeriod": "1 yıl",
       "yearlyDiscount": "%40 tasarruf edin — en düşük aylık fiyat",
+      "daysPeriod": "{{count}} gün",
       "monthsPeriod": "{{count}} ay",
       "includesTitle": "Tüm planlara dahil olanlar:",
       "includes1": "Sınırsız trafik",
@@ -825,6 +826,9 @@
     "cta": {
       "title": "JungleVPN’i bugün edinin",
       "subtitle": "Memnun kalmadınız mı? Hiçbir soru sorulmadan paranızı tam olarak iade ediyoruz."
+    },
+    "trialPeriodBanner": {
+      "title": "{{days}} günlük deneme yalnızca {{price}} {{currency}}"
     },
     "footer": {
       "copyright": "© {{year}} JungleVPN. Tüm hakları saklıdır.",

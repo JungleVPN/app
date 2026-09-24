@@ -59,7 +59,7 @@ export {
   takePendingYookassaPayment,
 } from './pendingPayment';
 export type { PlanAmounts, PriceCalculation } from './planPricing';
-export { calculatePricing, formatPlanAmounts, sortPlansByPeriodDesc } from './planPricing';
+export { calculatePricing, formatPlanAmounts, mapPlans } from './planPricing';
 export type { PostHogConsentStatus } from './posthog';
 export {
   phCapture,

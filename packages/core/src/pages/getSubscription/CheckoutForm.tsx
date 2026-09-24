@@ -204,7 +204,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                           </p>
                         </div>
                         <div className='flex shrink-0 items-baseline gap-2'>
-                          {pricing.discountPercent > 0 && pricing.fullTotal && (
+                          {pricing.discountPercent > 0 && !plan?.isTrial && pricing.fullTotal && (
                             <span className='text-sm text-muted line-through'>
                               {format(pricing.fullTotal)}
                             </span>

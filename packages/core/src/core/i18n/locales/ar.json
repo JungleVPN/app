@@ -776,6 +776,7 @@
       "monthlySubtitle": "أقصى قدر من المرونة. إلغاء في أي وقت.",
       "yearlyPeriod": "سنة واحدة",
       "yearlyDiscount": "وفّر 40% — أقل سعر شهري",
+      "daysPeriod": "{{count}} يومًا",
       "monthsPeriod": "{{count}} أشهر",
       "includesTitle": "تشمل جميع الخطط:",
       "includes1": "بيانات غير محدودة",
@@ -825,6 +826,9 @@
     "cta": {
       "title": "احصل على JungleVPN اليوم",
       "subtitle": "غير راضٍ؟ استرد أموالك بالكامل، دون أي أسئلة."
+    },
+    "trialPeriodBanner": {
+      "title": "{{days}} يومًا تجريبيًا مقابل {{price}} {{currency}} فقط"
     },
     "footer": {
       "copyright": "© {{year}} JungleVPN. جميع الحقوق محفوظة.",

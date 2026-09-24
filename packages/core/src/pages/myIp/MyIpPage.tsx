@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import IpLookupIcon from '../../assets/icons/ip-lookup-icon.svg?react';
 import { Container, Reveal, RoundedSection } from '../../ui';
-import { CTASection } from '../landing/CTASection';
+import { TrialPeriodBanner } from '../landing/TrialPeriodBanner';
 import { About } from './About';
 import { HeroSection } from './HeroSection';
 
@@ -41,7 +41,7 @@ export default function MyIpPage() {
 
         <Container>
           <Reveal>
-            <CTASection />
+            <TrialPeriodBanner />
           </Reveal>
         </Container>
       </RoundedSection>

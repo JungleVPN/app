@@ -4,14 +4,13 @@ import { phCapture } from '../../utils';
 import { BentoFeaturesStack } from './BentoFeaturesStack';
 import { ComparisonSection } from './ComparisonSection';
 import { CountriesMarquee } from './CountriesMarquee';
-import { CTASection } from './CTASection';
 import { FAQSection } from './FAQSection';
 import { HeroSection } from './HeroSection';
 import { HowItWorksSection } from './HowItWorksSection';
 import { InfoSection } from './InfoSection';
 import { PartnershipSection } from './PartnershipSection';
 import { PlatformsSection } from './PlatformsSection';
-import { PricingSection } from './PricingSection';
+import { TrialPeriodBanner } from './TrialPeriodBanner';
 import { TrustSection } from './TrustSection';
 
 export default function LandingPage() {
@@ -70,15 +69,11 @@ export default function LandingPage() {
               <ComparisonSection />
             </Reveal>
           </Container>
-          <div className={'lg:px-12 '}>
-            <RoundedSection className='z-10' rounded>
-              <Container id='pricing'>
-                <Reveal>
-                  <PricingSection />
-                </Reveal>
-              </Container>
-            </RoundedSection>
-          </div>
+          <Container id='pricing'>
+            <Reveal>
+              <TrialPeriodBanner />
+            </Reveal>
+          </Container>
           <Container>
             <Reveal>
               <InfoSection />
@@ -96,7 +91,7 @@ export default function LandingPage() {
           </Container>
           <Container>
             <Reveal>
-              <CTASection />
+              <TrialPeriodBanner />
             </Reveal>
           </Container>
         </RoundedSection>

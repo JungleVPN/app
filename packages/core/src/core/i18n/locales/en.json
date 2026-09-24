@@ -776,6 +776,7 @@
       "monthlySubtitle": "Maximum flexibility. Cancel anytime.",
       "yearlyPeriod": "1 year",
       "yearlyDiscount": "Save 40% — lowest monthly price",
+      "daysPeriod": "{{count}} days",
       "monthsPeriod": "{{count}} months",
       "includesTitle": "All plans include:",
       "includes1": "Unlimited traffic",
@@ -825,6 +826,9 @@
     "cta": {
       "title": "Get JungleVPN today",
       "subtitle": "Not satisfied? Get a full refund, no questions asked."
+    },
+    "trialPeriodBanner": {
+      "title": "{{days}} days trial only for {{price}} {{currency}}"
     },
     "footer": {
       "copyright": "© {{year}} JungleVPN. All rights reserved.",
