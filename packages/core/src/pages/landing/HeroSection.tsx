@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStore } from '../../stores';
+import { Heading } from '../../ui/Heading';
 import { PRICING_PATH } from '../../utils';
 import { BrandTitle } from './BrandTitle';
 
@@ -48,9 +49,9 @@ export function HeroSection() {
         animate='show'
       >
         <div className='flex flex-col gap-3'>
-          <h1 className='text-balance items-center'>
+          <Heading>
             <BrandTitle />
-          </h1>
+          </Heading>
           <p className='text-base text-white lg:text-md'>{t('landing.hero.subtitle')}</p>
         </div>
 

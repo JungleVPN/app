@@ -4,6 +4,7 @@ export { BlurInWords } from './BlurInWords';
 export { Container } from './Container/Container';
 export { Grid } from './Grid/Grid';
 export { GridItem } from './Grid/GridItem';
+export { Heading, type HeadingElement, type HeadingProps } from './Heading';
 export { LottieIcon } from './LottieIcon';
 export { Page } from './Page';
 export { Reveal } from './Reveal';

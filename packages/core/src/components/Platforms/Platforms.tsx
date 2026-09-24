@@ -32,7 +32,7 @@ export const Platforms = (props: PlatformsProps) => {
           className='w-24 sm:w-18 md:w-28 flex flex-col items-center justify-between gap-3 rounded-2xl transition-all duration-200 hover:scale-105 hover:-translate-y-1'
         >
           <span>{icon}</span>
-          <h3 className='text-sm font-semibold text-center'>{t(`landing.info.devices.${key}`)}</h3>
+          <p className='text-base lg:text-md'>{t(`landing.info.devices.${key}`)}</p>
         </div>
       ))}
     </div>

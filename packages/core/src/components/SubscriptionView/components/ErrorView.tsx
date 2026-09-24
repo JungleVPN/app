@@ -1,5 +1,6 @@
 import { Surface } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
+import { Heading } from '../../../ui/Heading';
 import { ErrorConnection } from '../../ErrorConnection/ErrorConnection';
 
 const ERROR_I18N_KEYS: Record<string, string> = {
@@ -20,7 +21,7 @@ export function ErrorView({ errorCode }: ErrorViewProps) {
   return (
     <Surface className='my-8 max-w-4xl p-4' variant='transparent'>
       <Surface className='flex flex-col items-center gap-8' variant='transparent'>
-        <h2 className='text-center text-lg font-semibold text-foreground'>{message}</h2>
+        <Heading as='h2'>{message}</Heading>
         <ErrorConnection />
       </Surface>
     </Surface>

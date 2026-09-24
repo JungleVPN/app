@@ -5,6 +5,7 @@ import { useNavigationType } from 'react-router';
 import { useBackButton, useNavigation } from '../../hooks';
 import { useNavbarStore } from '../../stores';
 import { Page } from '../../ui';
+import { Heading } from '../../ui/Heading';
 import { scrollToTop } from '../../utils';
 
 const olClass =
@@ -34,9 +35,9 @@ export default function TermsPage() {
     <Page title={t('terms.pageTitle')}>
       <Surface className='flex min-w-[320px] flex-col gap-3 rounded-3xl p-6' variant='secondary'>
         <section aria-labelledby='terms-s1' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s1'>
+          <Heading as='h2' id='terms-s1'>
             {t('terms.s1.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s1.i1')}</li>
             <li>{t('terms.s1.i2')}</li>
@@ -46,9 +47,9 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s2' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s2'>
+          <Heading as='h2' id='terms-s2'>
             {t('terms.s2.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s2.i1')}</li>
             <li>
@@ -65,9 +66,9 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s3' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s3'>
+          <Heading as='h2' id='terms-s3'>
             {t('terms.s3.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s3.i1')}</li>
             <li>
@@ -92,9 +93,9 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s4' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s4'>
+          <Heading as='h2' id='terms-s4'>
             {t('terms.s4.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s4.i1')}</li>
             <li>{t('terms.s4.i2')}</li>
@@ -116,9 +117,9 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s5' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s5'>
+          <Heading as='h2' id='terms-s5'>
             {t('terms.s5.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s5.i1')}</li>
             <li>{t('terms.s5.i2')}</li>
@@ -127,9 +128,9 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s6' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s6'>
+          <Heading as='h2' id='terms-s6'>
             {t('terms.s6.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>
               {t('terms.s6.i1_lead')}
@@ -145,9 +146,9 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s7' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s7'>
+          <Heading as='h2' id='terms-s7'>
             {t('terms.s7.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s7.i1')}</li>
             <li>{t('terms.s7.i6')}</li>
@@ -155,9 +156,9 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s8' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s8'>
+          <Heading as='h2' id='terms-s8'>
             {t('terms.s8.h')}
-          </h2>
+          </Heading>
           <ul className={ulClass}>
             <li>{t('terms.s8.u1')}</li>
             <li>{t('terms.s8.u2')}</li>
@@ -169,9 +170,9 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s9' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s9'>
+          <Heading as='h2' id='terms-s9'>
             {t('terms.s9.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s9.i1')}</li>
             <li>{t('terms.s9.i2')}</li>
@@ -194,9 +195,9 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s10' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s10'>
+          <Heading as='h2' id='terms-s10'>
             {t('terms.s10.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s10.i1')}</li>
             <li>{t('terms.s10.i2')}</li>
@@ -205,18 +206,18 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s11' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s11'>
+          <Heading as='h2' id='terms-s11'>
             {t('terms.s11.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s11.i1')}</li>
           </ol>
         </section>
 
         <section aria-labelledby='terms-s12' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s12'>
+          <Heading as='h2' id='terms-s12'>
             {t('terms.s12.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s12.i1')}</li>
             <li>{t('terms.s12.i2')}</li>
@@ -230,9 +231,9 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s13' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s13'>
+          <Heading as='h2' id='terms-s13'>
             {t('terms.s13.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s13.i1')}</li>
             <li>{t('terms.s13.i2')}</li>
@@ -242,9 +243,9 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s14' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s14'>
+          <Heading as='h2' id='terms-s14'>
             {t('terms.s14.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s14.i1')}</li>
             <li>{t('terms.s14.i2')}</li>
@@ -261,9 +262,9 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s15' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='terms-s15'>
+          <Heading as='h2' id='terms-s15'>
             {t('terms.s15.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('terms.s15.i1')}</li>
             <li>{t('terms.s15.i2')}</li>

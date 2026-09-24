@@ -4,6 +4,7 @@ import AllDevicesIcon from '../../assets/icons/all-devices-icon.svg?react';
 import PrivacyFirstIcon from '../../assets/icons/privacy-first-icon.svg?react';
 import SecureByDesignIcon from '../../assets/icons/secure-by-design-icon.svg?react';
 import UnlimitedTrafficIcon from '../../assets/icons/unlimited-traffic-icon.svg?react';
+import { Heading } from '../../ui/Heading';
 
 type BentoCellProps = {
   icon: ReactNode;
@@ -24,7 +25,9 @@ function BentoCell({ icon, title, description, className }: BentoCellProps) {
         {icon}
       </div>
       <div>
-        <h3 className='text-base font-bold text-white'>{title}</h3>
+        <Heading as='h3' className={'text-white'}>
+          {title}
+        </Heading>
         <p className='mt-1.5 text-xs leading-relaxed text-slate-400'>{description}</p>
       </div>
     </div>
@@ -37,17 +40,19 @@ export function BentoSection() {
   return (
     <section>
       <div className='mb-8 flex flex-col gap-1'>
-        <h2 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
+        <Heading as='h2'>
           {t('landing.bento.titleStart')}{' '}
           <span className='bg-linear-to-r from-purple-400 to-yellow-400 bg-clip-text text-transparent'>
             {t('landing.bento.titleBrand')}
           </span>
-        </h2>
+        </Heading>
       </div>
 
       <div className='overflow-hidden rounded-3xl bg-[#1d1d1d]'>
         <div className='p-5 sm:p-7'>
-          <h3 className='text-xl font-bold text-white'>{t('landing.bento.subtitle')}</h3>
+          <Heading as='h3' className={'text-white'}>
+            {t('landing.bento.subtitle')}
+          </Heading>
         </div>
 
         <div className='grid grid-cols-1 border-t border-white/10 sm:grid-cols-2 lg:grid-cols-3'>

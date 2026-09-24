@@ -9,6 +9,7 @@ import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStore } from '../../stores';
 import { Grid, GridItem } from '../../ui';
+import { Heading } from '../../ui/Heading';
 import { PRICING_PATH } from '../../utils';
 
 type StepKey = 'install' | 'subscribe' | 'connect';
@@ -33,7 +34,7 @@ function StepCard({ step }: { step: Step }) {
     >
       {step.icon}
       <div className='flex flex-col gap-3'>
-        <h3 className='text-xl font-bold'>{t(`landing.howItWorks.${step.key}.title`)}</h3>
+        <Heading as='h3'>{t(`landing.howItWorks.${step.key}.title`)}</Heading>
         <p className='text-muted text-sm leading-relaxed'>
           {t(`landing.howItWorks.${step.key}.description`)}
         </p>
@@ -58,13 +59,13 @@ export function HowItWorksSection() {
   }, [authUser, navigate, profileSubscriptionPath]);
 
   return (
-    <section className='mb-24'>
-      <h2 className='mb-14 text-center text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
+    <section className='mb-24 flex flex-col gap-6'>
+      <Heading as='h2'>
         {t('landing.howItWorks.titleStart')}{' '}
         <span className='bg-linear-to-r from-purple-400 to-yellow-400 bg-clip-text text-transparent'>
           {t('landing.howItWorks.titleBrand')}
         </span>
-      </h2>
+      </Heading>
 
       <Grid>
         {STEPS.map((step) => (
@@ -75,7 +76,7 @@ export function HowItWorksSection() {
       </Grid>
 
       <div className='flex flex-col gap-3 justify-center items-center'>
-        <p className='text-muted mx-auto mt-10 max-w-2xl text-center text-sm leading-relaxed'>
+        <p className='text-muted mx-auto text-center text-sm leading-relaxed'>
           {t('landing.howItWorks.note')}
         </p>
         <div className='flex items-start gap-3'>

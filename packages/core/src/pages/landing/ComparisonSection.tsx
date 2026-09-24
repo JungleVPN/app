@@ -5,6 +5,7 @@ import privacy from '../../assets/lottie/privacy.lottie?url';
 import privacy_dark from '../../assets/lottie/privacy_dark.lottie?url';
 import { useTheme } from '../../hooks';
 import { LottieIcon } from '../../ui';
+import { Heading } from '../../ui/Heading';
 
 type Row = {
   feature: string;
@@ -31,12 +32,12 @@ export function ComparisonSection() {
           <Chip color='default' variant='secondary' className='w-fit'>
             <Chip.Label>{t('landing.comparison.chip')}</Chip.Label>
           </Chip>
-          <h2 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
+          <Heading as='h2'>
             {t('landing.comparison.titleStart')}{' '}
             <span className='bg-linear-to-r from-purple-400 to-yellow-400 bg-clip-text text-transparent'>
               {t('landing.comparison.titleBrand')}
             </span>
-          </h2>
+          </Heading>
           <p className='text-base text-muted lg:text-md'>{t('landing.comparison.subtitle')}</p>
         </div>
         <LottieIcon

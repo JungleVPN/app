@@ -3,6 +3,7 @@ import { IconDevices, IconDownload, IconLock, IconReceiptRefund } from '@tabler/
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Container } from '../../ui';
+import { Heading } from '../../ui/Heading';
 
 const FAQ_ICONS: ReactNode[] = [
   <IconDownload size={20} key={1} />,
@@ -19,9 +20,7 @@ export function FAQSection({ variant = 'primary' }: { variant?: 'primary' | 'sec
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
-          {t('landing.faq.title')}
-        </h2>
+        <Heading as='h2'>{t('landing.faq.title')}</Heading>
         <p className='max-w-2xl text-base text-muted lg:text-md'>{t('landing.faq.subtitle')}</p>
       </div>
       <Container

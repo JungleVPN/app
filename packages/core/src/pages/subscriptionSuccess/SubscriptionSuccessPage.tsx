@@ -6,6 +6,7 @@ import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import { TgsSticker } from '../../ui';
+import { Heading } from '../../ui/Heading';
 import { takePendingYookassaPayment } from '../../utils';
 
 export default function SubscriptionSuccessPage() {
@@ -54,9 +55,7 @@ export default function SubscriptionSuccessPage() {
           )}
 
           <div className='flex flex-col items-center gap-3 text-center'>
-            <h1 className='text-xl font-bold tracking-tight text-balance'>
-              {t('subscriptionSuccess.title')}
-            </h1>
+            <Heading>{t('subscriptionSuccess.title')}</Heading>
             <p className='text-base text-muted text-balance sm:text-lg'>
               {t('subscriptionSuccess.description')}
             </p>

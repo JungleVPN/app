@@ -1,6 +1,7 @@
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { Heading } from '../../ui/Heading';
 
 /** Where a VPN's protection stops — stated plainly rather than implied. */
 const MYTH_KEYS = ['anonymity', 'speed', 'legal'] as const;
@@ -17,9 +18,7 @@ export function MythsSection() {
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
-          {t('landing.whatIsVpn.myths.title')}
-        </h2>
+        <Heading as='h2'>{t('landing.whatIsVpn.myths.title')}</Heading>
         <p className='max-w-2xl text-base text-muted lg:text-md'>
           {t('landing.whatIsVpn.myths.subtitle')}
         </p>

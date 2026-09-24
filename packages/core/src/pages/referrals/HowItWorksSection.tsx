@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import BonusIcon from '../../assets/icons/bonus-icon.svg?react';
 import BuyIcon from '../../assets/icons/buy-icon.svg?react';
 import ShareIcon from '../../assets/icons/share-icon.svg?react';
+import { Heading } from '../../ui/Heading';
 
 type Step = {
   key: 'share' | 'subscribe' | 'reward';
@@ -30,9 +31,7 @@ export function HowItWorksSection() {
           <Chip.Label>{t('referrals.howItWorks.badge')}</Chip.Label>
         </Chip>
 
-        <h2 className='font-primary font-extrabold text-2xl md:text-4xl text-foreground'>
-          {t('referrals.howItWorks.title')}
-        </h2>
+        <Heading as='h2'>{t('referrals.howItWorks.title')}</Heading>
 
         <p className='max-w-2xl text-sm md:text-base text-muted'>
           {t('referrals.howItWorks.subtitle')}
@@ -50,9 +49,7 @@ export function HowItWorksSection() {
                   artworkFirst ? 'md:order-2' : ''
                 }`}
               >
-                <h3 className='font-primary font-bold text-xl md:text-2xl text-foreground'>
-                  {t(`referrals.howItWorks.${key}.title`)}
-                </h3>
+                <Heading as='h3'>{t(`referrals.howItWorks.${key}.title`)}</Heading>
                 <p className='text-sm text-muted'>{t(`referrals.howItWorks.${key}.description`)}</p>
               </div>
 

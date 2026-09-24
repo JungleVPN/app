@@ -8,6 +8,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import AroundTheWorldIcon from '../../assets/icons/around-the-world-icon.svg?react';
 import { Container } from '../../ui';
+import { Heading } from '../../ui/Heading';
 
 type Feature = {
   key: string;
@@ -48,9 +49,7 @@ function FeatureItem({ feature, side }: { feature: Feature; side: Side }) {
         <Icon size={22} stroke={2} aria-hidden='true' />
       </span>
 
-      <h3 className='font-semibold text-base md:text-lg text-[#1a1a1a] text-balance'>
-        {t(`landing.locations.world.${key}.title`)}
-      </h3>
+      <Heading as='h3'>{t(`landing.locations.world.${key}.title`)}</Heading>
       <p className='text-sm md:text-base text-[#1a1a1a]/70 text-pretty'>
         {t(`landing.locations.world.${key}.description`)}
       </p>
@@ -64,9 +63,7 @@ export function AroundTheWorldSection() {
   return (
     <section className='flex flex-col gap-12'>
       <Container maxWidth='md' className='flex flex-col items-center gap-4 text-center'>
-        <h2 className='font-primary font-extrabold text-2xl md:text-4xl text-balance text-[#1a1a1a]'>
-          {t('landing.locations.world.title')}
-        </h2>
+        <Heading as='h2'>{t('landing.locations.world.title')}</Heading>
         <p className='text-base md:text-md text-[#1a1a1a]/70'>
           {t('landing.locations.world.subtitle')}
         </p>

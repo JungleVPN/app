@@ -2,6 +2,7 @@ import { Button, Card, Chip } from '@heroui/react';
 import { IconArrowLeft, IconArrowRight, IconStarFilled } from '@tabler/icons-react';
 import type { KeenSliderInstance } from 'keen-slider/react';
 import { useKeenSlider } from 'keen-slider/react';
+import { Heading } from '../../ui/Heading';
 import 'keen-slider/keen-slider.min.css';
 import { useTranslation } from 'react-i18next';
 import { Container } from '../../ui';
@@ -69,9 +70,7 @@ export function TestimonialsSection() {
           <Chip color='default' variant='secondary' className='w-fit'>
             <Chip.Label>{t('landing.testimonials.chip')}</Chip.Label>
           </Chip>
-          <h2 className='text-xl font-bold tracking-tight sm:text-3xl lg:text-4xl'>
-            {t('landing.testimonials.title')}
-          </h2>
+          <Heading as='h2'>{t('landing.testimonials.title')}</Heading>
           <div className='flex items-center gap-1'>
             {STAR_RATING.map((star) => (
               <IconStarFilled key={star} size={20} className='text-primary' />

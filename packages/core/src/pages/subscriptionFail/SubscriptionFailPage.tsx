@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { useNavigation } from '../../hooks';
 import { TgsSticker } from '../../ui';
+import { Heading } from '../../ui/Heading';
 import { PRICING_PATH } from '../../utils';
 
 export default function SubscriptionFailPage() {
@@ -19,9 +20,7 @@ export default function SubscriptionFailPage() {
           )}
 
           <div className='flex flex-col items-center gap-3 text-center'>
-            <h1 className='text-xl font-bold tracking-tight text-balance'>
-              {t('subscriptionFail.title')}
-            </h1>
+            <Heading>{t('subscriptionFail.title')}</Heading>
             <p className='text-base text-muted text-balance sm:text-lg'>
               {t('subscriptionFail.description')}
             </p>

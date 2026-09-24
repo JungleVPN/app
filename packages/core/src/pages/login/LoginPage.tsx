@@ -4,6 +4,7 @@ import { Navigate } from 'react-router';
 import { FeaturesCard } from '../../components';
 import { useAuthStore } from '../../stores';
 import { Block } from '../../ui';
+import { Heading } from '../../ui/Heading';
 import css from './login.module.css';
 import { useLogin } from './useLogin';
 
@@ -21,7 +22,7 @@ export default function LoginPage() {
     <>
       <Surface variant='transparent'>
         <Block className={'p-4'}>
-          <h1 className={`text-center text-xl font-semibold ${css.title}`}>{t('login.title')}</h1>
+          <Heading>{t('login.title')}</Heading>
 
           <div className='mt-2 flex flex-col gap-4'>
             {(message || error) && (

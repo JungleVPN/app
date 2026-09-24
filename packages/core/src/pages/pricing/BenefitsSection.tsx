@@ -4,6 +4,7 @@ import IconServers from '../../assets/icons/high-speed-small-icon.svg?react';
 import PriceBenefitsIcon from '../../assets/icons/price-benefits-icon.svg?react';
 import IconReady from '../../assets/icons/ready-small-icon.svg?react';
 import IconSupport from '../../assets/icons/support-small-icon.svg?react';
+import { Heading } from '../../ui/Heading';
 
 const BENEFITS = [
   {
@@ -41,12 +42,12 @@ export function BenefitsSection() {
 
       <div className='flex flex-col gap-8'>
         <div className='flex flex-col gap-3'>
-          <h2 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
+          <Heading as='h2'>
             {t('landing.features.titleStart')}{' '}
             <span className='bg-linear-to-r from-purple-400 to-yellow-400 bg-clip-text text-transparent'>
               {t('landing.features.titleBrand')}
             </span>
-          </h2>
+          </Heading>
           <p className='text-muted text-base lg:text-md'>{t('landing.features.subtitle')}</p>
         </div>
 
@@ -54,9 +55,7 @@ export function BenefitsSection() {
           {BENEFITS.map((benefit) => (
             <div key={benefit.key} className='flex flex-col gap-3'>
               <benefit.Icon className='h-10 w-auto text-purple-400 mr-auto' aria-hidden='true' />
-              <h3 className='text-lg font-bold text-foreground'>
-                {'title' in benefit ? benefit.title : t(benefit.titleKey)}
-              </h3>
+              <Heading as='h3'>{'title' in benefit ? benefit.title : t(benefit.titleKey)}</Heading>
               <p className='text-muted text-sm leading-relaxed'>{t(benefit.descriptionKey)}</p>
             </div>
           ))}

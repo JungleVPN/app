@@ -5,6 +5,7 @@ import { PaymentMethodIcons } from '../../components';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { useNavigation, usePlans } from '../../hooks';
 import { Grid, GridItem } from '../../ui';
+import { Heading } from '../../ui/Heading';
 import { calculatePricing, cn, mapPlans } from '../../utils';
 import { formatPeriod } from '../../utils/planPricing';
 import { planSlug } from '../getSubscription/planSlug';
@@ -47,11 +48,6 @@ function buildPlanOrders(plans: SubscriptionPlanDto[]): Map<number, PlanOrder> {
  */
 type Surface = 'light' | 'dark';
 
-const HEADING_CLASS: Record<Surface, string> = {
-  light: 'text-black',
-  dark: 'text-white',
-};
-
 const BODY_CLASS: Record<Surface, string> = {
   light: 'text-muted',
   dark: 'text-white/70',
@@ -90,14 +86,7 @@ export function PricingSection({
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h1
-          className={cn(
-            'text-2xl sm:px-0 font-bold tracking-tight lg:text-4xl',
-            HEADING_CLASS[surface],
-          )}
-        >
-          {t('landing.pricing.title')}
-        </h1>
+        <Heading>{t('landing.pricing.title')}</Heading>
         <p className={cn('text-base lg:text-md', BODY_CLASS[surface])}>
           {t('landing.pricing.subtitle')}
         </p>

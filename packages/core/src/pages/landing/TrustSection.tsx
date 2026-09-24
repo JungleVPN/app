@@ -6,6 +6,7 @@ import ServersIcon from '../../assets/icons/servers-icon.svg?react';
 import UsersIcon from '../../assets/icons/users-icon.svg?react';
 import { ContentCard } from '../../components/ContentCard';
 import { Grid, GridItem } from '../../ui';
+import { Heading } from '../../ui/Heading';
 
 type StatKey = 'users' | 'countries' | 'servers';
 
@@ -36,9 +37,7 @@ export function TrustSection() {
         <Chip color='default' variant='secondary' className='w-fit'>
           <Chip.Label>{t('landing.trust.chip')}</Chip.Label>
         </Chip>
-        <h2 className='text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl'>
-          {t('landing.trust.title')}
-        </h2>
+        <Heading as='h2'>{t('landing.trust.title')}</Heading>
       </div>
 
       <Grid>

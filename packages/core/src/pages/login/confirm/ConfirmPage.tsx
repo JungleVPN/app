@@ -10,6 +10,7 @@ import {
 } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { Block, Container } from '../../../ui';
+import { Heading } from '../../../ui/Heading';
 import { useConfirm } from './useConfirm';
 
 export default function ConfirmPage() {
@@ -22,9 +23,7 @@ export default function ConfirmPage() {
         <Form onSubmit={(e) => void handleConfirm(e)}>
           <Block className={'p-4'}>
             <div className='flex flex-col gap-4 items-center justify-center'>
-              <h1 className='text-center text-xl font-semibold text-foreground'>
-                {t('confirm.title')}
-              </h1>
+              <Heading>{t('confirm.title')}</Heading>
 
               {error ? (
                 <Description className='text-center text-danger'>{error}</Description>

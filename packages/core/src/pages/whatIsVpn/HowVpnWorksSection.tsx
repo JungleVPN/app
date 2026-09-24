@@ -8,6 +8,7 @@ import {
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Grid, GridItem } from '../../ui';
+import { Heading } from '../../ui/Heading';
 
 type Step = { key: string; icon: TablerIcon };
 
@@ -32,9 +33,7 @@ export function HowVpnWorksSection() {
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
-          {t('landing.whatIsVpn.how.title')}
-        </h2>
+        <Heading as='h2'>{t('landing.whatIsVpn.how.title')}</Heading>
         <p className='max-w-2xl text-base text-muted lg:text-md'>
           {t('landing.whatIsVpn.how.subtitle')}
         </p>
@@ -56,9 +55,7 @@ export function HowVpnWorksSection() {
                 <span className='flex size-12 items-center justify-center rounded-2xl bg-linear-to-r from-purple-400 to-yellow-400 text-white'>
                   <Icon size={24} stroke={2} aria-hidden='true' />
                 </span>
-                <h3 className='text-base font-bold text-foreground text-balance'>
-                  {t(`landing.whatIsVpn.how.${key}.title`)}
-                </h3>
+                <Heading as='h3'>{t(`landing.whatIsVpn.how.${key}.title`)}</Heading>
                 <p className='text-sm leading-relaxed text-muted text-pretty'>
                   {t(`landing.whatIsVpn.how.${key}.description`)}
                 </p>

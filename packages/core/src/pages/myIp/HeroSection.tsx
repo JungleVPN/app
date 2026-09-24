@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useRemnawaveApi } from '../../api';
 import { useIpStatus } from '../../hooks';
 import { Grid, GridItem } from '../../ui';
+import { Heading } from '../../ui/Heading';
 import { phCapture } from '../../utils';
 import { StaticLocationMap } from './StaticLocationMap';
 
@@ -79,9 +80,7 @@ export const HeroSection = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55, ease: 'easeOut' }}
       >
-        <h1 className='text-3xl font-extrabold tracking-[-0.04em] md:text-4xl'>
-          {t('myIp.title')}
-        </h1>
+        <Heading>{t('myIp.title')}</Heading>
         <p className='mt-4 text-sm text-muted md:text-lg'>{t('myIp.subtitle')}</p>
       </motion.div>
       <Grid className='mt-8 gap-4'>

@@ -4,6 +4,7 @@ import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { Grid } from '../../ui';
 import { GridItem, Span } from '../../ui/Grid/GridItem';
+import { Heading } from '../../ui/Heading';
 
 const whatIsAnIpInfo = (
   t: TFunction,
@@ -68,7 +69,7 @@ export const WhatIsIp = () => {
       <Chip color='default' variant='secondary' className='w-fit mb-2'>
         <Chip.Label> {t('myIp.learn')}</Chip.Label>
       </Chip>
-      <h2 className='font-primary text-xl font-extrabold md:text-3xl'>{t('myIp.whatIs.title')}</h2>
+      <Heading as='h2'>{t('myIp.whatIs.title')}</Heading>
       <Grid className={'mt-8'}>
         {whatIsAnIpInfo(t).map(({ id, label, paragraphs, sm, md, lg }) => (
           <GridItem size={{ base: 12, sm, md, lg }} key={id}>

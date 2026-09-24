@@ -7,6 +7,7 @@ import { coreEnv } from '../../env';
 import { useBackButton, useNavigation } from '../../hooks';
 import { useNavbarStore } from '../../stores';
 import { Page } from '../../ui';
+import { Heading } from '../../ui/Heading';
 import { scrollToTop } from '../../utils';
 
 const olClass =
@@ -40,9 +41,9 @@ export default function CookiePolicyPage() {
     <Page title={t('cookies.pageTitle')}>
       <Surface className='flex min-w-[320px] flex-col gap-3 rounded-3xl p-6' variant='secondary'>
         <section aria-labelledby='cookies-s1' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='cookies-s1'>
+          <Heading as='h2' id='cookies-s1'>
             {t('cookies.s1.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('cookies.s1.i1')}</li>
             <li>{t('cookies.s1.i2')}</li>
@@ -51,9 +52,9 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s2' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='cookies-s2'>
+          <Heading as='h2' id='cookies-s2'>
             {t('cookies.s2.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>
               {t('cookies.s2.i1_lead')}
@@ -72,9 +73,9 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s3' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='cookies-s3'>
+          <Heading as='h2' id='cookies-s3'>
             {t('cookies.s3.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('cookies.s3.i1')}</li>
             <li>
@@ -90,9 +91,9 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s4' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='cookies-s4'>
+          <Heading as='h2' id='cookies-s4'>
             {t('cookies.s4.h')}
-          </h2>
+          </Heading>
           <p className='text-sm leading-relaxed text-muted'>{t('cookies.s4.lead')}</p>
           <div className='overflow-x-auto rounded-2xl border border-border'>
             <table className='w-full text-start text-sm'>
@@ -129,9 +130,9 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s5' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='cookies-s5'>
+          <Heading as='h2' id='cookies-s5'>
             {t('cookies.s5.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('cookies.s5.i1')}</li>
             <li>{t('cookies.s5.i2')}</li>
@@ -140,9 +141,9 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s6' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='cookies-s6'>
+          <Heading as='h2' id='cookies-s6'>
             {t('cookies.s6.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>
               {t('cookies.s6.i1_lead')}
@@ -155,9 +156,9 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s7' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='cookies-s7'>
+          <Heading as='h2' id='cookies-s7'>
             {t('cookies.s7.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>{t('cookies.s7.i1')}</li>
             <li>{t('cookies.s7.i2')}</li>
@@ -165,9 +166,9 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s8' className='flex flex-col gap-2'>
-          <h2 className='text-sm font-medium text-foreground' id='cookies-s8'>
+          <Heading as='h2' id='cookies-s8'>
             {t('cookies.s8.h')}
-          </h2>
+          </Heading>
           <ol className={olClass}>
             <li>
               {t('cookies.s8.i1_lead')}

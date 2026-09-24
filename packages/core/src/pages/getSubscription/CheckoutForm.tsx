@@ -17,6 +17,7 @@ import Logo from '../../assets/Logo.svg?react';
 import { FeaturesCard, Link, PaymentMethodIcons } from '../../components';
 import { useTermsStore } from '../../stores';
 import { Block, Container, Grid, GridItem } from '../../ui';
+import { Heading } from '../../ui/Heading';
 import { formatPlanPrice, scrollToTop } from '../../utils';
 import { formatPeriod } from '../../utils/planPricing';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
@@ -43,7 +44,7 @@ function StepHeading({ step, title }: { step: number; title: string }) {
       <span className='flex size-7 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-sm font-semibold'>
         {step}
       </span>
-      <h2 className='text-lg font-bold sm:text-xl'>{title}</h2>
+      <Heading as='h2'>{title}</Heading>
     </div>
   );
 }
@@ -188,9 +189,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
             <div className='flex flex-col gap-6'>
               <Block className='p-5 sm:p-6'>
                 <div className='flex flex-col gap-5'>
-                  <h2 className='text-lg font-bold sm:text-xl'>
-                    {t('getSubscription.order_title')}
-                  </h2>
+                  <Heading as='h2'>{t('getSubscription.order_title')}</Heading>
 
                   {pricing && selectedPeriod !== null ? (
                     <div className='flex flex-col gap-2'>

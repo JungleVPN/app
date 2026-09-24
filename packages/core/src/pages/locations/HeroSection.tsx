@@ -4,6 +4,7 @@ import { motion, useReducedMotion, Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '../../hooks';
 import { BlurInWords, Container } from '../../ui';
+import { Heading } from '../../ui/Heading';
 import { PRICING_PATH } from '../../utils';
 import { WorldMap } from '../landing/WorldMap';
 
@@ -116,7 +117,7 @@ export function HeroSection() {
               >
                 <div className='flex items-center gap-3'>
                   <Icon size={28} className='shrink-0' />
-                  <h2 className='font-semibold text-sm md:text-md text-balance'>{t(titleKey)}</h2>
+                  <Heading as='h2'>{t(titleKey)}</Heading>
                 </div>
                 <p className='text-sm text-white/70'>{t(descriptionKey)}</p>
               </motion.li>

@@ -8,6 +8,7 @@ import {
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Grid, GridItem } from '../../ui';
+import { Heading } from '../../ui/Heading';
 
 type UseCase = {
   key: string;
@@ -64,9 +65,7 @@ export function UseCasesSection() {
   return (
     <section>
       <div className='mb-12 flex flex-col items-center gap-3 text-center'>
-        <h2 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl'>
-          {t('landing.whatIsVpn.useCases.title')}
-        </h2>
+        <Heading as='h2'>{t('landing.whatIsVpn.useCases.title')}</Heading>
         <p className='max-w-2xl text-base text-muted lg:text-md'>
           {t('landing.whatIsVpn.useCases.subtitle')}
         </p>
@@ -90,9 +89,7 @@ export function UseCasesSection() {
                   <Icon size={32} stroke={2} aria-hidden='true' />
                 </span>
                 <div className='relative'>
-                  <h3 className='text-base font-bold text-[#1a1a1a] text-balance'>
-                    {t(`landing.whatIsVpn.useCases.${key}.title`)}
-                  </h3>
+                  <Heading as='h3'>{t(`landing.whatIsVpn.useCases.${key}.title`)}</Heading>
                   <p className='mt-1 text-sm leading-relaxed text-[#1a1a1a]/70 text-pretty'>
                     {t(`landing.whatIsVpn.useCases.${key}.description`)}
                   </p>
