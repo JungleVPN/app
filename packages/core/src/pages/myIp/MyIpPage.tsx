@@ -4,20 +4,27 @@ import { Container, Reveal, RoundedSection } from '../../ui';
 import { TrialPeriodBanner } from '../landing/TrialPeriodBanner';
 import { About } from './About';
 import { HeroSection } from './HeroSection';
+import { WhatIsIp } from './WhatIsIp';
 
 export default function MyIpPage() {
   const { t } = useTranslation();
 
   return (
-    <div className='bg-[#f7f8fc] text-[#192036]'>
+    <div className='bg-background'>
       <Container>
         <HeroSection />
       </Container>
 
-      <RoundedSection rounded className='relative z-10 bg-white text-[#1a1a1a]'>
+      <RoundedSection rounded className='relative z-10 bg-white'>
         <Container>
           <Reveal>
             <About />
+          </Reveal>
+        </Container>
+
+        <Container>
+          <Reveal>
+            <WhatIsIp />
           </Reveal>
         </Container>
 
