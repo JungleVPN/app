@@ -28,7 +28,7 @@ export function InviteBannerSection() {
           </Button>
         </div>
 
-        <InviteArtwork />
+        <InviteArtwork className='h-56 w-full max-w-md md:h-72' />
       </div>
     </section>
   );

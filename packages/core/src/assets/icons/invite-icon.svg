@@ -3,7 +3,6 @@
         role='presentation'
         aria-hidden='true'
         focusable='false'
-        className='h-56 w-full max-w-md md:h-72'
 >
     <ellipse cx='210' cy='236' rx='150' ry='62' fill='#1a1a1a' opacity='0.85' />
     <circle cx='214' cy='78' r='34' fill='none' stroke='#ffffff' strokeWidth='4' />

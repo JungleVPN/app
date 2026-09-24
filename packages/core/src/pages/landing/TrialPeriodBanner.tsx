@@ -14,22 +14,17 @@ export function TrialPeriodBanner() {
   const plan = plans.find((plan) => plan.isTrial);
   if (!plan) return null;
   return (
-    <section id='cta'>
-      <div className='relative flex items-center overflow-hidden p-8 rounded-3xl bg-linear-to-r  from-purple-400 to-yellow-400 py-16 text-center shadow-xl'>
-        <div className='relative flex flex-col justify-start items-start gap-6'>
-          <div className='flex flex-col justify-start gap-3'>
-            <h2 className='text-xl font-bold tracking-tight text-white text-start md:text-3xl'>
-              {t('landing.trialPeriodBanner.title', {
-                days: plan.days,
-                price: plan.planPricing.total,
-                currency: plan.planPricing.currencyCode,
-              })}
-            </h2>
-            <p className='text-base text-start text-white/80 lg:text-md'>
-              {t('landing.cta.subtitle')}
-            </p>
-          </div>
-
+    <section>
+      <div className='flex flex-col items-center gap-10 overflow-hidden rounded-4xl bg-linear-to-r from-purple-400 to-yellow-400 px-8 py-12 md:flex-row md:justify-between md:px-16 md:py-16'>
+        <div className='flex flex-col items-center gap-8 text-center md:items-start md:text-start'>
+          <h2 className='max-w-xl font-primary text-2xl font-extrabold text-balance text-white md:text-4xl'>
+            {t('landing.trialPeriodBanner.title', {
+              days: plan.days,
+              price: plan.planPricing.total,
+              currency: plan.planPricing.currencyCode,
+            })}
+          </h2>
+          <p className='text-base text-white/80 lg:text-md'>{t('landing.cta.subtitle')}</p>
           <Button
             size='lg'
             className='bg-white text-black font-semibold shadow-lg w-2/4'
@@ -38,7 +33,8 @@ export function TrialPeriodBanner() {
             {t('common.cta')}
           </Button>
         </div>
-        <InviteArtwork />
+
+        <InviteArtwork className='h-56 w-full max-w-md md:h-72' />
       </div>
     </section>
   );
