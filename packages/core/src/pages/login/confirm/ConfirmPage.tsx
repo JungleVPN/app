@@ -23,7 +23,9 @@ export default function ConfirmPage() {
         <Form onSubmit={(e) => void handleConfirm(e)}>
           <Block className={'p-4'}>
             <div className='flex flex-col gap-4 items-center justify-center'>
-              <Heading>{t('confirm.title')}</Heading>
+              <Heading className={'text-xl lg:text-2xl mb-2 text-center'}>
+                {t('confirm.title')}
+              </Heading>
 
               {error ? (
                 <Description className='text-center text-danger'>{error}</Description>

@@ -36,7 +36,7 @@ export function ContentCard(props: ContentCardProps) {
       >
         <div>
           <Heading as='h3'>{title}</Heading>
-          {description && <Paragraph>{description}</Paragraph>}
+          {description && <Paragraph className={'max-w-md text-muted'}>{description}</Paragraph>}
         </div>
         {learnMoreLabel && (
           <Link to={learnMoreHref} className='mt-10 text-sm font-medium underline'>

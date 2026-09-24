@@ -32,9 +32,9 @@ export default function MyIpPage() {
 
         <Container>
           <Reveal>
-            <div className='flex flex-col gap-4 text-center md:flex-row md:items-center md:justify-center'>
+            <div className='flex flex-col gap-4 text-start md:flex-row md:items-center md:justify-center'>
               <div className='flex flex-1 flex-col items-start justify-center gap-4'>
-                <Heading as='h3'>{t('myIp.findPublicIp.title')}</Heading>
+                <Heading as='h2'>{t('myIp.findPublicIp.title')}</Heading>
                 <Paragraph>{t('myIp.findPublicIp.body')}</Paragraph>
               </div>
               <IpLookupIcon

@@ -86,7 +86,7 @@ export function HeroSection() {
             {t('common.cta')}
           </Button>
 
-          <Paragraph>
+          <Paragraph className={'flex items-center gap-1 text-muted'}>
             <IconShieldCheck size={18} />
             {t('landing.hero.guarantee')}
           </Paragraph>
@@ -114,11 +114,11 @@ export function HeroSection() {
               <motion.li
                 key={key}
                 variants={BENEFIT_CARD}
-                className='flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-md'
+                className='flex flex-col gap-4 justify-between rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-md'
               >
                 <div className='flex items-center gap-3'>
                   <Icon size={28} className='shrink-0' />
-                  <Heading as='h2'>{t(titleKey)}</Heading>
+                  <Heading as='h4'>{t(titleKey)}</Heading>
                 </div>
                 <Paragraph>{t(descriptionKey)}</Paragraph>
               </motion.li>

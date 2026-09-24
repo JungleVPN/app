@@ -57,7 +57,7 @@ export function BenefitsSection() {
             <div key={benefit.key} className='flex flex-col gap-3'>
               <benefit.Icon className='h-10 w-auto text-purple-400 mr-auto' aria-hidden='true' />
               <Heading as='h3'>{'title' in benefit ? benefit.title : t(benefit.titleKey)}</Heading>
-              <Paragraph>{t(benefit.descriptionKey)}</Paragraph>
+              <Paragraph className={'text-muted'}>{t(benefit.descriptionKey)}</Paragraph>
             </div>
           ))}
         </div>

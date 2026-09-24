@@ -1,6 +1,5 @@
 import { Card } from '@heroui/react';
 import type { PropsWithChildren, ReactNode } from 'react';
-import { Heading } from '../Heading';
 import { Paragraph } from '../Paragraph';
 
 type BlockProps = PropsWithChildren<{
@@ -24,7 +23,7 @@ export function Block({
     <div className='flex w-full flex-col gap-2 rounded-2xl'>
       {title && (
         <div className='flex items-center justify-between px-4'>
-          <Heading as='h2'>{title}</Heading>
+          <Paragraph>{title}</Paragraph>
           {titleBadge && <span className='text-xs font-medium text-muted'>{titleBadge}</span>}
         </div>
       )}

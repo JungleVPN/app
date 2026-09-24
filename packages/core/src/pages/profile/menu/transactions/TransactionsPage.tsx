@@ -5,7 +5,7 @@ import { Key, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBackButton, useNavigation } from '../../../../hooks';
 import { useAuthStoreInfo, useNavbarStore } from '../../../../stores';
-import { BackButton, Block } from '../../../../ui';
+import { BackButton, Block, Heading } from '../../../../ui';
 import { Paragraph } from '../../../../ui/Paragraph';
 import { isAdminUser } from '../../../../utils';
 import { PaymentRow } from './components/PaymentRow';
@@ -54,13 +54,13 @@ export default function TransactionsPage() {
   }
 
   const listContent = activeLoading ? (
-    <div className='flex min-h-[120px] items-center justify-center py-8'>
+    <div className='flex min-h-30 items-center justify-center py-8'>
       <Spinner color='accent' size='md' />
     </div>
   ) : activeItems.length === 0 ? (
-    <Paragraph>
+    <Heading as='h3'>
       {isSearchMode ? t('transactions.noPaymentsFound') : t('transactions.noTransactions')}
-    </Paragraph>
+    </Heading>
   ) : (
     <ListBox
       aria-label={t('transactions.pageTitle')}
@@ -108,7 +108,7 @@ export default function TransactionsPage() {
         <BackButton />
       </div>
 
-      <Block className={'p-2'} title={t('transactions.pageTitle')}>
+      <Block className={'p-4'} title={t('transactions.pageTitle')}>
         {listContent}
       </Block>
     </>

@@ -5,8 +5,7 @@ import { useNavigationType } from 'react-router';
 import { coreEnv } from '../../env';
 import { useBackButton, useNavigation } from '../../hooks';
 import { useNavbarStore } from '../../stores';
-import { Heading, Page } from '../../ui';
-import { Paragraph } from '../../ui/Paragraph';
+import { Heading, Page, Paragraph } from '../../ui';
 import { scrollToTop } from '../../utils';
 
 const olClass =
@@ -38,7 +37,7 @@ export default function PrivacyPolicyPage() {
     <Page title={t('privacy.pageTitle')}>
       <Surface className='flex min-w-[320px] flex-col gap-3 rounded-3xl p-6' variant='secondary'>
         <section aria-labelledby='privacy-s1' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s1'>
+          <Heading as='h3' id='privacy-s1'>
             {t('privacy.s1.h')}
           </Heading>
           <ol className={olClass}>
@@ -49,7 +48,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section aria-labelledby='privacy-s2' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s2'>
+          <Heading as='h3' id='privacy-s2'>
             {t('privacy.s2.h')}
           </Heading>
           <ol className={olClass}>
@@ -60,7 +59,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section aria-labelledby='privacy-s3' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s3'>
+          <Heading as='h3' id='privacy-s3'>
             {t('privacy.s3.h')}
           </Heading>
           <ol className={olClass}>
@@ -101,7 +100,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section aria-labelledby='privacy-s4' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s4'>
+          <Heading as='h3' id='privacy-s4'>
             {t('privacy.s4.h')}
           </Heading>
           <ol className={olClass}>
@@ -114,7 +113,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section aria-labelledby='privacy-s5' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s5'>
+          <Heading as='h3' id='privacy-s5'>
             {t('privacy.s5.h')}
           </Heading>
           <ol className={olClass}>
@@ -131,7 +130,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section aria-labelledby='privacy-s6' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s6'>
+          <Heading as='h3' id='privacy-s6'>
             {t('privacy.s6.h')}
           </Heading>
           <ol className={olClass}>
@@ -143,7 +142,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section aria-labelledby='privacy-s7' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s7'>
+          <Heading as='h3' id='privacy-s7'>
             {t('privacy.s7.h')}
           </Heading>
           <ul className={ulClass}>
@@ -154,7 +153,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section aria-labelledby='privacy-s8' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s8'>
+          <Heading as='h3' id='privacy-s8'>
             {t('privacy.s8.h')}
           </Heading>
           <ol className={olClass}>
@@ -176,7 +175,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section aria-labelledby='privacy-s9' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s9'>
+          <Heading as='h3' id='privacy-s9'>
             {t('privacy.s9.h')}
           </Heading>
           <ol className={olClass}>
@@ -186,7 +185,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section aria-labelledby='privacy-s10' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s10'>
+          <Heading as='h3' id='privacy-s10'>
             {t('privacy.s10.h')}
           </Heading>
           <ol className={olClass}>
@@ -196,7 +195,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section aria-labelledby='privacy-s11' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s11'>
+          <Heading as='h3' id='privacy-s11'>
             {t('privacy.s11.h')}
           </Heading>
           <ol className={olClass}>
@@ -206,7 +205,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section aria-labelledby='privacy-s12' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s12'>
+          <Heading as='h3' id='privacy-s12'>
             {t('privacy.s12.h')}
           </Heading>
           <ol className={olClass}>
@@ -217,7 +216,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section aria-labelledby='privacy-s13' className='flex flex-col gap-2'>
-          <Heading as='h2' id='privacy-s13'>
+          <Heading as='h3' id='privacy-s13'>
             {t('privacy.s13.h')}
           </Heading>
           <ol className={olClass}>

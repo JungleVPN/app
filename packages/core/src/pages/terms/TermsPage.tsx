@@ -36,7 +36,7 @@ export default function TermsPage() {
     <Page title={t('terms.pageTitle')}>
       <Surface className='flex min-w-[320px] flex-col gap-3 rounded-3xl p-6' variant='secondary'>
         <section aria-labelledby='terms-s1' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s1'>
+          <Heading as='h3' id='terms-s1'>
             {t('terms.s1.h')}
           </Heading>
           <ol className={olClass}>
@@ -48,7 +48,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s2' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s2'>
+          <Heading as='h3' id='terms-s2'>
             {t('terms.s2.h')}
           </Heading>
           <ol className={olClass}>
@@ -67,7 +67,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s3' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s3'>
+          <Heading as='h3' id='terms-s3'>
             {t('terms.s3.h')}
           </Heading>
           <ol className={olClass}>
@@ -94,7 +94,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s4' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s4'>
+          <Heading as='h3' id='terms-s4'>
             {t('terms.s4.h')}
           </Heading>
           <ol className={olClass}>
@@ -118,7 +118,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s5' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s5'>
+          <Heading as='h3' id='terms-s5'>
             {t('terms.s5.h')}
           </Heading>
           <ol className={olClass}>
@@ -129,7 +129,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s6' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s6'>
+          <Heading as='h3' id='terms-s6'>
             {t('terms.s6.h')}
           </Heading>
           <ol className={olClass}>
@@ -147,7 +147,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s7' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s7'>
+          <Heading as='h3' id='terms-s7'>
             {t('terms.s7.h')}
           </Heading>
           <ol className={olClass}>
@@ -157,7 +157,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s8' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s8'>
+          <Heading as='h3' id='terms-s8'>
             {t('terms.s8.h')}
           </Heading>
           <ul className={ulClass}>
@@ -171,7 +171,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s9' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s9'>
+          <Heading as='h3' id='terms-s9'>
             {t('terms.s9.h')}
           </Heading>
           <ol className={olClass}>
@@ -196,7 +196,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s10' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s10'>
+          <Heading as='h3' id='terms-s10'>
             {t('terms.s10.h')}
           </Heading>
           <ol className={olClass}>
@@ -207,7 +207,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s11' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s11'>
+          <Heading as='h3' id='terms-s11'>
             {t('terms.s11.h')}
           </Heading>
           <ol className={olClass}>
@@ -216,7 +216,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s12' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s12'>
+          <Heading as='h3' id='terms-s12'>
             {t('terms.s12.h')}
           </Heading>
           <ol className={olClass}>
@@ -232,7 +232,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s13' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s13'>
+          <Heading as='h3' id='terms-s13'>
             {t('terms.s13.h')}
           </Heading>
           <ol className={olClass}>
@@ -244,7 +244,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s14' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s14'>
+          <Heading as='h3' id='terms-s14'>
             {t('terms.s14.h')}
           </Heading>
           <ol className={olClass}>
@@ -263,7 +263,7 @@ export default function TermsPage() {
         </section>
 
         <section aria-labelledby='terms-s15' className='flex flex-col gap-2'>
-          <Heading as='h2' id='terms-s15'>
+          <Heading as='h3' id='terms-s15'>
             {t('terms.s15.h')}
           </Heading>
           <ol className={olClass}>

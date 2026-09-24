@@ -51,7 +51,9 @@ function FeatureItem({ feature, side }: { feature: Feature; side: Side }) {
       </span>
 
       <Heading as='h3'>{t(`landing.locations.world.${key}.title`)}</Heading>
-      <Paragraph>{t(`landing.locations.world.${key}.description`)}</Paragraph>
+      <Paragraph className={'text-muted'}>
+        {t(`landing.locations.world.${key}.description`)}
+      </Paragraph>
     </li>
   );
 }

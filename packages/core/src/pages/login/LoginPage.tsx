@@ -22,7 +22,7 @@ export default function LoginPage() {
     <>
       <Surface variant='transparent'>
         <Block className={'p-4'}>
-          <Heading>{t('login.title')}</Heading>
+          <Heading className={'text-xl lg:text-2xl mb-2 text-center'}>{t('login.title')}</Heading>
 
           <div className='mt-2 flex flex-col gap-4'>
             {(message || error) && (

@@ -36,7 +36,9 @@ function StepCard({ step }: { step: Step }) {
       {step.icon}
       <div className='flex flex-col gap-3'>
         <Heading as='h3'>{t(`landing.howItWorks.${step.key}.title`)}</Heading>
-        <Paragraph>{t(`landing.howItWorks.${step.key}.description`)}</Paragraph>
+        <Paragraph className={'text-muted'}>
+          {t(`landing.howItWorks.${step.key}.description`)}
+        </Paragraph>
       </div>
     </Card>
   );

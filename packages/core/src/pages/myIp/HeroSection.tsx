@@ -98,7 +98,7 @@ export const HeroSection = () => {
                 <span className='text-lg'>{label}</span>
                 <Icon size={30} stroke={1.6} aria-hidden='true' />
               </div>
-              <Paragraph>{value}</Paragraph>
+              <Paragraph className={'font-bold text-xl lg:text-xl'}>{value}</Paragraph>
             </motion.article>
           ))}
 

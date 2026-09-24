@@ -39,7 +39,7 @@ export function FeaturesSection() {
               <Icon className='h-25 lg:h-40 w-auto' aria-hidden='true' />
               <div className='flex flex-col gap-2'>
                 <Heading as='h3'>{t(`landing.features.${key}.title`)}</Heading>
-                <Paragraph>
+                <Paragraph className={'text-muted'}>
                   {t(`landing.features.${key}.description`, { deviceLimit: coreEnv.deviceLimit })}
                 </Paragraph>
               </div>

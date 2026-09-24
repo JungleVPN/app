@@ -6,9 +6,7 @@ import { Link } from '../../components';
 import { coreEnv } from '../../env';
 import { useBackButton, useNavigation } from '../../hooks';
 import { useNavbarStore } from '../../stores';
-import { Page } from '../../ui';
-import { Heading } from '../../ui/Heading';
-import { Paragraph } from '../../ui/Paragraph';
+import { Heading, Page, Paragraph } from '../../ui';
 import { scrollToTop } from '../../utils';
 
 const olClass =
@@ -42,7 +40,7 @@ export default function CookiePolicyPage() {
     <Page title={t('cookies.pageTitle')}>
       <Surface className='flex min-w-[320px] flex-col gap-3 rounded-3xl p-6' variant='secondary'>
         <section aria-labelledby='cookies-s1' className='flex flex-col gap-2'>
-          <Heading as='h2' id='cookies-s1'>
+          <Heading as='h3' id='cookies-s1'>
             {t('cookies.s1.h')}
           </Heading>
           <ol className={olClass}>
@@ -53,7 +51,7 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s2' className='flex flex-col gap-2'>
-          <Heading as='h2' id='cookies-s2'>
+          <Heading as='h3' id='cookies-s2'>
             {t('cookies.s2.h')}
           </Heading>
           <ol className={olClass}>
@@ -74,7 +72,7 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s3' className='flex flex-col gap-2'>
-          <Heading as='h2' id='cookies-s3'>
+          <Heading as='h3' id='cookies-s3'>
             {t('cookies.s3.h')}
           </Heading>
           <ol className={olClass}>
@@ -92,7 +90,7 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s4' className='flex flex-col gap-2'>
-          <Heading as='h2' id='cookies-s4'>
+          <Heading as='h3' id='cookies-s4'>
             {t('cookies.s4.h')}
           </Heading>
           <Paragraph>{t('cookies.s4.lead')}</Paragraph>
@@ -131,7 +129,7 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s5' className='flex flex-col gap-2'>
-          <Heading as='h2' id='cookies-s5'>
+          <Heading as='h3' id='cookies-s5'>
             {t('cookies.s5.h')}
           </Heading>
           <ol className={olClass}>
@@ -142,7 +140,7 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s6' className='flex flex-col gap-2'>
-          <Heading as='h2' id='cookies-s6'>
+          <Heading as='h3' id='cookies-s6'>
             {t('cookies.s6.h')}
           </Heading>
           <ol className={olClass}>
@@ -157,7 +155,7 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s7' className='flex flex-col gap-2'>
-          <Heading as='h2' id='cookies-s7'>
+          <Heading as='h3' id='cookies-s7'>
             {t('cookies.s7.h')}
           </Heading>
           <ol className={olClass}>
@@ -167,7 +165,7 @@ export default function CookiePolicyPage() {
         </section>
 
         <section aria-labelledby='cookies-s8' className='flex flex-col gap-2'>
-          <Heading as='h2' id='cookies-s8'>
+          <Heading as='h3' id='cookies-s8'>
             {t('cookies.s8.h')}
           </Heading>
           <ol className={olClass}>
