@@ -13,6 +13,7 @@ describe('buildLlmsTxt', () => {
     expect(output).toContain('[Indonesian](https://jungle-vpn.com/id)');
     expect(output).toContain('[Hindi](https://jungle-vpn.com/hi)');
     expect(output).toContain('[Portuguese](https://jungle-vpn.com/pt)');
+    expect(output).toContain('[Spanish](https://jungle-vpn.com/es)');
   });
 
   it('omits the per-language landing links on an RU-only host', () => {
@@ -24,6 +25,7 @@ describe('buildLlmsTxt', () => {
     expect(output).not.toContain('/id');
     expect(output).not.toContain('/hi');
     expect(output).not.toContain('/pt');
+    expect(output).not.toContain('/es');
     expect(output).toContain('[Home](https://thejungle.pro/)');
   });
 

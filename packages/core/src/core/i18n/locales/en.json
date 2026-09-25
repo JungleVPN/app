@@ -74,7 +74,8 @@
     "nativeTr": "Türkçe",
     "nativeId": "Bahasa Indonesia",
     "nativeHi": "हिन्दी",
-    "nativePt": "Português"
+    "nativePt": "Português",
+    "nativeEs": "Español"
   },
   "profileTabs": {
     "ariaLabel": "Profile sections",
@@ -672,7 +673,7 @@
       "subtitle": "A simple three-step setup designed to get you connected quickly and securely.",
       "install": {
         "title": "Install the app",
-        "description": "Download and install the app on your device. Supported on all platforms."
+        "description": "Download Happ on your device. Supported on all platforms."
       },
       "subscribe": {
         "title": "Add your link",

@@ -9,6 +9,7 @@ import { initReactI18next } from 'react-i18next';
 import { configuredDomains, currentScope, localePolicyForHost } from '../../utils';
 import ar from './locales/ar.json';
 import en from './locales/en.json';
+import es from './locales/es.json';
 import hi from './locales/hi.json';
 import id from './locales/id.json';
 import pt from './locales/pt.json';
@@ -16,7 +17,7 @@ import ru from './locales/ru.json';
 import tr from './locales/tr.json';
 
 export const DEFAULT_LOCALE = import.meta.env.PUBLIC_DEFAULT_LOCALE || 'en';
-export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'tr', 'id', 'hi', 'pt', 'fa'] as const;
+export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'tr', 'id', 'hi', 'pt', 'es', 'fa'] as const;
 
 /** Persian reuses Arabic until a dedicated translation file exists. */
 const resources = {
@@ -27,6 +28,7 @@ const resources = {
   id: { translation: id },
   hi: { translation: hi },
   pt: { translation: pt },
+  es: { translation: es },
   fa: { translation: ar },
 } as const;
 

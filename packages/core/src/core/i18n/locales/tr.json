@@ -1,7 +1,7 @@
 {
   "common": {
     "features": {
-      "title": "Aboneliğe neler dahil:"
+      "title": "Aboneliğe neler dahildir:"
     },
     "cta": "Şimdi Deneyin"
   },
@@ -9,51 +9,51 @@
     "page": {
       "component": {
         "buy": "Abonelik satın al",
-        "no-sub": "Aktif bir aboneliğiniz yok",
+        "no-sub": "Aboneliğiniz yok",
         "podpiska": "Abonelik",
         "error-connect": "Bağlantı hatası",
-        "error-parse-appconfig": "App-config işlenirken hata oluştu",
-        "ERR_FATCH_USER": "Kullanıcı bilgisi alınamadı",
-        "ERR_GET_SUB_LINK": "Abonelik bağlantısı alınamadı",
-        "ERR_PARSE_APPCONFIG": "Uygulama yapılandırması işlenirken hata oluştu",
+        "error-parse-appconfig": "Uygulama yapılandırma işleme hatası",
+        "ERR_FATCH_USER": "Kullanıcı alınırken hata oluştu",
+        "ERR_GET_SUB_LINK": "Abonelik bağlantısını alma hatası",
+        "ERR_PARSE_APPCONFIG": "Uygulama yapılandırmasını ayrıştırma hatası",
         "missing_id": "Abonelik kimliği eksik. Lütfen URL'ye ?id=YOUR_SHORT_UUID ekleyin.",
         "refresh": "Yenile"
       }
     }
   },
   "login": {
-    "title": "Giriş yap veya kayıt ol",
+    "title": "Giriş yapın veya Kaydolun",
     "email_label": "E-posta",
     "email_placeholder": "E-posta adresiniz",
-    "submit": "Devam et"
+    "submit": "Devam"
   },
   "confirm": {
     "title": "Aldığınız kodu girin",
-    "submit": "Giriş yap",
-    "resend_in": "{{timer}} saniye sonra tekrar gönder",
-    "resend_otp": "Kodu tekrar gönder",
+    "submit": "Giriş",
+    "resend_in": "{{timer}} saniye sonra yeniden gönder",
+    "resend_otp": "OTP'yi yeniden gönder",
     "hint": "Girmeniz gereken kodu içeren bir e-posta alacaksınız",
-    "error_invalid_code": "Kod hatalı. Lütfen tekrar deneyin."
+    "error_invalid_code": "Kod yanlış. Lütfen tekrar deneyin."
   },
   "header": {
     "title": "JungleVPN",
     "profile": "Profil",
-    "logout": "Çıkış yap",
-    "login": "Giriş yap",
-    "cta": "Hemen Dene",
+    "logout": "Çıkış",
+    "login": "Giriş",
+    "cta": "Şimdi Deneyin",
     "menu": "Menü",
     "logoAlt": "JungleVPN logosu",
     "nav": {
-      "partnership": "İş Ortaklığı",
+      "partnership": "Ortaklık",
       "pricing": "Fiyatlar",
-      "offer": "Neler sunuyoruz",
+      "offer": "Sunduklarımız",
       "tools": "Araçlar",
-      "myIp": "IP Adresim",
-      "myIpDescription": "Bağlantınızın neleri açığa çıkardığını görün",
-      "inviteAndEarn": "Tavsiye et & kazan",
-      "inviteAndEarnDescription": "Arkadaşlarını davet et, ücretsiz günler kazan",
+      "myIp": "IP'm",
+      "myIpDescription": "Bağlantınızın neler ortaya çıkardığını görün",
+      "inviteAndEarn": "Tavsiye Et ve Kazan",
+      "inviteAndEarnDescription": "Arkadaşlarınızı davet edin ve ücretsiz abonelik günleri kazanın",
       "locations": "Sunucu konumları",
-      "locationsDescription": "Dünyanın her yerinde VPN sunucuları",
+      "locationsDescription": "Dünyanın dört bir yanındaki VPN sunucuları",
       "whatIsVpn": "VPN nedir?",
       "whatIsVpnDescription": "VPN'in nasıl çalıştığına dair sade bir rehber"
     },
@@ -63,7 +63,7 @@
     }
   },
   "cookieConsent": {
-    "description": "Biz ve seçili üçüncü taraflar, çerezleri yalnızca deneyim iyileştirme ve ölçüm amaçlarıyla kullanır ve kişisel bilgilerinizi asla satmayız. Daha fazla bilgi için lütfen <policyLink>Çerez Politikamızı</policyLink> okuyun.",
+    "description": "Biz ve seçilmiş üçüncü taraflar, yalnızca kullanıcı deneyimini iyileştirmek ve ölçüm yapmak amacıyla çerezler kullanırız ve kişisel bilgilerinizi asla satmayız. Daha fazla bilgi için lütfen <policyLink>Çerez Politikamızı<\/policyLink> okuyun.",
     "accept": "Çerezleri kabul et",
     "deny": "Reddet"
   },
@@ -74,7 +74,8 @@
     "nativeTr": "Türkçe",
     "nativeId": "Bahasa Indonesia",
     "nativeHi": "हिन्दी",
-    "nativePt": "Português"
+    "nativePt": "Português",
+    "nativeEs": "Español"
   },
   "profileTabs": {
     "ariaLabel": "Profil bölümleri",
@@ -85,20 +86,20 @@
   },
   "affiliate": {
     "chip": "Bakiye",
-    "description": "Yalnızca Rusya dışı ödeme yöntemleriyle çalışır",
+    "description": "Yalnızca Rusya dışındaki ödeme yöntemleriyle çalışır",
     "actionLabel": "Ortak Olun",
     "heroTitle": "Paylaş ve Kazan",
-    "heroSubtitle": "Davet ettiğiniz her kişiden en fazla %{{rate}} komisyon kazanın",
+    "heroSubtitle": "Her tavsiye için %{{rate}}'ye kadar komisyon kazanın",
     "conditionsTitle": "Program koşulları",
     "firstPaymentLabel": "İlk ödeme komisyonu",
     "recurringLabel": "Tekrarlayan ödeme komisyonu",
     "benefitsTitle": "Neden katılmalısınız?",
-    "benefit1Label": "İlk ödemede %{{rate}}",
-    "benefit1Desc": "Getirdiğiniz her yeni arkadaş için anında ödül",
-    "benefit2Label": "%{{rate}} tekrarlayan komisyon",
+    "benefit1Label": "İlk ödemede {{rate}}%",
+    "benefit1Desc": "Her yeni arkadaş için anında ödül",
+    "benefit2Label": "{{rate}}% tekrarlayan komisyon",
     "benefit2Desc": "Her yenilemede pasif gelir",
     "benefit3Label": "Aylık ödemeler",
-    "benefit3Desc": "Ödemeler her ayın 15'inden sonra aylık olarak yapılır",
+    "benefit3Desc": "Ödemeler her ayın 15'inden sonra yapılır",
     "benefit4Label": "Ücret yok",
     "benefit4Desc": "Kazandığınızın %100'ünü elinizde tutun"
   },
@@ -110,84 +111,84 @@
     "unknownDevice": "Bilinmeyen cihaz",
     "deleteDeviceLabel": "Cihazı kaldır",
     "deleteDevice": {
-      "title": "Cihaz kaldırılsın mı?",
-      "body": "Bu oturum silinecek ve abonelik bağlantınızı tekrar içe aktarmanız gerekecek.",
-      "cancel": "Vazgeç",
+      "title": "Cihazı kaldırmak istiyor musunuz?",
+      "body": "Bu oturum silinecek ve bağlantınızı bir kez daha içe aktarmanız gerekecektir.",
+      "cancel": "İptal",
       "confirm": "Kaldır"
     },
     "extraDevice": {
-      "heading": "Cihaz limitine ulaşıldı",
-      "description": "Bir cihaz daha bağlamak için ek bir slot satın alabilirsiniz.",
+      "heading": "Cihaz sınırına ulaşıldı",
+      "description": "Bir cihaz daha bağlamak için ek bir yuva satın alabilirsiniz.",
       "payButton": "{{price}}",
-      "openButton": "Ek cihaz ekle"
+      "openButton": "Ekstra cihaz ekle"
     },
     "extraDevicePurchase": {
       "pageTitle": "Daha fazlasına mı ihtiyacınız var?",
-      "pageSubtitle": "Burada ek bir slot satın alabilirsiniz",
-      "description": "1 ek cihaz slotu için tek seferlik ödeme.",
-      "priceRubButton": "{{amount}} ₽ / cihaz",
-      "priceEurButton": "{{amount}} € / cihaz",
-      "priceStarsButton": "{{amount}} ⭐ / cihaz",
-      "starsInvoiceTitle": "Ek cihaz slotu",
-      "starsInvoiceDescription": "Ek bir cihaz slotu için tek seferlik ödeme",
-      "starsSuccessDescription": "Hesabınıza ek bir cihaz slotu eklendi.",
+      "pageSubtitle": "Buradan ek bir yuva satın alabilirsiniz",
+      "description": "1 ek cihaz yuvası için tek seferlik ödeme.",
+      "priceRubButton": "{{amount}} ₽ \/ cihaz",
+      "priceEurButton": "{{amount}} € \/ cihaz",
+      "priceStarsButton": "{{amount}} ⭐ \/ cihaz",
+      "starsInvoiceTitle": "Ekstra cihaz yuvası",
+      "starsInvoiceDescription": "Ek cihaz yuvası için tek seferlik ödeme",
+      "starsSuccessDescription": "Hesabınıza ekstra cihaz yuvası eklendi.",
       "starsErrorFetch": "Stars faturası oluşturulamadı. Lütfen tekrar deneyin."
     }
   },
   "payment": {
     "pageTitle": "Ödeme",
     "pageSubtitle": "Ödeme yöntemlerinizi buradan yönetin",
-    "methodsHeading": "Kayıtlı ödeme yöntemleri",
-    "emptyMethods": "Henüz kayıtlı ödeme yöntemi yok.",
+    "methodsHeading": "Kaydedilmiş ödeme yöntemleri",
+    "emptyMethods": "Henüz kaydedilmiş ödeme yöntemi yok.",
     "payButton": "{{amount}} ₽ öde",
-    "priceRubButton": "{{amount}} ₽ / ay",
-    "priceEurButton": "{{amount}} € / ay",
-    "priceStarsButton": "{{amount}} ⭐ / ay",
-    "planPriceButton": "{{price}} · {{period}}",
+    "priceRubButton": "{{amount}} ₽ \/ ay",
+    "priceEurButton": "{{amount}} € \/ ay",
+    "priceStarsButton": "{{amount}} ⭐ \/ ay",
+    "planPriceButton": "{{fiyat}} · {{süre}}",
     "planPriceStarsButton_one": "{{amount}} ⭐ · {{count}} ay",
     "planPriceStarsButton_other": "{{amount}} ⭐ · {{count}} ay",
     "extendButton": "Uzat",
     "selectMethodHeading": "Ödeme yöntemi",
     "methodYookassa": "Kartlar ve SBP",
     "methodStripe": "Uluslararası kartlar",
-    "methodStars": "Telegram Stars",
+    "methodStars": "Telegram Yıldızları",
     "stripeSubscriptionHeading": "Stripe aboneliği",
-    "stripeSubscriptionDescription": "Aboneliğiniz otomatik olarak yenilenir. Planınızı, ödeme yönteminizi yönetebilir veya faturalandırma portalından istediğiniz zaman iptal edebilirsiniz.",
-    "stripeSubscriptionActive": "Aktif",
+    "stripeSubscriptionDescription": "Aboneliğiniz otomatik olarak yenilenir. Fatura portalından planınızı ve ödeme yönteminizi yönetebilir veya istediğiniz zaman iptal edebilirsiniz.",
+    "stripeSubscriptionActive": "Etkin",
     "stripeManageButton": "Aboneliği yönet",
-    "autoRenewalHint": "Ödeme yönteminizin otomatik yenileme için kaydedildiği anlamına gelir",
-    "savedMethodsDescription": "Abonelik yenilemesi için kayıtlı bir ödeme yönteminiz var. Manuel olarak ödemek isterseniz onu silmeniz yeterli.",
+    "autoRenewalHint": "Bu, ödeme yönteminin otomatik yenileme için kaydedildiği anlamına gelir",
+    "savedMethodsDescription": "Aboneliğin yenilenmesi için kullanılacak bir ödeme yöntemi bağladınız. Manuel olarak ödeme yapmak istiyorsanız, bunu silmeniz yeterlidir.",
     "deleteMethod": {
-      "title": "Ödeme yöntemi kaldırılsın mı?",
+      "title": "Ödeme yöntemini kaldırmak ister misiniz?",
       "body": "Bu kart kaldırılacak ve otomatik yenileme devre dışı bırakılacaktır. Bir sonraki manuel ödemede yeni bir kart eklenecektir",
-      "cancel": "Vazgeç",
+      "cancel": "İptal",
       "confirm": "Kaldır"
     },
     "stars": {
       "buttonLabel": "Stars ile öde ⭐",
       "invoiceTitle": "{{period}} aylık VPN",
-      "invoiceDescription": "{{period}} aylık JungleVPN aboneliği",
+      "invoiceDescription": "{{period}} aylık JungleVPN",
       "errorFetch": "Stars faturası oluşturulamadı. Lütfen tekrar deneyin.",
       "orDivider": "veya",
       "success": {
-        "title": "Ödeme başarılı",
-        "description": "Aboneliğiniz uzatıldı. Yeni bitiş tarihi: {{expireAt}}",
+        "title": "Ödeme başarıyla gerçekleştirildi",
+        "description": "Aboneliğiniz uzatıldı. Yeni son kullanma tarihi {{expireAt}}",
         "confirm": "Harika!"
       }
     },
     "promo": {
-      "title": "Promosyon kodunuz mu var?",
-      "subtitle": "Bir bonusun kilidini açmak için promosyon kodunuzu girin veya kodsuz devam edin.",
+      "title": "Promosyon kodunuz var mı?",
+      "subtitle": "Bonus kazanmak için promosyon kodunuzu girin veya kod girmeden devam edin.",
       "placeholder": "Promosyon kodu",
       "continue": "Ödemeye devam et",
       "alert": {
         "invalid": "Promosyon kodu geçersiz.",
         "notActiveYet": "Bu promosyon kodu henüz aktif değil.",
-        "expired": "Bu promosyon kodunun süresi doldu.",
-        "notEligible": "Bu promosyon kodu için uygun değilsiniz.",
+        "expired": "Bu promosyon kodunun süresi dolmuştur.",
+        "notEligible": "Bu promosyon kodundan yararlanma hakkınız yoktur.",
         "notNewUser": "Bu promosyon kodu yalnızca yeni kullanıcılar içindir.",
-        "limitReached": "Bu promosyon kodu kullanım limitine ulaştı.",
-        "alreadyUsed": "Bu promosyon kodunu zaten kullandınız."
+        "limitReached": "Bu promosyon kodunun kullanım sınırı dolmuştur.",
+        "alreadyUsed": "Bu promosyon kodunu daha önce kullandınız."
       }
     }
   },
@@ -205,15 +206,15 @@
     "scrollRight": "Sağa kaydır"
   },
   "errorBoundary": {
-    "title": "Bir şeyler ters gitti",
+    "title": "Bir hata oluştu",
     "reload": "Yeniden yükle"
   },
   "errors": {
-    "unknown": "Bir şeyler ters gitti"
+    "unknown": "Bir hata oluştu"
   },
   "connectEmailPage": {
     "enter_email": "E-posta",
-    "email_placeholder": "ornek@gmail.com",
+    "email_placeholder": "example@gmail.com",
     "email_description": "Aboneliğinizi yönetmek için gereklidir",
     "error_empty_email": "Lütfen e-posta adresinizi girin",
     "error_invalid_email": "Lütfen geçerli bir e-posta adresi girin",
@@ -221,85 +222,85 @@
     "order_summary": "Siparişiniz",
     "item_name": "JungleVPN aboneliği",
     "discount": "3 günlük deneme süresi",
-    "submit_button": "Abonelik Al",
+    "submit_button": "Aboneliği Al",
     "features_title": "Aboneliğe dahil olanlar",
     "feature_devices": "Tüm cihazlarınız için VPN",
     "feature_traffic": "Sınırsız trafik. Hızlı sunucular",
-    "feature_support": "7/24 dostane destek"
+    "feature_support": "7\/24 güler yüzlü destek"
   },
   "terms": {
     "pageTitle": "Kullanım Koşulları",
-    "paymentConsentLead": "Satın alma işleminizi tamamlayarak şunları kabul etmiş olursunuz: ",
-    "paymentLinkLabel": "Kullanım Koşulları.",
-    "footer": "Hizmeti kullanarak (botu başlatmak ve/veya /start komutunu göndermek dahil olmak üzere), Kullanıcı bu Sözleşmeyi okuduğunu ve koşullarını tamamen kabul ettiğini onaylar.",
+    "paymentConsentLead": "Satın alma işleminizi tamamlayarak, ",
+    "paymentLinkLabel": "Kullanım Koşullarımızı kabul etmiş olursunuz.",
+    "footer": "Hizmeti kullanarak (botu başlatmak ve\/veya \/start komutunu göndermek dahil), Kullanıcı bu Sözleşmeyi okuduğunu ve şartlarını tamamen kabul ettiğini teyit eder.",
     "dialog": {
       "title": "Abonelik koşulları",
-      "activationTitle": "Abonelik aktivasyonu",
-      "activationBody": "Ödeme onayı e-posta adresinize gönderildikten sonra aboneliğiniz etkinleştirilecektir. Manuel ödeme yapmak için önce kayıtlı kartınızı kaldırın.",
+      "activationTitle": "Aboneliğin etkinleştirilmesi",
+      "activationBody": "Ödeme onayı e-postanıza gönderildikten sonra abonelik etkinleştirilecektir. Manuel olarak ödeme yapmak için önce kaydedilmiş kartınızı kaldırın.",
       "autoRenewalTitle": "Otomatik yenileme",
-      "autoRenewalLead": "Aboneliğiniz, ilk abonelik döneminin sonunda otomatik olarak yenilenir. Otomatik yenilemeyi hesabınızdan istediğiniz zaman kapatabilirsiniz",
+      "autoRenewalLead": "Aboneliğiniz, ilk abonelik süresinin sonunda otomatik olarak yenilenecektir. Otomatik yenilemeyi hesabınızdan istediğiniz zaman devre dışı bırakabilirsiniz.",
       "renewalCostTitle": "Yenileme ücreti",
-      "renewalCostLead": "Yenileme, orijinal abonelikle aynı ücret üzerinden yapılır. Ücret değişirse, sizi e-posta yoluyla önceden bilgilendireceğiz. Yardıma mı ihtiyacınız var? ",
+      "renewalCostLead": "Yenileme, ilk abonelikle aynı ücret üzerinden tahsil edilir. Ücret değişirse, sizi e-posta yoluyla önceden bilgilendireceğiz. Yardıma mı ihtiyacınız var? ",
       "supportLink": "Destek ekibimizle iletişime geçin.",
       "agreementsTitle": "Sözleşmeler",
       "agreementsLead": "JungleVPN'e abone olarak, JungleVPN'in ",
-      "termsOfServiceLink": "Hizmet Şartları'nı",
+      "termsOfServiceLink": "Hizmet Şartları",
       "agreementsMid": " ve ",
-      "privacyPolicyLink": "Gizlilik Politikası'nı",
-      "agreementsTail": " kabul etmiş olursunuz.",
+      "privacyPolicyLink": "Gizlilik Politikamızı",
+      "agreementsTail": "'i kabul etmiş olursunuz.",
       "confirmButton": "Onayla"
     },
     "s1": {
       "h": "1. Genel hükümler",
-      "i1": "Bu Kullanıcı Sözleşmesi (\"Sözleşme\"), Yönetim tarafından sunulan çevrimiçi hizmetin (\"Hizmet\") kullanımını düzenler.",
-      "i2": "Kullanıcı, botu başlatmak, kayıt olmak, hizmetler için ödeme yapmak veya materyallere erişmek dahil olmak üzere Hizmeti kullanarak, bu Sözleşmeyi tamamen okuduğunu ve eksiksiz olarak kabul ettiğini onaylar.",
-      "i3": "Kullanıcı Sözleşmenin koşullarını kabul etmiyorsa, Hizmeti kullanmayı durdurmalıdır.",
-      "i4": "Hizmet, 18 yaş ve üzeri bireyler için tasarlanmıştır. Hizmeti kullanarak bu yaş şartını karşıladığınızı onaylarsınız."
+      "i1": "Bu Kullanıcı Sözleşmesi (\"Sözleşme\"), İdare tarafından sağlanan çevrimiçi hizmetin (\"Hizmet\") kullanımını düzenler.",
+      "i2": "Bot'u başlatmak, kayıt olmak, hizmetler için ödeme yapmak veya materyallere erişmek dahil olmak üzere Hizmeti kullanarak, Kullanıcı bu Sözleşmeyi tamamen okuduğunu ve bütünüyle kabul ettiğini teyit eder.",
+      "i3": "Kullanıcı, Sözleşme’nin şartlarını kabul etmiyorsa, Hizmeti kullanmayı bırakmalıdır.",
+      "i4": "Hizmet, 18 yaş ve üzeri bireyler için tasarlanmıştır. Hizmeti kullanarak, bu yaş şartını karşıladığınızı teyit edersiniz."
     },
     "s2": {
       "h": "2. Hizmetlerin ve dijital ürünlerin niteliği",
-      "i1": "Hizmet; bilgilendirici materyaller, eğitim programları, danışmanlıklar, dijital ürünler ve hizmet teklifleri dahil olmak üzere ancak bunlarla sınırlı olmamak üzere dijital ürünler ve maddi olmayan hizmetler sunar.",
-      "i2_lead": "Hizmet aracılığıyla sunulan materyaller şunları içerebilir:",
-      "i2_u1": "açık kaynaklardan alınan bilgiler;",
-      "i2_u2": "Yönetime ve/veya üçüncü taraflara ait özgün materyaller;",
+      "i1": "Hizmet, aşağıdakiler dahil ancak bunlarla sınırlı olmamak üzere dijital ürünler ve maddi olmayan hizmetler sunar: bilgilendirici materyaller, eğitim programları, danışmanlık hizmetleri, dijital ürünler ve hizmet teklifleri.",
+      "i2_lead": "Hizmet aracılığıyla sağlanan materyaller şunları içerebilir:",
+      "i2_u1": "açık kaynaklardan elde edilen bilgiler;",
+      "i2_u2": "İdare ve\/veya üçüncü taraflara ait orijinal materyaller;",
       "i2_u3": "analitik incelemeler, derlemeler, öneriler ve yapılandırılmış veriler.",
       "i3": "Kullanıcı, Hizmetin dijital ürün ve hizmetlerinin değerinin, tek tek bilgi parçalarının münhasırlığında değil, yapılandırma, analiz, sunum, destek ve güncellemelerde yattığını anlar ve kabul eder.",
-      "i4": "Hizmet, münferit materyal unsurlarının Hizmet dışında benzersizliğini, münhasırlığını veya bulunmazlığını iddia etmez ya da garanti etmez."
+      "i4": "Hizmet, Hizmet dışındaki tek tek materyal unsurlarının benzersizliğini, münhasırlığını veya bulunmazlığını iddia etmez veya garanti etmez."
     },
     "s3": {
-      "h": "3. Garanti ve sorumluluk reddi",
-      "i1": "Hizmet \"OLDUĞU GİBİ\" sunulmaktadır.",
-      "i2_lead": "Yönetim şunları garanti etmez:",
-      "i2_u1": "Hizmetin Kullanıcının beklentilerini karşılayacağını;",
-      "i2_u2": "herhangi bir finansal, ticari, profesyonel veya başka bir sonucu;",
+      "h": "3. Garanti ve Sorumluluk Reddi",
+      "i1": "Hizmet, \"OLDUĞU GİBİ\" esasına göre sunulmaktadır.",
+      "i2_lead": "Yönetim, aşağıdakileri garanti etmez:",
+      "i2_u1": "Hizmetin Kullanıcının beklentilerini karşılayacağı;",
+      "i2_u2": "herhangi bir finansal, ticari, mesleki veya diğer sonuçların elde edileceğini;",
       "i2_u3": "Hizmetin kesintisiz veya hatasız çalışacağını.",
-      "i3_lead": "Yönetim şunlardan sorumlu değildir:",
-      "i3_u1": "kar kaybı dahil doğrudan veya dolaylı zararlardan;",
-      "i3_u2": "Kullanıcının aldığı materyalleri uygulamasının sonuçlarından;",
-      "i3_u3": "üçüncü tarafların eylem veya eylemsizliklerinden;",
-      "i3_u4": "geçici teknik arızalar ve erişim kısıtlamalarından.",
-      "i4": "Materyallerin, önerilerin ve hizmetlerin uygulanmasına ilişkin tüm kararlar Kullanıcı tarafından bağımsız olarak ve kendi sorumluluğunda alınır."
+      "i3_lead": "Yönetim aşağıdakilerden sorumlu değildir:",
+      "i3_u1": "kar kaybı dahil olmak üzere herhangi bir doğrudan veya dolaylı zarardan;",
+      "i3_u2": "Kullanıcının aldığı materyalleri uygulamasının sonuçları;",
+      "i3_u3": "üçüncü tarafların eylemleri veya eylemsizlikleri;",
+      "i3_u4": "geçici teknik arızalar ve erişim kısıtlamaları.",
+      "i4": "Materyallerin, önerilerin ve hizmetlerin uygulanmasına ilişkin tüm kararlar, Kullanıcı tarafından bağımsız olarak ve kendi riski altında alınır."
     },
     "s4": {
       "h": "4. Yasal kullanım",
-      "i1": "Hizmet, yasa dışı faaliyetleri teşvik etmek, organize etmek veya kolaylaştırmak amacıyla tasarlanmamıştır.",
-      "i2": "Kullanıcı, Hizmeti yalnızca yürürlükteki yasalara ve üçüncü taraf kurallarına uygun şekilde kullanmayı taahhüt eder.",
-      "i3": "Hizmetin materyal ve hizmetlerinin yasal kullanımına ilişkin sorumluluk tamamen Kullanıcıya aittir.",
+      "i1": "Hizmet, yasadışı faaliyetleri teşvik etmek, organize etmek veya kolaylaştırmak amacıyla tasarlanmamıştır.",
+      "i2": "Kullanıcı, Hizmeti yalnızca yürürlükteki yasalara ve üçüncü taraf kurallarına uygun olarak kullanmayı taahhüt eder.",
+      "i3": "Hizmetin materyallerinin ve hizmetlerinin yasal kullanımına ilişkin sorumluluk tamamen Kullanıcıya aittir.",
       "i4_lead": "Hizmetin aşağıdaki şekillerde kullanılması kesinlikle yasaktır:",
-      "i4_u1": "Hizmetin, kullanımının yasaklandığı veya Kullanıcının sahip olmadığı bir lisansı gerektirdiği yargı bölgelerinde kullanılması;",
-      "i4_u2": "çocuk istismarı materyalleri, terörizmi öven içerikler veya üçüncü tarafların haklarını ihlal eden materyaller dahil ancak bunlarla sınırlı olmamak üzere yasa dışı içeriğe erişmek, bu tür içerikleri iletmek veya dağıtmak;",
-      "i4_u3": "bilgisayar sistemlerine, ağlara veya verilere yetkisiz erişim sağlamak;",
+      "i4_u1": "Hizmetin kullanımının yasak olduğu veya Kullanıcının sahip olmadığı bir lisans gerektirdiği herhangi bir yargı alanında Hizmeti kullanmak;",
+      "i4_u2": "çocuk cinsel istismarı materyalleri, terörizmi teşvik eden içerikler veya üçüncü taraf haklarını ihlal eden materyaller dahil ancak bunlarla sınırlı olmamak üzere yasa dışı içeriğe erişmek, bunları iletmek veya dağıtmak;",
+      "i4_u3": "bilgisayar sistemlerine, ağlara veya verilere yetkisiz erişim;",
       "i4_u4": "kötü amaçlı yazılım, virüs veya diğer zararlı kodların dağıtılması;",
-      "i4_u5": "istenmeyen toplu iletişim (spam) gönderilmesi;",
-      "i4_u6": "Yönetimden önceden yazılı izin alınmadan Hizmetin yeniden satılması veya dağıtılması;",
-      "i4_u7": "Kullanıcının bulunduğu yargı bölgesindeki yürürlükteki yasa veya düzenlemeleri ihlal eden diğer her türlü faaliyet.",
-      "i5": "Yönetim, yasaklı bir kullanım tespit edilmesi halinde erişimi iade yapılmaksızın derhal sonlandırma hakkını saklı tutar."
+      "i4_u5": "istenmeyen toplu iletilerin (spam) gönderilmesi;",
+      "i4_u6": "Yönetimden önceden yazılı izin alınmadan Hizmeti yeniden satmak veya yeniden dağıtmak;",
+      "i4_u7": "Kullanıcının bulunduğu yargı bölgesinde geçerli olan yasa veya yönetmelikleri ihlal eden diğer her türlü faaliyet.",
+      "i5": "Yönetim, herhangi bir yasaklanmış kullanım tespit edildiğinde, geri ödeme yapmaksızın erişimi derhal sonlandırma hakkını saklı tutar."
     },
     "s5": {
-      "h": "5. Fikri mülkiyet",
-      "i1": "Hizmette yayımlanan tüm materyaller fikri mülkiyet hukuku kapsamında korunmaktadır.",
-      "i2": "Kullanıcı, hak sahibinin izni olmaksızın Hizmet materyallerini kopyalayamaz, dağıtamaz, yeniden satamaz, üçüncü taraflara aktaramaz veya başka şekilde kullanamaz.",
-      "i3": "Fikri mülkiyet haklarının ihlali, Hizmete erişimin tazminat ödenmeksizin kısıtlanmasıyla sonuçlanabilir."
+      "h": "5. Fikri Mülkiyet",
+      "i1": "Hizmet'te yayınlanan tüm materyaller fikri mülkiyet kanunları ile korunmaktadır.",
+      "i2": "Kullanıcı, hak sahibinin izni olmadan Hizmet materyallerini kopyalayamaz, dağıtamaz, yeniden satamaz, üçüncü taraflara devredemez veya başka bir şekilde kullanamaz.",
+      "i3": "Fikri mülkiyet haklarının ihlali, tazminat ödenmeksizin Hizmete erişimin kısıtlanmasına neden olabilir."
     },
     "s6": {
       "h": "6. Erişim kısıtlamaları",
@@ -307,98 +308,98 @@
       "i1_u1": "bu Sözleşmenin ihlali;",
       "i1_u2": "tespit edilen kötüye kullanım;",
       "i1_u3": "yasa veya ödeme sağlayıcılarının gereklilikleri.",
-      "i2": "Erişimin kısıtlanması, Kullanıcıyı daha önce doğmuş yükümlülüklerden kurtarmaz.",
-      "i3": "Yönetim, eylemleri Hizmet, ödeme sağlayıcıları veya üçüncü taraflar için artan risk oluşturabilecek Kullanıcılara hizmet vermeyi reddetme hakkını saklı tutar."
+      "i2": "Erişimin kısıtlanması, Kullanıcıyı daha önce doğmuş yükümlülüklerinden muaf tutmaz.",
+      "i3": "Yönetim, eylemleri Hizmet, ödeme sağlayıcıları veya üçüncü taraflar için artan riskler yaratabilecek Kullanıcılara hizmet vermeyi reddetme hakkını saklı tutar."
     },
     "s7": {
       "h": "7. Ödemeler",
-      "i1": "Hizmetler ve dijital ürünler için ödeme, ödeme öncesinde Hizmette belirtilen koşullar üzerinden yapılır.",
-      "i6": "Kullanıcı, önce Hizmetin destek ekibiyle iletişime geçmeden ödeme sistemleri üzerinden bir ödeme itirazı (chargeback) başlatmayacağını onaylar."
+      "i1": "Hizmetler ve dijital ürünler için ödeme, ödeme öncesinde Hizmet'te belirtilen koşullara göre yapılır.",
+      "i6": "Kullanıcı, öncelikle Hizmetin destek birimiyle iletişime geçmeden ödeme sistemleri aracılığıyla ödeme iptali (chargeback) talebinde bulunmayacağını teyit eder."
     },
     "s8": {
-      "h": "8. Otomatik ödemeler",
-      "u1": "JungleVPN'e abone olarak, geçerli ücretleri ve bulunduğunuz konuma bağlı vergileri ödemeyi kabul edersiniz.",
-      "u2": "Abonelik fiyatları değişebilir. Herhangi bir fiyat artışını önceden size bildireceğiz.",
-      "u3": "JungleVPN abonelikleri, siz iptal edene kadar her abonelik döneminin sonunda otomatik olarak yenilenir. Ödeme yönteminizden, abonelik bitiş tarihinden 24 saat önce ücret tahsil edilir.",
-      "u4": "Ödeme bilgilerinizi girerek otomatik abonelik yenilemesini kabul etmiş olursunuz. Otomatik yenilemeyi istediğiniz zaman JungleVPN hesabınızdan veya destekle iletişime geçerek kapatabilirsiniz.",
+      "h": "8. Otomatik Ödemeler",
+      "u1": "JungleVPN'e abone olduğunuzda, bulunduğunuz yere göre geçerli ücretleri ve vergileri ödemeyi kabul edersiniz.",
+      "u2": "Abonelik fiyatları değişebilir. Herhangi bir fiyat artışından önce sizi bilgilendireceğiz.",
+      "u3": "JungleVPN abonelikleri, siz iptal edene kadar her abonelik döneminin sonunda otomatik olarak yenilenir. Ödeme yönteminizden, abonelik bitiş tarihinden 24 saat önce ücret tahsil edilecektir.",
+      "u4": "Ödeme bilgilerinizi girerek, aboneliğin otomatik olarak yenilenmesini kabul etmiş olursunuz. Otomatik yenilemeyi, JungleVPN hesabınızdan veya destek ekibiyle iletişime geçerek istediğiniz zaman devre dışı bırakabilirsiniz.",
       "u5": "Abonelik ödemesini işleme alamazsak, ödeme alınana kadar Hizmetlerimize erişiminizi askıya alabiliriz.",
-      "u6": "JungleVPN abonelikleri üçüncü taraf ödeme sağlayıcıları aracılığıyla ödenir."
+      "u6": "JungleVPN abonelikleri, üçüncü taraf ödeme sağlayıcıları aracılığıyla ödenir."
     },
     "s9": {
       "h": "9. Gizlilik ve Veri Koruma",
-      "i1": "Yönetim, Hizmetin işletilmesi için gerekli olan sınırlı kişisel verileri toplar ve işler; bunlar arasında e-posta adresi, Telegram kullanıcı kimliği, ödeme işlem tanımlayıcıları, IP adresi ve teknik cihaz/bağlantı verileri bulunur.",
-      "i2": "Veriler, AB Tüzüğü 2016/679 (GDPR) kapsamında şu hukuki dayanaklara göre işlenir: (a) sözleşmenin ifası — abone olduğunuz Hizmeti sunmak için; (b) yasal yükümlülük — yürürlükteki yasalara uymak için; (c) meşru menfaatler — dolandırıcılığı önlemek ve ağ güvenliğini sağlamak için.",
-      "i3": "Hizmetin sunulmasıyla bağlantılı olarak verileriniz şu üçüncü taraf işleyicilere iletilebilir: Stripe, Inc. (ödeme işleme); Telegram Messenger Inc. (bot platformu); gerektiğinde analitik ve altyapı sağlayıcıları. Her işleyici veri işleme sözleşmeleriyle bağlıdır.",
-      "i4": "Kişisel veriler, yasada daha uzun bir saklama süresi öngörülmedikçe, hesabınızın süresi boyunca ve sonrasında yasal ve muhasebe amaçlarıyla en fazla 3 yıl daha saklanır.",
-      "i5_lead": "GDPR ve yürürlükteki AB mevzuatı uyarınca şu haklara sahipsiniz:",
-      "i5_u1": "kişisel verilerinize erişme ve bir kopyasını alma hakkı (GDPR Madde 15);",
-      "i5_u2": "yanlış veya eksik verileri düzeltme hakkı (GDPR Madde 16);",
-      "i5_u3": "saklama için hukuki dayanak bulunmadığında verilerinizin silinmesini talep etme hakkı (GDPR Madde 17);",
-      "i5_u4": "verilerinizi taşınabilir bir formatta alma hakkı (GDPR Madde 20);",
-      "i5_u5": "meşru menfaatlere dayalı işlemeye itiraz etme hakkı (GDPR Madde 21);",
-      "i5_u6": "işlemenin rızaya dayalı olduğu durumlarda rızanızı istediğiniz zaman geri çekme hakkı (GDPR Madde 7).",
-      "i6": "Bu haklardan herhangi birini kullanmak için bot üzerinden destekle iletişime geçin. Yasanın öngördüğü şekilde 30 gün içinde yanıt vereceğiz.",
-      "i7": "Portekiz veri koruma denetim kurumuna (CNPD — Comissão Nacional de Proteção de Dados, www.cnpd.pt) veya ikamet ettiğiniz AB ülkesinin denetim kurumuna şikayette bulunma hakkınız vardır."
+      "i1": "Yönetim, Hizmetin işletilmesi için gerekli olan sınırlı kişisel verileri toplar ve işler; bunlar arasında e-posta adresi, Telegram kullanıcı kimliği, ödeme işlemi tanımlayıcıları, IP adresi ve teknik cihaz\/bağlantı verileri bulunur.",
+      "i2": "Veriler, AB Yönetmeliği 2016\/679 (GDPR) kapsamında aşağıdaki yasal dayanaklara göre işlenir: (a) sözleşmenin ifası — abone olduğunuz Hizmeti sağlamak için; (b) yasal yükümlülük — yürürlükteki yasalara uymak için; (c) meşru menfaatler — dolandırıcılığı önlemek ve ağ güvenliğini sağlamak için.",
+      "i3": "Hizmet sunumu kapsamında aşağıdaki üçüncü taraf işleyiciler verilerinizi alabilir: Stripe, Inc. (ödeme işleme); Telegram Messenger Inc. (bot platformu); gerektiğinde analiz ve altyapı sağlayıcıları. Her işleyici, veri işleme sözleşmelerine tabidir.",
+      "i4": "Kişisel veriler, hesabınızın geçerli olduğu süre boyunca ve sonrasında yasal ve muhasebe amaçları doğrultusunda en fazla 3 yıl süreyle saklanır; ancak yasalarca daha uzun bir saklama süresi öngörülmüşse bu durum istisnadır.",
+      "i5_lead": "GDPR ve geçerli AB yasaları uyarınca, aşağıdaki haklara sahipsiniz:",
+      "i5_u1": "kişisel verilerinize erişme ve bir kopyasını alma (GDPR Madde 15);",
+      "i5_u2": "yanlış veya eksik verileri düzeltme (GDPR Madde 16);",
+      "i5_u3": "saklama için yasal bir dayanak bulunmadığında verilerinizin silinmesini talep etme (GDPR Madde 17);",
+      "i5_u4": "verilerinizi taşınabilir bir formatta alma (GDPR Madde 20);",
+      "i5_u5": "meşru menfaatlere dayalı işleme itiraz etme (GDPR Madde 21);",
+      "i5_u6": "işlemenin rızaya dayalı olduğu durumlarda rızanızı istediğiniz zaman geri çekme (GDPR Madde 7).",
+      "i6": "Bu haklardan herhangi birini kullanmak için bot aracılığıyla destek ekibiyle iletişime geçin. Yasa gereği 30 gün içinde yanıt vereceğiz.",
+      "i7": "Portekiz veri koruma denetim kurumu (CNPD — Comissão Nacional de Proteção de Dados, www.cnpd.pt) veya ikamet ettiğiniz AB ülkesinin denetim kurumuna şikayette bulunma hakkına sahipsiniz."
     },
     "s10": {
-      "h": "10. Koşullardaki değişiklikler",
-      "i1": "Yönetim bu Sözleşmeyi değiştirebilir.",
-      "i2": "Sözleşmenin güncel sürümü Hizmette yayımlanır.",
-      "i3": "Hizmetin kullanılmaya devam edilmesi, Kullanıcının güncellenmiş koşulları kabul ettiği anlamına gelir."
+      "h": "10. Şartlarda yapılan değişiklikler",
+      "i1": "Yönetim, bu Sözleşmede değişiklik yapabilir.",
+      "i2": "Sözleşmenin güncel versiyonu Hizmet'te yayınlanmaktadır.",
+      "i3": "Hizmeti kullanmaya devam etmek, Kullanıcının güncellenen şartları kabul ettiği anlamına gelir."
     },
     "s11": {
       "h": "11. İletişim bilgileri",
-      "i1": "Tüm sorularınız için Kullanıcı, bottaki form aracılığıyla destekle iletişime geçebilir."
+      "i1": "Her türlü soru için Kullanıcı, bot içindeki formu kullanarak destek ekibiyle iletişime geçebilir."
     },
     "s12": {
       "h": "12. Para İade Garantisi",
-      "i1": "JungleVPN olarak memnuniyetiniz bizim için en önemli önceliktir. Ücretli Hizmetlerimizden tam olarak memnun kalmazsanız, 30 günlük para iade garantisi sunuyoruz. İlk satın alma tarihinizden itibaren 30 gün içinde iade talep edebilirsiniz ve ödemenizi tam olarak iade ederiz.",
-      "i2": "İade talep etmeden önce, yaşadığınız sorunları çözmeye çalışabilmemiz için t.me/JungleVPN_support_bot üzerinden destek ekibimizle iletişime geçmenizi öneririz.",
-      "i3": "Aylık abonelikler için 30 günlük iade süresi yalnızca ilk satın alma için geçerlidir. Aylık abonelik bir kez yenilendikten sonra, para iade garantimiz kapsamında iadeye uygun olmaktan çıkar.",
-      "i4": "İstisnai durumlarda, Hizmetlerimizin abonelik süreniz boyunca önemli bir bölümünde kullanılamaz veya erişilemez olduğunu kanıtlamanız ve konuyla ilgili bizimle iletişime geçmek için makul çabayı göstermiş olmanız halinde, 30 günlük sürenin ötesinde kısmi iade sunmayı değerlendirebiliriz. Kısmi iadeler, abonelik döneminizde Hizmetlerin kullanılamadığı gün sayısına göre orantılı olarak hesaplanır.",
-      "i5": "İadeler yalnızca satın alma için kullanılan orijinal ödeme kaynağına yapılır. Alternatif hesaplara, üçüncü taraf cüzdanlarına veya banka transferlerine iade işlemi yapmayız. Döviz dönüşümü veya işlem ücretleri size aittir.",
-      "i6": "Hizmet Şartlarımızı ihlal ettiğinizi tespit edersek JungleVPN, iade yapmama hakkını saklı tutar. Ayrıca bir iadeyi işleme almadan önce hesap bilgilerinizi doğrulama hakkımızı saklı tutarız; bu durum kısa bir gecikmeye neden olabilir.",
-      "i7": "JungleVPN satın alımınızda tahsil edilen vergi veya ücretler, bulunduğunuz konum ve geçerli vergi yasalarına göre belirlenir. İade tutarları, JungleVPN'in tahsil etmekle yükümlü olduğu vergileri kapsamaz.",
-      "i8": "Hesabınızı silmeniz otomatik olarak iade almaya hak kazanmanızı sağlamaz. Hesabınızı silerseniz JungleVPN'e erişiminizi kaybedersiniz ancak abonelik döneminizin kullanılmayan kısmı için iade almazsınız."
+      "i1": "JungleVPN'den memnuniyetiniz bizim için en büyük önceliktir. Ücretli Hizmetlerimizden tamamen memnun kalmazsanız, 30 günlük para iade garantisi sunuyoruz. İlk satın alma tarihinden itibaren 30 gün içinde para iadesi talebinde bulunabilirsiniz; ödemenizin tamamını iade edeceğiz.",
+      "i2": "Para iadesi talebinde bulunmadan önce, t.me\/JungleVPN_support_bot adresinden destek ekibimizle iletişime geçmenizi öneririz; böylece yaşadığınız sorunları çözmeye çalışabiliriz.",
+      "i3": "Aylık abonelikler için 30 günlük iade süresi yalnızca ilk satın alma işlemi için geçerlidir. Aylık abonelik yenilendiğinde, para iade garantimiz kapsamında artık iade hakkı bulunmaz.",
+      "i4": "İstisnai durumlarda, abonelik sürenizin önemli bir kısmında Hizmetlerimizin kullanılamadığını veya kullanılamaz durumda olduğunu kanıtlayabilir ve bu sorunla ilgili olarak bizimle iletişime geçmek için makul çaba sarf ettiğinizi gösterebilirseniz, 30 günlük sürenin ötesinde kısmi bir iade sunmayı değerlendirebiliriz. Kısmi iadeler, abonelik süreniz boyunca Hizmetlerin kullanılamadığı gün sayısına göre orantılı olarak hesaplanacaktır.",
+      "i5": "Geri ödemeler, yalnızca satın alma işlemi için kullanılan orijinal ödeme kaynağına yapılacaktır. Alternatif hesaplara, üçüncü taraf cüzdanlara veya banka havalelerine geri ödeme işlemi yapmayacağız. Döviz çevrim ücretleri veya işlem ücretleri size aittir.",
+      "i6": "JungleVPN, Hizmet Şartlarımızı ihlal ettiğinizi tespit etmemiz durumunda geri ödemeyi askıya alma hakkını saklı tutar. Ayrıca, geri ödeme işlemini gerçekleştirmeden önce hesap bilgilerinizi doğrulama hakkımızı da saklı tutarız; bu durum, işlemde kısa bir gecikmeye neden olabilir.",
+      "i7": "JungleVPN satın alımınız üzerinden tahsil edilen vergiler veya ücretler, bulunduğunuz yere ve geçerli vergi kanunlarına göre belirlenir. İade tutarları, JungleVPN'in tahsil etmekle yükümlü olduğu vergiler hariçtir.",
+      "i8": "Hesabınızı silmeniz, otomatik olarak para iadesi almaya hak kazanmanız anlamına gelmez. Hesabınızı silerseniz, JungleVPN'e erişiminizi kaybedersiniz, ancak abonelik sürenizin kullanılmayan kısmı için para iadesi almazsınız."
     },
     "s13": {
-      "h": "13. Geçerli Hukuk ve Yargı Yetkisi",
-      "i1": "Bu Sözleşme, Portekiz yasalarına ve uygulanabilir olduğu ölçüde Avrupa Birliği hukukuna göre yönetilir ve yorumlanır.",
-      "i2": "Bu Sözleşmeden doğan veya bununla bağlantılı herhangi bir anlaşmazlık, Portekiz'in yetkili mahkemelerinin münhasır yargı yetkisine tabidir.",
-      "i3": "Avrupa Birliği'nde ikamet eden bir tüketiciyseniz, sözleşmeyle hariç tutulamayacak, ikamet ettiğiniz ülkenin zorunlu tüketici koruma hükümlerinden yararlanmaya devam edersiniz.",
-      "i4": "Avrupa Komisyonu, tüketiciler için çevrimiçi bir uyuşmazlık çözüm platformu sunmaktadır: https://ec.europa.eu/consumers/odr"
+      "h": "13. Yürürlükteki Yasa ve Yargı Yetkisi",
+      "i1": "Bu Sözleşme, Portekiz yasalarına ve uygun olduğu durumlarda Avrupa Birliği yasalarına tabidir ve bu yasalara göre yorumlanır.",
+      "i2": "Bu Sözleşmeden kaynaklanan veya bu Sözleşmeyle ilgili her türlü ihtilaf, Portekiz'in yetkili mahkemelerinin münhasır yargı yetkisine tabidir.",
+      "i3": "Avrupa Birliği'nde ikamet eden bir tüketiciyseniz, ikamet ettiğiniz ülkenin kanunlarında yer alan ve sözleşme ile hariç tutulamayacak zorunlu tüketici koruma hükümlerinden yararlanmaya devam edersiniz.",
+      "i4": "Avrupa Komisyonu, tüketiciler için bir çevrimiçi uyuşmazlık çözüm platformu sunmaktadır: https:\/\/ec.europa.eu\/consumers\/odr"
     },
     "s14": {
-      "h": "14. Coğrafi Kısıtlamalar ve VPN'in Yasallığı",
-      "i1": "Hizmet, VPN (Sanal Özel Ağ) teknolojisi sunar. VPN kullanımını düzenleyen yasalar ülkeden ülkeye ve yargı bölgesinden yargı bölgesine önemli ölçüde farklılık gösterir.",
-      "i2": "Bir VPN hizmeti kullanmanın, ikamet ettiği ülkenin ve Hizmete eriştiği herhangi bir ülkenin yasalarına göre izinli olup olmadığını doğrulamak ve tüm geçerli yerel yasa ve düzenlemelere uymak tamamen Kullanıcının sorumluluğundadır.",
+      "h": "14. Coğrafi Kısıtlamalar ve VPN'in Yasal Durumu",
+      "i1": "Hizmet, VPN (Sanal Özel Ağ) teknolojisi sunmaktadır. VPN kullanımını düzenleyen yasalar, ülke ve yargı yetkisi alanına göre önemli ölçüde farklılık gösterir.",
+      "i2": "VPN hizmetinin, ikamet ettiğiniz ülkenin ve Hizmete eriştiğiniz herhangi bir ülkenin yasaları kapsamında izin verilip verilmediğini doğrulamak ve geçerli tüm yerel yasa ve düzenlemelere uymak tamamen Kullanıcının sorumluluğundadır.",
       "i3_lead": "Hizmet, aşağıdakiler dahil ancak bunlarla sınırlı olmamak üzere belirli yargı bölgelerinde kullanılamayabilir, engellenebilir veya kısıtlanabilir:",
-      "i3_u1": "VPN kullanımının yasaklandığı veya lisans gerektirdiği ülkeler;",
-      "i3_u2": "uluslararası yaptırımlara tabi ülkeler veya bölgeler;",
-      "i3_u3": "Yönetimin Hizmeti işletmenin kabul edilemez yasal veya uyum riski oluşturduğuna karar verdiği bölgeler.",
-      "i4": "Yönetim, Hizmetin hukuka aykırı hiçbir kullanımını teşvik etmez veya kolaylaştırmaz. Hizmeti kullanımından kaynaklanan herhangi bir yerel yasa ihlalinin tüm sorumluluğu Kullanıcıya aittir."
+      "i3_u1": "VPN kullanımının yasak olduğu veya lisans gerekliliklerine tabi olduğu ülkeler;",
+      "i3_u2": "uluslararası yaptırımlara tabi olan ülkeler veya bölgeler;",
+      "i3_u3": "Yönetimin, Hizmetin işletilmesinin kabul edilemez yasal veya uyum riski oluşturduğuna karar verdiği bölgeler.",
+      "i4": "Yönetim, Hizmetin yasadışı kullanımını teşvik etmez veya kolaylaştırmaz. Kullanıcı, Hizmeti kullanmasından kaynaklanan yerel yasaların ihlali konusunda tam ve tek başına sorumludur."
     },
     "s15": {
-      "h": "15. Yaptırımlar ve İhracat Kontrolleri",
-      "i1": "Hizmet; Avrupa Birliği, Birleşmiş Milletler ve Portekiz Cumhuriyeti tarafından uygulanan kapsamlı uluslararası yaptırımlara tabi ülke veya bölgelerde bulunan ya da genel olarak ikamet eden kişi veya kuruluşlara sunulmamaktadır.",
-      "i2": "Hizmeti kullanarak, yaptırım uygulanan herhangi bir ülke veya bölgede bulunmadığınızı, kontrolü altında olmadığınızı, bu tür bir ülkenin vatandaşı veya sakini olmadığınızı ve geçerli herhangi bir yaptırım veya kısıtlı taraf listesinde yer almadığınızı beyan ve taahhüt edersiniz.",
-      "i3": "Yönetim, bir Kullanıcının bu bölümü ihlal ettiğini tespit ederse erişimi iade yapılmaksızın derhal sonlandırma hakkını saklı tutar."
+      "h": "15. Yaptırımlar ve İhracat Kontroller",
+      "i1": "Hizmet, Avrupa Birliği, Birleşmiş Milletler ve Portekiz Cumhuriyeti tarafından uygulananlar da dahil olmak üzere, kapsamlı uluslararası yaptırımlara tabi olan ülkelerde veya bölgelerde bulunan veya bu ülkelerde veya bölgelerde olağan olarak ikamet eden kişi veya kuruluşlar tarafından kullanılamaz.",
+      "i2": "Hizmeti kullanarak, yaptırım uygulanan herhangi bir ülke veya bölgede bulunmadığınızı, bu ülke veya bölgenin kontrolü altında olmadığınızı, bu ülke veya bölgenin vatandaşı veya ikamet eden kişi olmadığınızı ve geçerli herhangi bir yaptırım veya kısıtlanmış taraflar listesinde yer almadığınızı beyan ve taahhüt edersiniz.",
+      "i3": "Yönetim, bir Kullanıcının bu bölümü ihlal ettiğini tespit etmesi halinde, geri ödeme yapmaksızın erişimi derhal sonlandırma hakkını saklı tutar."
     }
   },
   "privacy": {
     "pageTitle": "Gizlilik Politikası",
-    "footer": "Bu Gizlilik Politikası, JungleVPN Kullanım Koşullarının bir parçasıdır. Hizmeti kullanarak, bu Politikayı okuduğunuzu ve içinde açıklanan veri uygulamalarını kabul ettiğinizi onaylarsınız.",
+    "footer": "Bu Gizlilik Politikası, JungleVPN Kullanım Koşullarının bir parçasıdır. Hizmeti kullanarak, bu Politikayı okuduğunuzu ve burada açıklanan veri uygulamalarına rıza gösterdiğinizi teyit edersiniz.",
     "s1": {
       "h": "1. Giriş",
-      "i1": "Bu Gizlilik Politikası, Yönetimin JungleVPN'in web sitesi, Telegram botu ve uygulamaları (birlikte \"Hizmet\") ile bağlantılı olarak kişisel verileri nasıl topladığını, kullandığını, ifşa ettiğini ve koruduğunu açıklar.",
-      "i2": "Hizmeti kullanarak, bu Politikayı okuduğunuzu ve anladığınızı ve burada açıklanan veri uygulamalarını kabul ettiğinizi onaylarsınız.",
-      "i3": "Bu Politika, Kullanım Koşullarımızla birlikte okunmalıdır. Veri koruma konusunda iki belge arasında örtüşme olduğunda, bu Politika geçerli olur."
+      "i1": "Bu Gizlilik Politikası, İdare’nin JungleVPN’in web sitesi, Telegram botu ve uygulamaları (hepsi birlikte “Hizmet”) ile bağlantılı olarak kişisel verileri nasıl topladığını, kullandığını, ifşa ettiğini ve koruduğunu açıklamaktadır.",
+      "i2": "Hizmeti kullanarak, bu Politikayı okuduğunuzu ve anladığınızı kabul eder ve burada açıklanan veri uygulamalarına rıza gösterirsiniz.",
+      "i3": "Bu Politika, Kullanım Koşullarımızla birlikte okunmalıdır. İki belgenin veri koruma konusunda çakıştığı durumlarda, bu Politika geçerlidir."
     },
     "s2": {
       "h": "2. Kayıt Tutmama Taahhüdümüz",
       "i1": "JungleVPN, VPN sunucularımıza bağlıyken tarama geçmişinizi, DNS sorgularınızı, bağlantı hedeflerinizi veya trafiğinizin içeriğini izlemez, kaydetmez veya saklamaz.",
-      "i2": "Hizmet aracılığıyla hangi web sitelerine, uygulamalara veya hizmetlere eriştiğinizi takip etmeyiz ve bu bilgi hiçbir zaman hesabınızla ilişkilendirilmez.",
-      "i3": "Bu Politikada açıklanan veriler, hesabınızı işletmek, ödemeleri işlemek ve Hizmeti güvenli tutmak için gerekli olanlarla sınırlıdır; bağlıyken çevrimiçi olarak yaptıklarınızı asla kapsamaz."
+      "i2": "Hizmet aracılığıyla hangi web sitelerine, uygulamalara veya hizmetlere eriştiğinizi takip etmiyoruz ve bu bilgiler hiçbir zaman hesabınızla ilişkilendirilmez.",
+      "i3": "Bu Politikada açıklanan veriler, hesabınızı işletmek, ödemeleri işlemek ve Hizmetin güvenliğini sağlamak için gerekli olanlarla sınırlıdır — asla bağlıyken çevrimiçi olarak yaptıklarınızla ilgili değildir."
     },
     "s3": {
       "h": "3. Topladığımız Bilgiler",
@@ -408,119 +409,119 @@
       "i1_u3": "dil ve arayüz tercihleri.",
       "i2_lead": "Ödeme verileri:",
       "i2_u1": "işlem tutarı ve para birimi;",
-      "i2_u2": "geçerliyse, ödeme kartının son 4 hanesi;",
-      "i2_u3": "faturalandırma ülkesi;",
-      "i2_u4": "ödeme işlemcisi işlem tanımlayıcıları — tam kart bilgileri doğrudan ödeme işlemcilerimiz tarafından işlenir ve tarafımızca asla saklanmaz.",
+      "i2_u2": "varsa, ödeme kartının son 4 hanesi;",
+      "i2_u3": "fatura ülkesini;",
+      "i2_u4": "ödeme işlemcisi işlem tanımlayıcıları — kart bilgilerinin tamamı doğrudan ödeme işlemcilerimiz tarafından işlenir ve tarafımızca hiçbir zaman saklanmaz.",
       "i3_lead": "İletişim verileri:",
       "i3_u1": "destek ekibimize gönderdiğiniz mesajlar;",
-      "i3_u2": "sorun giderme için paylaştığınız cihaz ve uygulama sürümü bilgileri.",
+      "i3_u2": "sorun giderme amacıyla paylaştığınız cihaz ve uygulama sürümü bilgileri.",
       "i4_lead": "Teknik ve güvenlik verileri:",
-      "i4_u1": "web sitemize, botumuza ve hesap sistemlerimize erişmek için kullanılan IP adresi (VPN tarama oturumlarınız değil);",
+      "i4_u1": "web sitemize, botumuza ve hesap sistemlerimize erişim için kullanılan IP adresi (VPN tarama oturumlarınız hariç);",
       "i4_u2": "kimlik doğrulama ve hesap etkinliği zaman damgaları;",
       "i4_u3": "cihaz, işletim sistemi ve uygulama sürümü;",
-      "i4_u4": "hataları düzeltmek için kullanılan toplu çökme raporları ve tanılama verileri."
+      "i4_u4": "hataları gidermek için kullanılan toplu çökme raporları ve tanılama verileri."
     },
     "s4": {
       "h": "4. Bilgilerinizi Nasıl Kullanıyoruz",
-      "i1": "Hesabınızı oluşturmak, doğrulamak ve yönetmek için.",
+      "i1": "Hesabınızı oluşturmak, kimlik doğrulamasını yapmak ve yönetmek için.",
       "i2": "Bağlantı güvenilirliği ve uygulama performansı dahil olmak üzere Hizmeti sunmak, sürdürmek ve iyileştirmek için.",
       "i3": "Ödemeleri işlemek, dolandırıcılığı önlemek ve Hizmetin kötüye kullanımını tespit etmek için.",
-      "i4": "Destek taleplerine yanıt vermek ve bu politikalardaki veya aboneliğinizdeki değişiklikler gibi temel hizmet bildirimlerini iletmek için.",
-      "i5": "Yasal yükümlülüklere uymak ve Kullanım Koşullarımızı uygulamak için."
+      "i4": "Destek taleplerine yanıt vermek ve bu politikalar veya aboneliğinizdeki değişiklikler gibi önemli hizmet bildirimlerini iletmek için.",
+      "i5": "Yasal yükümlülüklerimize uymak ve Kullanım Koşullarımızı uygulamak için."
     },
     "s5": {
-      "h": "5. Bilgi Paylaşımı ve İfşası",
-      "i1": "Kişisel verilerinizi satmıyor veya takas etmiyoruz.",
-      "i2_lead": "Verileri yalnızca şunlarla paylaşırız:",
-      "i2_u1": "ödeme işleme, müşteri desteği, e-posta gönderimi, analitik ve reklam konularında yardımcı olan güvenilir hizmet sağlayıcılar. Bu sağlayıcılar sıkı gizlilik anlaşmalarıyla bağlıdır;",
-      "i2_u3": "gizlilik yükümlülükleriyle bağlı olan ve verileri yalnızca talimatlarımız doğrultusunda işleyen altyapı, analitik ve destek sağlayıcıları;",
-      "i2_u4": "yasa gereği veya meşru haklarımızı korumak amacıyla yetkili makamlar. Her talebi dikkatle inceler ve yalnızca gerekli asgari veriyi sağlarız. Yalnızca geniş çapta kabul görmüş uluslararası standart ve endekslere göre demokratik olarak tanınan siyasi rejime sahip ülkelerden gelen taleplere uyum sağlarız."
+      "h": "5. Bilgi Paylaşımı ve İfşa",
+      "i1": "Kişisel verilerinizi satmaz veya takas etmez.",
+      "i2_lead": "Verileri yalnızca aşağıdakilerle paylaşırız:",
+      "i2_u1": "Ödeme işlemleri, müşteri desteği, e-posta gönderimi, analiz ve reklamcılık konularında bize yardımcı olan güvenilir hizmet sağlayıcılarla. Bu sağlayıcılar, sıkı gizlilik anlaşmalarına tabidir;",
+      "i2_u3": "gizlilik yükümlülüklerine tabi olan ve verileri yalnızca talimatlarımız doğrultusunda işleyen altyapı, analiz ve destek sağlayıcıları;",
+      "i2_u4": "yasanın gerektirdiği durumlarda veya meşru haklarımızı korumak amacıyla yetkili makamlar. Her talebi dikkatle inceler ve yalnızca gerekli olan asgari verileri sağlarız. Yalnızca, genel olarak kabul görmüş uluslararası standartlara ve endekslere göre siyasi rejimi demokratik olarak kabul edilen ülkelerden gelen taleplere uyacağız."
     },
     "s6": {
       "h": "6. VPN Sunucu Konumları",
-      "i1": "JungleVPN, kullanıcılarımıza mümkün olan en iyi hız ve bağlantıyı sunmak için dünya çapında çeşitli ülkelerde sunucular sağlar. Güçlü gizlilik korumalarına sahip yargı bölgelerini seçmeyi hedeflesek de, sunucularımızdan bazıları geniş çapta tanınan uluslararası standart ve endekslere göre demokrasi seviyesi daha düşük ülkelerde bulunabilir.",
-      "i2": "Bu konumlardaki sunuculara bağlandığınızda, JungleVPN sizi olası riskler konusunda bilgilendirmek için bir uyarı gösterecektir. Bu riskler arasında yerel hükümetlerin internet trafiğinize müdahale etmeye çalışması veya kullanıcı verilerine erişim talep etmesi olasılığının artması yer alır. Hükümet müdahalesi veya gözetimi konusunda endişeleriniz varsa JungleVPN bu sunucuları kullanmanızı önermez.",
-      "i3": "Riski en aza indirmek için, güçlü demokratik kurumlara ve sağlam gizlilik yasalarına sahip ülkelerdeki sunuculara bağlanmanızı öneririz. JungleVPN, demokrasi seviyesi düşük ülkelerdeki hükümetlerle doğrudan çalışmaz ve bu ülkelere herhangi bir kullanıcı verisi aktarmaz. Ancak JungleVPN, bu tür ülkelerdeki yerel hükümetlerin gerçekleştirdiği eylemlerden sorumlu değildir.",
-      "i4": "Sunucu konumu seçerken lütfen bu bilgiyi göz önünde bulundurun. Belirli bir konumdaki gizlilikle ilgili sorularınız veya endişeleriniz varsa, tavsiye için destek ekibimizle iletişime geçin."
+      "i1": "JungleVPN, kullanıcılarımıza mümkün olan en iyi hızı ve bağlantıyı sunmak için dünyanın çeşitli ülkelerinde sunucular sunmaktadır. Güçlü gizlilik korumalarına sahip yargı bölgelerini seçmeyi hedeflesek de, sunucularımızdan bazıları, yaygın olarak kabul gören uluslararası standartlara ve endekslere göre demokrasi seviyesi daha düşük olan ülkelerde bulunabilir.",
+      "i2": "Bu konumlardaki sunuculara bağlandığınızda, JungleVPN sizi olası riskler konusunda bilgilendirmek için bir uyarı gösterecektir. Bu riskler arasında, yerel hükümetlerin internet trafiğinize müdahale etmeye çalışması veya kullanıcı verilerine erişim talep etme olasılığının artması yer alır. Olası hükümet müdahalesi veya gözetimi konusunda endişeleriniz varsa, JungleVPN bu sunucuları kullanmanızı önermez.",
+      "i3": "Riski en aza indirmek için, güçlü demokratik kurumlara ve sağlam gizlilik yasalarına sahip ülkelerdeki sunuculara bağlanmanızı öneririz. JungleVPN, demokrasinin zayıf olduğu ülkelerdeki hükümetlerle doğrudan çalışmaz ve bu hükümetlere herhangi bir kullanıcı verisi aktarmaz. Ancak, JungleVPN bu tür ülkelerdeki yerel hükümetler tarafından alınan önlemlerden sorumlu değildir.",
+      "i4": "Bir sunucu konumu seçerken lütfen bu bilgileri göz önünde bulundurun. Belirli bir konumdaki gizlilikle ilgili sorularınız veya endişeleriniz varsa, tavsiye almak için destek ekibimizle iletişime geçin."
     },
     "s7": {
       "h": "7. Veri Saklama",
-      "u1": "Hesap ve faturalandırma verileri, Kullanım Koşullarımızla uyumlu olarak, hesabınız aktif olduğu sürece veya siz kendiniz silene kadar saklanır.",
-      "u2": "Destek yazışmaları, talep çözüldükten sonra en fazla 3 yıl saklanır.",
-      "u3": "Çökme raporları gibi teknik tanılama verileri en fazla 6 ay saklanır."
+      "u1": "Hesap ve faturalandırma verileri, Kullanım Koşullarımıza uygun olarak, hesabınızın geçerli olduğu süre boyunca veya siz kendiniz silene kadar saklanır.",
+      "u2": "Destek iletişimleri, bilet çözüldükten sonra en fazla 3 yıl süreyle saklanır.",
+      "u3": "Çökme raporları gibi teknik tanılama verileri, en fazla 6 ay süreyle saklanır."
     },
     "s8": {
       "h": "8. Gizlilik Haklarınız",
-      "i1": "GDPR ve diğer geçerli veri koruma yasaları kapsamında kişisel verileriniz üzerinde haklara sahipsiniz.",
+      "i1": "GDPR ve diğer geçerli veri koruma yasaları kapsamında kişisel verileriniz üzerinde haklarınız bulunmaktadır.",
       "i2_lead": "Şunları yapabilirsiniz:",
-      "i2_u1": "kişisel verilerinize erişme ve bir kopyasını alma (GDPR Madde 15);",
+      "i2_u1": "kişisel verilerinize erişebilir ve bir kopyasını alabilirsiniz (GDPR Madde 15);",
       "i2_u2": "yanlış veya eksik verileri düzeltme (GDPR Madde 16);",
-      "i2_u3": "saklama için hukuki dayanak bulunmadığında verilerinizin silinmesini talep etme (GDPR Madde 17);",
-      "i2_u4": "verilerinizi taşınabilir bir formatta alma (GDPR Madde 20);",
-      "i2_u5": "meşru menfaatlere dayalı işlemeye itiraz etme (GDPR Madde 21);",
+      "i2_u3": "verilerin saklanmasına ilişkin yasal bir dayanak bulunmadığında verilerinizin silinmesini talep edebilirsiniz (GDPR Madde 17);",
+      "i2_u4": "verilerinizi taşınabilir bir formatta alabilirsiniz (GDPR Madde 20);",
+      "i2_u5": "meşru menfaatlere dayalı işleme itiraz etme (GDPR Madde 21);",
       "i2_u6": "işlemenin rızaya dayalı olduğu durumlarda rızanızı istediğiniz zaman geri çekme (GDPR Madde 7).",
-      "i3": "Bu haklardan herhangi birini kullanmak için bize e-posta veya Telegram botumuz aracılığıyla ulaşın. Doğrulanmış taleplere 30 gün içinde yanıt vereceğiz.",
-      "i4": "Portekiz veri koruma denetim kurumuna (CNPD — Comissão Nacional de Proteção de Dados, www.cnpd.pt) veya ikamet ettiğiniz AB ülkesinin denetim kurumuna şikayette bulunma hakkınız vardır."
+      "i3": "Bu haklardan herhangi birini kullanmak için bize e-posta veya Telegram botumuz aracılığıyla ulaşabilirsiniz. Doğrulanmış taleplere 30 gün içinde yanıt vereceğiz.",
+      "i4": "Portekiz veri koruma denetim kurumu (CNPD — Comissão Nacional de Proteção de Dados, www.cnpd.pt) veya ikamet ettiğiniz AB ülkesinin denetim kurumuna şikayette bulunma hakkına sahipsiniz."
     },
     "s9": {
       "h": "9. Güvenlik Önlemleri",
-      "i1": "Verilerinizi korumak için aktarım sırasında ve depolamada şifreleme, erişim kontrolleri ve yetkisiz erişim izleme dahil sektör standardı önlemler kullanıyoruz.",
-      "i2": "Hiçbir iletim veya depolama yöntemi tamamen güvenli değildir. Kişisel verilerinizi etkileyen bir veri ihlalinden haberdar olursak, yasanın gerektirdiği şekilde sizi ve ilgili yetkilileri bilgilendireceğiz."
+      "i1": "Verilerinizi korumak için, aktarım sırasında ve depolandığında şifreleme, erişim kontrolleri ve yetkisiz erişim izleme dahil olmak üzere sektör standardında güvenlik önlemleri kullanıyoruz.",
+      "i2": "Hiçbir aktarım veya depolama yöntemi tamamen güvenli değildir. Kişisel verilerinizi etkileyen bir veri ihlali fark edersek, yasaların gerektirdiği şekilde sizi ve ilgili yetkilileri bilgilendireceğiz."
     },
     "s10": {
       "h": "10. Uluslararası Veri Aktarımları",
-      "i1": "Verileriniz, Avrupa Ekonomik Alanı dışı da dahil olmak üzere, ikamet ettiğiniz ülke dışındaki ülkelerde işlenebilir.",
-      "i2": "Bu durumlarda, verilerinizin eşdeğer bir koruma düzeyine sahip olmasını sağlamak için Avrupa Komisyonu tarafından onaylanan standart sözleşme hükümleri gibi uygun güvencelere dayanırız."
+      "i1": "Verileriniz, ikamet ettiğiniz ülke dışındaki ülkelerde, Avrupa Ekonomik Alanı dışında da dahil olmak üzere işlenebilir.",
+      "i2": "Böyle bir durumda, verilerinizin eşdeğer bir koruma düzeyine sahip olmasını sağlamak için Avrupa Komisyonu tarafından onaylanan standart sözleşme maddeleri gibi uygun güvenlik önlemlerine başvururuz."
     },
     "s11": {
       "h": "11. Çocukların Gizliliği",
-      "i1": "Hizmet, Kullanım Koşullarımızla uyumlu olarak 18 yaş ve üzeri bireyler için tasarlanmıştır.",
-      "i2": "Bilerek reşit olmayanlardan kişisel veri toplamayız. Böyle bir durumun farkına varırsak, bu veriyi derhal sileriz."
+      "i1": "Hizmet, Kullanım Koşullarımızla uyumlu olarak 18 yaş ve üzeri kişilere yöneliktir.",
+      "i2": "Küçüklerden bilerek kişisel veri toplamayız. Böyle bir durumun farkına varırsak, söz konusu verileri derhal sileriz."
     },
     "s12": {
       "h": "12. Bu Politikadaki Değişiklikler",
       "i1": "Bu Politikayı zaman zaman güncelleyebiliriz.",
-      "i2": "Önemli değişiklikler, yürürlüğe girmeden önce e-posta yoluyla veya Hizmet içinde belirgin bir bildirimle duyurulur.",
-      "i3": "Değişiklikler yürürlüğe girdikten sonra Hizmetin kullanılmaya devam edilmesi, güncellenmiş Politikayı kabul ettiğiniz anlamına gelir."
+      "i2": "Önemli değişiklikler, yürürlüğe girmeden önce e-posta yoluyla veya Hizmet içinde göze çarpan bir bildirimle duyurulacaktır.",
+      "i3": "Değişikliklerin yürürlüğe girmesinden sonra Hizmeti kullanmaya devam etmeniz, güncellenen Politikayı kabul ettiğiniz anlamına gelir."
     },
     "s13": {
       "h": "13. Bize Ulaşın",
-      "i1_lead": "Bu Politika veya kişisel verilerinizle ilgili sorularınız için destek ekibimizle ",
+      "i1_lead": "Bu Politika veya kişisel verilerinizle ilgili herhangi bir sorunuz varsa, ",
       "i1_botLink": "Telegram botu",
-      "i1_mid": " üzerinden veya ",
+      "i1_mid": " veya ",
       "i1_emailLink": "support@jungle-vpn.com",
-      "i1_tail": " adresinden e-posta yoluyla iletişime geçebilirsiniz."
+      "i1_tail": "adresinden destek ekibimizle iletişime geçebilirsiniz."
     }
   },
   "cookies": {
     "pageTitle": "Çerez Politikası",
-    "footer": "Bu Çerez Politikası, JungleVPN Kullanım Koşulları ve Gizlilik Politikasının bir parçasıdır. Hizmeti kullanmaya devam ederek çerezleri nasıl kullandığımızı okuyup anladığınızı kabul edersiniz.",
+    "footer": "Bu Çerez Politikası, JungleVPN Kullanım Koşulları ve Gizlilik Politikasının bir parçasıdır. Hizmeti kullanmaya devam ederek, çerezleri nasıl kullandığımızı okuduğunuzu ve anladığınızı kabul etmiş olursunuz.",
     "s1": {
       "h": "1. Giriş",
-      "i1": "Bu Çerez Politikası, JungleVPN'in web sitesi, Telegram botu ve uygulamaları (birlikte \"Hizmet\") genelinde çerezleri ve benzer izleme teknolojilerini nasıl kullandığını ve bunları nasıl kontrol edebileceğinizi açıklar.",
-      "i2": "Çerezler, bir sitenin veya uygulamanın ziyaretiniz hakkındaki bilgileri hatırlamasını sağlayan, cihazınızda saklanan küçük dosyalardır. Hem doğrudan bizim tarafımızdan ayarlanan çerezleri (\"birinci taraf\") hem de kullandığımız hizmetler tarafından ayarlanan çerezleri (\"üçüncü taraf\") kullanırız.",
-      "i3": "Onayınıza dayandığımız durumlarda, onayınızı istediğiniz zaman geri çekebilirsiniz — bkz. Bölüm 5, Tercihlerinizi Yönetme."
+      "i1": "Bu Çerez Politikası, JungleVPN'in web sitemiz, Telegram botumuz ve uygulamalarımız (hepsi birlikte \"Hizmet\") genelinde çerezleri ve benzer izleme teknolojilerini nasıl kullandığını ve bunları nasıl kontrol edebileceğinizi açıklamaktadır.",
+      "i2": "Çerezler, bir sitenin veya uygulamanın ziyaretinizle ilgili bilgileri hatırlamasını sağlayan, cihazınızda depolanan küçük dosyalardır. Doğrudan tarafımızca ayarlanan çerezleri (\"birinci taraf\") ve kullandığımız hizmetler tarafından ayarlanan çerezleri (\"üçüncü taraf\") kullanırız.",
+      "i3": "Onayınıza ihtiyaç duyduğumuz durumlarda, onayınızı istediğiniz zaman geri çekebilirsiniz — bkz. Bölüm 5, Tercihlerinizi Yönetme."
     },
     "s2": {
       "h": "2. Çerezleri Nasıl Kullanıyoruz",
-      "i1_lead": "Gerekli çerezler — Hizmetin çalışması için zorunludur ve her zaman etkindir:",
+      "i1_lead": "Gerekli çerezler — Hizmetin çalışması için gereklidir ve her zaman etkindir:",
       "i1_u1": "oturumunuzu açık tutmak ve dil ile arayüz tercihlerinizi hatırlamak;",
-      "i1_u2": "hesabınıza doğru şekilde yansıtılabilmesi için geldiğiniz referans kodunu veya pazarlama bağlantısını tanımak.",
-      "i2_lead": "Ölçüm çerezleri — yalnızca kabul ettiğinizde kullanılır, Hizmetin nasıl kullanıldığını anlamak ve sorunları bulup çözmek içindir:",
-      "i2_u1": "PostHog aracılığıyla toplanan sayfa görüntülemeleri, özellik kullanımı ile hata ve çökme tanılamaları (bkz. Bölüm 3)."
+      "i1_u2": "Hizmetimize geldiğinizde kullandığınız yönlendirme kodunu veya pazarlama bağlantısını tanıyarak, bunların doğru şekilde kaydedilmesini sağlar.",
+      "i2_lead": "Ölçüm çerezleri — Hizmetin nasıl kullanıldığını anlamak ve sorunları tespit edip gidermek amacıyla, yalnızca siz kabul ettiğinizde kullanılır:",
+      "i2_u1": "PostHog aracılığıyla toplanan sayfa görüntülemeleri, özellik kullanımı, hata ve çökme teşhisleri (bkz. Bölüm 3)."
     },
     "s3": {
-      "h": "3. Üçüncü Taraf Hizmetler",
-      "i1": "PostHog, Hizmet genelinde kullandığımız analiz ve izleme hizmetidir. Kullanımı anlayabilmemiz ve hataları düzeltebilmemiz için ürün analizi, oturum kaydı ve hata izleme sağlar.",
+      "h": "3. Üçüncü Taraf Hizmetleri",
+      "i1": "PostHog, Hizmet genelinde kullandığımız analiz ve izleme hizmetidir. Kullanımı anlamamıza ve hataları gidermemize olanak sağlamak için ürün analizi, oturum tekrarı ve hata izleme özellikleri sunar.",
       "i2_lead": "PostHog aracılığıyla şunları toplayabiliriz:",
       "i2_u1": "görüntülenen sayfalar, kullanılan özellikler ve tıklanan düğmeler;",
-      "i2_u2": "ekran üzerindeki etkileşimlerin kaydı — tıklamalar, kaydırma ve yazma etkinliği; giriş alanlarına yazılan metinler gizlenir ve asla kaydedilmez;",
+      "i2_u2": "ekran üzerindeki etkileşimlerin tekrarı — tıklamalar, kaydırma ve yazma etkinlikleri; giriş alanlarına yazılan metinler maskelenir ve hiçbir zaman kaydedilmez;",
       "i2_u3": "cihaz ve tarayıcı türü, IP adresinizden türetilen yaklaşık konum ve konsol hata günlükleri.",
-      "i3": "PostHog bu verileri Avrupa Birliği'nde işler. Çerez banner'ına yanıt vermeden önce veriler kalıcı bir tanımlayıcı olmadan toplanır (\"çerezsiz mod\"); kabul ettiğinizde, Hizmetin nasıl kullanıldığına dair daha eksiksiz bir tablo oluşturmak için ziyaretleriniz arasındaki etkinliğiniz ilişkilendirilir."
+      "i3": "PostHog bu verileri Avrupa Birliği'nde işler. Çerez bildirimine yanıt vermeden önce, veriler kalıcı bir tanımlayıcı olmadan toplanır (\"çerezsiz mod\"); kabul ettiğinizde, ziyaretlerinizdeki etkinlikleriniz birbirine bağlanarak Hizmetin nasıl kullanıldığına dair daha kapsamlı bir tablo oluşturulur."
     },
     "s4": {
-      "h": "4. Ayarladığımız Çerezler",
-      "lead": "Aşağıdaki tabloda web sitemizin şu anda ayarladığı çerezler listelenmiştir.",
+      "h": "4. Yerleştirdiğimiz Çerezler",
+      "lead": "Aşağıdaki tabloda, web sitemizin şu anda yerleştirdiği çerezler listelenmiştir.",
       "table": {
         "name": "Çerez",
         "purpose": "Amaç",
@@ -529,116 +530,116 @@
       "rows": {
         "jvReferral": {
           "name": "jv_referral",
-          "purpose": "Yönlendirmeyi yapan kullanıcıya doğru şekilde yansıtılabilmesi için geldiğiniz referans kodunu hatırlar.",
+          "purpose": "Sizi yönlendiren kullanıcıya kredi verilebilmesi için, geldiğiniz yönlendirme kodunu hatırlar.",
           "duration": "30 gün"
         },
         "jvAttr": {
           "name": "jv_attr",
-          "purpose": "Pazarlama atfı için sizi siteye getiren kampanyayı veya bağlantıyı hatırlar.",
+          "purpose": "Pazarlama atıfları için sizi siteye hangi kampanyanın veya bağlantının yönlendirdiğini hatırlar.",
           "duration": "30 gün"
         },
         "postHog": {
           "name": "ph_*_posthog",
-          "purpose": "Yalnızca ölçüm çerezlerini kabul ettikten sonra ayarlanır; ziyaretleriniz arasındaki etkinliğinizi aynı PostHog profiline bağlar.",
+          "purpose": "Yalnızca ölçüm çerezlerini kabul ettikten sonra ayarlanır; aynı PostHog profiline yaptığınız ziyaretler boyunca etkinliklerinizi birbirine bağlar.",
           "duration": "1 yıl"
         }
       }
     },
     "s5": {
       "h": "5. Tercihlerinizi Yönetme",
-      "i1": "İlk ziyaretinizde bir banner, ölçüm çerezlerini kabul etmenize veya reddetmenize olanak tanır. Reddetmek, Hizmetin anonim kullanımı ölçmesini durdurmaz — yalnızca PostHog'un bu etkinliği kalıcı bir tanımlayıcıyla ilişkilendirmesini engeller.",
-      "i2": "Tercihinizi, tarayıcınızda alanımıza ait çerezleri ve site verilerini temizleyerek istediğiniz zaman değiştirebilirsiniz; bu, banner'ın yeniden görünmesini sağlar.",
-      "i3": "Çoğu tarayıcı ayrıca çerezleri doğrudan ayarlarından görüntülemenize, engellemenize veya silmenize olanak tanır (örneğin Chrome, Firefox, Safari ve Edge'de bir \"Çerezler ve site verileri\" bölümü bulunur). Gerekli çerezleri engellemek, Hizmetin bazı bölümlerinin çalışmamasına neden olabilir."
+      "i1": "İlk ziyaretinizde, bir başlık aracılığıyla ölçüm çerezlerini kabul edebilir veya reddedebilirsiniz. Reddetmek, Hizmetin anonim kullanımı ölçmesini engellemez — yalnızca PostHog'un bu etkinliği kalıcı bir tanımlayıcıyla ilişkilendirmesini engeller.",
+      "i2": "Tarayıcınızın çerezlerini ve sitemizle ilgili site verilerini silerek seçiminizi istediğiniz zaman değiştirebilirsiniz; bu işlem, bildirim çubuğunun yeniden görünmesini sağlar.",
+      "i3": "Çoğu tarayıcı, ayarlarından doğrudan çerezleri görüntülemenize, engellemenize veya silmenize de olanak tanır (örneğin, Chrome, Firefox, Safari ve Edge'de \"Çerezler ve site verileri\" bölümü bulunur). Gerekli çerezleri engellemek, Hizmetin bazı bölümlerinin çalışmamasına neden olabilir."
     },
     "s6": {
       "h": "6. İlgili Politika",
-      "i1_lead": "Bu Çerez Politikası, hangi kişisel verileri neden topladığımızı ve bunlar üzerindeki haklarınızı açıklayan ",
+      "i1_lead": "Bu Çerez Politikası, ",
       "i1_link": "Gizlilik Politikamız",
-      "i1_tail": " ile birlikte okunmalıdır."
+      "i1_tail": "birlikte okunmalıdır; bu politika, hangi kişisel verileri neden topladığımızı ve bu veriler üzerindeki haklarınızı kapsamaktadır."
     },
     "s7": {
       "h": "7. Bu Politikadaki Değişiklikler",
-      "i1": "Kullandığımız çerezler ve hizmetlerdeki değişiklikleri yansıtmak için bu Çerez Politikasını zaman zaman güncelleyebiliriz.",
-      "i2": "Önemli değişiklikler, yürürlüğe girmeden önce e-posta veya Hizmet içinde belirgin bir bildirimle duyurulacaktır."
+      "i1": "Kullandığımız çerezler ve hizmetlerdeki değişiklikleri yansıtmak amacıyla bu Çerez Politikasını zaman zaman güncelleyebiliriz.",
+      "i2": "Önemli değişiklikler, yürürlüğe girmeden önce e-posta yoluyla veya Hizmet içinde göze çarpan bir bildirimle size iletilecektir."
     },
     "s8": {
       "h": "8. Bize Ulaşın",
-      "i1_lead": "Bu Politikayla ilgili sorularınız için destek ekibimizle ",
+      "i1_lead": "Bu Politika ile ilgili herhangi bir sorunuz için, ",
       "i1_botLink": "Telegram botu",
-      "i1_mid": " üzerinden veya e-posta ile ",
+      "i1_mid": " üzerinden veya ",
       "i1_emailLink": "support@jungle-vpn.com",
-      "i1_tail": " adresinden iletişime geçin."
+      "i1_tail": "adresinden e-posta yoluyla destek ekibimizle iletişime geçebilirsiniz."
     }
   },
   "menu": {
     "pageTitle": "Menü",
     "transactionHistory": "İşlem Geçmişi",
-    "referrals": "Davet Programı",
+    "referrals": "Tavsiyeler",
     "affiliates": "Paylaş ve Kazan",
     "subtitle": "Hesap ayarlarınızı yönetin"
   },
   "referrals": {
-    "pageTitle": "Davet Programı",
+    "pageTitle": "Tavsiye",
     "hero": {
-      "badge": "Her arkadaş için 30 gün",
-      "title": "JungleVPN’i önerdiğiniz için ücretsiz abonelik",
-      "subtitle": "Arkadaşlarınızı JungleVPN’e davet edin, her kayıt için 30 günlük abonelik kazanın.",
-      "cta": "Arkadaşlarını davet et"
+      "badge": "Arkadaş başına 30 gün",
+      "title": "JungleVPN'i tavsiye ettiğinizde ücretsiz abonelik",
+      "subtitle": "Arkadaşlarınızı JungleVPN'e davet edin ve her kayıt için 30 günlük abonelik kazanın.",
+      "cta": "Arkadaşlarınızı davet edin"
     },
     "howItWorks": {
-      "badge": "Hızlı rehber",
+      "badge": "Hızlı kılavuz",
       "title": "Nasıl çalışır?",
-      "subtitle": "Ücretsiz abonelik günleri kazanmak için bu adımları izleyin",
+      "subtitle": "Ücretsiz abonelik günleri kazanmak için şu adımları izleyin",
       "share": {
-        "title": "Davet bağlantınızı bir arkadaşınızla paylaşın",
-        "description": "Hesabınızdan kopyalayın ve dilediğiniz şekilde gönderin."
+        "title": "Tavsiye bağlantınızı bir arkadaşınızla paylaşın",
+        "description": "Hesabınızdan kopyalayın ve istediğiniz şekilde gönderin."
       },
       "subscribe": {
-        "title": "Arkadaşınız JungleVPN aboneliği alır",
-        "description": "İstediği planı seçer ve özel bir internetin keyfini çıkarır."
+        "title": "Arkadaşınız JungleVPN'e abone olur",
+        "description": "Herhangi bir plan seçsin ve gizli internetin keyfini çıkarsın."
       },
       "reward": {
-        "title": "İkiniz de 30 gün ek abonelik kazanırsınız",
-        "description": "Arkadaşınız aboneliğinin ödemesini yapar yapmaz hesabınıza eklenir."
+        "title": "İkiniz de 30 günlük ekstra abonelik kazanın",
+        "description": "Arkadaşınız abonelik ücretini ödedikten hemen sonra krediniz hesabınıza yansıtılır."
       }
     },
     "inviteBanner": {
       "title": "Arkadaşlarınızı davet edin ve ücretsiz abonelik günleri kazanın",
-      "cta": "Şimdi davet et"
+      "cta": "Şimdi davet edin"
     },
     "step1": {
-      "title": "Davet bağlantınızı bir arkadaşınızla paylaşın",
+      "title": "Tavsiye bağlantınızı bir arkadaşınızla paylaşın",
       "copy": "Kopyala",
       "copied": "Kopyalandı"
     },
     "step2": {
-      "title": "Arkadaşınız JungleVPN'e abone olur",
+      "title": "Arkadaşınız JungleVPN'e abone oluyor",
       "description": "Yalnızca yeni kullanıcılar için geçerlidir."
     },
     "step3": {
       "title": "Arkadaşınız 30 günlük abonelik kazanır",
-      "description": "Abonelik ödemesi yapıldıktan hemen sonra hesabına yansıtılır."
+      "description": "Abonelik ücreti ödendikten hemen sonra hesaba yansıtılır."
     },
     "step4": {
-      "title": "Siz 30 günlük abonelik kazanırsınız",
-      "description": "Arkadaşınız abonelik ödemesi yaptıktan hemen sonra hesabınıza yansıtılır."
+      "title": "Siz de 30 günlük abonelik kazanırsınız",
+      "description": "Arkadaşınız abonelik ücretini ödedikten hemen sonra hesabınıza yansıtılır."
     }
   },
   "landing": {
     "hero": {
       "title": "JungleVPN",
-      "subtitle": "Bağlantınızı güvence altına alın, gizliliğinizi koruyarak gezinin ve tüm cihazlarınız için tek bir VPN ile herkese açık Wi-Fi ağlarında güvende kalın.",
-      "cta": "Hemen deneyin",
+      "subtitle": "Tüm cihazlarınız için tek bir VPN ile bağlantınızı koruyun, gizli bir şekilde gezin ve halka açık Wi-Fi ağlarında güvende kalın.",
+      "cta": "Şimdi deneyin",
       "login": "Giriş yap",
-      "guarantee": "30 gün para iade garantisi",
+      "guarantee": "30 günlük para iade garantisi",
       "features": {
         "feature1": "Tüm cihazlarınızda sınırsız trafik",
-        "feature2": "Birden fazla konumda hızlı sunucular",
-        "feature3": "7/24 özenli destek ekibi"
+        "feature2": "Birçok konumda hızlı sunucular",
+        "feature3": "7\/24 özenli destek ekibi"
       },
       "stats": {
         "locations": {
-          "value": "6+",
+          "value": "6'dan fazla",
           "label": "konum"
         },
         "traffic": {
@@ -646,18 +647,18 @@
           "label": "trafik"
         },
         "devices": {
-          "value": "Tümü",
+          "value": "Tüm",
           "label": "cihaz"
         }
       },
       "bento": {
         "speed": {
           "title": "Sınırsız hız",
-          "description": "Yavaşlama olmadan yayın izleyin ve görüşme yapın."
+          "description": "Yavaşlama olmadan akış ve aramalar."
         },
         "privacy": {
-          "title": "Sınırsız trafik",
-          "description": "İstediğiniz kadar gezinin!"
+          "title": "Sınırsız veri",
+          "description": "İstediğiniz kadar gezin!"
         },
         "devices": {
           "title": "Kayıt tutmama politikası",
@@ -669,88 +670,88 @@
       "chip": "Başlayın",
       "titleStart": "Sadece",
       "titleBrand": "üç basit adım",
-      "subtitle": "Hızlı ve güvenli bir şekilde bağlanmanız için tasarlanmış basit üç adımlı bir kurulum.",
+      "subtitle": "Hızlı ve güvenli bir şekilde bağlanabilmeniz için tasarlanmış basit üç adımlı kurulum.",
       "install": {
         "title": "Uygulamayı yükleyin",
-        "description": "Uygulamayı cihazınıza indirin ve yükleyin. Tüm platformlarda desteklenir."
+        "description": "Happ'i cihazınıza indirin. Tüm platformlarda desteklenir."
       },
       "subscribe": {
-        "title": "Bağlantınızı ekleyin",
-        "description": "Kişisel abonelik bağlantınızı açın ve uygulamaya aktarın. Bağlantı ayarlarınız otomatik olarak eklenir — manuel sunucu kurulumuna gerek yoktur."
+        "title": "Bağlantı bağlantınızı ekleyin",
+        "description": "Kişisel abonelik bağlantınızı açın ve uygulamaya aktarın. Bağlantı ayarlarınız otomatik olarak eklenir — manuel sunucu kurulumu gerekmez."
       },
       "connect": {
-        "title": "Bağlanın ve JungleVPN'i kullanın",
-        "description": "Uygulamayı açın, istediğiniz bağlantıyı seçin ve Bağlan'a dokunun. VPN yapılandırmanız, JungleVPN aboneliğinize dahil olan sunucu konumlarına erişimle birlikte kullanıma hazır."
+        "title": "JungleVPN'e bağlanın ve kullanın",
+        "description": "Uygulamayı açın, istediğiniz bağlantıyı seçin ve Bağlan'a dokunun. VPN yapılandırmanız kullanıma hazırdır; JungleVPN aboneliğinizde yer alan sunucu konumlarına erişebilirsiniz."
       },
       "note": "Not: Aralarından seçim yapabileceğiniz çeşitli planlar sunuyoruz. Kabul edilen ödeme yöntemleri kredi kartı, Apple Pay veya PayPal'dır."
     },
     "trust": {
-      "chip": "Önce gizlilik",
-      "title": "Binlerce kişinin güvendiği hizmet",
-      "users": "Gizli gezinme, herkese açık ağlarda güvenli bağlantı ve seyahat sırasında güvenilir erişim için dünya çapında güvenilen bir hizmet.",
-      "countries": "Dağıtılmış sunucu konumları ağı, nasıl ve nereden bağlanacağınız üzerinde kontrol sahibi olmanızı sağlar; böylece güvende kalırken ihtiyaçlarınıza uygun olanı seçebilirsiniz.",
-      "servers": "Tarama, yayın izleme, görüntülü görüşme ve diğer veri yoğun etkinliklerde istikrarlı günlük performans için tasarlanmış, güvenilirlik ve kalite açısından sürekli izlenen yüksek hızlı altyapı."
+      "chip": "Gizlilik öncelikli",
+      "title": "Binlerce kişi tarafından güvenilen",
+      "users": "Özel gezinme, halka açık ağlarda güvenli bağlantılar ve seyahat sırasında güvenilir erişim için dünya çapında güvenilen bir hizmet.",
+      "countries": "Dağınık sunucu konumları ağı, nasıl ve nereye bağlanacağınızı kontrol etmenizi sağlar; böylece güvenli kalırken ihtiyaçlarınıza en uygun seçeneği belirleyebilirsiniz.",
+      "servers": "Tarama, akış, görüntülü görüşmeler ve diğer veri yoğun etkinliklerde istikrarlı günlük performans için oluşturulmuş yüksek hızlı altyapı, güvenilirlik ve kalite açısından sürekli olarak izlenir."
     },
     "testimonials": {
-      "chip": "Binlerce kişinin güvendiği hizmet",
-      "title": "Müşteriler JungleVPN'i neden seviyor",
+      "chip": "Binlerce kişi tarafından güvenilen",
+      "title": "Müşteriler neden JungleVPN'i seviyor?",
       "setup": {
-        "quote": "Kurulum yaklaşık beş dakika sürdü. HAPP'ı yükledim, abonelik bağlantısını içe aktardım ve bağlantı hemen kuruldu — çözülecek bir sunucu ayarı yoktu.",
+        "quote": "Kurulum yaklaşık beş dakika sürdü. HAPP'ı yükledim, abonelik bağlantısını ekledim ve hemen bağlandım — sunucu ayarlarıyla uğraşmaya gerek kalmadı.",
         "name": "Bilal Ahmed"
       },
       "remote": {
-        "quote": "Çoğunlukla kafelerden çalışıyorum, bu yüzden herkese açık Wi-Fi'de şifreli bir bağlantı, abone olmamın tek nedeniydi. Sürekli açık kalıyor ve artık onu düşünmüyorum bile.",
+        "quote": "Çoğu gün kafelerde çalışıyorum, bu yüzden halka açık Wi-Fi ağlarında şifreli bir bağlantıya sahip olmak, abone olmamın tek nedeniydi. Bağlantı sürekli açık kalıyor ve ben de bu konuyu artık düşünmüyorum.",
         "name": "Briana Patton"
       },
       "routing": {
-        "quote": "Umursayacağımı beklemediğim kısım akıllı yönlendirme oldu. Sadece VPN gerektiren trafik ondan geçiyor, böylece bankacılık ve yerel uygulamalarım normal şekilde çalışmaya devam ediyor.",
+        "quote": "Akıllı yönlendirme, ilgileneceğimi hiç beklemediğim bir özellikti. Yalnızca VPN gerektiren işlemler bu bağlantı üzerinden geçiyor, bu sayede bankacılık uygulamalarım ve yerel uygulamalarım normal şekilde çalışmaya devam ediyor.",
         "name": "Omar Raza"
       },
       "calls": {
-        "quote": "Her şeyin yavaşladığı akşamlarda bile görüntülü görüşmeler sorunsuz devam ediyor. Kararlı bir bağlantı için konum değiştirmem hiç gerekmedi.",
+        "quote": "Akşamları diğer her şey yavaşladığında bile görüntülü görüşmelerim kesintisiz devam ediyor. İstikrarlı bir bağlantı elde etmek için konum değiştirmem gerekmedi.",
         "name": "Farhan Siddiqui"
       },
       "multiDevice": {
-        "quote": "Telefonum, dizüstü bilgisayarım ve partnerimin dizüstü bilgisayarında tek bir abonelik. Bizim için belirleyici faktör buydu.",
+        "quote": "Tek bir abonelikle hem benim telefonum, hem dizüstü bilgisayarım hem de partnerimin dizüstü bilgisayarı kapsanıyor. Bu, bizim için belirleyici faktör oldu.",
         "name": "Aliza Khan"
       },
       "support": {
-        "quote": "Aboneliğimle ilgili bir sorum vardı ve yaklaşık on dakika içinde gerçek bir kişiden yanıt aldım. Ne talep döngüsü ne de bot vardı.",
+        "quote": "Aboneliğimle ilgili bir sorum vardı ve yaklaşık on dakika içinde gerçek bir kişiden yanıt aldım. Bilet döngüsü yok, bot yok.",
         "name": "David Chen"
       },
       "dataCap": {
-        "quote": "Aylık veri limiti olmaması, artık yayın izleme veya indirmelerimi kısıtlamama gerek olmadığı anlamına geliyor. Eski ücretsiz VPN'imde bir haftada limite ulaşırdım.",
+        "quote": "Aylık veri sınırı olmaması, artık akış veya indirmeleri kısıtlamadığım anlamına geliyor. Eskiden kullandığım ücretsiz VPN'de bir hafta içinde sınıra ulaşıyordum.",
         "name": "Sara Mitchell"
       },
       "privacy": {
-        "quote": "İstediğim şey açık bir gizlilik politikası ve kesintisiz bir bağlantıydı. Aldığım da tam olarak buydu, üstelik deneme sürümü sayesinde ödeme yapmadan önce kontrol edebildim.",
+        "quote": "İstediğim şey, net bir gizlilik politikası ve kesintiye uğramayan bir bağlantıydı. Tam da bunu elde ettim ve ödeme yapmadan önce her şeyi kontrol edebildim.",
         "name": "Priya Nair"
       }
     },
     "features": {
       "title": "İnsanlar neden JungleVPN'i tercih ediyor?",
       "titleStart": "İnsanlar neden",
-      "titleBrand": "JungleVPN'i tercih ediyor?",
-      "subtitle": "Basit kurulum, güvenilir günlük kullanım ve ihtiyaç duyduğunuzda destek.",
+      "titleBrand": "JungleVPN'i",
+      "subtitle": "Kolay kurulum, günlük kullanımda güvenilirlik ve ihtiyaç duyduğunuzda destek.",
       "ready": {
-        "title": "Dakikalar içinde hazır",
+        "title": "Birkaç dakika içinde kullanıma hazır",
         "description": "Aboneliğinizi içe aktarın ve bağlanın — manuel kurulum veya teknik yapılandırma gerekmez."
       },
       "money": {
-        "title": "30 gün para iade garantisi",
-        "description": "Sizin için uygun değil mi? Satın alma tarihinden itibaren 30 gün içinde bizimle iletişime geçin, iadenizi sorunsuz şekilde yapalım."
+        "title": "30 günlük para iade garantisi",
+        "description": "Size uygun değil mi? Satın aldıktan sonra 30 gün içinde bizimle iletişime geçin, paranız kolayca iade edilsin."
       },
       "globe": {
         "title": "Tüm cihazlarınızda kullanın",
-        "description": "Tek bir abonelik tüm cihazlarınızı kapsar; evde, işte veya seyahatteyken bağlı kalırsınız."
+        "description": "Tek bir abonelik tüm cihazlarınızı kapsar, böylece evde, işte veya seyahat ederken bağlantınız kesilmez."
       },
       "support": {
-        "title": "İnsan desteği",
+        "title": "İnsan destek ekibi",
         "description": "Kurulum, abonelik veya bağlantı sorunlarında gerçek bir destek ekibinden yardım alın — genellikle 10 dakika içinde."
       }
     },
     "countries": {
-      "label": "6+ ülkede sunucular",
+      "label": "6'dan fazla ülkede sunucular",
       "names": {
         "us": "Amerika Birleşik Devletleri",
         "de": "Almanya",
@@ -761,127 +762,127 @@
       }
     },
     "pricing": {
-      "title": "Fiyatlarımız",
+      "title": "Planlarımız",
       "subtitle": "Size en uygun planı seçin. Her plan aynı temel özellikleri içerir.",
       "period": "1 ay",
-      "interval": "/ ay",
-      "guarantee": "30 gün para iade garantisi",
-      "cta": "Planı seç",
+      "interval": "\/ ay",
+      "guarantee": "30 günlük para iade garantisi",
+      "cta": "Planı seçin",
       "advantage1": "Sınırsız hız ve veri",
       "advantage2": "Tüm cihazlarınızda çalışır",
       "advantage3": "Nerede olursanız olun güvenli erişim",
       "advantage4": "İhtiyacınız olduğunda destek",
       "badge": "En iyi seçim",
       "totalLabel": "Toplam",
-      "noDiscount": "Maksimum esneklik. İstediğiniz zaman iptal edin.",
-      "discount": "%{{percent}} tasarruf edin",
+      "noDiscount": "Maksimum esneklik. İstediğiniz zaman iptal edebilirsiniz.",
+      "discount": "{{percent}}% tasarruf edin",
       "monthlySubtitle": "Maksimum esneklik. İstediğiniz zaman iptal edin.",
       "yearlyPeriod": "1 yıl",
       "yearlyDiscount": "%40 tasarruf edin — en düşük aylık fiyat",
       "daysPeriod": "{{count}} gün",
       "monthsPeriod": "{{count}} ay",
-      "includesTitle": "Tüm planlara dahil olanlar:",
+      "includesTitle": "Tüm planlara şunlar dahildir:",
       "includes1": "Sınırsız trafik",
       "includes2": "Tüm sunucu konumlarına erişim",
       "includes3": "Tüm cihazlarınız",
-      "includes4": "İnsan desteği",
+      "includes4": "Canlı destek",
       "includes5": "Akıllı yönlendirme",
-      "ctaPlan": "{{period}} seç",
-      "discountBest": "%{{percent}} tasarruf edin — en düşük aylık fiyat",
-      "badgeValue": "En iyi değer"
+      "ctaPlan": "{{period}}'u seçin",
+      "discountBest": "{{percent}}% tasarruf edin — en düşük aylık fiyat",
+      "badgeValue": "En iyi fiyat"
     },
     "faq": {
       "title": "Bağlanmadan önce sorularınız mı var?",
       "q1": {
         "question": "JungleVPN'i nasıl kurarım?",
-        "answer": "Cihazınıza HAPP'ı yükleyin, kişisel JungleVPN abonelik bağlantınızı açın ve uygulamaya aktarın. Bağlantı ayarlarınız otomatik olarak eklenir, bu nedenle sunucuları manuel olarak yapılandırmanıza gerek yoktur. Çoğu durumda kurulum yalnızca birkaç dakika sürer."
+        "answer": "Cihazınıza HAPP'i yükleyin, kişisel JungleVPN abonelik bağlantınızı açın ve bunu uygulamaya aktarın. Bağlantı ayarlarınız otomatik olarak eklenir, bu nedenle sunucuları manuel olarak yapılandırmanıza gerek yoktur. Çoğu durumda, kurulum sadece birkaç dakika sürer."
       },
       "q2": {
         "question": "JungleVPN'i hangi cihazlarda kullanabilirim?",
-        "answer": "JungleVPN tüm platformlarda çalışır. Tek bir abonelik tüm cihazlarınızda kullanılabilir; böylece telefonunuzu, dizüstü bilgisayarınızı ve desteklenen diğer cihazlarınızı tek bir planla koruyabilirsiniz."
+        "answer": "JungleVPN tüm platformlarda çalışır. Tek bir abonelik tüm cihazlarınızda kullanılabilir, böylece tek bir planla telefonunuzu, dizüstü bilgisayarınızı ve diğer desteklenen cihazlarınızı koruyabilirsiniz."
       },
       "q4": {
         "question": "Satın aldıktan sonra memnun kalmazsam ne olur?",
-        "answer": "JungleVPN, 30 gün para iade garantisi sunar. Hizmet sizin için uygun değilse, uygun iade süresi içinde destek ekibimizle iletişime geçin; geçerli koşullara göre iade sürecinde size yol göstereceğiz."
+        "answer": "JungleVPN, 30 günlük para iade garantisi sunar. Hizmet size uygun değilse, iade süresi içinde destek ekibimizle iletişime geçin; geçerli şartlara göre iade sürecinde size rehberlik edeceğiz."
       },
       "subtitle": "Kurulum, cihazlar, gizlilik ve aboneliğiniz hakkında bilmeniz gereken her şey.",
       "q5": {
         "question": "JungleVPN hangi bilgileri toplar?",
-        "answer": "JungleVPN, gizlilik göz önünde bulundurularak tasarlanmıştır ve gereksiz veri işlemeyi en aza indirmeyi amaçlar. Hesabınızı, aboneliğinizi ve hizmeti işletmek için gereken bilgileri, nasıl kullanıldığı ve saklandığı dahil olmak üzere Gizlilik Politikamızda açıkça açıklıyoruz."
+        "answer": "JungleVPN, gizlilik ön planda tutularak tasarlanmıştır ve gereksiz veri işlemeyi en aza indirmeyi amaçlamaktadır. Gizlilik Politikamızda, hesabınızın, aboneliğinizin ve hizmetin çalışması için hangi bilgilerin gerekli olduğunu, bu bilgilerin nasıl kullanıldığını ve saklandığını açık bir şekilde açıklıyoruz."
       }
     },
     "partnership": {
-      "title": "JungleVPN'i paylaşın. Ödüllendirilin.",
-      "subtitle": "Size uygun programı seçin — ortak olarak komisyon kazanın veya arkadaşlarınızı davet ederek birlikte ödül kazanın.",
+      "title": "JungleVPN'i paylaşın. Ödül kazanın.",
+      "subtitle": "Size uygun programı seçin — iş ortağı olarak komisyon kazanın veya arkadaşlarınızı davet edin ve birlikte ödüller kazanın.",
       "learnMore": "Daha fazla bilgi",
       "affiliate": {
         "title": "Ortaklık Programı",
-        "description": "İçerik üreticileri ve ortaklar için en uygun seçenek. Kitlenizi düzenli bir gelir kaynağına dönüştürün. Benzersiz JungleVPN ortak bağlantınızı paylaşın ve davetleriniz üzerinden gerçekleşen uygun abonelikler için komisyon kazanın.",
+        "description": "İçerik oluşturucular ve ortaklar için en iyisi. Hedef kitlenizi düzenli bir gelir kaynağına dönüştürün. Size özel JungleVPN ortaklık bağlantınızı paylaşın ve yönlendirmeleriniz sayesinde oluşan uygun aboneliklerden komisyon kazanın.",
         "cta": "Ortak olun →"
       },
       "referral": {
-        "title": "Davet Programı",
-        "description": "JungleVPN kullanıcıları için en uygun seçenek. Kişisel davet bağlantınızı kullanarak arkadaşlarınızı davet edin. Davetiniz üzerinden katıldıklarında, ikiniz de ödül kazanabilirsiniz.",
+        "title": "Tavsiye Programı",
+        "description": "JungleVPN kullanıcıları için en uygun seçenek. Kişisel tavsiye bağlantınızı kullanarak arkadaşlarınızı davet edin. Davetinizle üye olduklarında, ikiniz de ödül kazanabilirsiniz.",
         "cta": "Bir arkadaşınızı davet edin →"
       }
     },
     "cta": {
-      "title": "JungleVPN’i bugün edinin",
-      "subtitle": "Memnun kalmadınız mı? Hiçbir soru sorulmadan paranızı tam olarak iade ediyoruz."
+      "title": "JungleVPN'i bugün edinin",
+      "subtitle": "Memnun kalmadınız mı? Hiçbir soru sorulmadan tam para iadesi alın."
     },
     "trialPeriodBanner": {
-      "title": "{{days}} günlük deneme yalnızca {{price}} {{currency}}"
+      "title": "{{days}} günlük deneme sürümü sadece {{price}} {{currency}} karşılığında"
     },
     "footer": {
       "copyright": "© {{year}} JungleVPN. Tüm hakları saklıdır.",
-      "terms": "Koşullar",
+      "terms": "Şartlar",
       "privacy": "Gizlilik",
       "cookies": "Çerezler",
       "support": "Destek",
       "affiliate": "Ortaklık",
-      "referral": "Davet",
+      "referral": "Yönlendirme",
       "pricing": "Fiyatlandırma",
-      "partnership": "İş Ortaklığı",
+      "partnership": "Ortaklık",
       "howItWorks": "Nasıl Çalışır",
       "faq": "SSS",
       "locations": "Konumlar",
-      "whatIsVpn": "VPN nedir?"
+      "whatIsVpn": "VPN Nedir?"
     },
     "bento": {
       "titleStart": "İhtiyacınız olan her şey,",
-      "titleBrand": "hepsi dahil",
+      "titleBrand": "tek bir yerde",
       "subtitle": "Gizlilik odaklı teknoloji, esnek erişim ve günlük kullanım için tasarlanmış araçlar.",
       "learnMore": "Daha fazla bilgi",
       "affiliate": {
         "title": "Ortaklık Programı",
-        "description": "JungleVPN'i kitlenize tanıtarak, benzersiz bir davet bağlantısı ve dönüşümler ile ödüllerin şeffaf takibiyle komisyon kazanın."
+        "description": "Benzersiz bir tavsiye bağlantısı ve dönüşümlerin ve ödüllerin şeffaf bir şekilde izlenmesi sayesinde, JungleVPN'i takipçilerinize tanıtarak komisyon kazanın."
       },
       "security": {
-        "title": "Tasarım gereği güvenli",
-        "description": "Bağlantınız, cihazınız ile JungleVPN sunucusu arasında şifrelenir; bu da herkese açık ve güvenilmeyen ağlarda trafiğinizi korur."
+        "title": "Tasarımdan itibaren güvenli",
+        "description": "Cihazınız ile JungleVPN sunucusu arasındaki bağlantınız şifrelenir, böylece halka açık ve güvenilir olmayan ağlardaki trafiğiniz korunur."
       },
       "referral": {
-        "title": "Davet Programı",
-        "description": "Kişisel davet bağlantınızı kullanarak arkadaşlarınızı davet edin ve katıldıklarında ödül kazanın. Basit paylaşım, net ödüller."
+        "title": "Yönlendirme Programı",
+        "description": "Kişisel yönlendirme bağlantınızı kullanarak arkadaşlarınızı davet edin ve onlar üye olduğunda ödül kazanın. Kolay paylaşım, net ödüller."
       },
       "privacy": {
-        "title": "Önce gizlilik",
-        "description": "JungleVPN, gereksiz veri toplamayı en aza indirecek ve bağlantınızı gizli tutacak şekilde tasarlanmıştır."
+        "title": "Gizlilik öncelikli",
+        "description": "JungleVPN, gereksiz veri toplama işlemlerini en aza indirgemek ve bağlantınızın gizliliğini korumak üzere tasarlanmıştır."
       },
       "speed": {
         "title": "Sınırsız trafik",
-        "description": "Aylık trafik sınırı olmadan gezinin, yayın izleyin, görüntülü görüşme yapın ve çevrimiçi hizmetleri kullanın."
+        "description": "Aylık trafik sınırı olmadan internette gezinin, video izleyin, görüntülü görüşmeler yapın ve çevrimiçi hizmetleri kullanın."
       },
       "smartRouting": {
         "title": "Tüm cihazlarınız için tek bir VPN",
-        "description": "JungleVPN'i cihazlarınızın herhangi birine yükleyin — geniş bir uyumlu uygulama yelpazesi sunuyoruz."
+        "description": "JungleVPN'i herhangi bir cihazınıza yükleyin — çok çeşitli uyumlu uygulamalar sunuyoruz."
       }
     },
     "comparison": {
-      "chip": "Karşılaştıralım",
-      "titleStart": "JungleVPN'e karşı",
+      "chip": "Karşılaştırma",
+      "titleStart": "JungleVPN ile",
       "titleBrand": "Ücretsiz VPN'ler",
-      "subtitle": "Ücretsiz VPN'ler ara sıra kullanım için faydalı olabilir, ancak genellikle hız, sunucu seçimi, destek ve gizlilik konusunda ödünler içerir. İşte JungleVPN'in daha tutarlı günlük kullanım için nasıl tasarlandığı.",
+      "subtitle": "Ücretsiz VPN'ler ara sıra kullanım için yararlı olabilir, ancak genellikle hız, sunucu seçeneği, destek ve gizlilik açısından bazı dezavantajları vardır. İşte JungleVPN'in daha tutarlı bir günlük kullanım için nasıl tasarlandığı.",
       "header": {
         "feature": "Özellik",
         "ours": "JungleVPN",
@@ -895,86 +896,86 @@
         },
         "locations": {
           "feature": "Sunucu konumları",
-          "ours": "Dünya çapında birden fazla konum",
-          "theirs": "Genellikle daha az konum ve seçenek"
+          "ours": "Dünya çapında çok sayıda konum",
+          "theirs": "Genellikle daha az konum ve daha az seçenek"
         },
         "performance": {
           "feature": "Performans",
           "ours": "Yüksek hızlı altyapı",
-          "theirs": "Yoğun dönemlerde hızlar sınırlandırılabilir"
+          "theirs": "Yoğun dönemlerde hızlar sınırlanabilir"
         },
         "devices": {
           "feature": "Cihaz desteği",
           "ours": "Tüm cihazlarınız",
-          "theirs": "Cihaz limitleri değişkenlik gösterir"
+          "theirs": "Cihaz sınırları değişiklik gösterebilir"
         },
         "support": {
           "feature": "Müşteri desteği",
-          "ours": "7/24 insan desteği",
+          "ours": "7\/24 canlı destek",
           "theirs": "Otomatik yanıtlar"
         },
         "privacy": {
           "feature": "Çevrimiçi etkinliğinizi izler",
           "ours": "Kayıt tutmama politikası",
-          "theirs": "Olası"
+          "theirs": "Mümkün"
         },
         "advertising": {
           "feature": "Reklam",
-          "ours": "Reklamsız",
+          "ours": "Reklam yok",
           "theirs": "Reklamlara dayanır"
         },
         "setup": {
           "feature": "Bağlantı kurulumu",
-          "ours": "HAPP ve kişisel abonelik bağlantınız üzerinden basit kurulum",
-          "theirs": "Kurulum ve mevcut protokoller sağlayıcıya göre değişir"
+          "ours": "HAPP ve kişisel abonelik bağlantınız aracılığıyla basit kurulum",
+          "theirs": "Kurulum ve kullanılabilir protokoller sağlayıcıya göre değişir"
         },
         "smartRouting": {
           "feature": "Akıllı yönlendirme",
-          "ours": "Trafiği yalnızca gerekli olduğunda VPN üzerinden yönlendirin",
-          "theirs": "Genellikle mevcut değil"
+          "ours": "Trafiği yalnızca gerektiğinde VPN üzerinden yönlendirin",
+          "theirs": "Genellikle kullanılamaz"
         },
         "bestFor": {
-          "feature": "En uygun kullanım",
-          "ours": "Güvenilir günlük kullanım, seyahat, herkese açık Wi-Fi ve birden fazla cihaz",
-          "theirs": "Ara sıra veya temel VPN kullanımı"
+          "feature": "En uygun kullanım alanları",
+          "ours": "Güvenilir günlük kullanım, seyahat, halka açık Wi-Fi ve birden fazla cihaz",
+          "theirs": "Ara sıra veya temel düzeyde VPN kullanımı"
         }
       }
     },
     "info": {
       "what": {
         "title": "VPN Nedir?",
-        "subtitle": "Bir VPN (Sanal Özel Ağ), cihazınız ile bir VPN sunucusu arasında şifreli bir bağlantı oluşturarak trafiğinizin korunmasına ve internet sağlayıcınız ile yerel ağların görebileceği bağlantı bilgisi miktarının azalmasına yardımcı olur.",
+        "subtitle": "VPN (Sanal Özel Ağ), cihazınız ile bir VPN sunucusu arasında şifreli bir bağlantı oluşturur; böylece trafiğinizi korur ve internet sağlayıcınızın ve yerel ağların görebileceği bağlantı bilgilerinin miktarını azaltır.",
         "encryption": {
           "title": "Şifreleme",
-          "description": "İnternet trafiğiniz cihazınızdan çıkmadan önce şifrelenir ve VPN sunucusuna ulaşana kadar korunmaya devam eder. Bu, herkese açık veya güvenilmeyen ağlar kullanırken müdahale riskini azaltmaya yardımcı olur."
+          "description": "İnternet trafiğiniz, cihazınızdan ayrılmadan önce şifrelenir ve VPN sunucusuna ulaşana kadar korunur. Bu, halka açık veya güvenilir olmayan ağları kullanırken trafiğinizin ele geçirilme riskini azaltmaya yardımcı olur."
         },
         "masking": {
           "title": "IP Adresi Koruması",
-          "description": "JungleVPN üzerinden bağlandığınızda, web siteleri ev IP adresiniz yerine VPN sunucusunun IP adresini görür. Bu, ek bir gizlilik katmanı sağlar ve mevcut sunucu konumları üzerinden bağlanmanıza olanak tanır."
+          "description": "JungleVPN üzerinden bağlandığınızda, web siteleri ev IP adresiniz yerine VPN sunucusunun IP adresini görür. Bu, gizliliğinize ek bir katman ekler ve mevcut sunucu konumları üzerinden bağlanmanıza olanak tanır."
         },
         "tunnel": {
           "title": "Güvenli VPN Tüneli",
-          "description": "Cihazınız, şifreli bir VPN tüneli üzerinden JungleVPN sunucusuyla iletişim kurar. Bu, tam olarak güvenmeyebileceğiniz otel, havaalanı, kafe ve diğer ağlarda bağlantınızı korumaya yardımcı olur."
+          "description": "Cihazınız, şifrelenmiş bir VPN tüneli aracılığıyla JungleVPN sunucusuyla iletişim kurar. Bu, otel, havaalanı, kafe ve tam olarak güvenemeyeceğiniz diğer ağlarda bağlantınızı korumaya yardımcı olur."
         }
       },
       "why": {
-        "title": "JungleVPN Neden Günlük Hayata Uyar",
-        "subtitle": "İnterneti kullanma şeklinize gereksiz karmaşıklık katmadan evde, seyahat ederken ve herkese açık ağlarda bağlantınızı koruyun.",
+        "title": "JungleVPN Neden Günlük Hayata Uygun?",
+        "subtitle": "İnternet kullanımınızı gereksiz şekilde karmaşıklaştırmadan, evde, seyahat ederken ve halka açık ağlarda bağlantınızı koruyun.",
         "wifi": {
-          "title": "Herkese Açık Wi-Fi'de Daha Güvende Kalın",
-          "description": "Otellerdeki, havaalanlarındaki ve kafelerdeki herkese açık ağlar her zaman kontrol edebileceğiniz ağlar değildir. JungleVPN, cihazınız ile VPN sunucusu arasındaki bağlantınızı şifreleyerek güvenilmeyen ağlarda trafiğinizi korumaya yardımcı olur."
+          "title": "Halka Açık Wi-Fi Ağlarında Daha Güvenli Kalın",
+          "description": "Oteller, havaalanları ve kafelerdeki halka açık ağlar her zaman sizin kontrolünüz altında olan ağlar değildir. JungleVPN, cihazınız ile VPN sunucusu arasındaki bağlantınızı şifreleyerek, güvenilmeyen ağlarda trafiğinizi korumaya yardımcı olur."
         },
         "privacy": {
-          "title": "Bağlantınızı Daha Özel Tutun",
-          "description": "Bir VPN, internet sağlayıcınızın ve yerel ağın görebileceği bağlantı bilgisi miktarını azaltmaya yardımcı olur. Trafiğiniz, kullandığınız ağ üzerinden doğrudan geçmek yerine şifreli bir VPN bağlantısı üzerinden iletilir."
+          "title": "Bağlantınızı Daha Gizli Tutun",
+          "description": "VPN, internet sağlayıcınızın ve yerel ağınızın görebileceği bağlantı bilgilerinin miktarını azaltmaya yardımcı olur. Trafiğiniz, kullandığınız ağ üzerinden doğrudan değil, şifrelenmiş bir VPN bağlantısı üzerinden iletilir."
         },
         "travel": {
-          "title": "Seyahat Ederken Bağlı Kalın",
-          "description": "Evden uzaktayken ve günlük gezinme, çalışma, görüşme ve çevrimiçi hizmetler için güvenli, alışılmış bir bağlantıya ihtiyaç duyduğunuzda mevcut JungleVPN sunucu konumlarını kullanın."
+          "title": "Seyahat Ederken Bağlantınızı Kesmeyin",
+          "description": "Evden uzaktayken ve günlük gezinme, iş, aramalar ve çevrimiçi hizmetler için güvenli, tanıdık bir bağlantıya ihtiyaç duyduğunuzda, mevcut JungleVPN sunucu konumlarını kullanın."
         },
         "smartRouting": {
-          "title": "Günlük Kullanım İçin Akıllı Yönlendirme",
-          "description": "Diğer bağlantılar doğrudan devam ederken yalnızca VPN korumasına ihtiyaç duyan trafiği yönlendirin. Bu, gereksiz geçişleri azaltır ve günlük uygulama ve hizmetlerin daha doğal çalışmasına yardımcı olur."
+          "title": "Günlük Kullanım için Akıllı Yönlendirme",
+          "description": "VPN korumasına ihtiyaç duyan trafiği yönlendirin, diğer bağlantılar ise doğrudan devam etsin. Bu, gereksiz geçişleri azaltır ve günlük uygulamaların ve hizmetlerin daha doğal çalışmasına yardımcı olur."
         }
       },
       "stats": {
@@ -982,13 +983,13 @@
         "countries": "Sunucu ülkeleri",
         "guarantee_value": "30 gün",
         "guarantee": "Para iade garantisi",
-        "support_value": "~10 dk",
-        "support": "Ort. destek yanıt süresi"
+        "support_value": "~10m",
+        "support": "Ortalama destek yanıt süresi"
       },
       "devices": {
-        "title": "Her Platformda Çalışır",
-        "subtitle": "Tek bir abonelik tüm cihazlarınızı kapsar — ek ücret yok, limit yok.",
-        "ios": "IOS",
+        "title": "Her platformda çalışır",
+        "subtitle": "Tek bir abonelik tüm cihazlarınızı kapsar — ekstra ücret yok, sınır yok.",
+        "ios": "iOS",
         "android": "Android",
         "macos": "macOS",
         "windows": "Windows",
@@ -1000,17 +1001,17 @@
     "locations": {
       "hero": {
         "title": "JungleVPN konumları her yerde",
-        "subtitle": "VPN sunucuları dünyanın her yerinde bulunuyor. İnterneti Kuzey veya Güney Amerika’da, Avrupa’da ya da Asya’daymışsınız gibi kullanın.",
+        "subtitle": "VPN sunucuları dünyanın dört bir yanında bulunmaktadır. Sanki Kuzey veya Güney Amerika, Avrupa ya da Asya'daymışsınız gibi interneti kullanın.",
         "mapAlt": "JungleVPN sunucu konumlarını gösteren dünya haritası"
       },
       "benefits": {
         "devices": {
           "title": "Tüm cihazlarınız için tek bir VPN",
-          "description": "JungleVPN’i istediğiniz cihaza kurun — geniş bir uyumlu uygulama yelpazesi sunuyoruz."
+          "description": "JungleVPN'i herhangi bir cihazınıza yükleyin — çok çeşitli uyumlu uygulamalar sunuyoruz."
         },
         "traffic": {
           "title": "Sınırsız trafik",
-          "description": "Aylık trafik limiti olmadan gezinin, içerik izleyin, görüntülü görüşün ve çevrimiçi hizmetleri kullanın."
+          "description": "Aylık trafik sınırı olmadan internette gezinin, video izleyin, görüntülü görüşmeler yapın ve çevrimiçi hizmetleri kullanın."
         }
       },
       "world": {
@@ -1018,81 +1019,81 @@
         "subtitle": "Herkes özel ve güvenli bir internete erişmeyi hak eder.",
         "everywhere": {
           "title": "Bağlantınızı her yerde koruyun",
-          "description": "Dünyanın her yerinde çalışır."
+          "description": "Dünya çapında çalışır."
         },
         "travel": {
           "title": "Rahat seyahat",
-          "description": "Seyahat ederken favori site ve hizmetlerinize erişmenize yardımcı oluyoruz."
+          "description": "Seyahat ederken en sevdiğiniz sitelere ve hizmetlere erişmenize yardımcı oluyoruz."
         },
         "wifi": {
           "title": "Güvenli Wi-Fi bağlantısı",
-          "description": "Herkese açık ağlarda güvende kalın."
+          "description": "Halka açık ağlarda güvende olduğunuzdan emin olun."
         },
         "private": {
-          "title": "Her zaman özel gezinme",
-          "description": "JungleVPN trafiği şifreler ve kişisel verilerinizi meraklı gözlerden uzak tutar."
+          "title": "Her zaman gizli gezinme",
+          "description": "JungleVPN, trafiği şifreler ve kişisel verilerinizi meraklı gözlerden korur."
         }
       }
     },
     "whatIsVpn": {
       "hero": {
-        "title": "Sade bir dille: VPN nedir?",
-        "subtitle": "VPN, cihazınızla güvendiğiniz bir sunucu arasında şifreli bir tünel kurar. Bunun pratikte ne anlama geldiğini, neyi koruduğunu ve neyi korumadığını anlatıyoruz."
+        "title": "Basit bir dille VPN nedir?",
+        "subtitle": "VPN, cihazınız ile güvendiğiniz bir sunucu arasında şifreli bir tünel oluşturur. Bunun pratikte ne anlama geldiği, neleri koruduğu ve neleri korumadığı aşağıda açıklanmıştır."
       },
       "how": {
-        "title": "VPN bağlantısı nasıl çalışır",
-        "subtitle": "Bağlan'a her dokunduğunuzda dört adım gerçekleşir — genellikle bir saniyeden kısa sürede.",
+        "title": "VPN bağlantısı nasıl çalışır?",
+        "subtitle": "\"Bağlan\" düğmesine her dokunduğunuzda dört adım gerçekleşir — genellikle bir saniyeden az sürer.",
         "connect": {
           "title": "1. Cihazınız bağlanır",
-          "description": "Uygulama, seçtiğiniz ülkedeki bir JungleVPN sunucusuyla bağlantı kurar."
+          "description": "VPN uygulaması, seçtiğiniz ülkedeki bir JungleVPN sunucusuna bağlantı kurar."
         },
         "encrypt": {
           "title": "2. Trafik şifrelenir",
-          "description": "Cihazınızdan çıkan her şey önce şifrelenir; kafedeki Wi-Fi, modem ve operatörünüz açtığınız siteleri değil, karmaşık veriyi görür."
+          "description": "Cihazınızdan çıkan her şey önce şifrelenir; böylece kafe Wi-Fi ağı, yönlendirici ve internet sağlayıcınız, açtığınız siteler yerine şifrelenmiş verileri görür."
         },
         "tunnel": {
           "title": "3. Tünelden geçer",
-          "description": "Şifreli trafik tünel üzerinden VPN sunucusuna ulaşır; sunucu şifreyi çözer ve isteği sizin adınıza iletir."
+          "description": "Şifrelenmiş trafik, tünelden geçerek VPN sunucusuna ulaşır; sunucu, verilerin şifresini çözer ve talebi sizin adınıza iletir."
         },
         "exit": {
-          "title": "4. Site sunucuya yanıt verir",
-          "description": "Siteler sizin ev IP'nizi değil, sunucunun IP adresini ve konumunu görür. Yanıt aynı şifreli tünelden geri döner."
+          "title": "4. Site, sunucuya yanıt verir",
+          "description": "Web siteleri, ev IP adresinizi değil, sunucunun IP adresini ve konumunu görür. Yanıt, aynı şifreli tünel üzerinden geri gelir."
         }
       },
       "useCases": {
-        "title": "VPN gerçekten ne zaman işe yarar",
-        "subtitle": "Sihir değil — birkaç somut, günlük durum.",
+        "title": "VPN ne zaman gerçekten yardımcı olur?",
+        "subtitle": "Bu sihir değil — birkaç somut, günlük durumdur.",
         "wifi": {
           "title": "Halka açık Wi-Fi",
-          "description": "Havalimanı, otel ve kafe ağlarını doğrulayamazsınız. Şifreleme, trafiğinizi aynı ağdaki herkes için okunamaz hâle getirir."
+          "description": "Havaalanları, oteller ve kafeler, doğrulayamayacağınız ağlar işletir. Şifreleme, trafiğinizi bu ağlardaki diğer herkes için okunamaz hale getirir."
         },
         "travel": {
           "title": "Seyahat",
-          "description": "Yurt dışındayken alışkın olduğunuz site ve servisleri kullanmak için istediğiniz ülkedeki bir sunucuya bağlanın."
+          "description": "Yurtdışındayken de normalde kullandığınız siteleri ve hizmetleri kullanmaya devam etmek için ülkenizdeki bir sunucuya bağlanın."
         },
         "privacy": {
           "title": "Günlük gizlilik",
-          "description": "Operatörünüz ve trafiğinizin geçtiği ağlar, hangi siteleri ziyaret ettiğiniz hakkında çok daha azını görür."
+          "description": "İnternet sağlayıcınız ve bağlandığınız ağlar, hangi siteleri ziyaret ettiğiniz konusunda çok daha az bilgi edinebilir."
         },
         "work": {
           "title": "Uzaktan çalışma",
-          "description": "Tek bir şifreli bağlantı; dizüstü bilgisayarınızı, telefonunuzu ve tabletinizi nerede olursanız olun kapsar."
+          "description": "Tek bir şifreli bağlantı, o gün nerede çalışırsanız çalışın dizüstü bilgisayarınızı, telefonunuzu ve tabletinizi korur."
         }
       },
       "myths": {
-        "title": "VPN ne değildir",
-        "subtitle": "Sınırları net söylemek, pazarlama vaatlerinden daha önemlidir.",
+        "title": "VPN'in ne olmadığı",
+        "subtitle": "Sınırları net bir şekilde belirtmek, pazarlamadan daha önemlidir.",
         "anonymity": {
-          "myth": "“VPN beni tamamen anonim yapar.”",
-          "fact": "IP adresinizi gizler ve trafiğinizi şifreler; ancak oturum açtığınız hesapları, çerezleri veya tarayıcı parmak izini ortadan kaldırmaz."
+          "myth": "“VPN beni anonim hale getirir.”",
+          "fact": "VPN, IP adresinizi gizler ve trafiğinizi şifreler. Oturum açtığınız hesapları, çerezleri veya tarayıcı parmak izlerini silmez."
         },
         "speed": {
-          "myth": "“VPN her şeyi yavaşlatır.”",
-          "fact": "Trafik daha uzun bir yol izler, bu yüzden bir miktar gecikme kaçınılmazdır — ama yakın ve yeterli kapasiteli bir sunucuda fark genellikle hissedilmez."
+          "myth": "“VPN her zaman her şeyi yavaşlatır.”",
+          "fact": "Trafik daha uzun bir yoldan geçer, bu nedenle bir miktar gecikme kaçınılmazdır — ancak yakın mesafedeki, iyi donanımlı bir sunucuda bu fark genellikle fark edilmez."
         },
         "legal": {
-          "myth": "“VPN antivirüs yerine geçer.”",
-          "fact": "VPN, aktarım hâlindeki veriyi korur. Zararlı bir dosya indirmenizi ya da şifrenizi bir oltalama sayfasına girmenizi engelleyemez."
+          "myth": "“VPN, antivirüsün yerini alır.”",
+          "fact": "VPN, aktarım halindeki verileri korur. Kötü amaçlı yazılım indirmenizi veya şifrenizi bir kimlik avı sayfasına vermenizi engelleyemez."
         }
       }
     }
@@ -1103,8 +1104,8 @@
     "noPaymentsFound": "Ödeme bulunamadı",
     "searchAriaLabel": "Ara",
     "details": {
-      "pageTitle": "İşlem Detayları",
-      "title": "Ödeme Detayları",
+      "pageTitle": "İşlem Ayrıntıları",
+      "title": "Ödeme Ayrıntıları",
       "paymentId": "Ödeme Kimliği",
       "userId": "Kullanıcı Kimliği",
       "telegramId": "Telegram Kimliği",
@@ -1113,15 +1114,15 @@
       "amount": "Tutar",
       "period": "Dönem",
       "periodValue": "{{count}} ay",
-      "starsValue": "{{amount}} Stars",
-      "createdAt": "Oluşturulma tarihi",
-      "paidAt": "Ödeme tarihi",
-      "copy": "{{label}} kopyala"
+      "starsValue": "{{amount}} Yıldız",
+      "createdAt": "Oluşturuldu",
+      "paidAt": "Ödeme Tarihi",
+      "copy": "{{label}}'ı kopyala"
     }
   },
   "plans": {
     "pageTitle": "Bir plan seçin",
-    "pageDescription": "Bağlı karttan, seçilen plana göre ücret tahsil edilecektir",
+    "pageDescription": "Seçilen plana göre bağlantılı karttan ödeme alınacaktır",
     "tabsAriaLabel": "Bir abonelik planı seçin",
     "month_one": "{{count}} ay",
     "month_other": "{{count}} ay",
@@ -1132,64 +1133,64 @@
   },
   "subscriptionLinkWidget": {
     "getLink": "Yeni cihaz ekle",
-    "scanQrCode": "QR kodunu tarayın",
+    "scanQrCode": "QR kodunu tara",
     "copyLink": "Bağlantıyı kopyala",
     "linkCopied": "Kopyalandı",
     "addToDeviceTitle": "Başka bir cihaza ekle",
     "addToDeviceSteps": {
-      "step1": "QR kodunu başka bir cihazdaki uygulamadan tarayın veya QR koddaki bağlantıyı açın.",
+      "step1": "Başka bir cihazdaki uygulamadan QR kodunu tarayın veya QR kodundaki bağlantıyı takip edin.",
       "step2": "Ya da bağlantıyı kopyalayıp talimatları izleyin."
     }
   },
   "subscriptionFail": {
     "title": "Ödeme tamamlanmadı",
-    "description": "Hesabınızdan para çekilmedi. Bir plan seçip tekrar deneyebilirsiniz.",
-    "retry": "Tekrar dene"
+    "description": "Para çekilmedi. Bir plan seçip tekrar deneyebilirsiniz.",
+    "retry": "Tekrar deneyin"
   },
   "subscriptionSuccess": {
     "title": "Aboneliğiniz hazır",
-    "description": "Özel ve özgür internetin keyfini çıkarın",
+    "description": "Özel ve ücretsiz internetin keyfini çıkarın",
     "connect": "Bağlan"
   },
   "getSubscription": {
-    "step_email_title": "JungleVPN hesabınız için e-posta adresinizi girin",
-    "email_placeholder": "ornek@gmail.com",
+    "step_email_title": "JungleVPN hesabınızın e-posta adresini girin",
+    "email_placeholder": "email@example.com",
     "email_description": "Aboneliğinizi yönetmek için gereklidir",
-    "email_hint_label": "E-posta adresinizi neden istiyoruz",
-    "email_hint": "Daha önce JungleVPN kullandıysanız aboneliği mevcut hesabınıza ekleriz. Kullanmadıysanız bu e-posta ile yeni bir hesap oluştururuz.",
+    "email_hint_label": "E-postanıza neden ihtiyacımız var?",
+    "email_hint": "Daha önce JungleVPN kullandıysanız, aboneliği mevcut hesabınıza ekleyeceğiz. Kullanmadıysanız, bu e-posta adresiyle yeni bir hesap oluşturacağız.",
     "email_required_error": "Lütfen e-posta adresinizi girin",
     "email_invalid_error": "Lütfen geçerli bir e-posta adresi girin",
-    "checkout_error": "Ödemeyi başlatamadık. Lütfen tekrar deneyin.",
+    "checkout_error": "Ödeme işlemi başlatılamadı. Lütfen tekrar deneyin.",
     "throttled_error": "Çok fazla deneme yapıldı. Lütfen birkaç dakika bekleyip tekrar deneyin.",
-    "active_subscription_error": "Bu e-posta adresinde zaten aktif bir abonelik var. Profilinizden yönetebilirsiniz.",
+    "active_subscription_error": "Bu e-posta adresinde zaten aktif bir aboneliğiniz var. Profilinizden yönetebilirsiniz.",
     "terms_link": "Abonelik koşulları",
     "step_payment_title": "Bir ödeme yöntemi seçin",
     "card_method": "Kredi veya banka kartı",
-    "submit": "Ödemeye geç",
+    "submit": "Ödemeye devam et",
     "order_title": "Siparişiniz",
-    "order_item": "{{period}} için JungleVPN",
-    "discount": "%{{percent}} indirim",
-    "plan_unavailable_title": "Bu plan şu anda kullanılamıyor",
-    "plan_unavailable_description": "<1>Fiyatlandırma sayfasından</1> bir abonelik süresi seçin.",
+    "order_item": "{{period}} süreli JungleVPN",
+    "discount": "{{percent}}% indirim",
+    "plan_unavailable_title": "Bu plan mevcut değil",
+    "plan_unavailable_description": "<1>fiyatlandırma sayfasında<\/1> bir abonelik süresi seçin.",
     "features_title": "Aboneliğe dahil olanlar",
-    "guarantee": "30 gün para iade garantisi",
+    "guarantee": "30 günlük para iade garantisi",
     "active_dialog": {
       "title": "Zaten bir aboneliğiniz var",
-      "description": "<1>{{email}}</1> adresinin halihazırda etkin bir JungleVPN aboneliği var, bu nedenle burada satın alınacak bir şey yok.",
+      "description": "{{email}} adresine ait JungleVPN aboneliği zaten aktif durumda olduğundan, buradan satın almanız gereken bir şey yoktur.",
       "hint": "Planınızı, faturalarınızı ve ödeme yönteminizi görmek için giriş yapın.",
-      "to_profile": "Profile git",
+      "to_profile": "Profilinize gidin",
       "login": "Giriş yap",
-      "use_another_email": "Farklı bir e-posta kullan"
+      "use_another_email": "Farklı bir e-posta adresi kullanın"
     }
   },
   "paymentFooter": {
     "copyright": "© {{year}} JungleVPN. Tüm hakları saklıdır.",
-    "terms": "Hizmet Koşulları",
+    "terms": "Hizmet Şartları",
     "support": "Bize ulaşın"
   },
   "paddleCheckout": {
     "title": "Ödeme",
-    "subtitle": "Aboneliğinizi etkinleştirmek için ödemeyi tamamlayın"
+    "subtitle": "Aboneliğinizi etkinleştirmek için ödemenizi tamamlayın"
   },
   "ipStatus": {
     "yourIp": "IP adresiniz: {{ip}}",
@@ -1197,28 +1198,28 @@
     "unprotected": "Korunmuyorsunuz!"
   },
   "myIp": {
-    "title": "Web siteleri sizin hakkınızda çok şey bilir",
-    "subtitle": "VPN olmadan gerçek verileriniz internetteki tüm hizmetlerin erişimine açıktır.",
-    "learn": "Gizliliğin temelleri",
+    "title": "Web siteleri sizin hakkınızda çok şey biliyor",
+    "subtitle": "VPN olmadan, gerçek verileriniz İnternet'teki tüm hizmetler tarafından görülebilir.",
+    "learn": "Gizlilikle ilgili temel bilgiler",
     "connection": {
-      "title": "Bir IP adresi sizin hakkınızda ne söyleyebilir?"
+      "title": "Bir IP adresi size neyi söyleyebilir?"
     },
     "unavailable": "Kullanılamıyor",
     "mapAlt": "Yaklaşık konumunuzu gösteren harita: {{location}}",
-    "approximateLocation": "IP adresinize dayalı yaklaşık konum.",
+    "approximateLocation": "IP adresinize göre yaklaşık konumunuz.",
     "findPublicIp": {
-      "title": "Genel IP adresinizi nasıl bulursunuz?",
-      "body": "Genel IP adresinizi görmek için bu sayfanın en üstüne bakmanız yeterli. IP adresiniz, bağlantı konumunuz, internet servis sağlayıcınız ve bağlantınızın güvenli olup olmadığıyla ilgili bilgileri göreceksiniz."
+      "title": "Genel IP adresinizi nasıl bulabilirsiniz?",
+      "body": "Genel IP adresinizi görmek için bu sayfanın üst kısmına bakmanız yeterlidir. Bağlantı konumunuz, internet servis sağlayıcınız ve bağlantınızın güvenli olup olmadığı dahil olmak üzere IP adresinizle ilgili bilgileri burada görebilirsiniz."
     },
     "status": {
-      "checking": "Bağlantınız kontrol ediliyor",
+      "checking": "Bağlantınızı kontrol etme",
       "protected": "Bağlantınız korunuyor",
-      "unprotected": "Bağlantınız görünür durumda"
+      "unprotected": "Bağlantınız görünür"
     },
     "card": {
       "ip": "IP",
       "location": "Konum",
-      "isp": "İnternet servis sağlayıcısı",
+      "isp": "İnternet Servis Sağlayıcısı",
       "dns": "DNS sağlayıcısı",
       "browser": "Tarayıcı",
       "os": "İşletim sistemi"
@@ -1229,41 +1230,39 @@
     "os": {
       "unknown": "Bilinmeyen işletim sistemi"
     },
-    "whatIs": {
-      "title": "IP nedir?"
-    },
+    "whatIs": { "title": "IP nedir?" },
     "reveal": {
-      "title": "IP adresiniz ve bağlantınız neleri açığa çıkarır?",
-      "body": "IP adresiniz dijital ev adresiniz gibidir. Ziyaret ettiğiniz her web sitesi bunu görebilir ve yaklaşık konumunuzu, internet sağlayıcınızı ve daha pek çok bilgiyi öğrenebilir."
+      "title": "IP adresiniz ve bağlantınız neler ortaya çıkarır?",
+      "body": "IP adresiniz, dijital ev adresiniz gibidir. Ziyaret ettiğiniz her web sitesi bunu görebilir ve yaklaşık konumunuzu, internet sağlayıcınızı ve daha fazlasını öğrenebilir."
     },
     "fingerprint": {
       "title": "Web siteleri sizin hakkınızda daha da fazla bilgi toplayabilir",
-      "body": "Web siteleri, IP adresinizin ötesinde tarayıcı parmak izi yöntemiyle tarayıcınızı, işletim sisteminizi, ekran çözünürlüğünüzü, dil ayarlarınızı ve daha fazlasını tespit edebilir."
+      "body": "IP adresinizin ötesinde, web siteleri tarayıcı parmak izi teknolojisi sayesinde tarayıcınızı, işletim sisteminizi, ekran çözünürlüğünüzü, dil ayarlarınızı ve daha fazlasını tespit edebilir."
     },
     "vpn": {
       "title": "IP adresinizi değiştirerek konumunuzu gizleyebilir misiniz?",
-      "body": "Evet, VPN kullanarak. Bir VPN sunucusuna bağlandığınızda web siteleri sizin IP adresiniz yerine sunucunun IP adresini görür. Bu, gerçek konumunuzu gizler ve gizliliğinizi korur."
+      "body": "Evet, bir VPN kullanarak. Bir VPN sunucusuna bağlandığınızda, web siteleri sizin IP adresiniz yerine sunucunun IP adresini görür. Bu, gerçek konumunuzu gizler ve gizliliğinizi korur."
     },
     "aboutCards": {
       "ipAddress": {
         "label": "127.0.0.1",
-        "paragraph1": "IP adresi; bilgisayarlar, tabletler ve akıllı telefonlar dahil olmak üzere internete bağlanan tüm cihazlara atanan benzersiz bir numaradır."
+        "paragraph1": "IP adresi, internet bağlantısı sırasında bilgisayarlar, tabletler ve akıllı telefonlar dahil tüm cihazlara atanan benzersiz bir sayıdır."
       },
       "publicIpAddresses": {
         "label": "Genel IP adresleri",
-        "paragraph1": "Bunlar posta adresine benzetilebilir. Posta adresinizi vermeden bir arkadaşınızdan mektup alamadığınız gibi, IP adresinizi vermeden de bir web sitesinden resim veya metin indiremezsiniz."
+        "paragraph1": "Bunlar posta adresine benzetilebilir. Bir arkadaşınıza posta adresinizi vermezseniz ondan mektup alamazsınız; aynı şekilde, bir web sitesine IP adresinizi vermezseniz o siteden resim ve metin indiremezsiniz."
       },
       "privateIpAddresses": {
         "label": "Özel IP adresleri",
-        "paragraph1": "Bilgisayarınızın yalnızca genel bir IP adresi değil, aynı zamanda özel bir IP adresi de vardır. Özel IP adresleri, özel bir ağa bağlandığınızda atanır.",
-        "paragraph2": "Özel IP adresleri, internete bağlanmadan özel bir ağ içindeki bilgileri aktarmak için kullanılır. Genellikle 192.168 ile başlayan IP adresleri özel bir ağa aittir.",
-        "paragraph3": "Cihazınız ev ağınıza bağlandığında özel IP adresleri yönlendiriciniz tarafından atanır."
+        "paragraph1": "Bilgisayarınızın sadece bir genel IP adresi değil, aynı zamanda bir özel IP adresi de vardır. Bunlar, özel bir ağa bağlandığınızda verilir.",
+        "paragraph2": "Özel IP adresleri, İnternet'e bağlanmadan özel bir ağ içinde bilgi iletmek için kullanılır. Genellikle özel IP adresleri, özel bir ağa ait olduklarını gösteren 192.168 sayı kombinasyonuyla başlar.",
+        "paragraph3": "Özel IP adresleri, cihaz ev ağınıza bağlandığında yönlendiriciler tarafından atanır."
       },
       "versions": {
         "label": "IP adresi sürümleri",
-        "paragraph1": "Şu anda kullanılan iki IP adresi standardı vardır: IP sürüm 4 (IPv4) ve IP sürüm 6 (IPv6). Biçimleri ve karakter sayıları farklıdır; ancak her ikisi de cihaz tanımlama ve konuma dayalı adresleme için kullanılır.",
-        "paragraph2": "IPv4, örneğin 170.0.0.1 gibi noktayla ayrılmış dört adet 1–3 basamaklı sayı kümesinden oluşur. Yaklaşık 4 milyar benzersiz kombinasyon sağlayabilir. Bağlı cihaz sayısı 4 milyarı aştığında yeni bir standarda, IPv6'ya ihtiyaç duyuldu.",
-        "paragraph3": "IPv6, örneğin 3ffe:1900:fe21:4545 gibi iki noktayla ayrılmış sekiz adet dört haneli onaltılık sayı grubundan oluşur. Öngörülebilir gelecek için yeterli olan 3,4×10^38 olası benzersiz kombinasyon sunar."
+        "paragraph1": "Şu anda kullanımda olan iki IP adresi standardı vardır: IP sürüm 4 (IPv4) ve IP sürüm 6 (IPv6). Aralarındaki fark, biçim ve karakter sayısıdır. Ancak her iki standart da cihaz tanımlama ve konuma dayalı adresleme için kullanılır.",
+        "paragraph2": "IPv4, nokta ile ayrılmış dört adet 1–3 basamaklı sayı grubundan oluşur; örneğin, 170.0.0.1. Olası benzersiz kombinasyonların maksimum sayısı yaklaşık 4 milyardır. Bağlı cihaz sayısı 4 milyarı aştığında, yeni bir standart gerekli hale geldi: IPv6.",
+        "paragraph3": "IPv6, iki nokta üst üste ile ayrılmış sekiz grup dört onaltılık basamaktan oluşur; örneğin, 3ffe:1900:fe21:4545. Bu, öngörülebilir gelecek için yeterli olan 3,4×10^38 olası benzersiz kombinasyon oluşturur."
       }
     }
   },
@@ -1271,12 +1270,12 @@
     "info": {
       "name": "Kullanıcı adı",
       "status": "Durum",
-      "active": "Aktif",
-      "inactive": "Pasif",
-      "expires": "Bitiş tarihi",
-      "bandwidth": "Trafik",
-      "expired": "Süresi doldu",
-      "expiresIn": "Kalan süre",
+      "active": "Etkin",
+      "inactive": "Etkin Değil",
+      "expires": "Son Kullanma Tarihi",
+      "bandwidth": "Bant Genişliği",
+      "expired": "Süresi dolmuş",
+      "expiresIn": "Süresi",
       "indefinitely": "Süresiz",
       "unknown": "Bilinmiyor"
     },
@@ -1294,73 +1293,73 @@
       "steps": {
         "install": "Uygulama Kurulumu",
         "addSubscription": "Abonelik Ekle",
-        "connect": "Bağlanın ve kullanın",
+        "connect": "Bağlan ve kullan",
         "instructions": "Kurulum talimatları"
       },
       "apps": {
         "incy": {
           "ios": {
-            "install": "App Store'da sayfayı açın ve INCY'yi yükleyin.",
+            "install": "App Store'daki sayfayı açın ve INCY'yi yükleyin.",
             "addSubscription": "Aşağıdaki düğmeye tıklayın. INCY otomatik olarak açılacak ve abonelik eklenecektir.",
-            "connect": "Uygulamayı açın, listeden bir sunucu seçin ve bağlan düğmesine dokunun."
+            "connect": "Uygulamayı açın, listeden bir sunucu seçin ve \"bağlan\"a dokunun."
           },
           "macos": {
             "install": "Mac'iniz için uygun sürümü seçin, aşağıdaki düğmeye tıklayın ve INCY uygulamasını yükleyin.",
             "addSubscription": "Aşağıdaki düğmeye tıklayın. INCY otomatik olarak açılacak ve abonelik eklenecektir.",
-            "connect": "Uygulamayı açın, bir sunucu seçin ve VPN'i açın."
+            "connect": "Uygulamayı açın, bir sunucu seçin ve VPN'i etkinleştirin."
           },
           "android": {
             "install": "INCY'yi Google Play'den yükleyin veya APK dosyasını doğrudan indirin.",
             "addSubscription": "Aşağıdaki düğmeye tıklayın. INCY otomatik olarak açılacak ve abonelik eklenecektir.",
-            "connect": "Uygulamayı açın, listeden bir sunucu seçin ve bağlan düğmesine dokunun."
+            "connect": "Uygulamayı açın, listeden bir sunucu seçin ve \"bağlan\"a dokunun."
           },
           "appleTV": {
             "install": "Apple TV'nizdeki App Store'da sayfayı açın ve INCY'yi yükleyin.",
             "addSubscription": "Aboneliğinizi INCY'ye eklemek için aşağıdaki düğmeye tıklayın.",
-            "connect": "Uygulamayı açın, bir sunucu seçin ve VPN'i açın."
+            "connect": "Uygulamayı açın, bir sunucu seçin ve VPN'i etkinleştirin."
           },
           "windows": {
-            "install": "INCY'yi bilgisayarınıza kurmak için yükleyiciyi indirin ve çalıştırın.",
+            "install": "INCY'yi PC'nize kurmak için yükleyiciyi indirin ve çalıştırın.",
             "addSubscription": "Aşağıdaki düğmeye tıklayın. INCY otomatik olarak açılacak ve abonelik eklenecektir.",
-            "connect": "Uygulamayı açın, bir sunucu seçin ve VPN'i açın."
+            "connect": "Uygulamayı açın, bir sunucu seçin ve VPN'i etkinleştirin."
           },
           "androidTV": {
             "install": "INCY'yi Google Play'den yükleyin veya APK dosyasını doğrudan indirin.",
             "addSubscription": "Aşağıdaki düğmeye tıklayın. INCY otomatik olarak açılacak ve abonelik eklenecektir.",
-            "connect": "Uygulamayı açın, listeden bir sunucu seçin ve bağlan düğmesine dokunun."
+            "connect": "Uygulamayı açın, listeden bir sunucu seçin ve \"Bağlan\"a dokunun."
           }
         },
         "happ": {
           "ios": {
-            "install": "App Store'da sayfayı açın ve uygulamayı yükleyin. Uygulamayı başlatın, VPN yapılandırma izni penceresinde Allow (İzin Ver) düğmesine dokunun ve cihaz şifrenizi girin.",
+            "install": "App Store'daki sayfayı açın ve uygulamayı yükleyin. Uygulamayı başlatın, VPN yapılandırma izin penceresinde \"İzin Ver\"e tıklayın ve şifrenizi girin.",
             "addSubscription": "Aşağıdaki düğmeye tıklayın — uygulama açılacak ve abonelik otomatik olarak eklenecektir",
-            "connect": "Ana bölümde, VPN'e bağlanmak için ortadaki büyük güç düğmesine tıklayın. Sunucu listesinden bir sunucu seçmeyi unutmayın. Gerekirse listeden başka bir sunucu seçin."
+            "connect": "Ana bölümde, VPN'e bağlanmak için ortadaki büyük güç düğmesine tıklayın. Sunucu listesinden bir sunucu seçmeyi unutmayın. Gerekirse, sunucu listesinden başka bir sunucu seçin."
           },
           "macos": {
             "install": "Cihazınız için uygun sürümü seçin, aşağıdaki düğmeye tıklayın ve uygulamayı yükleyin.",
             "addSubscription": "Aşağıdaki düğmeye tıklayın — uygulama açılacak ve abonelik otomatik olarak eklenecektir",
-            "connect": "Ana bölümde, VPN'e bağlanmak için ortadaki büyük güç düğmesine tıklayın. Sunucu listesinden bir sunucu seçmeyi unutmayın. Gerekirse listeden başka bir sunucu seçin."
+            "connect": "Ana bölümde, VPN'e bağlanmak için ortadaki büyük güç düğmesine tıklayın. Sunucu listesinden bir sunucu seçmeyi unutmayın. Gerekirse, sunucu listesinden başka bir sunucu seçin."
           },
           "android": {
-            "install": "Google Play'de sayfayı açın ve uygulamayı yükleyin. Google Play çalışmıyorsa uygulamayı doğrudan APK dosyasından yükleyin.",
+            "install": "Google Play'deki sayfayı açın ve uygulamayı yükleyin. Ya da Google Play çalışmıyorsa, uygulamayı doğrudan APK dosyasından yükleyin.",
             "addSubscription": "Aboneliği eklemek için aşağıdaki düğmeye tıklayın",
             "connect": "Uygulamayı açın ve sunucuya bağlanın"
           },
           "appleTV": {
-            "install": "Apple TV'nizdeki App Store'da sayfayı açın ve uygulamayı yükleyin. Uygulamayı başlatın, istenirse VPN yapılandırmasına izin verin ve gerekirse cihaz şifrenizi girin.",
-            "instructions": "Happ'ı cihazınızda kurmanıza yardımcı olacak ayrıntılı talimatlar.",
-            "addSubscription": "Abonelik sayfasını televizyonunuzda açtıysanız, aboneliği eklemek için aşağıdaki düğmeye tıklayın",
+            "install": "Apple TV'nizdeki App Store'da sayfayı açın ve uygulamayı yükleyin. Uygulamayı başlatın, istenirse VPN yapılandırmasına izin verin ve gerekirse şifrenizi girin.",
+            "instructions": "Cihazınızda Happ'ı kurmanıza yardımcı olacak ayrıntılı talimatlar.",
+            "addSubscription": "TV'nizde abonelik sayfasını açtıysanız, aboneliği eklemek için aşağıdaki düğmeyi tıklayın",
             "connect": "Uygulamayı açın ve sunucuya bağlanın"
           },
           "windows": {
-            "install": "Cihazınız için uygun sürümü seçin, aşağıdaki düğmeye tıklayın ve uygulamayı yükleyin.",
+            "install": "Cihazınız için uygun sürümü seçin, aşağıdaki düğmeyi tıklayın ve uygulamayı yükleyin.",
             "addSubscription": "Aşağıdaki düğmeye tıklayın — uygulama açılacak ve abonelik otomatik olarak eklenecektir",
-            "connect": "Ana bölümde, VPN'e bağlanmak için ortadaki büyük güç düğmesine tıklayın. Sunucu listesinden bir sunucu seçmeyi unutmayın. Gerekirse listeden başka bir sunucu seçin."
+            "connect": "Ana bölümde, VPN'e bağlanmak için ortadaki büyük güç düğmesine tıklayın. Sunucu listesinden bir sunucu seçmeyi unutmayın. Gerekirse, sunucu listesinden başka bir sunucu seçin."
           },
           "androidTV": {
-            "install": "Google Play'de sayfayı açın ve uygulamayı yükleyin. Google Play çalışmıyorsa uygulamayı doğrudan APK dosyasından yükleyin.",
-            "instructions": "Happ'ı cihazınızda kurmanıza yardımcı olacak ayrıntılı talimatlar.",
-            "addSubscription": "Abonelik sayfasını televizyonunuzda açtıysanız, aboneliği eklemek için aşağıdaki düğmeye tıklayın",
+            "install": "Google Play'deki sayfayı açın ve uygulamayı yükleyin. Ya da Google Play çalışmıyorsa, uygulamayı doğrudan APK dosyasından yükleyin.",
+            "instructions": "Cihazınızda Happ'ı kurmanıza yardımcı olacak ayrıntılı talimatlar.",
+            "addSubscription": "TV'nizde abonelik sayfasını açtıysanız, aboneliği eklemek için aşağıdaki düğmeye tıklayın",
             "connect": "Uygulamayı açın ve sunucuya bağlanın"
           }
         }
@@ -1370,10 +1369,10 @@
         "addSubscription": "Abonelik Ekle",
         "appStoreRu": "App Store (RU)",
         "appStoreGlobal": "App Store (Global)",
-        "appleSiliconM1M2M3": "Apple Silicon (M1/M2/M3)",
+        "appleSiliconM1M2M3": "Apple Silicon (M1\/M2\/M3)",
         "macIntel": "Mac Intel",
         "openInGooglePlay": "Google Play'de aç",
-        "downloadApk": "APK indir",
+        "downloadApk": "APK'yi indir",
         "googlePlay": "Google Play",
         "inRussian": "Rusça",
         "inEnglish": "İngilizce",

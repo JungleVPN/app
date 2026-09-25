@@ -11,6 +11,7 @@ import { isLandingPath } from '../../utils';
 const LANGUAGE_FLAGS: Record<string, string> = {
   ar: '🇦🇪',
   en: '🇬🇧',
+  es: '🇪🇸',
   hi: '🇮🇳',
   id: '🇮🇩',
   pt: '🇧🇷',
@@ -72,6 +73,18 @@ export function LanguageSwitcher() {
               <Label>{t('languages.nativeTr')}</Label>
             </Dropdown.Item>
           )}
+          {isLocaleAllowed('pt') && (
+            <Dropdown.Item id='pt' textValue={t('languages.nativePt')}>
+              <span aria-hidden='true'>{LANGUAGE_FLAGS.pt}</span>
+              <Label>{t('languages.nativePt')}</Label>
+            </Dropdown.Item>
+          )}
+          {isLocaleAllowed('es') && (
+            <Dropdown.Item id='es' textValue={t('languages.nativeEs')}>
+              <span aria-hidden='true'>{LANGUAGE_FLAGS.es}</span>
+              <Label>{t('languages.nativeEs')}</Label>
+            </Dropdown.Item>
+          )}
           {isLocaleAllowed('id') && (
             <Dropdown.Item id='id' textValue={t('languages.nativeId')}>
               <span aria-hidden='true'>{LANGUAGE_FLAGS.id}</span>
@@ -82,12 +95,6 @@ export function LanguageSwitcher() {
             <Dropdown.Item id='hi' textValue={t('languages.nativeHi')}>
               <span aria-hidden='true'>{LANGUAGE_FLAGS.hi}</span>
               <Label>{t('languages.nativeHi')}</Label>
-            </Dropdown.Item>
-          )}
-          {isLocaleAllowed('pt') && (
-            <Dropdown.Item id='pt' textValue={t('languages.nativePt')}>
-              <span aria-hidden='true'>{LANGUAGE_FLAGS.pt}</span>
-              <Label>{t('languages.nativePt')}</Label>
             </Dropdown.Item>
           )}
         </Dropdown.Menu>

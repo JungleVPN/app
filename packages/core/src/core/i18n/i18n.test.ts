@@ -104,6 +104,11 @@ describe('global domain path routing', () => {
     expect(i18n.resolvedLanguage).toBe('pt');
   });
 
+  it('serves Spanish on the /es path', async () => {
+    const i18n = await bootI18n({ hostname: 'jungle-vpn.com', language: 'en-GB', pathname: '/es' });
+    expect(i18n.resolvedLanguage).toBe('es');
+  });
+
   it('lets the URL path win over a previously cached choice', async () => {
     localStorage.setItem('i18nextLng', 'en');
     const i18n = await bootI18n({ hostname: 'jungle-vpn.com', language: 'en-GB', pathname: '/ar' });

@@ -239,12 +239,14 @@ describe('UserNotConnectedListener', () => {
       expect(await emailHtmlFor('global', 'id')).toContain('lang="id"');
       expect(await emailHtmlFor('global', 'hi')).toContain('lang="hi"');
       expect(await emailHtmlFor('global', 'pt')).toContain('lang="pt"');
+      expect(await emailHtmlFor('global', 'es')).toContain('lang="es"');
     });
 
     // Telegram reports regional tags such as `pt-br`, and that raw value is what lands in `lang`.
     it('picks the email language from the base of a regional user lang', async () => {
       expect(await emailHtmlFor('global', 'pt-br')).toContain('lang="pt"');
       expect(await emailHtmlFor('global', 'pt-BR')).toContain('lang="pt"');
+      expect(await emailHtmlFor('global', 'es-MX')).toContain('lang="es"');
       expect(await emailHtmlFor('global', 'en-US')).toContain('lang="en"');
     });
 

@@ -347,20 +347,24 @@ describe('EmailNotificationService', () => {
       const indonesian = await subjectsFor('id');
       const hindi = await subjectsFor('hi');
       const portuguese = await subjectsFor('pt');
+      const spanish = await subjectsFor('es');
 
       expect(english).not.toEqual(russian);
       expect(indonesian).not.toEqual(english);
       expect(hindi).not.toEqual(english);
       expect(portuguese).not.toEqual(english);
+      expect(spanish).not.toEqual(english);
       expect(english).toMatch(/[a-z]/i);
       expect(russian).toMatch(/[а-яё]/i);
       expect(indonesian).toContain('Pembayaran diterima');
       expect(hindi).toContain('भुगतान मिल गया');
       expect(portuguese).toContain('Pagamento recebido');
+      expect(spanish).toContain('Pago recibido');
 
       // Telegram reports regional tags such as `pt-br`, and that raw value is what lands in `lang`.
       expect(await subjectsFor('pt-br')).toBe(portuguese);
       expect(await subjectsFor('PT-BR')).toBe(portuguese);
+      expect(await subjectsFor('es-419')).toBe(spanish);
       expect(await subjectsFor('en-US')).toBe(english);
     });
 

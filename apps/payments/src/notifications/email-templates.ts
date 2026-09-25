@@ -1,4 +1,4 @@
-export type EmailLocale = 'en' | 'ru' | 'ar' | 'tr' | 'id' | 'hi' | 'pt';
+export type EmailLocale = 'en' | 'ru' | 'ar' | 'tr' | 'id' | 'hi' | 'pt' | 'es';
 export type ExpiryEmailLocale = EmailLocale;
 
 const RTL_LOCALES: ReadonlySet<EmailLocale> = new Set(['ar']);
@@ -11,7 +11,8 @@ export function isSupportedEmailLocale(locale: string): locale is EmailLocale {
     locale === 'tr' ||
     locale === 'id' ||
     locale === 'hi' ||
-    locale === 'pt'
+    locale === 'pt' ||
+    locale === 'es'
   );
 }
 
@@ -131,6 +132,7 @@ const SIGN_OFF: Record<EmailLocale, string> = {
   id: '— JungleVPN 🌴',
   hi: '— JungleVPN 🌴',
   pt: '— JungleVPN 🌴',
+  es: '— JungleVPN 🌴',
 };
 
 const SUPPORT_COPY: Record<EmailLocale, { prompt: string; linkLabel: string }> = {
@@ -141,6 +143,7 @@ const SUPPORT_COPY: Record<EmailLocale, { prompt: string; linkLabel: string }> =
   id: { prompt: 'Ada pertanyaan tentang akun Anda?', linkLabel: 'Hubungi dukungan' },
   hi: { prompt: 'अपने खाते से जुड़ा कोई सवाल है?', linkLabel: 'सहायता टीम से संपर्क करें' },
   pt: { prompt: 'Dúvidas sobre sua conta?', linkLabel: 'Fale com o suporte' },
+  es: { prompt: '¿Preguntas sobre tu cuenta?', linkLabel: 'Contactar con soporte' },
 };
 
 const FOOTER_NOTICE: Record<EmailLocale, string> = {
@@ -151,6 +154,7 @@ const FOOTER_NOTICE: Record<EmailLocale, string> = {
   id: 'Anda menerima email ini karena memiliki akun Jungle VPN.',
   hi: 'आपको यह ईमेल इसलिए मिला है क्योंकि आपका Jungle VPN खाता है।',
   pt: 'Você está recebendo este e-mail porque tem uma conta Jungle VPN.',
+  es: 'Recibes este correo porque tienes una cuenta de Jungle VPN.',
 };
 
 // ── Expiry reminder ──────────────────────────────────────────────────────────
@@ -229,6 +233,14 @@ const EXPIRY_COPY: Record<EmailLocale, ExpiryEmailCopy> = {
     planEndsLabel: 'O plano termina em',
     bodyCopy: 'Renove antes desta data para continuar conectado sem interrupções.',
     ctaLabel: 'Renovar assinatura',
+  },
+  es: {
+    subject: (days) => `Tu suscripción vence en ${days} día${days === 1 ? '' : 's'}`,
+    kicker: 'Estado de la suscripción',
+    headline: (days) => `Vence en ${days} día${days === 1 ? '' : 's'}`,
+    planEndsLabel: 'El plan termina el',
+    bodyCopy: 'Renueva antes de esta fecha para seguir conectado sin interrupciones.',
+    ctaLabel: 'Renovar suscripción',
   },
 };
 
@@ -418,6 +430,26 @@ const PAYMENT_ISSUE_COPY: Record<EmailLocale, Record<PaymentIssueReason, Payment
       ctaLabel: 'Atualizar método de pagamento',
     },
   },
+  es: {
+    no_active_method: {
+      subject: 'No pudimos renovar tu suscripción — no hay ningún método de pago activo',
+      kicker: 'Pago fallido',
+      headline: 'No hay ningún método de pago activo',
+      detailLabel: 'El acceso termina el',
+      bodyCopy:
+        'No tienes ningún método de pago guardado, así que no pudimos renovar tu suscripción automáticamente. Renueva tu suscripción para no perder el acceso.',
+      ctaLabel: 'Renovar suscripción',
+    },
+    insufficient_funds: {
+      subject: 'No pudimos renovar tu suscripción — fondos insuficientes',
+      kicker: 'Pago fallido',
+      headline: 'El pago de la renovación ha fallado',
+      detailLabel: 'El acceso termina el',
+      bodyCopy:
+        'Intentamos cobrar en tu método de pago guardado, pero los fondos eran insuficientes. Añade fondos o actualiza tu método de pago antes de la fecha indicada para mantener el acceso sin interrupciones.',
+      ctaLabel: 'Actualizar método de pago',
+    },
+  },
 };
 
 export function buildPaymentIssueSubject(locale: EmailLocale, reason: PaymentIssueReason): string {
@@ -498,6 +530,14 @@ const PAYMENT_SUCCESS_COPY: Record<EmailLocale, PaymentSuccessCopy> = {
     detailLabel: 'Ativa até',
     bodyCopy: 'Obrigado pelo pagamento! Sua assinatura está ativa e pronta para uso.',
     ctaLabel: 'Gerenciar assinatura',
+  },
+  es: {
+    subject: 'Pago recibido — tu suscripción está activa',
+    kicker: 'Pago confirmado',
+    headline: 'La suscripción está activa',
+    detailLabel: 'Activa hasta',
+    bodyCopy: '¡Gracias por tu pago! Tu suscripción está activa y lista para usar.',
+    ctaLabel: 'Gestionar suscripción',
   },
 };
 

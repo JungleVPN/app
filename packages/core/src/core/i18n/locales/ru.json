@@ -74,7 +74,8 @@
     "nativeTr": "Türkçe",
     "nativeId": "Bahasa Indonesia",
     "nativeHi": "हिन्दी",
-    "nativePt": "Português"
+    "nativePt": "Português",
+    "nativeEs": "Español"
   },
   "profileTabs": {
     "ariaLabel": "Разделы профиля",

@@ -1,4 +1,4 @@
-export type NotConnectedEmailLocale = 'en' | 'ru' | 'ar' | 'tr' | 'id' | 'hi' | 'pt';
+export type NotConnectedEmailLocale = 'en' | 'ru' | 'ar' | 'tr' | 'id' | 'hi' | 'pt' | 'es';
 export type NotConnectedEmailStage = 24 | 48;
 
 const RTL_LOCALES: ReadonlySet<NotConnectedEmailLocale> = new Set(['ar']);
@@ -10,6 +10,7 @@ const SUPPORT_LINK_LABEL: Record<NotConnectedEmailLocale, string> = {
   id: 'Hubungi dukungan',
   hi: 'सहायता टीम से संपर्क करें',
   pt: 'Fale com o suporte',
+  es: 'Contactar con soporte',
 };
 
 export function isSupportedNotConnectedLocale(locale: string): locale is NotConnectedEmailLocale {
@@ -20,7 +21,8 @@ export function isSupportedNotConnectedLocale(locale: string): locale is NotConn
     locale === 'tr' ||
     locale === 'id' ||
     locale === 'hi' ||
-    locale === 'pt'
+    locale === 'pt' ||
+    locale === 'es'
   );
 }
 
@@ -166,6 +168,24 @@ const COPY: Record<
       bodyCopy:
         'Já se passaram 48 horas e sua conta ainda não está conectada. Se algo não estiver funcionando, nos avise e vamos ajudar a resolver — normalmente leva menos de um minuto.',
       ctaLabel: 'Obter ajuda agora',
+    },
+  },
+  es: {
+    24: {
+      subject: '¿Problemas para conectarte a Jungle? Estamos aquí para ayudarte',
+      kicker: 'Aún sin conexión',
+      headline: '¿Todavía no te has conectado?',
+      bodyCopy:
+        'Hemos notado que aún no te has conectado a Jungle. ¿Tienes algún problema con la configuración? Responde a este correo o contacta con soporte y te ayudaremos a conectarte.',
+      ctaLabel: 'Abrir la app',
+    },
+    48: {
+      subject: '48 horas y aún sin conexión — vamos a solucionarlo',
+      kicker: '¿Necesitas ayuda?',
+      headline: 'Aún sin conexión',
+      bodyCopy:
+        'Han pasado 48 horas y tu cuenta todavía no está conectada. Si algo no funciona, avísanos y te ayudaremos a solucionarlo — normalmente lleva menos de un minuto.',
+      ctaLabel: 'Obtener ayuda ahora',
     },
   },
 };
