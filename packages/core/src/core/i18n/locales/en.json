@@ -1264,5 +1264,121 @@
         "paragraph3": "IPv6 consists of eight groups of four hexadecimal digits separated by colons, for example, 3ffe:1900:fe21:4545. It creates 3.4×10^38 possible unique combinations, enough for the foreseeable future."
       }
     }
+  },
+  "subscriptionPage": {
+    "info": {
+      "name": "Username",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "expires": "Expires",
+      "bandwidth": "Bandwidth",
+      "expired": "Expired",
+      "expiresIn": "Expires in",
+      "indefinitely": "Indefinitely",
+      "unknown": "Unknown"
+    },
+    "installationGuideHeader": "Installation",
+    "platforms": {
+      "ios": "iOS",
+      "android": "Android",
+      "macos": "macOS",
+      "windows": "Windows",
+      "linux": "Linux",
+      "androidTV": "Android TV",
+      "appleTV": "Apple TV"
+    },
+    "guide": {
+      "steps": {
+        "install": "App Installation",
+        "addSubscription": "Add Subscription",
+        "connect": "Connect and use",
+        "instructions": "Installation instructions"
+      },
+      "apps": {
+        "incy": {
+          "ios": {
+            "install": "Open the page in App Store and install INCY.",
+            "addSubscription": "Click the button below. INCY will open automatically and the subscription will be added.",
+            "connect": "Open the app, select a server from the list, and tap connect."
+          },
+          "macos": {
+            "install": "Choose the version for your Mac, click the button below and install the INCY app.",
+            "addSubscription": "Click the button below. INCY will open automatically and the subscription will be added.",
+            "connect": "Open the app, choose a server, and turn on the VPN."
+          },
+          "android": {
+            "install": "Install INCY from Google Play or download the APK directly.",
+            "addSubscription": "Click the button below. INCY will open automatically and the subscription will be added.",
+            "connect": "Open the app, select a server from the list, and tap connect."
+          },
+          "appleTV": {
+            "install": "Open the page in the App Store on your Apple TV and install INCY.",
+            "addSubscription": "Click the button below to add your subscription to INCY.",
+            "connect": "Open the app, select a server, and turn on the VPN."
+          },
+          "windows": {
+            "install": "Download and run the installer to set up INCY on your PC.",
+            "addSubscription": "Click the button below. INCY will open automatically and the subscription will be added.",
+            "connect": "Open the app, choose a server, and turn on the VPN."
+          },
+          "androidTV": {
+            "install": "Install INCY from Google Play or download the APK directly.",
+            "addSubscription": "Click the button below. INCY will open automatically and the subscription will be added.",
+            "connect": "Open the app, select a server from the list, and tap connect."
+          }
+        },
+        "happ": {
+          "ios": {
+            "install": "Open the page in App Store and install the app. Launch it, in the VPN configuration permission window click Allow and enter your passcode.",
+            "addSubscription": "Click the button below — the app will open and the subscription will be added automatically",
+            "connect": "In the main section, click the large power button in the center to connect to VPN. Don't forget to select a server from the server list. If needed, choose another server from the server list."
+          },
+          "macos": {
+            "install": "Choose the version for your device, click the button below and install the app.",
+            "addSubscription": "Click the button below — the app will open and the subscription will be added automatically",
+            "connect": "In the main section, click the large power button in the center to connect to VPN. Don't forget to select a server from the server list. If needed, choose another server from the server list."
+          },
+          "android": {
+            "install": "Open the page in Google Play and install the app. Or install the app directly from the APK file if Google Play is not working.",
+            "addSubscription": "Click the button below to add subscription",
+            "connect": "Open the app and connect to the server"
+          },
+          "appleTV": {
+            "install": "Open the page in the App Store on your Apple TV and install the app. Launch it, allow VPN configuration if prompted, and enter your passcode if required.",
+            "instructions": "Detailed instructions to help you set up Happ on your device.",
+            "addSubscription": "Click the button below to add subscription, if you opened the subscription page on your TV",
+            "connect": "Open the app and connect to the server"
+          },
+          "windows": {
+            "install": "Choose the version for your device, click the button below and install the app.",
+            "addSubscription": "Click the button below — the app will open and the subscription will be added automatically",
+            "connect": "In the main section, click the large power button in the center to connect to VPN. Don't forget to select a server from the server list. If needed, choose another server from the server list."
+          },
+          "androidTV": {
+            "install": "Open the page in Google Play and install the app. Or install the app directly from the APK file if Google Play is not working.",
+            "instructions": "Detailed instructions to help you set up Happ on your device.",
+            "addSubscription": "Click the button below to add subscription, if you opened the subscription page on your TV",
+            "connect": "Open the app and connect to the server"
+          }
+        }
+      },
+      "buttons": {
+        "appStore": "App Store",
+        "addSubscription": "Add Subscription",
+        "appStoreRu": "App Store (RU)",
+        "appStoreGlobal": "App Store (Global)",
+        "appleSiliconM1M2M3": "Apple Silicon (M1/M2/M3)",
+        "macIntel": "Mac Intel",
+        "openInGooglePlay": "Open in Google Play",
+        "downloadApk": "Download APK",
+        "googlePlay": "Google Play",
+        "inRussian": "In Russian",
+        "inEnglish": "In English",
+        "windows": "Windows",
+        "windowsInstaller": "Windows Installer",
+        "takeALook": "Take a look"
+      }
+    }
   }
 }

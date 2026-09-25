@@ -1266,5 +1266,121 @@
         "paragraph3": "IPv6, örneğin 3ffe:1900:fe21:4545 gibi iki noktayla ayrılmış sekiz adet dört haneli onaltılık sayı grubundan oluşur. Öngörülebilir gelecek için yeterli olan 3,4×10^38 olası benzersiz kombinasyon sunar."
       }
     }
+  },
+  "subscriptionPage": {
+    "info": {
+      "name": "Kullanıcı adı",
+      "status": "Durum",
+      "active": "Aktif",
+      "inactive": "Pasif",
+      "expires": "Bitiş tarihi",
+      "bandwidth": "Trafik",
+      "expired": "Süresi doldu",
+      "expiresIn": "Kalan süre",
+      "indefinitely": "Süresiz",
+      "unknown": "Bilinmiyor"
+    },
+    "installationGuideHeader": "Kurulum",
+    "platforms": {
+      "ios": "iOS",
+      "android": "Android",
+      "macos": "macOS",
+      "windows": "Windows",
+      "linux": "Linux",
+      "androidTV": "Android TV",
+      "appleTV": "Apple TV"
+    },
+    "guide": {
+      "steps": {
+        "install": "Uygulama Kurulumu",
+        "addSubscription": "Abonelik Ekle",
+        "connect": "Bağlanın ve kullanın",
+        "instructions": "Kurulum talimatları"
+      },
+      "apps": {
+        "incy": {
+          "ios": {
+            "install": "App Store'da sayfayı açın ve INCY'yi yükleyin.",
+            "addSubscription": "Aşağıdaki düğmeye tıklayın. INCY otomatik olarak açılacak ve abonelik eklenecektir.",
+            "connect": "Uygulamayı açın, listeden bir sunucu seçin ve bağlan düğmesine dokunun."
+          },
+          "macos": {
+            "install": "Mac'iniz için uygun sürümü seçin, aşağıdaki düğmeye tıklayın ve INCY uygulamasını yükleyin.",
+            "addSubscription": "Aşağıdaki düğmeye tıklayın. INCY otomatik olarak açılacak ve abonelik eklenecektir.",
+            "connect": "Uygulamayı açın, bir sunucu seçin ve VPN'i açın."
+          },
+          "android": {
+            "install": "INCY'yi Google Play'den yükleyin veya APK dosyasını doğrudan indirin.",
+            "addSubscription": "Aşağıdaki düğmeye tıklayın. INCY otomatik olarak açılacak ve abonelik eklenecektir.",
+            "connect": "Uygulamayı açın, listeden bir sunucu seçin ve bağlan düğmesine dokunun."
+          },
+          "appleTV": {
+            "install": "Apple TV'nizdeki App Store'da sayfayı açın ve INCY'yi yükleyin.",
+            "addSubscription": "Aboneliğinizi INCY'ye eklemek için aşağıdaki düğmeye tıklayın.",
+            "connect": "Uygulamayı açın, bir sunucu seçin ve VPN'i açın."
+          },
+          "windows": {
+            "install": "INCY'yi bilgisayarınıza kurmak için yükleyiciyi indirin ve çalıştırın.",
+            "addSubscription": "Aşağıdaki düğmeye tıklayın. INCY otomatik olarak açılacak ve abonelik eklenecektir.",
+            "connect": "Uygulamayı açın, bir sunucu seçin ve VPN'i açın."
+          },
+          "androidTV": {
+            "install": "INCY'yi Google Play'den yükleyin veya APK dosyasını doğrudan indirin.",
+            "addSubscription": "Aşağıdaki düğmeye tıklayın. INCY otomatik olarak açılacak ve abonelik eklenecektir.",
+            "connect": "Uygulamayı açın, listeden bir sunucu seçin ve bağlan düğmesine dokunun."
+          }
+        },
+        "happ": {
+          "ios": {
+            "install": "App Store'da sayfayı açın ve uygulamayı yükleyin. Uygulamayı başlatın, VPN yapılandırma izni penceresinde Allow (İzin Ver) düğmesine dokunun ve cihaz şifrenizi girin.",
+            "addSubscription": "Aşağıdaki düğmeye tıklayın — uygulama açılacak ve abonelik otomatik olarak eklenecektir",
+            "connect": "Ana bölümde, VPN'e bağlanmak için ortadaki büyük güç düğmesine tıklayın. Sunucu listesinden bir sunucu seçmeyi unutmayın. Gerekirse listeden başka bir sunucu seçin."
+          },
+          "macos": {
+            "install": "Cihazınız için uygun sürümü seçin, aşağıdaki düğmeye tıklayın ve uygulamayı yükleyin.",
+            "addSubscription": "Aşağıdaki düğmeye tıklayın — uygulama açılacak ve abonelik otomatik olarak eklenecektir",
+            "connect": "Ana bölümde, VPN'e bağlanmak için ortadaki büyük güç düğmesine tıklayın. Sunucu listesinden bir sunucu seçmeyi unutmayın. Gerekirse listeden başka bir sunucu seçin."
+          },
+          "android": {
+            "install": "Google Play'de sayfayı açın ve uygulamayı yükleyin. Google Play çalışmıyorsa uygulamayı doğrudan APK dosyasından yükleyin.",
+            "addSubscription": "Aboneliği eklemek için aşağıdaki düğmeye tıklayın",
+            "connect": "Uygulamayı açın ve sunucuya bağlanın"
+          },
+          "appleTV": {
+            "install": "Apple TV'nizdeki App Store'da sayfayı açın ve uygulamayı yükleyin. Uygulamayı başlatın, istenirse VPN yapılandırmasına izin verin ve gerekirse cihaz şifrenizi girin.",
+            "instructions": "Happ'ı cihazınızda kurmanıza yardımcı olacak ayrıntılı talimatlar.",
+            "addSubscription": "Abonelik sayfasını televizyonunuzda açtıysanız, aboneliği eklemek için aşağıdaki düğmeye tıklayın",
+            "connect": "Uygulamayı açın ve sunucuya bağlanın"
+          },
+          "windows": {
+            "install": "Cihazınız için uygun sürümü seçin, aşağıdaki düğmeye tıklayın ve uygulamayı yükleyin.",
+            "addSubscription": "Aşağıdaki düğmeye tıklayın — uygulama açılacak ve abonelik otomatik olarak eklenecektir",
+            "connect": "Ana bölümde, VPN'e bağlanmak için ortadaki büyük güç düğmesine tıklayın. Sunucu listesinden bir sunucu seçmeyi unutmayın. Gerekirse listeden başka bir sunucu seçin."
+          },
+          "androidTV": {
+            "install": "Google Play'de sayfayı açın ve uygulamayı yükleyin. Google Play çalışmıyorsa uygulamayı doğrudan APK dosyasından yükleyin.",
+            "instructions": "Happ'ı cihazınızda kurmanıza yardımcı olacak ayrıntılı talimatlar.",
+            "addSubscription": "Abonelik sayfasını televizyonunuzda açtıysanız, aboneliği eklemek için aşağıdaki düğmeye tıklayın",
+            "connect": "Uygulamayı açın ve sunucuya bağlanın"
+          }
+        }
+      },
+      "buttons": {
+        "appStore": "App Store",
+        "addSubscription": "Abonelik Ekle",
+        "appStoreRu": "App Store (RU)",
+        "appStoreGlobal": "App Store (Global)",
+        "appleSiliconM1M2M3": "Apple Silicon (M1/M2/M3)",
+        "macIntel": "Mac Intel",
+        "openInGooglePlay": "Google Play'de aç",
+        "downloadApk": "APK indir",
+        "googlePlay": "Google Play",
+        "inRussian": "Rusça",
+        "inEnglish": "İngilizce",
+        "windows": "Windows",
+        "windowsInstaller": "Windows Yükleyici",
+        "takeALook": "Bir göz atın"
+      }
+    }
   }
 }

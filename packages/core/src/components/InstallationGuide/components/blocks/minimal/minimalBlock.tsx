@@ -1,16 +1,12 @@
 import { Surface } from '@heroui/react';
 import { Paragraph } from '../../../../../ui/Paragraph';
-import { getColorGradient, getLocalizedText } from '../../../../../utils';
+import { getColorGradient } from '../../../../../utils';
 import { ThemeIconComponent } from '../../../../ThemeIcon/ThemeIcon';
 import { BlockButtons } from '../../BlockButton/BlockButtons';
 import type { IBlockRendererProps } from '../rendererBlock.interface';
 import classes from './minimalBlock.module.css';
 
-export const MinimalBlockRenderer = ({
-  blocks,
-  currentLang,
-  getIconFromLibrary,
-}: IBlockRendererProps) => {
+export const MinimalBlockRenderer = ({ blocks, getIconFromLibrary }: IBlockRendererProps) => {
   return (
     <Surface className='z-[3] flex flex-col gap-4' variant='transparent'>
       {blocks.map((block, index) => {
@@ -26,13 +22,13 @@ export const MinimalBlockRenderer = ({
               />
               <Paragraph
                 dangerouslySetInnerHTML={{
-                  __html: getLocalizedText(block.title, currentLang),
+                  __html: block.title,
                 }}
               />
             </div>
             <Paragraph
               dangerouslySetInnerHTML={{
-                __html: getLocalizedText(block.description, currentLang),
+                __html: block.description,
               }}
             />
             {block.buttons.length > 0 ? (

@@ -6,14 +6,15 @@ import {
   IconUserScan,
   IconX,
 } from '@tabler/icons-react';
-import { useTranslation } from '../../hooks';
+import { useTranslation } from 'react-i18next';
 import { useSubscription } from '../../stores';
 import { Grid, GridItem } from '../../ui';
-import { formatDate, getExpirationTextUtil } from '../../utils';
+import { formatExpiryDate, getExpirationText } from '../../utils';
 import { InfoBlock } from '../InfoBlock/InfoBlock';
 
 export const SubscriptionInfoExpanded = () => {
-  const { t, currentLang, baseTranslations } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.resolvedLanguage ?? i18n.language;
   const subscription = useSubscription();
 
   const { user } = subscription;
@@ -30,7 +31,7 @@ export const SubscriptionInfoExpanded = () => {
                   user.daysLeft === 0 ? 'font-semibold text-danger' : 'font-semibold text-muted'
                 }
               >
-                {getExpirationTextUtil(user.expiresAt, currentLang, baseTranslations)}
+                {getExpirationText({ expireAt: user.expiresAt, lang, t })}
               </Card.Description>
             </div>
           </div>
@@ -41,7 +42,7 @@ export const SubscriptionInfoExpanded = () => {
             <InfoBlock
               color='blue'
               icon={<IconUserScan size={16} />}
-              title={t(baseTranslations.name)}
+              title={t('subscriptionPage.info.name')}
               value={user.username}
             />
           </GridItem>
@@ -50,11 +51,11 @@ export const SubscriptionInfoExpanded = () => {
             <InfoBlock
               color={user.userStatus === 'ACTIVE' ? 'green' : 'red'}
               icon={user.userStatus === 'ACTIVE' ? <IconCheck size={16} /> : <IconX size={16} />}
-              title={t(baseTranslations.status)}
+              title={t('subscriptionPage.info.status')}
               value={
                 user.userStatus === 'ACTIVE'
-                  ? t(baseTranslations.active)
-                  : t(baseTranslations.inactive)
+                  ? t('subscriptionPage.info.active')
+                  : t('subscriptionPage.info.inactive')
               }
             />
           </GridItem>
@@ -63,8 +64,8 @@ export const SubscriptionInfoExpanded = () => {
             <InfoBlock
               color='red'
               icon={<IconCalendar size={16} />}
-              title={t(baseTranslations.expires)}
-              value={formatDate(user.expiresAt, currentLang, baseTranslations)}
+              title={t('subscriptionPage.info.expires')}
+              value={formatExpiryDate({ date: user.expiresAt, lang, t })}
             />
           </GridItem>
 
@@ -72,7 +73,7 @@ export const SubscriptionInfoExpanded = () => {
             <InfoBlock
               color='yellow'
               icon={<IconArrowsUpDown size={16} />}
-              title={t(baseTranslations.bandwidth)}
+              title={t('subscriptionPage.info.bandwidth')}
               value={`${user.trafficUsed} / ${user.trafficLimit === '0' ? '∞' : user.trafficLimit}`}
             />
           </GridItem>

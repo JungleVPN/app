@@ -1,7 +1,7 @@
 import { Card, Separator } from '@heroui/react';
 import { TSubscriptionPageRawConfig } from '@remnawave/subscription-page-types';
 import { TSubscriptionPagePlatformKey } from '@workspace/types';
-import { useTranslation } from '../../hooks';
+import { useTranslation } from 'react-i18next';
 import { useSubscriptionConfig } from '../../stores';
 import { userScope } from '../../utils';
 import { AppTabs } from './components/AppTabs/AppTabs';
@@ -40,7 +40,7 @@ function renderBlocks(
 }
 
 export function InstallationGuideConnector({ hasPlatformApps, platform, type }: IProps) {
-  const { t, baseTranslations } = useTranslation();
+  const { t } = useTranslation();
   const isGlobalUser = userScope() === 'global';
   const { svgLibrary } = useSubscriptionConfig();
   const {
@@ -59,7 +59,7 @@ export function InstallationGuideConnector({ hasPlatformApps, platform, type }: 
       <Card.Content className='flex flex-col gap-4'>
         <div className='flex items-center justify-between gap-2'>
           <Card.Title className='text-foreground text-lg'>
-            {t(baseTranslations.installationGuideHeader)}
+            {t('subscriptionPage.installationGuideHeader')}
           </Card.Title>
           <PlatformSelector
             options={platformOptions}

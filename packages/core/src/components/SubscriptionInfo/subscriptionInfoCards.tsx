@@ -7,11 +7,10 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
-import { useTranslation } from '../../hooks';
+import { useTranslation } from 'react-i18next';
 import { useSubscription } from '../../stores';
-import { Block, Grid, GridItem } from '../../ui';
-import { Paragraph } from '../../ui/Paragraph';
-import { formatDate } from '../../utils';
+import { Block, Grid, GridItem, Paragraph } from '../../ui';
+import { formatExpiryDate } from '../../utils';
 import classes from './subscriptionInfoCards.module.css';
 
 type ColorVariant = 'blue' | 'cyan' | 'green' | 'orange' | 'red' | 'teal' | 'violet' | 'yellow';
@@ -54,13 +53,16 @@ const CardItem = ({ icon, label, value, color }: CardItemProps) => {
 };
 
 export const SubscriptionInfoCards = () => {
-  const { t, currentLang, baseTranslations } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.resolvedLanguage ?? i18n.language;
   const subscription = useSubscription();
 
   const { user } = subscription;
 
   const isActive = user.userStatus === 'ACTIVE';
-  const statusText = isActive ? t(baseTranslations.active) : t(baseTranslations.inactive);
+  const statusText = isActive
+    ? t('subscriptionPage.info.active')
+    : t('subscriptionPage.info.inactive');
 
   const bandwidthValue =
     user.trafficLimit === '0'
@@ -74,7 +76,7 @@ export const SubscriptionInfoCards = () => {
           <CardItem
             color='blue'
             icon={<IconUserScan size={18} />}
-            label={t(baseTranslations.name)}
+            label={t('subscriptionPage.info.name')}
             value={user.username}
           />
         </GridItem>
@@ -83,7 +85,7 @@ export const SubscriptionInfoCards = () => {
           <CardItem
             color={isActive ? 'green' : 'red'}
             icon={isActive ? <IconCheck size={18} /> : <IconX size={18} />}
-            label={t(baseTranslations.status)}
+            label={t('subscriptionPage.info.status')}
             value={statusText}
           />
         </GridItem>
@@ -92,8 +94,8 @@ export const SubscriptionInfoCards = () => {
           <CardItem
             color='orange'
             icon={<IconCalendar size={18} />}
-            label={t(baseTranslations.expires)}
-            value={formatDate(user.expiresAt, currentLang, baseTranslations)}
+            label={t('subscriptionPage.info.expires')}
+            value={formatExpiryDate({ date: user.expiresAt, lang, t })}
           />
         </GridItem>
 
@@ -101,7 +103,7 @@ export const SubscriptionInfoCards = () => {
           <CardItem
             color='cyan'
             icon={<IconArrowsUpDown size={18} />}
-            label={t(baseTranslations.bandwidth)}
+            label={t('subscriptionPage.info.bandwidth')}
             value={bandwidthValue}
           />
         </GridItem>

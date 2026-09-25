@@ -1,7 +1,6 @@
 import type {
   TSubscriptionPageLanguageCode,
   TSubscriptionPageLocalizedText,
-  TSubscriptionPageRawConfig,
 } from '@remnawave/subscription-page-types';
 import dayjs from 'dayjs';
 
@@ -17,48 +16,33 @@ export function getLocalizedText(
   return textObj[lang];
 }
 
-export function getExpirationTextUtil(
-  expireAt: Date | null | string,
-  currentLang: TSubscriptionPageLanguageCode,
-  baseTranslations: TSubscriptionPageRawConfig['baseTranslations'],
-): string {
-  if (!expireAt) {
-    return getLocalizedText(baseTranslations.unknown, currentLang);
-  }
+type TExpiryText = {
+  lang: string;
+  t: (key: string) => string;
+};
 
-  const expiration = dayjs(expireAt).locale(currentLang);
-  const now = dayjs();
+const isIndefinite = (date: Date | string) => dayjs(date).year() === 2099;
 
-  if (expiration.isBefore(now)) {
-    return `${getLocalizedText(baseTranslations.expired, currentLang)} ${expiration.fromNow(false)}`;
-  }
+export function getExpirationText({
+  expireAt,
+  lang,
+  t,
+}: TExpiryText & { expireAt: Date | null | string }): string {
+  if (!expireAt) return t('subscriptionPage.info.unknown');
+  if (isIndefinite(expireAt)) return t('subscriptionPage.info.indefinitely');
 
-  if (expiration.year() === 2099) {
-    return getLocalizedText(baseTranslations.indefinitely, currentLang);
-  }
+  const expiration = dayjs(expireAt).locale(lang);
+  const label = expiration.isBefore(dayjs())
+    ? t('subscriptionPage.info.expired')
+    : t('subscriptionPage.info.expiresIn');
 
-  return `${getLocalizedText(baseTranslations.expiresIn, currentLang)} ${expiration.fromNow(false)}`;
+  return `${label} ${expiration.fromNow(false)}`;
 }
 
-export const formatDate = (
-  dateStr: Date | string,
-  currentLang: TSubscriptionPageLanguageCode,
-  baseTranslations: TSubscriptionPageRawConfig['baseTranslations'],
-) => {
-  if (dayjs(dateStr).year() === 2099) {
-    return getLocalizedText(baseTranslations.indefinitely, currentLang);
-  }
-  if (currentLang === 'fa') {
-    return Intl.DateTimeFormat('fa-IR', {
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-      hour: undefined,
-      minute: undefined,
-    }).format(new Date(dateStr));
-  }
-  return dayjs(dateStr).locale(currentLang).format('DD MMMM, YYYY');
-};
+export function formatExpiryDate({ date, lang, t }: TExpiryText & { date: Date | string }): string {
+  if (isIndefinite(date)) return t('subscriptionPage.info.indefinitely');
+  return dayjs(date).locale(lang).format('DD MMMM, YYYY');
+}
 
 export const calculateDaysLeft = (expireAt: string | Date): number => {
   const now = dayjs();

@@ -1,16 +1,12 @@
 import { Surface } from '@heroui/react';
 import { Paragraph } from '../../../../../ui/Paragraph';
-import { getColorGradientSolid, getLocalizedText } from '../../../../../utils';
+import { getColorGradientSolid } from '../../../../../utils';
 import { ThemeIconComponent } from '../../../../ThemeIcon/ThemeIcon';
 import { BlockButtons } from '../../BlockButton/BlockButtons';
 import type { IBlockRendererProps } from '../rendererBlock.interface';
 import classes from './timelineBlock.module.css';
 
-export const TimelineBlockRenderer = ({
-  blocks,
-  currentLang,
-  getIconFromLibrary,
-}: IBlockRendererProps) => {
+export const TimelineBlockRenderer = ({ blocks, getIconFromLibrary }: IBlockRendererProps) => {
   return (
     <Surface className={`z-[3] ${classes.timelineRoot}`} variant='transparent'>
       <div className='flex flex-col'>
@@ -39,12 +35,12 @@ export const TimelineBlockRenderer = ({
               <div className='min-w-0 flex-1 pb-4'>
                 <Paragraph
                   dangerouslySetInnerHTML={{
-                    __html: getLocalizedText(block.title, currentLang),
+                    __html: block.title,
                   }}
                 />
                 <Paragraph
                   dangerouslySetInnerHTML={{
-                    __html: getLocalizedText(block.description, currentLang),
+                    __html: block.description,
                   }}
                 />
                 <div className='mt-2'>

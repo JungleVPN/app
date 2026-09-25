@@ -1,14 +1,10 @@
 import { Card } from '@heroui/react';
-import { getColorGradient, getLocalizedText } from '../../../../../utils';
+import { getColorGradient } from '../../../../../utils';
 import { ThemeIconComponent } from '../../../../ThemeIcon/ThemeIcon';
 import { BlockButtons } from '../../BlockButton/BlockButtons';
 import type { IBlockRendererProps } from '../rendererBlock.interface';
 
-export const CardsBlockRenderer = ({
-  blocks,
-  currentLang,
-  getIconFromLibrary,
-}: IBlockRendererProps) => {
+export const CardsBlockRenderer = ({ blocks, getIconFromLibrary }: IBlockRendererProps) => {
   return (
     <div className='z-[3] flex flex-col gap-2'>
       {blocks.map((block, index) => {
@@ -28,7 +24,7 @@ export const CardsBlockRenderer = ({
                   <span
                     // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
                     dangerouslySetInnerHTML={{
-                      __html: getLocalizedText(block.title, currentLang),
+                      __html: block.title,
                     }}
                   />
                 </Card.Title>
@@ -37,7 +33,7 @@ export const CardsBlockRenderer = ({
                   <span
                     // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
                     dangerouslySetInnerHTML={{
-                      __html: getLocalizedText(block.description, currentLang),
+                      __html: block.description,
                     }}
                   />
                 </Card.Description>

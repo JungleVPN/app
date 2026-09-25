@@ -1266,5 +1266,121 @@
         "paragraph3": "IPv6 terdiri dari delapan kelompok empat digit heksadesimal yang dipisahkan oleh titik dua, misalnya 3ffe:1900:fe21:4545. Ini menciptakan 3,4×10^38 kemungkinan kombinasi unik, cukup untuk masa mendatang."
       }
     }
+  },
+  "subscriptionPage": {
+    "info": {
+      "name": "Nama pengguna",
+      "status": "Status",
+      "active": "Aktif",
+      "inactive": "Tidak aktif",
+      "expires": "Berakhir",
+      "bandwidth": "Trafik",
+      "expired": "Berakhir",
+      "expiresIn": "Berakhir",
+      "indefinitely": "Tanpa batas waktu",
+      "unknown": "Tidak diketahui"
+    },
+    "installationGuideHeader": "Instalasi",
+    "platforms": {
+      "ios": "iOS",
+      "android": "Android",
+      "macos": "macOS",
+      "windows": "Windows",
+      "linux": "Linux",
+      "androidTV": "Android TV",
+      "appleTV": "Apple TV"
+    },
+    "guide": {
+      "steps": {
+        "install": "Instalasi aplikasi",
+        "addSubscription": "Tambahkan langganan",
+        "connect": "Hubungkan dan gunakan",
+        "instructions": "Petunjuk instalasi"
+      },
+      "apps": {
+        "incy": {
+          "ios": {
+            "install": "Buka halaman di App Store dan instal INCY.",
+            "addSubscription": "Klik tombol di bawah. INCY akan terbuka otomatis dan langganan akan ditambahkan.",
+            "connect": "Buka aplikasi, pilih server dari daftar, lalu ketuk hubungkan."
+          },
+          "macos": {
+            "install": "Pilih versi untuk Mac Anda, klik tombol di bawah, lalu instal aplikasi INCY.",
+            "addSubscription": "Klik tombol di bawah. INCY akan terbuka otomatis dan langganan akan ditambahkan.",
+            "connect": "Buka aplikasi, pilih server, lalu nyalakan VPN."
+          },
+          "android": {
+            "install": "Instal INCY dari Google Play atau unduh APK secara langsung.",
+            "addSubscription": "Klik tombol di bawah. INCY akan terbuka otomatis dan langganan akan ditambahkan.",
+            "connect": "Buka aplikasi, pilih server dari daftar, lalu ketuk hubungkan."
+          },
+          "appleTV": {
+            "install": "Buka halaman di App Store pada Apple TV Anda dan instal INCY.",
+            "addSubscription": "Klik tombol di bawah untuk menambahkan langganan Anda ke INCY.",
+            "connect": "Buka aplikasi, pilih server, lalu nyalakan VPN."
+          },
+          "windows": {
+            "install": "Unduh dan jalankan penginstal untuk menyiapkan INCY di PC Anda.",
+            "addSubscription": "Klik tombol di bawah. INCY akan terbuka otomatis dan langganan akan ditambahkan.",
+            "connect": "Buka aplikasi, pilih server, lalu nyalakan VPN."
+          },
+          "androidTV": {
+            "install": "Instal INCY dari Google Play atau unduh APK secara langsung.",
+            "addSubscription": "Klik tombol di bawah. INCY akan terbuka otomatis dan langganan akan ditambahkan.",
+            "connect": "Buka aplikasi, pilih server dari daftar, lalu ketuk hubungkan."
+          }
+        },
+        "happ": {
+          "ios": {
+            "install": "Buka halaman di App Store dan instal aplikasinya. Jalankan, di jendela izin konfigurasi VPN klik Allow lalu masukkan kode sandi Anda.",
+            "addSubscription": "Klik tombol di bawah — aplikasi akan terbuka dan langganan ditambahkan secara otomatis",
+            "connect": "Di bagian utama, klik tombol daya besar di tengah untuk terhubung ke VPN. Jangan lupa pilih server dari daftar server. Jika perlu, pilih server lain dari daftar."
+          },
+          "macos": {
+            "install": "Pilih versi untuk perangkat Anda, klik tombol di bawah, lalu instal aplikasinya.",
+            "addSubscription": "Klik tombol di bawah — aplikasi akan terbuka dan langganan ditambahkan secara otomatis",
+            "connect": "Di bagian utama, klik tombol daya besar di tengah untuk terhubung ke VPN. Jangan lupa pilih server dari daftar server. Jika perlu, pilih server lain dari daftar."
+          },
+          "android": {
+            "install": "Buka halaman di Google Play dan instal aplikasinya. Atau instal langsung dari file APK jika Google Play tidak berfungsi.",
+            "addSubscription": "Klik tombol di bawah untuk menambahkan langganan",
+            "connect": "Buka aplikasi dan hubungkan ke server"
+          },
+          "appleTV": {
+            "install": "Buka halaman di App Store pada Apple TV Anda dan instal aplikasinya. Jalankan, izinkan konfigurasi VPN jika diminta, dan masukkan kode sandi jika diperlukan.",
+            "instructions": "Petunjuk lengkap untuk membantu Anda menyiapkan Happ di perangkat Anda.",
+            "addSubscription": "Jika Anda membuka halaman langganan di TV, klik tombol di bawah untuk menambahkan langganan",
+            "connect": "Buka aplikasi dan hubungkan ke server"
+          },
+          "windows": {
+            "install": "Pilih versi untuk perangkat Anda, klik tombol di bawah, lalu instal aplikasinya.",
+            "addSubscription": "Klik tombol di bawah — aplikasi akan terbuka dan langganan ditambahkan secara otomatis",
+            "connect": "Di bagian utama, klik tombol daya besar di tengah untuk terhubung ke VPN. Jangan lupa pilih server dari daftar server. Jika perlu, pilih server lain dari daftar."
+          },
+          "androidTV": {
+            "install": "Buka halaman di Google Play dan instal aplikasinya. Atau instal langsung dari file APK jika Google Play tidak berfungsi.",
+            "instructions": "Petunjuk lengkap untuk membantu Anda menyiapkan Happ di perangkat Anda.",
+            "addSubscription": "Jika Anda membuka halaman langganan di TV, klik tombol di bawah untuk menambahkan langganan",
+            "connect": "Buka aplikasi dan hubungkan ke server"
+          }
+        }
+      },
+      "buttons": {
+        "appStore": "App Store",
+        "addSubscription": "Tambahkan langganan",
+        "appStoreRu": "App Store (RU)",
+        "appStoreGlobal": "App Store (Global)",
+        "appleSiliconM1M2M3": "Apple Silicon (M1/M2/M3)",
+        "macIntel": "Mac Intel",
+        "openInGooglePlay": "Buka di Google Play",
+        "downloadApk": "Unduh APK",
+        "googlePlay": "Google Play",
+        "inRussian": "Bahasa Rusia",
+        "inEnglish": "Bahasa Inggris",
+        "windows": "Windows",
+        "windowsInstaller": "Penginstal Windows",
+        "takeALook": "Lihat petunjuk"
+      }
+    }
   }
 }

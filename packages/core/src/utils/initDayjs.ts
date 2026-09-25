@@ -1,5 +1,6 @@
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import 'dayjs/locale/ru';
+import 'dayjs/locale/ar';
 import 'dayjs/locale/fa';
 import 'dayjs/locale/zh';
 import 'dayjs/locale/fr';

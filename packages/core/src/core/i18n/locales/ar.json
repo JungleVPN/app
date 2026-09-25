@@ -1268,5 +1268,121 @@
         "paragraph3": "يتكوّن IPv6 من ثماني مجموعات من أربعة أرقام سداسية عشرية تفصل بينها نقطتان؛ مثل 3ffe:1900:fe21:4545. ويوفّر 3.4×10^38 تركيبة فريدة ممكنة، وهو عدد كافٍ للمستقبل المنظور."
       }
     }
+  },
+  "subscriptionPage": {
+    "info": {
+      "name": "اسم المستخدم",
+      "status": "الحالة",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "expires": "ينتهي",
+      "bandwidth": "الترافيك",
+      "expired": "منتهي",
+      "expiresIn": "ينتهي خلال",
+      "indefinitely": "بدون انتهاء",
+      "unknown": "غير معروف"
+    },
+    "installationGuideHeader": "التثبيت",
+    "platforms": {
+      "ios": "iOS",
+      "android": "Android",
+      "macos": "macOS",
+      "windows": "Windows",
+      "linux": "Linux",
+      "androidTV": "Android TV",
+      "appleTV": "Apple TV"
+    },
+    "guide": {
+      "steps": {
+        "install": "تثبيت التطبيق",
+        "addSubscription": "إضافة الاشتراك",
+        "connect": "الاتصال والاستخدام",
+        "instructions": "تعليمات التثبيت"
+      },
+      "apps": {
+        "incy": {
+          "ios": {
+            "install": "افتح الصفحة في App Store وثبّت INCY.",
+            "addSubscription": "اضغط الزر تحت — INCY هيفتح تلقائياً والاشتراك هيتضاف.",
+            "connect": "افتح التطبيق، اختار سيرفر من القائمة، واضغط اتصال."
+          },
+          "macos": {
+            "install": "اختار الإصدار المناسب لـ Mac بتاعك، اضغط الزر تحت وثبّت تطبيق INCY.",
+            "addSubscription": "اضغط الزر تحت — INCY هيفتح تلقائياً والاشتراك هيتضاف.",
+            "connect": "افتح التطبيق، اختار سيرفر، وشغّل الـ VPN."
+          },
+          "android": {
+            "install": "ثبّت INCY من Google Play أو حمّل الـ APK مباشرة.",
+            "addSubscription": "اضغط الزر تحت — INCY هيفتح تلقائياً والاشتراك هيتضاف.",
+            "connect": "افتح التطبيق، اختار سيرفر من القائمة، واضغط اتصال."
+          },
+          "appleTV": {
+            "install": "افتح الصفحة في App Store على Apple TV بتاعك وثبّت INCY.",
+            "addSubscription": "اضغط الزر تحت لإضافة اشتراكك لـ INCY.",
+            "connect": "افتح التطبيق، اختار سيرفر، وشغّل الـ VPN."
+          },
+          "windows": {
+            "install": "حمّل وشغّل المثبّت لإعداد INCY على حاسبك.",
+            "addSubscription": "اضغط الزر تحت — INCY هيفتح تلقائياً والاشتراك هيتضاف.",
+            "connect": "افتح التطبيق، اختار سيرفر، وشغّل الـ VPN."
+          },
+          "androidTV": {
+            "install": "ثبّت INCY من Google Play أو حمّل الـ APK مباشرة.",
+            "addSubscription": "اضغط الزر تحت — INCY هيفتح تلقائياً والاشتراك هيتضاف.",
+            "connect": "افتح التطبيق، اختار سيرفر من القائمة، واضغط اتصال."
+          }
+        },
+        "happ": {
+          "ios": {
+            "install": "افتح الصفحة في App Store وثبّت التطبيق. شغّله، في نافذة إذن VPN اضغط Allow وادخل رمزك.",
+            "addSubscription": "اضغط الزر تحت — التطبيق هيفتح والاشتراك هيتضاف تلقائياً.",
+            "connect": "في القسم الرئيسي، اضغط زر التشغيل الكبير في المنتصف للاتصال بالـ VPN. ما تنساش تختار سيرفر من القائمة. لو محتاج، اختار سيرفر تاني."
+          },
+          "macos": {
+            "install": "اختار الإصدار المناسب لجهازك، اضغط الزر تحت وثبّت التطبيق.",
+            "addSubscription": "اضغط الزر تحت — التطبيق هيفتح والاشتراك هيتضاف تلقائياً.",
+            "connect": "في القسم الرئيسي، اضغط زر التشغيل الكبير في المنتصف للاتصال بالـ VPN. ما تنساش تختار سيرفر من القائمة. لو محتاج، اختار سيرفر تاني."
+          },
+          "android": {
+            "install": "افتح الصفحة في Google Play وثبّت التطبيق. أو ثبّته من ملف APK مباشرة لو Google Play مش شغّال.",
+            "addSubscription": "اضغط الزر تحت لإضافة الاشتراك",
+            "connect": "افتح التطبيق واتصل بالسيرفر"
+          },
+          "appleTV": {
+            "install": "افتح الصفحة في App Store على Apple TV وثبّت التطبيق. شغّله، اسمح بإعداد الـ VPN لو طلب، وادخل رمزك لو محتاج.",
+            "instructions": "تعليمات تفصيلية لمساعدتك في إعداد Happ على جهازك.",
+            "addSubscription": "اضغط الزر تحت لإضافة الاشتراك، لو فتحت صفحة الاشتراك على التليفزيون",
+            "connect": "افتح التطبيق واتصل بالسيرفر"
+          },
+          "windows": {
+            "install": "اختار الإصدار المناسب لجهازك، اضغط الزر تحت وثبّت التطبيق.",
+            "addSubscription": "اضغط الزر تحت — التطبيق هيفتح والاشتراك هيتضاف تلقائياً.",
+            "connect": "في القسم الرئيسي، اضغط زر التشغيل الكبير في المنتصف للاتصال بالـ VPN. ما تنساش تختار سيرفر من القائمة. لو محتاج، اختار سيرفر تاني."
+          },
+          "androidTV": {
+            "install": "افتح الصفحة في Google Play وثبّت التطبيق. أو ثبّته من ملف APK مباشرة لو Google Play مش شغّال.",
+            "instructions": "تعليمات تفصيلية لمساعدتك في إعداد Happ على جهازك.",
+            "addSubscription": "اضغط الزر تحت لإضافة الاشتراك، لو فتحت صفحة الاشتراك على التليفزيون",
+            "connect": "افتح التطبيق واتصل بالسيرفر"
+          }
+        }
+      },
+      "buttons": {
+        "appStore": "App Store",
+        "addSubscription": "إضافة الاشتراك",
+        "appStoreRu": "App Store (RU)",
+        "appStoreGlobal": "App Store (Global)",
+        "appleSiliconM1M2M3": "Apple Silicon (M1/M2/M3)",
+        "macIntel": "Mac Intel",
+        "openInGooglePlay": "فتح في Google Play",
+        "downloadApk": "تحميل APK",
+        "googlePlay": "Google Play",
+        "inRussian": "بالروسية",
+        "inEnglish": "بالإنجليزية",
+        "windows": "Windows",
+        "windowsInstaller": "مثبّت Windows",
+        "takeALook": "ألق نظرة"
+      }
+    }
   }
 }

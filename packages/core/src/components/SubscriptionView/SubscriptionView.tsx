@@ -85,7 +85,7 @@ export function SubscriptionView({
         />
       ) : (
         <Button fullWidth onClick={() => navigate('/profile/plans')}>
-          Extend
+          {t('payment.extendButton')}
         </Button>
       )}
     </Surface>

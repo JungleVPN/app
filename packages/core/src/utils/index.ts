@@ -6,8 +6,8 @@ export type { ColorGradientStyle } from './colorParser';
 export { getColorGradient, getColorGradientSolid } from './colorParser';
 export {
   calculateDaysLeft,
-  formatDate,
-  getExpirationTextUtil,
+  formatExpiryDate,
+  getExpirationText,
   getIconFromLibrary,
   getLocalizedText,
 } from './configParser';

@@ -1,6 +1,6 @@
-import type { TSubscriptionPageButtonConfig } from '@workspace/types';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { TGuideButton } from '../../guideText';
 import { BlockButton } from './BlockButton';
 
 const { phCapture } = vi.hoisted(() => ({ phCapture: vi.fn() }));
@@ -14,17 +14,18 @@ vi.mock('../../../../utils', () => ({
   phCapture,
 }));
 
-function fakeButton(overrides: Partial<TSubscriptionPageButtonConfig> = {}) {
+function fakeButton(overrides: Partial<TGuideButton> = {}): TGuideButton {
   return {
     type: 'external',
     link: 'https://apps.apple.com/app/id123',
     text: { en: 'Download' },
+    label: 'Download',
     svgIconKey: 'apple',
     ...overrides,
-  } as TSubscriptionPageButtonConfig;
+  };
 }
 
-function renderButton(overrides: Partial<TSubscriptionPageButtonConfig> = {}) {
+function renderButton(overrides: Partial<TGuideButton> = {}) {
   const onCopy = vi.fn().mockResolvedValue(undefined);
   render(
     <BlockButton
@@ -34,7 +35,6 @@ function renderButton(overrides: Partial<TSubscriptionPageButtonConfig> = {}) {
       subscriptionUrl={'https://sub.example.com/abc'}
       svgLibrary={{}}
       onCopy={onCopy}
-      t={(text) => text.en ?? ''}
     />,
   );
   return { onCopy };

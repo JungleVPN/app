@@ -1,11 +1,11 @@
 import { Button, Disclosure, DisclosureGroup, Separator, Surface } from '@heroui/react';
 import { useState } from 'react';
-import { Paragraph } from '../../../../../ui/Paragraph';
-import { getLocalizedText, vibrate } from '../../../../../utils';
+import { Paragraph } from '../../../../../ui';
+import { vibrate } from '../../../../../utils';
 import { BlockButtons } from '../../BlockButton/BlockButtons';
 import type { IBlockRendererProps } from '../rendererBlock.interface';
 
-export const AccordionBlockRenderer = ({ blocks, currentLang }: IBlockRendererProps) => {
+export const AccordionBlockRenderer = ({ blocks }: IBlockRendererProps) => {
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(() => new Set(['0']));
 
   return (
@@ -38,7 +38,7 @@ export const AccordionBlockRenderer = ({ blocks, currentLang }: IBlockRendererPr
                         className='truncate text-sm font-semibold text-foreground'
                         // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
                         dangerouslySetInnerHTML={{
-                          __html: getLocalizedText(block.title, currentLang),
+                          __html: block.title,
                         }}
                       />
                     </span>
@@ -50,7 +50,7 @@ export const AccordionBlockRenderer = ({ blocks, currentLang }: IBlockRendererPr
                     <Paragraph
                       // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
                       dangerouslySetInnerHTML={{
-                        __html: getLocalizedText(block.description, currentLang),
+                        __html: block.description,
                       }}
                     />
                     <div className='mt-2'>

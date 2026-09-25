@@ -1264,5 +1264,121 @@
         "paragraph3": "O IPv6 consiste em oito grupos de quatro dígitos hexadecimais separados por dois pontos, por exemplo, 3ffe:1900:fe21:4545. Ele permite 3,4×10^38 combinações únicas possíveis, o que é suficiente para o futuro previsível."
       }
     }
+  },
+  "subscriptionPage": {
+    "info": {
+      "name": "Nome de usuário",
+      "status": "Status",
+      "active": "Ativa",
+      "inactive": "Inativa",
+      "expires": "Expira em",
+      "bandwidth": "Tráfego",
+      "expired": "Expirou",
+      "expiresIn": "Expira",
+      "indefinitely": "Sem prazo",
+      "unknown": "Desconhecido"
+    },
+    "installationGuideHeader": "Instalação",
+    "platforms": {
+      "ios": "iOS",
+      "android": "Android",
+      "macos": "macOS",
+      "windows": "Windows",
+      "linux": "Linux",
+      "androidTV": "Android TV",
+      "appleTV": "Apple TV"
+    },
+    "guide": {
+      "steps": {
+        "install": "Instalação do app",
+        "addSubscription": "Adicionar assinatura",
+        "connect": "Conecte e use",
+        "instructions": "Instruções de instalação"
+      },
+      "apps": {
+        "incy": {
+          "ios": {
+            "install": "Abra a página na App Store e instale o INCY.",
+            "addSubscription": "Toque no botão abaixo. O INCY abrirá automaticamente e a assinatura será adicionada.",
+            "connect": "Abra o app, escolha um servidor na lista e toque em conectar."
+          },
+          "macos": {
+            "install": "Escolha a versão para o seu Mac, toque no botão abaixo e instale o app INCY.",
+            "addSubscription": "Toque no botão abaixo. O INCY abrirá automaticamente e a assinatura será adicionada.",
+            "connect": "Abra o app, escolha um servidor e ative a VPN."
+          },
+          "android": {
+            "install": "Instale o INCY pelo Google Play ou baixe o APK diretamente.",
+            "addSubscription": "Toque no botão abaixo. O INCY abrirá automaticamente e a assinatura será adicionada.",
+            "connect": "Abra o app, escolha um servidor na lista e toque em conectar."
+          },
+          "appleTV": {
+            "install": "Abra a página na App Store da sua Apple TV e instale o INCY.",
+            "addSubscription": "Toque no botão abaixo para adicionar sua assinatura ao INCY.",
+            "connect": "Abra o app, escolha um servidor e ative a VPN."
+          },
+          "windows": {
+            "install": "Baixe e execute o instalador para configurar o INCY no seu PC.",
+            "addSubscription": "Toque no botão abaixo. O INCY abrirá automaticamente e a assinatura será adicionada.",
+            "connect": "Abra o app, escolha um servidor e ative a VPN."
+          },
+          "androidTV": {
+            "install": "Instale o INCY pelo Google Play ou baixe o APK diretamente.",
+            "addSubscription": "Toque no botão abaixo. O INCY abrirá automaticamente e a assinatura será adicionada.",
+            "connect": "Abra o app, escolha um servidor na lista e toque em conectar."
+          }
+        },
+        "happ": {
+          "ios": {
+            "install": "Abra a página na App Store e instale o app. Abra-o, na janela de permissão da configuração de VPN toque em Permitir e digite seu código.",
+            "addSubscription": "Toque no botão abaixo — o app abrirá e a assinatura será adicionada automaticamente",
+            "connect": "Na seção principal, toque no grande botão de ligar no centro para conectar à VPN. Não se esqueça de escolher um servidor na lista. Se precisar, escolha outro servidor da lista."
+          },
+          "macos": {
+            "install": "Escolha a versão para o seu dispositivo, toque no botão abaixo e instale o app.",
+            "addSubscription": "Toque no botão abaixo — o app abrirá e a assinatura será adicionada automaticamente",
+            "connect": "Na seção principal, toque no grande botão de ligar no centro para conectar à VPN. Não se esqueça de escolher um servidor na lista. Se precisar, escolha outro servidor da lista."
+          },
+          "android": {
+            "install": "Abra a página no Google Play e instale o app. Ou instale o app direto pelo arquivo APK se o Google Play não estiver funcionando.",
+            "addSubscription": "Toque no botão abaixo para adicionar a assinatura",
+            "connect": "Abra o app e conecte-se ao servidor"
+          },
+          "appleTV": {
+            "install": "Abra a página na App Store da sua Apple TV e instale o app. Abra-o, permita a configuração de VPN se for solicitado e digite seu código se necessário.",
+            "instructions": "Instruções detalhadas para configurar o Happ no seu dispositivo.",
+            "addSubscription": "Se você abriu a página da assinatura na TV, toque no botão abaixo para adicionar a assinatura",
+            "connect": "Abra o app e conecte-se ao servidor"
+          },
+          "windows": {
+            "install": "Escolha a versão para o seu dispositivo, toque no botão abaixo e instale o app.",
+            "addSubscription": "Toque no botão abaixo — o app abrirá e a assinatura será adicionada automaticamente",
+            "connect": "Na seção principal, toque no grande botão de ligar no centro para conectar à VPN. Não se esqueça de escolher um servidor na lista. Se precisar, escolha outro servidor da lista."
+          },
+          "androidTV": {
+            "install": "Abra a página no Google Play e instale o app. Ou instale o app direto pelo arquivo APK se o Google Play não estiver funcionando.",
+            "instructions": "Instruções detalhadas para configurar o Happ no seu dispositivo.",
+            "addSubscription": "Se você abriu a página da assinatura na TV, toque no botão abaixo para adicionar a assinatura",
+            "connect": "Abra o app e conecte-se ao servidor"
+          }
+        }
+      },
+      "buttons": {
+        "appStore": "App Store",
+        "addSubscription": "Adicionar assinatura",
+        "appStoreRu": "App Store (RU)",
+        "appStoreGlobal": "App Store (Global)",
+        "appleSiliconM1M2M3": "Apple Silicon (M1/M2/M3)",
+        "macIntel": "Mac Intel",
+        "openInGooglePlay": "Abrir no Google Play",
+        "downloadApk": "Baixar APK",
+        "googlePlay": "Google Play",
+        "inRussian": "Em russo",
+        "inEnglish": "Em inglês",
+        "windows": "Windows",
+        "windowsInstaller": "Instalador para Windows",
+        "takeALook": "Ver instruções"
+      }
+    }
   }
 }

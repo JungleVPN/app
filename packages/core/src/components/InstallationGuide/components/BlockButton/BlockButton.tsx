@@ -1,18 +1,14 @@
 import { Button } from '@heroui/react';
-import type {
-  TSubscriptionPageButtonConfig,
-  TSubscriptionPageLocalizedText,
-} from '@workspace/types';
 import { getIconFromLibrary, phCapture, TemplateEngine } from '../../../../utils';
+import type { TGuideButton } from '../../guideText';
 
 interface BlockButtonProps {
-  button: TSubscriptionPageButtonConfig;
+  button: TGuideButton;
   variant: 'secondary' | 'ghost';
   username: string;
   subscriptionUrl: string;
   svgLibrary: Record<string, string>;
   onCopy: (text: string) => Promise<void>;
-  t: (text: TSubscriptionPageLocalizedText) => string;
 }
 
 export function BlockButton({
@@ -22,7 +18,6 @@ export function BlockButton({
   subscriptionUrl,
   svgLibrary,
   onCopy,
-  t,
 }: BlockButtonProps) {
   const isCopy = button.type === 'copyButton';
   const isExternal = button.type === 'external';
@@ -50,7 +45,7 @@ export function BlockButton({
         // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted SVG icon string
         dangerouslySetInnerHTML={{ __html: getIconFromLibrary(button.svgIconKey, svgLibrary) }}
       />
-      {t(button.text)}
+      {button.label}
     </Button>
   );
 }

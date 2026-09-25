@@ -1,11 +1,12 @@
 import type { TSubscriptionPageRawConfig } from '@remnawave/subscription-page-types';
 import type { TSubscriptionPagePlatformKey } from '@workspace/types';
 import { useMemo, useState } from 'react';
-import { useTranslation } from '../../hooks';
+import { useGuideTranslation } from '../../hooks';
 import { useSubscriptionConfig } from '../../stores';
 import { getIconFromLibrary } from '../../utils';
 import type { IBlockRendererProps } from './components/blocks/rendererBlock.interface';
 import { type PlatformOption } from './components/PlatformSelector/PlatformSelector';
+import { translateGuideBlocks, translatePlatformName } from './guideText';
 
 interface UseInstallationGuideParams {
   hasPlatformApps: Record<TSubscriptionPagePlatformKey, boolean>;
@@ -29,7 +30,7 @@ function resolveInitialPlatform(
 }
 
 export function useInstallationGuide({ hasPlatformApps, platform }: UseInstallationGuideParams) {
-  const { t, currentLang } = useTranslation();
+  const { panelLang, translate } = useGuideTranslation();
   const { platforms, svgLibrary } = useSubscriptionConfig();
 
   const [selectedPlatformId, setSelectedPlatformId] = useState<TSubscriptionPagePlatformKey>(() =>
@@ -49,7 +50,12 @@ export function useInstallationGuide({ hasPlatformApps, platform }: UseInstallat
       return [
         {
           value: p,
-          label: t(cfg.displayName),
+          label: translatePlatformName({
+            platform: p,
+            displayName: cfg.displayName,
+            panelLang,
+            translate,
+          }),
           icon: getIconFromLibrary(cfg.svgIconKey, svgLibrary),
         },
       ];
@@ -66,12 +72,19 @@ export function useInstallationGuide({ hasPlatformApps, platform }: UseInstallat
 
   const installationBlocksProps = useMemo<IBlockRendererProps>(
     () => ({
-      blocks: selectedApp?.blocks ?? [],
-      currentLang,
+      blocks: selectedApp
+        ? translateGuideBlocks({
+            platform: selectedPlatformId,
+            appName: selectedApp.name,
+            blocks: selectedApp.blocks,
+            panelLang,
+            translate,
+          })
+        : [],
       getIconFromLibrary: (key: string) => getIconFromLibrary(key, svgLibrary),
       svgLibrary,
     }),
-    [currentLang, selectedApp?.blocks, svgLibrary],
+    [panelLang, translate, selectedPlatformId, selectedApp, svgLibrary],
   );
 
   return {
