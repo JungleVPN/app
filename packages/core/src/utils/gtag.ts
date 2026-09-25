@@ -11,10 +11,10 @@ declare global {
   }
 }
 
-const LOGIN_CONVERSION_SEND_TO = 'AW-18413233512/296KCJf2pu4cEOjKjsxE';
+const PURCHASE_CONVERSION_SEND_TO = 'AW-18413233512/296KCJf2pu4cEOjKjsxE';
 
-/** Reports the login conversion to Google Ads. No-op if gtag.js hasn't loaded (e.g. blocked). */
-export function trackLoginConversion(): void {
+/** Reports a successful payment to Google Ads. No-op if gtag.js hasn't loaded (e.g. blocked). */
+export function trackPurchaseConversion(): void {
   if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
-  window.gtag('event', 'conversion', { send_to: LOGIN_CONVERSION_SEND_TO });
+  window.gtag('event', 'conversion', { send_to: PURCHASE_CONVERSION_SEND_TO });
 }

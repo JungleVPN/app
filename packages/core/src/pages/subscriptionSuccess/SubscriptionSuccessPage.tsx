@@ -8,7 +8,7 @@ import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import { TgsSticker } from '../../ui';
 import { Heading } from '../../ui/Heading';
 import { Paragraph } from '../../ui/Paragraph';
-import { takePendingYookassaPayment } from '../../utils';
+import { takePendingYookassaPayment, trackPurchaseConversion } from '../../utils';
 
 export default function SubscriptionSuccessPage() {
   const { t } = useTranslation();
@@ -23,8 +23,9 @@ export default function SubscriptionSuccessPage() {
   // 'pending' resolves through the webhook moments later.
   useEffect(() => {
     const paymentId = takePendingYookassaPayment();
-    console.log(paymentId);
+
     if (!paymentId) {
+      trackPurchaseConversion();
       setLoading(false);
       return;
     }
@@ -38,6 +39,7 @@ export default function SubscriptionSuccessPage() {
           setLoading(false);
         }
         if (status === 'succeeded') {
+          trackPurchaseConversion();
           setLoading(false);
         }
       })

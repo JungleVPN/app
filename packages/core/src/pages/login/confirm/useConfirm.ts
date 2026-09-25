@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 import { useNavigation } from '../../../hooks';
 import { useAppRoutes, useSupabaseClient } from '../../../runtime';
-import { captureReferral, phCapture, trackLoginConversion } from '../../../utils';
+import { captureReferral, phCapture } from '../../../utils';
 
 export function useConfirm() {
   const supabase = useSupabaseClient();
@@ -50,7 +50,6 @@ export function useConfirm() {
       setLoading(false);
     } else {
       phCapture('otp_verified');
-      trackLoginConversion();
       const to = searchParams.get('to');
       navigate(to ?? profileSubscriptionPath);
     }

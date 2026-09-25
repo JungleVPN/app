@@ -48,7 +48,7 @@ export {
   WHAT_IS_VPN_PATH,
 } from './domain';
 export { formatCurrency, truncate } from './format';
-export { trackLoginConversion } from './gtag';
+export { trackPurchaseConversion } from './gtag';
 export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';
 export type { LlmsTxtOptions } from './llmsTxt';

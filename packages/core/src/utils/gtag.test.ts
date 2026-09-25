@@ -1,16 +1,16 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { trackLoginConversion } from './gtag';
+import { trackPurchaseConversion } from './gtag';
 
-describe('trackLoginConversion', () => {
+describe('trackPurchaseConversion', () => {
   afterEach(() => {
     Reflect.deleteProperty(window, 'gtag');
   });
 
-  it('reports the login conversion via window.gtag when it is present', () => {
+  it('reports the purchase conversion via window.gtag when it is present', () => {
     const gtag = vi.fn();
     window.gtag = gtag;
 
-    trackLoginConversion();
+    trackPurchaseConversion();
 
     expect(gtag).toHaveBeenCalledWith('event', 'conversion', {
       send_to: 'AW-18413233512/296KCJf2pu4cEOjKjsxE',
@@ -18,6 +18,6 @@ describe('trackLoginConversion', () => {
   });
 
   it('does not throw when window.gtag is not loaded (e.g. blocked by an ad blocker)', () => {
-    expect(() => trackLoginConversion()).not.toThrow();
+    expect(() => trackPurchaseConversion()).not.toThrow();
   });
 });
