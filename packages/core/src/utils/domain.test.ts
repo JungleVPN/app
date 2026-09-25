@@ -120,7 +120,14 @@ describe('localePolicyForHost', () => {
   });
 
   it('allows the global languages on jungle-vpn.com, so a ru-RU browser cannot force Russian', () => {
-    expect(localePolicyForHost('jungle-vpn.com', domains)).toEqual(['en', 'ar', 'tr', 'id', 'hi']);
+    expect(localePolicyForHost('jungle-vpn.com', domains)).toEqual([
+      'en',
+      'ar',
+      'tr',
+      'id',
+      'hi',
+      'pt',
+    ]);
   });
 
   it('applies the Russian policy to prefix-matched staging hosts', () => {
@@ -134,6 +141,7 @@ describe('localePolicyForHost', () => {
       'tr',
       'id',
       'hi',
+      'pt',
     ]);
   });
 
@@ -153,6 +161,7 @@ describe('isLandingPath', () => {
     '/tr',
     '/id',
     '/hi',
+    '/pt',
   ])('is true for the landing path %s', (pathname) => {
     expect(isLandingPath(pathname)).toBe(true);
   });
@@ -187,6 +196,7 @@ describe('isCrawlablePath', () => {
     '/tr',
     '/id',
     '/hi',
+    '/pt',
     '/terms',
     '/privacy',
     '/cookies',
@@ -245,6 +255,10 @@ describe('resolveLocaleForRequest', () => {
     expect(resolveLocaleForRequest('jungle-vpn.com', '/hi', domains)).toBe('hi');
   });
 
+  it('serves Portuguese on the global domain /pt path', () => {
+    expect(resolveLocaleForRequest('jungle-vpn.com', '/pt', domains)).toBe('pt');
+  });
+
   it('falls back to English on the global domain for an unknown path segment', () => {
     expect(resolveLocaleForRequest('jungle-vpn.com', '/subscribe', domains)).toBe('en');
   });
@@ -258,6 +272,7 @@ describe('resolveLocaleForRequest', () => {
     expect(resolveLocaleForRequest('localhost', '/en', domains)).toBe('en');
     expect(resolveLocaleForRequest('localhost', '/id', domains)).toBe('id');
     expect(resolveLocaleForRequest('localhost', '/hi', domains)).toBe('hi');
+    expect(resolveLocaleForRequest('localhost', '/pt', domains)).toBe('pt');
   });
 
   it('falls back to the hostname resolution on unrestricted hosts with no /en or /ar path', () => {
@@ -269,6 +284,7 @@ describe('resolveLocaleForRequest', () => {
     expect(resolveLocaleForRequest('jungle-vpn.com', '/ar/nested', domains)).toBe('en');
     expect(resolveLocaleForRequest('jungle-vpn.com', '/id/nested', domains)).toBe('en');
     expect(resolveLocaleForRequest('jungle-vpn.com', '/hi/nested', domains)).toBe('en');
+    expect(resolveLocaleForRequest('jungle-vpn.com', '/pt/nested', domains)).toBe('en');
   });
 });
 

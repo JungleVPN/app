@@ -346,14 +346,17 @@ describe('EmailNotificationService', () => {
       const russian = await subjectsFor('ru');
       const indonesian = await subjectsFor('id');
       const hindi = await subjectsFor('hi');
+      const portuguese = await subjectsFor('pt');
 
       expect(english).not.toEqual(russian);
       expect(indonesian).not.toEqual(english);
       expect(hindi).not.toEqual(english);
+      expect(portuguese).not.toEqual(english);
       expect(english).toMatch(/[a-z]/i);
       expect(russian).toMatch(/[а-яё]/i);
       expect(indonesian).toContain('Pembayaran diterima');
       expect(hindi).toContain('भुगतान मिल गया');
+      expect(portuguese).toContain('Pagamento recebido');
     });
 
     it('logs and swallows a send failure without throwing', async () => {

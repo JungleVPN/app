@@ -13,6 +13,7 @@ const LANGUAGE_FLAGS: Record<string, string> = {
   en: '🇬🇧',
   hi: '🇮🇳',
   id: '🇮🇩',
+  pt: '🇧🇷',
   tr: '🇹🇷',
 };
 
@@ -81,6 +82,12 @@ export function LanguageSwitcher() {
             <Dropdown.Item id='hi' textValue={t('languages.nativeHi')}>
               <span aria-hidden='true'>{LANGUAGE_FLAGS.hi}</span>
               <Label>{t('languages.nativeHi')}</Label>
+            </Dropdown.Item>
+          )}
+          {isLocaleAllowed('pt') && (
+            <Dropdown.Item id='pt' textValue={t('languages.nativePt')}>
+              <span aria-hidden='true'>{LANGUAGE_FLAGS.pt}</span>
+              <Label>{t('languages.nativePt')}</Label>
             </Dropdown.Item>
           )}
         </Dropdown.Menu>

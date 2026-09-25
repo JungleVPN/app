@@ -99,6 +99,11 @@ describe('global domain path routing', () => {
     expect(i18n.resolvedLanguage).toBe('hi');
   });
 
+  it('serves Portuguese on the /pt path', async () => {
+    const i18n = await bootI18n({ hostname: 'jungle-vpn.com', language: 'en-GB', pathname: '/pt' });
+    expect(i18n.resolvedLanguage).toBe('pt');
+  });
+
   it('lets the URL path win over a previously cached choice', async () => {
     localStorage.setItem('i18nextLng', 'en');
     const i18n = await bootI18n({ hostname: 'jungle-vpn.com', language: 'en-GB', pathname: '/ar' });

@@ -69,11 +69,12 @@
   },
   "languages": {
     "nativeRu": "Русский",
-    "nativeEn": "Inglês",
+    "nativeEn": "English",
     "nativeAr": "العربية",
     "nativeTr": "Türkçe",
     "nativeId": "Bahasa Indonesia",
-    "nativeHi": "Hindi"
+    "nativeHi": "हिन्दी",
+    "nativePt": "Português"
   },
   "profileTabs": {
     "ariaLabel": "Seções do perfil",
