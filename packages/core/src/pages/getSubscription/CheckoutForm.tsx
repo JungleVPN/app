@@ -45,7 +45,7 @@ function StepHeading({ step, title }: { step: number; title: string }) {
       <span className='flex size-7 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-sm font-semibold'>
         {step}
       </span>
-      <Heading as='h2'>{title}</Heading>
+      <Heading as='h3'>{title}</Heading>
     </div>
   );
 }
@@ -188,7 +188,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
             <div className='flex flex-col gap-6'>
               <Block className='p-5 sm:p-6'>
                 <div className='flex flex-col gap-5'>
-                  <Heading as='h2'>{t('getSubscription.order_title')}</Heading>
+                  <Heading as='h3'>{t('getSubscription.order_title')}</Heading>
 
                   {pricing && selectedPeriod !== null ? (
                     <div className='flex flex-col gap-2'>
