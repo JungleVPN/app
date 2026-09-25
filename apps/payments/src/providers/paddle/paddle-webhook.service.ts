@@ -137,7 +137,7 @@ export class PaddleWebhookService {
 
     const inviterId = customData.inviterId ? Number(customData.inviterId) : undefined;
     const origin = customData.signupOrigin ?? null;
-    const userId = await this.remnaUserResolver.resolveOrCreateByEmail(email, {
+    const userId = await this.remnaUserResolver.resolveOrCreate(undefined, email, {
       inviterId,
       origin,
     });

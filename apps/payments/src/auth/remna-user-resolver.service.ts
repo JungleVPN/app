@@ -1,6 +1,11 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { apiRoutes, type CreateUserResponseDto, type StreamedUserDto } from '@workspace/types';
+import {
+  apiRoutes,
+  type CreateUserResponseDto,
+  GetUserByIdResponseDto,
+  type StreamedUserDto,
+} from '@workspace/types';
 import axios, { type AxiosInstance } from 'axios';
 
 @Injectable()
@@ -43,12 +48,18 @@ export class RemnaUserResolverService {
    * being briefly unreachable should not drop a sale, and creating a duplicate
    * is recoverable where a lost checkout is not.
    */
-  async resolveOrCreateByEmail(
-    email: string,
+  async resolveOrCreate(
+    userId: string | undefined,
+    email: string | undefined,
     options: { inviterId?: number; origin?: string | null } = {},
   ): Promise<number> {
-    const existing = await this.findByEmail(email);
-    if (existing != null) return existing;
+    const existingUserId = userId
+      ? await this.findById(Number(userId))
+      : email
+        ? await this.findByEmail(email)
+        : null;
+
+    if (existingUserId != null) return existingUserId;
 
     const { data } = await this.http.post<CreateUserResponseDto>(
       apiRoutes.remnawave.users,
@@ -66,12 +77,24 @@ export class RemnaUserResolverService {
 
   async findByEmail(email: string): Promise<number | null> {
     try {
-      const { data } = await this.http.get<StreamedUserDto[]>(
+      const { data } = await this.http.get<StreamedUserDto[] | null>(
         apiRoutes.remnawave.userByEmail(email),
       );
       return data?.[0]?.id ?? null;
     } catch (err) {
       this.logger.warn(`Lookup failed for email=${email}, creating instead: ${String(err)}`);
+      return null;
+    }
+  }
+
+  async findById(id: number): Promise<number | null> {
+    try {
+      const { data } = await this.http.get<GetUserByIdResponseDto | null>(
+        apiRoutes.remnawave.userById(id),
+      );
+      return data?.id ?? null;
+    } catch (err) {
+      this.logger.warn(`Lookup failed for id=${id}, creating instead: ${String(err)}`);
       return null;
     }
   }

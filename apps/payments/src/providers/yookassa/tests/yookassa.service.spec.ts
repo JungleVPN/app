@@ -110,7 +110,7 @@ describe('YookassaService', () => {
   let mockSmUpdate: any;
 
   let mockHandleUserUpdates: any;
-  let mockResolveOrCreateByEmail: any;
+  let mockResolveOrCreate: any;
   let mockGetPayment: any;
   let mockEmit: any;
   let analyticsClient: AnalyticsClientService;
@@ -217,9 +217,9 @@ describe('YookassaService', () => {
     } as unknown as PaymentsUtils;
 
     mockHandleUserUpdates = vi.fn().mockResolvedValue({ success: true });
-    mockResolveOrCreateByEmail = vi.fn().mockResolvedValue(null);
+    mockResolveOrCreate = vi.fn().mockResolvedValue(null);
     remnaUserResolver = {
-      resolveOrCreateByEmail: mockResolveOrCreateByEmail,
+      resolveOrCreate: mockResolveOrCreate,
     } as unknown as RemnaUserResolverService;
     paymentStatusService = {
       handleUserUpdates: mockHandleUserUpdates,
@@ -1162,7 +1162,7 @@ describe('YookassaService', () => {
 
       expect(mockYkFindOneBy).toHaveBeenCalledTimes(2);
       expect(mockHandleUserUpdates).not.toHaveBeenCalled();
-      expect(mockResolveOrCreateByEmail).toHaveBeenCalled();
+      expect(mockResolveOrCreate).toHaveBeenCalled();
       expect(mockYkUpdate).not.toHaveBeenCalled();
       expect(mockEmit).not.toHaveBeenCalled();
     });

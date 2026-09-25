@@ -169,6 +169,7 @@ export class YookassaService {
       },
       metadata: {
         email: dto.email,
+        userId: userId?.toString() ?? undefined,
         ...(dto.inviterId != null && { inviterId: String(dto.inviterId) }),
       },
       description: process.env.PAYMENT_DESCRIPTION,
@@ -291,11 +292,12 @@ export class YookassaService {
   async handlePaymentSucceeded(payload: PaymentWebhookNotification): Promise<void> {
     const { payment_method, id, status, captured_at, metadata } = payload.object;
 
-    const email = metadata?.email;
-    const inviterId = metadata?.inviterId ? Number(metadata.inviterId) : undefined;
+    const emailFromMetadata = metadata?.email;
+    const userIdFromMetadata = metadata?.userId;
+    const inviterIdFromMetadata = metadata?.inviterId ? Number(metadata.inviterId) : undefined;
 
-    if (!email) {
-      throw new Error(`Yookassa transaction ${id} has no email in metadata`);
+    if (!emailFromMetadata && !userIdFromMetadata) {
+      throw new Error(`Yookassa transaction ${id} has no email or userId in metadata`);
     }
 
     // Single-retry lookup: autopayments can return status=succeeded synchronously
@@ -310,9 +312,13 @@ export class YookassaService {
 
     const userId =
       record?.userId ??
-      (await this.remnaUserResolver.resolveOrCreateByEmail(email, {
-        inviterId,
-      }));
+      (await this.remnaUserResolver.resolveOrCreate(
+        userIdFromMetadata?.toString(),
+        emailFromMetadata?.toString(),
+        {
+          inviterId: inviterIdFromMetadata,
+        },
+      ));
 
     if (!userId || record?.selectedPeriod == null) {
       this.logger.error(

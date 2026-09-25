@@ -14,7 +14,7 @@ const resolverWith = (http: { get?: unknown; post?: unknown }) => {
   return service;
 };
 
-describe('RemnaUserResolverService.resolveOrCreateByEmail', () => {
+describe('RemnaUserResolverService.resolveOrCreate', () => {
   it('bills the existing account when one already owns the email', async () => {
     const post = vi.fn();
     const service = resolverWith({
@@ -22,7 +22,7 @@ describe('RemnaUserResolverService.resolveOrCreateByEmail', () => {
       post,
     });
 
-    await expect(service.resolveOrCreateByEmail('payer@test.com')).resolves.toBe(7);
+    await expect(service.resolveOrCreate(undefined, 'payer@test.com')).resolves.toBe(7);
     expect(post).not.toHaveBeenCalled();
   });
 
@@ -30,7 +30,7 @@ describe('RemnaUserResolverService.resolveOrCreateByEmail', () => {
     const post = vi.fn().mockResolvedValue({ data: { id: 11 } });
     const service = resolverWith({ get: vi.fn().mockResolvedValue({ data: [] }), post });
 
-    await expect(service.resolveOrCreateByEmail('new@test.com')).resolves.toBe(11);
+    await expect(service.resolveOrCreate(undefined, 'new@test.com')).resolves.toBe(11);
     expect(post).toHaveBeenCalledWith(
       '/users',
       expect.objectContaining({ email: 'new@test.com' }),
@@ -42,14 +42,14 @@ describe('RemnaUserResolverService.resolveOrCreateByEmail', () => {
     const post = vi.fn().mockResolvedValue({ data: { id: 12 } });
     const service = resolverWith({ get: vi.fn().mockRejectedValue(new Error('panel down')), post });
 
-    await expect(service.resolveOrCreateByEmail('new@test.com')).resolves.toBe(12);
+    await expect(service.resolveOrCreate(undefined, 'new@test.com')).resolves.toBe(12);
   });
 
   it('forwards the referral and origin so signup attribution and squad survive', async () => {
     const post = vi.fn().mockResolvedValue({ data: { id: 13 } });
     const service = resolverWith({ get: vi.fn().mockResolvedValue({ data: [] }), post });
 
-    await service.resolveOrCreateByEmail('new@test.com', {
+    await service.resolveOrCreate(undefined, 'new@test.com', {
       inviterId: 99,
       origin: 'https://jungle-vpn.com',
     });
@@ -67,6 +67,6 @@ describe('RemnaUserResolverService.resolveOrCreateByEmail', () => {
       post: vi.fn().mockResolvedValue({ data: {} }),
     });
 
-    await expect(service.resolveOrCreateByEmail('new@test.com')).rejects.toThrow();
+    await expect(service.resolveOrCreate(undefined, 'new@test.com')).rejects.toThrow();
   });
 });

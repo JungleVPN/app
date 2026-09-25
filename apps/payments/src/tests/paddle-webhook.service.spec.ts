@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import * as process from 'node:process';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import type { EventEntity } from '@paddle/paddle-node-sdk';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
@@ -85,7 +84,7 @@ describe('PaddleWebhookService', () => {
   let mockCreate: any;
   let mockHandleUserUpdates: any;
   let mockEmit: any;
-  let mockResolveOrCreateByEmail: any;
+  let mockResolveOrCreate: any;
   let mockFindByEmail: any;
   let remnaUserResolver: RemnaUserResolverService;
 
@@ -116,10 +115,10 @@ describe('PaddleWebhookService', () => {
       create: mockCreate,
     } as unknown as Repository<PaddlePayment>;
 
-    mockResolveOrCreateByEmail = vi.fn().mockResolvedValue(NEW_ACCOUNT_ID);
+    mockResolveOrCreate = vi.fn().mockResolvedValue(NEW_ACCOUNT_ID);
     mockFindByEmail = vi.fn().mockResolvedValue(NEW_ACCOUNT_ID);
     remnaUserResolver = {
-      resolveOrCreateByEmail: mockResolveOrCreateByEmail,
+      resolveOrCreate: mockResolveOrCreate,
       findByEmail: mockFindByEmail,
     } as unknown as RemnaUserResolverService;
 
@@ -172,7 +171,7 @@ describe('PaddleWebhookService', () => {
     it('resolves the payer, extends the subscription, persists it paid, and emits payment.succeeded', async () => {
       await service.handleWebhook(makeTransactionEvent('transaction.completed'));
 
-      expect(mockResolveOrCreateByEmail).toHaveBeenCalledWith('payer@test.com', {
+      expect(mockResolveOrCreate).toHaveBeenCalledWith(undefined, 'payer@test.com', {
         inviterId: undefined,
         origin: null,
       });
@@ -199,7 +198,7 @@ describe('PaddleWebhookService', () => {
         }),
       );
 
-      expect(mockResolveOrCreateByEmail).toHaveBeenCalledWith('payer@test.com', {
+      expect(mockResolveOrCreate).toHaveBeenCalledWith(undefined, 'payer@test.com', {
         inviterId: 1337,
         origin: 'https://jungle-vpn.com',
       });
@@ -292,7 +291,7 @@ describe('PaddleWebhookService', () => {
     });
 
     it('releases the claim on an unexpected failure instead of leaving the row stuck processing', async () => {
-      mockResolveOrCreateByEmail.mockRejectedValueOnce(new Error('remnawave unreachable'));
+      mockResolveOrCreate.mockRejectedValueOnce(new Error('remnawave unreachable'));
 
       await expect(
         service.handleWebhook(makeTransactionEvent('transaction.completed')),
@@ -309,7 +308,7 @@ describe('PaddleWebhookService', () => {
         service.handleWebhook(makeTransactionEvent('transaction.completed', { customData: {} })),
       ).rejects.toThrow(/no email/);
 
-      expect(mockResolveOrCreateByEmail).not.toHaveBeenCalled();
+      expect(mockResolveOrCreate).not.toHaveBeenCalled();
       expect(mockHandleUserUpdates).not.toHaveBeenCalled();
       // Must not be left stuck at 'processing' — same release path as the
       // unrecognised-price-id guard.
@@ -425,7 +424,7 @@ describe('PaddleWebhookService', () => {
 
       await service.handleWebhook(makeTransactionEvent('transaction.payment_failed'));
 
-      expect(mockResolveOrCreateByEmail).not.toHaveBeenCalled();
+      expect(mockResolveOrCreate).not.toHaveBeenCalled();
       expect(mockEmit).not.toHaveBeenCalled();
     });
   });

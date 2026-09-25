@@ -184,7 +184,7 @@ export class StripeWebhookService {
     // The origin decides RU vs. global, and therefore whether a trial applies.
     // Webhook time cannot know it — only the checkout page did, so it travels
     // on the customer metadata.
-    return await this.remnaUserResolver.resolveOrCreateByEmail(payload.email, {
+    return await this.remnaUserResolver.resolveOrCreate(payload.metadata.userId, payload.email, {
       inviterId,
       origin: payload.metadata.signupOrigin ?? null,
     });

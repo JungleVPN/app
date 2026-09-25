@@ -5,7 +5,7 @@ import type { AnalyticsClientService } from '@payments/analytics/analytics-clien
 import { PlanService } from '@payments/catalog/plan.service';
 import { AutopaymentService } from '@payments/providers/yookassa/autopayment/autopayment.service';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
-import type { Plan, PlanProvider, SavedPaymentMethod, YookassaPayment } from '@workspace/database';
+import type { Plan, SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { RemnawebhookPayload, WebhookEventEnum } from '@workspace/types';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -340,7 +340,6 @@ describe('AutopaymentService', () => {
           amount: '200',
           userId: 1000,
           selectedPeriod: 30,
-          telegramId: 42,
           description: 'Test payment',
           paidAt: null,
         }),
@@ -504,6 +503,10 @@ describe('AutopaymentService', () => {
         capture: true,
         payment_method_id: 'pm_1',
         description: 'Test payment',
+        metadata: {
+          email: undefined,
+          userId: '1000',
+        },
       });
       expect(mockCreate.mock.calls[0][0]).not.toHaveProperty('confirmation');
     });
@@ -660,12 +663,6 @@ describe('AutopaymentService', () => {
         WebhookEventEnum['payment.insufficient_funds'],
         expect.objectContaining({ reason: 'insufficient_funds' }),
       );
-    });
-
-    it('carries a null telegramId through to the persisted record', async () => {
-      await service.init(makePayload(null));
-
-      expect(mockYkCreate).toHaveBeenCalledWith(expect.objectContaining({ telegramId: null }));
     });
   });
 

@@ -44,7 +44,7 @@ describe('YookassaController', () => {
 
     remnaUserResolver = {
       findByEmail: vi.fn().mockResolvedValue(null),
-      resolveOrCreateByEmail: vi.fn().mockResolvedValue(77),
+      resolveOrCreate: vi.fn().mockResolvedValue(77),
     } as unknown as RemnaUserResolverService;
 
     controller = new YookassaController(yookassaService, remnaUserResolver);
@@ -179,7 +179,7 @@ describe('YookassaController', () => {
         controller.createPublicPaymentSession(publicDto({ email })),
       ).rejects.toBeInstanceOf(BadRequestException);
 
-      expect(remnaUserResolver.resolveOrCreateByEmail).not.toHaveBeenCalled();
+      expect(remnaUserResolver.resolveOrCreate).not.toHaveBeenCalled();
       expect(yookassaService.createPaymentSession).not.toHaveBeenCalled();
     });
 

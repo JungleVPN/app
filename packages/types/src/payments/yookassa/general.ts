@@ -42,7 +42,7 @@ export enum CurrencyEnum {
  * All values are strings (YooKassa constraint: max 512 chars per value).
  * @see https://yookassa.ru/developers/api#payment_object_metadata
  */
-export type Metadata = Record<string, string>;
+export type Metadata = Record<string, string | undefined>;
 
 /**
  * Сумма платежа. Иногда партнеры ЮKassa берут с пользователя дополнительную комиссию, которая не входит в эту сумму.

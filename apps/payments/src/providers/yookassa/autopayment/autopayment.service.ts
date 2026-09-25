@@ -28,8 +28,8 @@ export class AutopaymentService {
   ) {}
 
   async init(payload: RemnawebhookPayload): Promise<void> {
-    const userId = payload.data.id;
-    const telegramId = payload.data.telegramId;
+    const user = payload.data;
+    const userId = user.id;
 
     const savedMethod = await this.savedMethodRepo.findOneBy({
       userId,
@@ -38,7 +38,7 @@ export class AutopaymentService {
     });
 
     if (!savedMethod) {
-      await this.handleUnsavedPaymentMethod(payload.data);
+      await this.handleUnsavedPaymentMethod(user);
       return;
     }
 
@@ -48,7 +48,7 @@ export class AutopaymentService {
       provider: 'yookassa',
     });
 
-    const result = await this.attemptAutopaymentWithRetries(userId, savedMethod.paymentMethodId);
+    const result = await this.attemptAutopaymentWithRetries(user, savedMethod.paymentMethodId);
 
     if (result.status === 'error') {
       const eventByReason: Partial<Record<Payments.CancelReason, WebhookEventEnum>> = {
@@ -82,7 +82,6 @@ export class AutopaymentService {
         amount,
         userId,
         selectedPeriod,
-        telegramId,
         description: process.env.PAYMENT_DESCRIPTION,
         // Left unstamped even though YooKassa already reports 'succeeded': the
         // charge has settled but the subscription has not been extended yet.
@@ -116,7 +115,7 @@ export class AutopaymentService {
   }
 
   private async attemptAutopaymentWithRetries(
-    userId: number,
+    user: UserDto,
     paymentMethodId: string,
   ): Promise<
     | {
@@ -132,11 +131,11 @@ export class AutopaymentService {
 
     let charge: { selectedPeriod: number; amount: string };
     try {
-      charge = await this.resolveRenewalCharge(userId);
+      charge = await this.resolveRenewalCharge(user.id);
     } catch (err: any) {
       // A missing plan or an unpriceable period is not transient — retrying
       // cannot make a defensible charge appear, so fail without calling YooKassa.
-      this.logger.error(`Cannot renew user ${userId}: ${err.message}`);
+      this.logger.error(`Cannot renew user ${user.id}: ${err.message}`);
       return { status: 'error', reason: undefined, payment: null };
     }
 
@@ -146,7 +145,7 @@ export class AutopaymentService {
       );
 
       try {
-        const payment = await this.executeAutopayment(paymentMethodId, charge.amount);
+        const payment = await this.executeAutopayment(paymentMethodId, charge.amount, user);
 
         if (payment.status === 'succeeded') {
           this.logger.log(
@@ -212,6 +211,7 @@ export class AutopaymentService {
   private async executeAutopayment(
     paymentMethodId: string,
     amount: string,
+    user: UserDto,
   ): Promise<Payments.IPayment> {
     const description = process.env.PAYMENT_DESCRIPTION || 'Happy to see you in the JUNGLE 🌴';
 
@@ -220,6 +220,10 @@ export class AutopaymentService {
       capture: true,
       payment_method_id: paymentMethodId,
       description,
+      metadata: {
+        email: user.email ?? undefined,
+        userId: String(user.id),
+      },
     };
 
     return this.yookassaProvider.create(request);

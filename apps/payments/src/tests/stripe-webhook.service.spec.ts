@@ -1,8 +1,7 @@
 import 'reflect-metadata';
-import * as process from 'node:process';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
-import type { Plan, PlanProvider, StripePayment } from '@workspace/database';
+import type { Plan, StripePayment } from '@workspace/database';
 import { WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
 import type { Repository } from 'typeorm';
@@ -111,7 +110,7 @@ describe('StripeWebhookService', () => {
   let mockRetrieveCustomer: any;
   let mockRetrieveSubscription: any;
   let mockUpdateCustomer: any;
-  let mockResolveOrCreateByEmail: any;
+  let mockResolveOrCreate: any;
   let remnaUserResolver: RemnaUserResolverService;
 
   let savedMethodRepo: Repository<any>;
@@ -155,9 +154,9 @@ describe('StripeWebhookService', () => {
       },
     } as unknown as StripeClientService;
 
-    mockResolveOrCreateByEmail = vi.fn().mockResolvedValue(NEW_ACCOUNT_ID);
+    mockResolveOrCreate = vi.fn().mockResolvedValue(NEW_ACCOUNT_ID);
     remnaUserResolver = {
-      resolveOrCreateByEmail: mockResolveOrCreateByEmail,
+      resolveOrCreate: mockResolveOrCreate,
       findIdByEmail: vi.fn().mockResolvedValue(null),
     } as unknown as RemnaUserResolverService;
 
@@ -316,10 +315,10 @@ describe('StripeWebhookService', () => {
 
         await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
 
-        expect(mockResolveOrCreateByEmail).toHaveBeenCalledWith(
-          'payer@test.com',
-          expect.anything(),
-        );
+        expect(mockResolveOrCreate).toHaveBeenCalledWith(undefined, 'payer@test.com', {
+          inviterId: undefined,
+          origin: null,
+        });
       });
 
       it('creates it as a global account, per the origin the checkout page carried', async () => {
@@ -331,9 +330,10 @@ describe('StripeWebhookService', () => {
 
         await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
 
-        expect(mockResolveOrCreateByEmail).toHaveBeenCalledWith(
+        expect(mockResolveOrCreate).toHaveBeenCalledWith(
+          undefined,
           'payer@test.com',
-          expect.objectContaining({ origin: 'https://jungle-vpn.com' }),
+          expect.objectContaining({ inviterId: undefined, origin: 'https://jungle-vpn.com' }),
         );
       });
 
@@ -342,9 +342,10 @@ describe('StripeWebhookService', () => {
 
         await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
 
-        expect(mockResolveOrCreateByEmail).toHaveBeenCalledWith(
+        expect(mockResolveOrCreate).toHaveBeenCalledWith(
+          undefined,
           'payer@test.com',
-          expect.objectContaining({ inviterId: 1337 }),
+          expect.objectContaining({ inviterId: 1337, origin: null }),
         );
       });
 
@@ -401,7 +402,7 @@ describe('StripeWebhookService', () => {
 
       it('lets Stripe retry when the account could not be created, rather than pocketing the charge', async () => {
         mockRetrieveCustomer.mockResolvedValue(anonymousCustomer());
-        mockResolveOrCreateByEmail.mockRejectedValue(new Error('panel unreachable'));
+        mockResolveOrCreate.mockRejectedValue(new Error('panel unreachable'));
 
         await expect(
           service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded')),
@@ -434,7 +435,8 @@ describe('StripeWebhookService', () => {
 
         await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
 
-        expect(mockResolveOrCreateByEmail).toHaveBeenCalledWith(
+        expect(mockResolveOrCreate).toHaveBeenCalledWith(
+          undefined,
           'payer@test.com',
           expect.anything(),
         );
@@ -452,7 +454,8 @@ describe('StripeWebhookService', () => {
 
         await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
 
-        expect(mockResolveOrCreateByEmail).toHaveBeenCalledWith(
+        expect(mockResolveOrCreate).toHaveBeenCalledWith(
+          undefined,
           'payer@test.com',
           expect.anything(),
         );
@@ -469,7 +472,7 @@ describe('StripeWebhookService', () => {
 
         await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
 
-        expect(mockResolveOrCreateByEmail).not.toHaveBeenCalled();
+        expect(mockResolveOrCreate).not.toHaveBeenCalled();
         expect(mockHandleUserUpdates).not.toHaveBeenCalled();
       });
 
@@ -478,14 +481,14 @@ describe('StripeWebhookService', () => {
 
         await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
 
-        expect(mockResolveOrCreateByEmail).not.toHaveBeenCalled();
+        expect(mockResolveOrCreate).not.toHaveBeenCalled();
         expect(mockHandleUserUpdates).not.toHaveBeenCalled();
       });
 
       it('creates nothing for a customer that already names its account', async () => {
         await service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded'));
 
-        expect(mockResolveOrCreateByEmail).not.toHaveBeenCalled();
+        expect(mockResolveOrCreate).not.toHaveBeenCalled();
         expect(mockHandleUserUpdates).toHaveBeenCalledWith(
           expect.objectContaining({ userId: 1000 }),
         );
