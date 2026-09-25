@@ -21,7 +21,7 @@ export interface AppRoutes {
   profileTransactionsPath: string;
   profileReferralsPath: string;
   getConnectEmailPath: string;
-  getSubscriptionPath: (period: number) => string;
+  getSubscriptionPath: (planId: string) => string;
 }
 
 const AppRoutesContext = createContext<AppRoutes | null>(null);

@@ -23,7 +23,6 @@ export function useExtraDeviceStripePayment() {
     const session = await createStripeSession({
       userId: rmnUser.id,
       purchaseType: 'extra_device',
-      selectedPeriod: 1,
       metadata: {
         email: payerEmail,
         userId: String(rmnUser.id),

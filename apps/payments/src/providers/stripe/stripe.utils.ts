@@ -1,5 +1,4 @@
 import Stripe from 'stripe';
-import { amountToDays } from '../../utils/amount';
 
 /**
  * Converts a Stripe amount (in cents) to the display amount.
@@ -7,18 +6,6 @@ import { amountToDays } from '../../utils/amount';
  */
 export function mapToCorrectAmount(amountInCents: number): number {
   return amountInCents / 100;
-}
-
-/**
- * Maps a paid Stripe EUR amount (in cents) to the subscription period in months.
- *
- * Delegates to the shared, provider-agnostic price config so YooKassa and
- * Stripe share one validation path. Throws when the paid amount does not match
- * a configured EUR price (finding #12) — callers must never silently grant an
- * unrecognised amount.
- */
-export function mapEURAmountToDaysNumber(amount: number): number {
-  return amountToDays(mapToCorrectAmount(amount), 'EUR');
 }
 
 export const customerToId = (

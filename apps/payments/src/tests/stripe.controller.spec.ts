@@ -11,7 +11,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const dto = (overrides: Partial<CreateStripeSessionDto> = {}): CreateStripeSessionDto => ({
   userId: 42,
-  selectedPeriod: 1,
+  planId: 'stripe-30',
   metadata: { email: 'payer@test' },
   ...overrides,
 });
@@ -104,13 +104,13 @@ describe('StripeController.createSession', () => {
 
   it('carries the rest of the request through untouched', async () => {
     await controller.createSession(
-      dto({ purchaseType: 'extra_device', selectedPeriod: 3 }),
+      dto({ purchaseType: 'extra_device', planId: undefined }),
       42,
       'https://app.test',
     );
 
     expect(stripeProvider.openSession).toHaveBeenCalledWith(
-      expect.objectContaining({ purchaseType: 'extra_device', selectedPeriod: 3 }),
+      expect.objectContaining({ purchaseType: 'extra_device', planId: undefined }),
       'https://app.test',
     );
   });
@@ -137,11 +137,11 @@ describe('StripeController.createSession', () => {
     expect(session).toMatchObject({ id: 'bps_1', url: 'https://portal' });
   });
 
-  it('surfaces an unusable period rather than answering as if checkout opened', async () => {
+  it('surfaces an unusable plan rather than answering as if checkout opened', async () => {
     stripeProvider.openSession.mockRejectedValue(new BadRequestException('no price'));
 
     await expect(
-      controller.createSession(dto({ selectedPeriod: 7 }), 42, 'https://app.test'),
+      controller.createSession(dto({ planId: 'retired' }), 42, 'https://app.test'),
     ).rejects.toThrow(BadRequestException);
   });
 });
@@ -149,7 +149,7 @@ describe('StripeController.createSession', () => {
 describe('StripeController.createPublicSession', () => {
   const publicDto = (overrides: Partial<CreatePublicStripeSessionDto> = {}) => ({
     email: 'payer@test.com',
-    selectedPeriod: 1,
+    planId: 'stripe-30',
     ...overrides,
   });
 
@@ -158,7 +158,7 @@ describe('StripeController.createPublicSession', () => {
       openSession?: ReturnType<typeof vi.fn>;
       findCustomerIdByEmail?: ReturnType<typeof vi.fn>;
       hasActiveSubscription?: ReturnType<typeof vi.fn>;
-      resolveAmount?: ReturnType<typeof vi.fn>;
+      resolveCharge?: ReturnType<typeof vi.fn>;
     } = {},
   ) => {
     const stripePaymentRepo = {
@@ -176,13 +176,13 @@ describe('StripeController.createPublicSession', () => {
         }),
       findCustomerIdByEmail: overrides.findCustomerIdByEmail ?? vi.fn().mockResolvedValue(null),
       hasActiveSubscription: overrides.hasActiveSubscription ?? vi.fn().mockResolvedValue(false),
-      resolveAmount:
-        overrides.resolveAmount ??
-        vi.fn((_purpose: string, selectedPeriod: number) => {
-          if (selectedPeriod === 99) {
-            throw new BadRequestException('No price configured for this period');
+      resolveCharge:
+        overrides.resolveCharge ??
+        vi.fn(async ({ planId }: { planId?: string }) => {
+          if (planId === 'nope') {
+            throw new BadRequestException('Plan nope is not available for purchase');
           }
-          return '10';
+          return { amount: '10', priceId: 'price_30' };
         }),
     };
     const controller = new StripeController(stripePaymentRepo as never, stripeProvider as never);
@@ -196,7 +196,7 @@ describe('StripeController.createPublicSession', () => {
       await controller.createPublicSession(publicDto(), 'https://app.test');
 
       expect(stripeProvider.openSession).toHaveBeenCalledWith(
-        expect.objectContaining({ userId: null, selectedPeriod: 1 }),
+        expect.objectContaining({ userId: null, planId: 'stripe-30' }),
         'https://app.test',
       );
     });
@@ -312,11 +312,11 @@ describe('StripeController.createPublicSession', () => {
     expect(stripeProvider.findCustomerIdByEmail).not.toHaveBeenCalled();
   });
 
-  it('refuses a period that has no configured price, rather than failing at Stripe', async () => {
+  it('refuses a plan that is not on sale, rather than failing at Stripe', async () => {
     const { controller, stripeProvider } = controllerWith();
 
     await expect(
-      controller.createPublicSession(publicDto({ selectedPeriod: 99 }), 'https://app.test'),
+      controller.createPublicSession(publicDto({ planId: 'nope' }), 'https://app.test'),
     ).rejects.toThrow(BadRequestException);
     // Pricing is checked first, so a rejected checkout costs no Stripe round trip.
     expect(stripeProvider.findCustomerIdByEmail).not.toHaveBeenCalled();

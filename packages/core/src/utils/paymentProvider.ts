@@ -1,6 +1,6 @@
 /**
  * Which provider global (non-RU) visitors check out through — both on the
- * public `/payment/:planSlug` route and on the authenticated profile payment
+ * public `/payment/:planId` route and on the authenticated profile payment
  * page. Paddle is primary; Stripe stays fully wired behind the same flows, so
  * switching back is this one env var and nothing else.
  *

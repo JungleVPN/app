@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import * as process from 'node:process';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
+import { PlanService } from '@payments/catalog/plan.service';
 import { BotNotificationService } from '@payments/notifications/bot-notification.service';
 import { EmailNotificationService } from '@payments/notifications/email-notification.service';
 import type { PaymentStatusService } from '@payments/payment-status/payment-status.service';
@@ -11,7 +12,7 @@ import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.pro
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
 import type { ToltService } from '@payments/tolt/tolt.service';
 import type { PaymentsUtils } from '@payments/utils/utils';
-import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
+import type { Plan, SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import type { RemnawebhookPayload } from '@workspace/types';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -37,6 +38,7 @@ vi.mock('@workspace/database', () => ({
   ToltReferral: class {},
   ToltTransaction: class {},
   FxRate: class {},
+  Plan: class {},
 }));
 
 const { mockAxiosGet, mockAxiosPost } = vi.hoisted(() => ({
@@ -162,8 +164,6 @@ describe('YooKassa payment notifications', () => {
     process.env.REMNAWAVE_URL = 'http://remnawave:3002/remnawave';
     process.env.INTER_SERVICE_SECRET = 'inter-secret';
     process.env.PAYMENT_DESCRIPTION = 'Jungle VPN';
-    process.env.ALLOWED_PERIODS_IN_DAYS = '1';
-    process.env.PRICE_RUB_DAYS_30 = '599';
     // Without Zoho credentials the mailer short-circuits and sends nothing.
     process.env.ZOHO_CLIENT_ID = 'zc';
     process.env.ZOHO_CLIENT_SECRET = 'zs';
@@ -229,6 +229,20 @@ describe('YooKassa payment notifications', () => {
       track: vi.fn().mockResolvedValue(undefined),
     } as unknown as AnalyticsClientService;
 
+    const monthly: Plan = {
+      id: 'ru-30',
+      type: 'recurring',
+      billingPeriod: 30,
+      basePrice: 599,
+      provider: 'yookassa',
+      providerPriceId: null,
+      availableForPurchase: true,
+      customData: {},
+    };
+    const planService = new PlanService({
+      find: async () => [monthly],
+    } as never);
+
     yookassaService = new YookassaService(
       provider,
       yookassaPaymentRepo,
@@ -245,6 +259,7 @@ describe('YooKassa payment notifications', () => {
         reportRefund: vi.fn().mockResolvedValue(undefined),
       } as unknown as ToltService,
       {} as any,
+      planService,
     );
 
     autopaymentService = new AutopaymentService(
@@ -253,6 +268,7 @@ describe('YooKassa payment notifications', () => {
       provider,
       emitter,
       analyticsClient,
+      planService,
     );
     // Keep the retry backoff out of the test's wall clock.
     vi.spyOn(autopaymentService as any, 'delay').mockResolvedValue(undefined);
@@ -266,8 +282,6 @@ describe('YooKassa payment notifications', () => {
       'REMNAWAVE_URL',
       'INTER_SERVICE_SECRET',
       'PAYMENT_DESCRIPTION',
-      'ALLOWED_PERIODS_IN_DAYS',
-      'PRICE_RUB_DAYS_30',
       'ZOHO_CLIENT_ID',
       'ZOHO_CLIENT_SECRET',
       'ZOHO_REFRESH_TOKEN',

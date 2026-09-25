@@ -1,23 +1,43 @@
 import 'reflect-metadata';
+import { PlanService } from '@payments/catalog/plan.service';
+import type { Plan, PlanProvider } from '@workspace/database';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CommonService } from './common.service';
 
-const ENV_KEYS = [
-  'ALLOWED_PERIODS_IN_DAYS',
-  'GLOBAL_PAYMENT_PROVIDER',
-  'PUBLIC_DOMAIN_RU',
-
-  'PRICE_RUB_DAYS_30',
-  'PADDLE_PRICE_ID_DAYS_30',
-  'STRIPE_PRICE_ID_DAYS_30',
-
-  'PRICE_RUB_DAYS_180',
-  'PADDLE_PRICE_ID_DAYS_180',
-  'STRIPE_PRICE_ID_DAYS_180',
-] as const;
+const ENV_KEYS = ['GLOBAL_PAYMENT_PROVIDER', 'PUBLIC_DOMAIN_RU'] as const;
 
 const RU_ORIGIN = 'https://thejungle.pro';
 const GLOBAL_ORIGIN = 'https://jungle-vpn.com';
+
+const plan = (
+  provider: PlanProvider,
+  billingPeriod: number,
+  basePrice: number,
+  providerPriceId: string | null = null,
+): Plan => ({
+  id: `${provider}-${billingPeriod}`,
+  type: 'recurring',
+  billingPeriod,
+  basePrice,
+  provider,
+  providerPriceId,
+  availableForPurchase: true,
+  customData: {},
+});
+
+const CATALOG: Plan[] = [
+  plan('yookassa', 180, 1500),
+  plan('yookassa', 30, 500),
+  plan('paddle', 30, 6, 'pri_30'),
+  plan('paddle', 180, 15, 'pri_180'),
+  plan('stripe', 30, 6, 'price_30'),
+  plan('stripe', 180, 15, 'price_180'),
+];
+
+const planServiceWith = (rows: Plan[]) =>
+  new PlanService({
+    find: async () => rows,
+  } as never);
 
 describe('CommonService.getPlans', () => {
   let originalEnv: Record<string, string | undefined>;
@@ -27,19 +47,11 @@ describe('CommonService.getPlans', () => {
   beforeEach(() => {
     originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
 
-    process.env.ALLOWED_PERIODS_IN_DAYS = '30,180';
     process.env.GLOBAL_PAYMENT_PROVIDER = 'paddle';
     process.env.PUBLIC_DOMAIN_RU = 'thejungle.pro';
-    process.env.PRICE_RUB_DAYS_30 = '500';
-    process.env.PRICE_RUB_DAYS_180 = '1500';
-
-    process.env.PADDLE_PRICE_ID_DAYS_30 = '6';
-    process.env.PADDLE_PRICE_ID_DAYS_180 = '15';
-    process.env.STRIPE_PRICE_ID_DAYS_30 = '6';
-    process.env.STRIPE_PRICE_ID_DAYS_180 = '15';
 
     paddleClientService = { getPricePreview: vi.fn() };
-    service = new CommonService(paddleClientService as never);
+    service = new CommonService(paddleClientService as never, planServiceWith(CATALOG));
   });
 
   afterEach(() => {
@@ -49,12 +61,72 @@ describe('CommonService.getPlans', () => {
     }
   });
 
+  it("returns no plans, rather than another provider's, when the provider has none on sale", async () => {
+    service = new CommonService(
+      paddleClientService as never,
+      planServiceWith(CATALOG.filter((row) => row.provider !== 'paddle')),
+    );
+
+    const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
+
+    expect(plans).toEqual([]);
+    expect(paddleClientService.getPricePreview).not.toHaveBeenCalled();
+  });
+
+  describe('trial plans', () => {
+    it('marks a one-time plan as the trial and a recurring plan, whatever its length, as not', async () => {
+      service = new CommonService(
+        paddleClientService as never,
+        planServiceWith([
+          { ...plan('yookassa', 3, 79), id: 'trial', type: 'one_time' },
+          { ...plan('yookassa', 7, 150), id: 'week' },
+        ]),
+      );
+
+      const plans = await service.getPlans({ origin: RU_ORIGIN, clientIp: null });
+
+      expect(plans.map(({ planId, isTrial }) => ({ planId, isTrial }))).toEqual([
+        { planId: 'trial', isTrial: true },
+        { planId: 'week', isTrial: false },
+      ]);
+    });
+
+    it('keeps a quoted Paddle trial marked as the trial', async () => {
+      service = new CommonService(
+        paddleClientService as never,
+        planServiceWith([{ ...plan('paddle', 7, 0.99, 'pri_7'), type: 'one_time' }]),
+      );
+      paddleClientService.getPricePreview.mockResolvedValue({
+        currencyCode: 'USD',
+        address: { countryCode: 'US' },
+        details: { lineItems: [{ price: { id: 'pri_7' }, totals: { total: '99' } }] },
+      });
+
+      const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
+
+      expect(plans[0]).toMatchObject({ isTrial: true, planPricing: { currencyCode: 'USD' } });
+    });
+  });
+
+  it('shows a fractional price as stored, e.g. a 0.99 EUR trial', async () => {
+    process.env.GLOBAL_PAYMENT_PROVIDER = 'stripe';
+    service = new CommonService(
+      paddleClientService as never,
+      planServiceWith([{ ...plan('stripe', 7, 0.99, 'price_7'), type: 'one_time' }]),
+    );
+
+    const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: null });
+
+    expect(plans[0]?.planPricing).toMatchObject({ total: '0.99', currencyCode: 'EUR' });
+  });
+
   describe('RU storefront', () => {
     it('prices in roubles and never asks Paddle, however the visitor geolocates', async () => {
       const plans = await service.getPlans({ origin: RU_ORIGIN, clientIp: '203.0.113.5' });
 
       expect(paddleClientService.getPricePreview).not.toHaveBeenCalled();
       expect(plans.map((plan) => plan.days)).toEqual([30, 180]);
+      expect(plans.map((plan) => plan.planId)).toEqual(['yookassa-30', 'yookassa-180']);
       expect(plans[0]?.planPricing).toEqual({
         total: '500',
         monthly: '500',
@@ -84,15 +156,17 @@ describe('CommonService.getPlans', () => {
   });
 
   describe('global storefront', () => {
-    it('keeps the static EUR table when Stripe is the active provider', async () => {
+    it("offers Stripe's own plans in EUR when Stripe is the active provider", async () => {
       process.env.GLOBAL_PAYMENT_PROVIDER = 'stripe';
-      delete process.env.PADDLE_PRICE_ID_DAYS_30;
-      delete process.env.PADDLE_PRICE_ID_DAYS_180;
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
 
       expect(paddleClientService.getPricePreview).not.toHaveBeenCalled();
-      expect(plans.find((plan) => plan.days === 30)?.planPricing.currencyCode).toBe('EUR');
+      expect(plans.map((plan) => plan.planId)).toEqual(['stripe-30', 'stripe-180']);
+      expect(plans.find((plan) => plan.days === 30)?.planPricing).toMatchObject({
+        total: '6',
+        currencyCode: 'EUR',
+      });
     });
 
     it("quotes every Paddle-priced period in the currency Paddle resolves for the visitor's IP", async () => {
@@ -101,8 +175,8 @@ describe('CommonService.getPlans', () => {
         address: { countryCode: 'US' },
         details: {
           lineItems: [
-            { price: { id: '6' }, totals: { total: '999' } },
-            { price: { id: '15' }, totals: { total: '2499' } },
+            { price: { id: 'pri_30' }, totals: { total: '999' } },
+            { price: { id: 'pri_180' }, totals: { total: '2499' } },
           ],
         },
       });
@@ -111,12 +185,13 @@ describe('CommonService.getPlans', () => {
 
       expect(paddleClientService.getPricePreview).toHaveBeenCalledWith(
         [
-          { priceId: '6', quantity: 1 },
-          { priceId: '15', quantity: 1 },
+          { priceId: 'pri_30', quantity: 1 },
+          { priceId: 'pri_180', quantity: 1 },
         ],
         '203.0.113.5',
       );
       expect(plans.find((plan) => plan.days === 30)).toEqual({
+        planId: 'paddle-30',
         days: 30,
         countryCode: 'US',
         isTrial: false,
@@ -141,7 +216,7 @@ describe('CommonService.getPlans', () => {
       paddleClientService.getPricePreview.mockResolvedValue({
         currencyCode: 'EUR',
         address: null,
-        details: { lineItems: [{ price: { id: '6' }, totals: { total: '699' } }] },
+        details: { lineItems: [{ price: { id: 'pri_30' }, totals: { total: '699' } }] },
       });
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: null });
@@ -163,22 +238,11 @@ describe('CommonService.getPlans', () => {
       });
     });
 
-    it('skips the Paddle lookup entirely when no period has a catalog price', async () => {
-      process.env.GLOBAL_PAYMENT_PROVIDER = 'stripe';
-      delete process.env.PADDLE_PRICE_ID_DAYS_30;
-      delete process.env.PADDLE_PRICE_ID_DAYS_180;
-
-      const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
-
-      expect(paddleClientService.getPricePreview).not.toHaveBeenCalled();
-      expect(plans.every((plan) => plan.planPricing.currencyCode === 'EUR')).toBe(true);
-    });
-
     it('leaves a period Paddle did not quote on its EUR pricing', async () => {
       paddleClientService.getPricePreview.mockResolvedValue({
         currencyCode: 'USD',
         address: { countryCode: 'US' },
-        details: { lineItems: [{ price: { id: '6' }, totals: { total: '999' } }] },
+        details: { lineItems: [{ price: { id: 'pri_30' }, totals: { total: '999' } }] },
       });
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
@@ -191,7 +255,7 @@ describe('CommonService.getPlans', () => {
       paddleClientService.getPricePreview.mockResolvedValue({
         currencyCode: 'JPY',
         address: { countryCode: 'JP' },
-        details: { lineItems: [{ price: { id: '6' }, totals: { total: '1200' } }] },
+        details: { lineItems: [{ price: { id: 'pri_30' }, totals: { total: '1200' } }] },
       });
 
       const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });

@@ -1,13 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { PlanService } from '@payments/catalog/plan.service';
+import { providerCurrency, resolveProvider } from '@payments/catalog/plan-provider';
 import { paddleAmountToNumber } from '@payments/providers/paddle/paddle.utils';
 import { PaddleClientService } from '@payments/providers/paddle/paddle-client.service';
-import {
-  buildPricing,
-  type Currency,
-  enabledPeriods,
-  getPriceForPeriod,
-} from '@payments/utils/amount';
-import { type SubscriptionPlanDto, scopeForOrigin } from '@workspace/types';
+import { buildPricing } from '@payments/utils/amount';
+import type { Plan } from '@workspace/database';
+import { type SubscriptionPlanDto } from '@workspace/types';
 
 /** Paddle's quote for one visitor, reduced to what a plan needs from it. */
 interface PaddleQuote {
@@ -21,20 +19,22 @@ interface PaddleQuote {
 export class CommonService {
   private readonly logger = new Logger(CommonService.name);
 
-  constructor(private readonly paddleClientService: PaddleClientService) {}
+  constructor(
+    private readonly paddleClientService: PaddleClientService,
+    private readonly planService: PlanService,
+  ) {}
 
   /**
-   * Every enabled subscription period, priced in the one currency this visitor
-   * will actually be charged in.
+   * Every plan on sale, priced in the one currency this visitor will actually
+   * be charged in.
    *
-   * The storefront the request came from decides that, and nothing else:
-   *
-   * - RU domains pay in roubles (YooKassa, Telegram Stars) from our own table.
-   * - Everyone else pays through Paddle, which quotes their local currency
-   *   from `clientIp`, falling back to our EUR table when it can't be reached.
+   * The storefront the request came from picks the provider (see
+   * `resolveProvider`), and the `subscription_plans` table says what that provider sells.
+   * Paddle additionally quotes the visitor's local currency from `clientIp`,
+   * falling back to the table's EUR price when it can't be reached.
    *
    * The response deliberately names no provider: which one takes the payment
-   * is decided again, the same way, when the client asks to start a checkout.
+   * is decided again, the same way, when the client starts a checkout.
    */
   async getPlans({
     origin,
@@ -43,53 +43,40 @@ export class CommonService {
     origin: string | null;
     clientIp: string | null;
   }): Promise<SubscriptionPlanDto[]> {
-    if (scopeForOrigin(origin, process.env.PUBLIC_DOMAIN_RU) === 'ru') {
-      return this.buildPlans('RUB');
+    const provider = resolveProvider(origin);
+    const rows = await this.planService.listForSale(provider);
+
+    if (rows.length === 0) {
+      this.logger.warn(`No ${provider} plans are available for purchase`);
+      return [];
     }
 
-    const plans = this.buildPlans('EUR');
-    const quote = await this.fetchPaddleQuote(clientIp);
+    const plans = toPlans(rows);
+    if (provider !== 'paddle') return plans;
 
+    const quote = await this.fetchPaddleQuote(rows, clientIp);
     return quote ? applyPaddleQuote(plans, quote) : plans;
   }
 
-  /** Every enabled period priced from our own table for `currency`. */
-  private buildPlans(currency: Currency): SubscriptionPlanDto[] {
-    const periods = enabledPeriods();
-    const basePrice = this.findPrice(currency, 30);
-
-    return periods
-      .map((days): SubscriptionPlanDto | null => {
-        const total = this.findPrice(currency, days);
-        if (total === null) return null;
-
-        return {
-          days,
-          planPricing: buildPricing({ currency, days, total, basePrice }),
-          countryCode: null,
-          isTrial: days === 7,
-        };
-      })
-      .filter((plan): plan is SubscriptionPlanDto => plan !== null);
-  }
-
   /**
-   * Paddle's quote for every period it has a catalog price for, localized to
-   * `clientIp` — or null when no period is priced in Paddle, or Paddle
-   * couldn't be reached at all. Neither is fatal: plans keep their EUR
-   * pricing. (`PaddleClientService.getPricePreview` has its own EUR fallback,
-   * but that only covers a location Paddle can't price, not Paddle being down.)
+   * Paddle's quote for every plan, localized to `clientIp` — or null when
+   * Paddle couldn't be reached. Not fatal: plans keep their EUR pricing.
+   * (`PaddleClientService.getPricePreview` has its own EUR fallback, but that
+   * only covers a location Paddle can't price, not Paddle being down.)
    */
-  private async fetchPaddleQuote(clientIp: string | null): Promise<PaddleQuote | null> {
-    const pricedPeriods = enabledPeriods()
-      .map((period) => ({ period, priceId: process.env[`PADDLE_PRICE_ID_DAYS_${period}`] }))
-      .filter((entry): entry is { period: number; priceId: string } => Boolean(entry.priceId));
+  private async fetchPaddleQuote(
+    rows: Plan[],
+    clientIp: string | null,
+  ): Promise<PaddleQuote | null> {
+    const priced = rows.filter(
+      (row): row is Plan & { providerPriceId: string } => row.providerPriceId !== null,
+    );
 
-    if (pricedPeriods.length === 0) return null;
+    if (priced.length === 0) return null;
 
     try {
       const preview = await this.paddleClientService.getPricePreview(
-        pricedPeriods.map(({ priceId }) => ({ priceId, quantity: 1 })),
+        priced.map(({ providerPriceId }) => ({ priceId: providerPriceId, quantity: 1 })),
         clientIp,
       );
 
@@ -100,8 +87,8 @@ export class CommonService {
         ]),
       );
 
-      const quoted = pricedPeriods
-        .map(({ period, priceId }) => [period, totalByPriceId.get(priceId)] as const)
+      const quoted = priced
+        .map((row) => [row.billingPeriod, totalByPriceId.get(row.providerPriceId)] as const)
         .filter((entry): entry is readonly [number, number] => entry[1] !== undefined);
 
       return {
@@ -114,13 +101,25 @@ export class CommonService {
       return null;
     }
   }
+}
 
-  /** The configured price for a period, or null when this currency doesn't price it. */
-  private findPrice(currency: Currency, period: number): number | null {
-    const value = getPriceForPeriod(currency, period);
+/** Plans priced from the table, in the provider's own currency. */
+function toPlans(rows: Plan[]): SubscriptionPlanDto[] {
+  const monthly = rows.find((row) => row.billingPeriod === 30);
+  const basePrice = monthly ? monthly.basePrice : null;
 
-    return value ? Number(value) : null;
-  }
+  return rows.map((row) => ({
+    planId: row.id,
+    days: row.billingPeriod,
+    planPricing: buildPricing({
+      currency: providerCurrency(row.provider),
+      days: row.billingPeriod,
+      total: row.basePrice,
+      basePrice,
+    }),
+    countryCode: null,
+    isTrial: row.type === 'one_time',
+  }));
 }
 
 /** Re-prices the plans Paddle quoted, leaving any it didn't on their EUR pricing. */
@@ -132,7 +131,7 @@ function applyPaddleQuote(plans: SubscriptionPlanDto[], quote: PaddleQuote): Sub
     if (total === undefined) return plan;
 
     return {
-      days: plan.days,
+      ...plan,
       planPricing: buildPricing({
         currency: quote.currencyCode,
         days: plan.days,
@@ -140,7 +139,6 @@ function applyPaddleQuote(plans: SubscriptionPlanDto[], quote: PaddleQuote): Sub
         basePrice,
       }),
       countryCode: quote.countryCode,
-      isTrial: plan.days === 7,
     };
   });
 }

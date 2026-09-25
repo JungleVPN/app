@@ -64,11 +64,11 @@ describe('RuStartCheckoutPage', () => {
   afterEach(cleanup);
 
   it('asks the backend for a payment against this domain’s return URL', async () => {
-    await renderPage()({ email: 'payer@test.com', selectedPeriod: 3 });
+    await renderPage()({ email: 'payer@test.com', planId: 'ru-3', selectedPeriod: 3 });
 
     expect(createPublicYookassaSession).toHaveBeenCalledWith({
       email: 'payer@test.com',
-      selectedPeriod: 3,
+      planId: 'ru-3',
       returnUrl: 'https://ru.jungle.test/payment/success',
       toltReferralId: 'tolt-1',
       inviterId: 42,
@@ -76,14 +76,14 @@ describe('RuStartCheckoutPage', () => {
   });
 
   it('remembers the payment before handing the payer to YooKassa', async () => {
-    await renderPage()({ email: 'payer@test.com', selectedPeriod: 1 });
+    await renderPage()({ email: 'payer@test.com', planId: 'ru-1', selectedPeriod: 1 });
 
     expect(rememberPendingYookassaPayment).toHaveBeenCalledWith('pay-1');
     expect(window.location.href).toBe('https://yookassa/pay-1');
   });
 
   it('reports the checkout starting, with the plan being bought', async () => {
-    await renderPage()({ email: 'payer@test.com', selectedPeriod: 6 });
+    await renderPage()({ email: 'payer@test.com', planId: 'ru-6', selectedPeriod: 6 });
 
     expect(phCapture).toHaveBeenCalledWith('checkout_started', {
       payment_provider: 'yookassa',
@@ -96,7 +96,7 @@ describe('RuStartCheckoutPage', () => {
   it('stays on the page when the backend returns no confirmation URL', async () => {
     createPublicYookassaSession.mockResolvedValue({ id: 'pay-2', url: '' });
 
-    await renderPage()({ email: 'payer@test.com', selectedPeriod: 1 });
+    await renderPage()({ email: 'payer@test.com', planId: 'ru-1', selectedPeriod: 1 });
 
     expect(rememberPendingYookassaPayment).not.toHaveBeenCalled();
     expect(window.location.href).toBe('');
@@ -108,8 +108,8 @@ describe('RuStartCheckoutPage', () => {
     const refusal = new Error('refused');
     createPublicYookassaSession.mockRejectedValue(refusal);
 
-    await expect(renderPage()({ email: 'payer@test.com', selectedPeriod: 1 })).rejects.toBe(
-      refusal,
-    );
+    await expect(
+      renderPage()({ email: 'payer@test.com', planId: 'ru-1', selectedPeriod: 1 }),
+    ).rejects.toBe(refusal);
   });
 });

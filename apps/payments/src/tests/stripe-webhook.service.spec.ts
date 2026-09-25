@@ -2,12 +2,13 @@ import 'reflect-metadata';
 import * as process from 'node:process';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
-import type { StripePayment } from '@workspace/database';
+import type { Plan, PlanProvider, StripePayment } from '@workspace/database';
 import { WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
 import type { Repository } from 'typeorm';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { RemnaUserResolverService } from '../auth/remna-user-resolver.service';
+import { PlanService } from '../catalog/plan.service';
 import type { PaymentStatusService } from '../payment-status/payment-status.service';
 import { StripeClientService } from '../providers/stripe/stripe-client.service';
 import { StripeWebhookService } from '../providers/stripe/stripe-webhook.service';
@@ -24,6 +25,7 @@ vi.mock('@workspace/database', () => ({
   ToltReferral: class {},
   ToltTransaction: class {},
   FxRate: class {},
+  Plan: class {},
 }));
 
 /** The account the webhook creates for a payer who had none. */
@@ -81,6 +83,18 @@ const makeCheckoutEvent = (overrides: Partial<any> = {}): Stripe.Event =>
     },
   }) as unknown as Stripe.Event;
 
+/** A 30-day Stripe plan priced at the 200 cents (2 EUR) the invoice fixtures bill. */
+const STRIPE_MONTH: Plan = {
+  id: 'stripe-30',
+  type: 'recurring',
+  billingPeriod: 30,
+  basePrice: 2,
+  provider: 'stripe',
+  providerPriceId: 'price_30',
+  availableForPurchase: true,
+  customData: {},
+};
+
 describe('StripeWebhookService', () => {
   let service: StripeWebhookService;
   let stripeClient: StripeClientService;
@@ -114,8 +128,6 @@ describe('StripeWebhookService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.ALLOWED_PERIODS_IN_DAYS = '30';
-    process.env.PRICE_EUR_DAYS_30 = '2';
 
     mockFindOneBy = vi.fn().mockResolvedValue(null);
     mockUpdate = vi.fn().mockResolvedValue({ affected: 1 });
@@ -190,12 +202,10 @@ describe('StripeWebhookService', () => {
       analyticsClient,
       toltService,
       remnaUserResolver,
+      new PlanService({
+        find: async () => [STRIPE_MONTH],
+      } as never),
     );
-  });
-
-  afterEach(() => {
-    delete process.env.PRICE_EUR_DAYS_30;
-    delete process.env.ALLOWED_PERIODS_IN_DAYS;
   });
 
   describe('affiliate reporting', () => {

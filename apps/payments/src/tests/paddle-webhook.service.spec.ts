@@ -23,6 +23,7 @@ vi.mock('@workspace/database', () => ({
   ToltReferral: class {},
   ToltTransaction: class {},
   FxRate: class {},
+  Plan: class {},
 }));
 
 /** The account the webhook creates for a payer who had none. */
@@ -101,7 +102,6 @@ describe('PaddleWebhookService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.PADDLE_PRICE_ID_DAYS_1 = 'pri_month_1';
 
     mockFindOneBy = vi.fn().mockResolvedValue(null);
     mockInsert = vi.fn().mockResolvedValue({});
@@ -166,9 +166,7 @@ describe('PaddleWebhookService', () => {
     );
   });
 
-  afterEach(() => {
-    delete process.env.PADDLE_PRICE_ID_DAYS_1;
-  });
+  afterEach(() => {});
 
   describe('transaction.completed', () => {
     it('resolves the payer, extends the subscription, persists it paid, and emits payment.succeeded', async () => {

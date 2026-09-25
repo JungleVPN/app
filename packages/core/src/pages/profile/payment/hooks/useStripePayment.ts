@@ -1,4 +1,5 @@
 import { openLink } from '@tma.js/sdk-react';
+import type { SubscriptionPlanDto } from '@workspace/types';
 import { useCallback, useState } from 'react';
 import { useRemnawaveApi } from '../../../../api';
 import { useCreateStripeSession } from '../../../../hooks';
@@ -13,7 +14,7 @@ import { phCapture } from '../../../../utils';
  * redirects the user to the returned Stripe Checkout / Billing Portal URL.
  * Subscription extension is handled by the existing Stripe webhook.
  */
-export function useStripePayment(selectedPeriod: number) {
+export function useStripePayment(plan: SubscriptionPlanDto | undefined) {
   const { rmnUser, tgUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { platformType, clientPlatform } = usePlatformStore();
@@ -53,7 +54,7 @@ export function useStripePayment(selectedPeriod: number) {
   }, [rmnUser?.id, paymentsApi, redirectTo]);
 
   const handleStripePayment = async (email?: string) => {
-    if (!rmnUser) return;
+    if (!rmnUser || !plan) return;
 
     let activeUser = rmnUser;
 
@@ -70,7 +71,7 @@ export function useStripePayment(selectedPeriod: number) {
 
     const session = await createStripeSession({
       userId: activeUser.id,
-      selectedPeriod,
+      planId: plan.planId,
       userStatus: activeUser.status,
       toltReferralId: window.tolt_referral ?? null,
       metadata: {
@@ -81,7 +82,7 @@ export function useStripePayment(selectedPeriod: number) {
     });
 
     if (!session?.url) return;
-    phCapture('checkout_started', { payment_provider: 'stripe', months: selectedPeriod });
+    phCapture('checkout_started', { payment_provider: 'stripe', days: plan.days });
     redirectTo(session.url);
   };
 

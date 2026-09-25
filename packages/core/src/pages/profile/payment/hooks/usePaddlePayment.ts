@@ -1,12 +1,13 @@
+import type { SubscriptionPlanDto } from '@workspace/types';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '../../../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../../../runtime';
-import { useAuthStoreInfo, usePlanByPeriod } from '../../../../stores';
+import { useAuthStoreInfo } from '../../../../stores';
 import { getReferralUserId, phCapture } from '../../../../utils';
 import { checkoutErrorKey } from '../../../getSubscription/checkoutErrors';
 
-export function usePaddlePayment(selectedPeriod: number) {
+export function usePaddlePayment(plan: SubscriptionPlanDto | undefined) {
   const { t } = useTranslation();
   const { rmnUser } = useAuthStoreInfo();
   const paymentsApi = usePaymentsApi();
@@ -14,7 +15,7 @@ export function usePaddlePayment(selectedPeriod: number) {
   const navigate = useNavigation();
   // Detected from the payer's IP while the plan was priced — prefilling it
   // alongside the email is what lets the checkout skip Paddle's details step.
-  const countryCode = usePlanByPeriod(selectedPeriod)?.countryCode ?? null;
+  const countryCode = plan?.countryCode ?? null;
 
   const redirectTo = useCallback((url: string) => {
     window.location.href = url;
@@ -42,7 +43,7 @@ export function usePaddlePayment(selectedPeriod: number) {
   }, [rmnUser?.id, paymentsApi, redirectTo]);
 
   const handlePaddlePayment = async (email?: string) => {
-    if (!rmnUser) return;
+    if (!rmnUser || !plan) return;
 
     setIsPaddlePaying(true);
     setPaddleError(null);
@@ -52,15 +53,15 @@ export function usePaddlePayment(selectedPeriod: number) {
 
       const { priceId, customData } = await paymentsApi.createPublicPaddleCheckout({
         email: payerEmail,
-        selectedPeriod,
+        planId: plan.planId,
         toltReferralId: window.tolt_referral ?? null,
         inviterId: getReferralUserId() ?? undefined,
       });
 
-      phCapture('checkout_started', { payment_provider: 'paddle', months: selectedPeriod });
+      phCapture('checkout_started', { payment_provider: 'paddle', days: plan.days });
 
       navigate(profilePaddleCheckoutPath, {
-        state: { priceId, customData, email: payerEmail, countryCode, selectedPeriod },
+        state: { priceId, customData, email: payerEmail, countryCode, selectedPeriod: plan.days },
       });
     } catch (error) {
       setPaddleError(t(checkoutErrorKey(error)));

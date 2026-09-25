@@ -5,7 +5,7 @@ import RuStartCheckoutPage from '../ruGetSubscription/RuStartCheckoutPage';
 import StripeCheckoutPage from './StripeCheckoutPage';
 
 /**
- * The one checkout route (`/payment/:planSlug`), resolved to whoever takes the
+ * The one checkout route (`/payment/:planId`), resolved to whoever takes the
  * payment on this domain: YooKassa on the RU domains, and whichever global
  * provider is currently enabled everywhere else.
  *

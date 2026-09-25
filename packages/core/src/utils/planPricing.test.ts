@@ -9,8 +9,10 @@ const labels = {
 
 function plan(days: number, pricing: Partial<PlanPricing> = {}): SubscriptionPlanDto {
   return {
+    planId: `plan-${days}`,
     days,
     countryCode: null,
+    isTrial: false,
     planPricing: {
       total: '6.00',
       monthly: '6.00',

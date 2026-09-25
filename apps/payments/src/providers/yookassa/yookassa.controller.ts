@@ -146,7 +146,7 @@ export class YookassaController {
 
     return this.yookassaService.createPaymentSession({
       userId: null,
-      selectedPeriod: dto.selectedPeriod,
+      planId: dto.planId,
       save_payment_method: true,
       confirmation: { type: 'redirect', return_url: dto.returnUrl },
       email,

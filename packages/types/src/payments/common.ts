@@ -30,7 +30,9 @@ export type PlanPricing = {
  * client renders what it is given and asks the backend to start a checkout.
  */
 export type SubscriptionPlanDto = {
-  /** Subscription length in months. */
+  /** Opaque id to send back when starting a checkout for this plan. */
+  planId: string;
+  /** Subscription length in days. */
   days: number;
   planPricing: PlanPricing;
   /**

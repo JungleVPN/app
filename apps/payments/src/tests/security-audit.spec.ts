@@ -3,11 +3,11 @@ import * as process from 'node:process';
 
 import { BadRequestException } from '@nestjs/common';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
+import { PlanService } from '@payments/catalog/plan.service';
 import { PaymentStatusService } from '@payments/payment-status/payment-status.service';
-import { mapEURAmountToDaysNumber } from '@payments/providers/stripe/stripe.utils';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
-import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
+import type { Plan, PlanProvider, SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { Payments, type PaymentWebhookNotification } from '@workspace/types';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -24,6 +24,7 @@ vi.mock('@workspace/database', () => ({
   ToltReferral: class {},
   ToltTransaction: class {},
   FxRate: class {},
+  Plan: class {},
 }));
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -114,6 +115,7 @@ describe('Security Audit', () => {
         { track: vi.fn() } as any,
         { reportConversion: vi.fn() } as any,
         {} as any,
+        new PlanService({ find: async () => [] } as never),
       );
     });
 
@@ -179,6 +181,7 @@ describe('Security Audit', () => {
         { track: vi.fn() } as any,
         { reportConversion: vi.fn() } as any,
         {} as any,
+        new PlanService({ find: async () => [] } as never),
       );
       (svc as any).isIPRangeValid = mockIsIPRangeValid;
 
@@ -261,6 +264,7 @@ describe('Security Audit', () => {
         { track: vi.fn() } as any,
         { reportConversion: vi.fn() } as any,
         {} as any,
+        new PlanService({ find: async () => [] } as never),
       );
     });
 
@@ -302,6 +306,7 @@ describe('Security Audit', () => {
         { track: vi.fn() } as any,
         { reportConversion: vi.fn() } as any,
         {} as any,
+        new PlanService({ find: async () => [] } as never),
       );
 
       const payload = makeSucceededPayload('pay_replay');
@@ -313,39 +318,36 @@ describe('Security Audit', () => {
     });
   });
 
-  describe('[FINDING #12] mapEURAmountToDaysNumber must throw on unrecognised amounts', () => {
-    beforeEach(() => {
-      process.env.ALLOWED_PERIODS_IN_DAYS = '30';
-      process.env.PRICE_EUR_DAYS_30 = '5';
+  describe('[FINDING #12] a paid Stripe amount must map to a known plan or throw', () => {
+    const stripePlan = (billingPeriod: number, basePrice: number): Plan => ({
+      id: `stripe-${billingPeriod}`,
+      type: 'recurring',
+      billingPeriod,
+      basePrice,
+      provider: 'stripe',
+      providerPriceId: `price_${billingPeriod}`,
+      availableForPurchase: true,
+      customData: {},
+    });
+    const planService = new PlanService({
+      find: async () => [stripePlan(30, 5), stripePlan(180, 12)],
+    } as never);
+
+    it('throws for an amount not matching any plan price', async () => {
+      await expect(planService.findByAmount('stripe', 999)).rejects.toThrow();
     });
 
-    afterEach(() => {
-      delete process.env.ALLOWED_PERIODS_IN_DAYS;
-      delete process.env.PRICE_EUR_DAYS_30;
-      delete process.env.PRICE_EUR_DAYS_180;
+    it('throws for amount = 0', async () => {
+      await expect(planService.findByAmount('stripe', 0)).rejects.toThrow();
     });
 
-    it('throws for an amount not matching the configured price', () => {
-      expect(() => mapEURAmountToDaysNumber(99900)).toThrow();
-    });
-
-    it('throws for amount = 0', () => {
-      expect(() => mapEURAmountToDaysNumber(0)).toThrow();
-    });
-
-    it('throws when no periods are configured', () => {
-      delete process.env.ALLOWED_PERIODS_IN_DAYS;
-      expect(() => mapEURAmountToDaysNumber(500)).toThrow();
-    });
-
-    it('returns correct months for the configured price', () => {
-      // 500 EUR cents = 5 EUR → matches PRICE_EUR_DAYS_1 = '5' → 1 month
-      expect(mapEURAmountToDaysNumber(500)).toBe(30);
-
-      // Add a 3-month plan and verify it maps correctly
-      process.env.ALLOWED_PERIODS_IN_DAYS = '30,180';
-      process.env.PRICE_EUR_DAYS_180 = '12';
-      expect(mapEURAmountToDaysNumber(1200)).toBe(180);
+    it('returns the period of the plan priced at that amount', async () => {
+      await expect(planService.findByAmount('stripe', 5)).resolves.toMatchObject({
+        billingPeriod: 30,
+      });
+      await expect(planService.findByAmount('stripe', 12)).resolves.toMatchObject({
+        billingPeriod: 180,
+      });
     });
   });
 });

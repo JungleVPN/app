@@ -21,6 +21,7 @@ vi.mock('@workspace/database', () => ({
   ToltReferral: class {},
   ToltTransaction: class {},
   FxRate: class {},
+  Plan: class {},
 }));
 
 describe('YookassaController', () => {
@@ -113,7 +114,7 @@ describe('YookassaController', () => {
         amount: { value: '100.00', currency: 'RUB' },
         description: 'test',
         save_payment_method: true,
-        selectedPeriod: 1,
+        planId: 'ru-30',
         email: 'example@gmail.com',
       };
       const session = { id: 'sess-1', url: 'https://yk/sess-1' };
@@ -147,7 +148,7 @@ describe('YookassaController', () => {
   describe('createPublicPaymentSession', () => {
     const publicDto = (overrides: Partial<CreatePublicYookassaSessionDto> = {}) => ({
       email: 'Payer@Test.com',
-      selectedPeriod: 3,
+      planId: 'ru-90',
       returnUrl: 'https://ru.jungle.test/payment/return',
       ...overrides,
     });
@@ -160,7 +161,7 @@ describe('YookassaController', () => {
 
       expect(yookassaService.createPaymentSession).toHaveBeenCalledWith({
         userId: null,
-        selectedPeriod: 3,
+        planId: 'ru-90',
         save_payment_method: true,
         confirmation: { type: 'redirect', return_url: 'https://ru.jungle.test/payment/return' },
         email: 'payer@test.com',

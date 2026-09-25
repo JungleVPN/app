@@ -103,13 +103,13 @@ export function createRoutes(
         {
           Component: WebPaymentLayout,
           children: [
-            // Static segment, so it wins over `/payment/:planSlug` below.
+            // Static segment, so it wins over `/payment/:planId` below.
             {
               path: '/payment/checkout',
               lazy: () => pages().then((m) => ({ Component: m.PaddleCheckoutPage })),
             },
             {
-              path: '/payment/:planSlug',
+              path: '/payment/:planId',
               lazy: () => pages().then((m) => ({ Component: m.GetSubscriptionPage })),
             },
             {
@@ -145,7 +145,7 @@ export function createRoutes(
               lazy: () => pages().then((m) => ({ Component: m.ProtectedPlansPage })),
             },
             {
-              path: 'payments',
+              path: 'payments/:planId?',
               lazy: () => pages().then((m) => ({ Component: m.ProtectedPaymentPage })),
             },
             {

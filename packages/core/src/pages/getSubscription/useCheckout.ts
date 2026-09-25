@@ -3,10 +3,9 @@ import { type SyntheticEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { usePlans } from '../../hooks';
-import { useAuthStore, usePlanByPeriod, usePlansStatus } from '../../stores';
+import { useAuthStore, usePlanById, usePlansStatus } from '../../stores';
 import { scrollToTop, validateEmail } from '../../utils';
 import { isActiveSubscriptionError, isThrottledError } from './checkoutErrors';
-import { daysFromSlug } from './planSlug';
 
 const EMPTY_EMAIL_ERROR = 'getSubscription.email_required_error';
 const INVALID_EMAIL_ERROR = 'getSubscription.email_invalid_error';
@@ -22,6 +21,7 @@ const THROTTLED_ERROR = 'getSubscription.throttled_error';
 /** What a provider needs to begin a payment: a validated payer and the plan they picked. */
 export interface CheckoutRequest {
   email: string;
+  planId: string;
   selectedPeriod: number;
 }
 
@@ -52,7 +52,7 @@ export interface Checkout {
  * inline checkout). It throws on failure; this hook classifies the error.
  */
 export function useCheckout(startCheckout: (request: CheckoutRequest) => Promise<void>): Checkout {
-  const { planSlug } = useParams();
+  const { planId } = useParams();
   const { t } = useTranslation();
   const { authUser } = useAuthStore();
 
@@ -71,8 +71,8 @@ export function useCheckout(startCheckout: (request: CheckoutRequest) => Promise
   usePlans();
 
   const status = usePlansStatus();
-  const selectedPeriod = daysFromSlug(planSlug);
-  const plan = usePlanByPeriod(selectedPeriod);
+  const plan = usePlanById(planId);
+  const selectedPeriod = plan?.days ?? null;
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -92,13 +92,13 @@ export function useCheckout(startCheckout: (request: CheckoutRequest) => Promise
       setEmailError(t(INVALID_EMAIL_ERROR));
       return;
     }
-    if (selectedPeriod === null) return;
+    if (!plan) return;
 
     setIsPending(true);
     setCheckoutError(null);
     setActiveSubscriptionEmail(null);
     try {
-      await startCheckout({ email: payerEmail, selectedPeriod });
+      await startCheckout({ email: payerEmail, planId: plan.planId, selectedPeriod: plan.days });
     } catch (error) {
       if (isActiveSubscriptionError(error)) {
         setActiveSubscriptionEmail(payerEmail);

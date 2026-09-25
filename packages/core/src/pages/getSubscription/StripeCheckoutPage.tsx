@@ -14,10 +14,10 @@ import { type CheckoutRequest, useCheckout } from './useCheckout';
 export default function StripeCheckoutPage() {
   const paymentsApi = usePaymentsApi();
 
-  const startCheckout = async ({ email, selectedPeriod }: CheckoutRequest) => {
+  const startCheckout = async ({ email, planId }: CheckoutRequest) => {
     const session = await paymentsApi.createPublicStripeSession({
       email,
-      selectedPeriod,
+      planId,
       toltReferralId: window.tolt_referral ?? null,
       inviterId: getReferralUserId() ?? undefined,
     });

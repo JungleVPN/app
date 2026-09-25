@@ -4,13 +4,14 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
+import { PlanService } from '@payments/catalog/plan.service';
 import type { PaymentStatusService } from '@payments/payment-status/payment-status.service';
 import { PromoInvalidError, type PromoService } from '@payments/promo/promo.service';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
 import type { ToltService } from '@payments/tolt/tolt.service';
 import type { PaymentsUtils } from '@payments/utils/utils';
-import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
+import type { Plan, SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { PaymentWebhookNotification, WebhookEventEnum } from '@workspace/types';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -27,6 +28,7 @@ vi.mock('@workspace/database', () => {
     ToltReferral: class {},
     ToltTransaction: class {},
     FxRate: class {},
+    Plan: class {},
   };
 });
 
@@ -119,6 +121,25 @@ describe('YookassaService', () => {
   let remnaUserResolver: RemnaUserResolverService;
   remnaUserResolver = {} as unknown as RemnaUserResolverService;
 
+  const ruPlan = (id: string, billingPeriod: number, basePrice: number): Plan => ({
+    id,
+    type: 'recurring',
+    billingPeriod,
+    basePrice,
+    provider: 'yookassa',
+    providerPriceId: null,
+    availableForPurchase: true,
+    customData: {},
+  });
+  const planService = new PlanService({
+    find: async () => [
+      ruPlan('ru-30', 30, 599),
+      ruPlan('ru-180', 180, 1500),
+      { ...ruPlan('ru-trial', 3, 79), type: 'one_time' },
+      ruPlan('ru-week', 7, 150),
+    ],
+  } as never);
+
   /** Rebuild the service — the IP allowlist is snapshotted in the constructor. */
   const makeService = () =>
     new YookassaService(
@@ -132,6 +153,7 @@ describe('YookassaService', () => {
       analyticsClient,
       toltService,
       remnaUserResolver,
+      planService,
     );
 
   beforeEach(() => {
@@ -527,6 +549,24 @@ describe('YookassaService', () => {
       );
     });
 
+    // A trial is a one-off purchase: saving the card would renew it as one.
+    it('never saves the payment method used to buy a one-time trial', async () => {
+      mockYkFindOneBy.mockResolvedValue({ userId: 1000, selectedPeriod: 3, telegramId: 42 });
+
+      await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+      expect(mockSmCreate).not.toHaveBeenCalled();
+    });
+
+    it('saves the payment method for a recurring 7 day plan, which is not a trial', async () => {
+      mockSmFindOneBy.mockResolvedValue(null);
+      mockYkFindOneBy.mockResolvedValue({ userId: 1000, selectedPeriod: 7, telegramId: 42 });
+
+      await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+      expect(mockSmCreate).toHaveBeenCalled();
+    });
+
     it('skips saving when payment_method.saved is false', async () => {
       const payload = makeSucceededPayload();
       (payload.object.payment_method as { saved: boolean }).saved = false;
@@ -816,20 +856,16 @@ describe('YookassaService', () => {
     const baseDto = (overrides: Partial<any> = {}): any => ({
       userId: 1000,
       telegramId: 42,
-      selectedPeriod: 30,
+      planId: 'ru-30',
       ...overrides,
     });
 
     beforeEach(() => {
-      process.env.PRICE_RUB_DAYS_30 = '599';
-      process.env.PRICE_RUB_DAYS_180 = '1500';
       process.env.PAYMENT_DESCRIPTION = 'Jungle VPN';
       process.env.RETURN_URL_BOT = 'https://t.me/jungle_bot';
     });
 
     afterEach(() => {
-      delete process.env.PRICE_RUB_DAYS_30;
-      delete process.env.PRICE_RUB_DAYS_180;
       delete process.env.PAYMENT_DESCRIPTION;
       delete process.env.RETURN_URL_BOT;
     });
@@ -841,12 +877,26 @@ describe('YookassaService', () => {
       });
     });
 
-    it('charges the configured price for the selected period', async () => {
-      await service.createPaymentSession(baseDto({ selectedPeriod: 180 }));
+    it("charges the chosen plan's price", async () => {
+      await service.createPaymentSession(baseDto({ planId: 'ru-180' }));
 
       expect(mockProviderCreate).toHaveBeenCalledWith(
         expect.objectContaining({ amount: { value: '1500', currency: 'RUB' } }),
       );
+      expect(mockYkCreate).toHaveBeenCalledWith(expect.objectContaining({ selectedPeriod: 180 }));
+    });
+
+    it('never forwards our plan id to YooKassa', async () => {
+      await service.createPaymentSession(baseDto());
+
+      expect(mockProviderCreate.mock.calls[0][0]).not.toHaveProperty('planId');
+    });
+
+    it('refuses a plan not on sale at YooKassa before charging anything', async () => {
+      await expect(service.createPaymentSession(baseDto({ planId: 'nope' }))).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(mockProviderCreate).not.toHaveBeenCalled();
     });
 
     // `capture: true` means the funds settle immediately rather than being held
@@ -937,9 +987,7 @@ describe('YookassaService', () => {
     // A one-off device slot has its own price and buys no subscription months.
     describe('extra device purchases', () => {
       it('uses the extra-device price and a zero period', async () => {
-        await service.createPaymentSession(
-          baseDto({ purpose: 'extra_device', selectedPeriod: 12 }),
-        );
+        await service.createPaymentSession(baseDto({ purpose: 'extra_device', planId: undefined }));
 
         expect(paymentsUtils.getExtraDevicePriceRUB).toHaveBeenCalled();
         expect(mockProviderCreate).toHaveBeenCalledWith(
@@ -968,7 +1016,7 @@ describe('YookassaService', () => {
     describe('promo codes', () => {
       it('validates the code against the user and period before charging', async () => {
         await service.createPaymentSession(
-          baseDto({ promoCode: 'welcome', userStatus: 'ACTIVE', selectedPeriod: 180 }),
+          baseDto({ promoCode: 'welcome', userStatus: 'ACTIVE', planId: 'ru-180' }),
         );
 
         expect(mockPromoResolve).toHaveBeenCalledWith('welcome', {

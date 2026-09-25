@@ -1,6 +1,7 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { EventEntity } from '@paddle/paddle-node-sdk';
+import { PlanService } from '@payments/catalog/plan.service';
 import { toSavedMethodDto } from '@payments/utils/saved-method';
 import { PaddlePayment, SavedPaymentMethod } from '@workspace/database';
 import type {
@@ -22,6 +23,7 @@ export class PaddleProvider {
     @InjectRepository(PaddlePayment) private readonly repository: Repository<PaddlePayment>,
     @InjectRepository(SavedPaymentMethod)
     private readonly savedMethodRepository: Repository<SavedPaymentMethod>,
+    private readonly planService: PlanService,
   ) {}
 
   async handleWebhook(event: EventEntity): Promise<void> {
@@ -77,32 +79,23 @@ export class PaddleProvider {
   }
 
   /**
-   * The catalog price id Paddle Checkout should bill for a subscription
-   * period. No fallback to another period: a period whose id is missing
-   * would otherwise be silently sold at the wrong price (mirrors Stripe's
-   * `getPriceId`).
-   */
-  getPriceId(days: number): string {
-    const priceId = process.env[`PADDLE_PRICE_ID_DAYS_${days}`];
-    if (!priceId) {
-      throw new BadRequestException(`No Paddle price configured for a ${days} month plan`);
-    }
-    return priceId;
-  }
-
-  /**
    * Everything the frontend needs to open `Paddle.Checkout.open()` for the
    * public pricing page: the catalog price, and custom data so a later
    * webhook can identify the payer once the checkout settles.
    */
-  buildCheckoutPayload(input: {
+  async buildCheckoutPayload(input: {
     email: string;
-    selectedPeriod: number;
+    planId: string;
     toltReferralId?: string | null;
     inviterId?: number;
     origin?: string;
-  }): PaddleCheckoutPayload {
-    const priceId = this.getPriceId(input.selectedPeriod);
+  }): Promise<PaddleCheckoutPayload> {
+    const plan = await this.planService.getForCheckout(input.planId, 'paddle');
+    const priceId = plan.providerPriceId;
+
+    if (!priceId) {
+      throw Error('No priceId was found in buildCheckoutPayload');
+    }
 
     const customData: Record<string, string> = { email: input.email };
     if (input.toltReferralId) customData.toltReferralId = input.toltReferralId;

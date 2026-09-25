@@ -19,10 +19,10 @@ export default function RuStartCheckoutPage() {
   const paymentsApi = usePaymentsApi();
   const { paymentReturnPath } = useAppRoutes();
 
-  const startCheckout = async ({ email, selectedPeriod }: CheckoutRequest) => {
+  const startCheckout = async ({ email, planId, selectedPeriod }: CheckoutRequest) => {
     const session = await paymentsApi.createPublicYookassaSession({
       email,
-      selectedPeriod,
+      planId,
       returnUrl: `${window.location.origin}${paymentReturnPath}`,
       toltReferralId: window.tolt_referral ?? null,
       inviterId: getReferralUserId() ?? undefined,

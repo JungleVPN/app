@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
+import { PlanService } from '@payments/catalog/plan.service';
 import { SavedPaymentMethod, StripePayment } from '@workspace/database';
 import { Payments, WebhookEventEnum } from '@workspace/types';
 import type Stripe from 'stripe';
@@ -12,7 +13,6 @@ import { ToltService } from '../../tolt/tolt.service';
 import type { StripeInvoicePayload } from './stripe.types';
 import {
   customerToId,
-  mapEURAmountToDaysNumber,
   mapToCorrectAmount,
   paymentIntentToId,
   subscriptionToId,
@@ -53,6 +53,7 @@ export class StripeWebhookService {
     private readonly analyticsClient: AnalyticsClientService,
     private readonly toltService: ToltService,
     private readonly remnaUserResolver: RemnaUserResolverService,
+    private readonly planService: PlanService,
   ) {}
 
   async handleWebhook(event: Stripe.Event) {
@@ -223,7 +224,10 @@ export class StripeWebhookService {
     if (!settled) return;
 
     if (await this.checkIdempotency(invoice)) return;
-    const selectedPeriod = mapEURAmountToDaysNumber(invoice.subtotal);
+    const { billingPeriod: selectedPeriod } = await this.planService.findByAmount(
+      'stripe',
+      mapToCorrectAmount(invoice.subtotal),
+    );
 
     const isNewUser = !settled.userId;
     const userId = settled.userId ?? (await this.resolveUserForInvoice(settled));

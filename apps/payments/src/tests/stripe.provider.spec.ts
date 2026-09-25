@@ -1,10 +1,17 @@
 import 'reflect-metadata';
 import * as process from 'node:process';
 import { BadRequestException } from '@nestjs/common';
-import type { StripePayment, TelegramStarsPayment, YookassaPayment } from '@workspace/database';
+import type {
+  Plan,
+  PlanProvider,
+  StripePayment,
+  TelegramStarsPayment,
+  YookassaPayment,
+} from '@workspace/database';
 import { CreateStripeSessionDto } from '@workspace/types';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
+import { PlanService } from '../catalog/plan.service';
 import { StripeProvider } from '../providers/stripe/stripe.provider';
 import type { StripeClientService } from '../providers/stripe/stripe-client.service';
 import type { StripeWebhookService } from '../providers/stripe/stripe-webhook.service';
@@ -20,7 +27,35 @@ vi.mock('@workspace/database', () => ({
   ToltReferral: class {},
   ToltTransaction: class {},
   FxRate: class {},
+  Plan: class {},
 }));
+
+const plan = (id: string, overrides: Partial<Plan>): Plan => ({
+  id,
+  type: 'recurring',
+  billingPeriod: 30,
+  basePrice: 10,
+  provider: 'stripe',
+  providerPriceId: null,
+  availableForPurchase: true,
+  customData: {},
+  ...overrides,
+});
+
+const CATALOG: Plan[] = [
+  plan('stripe-30', { providerPriceId: 'price_default' }),
+  plan('stripe-180', { billingPeriod: 180, basePrice: 26, providerPriceId: 'price_3months' }),
+  plan('stripe-retired', {
+    billingPeriod: 90,
+    providerPriceId: 'price_old',
+    availableForPurchase: false,
+  }),
+  plan('yookassa-30', { provider: 'yookassa', basePrice: 200 }),
+];
+
+const planService = new PlanService({
+  find: async () => CATALOG,
+} as never);
 
 /**
  * The customer lookup is the one mock the harness calls itself rather than
@@ -121,6 +156,7 @@ const makeProvider = (overrides: {
     starsRepo,
     { track: mockTrack } as never,
     savedMethodRepo,
+    planService,
   );
 
   return {
@@ -144,92 +180,47 @@ const subscriptionDto = (
 ): CreateStripeSessionDto => ({
   userId: 1000,
   purchaseType: 'subscription',
-  selectedPeriod: 30,
+  planId: 'stripe-30',
   metadata: { email: 'test@example.com' },
   ...overrides,
 });
 
 describe('StripeProvider', () => {
   describe('StripeProvider.createPayment', () => {
-    beforeEach(() => {
-      process.env.ALLOWED_PERIODS_IN_DAYS = '30,180,365';
-      process.env.PRICE_EUR_DAYS_30 = '6';
-      process.env.PRICE_EUR_DAYS_180 = '26';
-      process.env.PRICE_EUR_DAYS_365 = '43';
-      process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_default';
-    });
-
-    afterEach(() => {
-      for (const key of [
-        'ALLOWED_PERIODS_IN_DAYS',
-        'PRICE_EUR_DAYS_30',
-        'PRICE_EUR_DAYS_180',
-        'PRICE_EUR_DAYS_365',
-        'STRIPE_PRICE_ID_DAYS_30',
-        'STRIPE_PRICE_ID_DAYS_180',
-        'STRIPE_PRICE_ID_DAYS_365',
-      ]) {
-        delete process.env[key];
-      }
-    });
-
-    describe('price ID selection', () => {
-      it('uses STRIPE_PRICE_ID_DAYS_30 when no period-specific price ID is configured', async () => {
+    describe('price selection', () => {
+      it("bills the chosen plan's Stripe price", async () => {
         const { provider, mockCreateSession } = makeProvider({});
 
-        await provider.createPayment(subscriptionDto({ selectedPeriod: 30 }));
-
-        expect(mockCreateSession).toHaveBeenCalledWith(
-          expect.objectContaining({ line_items: [{ price: 'price_default', quantity: 1 }] }),
-        );
-      });
-
-      it('uses STRIPE_PRICE_ID_DAYS_180 when selectedPeriod is 180 and it is configured', async () => {
-        process.env.STRIPE_PRICE_ID_DAYS_180 = 'price_3months';
-        const { provider, mockCreateSession } = makeProvider({});
-
-        await provider.createPayment(subscriptionDto({ selectedPeriod: 180 }));
+        await provider.createPayment(subscriptionDto({ planId: 'stripe-180' }));
 
         expect(mockCreateSession).toHaveBeenCalledWith(
           expect.objectContaining({ line_items: [{ price: 'price_3months', quantity: 1 }] }),
         );
       });
 
-      it('uses STRIPE_PRICE_ID_DAYS_365 when selectedPeriod is 365 and it is configured', async () => {
-        process.env.STRIPE_PRICE_ID_DAYS_365 = 'price_12months';
+      it("bills Stripe's own price for a plan posted from the other storefront", async () => {
         const { provider, mockCreateSession } = makeProvider({});
 
-        await provider.createPayment(subscriptionDto({ selectedPeriod: 365 }));
+        await provider.createPayment(subscriptionDto({ planId: 'yookassa-30' }));
 
         expect(mockCreateSession).toHaveBeenCalledWith(
-          expect.objectContaining({ line_items: [{ price: 'price_12months', quantity: 1 }] }),
+          expect.objectContaining({ line_items: [{ price: 'price_default', quantity: 1 }] }),
         );
       });
 
-      // Falling back to the monthly price would sell the wrong plan without any
-      // signal: the user picks 6 months, Stripe opens a monthly subscription,
-      // `mapEURAmountToDaysNumber` maps the charge back to 1 month, and they
-      // end up on a recurring monthly cycle believing they bought half a year.
-      // A missing price id is a misconfiguration and has to fail loudly.
-      it('refuses to sell a period whose price ID is not configured', async () => {
-        process.env.STRIPE_PRICE_ID_DAYS_180 = 'price_3months';
+      // Falling back to another price would sell the wrong plan without any
+      // signal: the user picks 6 months and ends up on a monthly cycle.
+      it.each([
+        ['no plan', undefined],
+        ['an unknown plan', 'nope'],
+        ['a plan taken off sale', 'stripe-retired'],
+      ])('refuses to open a checkout for %s', async (_case, planId) => {
         const { provider, mockCreateSession } = makeProvider({});
 
-        await expect(
-          provider.createPayment(subscriptionDto({ selectedPeriod: 365 })),
-        ).rejects.toThrow(/365 day/);
+        await expect(provider.createPayment(subscriptionDto({ planId }))).rejects.toBeInstanceOf(
+          BadRequestException,
+        );
         expect(mockCreateSession).not.toHaveBeenCalled();
-      });
-
-      it('defaults to period 1 when selectedPeriod is not provided', async () => {
-        process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_1month';
-        const { provider, mockCreateSession } = makeProvider({});
-
-        await provider.createPayment(subscriptionDto({ selectedPeriod: undefined }));
-
-        expect(mockCreateSession).toHaveBeenCalledWith(
-          expect.objectContaining({ line_items: [{ price: 'price_1month', quantity: 1 }] }),
-        );
       });
     });
 
@@ -246,10 +237,7 @@ describe('StripeProvider', () => {
       it('sends the user back to the domain the payment was started from', async () => {
         const { provider, mockCreateSession } = makeProvider({});
 
-        await provider.createPayment(
-          subscriptionDto({ selectedPeriod: 30 }),
-          'https://jungle.community',
-        );
+        await provider.createPayment(subscriptionDto(), 'https://jungle.community');
 
         expect(mockCreateSession).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -263,10 +251,7 @@ describe('StripeProvider', () => {
         process.env.RETURN_URL_WEB = 'https://fallback.example.com/profile/subscription';
         const { provider, mockCreateSession } = makeProvider({});
 
-        await provider.createPayment(
-          subscriptionDto({ selectedPeriod: 30 }),
-          'https://evil.example.com',
-        );
+        await provider.createPayment(subscriptionDto(), 'https://evil.example.com');
 
         expect(mockCreateSession).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -342,11 +327,6 @@ describe('StripeProvider', () => {
     // "No subscription" is the unsafe answer to a failed lookup: it is what routes
     // an existing subscriber into a second subscription and bills them twice.
     describe('when the subscription lookup fails', () => {
-      beforeEach(() => {
-        process.env.ALLOWED_PERIODS_IN_DAYS = '30,180,365';
-        process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_month_1';
-      });
-
       it('surfaces the failure instead of reporting no subscription', async () => {
         const { provider } = makeProvider({
           mockSubscriptionsList: vi.fn().mockRejectedValue(new Error('rate limited')),
@@ -387,22 +367,12 @@ describe('StripeProvider', () => {
    * minted one had this attempt's referral and origin silently dropped.
    */
   describe('StripeProvider.createPayment — anonymous checkout metadata', () => {
-    beforeEach(() => {
-      process.env.ALLOWED_PERIODS_IN_DAYS = '1,3,6,12';
-      process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_default';
-    });
-
-    afterEach(() => {
-      delete process.env.ALLOWED_PERIODS_IN_DAYS;
-      delete process.env.STRIPE_PRICE_ID_DAYS_30;
-    });
-
     const anonymousDto = (
       overrides: Partial<CreateStripeSessionDto> = {},
     ): CreateStripeSessionDto => ({
       userId: null,
       purchaseType: 'subscription',
-      selectedPeriod: 30,
+      planId: 'stripe-30',
       metadata: {
         email: 'payer@example.com',
         inviterId: '42',
@@ -516,20 +486,10 @@ describe('StripeProvider', () => {
    * history has to be read off the Stripe customer the email resolved to.
    */
   describe('StripeProvider.createPayment — referral attribution', () => {
-    beforeEach(() => {
-      process.env.ALLOWED_PERIODS_IN_DAYS = '30,180,365';
-      process.env.STRIPE_PRICE_ID_DAYS_30 = 'price_default';
-    });
-
-    afterEach(() => {
-      delete process.env.ALLOWED_PERIODS_IN_DAYS;
-      delete process.env.STRIPE_PRICE_ID_DAYS_30;
-    });
-
     const referredAnonymousDto = (): CreateStripeSessionDto => ({
       userId: null,
       purchaseType: 'subscription',
-      selectedPeriod: 30,
+      planId: 'stripe-30',
       metadata: { email: 'payer@example.com' },
       toltReferralId: 'tolt_1',
     });
@@ -586,16 +546,7 @@ describe('StripeProvider', () => {
    * and the start of the funnel.
    */
   describe('StripeProvider.openSession', () => {
-    beforeEach(() => {
-      process.env.GLOBAL_PAYMENT_PROVIDER = 'stripe';
-      process.env.PRICE_EUR_DAYS_30 = '10';
-      process.env.STRIPE_PRICE_ID_DAYS_30 = '10';
-    });
-
     afterEach(() => {
-      delete process.env.GLOBAL_PAYMENT_PROVIDER;
-      delete process.env.PRICE_EUR_DAYS_30;
-      delete process.env.STRIPE_PRICE_ID_DAYS_30;
       delete process.env.EXTRA_DEVICE_PRICE_EUR;
       delete process.env.STRIPE_EXTRA_DEVICE_PRICE_ID;
     });
@@ -644,11 +595,11 @@ describe('StripeProvider', () => {
       });
     });
 
-    it('rejects an unusable period before reaching Stripe', async () => {
+    it('rejects a plan not on sale before reaching Stripe', async () => {
       const { provider, mockCreateSession } = makeProvider({});
 
       await expect(
-        provider.openSession(subscriptionDto({ selectedPeriod: 7 }), 'https://app.test'),
+        provider.openSession(subscriptionDto({ planId: 'stripe-retired' }), 'https://app.test'),
       ).rejects.toThrow(BadRequestException);
       expect(mockCreateSession).not.toHaveBeenCalled();
     });

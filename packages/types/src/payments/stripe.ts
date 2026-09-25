@@ -22,8 +22,8 @@ export interface CreateStripeSessionDto {
   metadata: Record<string, string>;
   /** Subscription status from remnawave, when known — used to validate the promo. */
   userStatus?: string;
-  /** Subscription plan in months (1, 3, 6, 12). Defaults to the first allowed period. */
-  selectedPeriod: number;
+  /** The `planId` from `/plans`. Required for a subscription; ignored for 'extra_device'. */
+  planId?: string;
   /** Tolt affiliate referral id (`window.tolt_referral`), when the visitor came via a referral link. */
   toltReferralId?: string | null;
 }
@@ -38,8 +38,8 @@ export interface CreateStripeSessionDto {
 export interface CreatePublicStripeSessionDto {
   /** Payer's email. The account is found-or-created from this address. */
   email: string;
-  /** Subscription plan in months (1, 3, 6, 12). */
-  selectedPeriod: number;
+  /** The `planId` from `/plans`. */
+  planId: string;
   /** Tolt affiliate referral id (`window.tolt_referral`), when present. */
   toltReferralId?: string | null;
   /** Referring user id captured from a `?ref=` link, when present. */

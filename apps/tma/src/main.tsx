@@ -35,7 +35,7 @@ const appRoutes = {
   profileMenuPath: '/profile/menu',
   profileReferralsPath: '/profile/referrals',
   getConnectEmailPath: '/connectEmail',
-  getSubscriptionPath: (period: number) => `/payment/plan${period}`,
+  getSubscriptionPath: (planId: string) => `/payment/${planId}`,
 };
 
 const root = document.getElementById('root');

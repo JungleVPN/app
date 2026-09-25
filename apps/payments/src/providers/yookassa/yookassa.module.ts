@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AnalyticsClientModule } from '@payments/analytics/analytics-client.module';
+import { PlanModule } from '@payments/catalog/plan.module';
 import { BotNotificationModule } from '@payments/notifications/bot-notification.module';
 import { YooKassaConnector } from '@payments/providers/yookassa/helpers/yookassa.connector';
 import { YookassaController } from '@payments/providers/yookassa/yookassa.controller';
@@ -21,6 +22,7 @@ import { ToltModule } from '../../tolt/tolt.module';
     BotNotificationModule,
     AnalyticsClientModule,
     ToltModule,
+    PlanModule,
   ],
   controllers: [YookassaController],
   exports: [YooKassaProvider, YookassaService],

@@ -1,67 +1,9 @@
 import * as process from 'node:process';
-import { PaymentMethod, type PlanPricing } from '@workspace/types';
+import type { PlanPricing } from '@workspace/types';
 
 export type Currency = 'RUB' | 'EUR';
 
 const DISPLAY_DECIMALS: Record<string, number> = { RUB: 0, JPY: 0, KRW: 0, CLP: 0 };
-
-const priceEnvKeys = (currency: Currency, period: number) => [`PRICE_${currency}_DAYS_${period}`];
-
-const priceForPeriod = (currency: Currency, period: number): string | undefined =>
-  priceEnvKeys(currency, period)
-    .map((key) => {
-      return process.env[key];
-    })
-    .find(Boolean);
-
-/**
- * The global provider is configured for both the backend and browser builds.
- * `PUBLIC_` is retained for the existing deployment environment; the server-only
- * form takes precedence when it is present.
- */
-export function getGlobalPaymentProvider(): PaymentMethod {
-  const configured = process.env.GLOBAL_PAYMENT_PROVIDER;
-  return configured?.toUpperCase() as PaymentMethod;
-}
-
-/** The active global provider's catalog price id for one subscription period. */
-export function getPriceIdForPeriod(days: number): string {
-  const provider = getGlobalPaymentProvider();
-  const key = `${provider}_PRICE_ID_DAYS_${days}`;
-  const priceId = process.env[key];
-  if (!priceId) {
-    throw new Error(
-      `Subscription price configuration missing: ${key} is not set for a ${days} day plan`,
-    );
-  }
-
-  return priceId;
-}
-
-export function enabledPeriods(): number[] {
-  const configuredPeriods = process.env.ALLOWED_PERIODS_IN_DAYS;
-  if (!configuredPeriods) {
-    throw new Error('No period months selected.');
-  }
-
-  return configuredPeriods
-    .split(',')
-    .map((period) => Number(period.trim()))
-    .filter((period) => period > 0);
-}
-
-export function amountToDays(amount: number, currency: Currency): number {
-  const days = enabledPeriods().find((days) => {
-    const price = priceForPeriod(currency, days);
-    return Boolean(price) && Number(price) === amount;
-  });
-
-  if (days === undefined) {
-    throw new Error(`Unrecognized ${currency} amount: ${amount}`);
-  }
-
-  return days;
-}
 
 /**
  * The configured price of one extra device slot.
@@ -74,23 +16,6 @@ export function getExtraDevicePrice(currency: Currency): string {
   const price = process.env[`EXTRA_DEVICE_PRICE_${currency}`];
   if (!price || Number(price) <= 0) {
     throw new Error(`Missing extra device price for ${currency}`);
-  }
-
-  return price;
-}
-
-/**
- * The configured price (as string) for a given number of months — the env var
- * is the whole definition of whether that period exists for this currency.
- *
- * Intentionally not gated on ALLOWED_PERIODS_IN_DAYS: renewals re-price an existing
- * subscriber's own period, which may since have been taken off sale.
- * Throws when the period has no price configured.
- */
-export function getPriceForPeriod(currency: Currency, days: number): string {
-  const price = currency === 'RUB' ? priceForPeriod(currency, days) : getPriceIdForPeriod(days);
-  if (!price || Number(price) <= 0) {
-    throw new Error(`No ${currency} price configured for a ${days} days plan`);
   }
 
   return price;

@@ -43,7 +43,7 @@ export class PaddleController {
    * Validates and prepares an anonymous Paddle checkout. Unlike Stripe, Paddle
    * Checkout is opened client-side against a catalog price id — this endpoint
    * exists only for what the browser cannot safely do itself: reject an
-   * unconfigured period, rate-limit abuse, and check Paddle for an existing
+   * plan not on sale, rate-limit abuse, and check Paddle for an existing
    * active subscription on this email (which needs the secret API key).
    */
   @Post('public-create-checkout')
@@ -58,9 +58,9 @@ export class PaddleController {
     }
 
     // Pricing is checked first, so a rejected checkout costs no Paddle round trip.
-    const payload = this.paddleProvider.buildCheckoutPayload({
+    const payload = await this.paddleProvider.buildCheckoutPayload({
       email,
-      selectedPeriod: dto.selectedPeriod,
+      planId: dto.planId,
       toltReferralId: dto.toltReferralId,
       inviterId: dto.inviterId,
       origin,

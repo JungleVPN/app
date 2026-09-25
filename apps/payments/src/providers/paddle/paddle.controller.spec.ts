@@ -9,7 +9,7 @@ describe('PaddleController.createPublicCheckout', () => {
     overrides: Partial<CreatePublicPaddleCheckoutDto> = {},
   ): CreatePublicPaddleCheckoutDto => ({
     email: 'payer@test.com',
-    selectedPeriod: 1,
+    planId: 'paddle-30',
     ...overrides,
   });
 
@@ -22,7 +22,7 @@ describe('PaddleController.createPublicCheckout', () => {
     const paddleProvider = {
       buildCheckoutPayload:
         overrides.buildCheckoutPayload ??
-        vi.fn().mockReturnValue({ priceId: 'pri_1', customData: { email: 'payer@test.com' } }),
+        vi.fn().mockResolvedValue({ priceId: 'pri_1', customData: { email: 'payer@test.com' } }),
       hasActiveSubscription: overrides.hasActiveSubscription ?? vi.fn().mockResolvedValue(false),
     };
     const paddleClientService = { paddle: { webhooks: { unmarshal: vi.fn() } } };
@@ -61,33 +61,34 @@ describe('PaddleController.createPublicCheckout', () => {
     );
   });
 
-  it.each([['not-an-email'], [''], ['  ']])(
-    'refuses the malformed email %j without ever reaching Paddle',
-    async (email) => {
-      const { controller, paddleProvider } = controllerWith();
+  it.each([
+    ['not-an-email'],
+    [''],
+    ['  '],
+  ])('refuses the malformed email %j without ever reaching Paddle', async (email) => {
+    const { controller, paddleProvider } = controllerWith();
 
-      await expect(
-        controller.createPublicCheckout(publicDto({ email }), 'https://app.test'),
-      ).rejects.toThrow(BadRequestException);
-      expect(paddleProvider.hasActiveSubscription).not.toHaveBeenCalled();
-    },
-  );
+    await expect(
+      controller.createPublicCheckout(publicDto({ email }), 'https://app.test'),
+    ).rejects.toThrow(BadRequestException);
+    expect(paddleProvider.hasActiveSubscription).not.toHaveBeenCalled();
+  });
 
-  it('refuses a period that has no configured price, before ever asking Paddle about the email', async () => {
+  it('refuses a plan that is not on sale, before ever asking Paddle about the email', async () => {
     const { controller, paddleProvider } = controllerWith({
-      buildCheckoutPayload: vi.fn().mockImplementation(() => {
-        throw new BadRequestException('No price configured');
-      }),
+      buildCheckoutPayload: vi.fn().mockRejectedValue(new BadRequestException('Not on sale')),
     });
 
     await expect(
-      controller.createPublicCheckout(publicDto({ selectedPeriod: 99 }), 'https://app.test'),
+      controller.createPublicCheckout(publicDto({ planId: 'nope' }), 'https://app.test'),
     ).rejects.toThrow(BadRequestException);
     expect(paddleProvider.hasActiveSubscription).not.toHaveBeenCalled();
   });
 
   it('refuses a payer who already has an active Paddle subscription', async () => {
-    const { controller } = controllerWith({ hasActiveSubscription: vi.fn().mockResolvedValue(true) });
+    const { controller } = controllerWith({
+      hasActiveSubscription: vi.fn().mockResolvedValue(true),
+    });
 
     const error = await controller
       .createPublicCheckout(publicDto(), 'https://app.test')
@@ -103,7 +104,9 @@ describe('PaddleController.createPublicCheckout', () => {
 describe('PaddleController.getSubscriptionStatus', () => {
   it('returns the status from the provider for the authenticated user', async () => {
     const paddleProvider = {
-      getSubscriptionStatus: vi.fn().mockResolvedValue({ active: true, portalUrl: 'https://portal.paddle.test' }),
+      getSubscriptionStatus: vi
+        .fn()
+        .mockResolvedValue({ active: true, portalUrl: 'https://portal.paddle.test' }),
     };
     const paddleClientService = { paddle: { webhooks: { unmarshal: vi.fn() } } };
     const controller = new PaddleController(paddleProvider as never, paddleClientService as never);
@@ -126,23 +129,28 @@ describe('PaddleController.webhook', () => {
   ) => {
     const paddleProvider = { handleWebhook };
     const paddleClientService = { paddle: { webhooks: { unmarshal } } };
-    return { controller: new PaddleController(paddleProvider as never, paddleClientService as never), paddleProvider };
+    return {
+      controller: new PaddleController(paddleProvider as never, paddleClientService as never),
+      paddleProvider,
+    };
   };
 
   it('rejects a request with no raw body, since the signature cannot be verified without it', async () => {
     process.env[ENV_KEY] = 'whsec_test';
     const { controller } = controllerWith(vi.fn());
 
-    await expect(controller.webhook(reqWith(undefined), 'sig')).rejects.toThrow(BadRequestException);
+    await expect(controller.webhook(reqWith(undefined), 'sig')).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('rejects when PADDLE_WEBHOOK_SECRET is not configured, rather than skip verification', async () => {
     delete process.env[ENV_KEY];
     const { controller } = controllerWith(vi.fn());
 
-    await expect(
-      controller.webhook(reqWith(Buffer.from('{}')), 'sig'),
-    ).rejects.toThrow(BadRequestException);
+    await expect(controller.webhook(reqWith(Buffer.from('{}')), 'sig')).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('rejects a payload whose signature Paddle refuses to verify', async () => {
@@ -150,14 +158,16 @@ describe('PaddleController.webhook', () => {
     const unmarshal = vi.fn().mockRejectedValue(new Error('bad signature'));
     const { controller } = controllerWith(unmarshal);
 
-    await expect(
-      controller.webhook(reqWith(Buffer.from('{}')), 'bad-sig'),
-    ).rejects.toThrow(BadRequestException);
+    await expect(controller.webhook(reqWith(Buffer.from('{}')), 'bad-sig')).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('acknowledges a verified event', async () => {
     process.env[ENV_KEY] = 'whsec_test';
-    const unmarshal = vi.fn().mockResolvedValue({ eventType: 'transaction.completed', eventId: 'evt_1' });
+    const unmarshal = vi
+      .fn()
+      .mockResolvedValue({ eventType: 'transaction.completed', eventId: 'evt_1' });
     const { controller } = controllerWith(unmarshal);
 
     const result = await controller.webhook(reqWith(Buffer.from('{}')), 'sig');
@@ -178,7 +188,9 @@ describe('PaddleController.webhook', () => {
 
   it('lets a processing failure propagate as a 5xx, so Paddle retries the delivery', async () => {
     process.env[ENV_KEY] = 'whsec_test';
-    const unmarshal = vi.fn().mockResolvedValue({ eventType: 'transaction.completed', eventId: 'evt_1' });
+    const unmarshal = vi
+      .fn()
+      .mockResolvedValue({ eventType: 'transaction.completed', eventId: 'evt_1' });
     const { controller } = controllerWith(unmarshal, vi.fn().mockRejectedValue(new Error('boom')));
 
     await expect(controller.webhook(reqWith(Buffer.from('{}')), 'sig')).rejects.toThrow('boom');

@@ -121,14 +121,14 @@ export class StripeController {
       throw new BadRequestException('A valid email is required');
     }
 
-    this.stripeProvider.resolveAmount('subscription', dto.selectedPeriod);
+    await this.stripeProvider.resolveCharge({ purchaseType: 'subscription', planId: dto.planId });
 
     await this.refuseIfAlreadySubscribed(email);
 
     const session = await this.stripeProvider.openSession(
       {
         userId: null,
-        selectedPeriod: dto.selectedPeriod,
+        planId: dto.planId,
         toltReferralId: dto.toltReferralId,
         metadata: {
           email,

@@ -10,8 +10,8 @@
 export interface CreatePublicPaddleCheckoutDto {
   /** Payer's email, prefilled into the Paddle checkout. */
   email: string;
-  /** Subscription plan in days. */
-  selectedPeriod: number;
+  /** The `planId` from `/plans`. */
+  planId: string;
   /** Tolt affiliate referral id (`window.tolt_referral`), when present. */
   toltReferralId?: string | null;
   /** Referring user id captured from a `?ref=` link, when present. */

@@ -22,7 +22,7 @@ export const PublicPlansPage = () => {
     const plan = sortedPlans.find((p) => p.days === selectedPeriod) ?? sortedPlans[0];
     if (!plan) return;
     phCapture('plan_selected', { months: plan.days });
-    navigate(getSubscriptionPath(selectedPeriod));
+    navigate(getSubscriptionPath(plan.planId));
   };
 
   return (

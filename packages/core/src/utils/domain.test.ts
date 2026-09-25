@@ -5,6 +5,7 @@ import {
   isCrawlablePath,
   isLandingPath,
   isMarketingPath,
+  isPlansOrPaymentPlanPath,
   localePolicyForHost,
   markdownPathFor,
   normalizeHostname,
@@ -268,5 +269,18 @@ describe('resolveLocaleForRequest', () => {
     expect(resolveLocaleForRequest('jungle-vpn.com', '/ar/nested', domains)).toBe('en');
     expect(resolveLocaleForRequest('jungle-vpn.com', '/id/nested', domains)).toBe('en');
     expect(resolveLocaleForRequest('jungle-vpn.com', '/hi/nested', domains)).toBe('en');
+  });
+});
+
+describe('isPlansOrPaymentPlanPath', () => {
+  it('matches the plan picker and a checkout for a plan id', () => {
+    expect(isPlansOrPaymentPlanPath('/plans')).toBe(true);
+    expect(isPlansOrPaymentPlanPath('/payment/6f40164a-51d0-432a-8fa3-3e1311e13757')).toBe(true);
+  });
+
+  it('leaves the other payment pages alone', () => {
+    expect(isPlansOrPaymentPlanPath('/payment/checkout')).toBe(false);
+    expect(isPlansOrPaymentPlanPath('/payment/success')).toBe(false);
+    expect(isPlansOrPaymentPlanPath('/payment/fail')).toBe(false);
   });
 });

@@ -1,0 +1,1267 @@
+{
+  "common": {
+    "features": {
+      "title": "O que está incluído na assinatura:"
+    },
+    "cta": "Experimente agora"
+  },
+  "main": {
+    "page": {
+      "component": {
+        "buy": "Comprar assinatura",
+        "no-sub": "Você não tem uma assinatura",
+        "podpiska": "Assinatura",
+        "error-connect": "Erro de conexão",
+        "error-parse-appconfig": "Erro ao processar a configuração do aplicativo",
+        "ERR_FATCH_USER": "Erro ao obter o usuário",
+        "ERR_GET_SUB_LINK": "Erro ao obter o link da assinatura",
+        "ERR_PARSE_APPCONFIG": "Erro ao analisar a configuração do aplicativo",
+        "missing_id": "ID da assinatura ausente. Insira ?id=YOUR_SHORT_UUID na URL.",
+        "refresh": "Atualizar"
+      }
+    }
+  },
+  "login": {
+    "title": "Faça login ou cadastre-se",
+    "email_label": "E-mail",
+    "email_placeholder": "Seu e-mail",
+    "submit": "Continuar"
+  },
+  "confirm": {
+    "title": "Digite o código que você recebeu",
+    "submit": "Entrar",
+    "resend_in": "Reenviar em {{timer}}s",
+    "resend_otp": "Reenviar OTP",
+    "hint": "Você receberá um e-mail com o código a ser inserido",
+    "error_invalid_code": "O código está incorreto. Tente novamente."
+  },
+  "header": {
+    "title": "JungleVPN",
+    "profile": "Perfil",
+    "logout": "Sair",
+    "login": "Entrar",
+    "cta": "Experimente agora",
+    "menu": "Menu",
+    "logoAlt": "Logotipo da JungleVPN",
+    "nav": {
+      "partnership": "Parceria",
+      "pricing": "Preços",
+      "offer": "O que oferecemos",
+      "tools": "Ferramentas",
+      "myIp": "Meu IP",
+      "myIpDescription": "Veja o que sua conexão revela",
+      "inviteAndEarn": "Indique e ganhe",
+      "inviteAndEarnDescription": "Convide amigos e ganhe dias de assinatura grátis",
+      "locations": "Localizações dos servidores",
+      "locationsDescription": "Servidores VPN em todo o mundo",
+      "whatIsVpn": "O que é uma VPN?",
+      "whatIsVpnDescription": "Um guia em linguagem simples sobre como funciona uma VPN"
+    },
+    "support": {
+      "telegram": "Telegram",
+      "email": "E-mail"
+    }
+  },
+  "cookieConsent": {
+    "description": "Nós e terceiros selecionados utilizamos cookies exclusivamente para aprimorar a experiência do usuário e para fins de análise, e nunca vendemos suas informações pessoais. Para mais informações, leia nossa <policyLink>Política de Cookies<\/policyLink>.",
+    "accept": "Aceitar cookies",
+    "deny": "Recusar"
+  },
+  "languages": {
+    "nativeRu": "Русский",
+    "nativeEn": "Inglês",
+    "nativeAr": "العربية",
+    "nativeTr": "Türkçe",
+    "nativeId": "Bahasa Indonesia",
+    "nativeHi": "Hindi"
+  },
+  "profileTabs": {
+    "ariaLabel": "Seções do perfil",
+    "subscription": "Assinatura",
+    "payment": "Pagamento",
+    "devices": "Dispositivos",
+    "menu": "Menu"
+  },
+  "affiliate": {
+    "chip": "Saldo",
+    "description": "Funciona apenas com formas de pagamento não russas",
+    "actionLabel": "Torne-se um parceiro",
+    "heroTitle": "Compartilhe e ganhe",
+    "heroSubtitle": "Ganhe até {{rate}}% de comissão por cada indicação",
+    "conditionsTitle": "Condições do programa",
+    "firstPaymentLabel": "Comissão pelo primeiro pagamento",
+    "recurringLabel": "Comissão por pagamento recorrente",
+    "benefitsTitle": "Por que participar?",
+    "benefit1Label": "{{rate}}% no primeiro pagamento",
+    "benefit1Desc": "Recompensa imediata por cada novo amigo",
+    "benefit2Label": "{{rate}}% de comissão recorrente",
+    "benefit2Desc": "Renda passiva a cada renovação",
+    "benefit3Label": "Pagamentos mensais",
+    "benefit3Desc": "Os pagamentos são efetuados mensalmente após o dia 15 do mês",
+    "benefit4Label": "Sem taxas",
+    "benefit4Desc": "Fique com 100% do que você ganha"
+  },
+  "devices": {
+    "pageTitle": "Dispositivos",
+    "pageSubtitle": "Gerencie seus dispositivos conectados",
+    "listHeading": "Dispositivos conectados",
+    "noDevices": "Ainda não há dispositivos conectados.",
+    "unknownDevice": "Dispositivo desconhecido",
+    "deleteDeviceLabel": "Remover dispositivo",
+    "deleteDevice": {
+      "title": "Remover dispositivo?",
+      "body": "Esta sessão será excluída e você precisará importar seu link novamente.",
+      "cancel": "Cancelar",
+      "confirm": "Remover"
+    },
+    "extraDevice": {
+      "heading": "Limite de dispositivos atingido",
+      "description": "Você pode adquirir uma vaga extra para conectar mais um dispositivo.",
+      "payButton": "{{price}}",
+      "openButton": "Adicionar dispositivo extra"
+    },
+    "extraDevicePurchase": {
+      "pageTitle": "Precisa de mais?",
+      "pageSubtitle": "Aqui você pode comprar uma vaga adicional",
+      "description": "Pagamento único por 1 slot adicional para dispositivo.",
+      "priceRubButton": "{{amount}} ₽ \/ dispositivo",
+      "priceEurButton": "{{amount}} € \/ dispositivo",
+      "priceStarsButton": "{{amount}} ⭐ \/ dispositivo",
+      "starsInvoiceTitle": "Vaga extra para dispositivo",
+      "starsInvoiceDescription": "Pagamento único por um espaço adicional para dispositivo",
+      "starsSuccessDescription": "Um espaço para dispositivo extra foi adicionado à sua conta.",
+      "starsErrorFetch": "Falha ao criar a fatura do Stars. Tente novamente."
+    }
+  },
+  "payment": {
+    "pageTitle": "Pagamento",
+    "pageSubtitle": "Gerencie suas formas de pagamento aqui",
+    "methodsHeading": "Formas de pagamento salvas",
+    "emptyMethods": "Ainda não há formas de pagamento salvas.",
+    "payButton": "Pagar {{amount}} ₽",
+    "priceRubButton": "{{amount}} ₽ \/ mês",
+    "priceEurButton": "{{amount}} € \/ mês",
+    "priceStarsButton": "{{amount}} ⭐ \/ mês",
+    "planPriceButton": "{{price}} · {{period}}",
+    "planPriceStarsButton_one": "{{amount}} ⭐ · {{count}} meses",
+    "planPriceStarsButton_other": "{{amount}} ⭐ · {{count}} meses",
+    "extendButton": "Prorrogar",
+    "selectMethodHeading": "Forma de pagamento",
+    "methodYookassa": "Cartões e SBP",
+    "methodStripe": "Cartões internacionais",
+    "methodStars": "Estrelas do Telegram",
+    "stripeSubscriptionHeading": "Assinatura Stripe",
+    "stripeSubscriptionDescription": "Sua assinatura é renovada automaticamente. Gerencie seu plano, forma de pagamento ou cancele a qualquer momento no portal de cobrança.",
+    "stripeSubscriptionActive": "Ativo",
+    "stripeManageButton": "Gerenciar assinatura",
+    "autoRenewalHint": "Isso significa que a forma de pagamento está salva para renovação automática",
+    "savedMethodsDescription": "Você tem um meio de pagamento vinculado que será usado para a renovação da assinatura. Se desejar pagar manualmente, basta excluí-lo.",
+    "deleteMethod": {
+      "title": "Remover forma de pagamento?",
+      "body": "Este cartão será removido e a renovação automática será desativada. Um novo cartão será adicionado no próximo pagamento manual",
+      "cancel": "Cancelar",
+      "confirm": "Remover"
+    },
+    "stars": {
+      "buttonLabel": "Pagar com Stars ⭐",
+      "invoiceTitle": "VPN de {{period}} meses",
+      "invoiceDescription": "{{period}} meses de JungleVPN",
+      "errorFetch": "Falha ao criar a fatura de Estrelas. Tente novamente.",
+      "orDivider": "ou",
+      "success": {
+        "title": "Pagamento realizado com sucesso",
+        "description": "Sua assinatura foi prorrogada. A nova data de validade é {{expireAt}}",
+        "confirm": "Ótimo!"
+      }
+    },
+    "promo": {
+      "title": "Tem um código promocional?",
+      "subtitle": "Insira seu código promocional para desbloquear um bônus ou continue sem ele.",
+      "placeholder": "Código promocional",
+      "continue": "Continuar para o pagamento",
+      "alert": {
+        "invalid": "O código promocional é inválido.",
+        "notActiveYet": "Este código promocional ainda não está ativo.",
+        "expired": "Este código promocional expirou.",
+        "notEligible": "Você não está qualificado para este código promocional.",
+        "notNewUser": "Este código promocional é exclusivo para novos usuários.",
+        "limitReached": "Este código promocional atingiu seu limite de uso.",
+        "alreadyUsed": "Você já utilizou este código promocional."
+      }
+    }
+  },
+  "a11y": {
+    "otpCode": "Código único",
+    "platform": "Plataforma",
+    "deletePaymentMethod": "Excluir forma de pagamento",
+    "removeCard": "Remover cartão",
+    "language": "Idioma",
+    "appsTabs": "Aplicativos",
+    "support": "Suporte",
+    "copySupportEmail": "Copiar endereço de e-mail",
+    "back": "Voltar",
+    "scrollLeft": "Rolar para a esquerda",
+    "scrollRight": "Rolar para a direita"
+  },
+  "errorBoundary": {
+    "title": "Ocorreu um erro",
+    "reload": "Atualizar"
+  },
+  "errors": {
+    "unknown": "Ocorreu um erro"
+  },
+  "connectEmailPage": {
+    "enter_email": "E-mail",
+    "email_placeholder": "example@gmail.com",
+    "email_description": "Necessário para gerenciar sua assinatura",
+    "error_empty_email": "Insira seu endereço de e-mail",
+    "error_invalid_email": "Insira um endereço de e-mail válido",
+    "error_failed_to_create": "Falha ao criar a assinatura. Tente novamente.",
+    "order_summary": "Seu pedido",
+    "item_name": "Assinatura do JungleVPN",
+    "discount": "Período de teste de 3 dias",
+    "submit_button": "Assinar",
+    "features_title": "Incluído na assinatura",
+    "feature_devices": "VPN para todos os seus dispositivos",
+    "feature_traffic": "Tráfego ilimitado. Servidores rápidos",
+    "feature_support": "Suporte atencioso 24 horas por dia, 7 dias por semana"
+  },
+  "terms": {
+    "pageTitle": "Termos de Uso",
+    "paymentConsentLead": "Ao concluir sua compra, você concorda com nossos ",
+    "paymentLinkLabel": "Termos de Uso.",
+    "footer": "Ao utilizar o Serviço (incluindo ao iniciar o bot e\/ou enviar o comando \/start), o Usuário confirma que leu este Contrato e aceita integralmente seus termos.",
+    "dialog": {
+      "title": "Termos da assinatura",
+      "activationTitle": "Ativação da assinatura",
+      "activationBody": "A assinatura será ativada após o envio da confirmação de pagamento para o seu e-mail. Para pagar manualmente, remova primeiro o cartão cadastrado.",
+      "autoRenewalTitle": "Renovação automática",
+      "autoRenewalLead": "Sua assinatura será renovada automaticamente ao final do período inicial de assinatura. Você pode desativar a renovação automática a qualquer momento na sua conta",
+      "renewalCostTitle": "Custo da renovação",
+      "renewalCostLead": "A renovação é cobrada pelo mesmo valor da assinatura original. Se o valor mudar, avisaremos você com antecedência por e-mail. Precisa de ajuda? ",
+      "supportLink": "Entre em contato com nossa equipe de suporte.",
+      "agreementsTitle": "Termos de uso",
+      "agreementsLead": "Ao assinar o JungleVPN, você concorda com os ",
+      "termsOfServiceLink": "Termos de Serviço",
+      "agreementsMid": " e nossa ",
+      "privacyPolicyLink": "Política de Privacidade",
+      "agreementsTail": ".",
+      "confirmButton": "Confirmar"
+    },
+    "s1": {
+      "h": "1. Disposições gerais",
+      "i1": "Este Contrato de Usuário (o “Contrato”) rege o uso do serviço online (o “Serviço”) fornecido pela Administração.",
+      "i2": "Ao utilizar o Serviço, incluindo a ativação do bot, o cadastro, o pagamento por serviços ou o acesso a materiais, o Usuário confirma que leu integralmente este Acordo e o aceita em sua totalidade.",
+      "i3": "Caso o Usuário não concorde com os termos do Acordo, ele deverá interromper o uso do Serviço.",
+      "i4": "O Serviço destina-se a pessoas físicas com 18 anos ou mais. Ao utilizar o Serviço, você confirma que atende a esse requisito de idade."
+    },
+    "s2": {
+      "h": "2. Natureza dos serviços e bens digitais",
+      "i1": "O Serviço fornece bens digitais e serviços intangíveis, incluindo, entre outros: materiais informativos, programas de treinamento, consultorias, produtos digitais e ofertas de serviços.",
+      "i2_lead": "Os materiais fornecidos por meio do Serviço podem incluir:",
+      "i2_u1": "informações de fontes abertas;",
+      "i2_u2": "materiais originais da Administração e\/ou de terceiros;",
+      "i2_u3": "análises, compilações, recomendações e dados estruturados.",
+      "i3": "O Usuário compreende e concorda que o valor dos bens e serviços digitais do Serviço reside na estruturação, análise, apresentação, suporte e atualizações, e não na exclusividade de informações individuais.",
+      "i4": "O Serviço não alega nem garante a singularidade, exclusividade ou indisponibilidade de elementos materiais individuais fora do Serviço."
+    },
+    "s3": {
+      "h": "3. Isenção de garantias e responsabilidade",
+      "i1": "O Serviço é fornecido “NO ESTADO EM QUE SE ENCONTRA”.",
+      "i2_lead": "A Administração não garante:",
+      "i2_u1": "que o Serviço atenda às expectativas do Usuário;",
+      "i2_u2": "quaisquer resultados financeiros, comerciais, profissionais ou de outra natureza;",
+      "i2_u3": "o funcionamento ininterrupto ou livre de erros do Serviço.",
+      "i3_lead": "A Administração não se responsabiliza por:",
+      "i3_u1": "quaisquer danos diretos ou indiretos, incluindo lucros cessantes;",
+      "i3_u2": "consequências decorrentes da aplicação, pelo Usuário, dos materiais recebidos;",
+      "i3_u3": "ações ou omissões de terceiros;",
+      "i3_u4": "falhas técnicas temporárias e restrições de acesso.",
+      "i4": "Todas as decisões relativas à aplicação de materiais, recomendações e serviços são tomadas pelo Usuário de forma independente e por sua própria conta e risco."
+    },
+    "s4": {
+      "h": "4. Uso lícito",
+      "i1": "O Serviço não se destina a incentivar, organizar ou facilitar atividades ilegais.",
+      "i2": "O Usuário compromete-se a utilizar o Serviço apenas em conformidade com a legislação aplicável e as regras de terceiros.",
+      "i3": "A responsabilidade pelo uso lícito dos materiais e serviços do Serviço recai inteiramente sobre o Usuário.",
+      "i4_lead": "As seguintes formas de uso do Serviço são estritamente proibidas:",
+      "i4_u1": "utilizar o Serviço em qualquer jurisdição onde seu uso seja proibido ou exija uma licença que o Usuário não possua;",
+      "i4_u2": "acessar, transmitir ou distribuir conteúdo ilegal, incluindo, entre outros, material de abuso sexual infantil, conteúdo que promova o terrorismo ou material que infrinja direitos de terceiros;",
+      "i4_u3": "acesso não autorizado a sistemas de computador, redes ou dados;",
+      "i4_u4": "distribuição de malware, vírus ou outro código malicioso;",
+      "i4_u5": "envio de comunicações em massa não solicitadas (spam);",
+      "i4_u6": "revender ou redistribuir o Serviço sem autorização prévia por escrito da Administração;",
+      "i4_u7": "qualquer outra atividade que viole as leis ou regulamentos aplicáveis na jurisdição do Usuário.",
+      "i5": "A Administração reserva-se o direito de rescindir imediatamente o acesso, sem direito a reembolso, caso seja detectado qualquer uso proibido."
+    },
+    "s5": {
+      "h": "5. Propriedade intelectual",
+      "i1": "Todos os materiais publicados no Serviço são protegidos pela legislação de propriedade intelectual.",
+      "i2": "O Usuário não pode copiar, distribuir, revender, transferir a terceiros ou utilizar de qualquer outra forma os materiais do Serviço sem a permissão do detentor dos direitos.",
+      "i3": "A violação dos direitos de propriedade intelectual pode resultar na restrição do acesso ao Serviço, sem direito a indenização."
+    },
+    "s6": {
+      "h": "6. Restrições de acesso",
+      "i1_lead": "A Administração poderá suspender ou restringir o acesso do Usuário ao Serviço nos seguintes casos:",
+      "i1_u1": "violação deste Contrato;",
+      "i1_u2": "detecção de abuso;",
+      "i1_u3": "exigências legais ou dos provedores de pagamento.",
+      "i2": "A restrição de acesso não isenta o Usuário das obrigações surgidas anteriormente.",
+      "i3": "A Administração reserva-se o direito de recusar o serviço a Usuários cujas ações possam representar riscos elevados para o Serviço, para os provedores de pagamento ou para terceiros."
+    },
+    "s7": {
+      "h": "7. Pagamentos",
+      "i1": "O pagamento por serviços e bens digitais é efetuado nos termos estabelecidos no Serviço antes do pagamento.",
+      "i6": "O Usuário confirma que não iniciará um estorno de pagamento (chargeback) por meio de sistemas de pagamento sem antes entrar em contato com o suporte do Serviço."
+    },
+    "s8": {
+      "h": "8. Débitos automáticos",
+      "u1": "Ao assinar o JungleVPN, você concorda em pagar as taxas aplicáveis e quaisquer impostos com base na sua localização.",
+      "u2": "Os preços das assinaturas podem sofrer alterações. Nós o notificaremos com antecedência sobre qualquer aumento de preço.",
+      "u3": "As assinaturas do JungleVPN são renovadas automaticamente ao final de cada período de assinatura até que você cancele. O valor será cobrado no seu método de pagamento 24 horas antes da data de término da assinatura.",
+      "u4": "Ao inserir os dados de pagamento, você concorda com a renovação automática da assinatura. Você pode desativar a renovação automática a qualquer momento na sua conta do JungleVPN ou entrando em contato com o suporte.",
+      "u5": "Caso não possamos processar o pagamento da assinatura, poderemos suspender seu acesso aos nossos Serviços até que o pagamento seja recebido.",
+      "u6": "As assinaturas do JungleVPN são pagas por meio de provedores de pagamento terceirizados."
+    },
+    "s9": {
+      "h": "9. Privacidade e Proteção de Dados",
+      "i1": "A Administração coleta e processa dados pessoais limitados, necessários para a operação do Serviço, incluindo: endereço de e-mail, ID de usuário do Telegram, identificadores de transações de pagamento, endereço IP e dados técnicos do dispositivo\/conexão.",
+      "i2": "Os dados são processados com base nos seguintes fundamentos jurídicos, nos termos do Regulamento (UE) 2016\/679 (RGPD): (a) execução de um contrato — para fornecer o Serviço que você assinou; (b) obrigação legal — para cumprir a legislação aplicável; (c) interesses legítimos — para prevenir fraudes e garantir a segurança da rede.",
+      "i3": "Os seguintes processadores terceirizados podem receber seus dados em conexão com a prestação do serviço: Stripe, Inc. (processamento de pagamentos); Telegram Messenger Inc. (plataforma de bots); provedores de análise e infraestrutura, conforme necessário. Cada processador está vinculado a contratos de tratamento de dados.",
+      "i4": "Os dados pessoais são retidos durante toda a vigência da sua conta e por até 3 anos após o encerramento da mesma, para fins legais e contábeis, a menos que um período de retenção mais longo seja exigido por lei.",
+      "i5_lead": "Nos termos do GDPR e da legislação da UE aplicável, você tem o direito de:",
+      "i5_u1": "acessar seus dados pessoais e obter uma cópia (Art. 15 do GDPR);",
+      "i5_u2": "retificar dados imprecisos ou incompletos (Art. 16 do GDPR);",
+      "i5_u3": "solicitar o apagamento de seus dados quando não houver base legal para a retenção (Art. 17 do GDPR);",
+      "i5_u4": "receber seus dados em um formato portável (Art. 20 do RGPD);",
+      "i5_u5": "opor-se ao tratamento com base em interesses legítimos (Art. 21 do RGPD);",
+      "i5_u6": "retirar o consentimento a qualquer momento, quando o tratamento for baseado no consentimento (Art. 7 do RGPD).",
+      "i6": "Para exercer qualquer um desses direitos, entre em contato com o suporte por meio do bot. Responderemos no prazo de 30 dias, conforme exigido por lei.",
+      "i7": "Você tem o direito de apresentar uma reclamação à autoridade supervisora de proteção de dados portuguesa (CNPD — Comissão Nacional de Proteção de Dados, www.cnpd.pt) ou à autoridade supervisora do seu país de residência na UE."
+    },
+    "s10": {
+      "h": "10. Alterações aos termos",
+      "i1": "A Administração pode alterar este Contrato.",
+      "i2": "A versão atual do Contrato está publicada no Serviço.",
+      "i3": "A utilização continuada do Serviço significa que o Usuário concorda com os termos atualizados."
+    },
+    "s11": {
+      "h": "11. Informações de contato",
+      "i1": "Para quaisquer dúvidas, o Usuário pode entrar em contato com o suporte por meio do formulário no bot."
+    },
+    "s12": {
+      "h": "12. Garantia de reembolso",
+      "i1": "Sua satisfação com o JungleVPN é nossa prioridade máxima. Se você não estiver totalmente satisfeito com nossos Serviços pagos, oferecemos uma garantia de reembolso de 30 dias. Você pode solicitar um reembolso dentro de 30 dias a partir da data da compra inicial, e nós reembolsaremos integralmente o valor pago.",
+      "i2": "Antes de solicitar um reembolso, recomendamos que você entre em contato com nossa equipe de suporte pelo e-mail t.me\/JungleVPN_support_bot para que possamos tentar resolver quaisquer problemas que você possa estar enfrentando.",
+      "i3": "Para assinaturas mensais, o prazo de 30 dias para reembolso se aplica apenas à compra inicial. Uma vez que a assinatura mensal seja renovada, ela não será mais elegível para reembolso sob nossa garantia de devolução do dinheiro.",
+      "i4": "Em casos excepcionais, poderemos considerar a oferta de um reembolso parcial após o prazo de 30 dias, caso você possa comprovar que nossos Serviços estiveram indisponíveis ou inutilizáveis por uma parte significativa do período de sua assinatura e que você tenha feito esforços razoáveis para entrar em contato conosco a respeito do problema. Os reembolsos parciais serão calculados proporcionalmente com base no número de dias em que os Serviços estiveram indisponíveis durante o período de sua assinatura.",
+      "i5": "Os reembolsos serão emitidos exclusivamente para a forma de pagamento original utilizada na compra. Não processaremos reembolsos para contas alternativas, carteiras de terceiros ou transferências bancárias. Você arcará com quaisquer taxas de conversão de moeda ou taxas de transação.",
+      "i6": "A JungleVPN reserva-se o direito de reter um reembolso caso determinemos que você tenha violado nossos Termos de Serviço. Também nos reservamos o direito de verificar as informações da sua conta antes de processar um reembolso, o que pode resultar em um pequeno atraso.",
+      "i7": "Quaisquer impostos ou taxas cobrados sobre sua compra da JungleVPN são determinados pela sua localização e pelas leis tributárias aplicáveis. Os valores dos reembolsos não incluirão quaisquer impostos que a JungleVPN seja obrigada a cobrar.",
+      "i8": "A exclusão da sua conta não o qualifica automaticamente para um reembolso. Se você excluir sua conta, perderá o acesso à JungleVPN, mas não receberá reembolso por qualquer parte não utilizada do seu período de assinatura."
+    },
+    "s13": {
+      "h": "13. Lei Aplicável e Jurisdição",
+      "i1": "Este Contrato é regido e interpretado de acordo com as leis de Portugal e, quando aplicável, com a legislação da União Europeia.",
+      "i2": "Qualquer litígio decorrente ou relacionado a este Contrato estará sujeito à jurisdição exclusiva dos tribunais competentes de Portugal.",
+      "i3": "Se você for um consumidor residente na União Europeia, mantém o benefício de quaisquer disposições obrigatórias de proteção ao consumidor previstas na legislação do seu país de residência que não possam ser excluídas por contrato.",
+      "i4": "A Comissão Europeia disponibiliza uma plataforma de resolução de litígios on-line para consumidores: https:\/\/ec.europa.eu\/consumers\/odr"
+    },
+    "s14": {
+      "h": "14. Restrições geográficas e legalidade da VPN",
+      "i1": "O Serviço oferece tecnologia VPN (Rede Privada Virtual). As leis que regem o uso de VPN variam significativamente de acordo com o país e a jurisdição.",
+      "i2": "É de responsabilidade exclusiva do Usuário verificar se o uso de um serviço de VPN é permitido pelas leis de seu país de residência e de qualquer país a partir do qual ele acesse o Serviço, bem como cumprir todas as leis e regulamentos locais aplicáveis.",
+      "i3_lead": "O Serviço pode estar indisponível, bloqueado ou restrito em determinadas jurisdições, incluindo, mas não se limitando a:",
+      "i3_u1": "países onde o uso de VPN é proibido ou está sujeito a requisitos de licenciamento;",
+      "i3_u2": "países ou territórios sujeitos a sanções internacionais;",
+      "i3_u3": "regiões nas quais a Administração determinou que a operação do Serviço cria riscos legais ou de conformidade inaceitáveis.",
+      "i4": "A Administração não incentiva nem facilita qualquer uso ilegal do Serviço. O Usuário assume total e exclusiva responsabilidade por qualquer violação da legislação local resultante do uso do Serviço."
+    },
+    "s15": {
+      "h": "15. Sanções e Controles de Exportação",
+      "i1": "O Serviço não está disponível para pessoas físicas ou jurídicas localizadas ou com residência habitual em países ou territórios sujeitos a sanções internacionais abrangentes, incluindo aquelas impostas pela União Europeia, pelas Nações Unidas e pela República Portuguesa.",
+      "i2": "Ao utilizar o Serviço, você declara e garante que não está localizado em, sob o controle de, nem é cidadão ou residente de qualquer país ou território sancionado, e que não consta em nenhuma lista de sanções aplicáveis ou de partes restritas.",
+      "i3": "A Administração reserva-se o direito de rescindir imediatamente o acesso, sem direito a reembolso, caso determine que um Usuário esteja violando esta seção."
+    }
+  },
+  "privacy": {
+    "pageTitle": "Política de Privacidade",
+    "footer": "Esta Política de Privacidade faz parte dos Termos de Uso do JungleVPN. Ao utilizar o Serviço, você confirma que leu esta Política e concorda com as práticas de tratamento de dados nela descritas.",
+    "s1": {
+      "h": "1. Introdução",
+      "i1": "Esta Política de Privacidade explica como a Administração coleta, utiliza, divulga e protege os dados pessoais relacionados ao site, ao bot do Telegram e aos aplicativos da JungleVPN (em conjunto, o “Serviço”).",
+      "i2": "Ao utilizar o Serviço, você reconhece que leu e compreendeu esta Política e concorda com as práticas de tratamento de dados aqui descritas.",
+      "i3": "Esta Política deve ser lida em conjunto com nossos Termos de Uso. Nos casos em que os dois documentos apresentarem sobreposições em relação à proteção de dados, esta Política prevalece."
+    },
+    "s2": {
+      "h": "2. Nosso compromisso de não manter registros",
+      "i1": "A JungleVPN não monitora, registra nem armazena seu histórico de navegação, consultas de DNS, destinos de conexão ou o conteúdo do seu tráfego enquanto você estiver conectado aos nossos servidores VPN.",
+      "i2": "Não rastreamos quais sites, aplicativos ou serviços você acessa por meio do Serviço, e essas informações nunca são vinculadas à sua conta.",
+      "i3": "Os dados descritos nesta Política limitam-se ao necessário para operar sua conta, processar pagamentos e manter a segurança do Serviço — nunca ao que você faz online enquanto está conectado."
+    },
+    "s3": {
+      "h": "3. Informações que coletamos",
+      "i1_lead": "Dados da conta:",
+      "i1_u1": "endereço de e-mail;",
+      "i1_u2": "ID de usuário e nome de usuário do Telegram;",
+      "i1_u3": "preferências de idioma e interface.",
+      "i2_lead": "Dados de pagamento:",
+      "i2_u1": "valor e moeda da transação;",
+      "i2_u2": "últimos 4 dígitos do cartão de pagamento, quando aplicável;",
+      "i2_u3": "país de cobrança;",
+      "i2_u4": "identificadores de transação do processador de pagamentos — os dados completos do cartão são tratados diretamente por nossos processadores de pagamentos e nunca são armazenados por nós.",
+      "i3_lead": "Dados de comunicação:",
+      "i3_u1": "mensagens que você envia à nossa equipe de suporte;",
+      "i3_u2": "detalhes da versão do dispositivo e do aplicativo que você compartilha para resolução de problemas.",
+      "i4_lead": "Dados técnicos e de segurança:",
+      "i4_u1": "endereço IP usado para acessar nosso site, bot e sistemas de contas (não suas sessões de navegação via VPN);",
+      "i4_u2": "registros de data e hora de autenticação e atividades na conta;",
+      "i4_u3": "dispositivo, sistema operacional e versão do aplicativo;",
+      "i4_u4": "relatórios agregados de falhas e dados de diagnóstico utilizados para corrigir bugs."
+    },
+    "s4": {
+      "h": "4. Como usamos suas informações",
+      "i1": "Para criar, autenticar e gerenciar sua conta.",
+      "i2": "Para fornecer, manter e aprimorar o Serviço, incluindo a confiabilidade da conexão e o desempenho do aplicativo.",
+      "i3": "Para processar pagamentos, prevenir fraudes e detectar abusos do Serviço.",
+      "i4": "Para responder a solicitações de suporte e comunicar avisos essenciais sobre o serviço, como alterações nessas políticas ou na sua assinatura.",
+      "i5": "Para cumprir obrigações legais e fazer valer nossos Termos de Uso."
+    },
+    "s5": {
+      "h": "5. Compartilhamento e Divulgação de Informações",
+      "i1": "Não vendemos nem comercializamos seus dados pessoais.",
+      "i2_lead": "Compartilhamos dados apenas com:",
+      "i2_u1": "prestadores de serviços confiáveis que auxiliam no processamento de pagamentos, atendimento ao cliente, envio de e-mails, análises e publicidade. Esses prestadores estão sujeitos a rigorosos acordos de confidencialidade;",
+      "i2_u3": "prestadores de serviços de infraestrutura, análise e suporte que estão sujeitos a obrigações de confidencialidade e processam dados apenas de acordo com nossas instruções;",
+      "i2_u4": "autoridades competentes, quando exigido por lei ou para proteger nossos direitos legítimos. Analisamos cuidadosamente cada solicitação e fornecemos apenas os dados mínimos necessários. Atenderemos apenas a solicitações de países cujo regime político seja amplamente reconhecido como democrático, de acordo com padrões e índices internacionais amplamente aceitos."
+    },
+    "s6": {
+      "h": "6. Localizações dos servidores VPN",
+      "i1": "A JungleVPN oferece servidores em vários países ao redor do mundo para proporcionar aos nossos usuários a melhor velocidade e conectividade possíveis. Embora nosso objetivo seja selecionar jurisdições com fortes proteções de privacidade, alguns de nossos servidores podem estar localizados em países com um nível mais baixo de democracia, de acordo com padrões e índices internacionais amplamente reconhecidos.",
+      "i2": "Quando você se conectar a servidores nessas localizações, a JungleVPN exibirá um aviso para informá-lo sobre os riscos potenciais. Esses riscos incluem uma maior probabilidade de que os governos locais tentem interferir no seu tráfego de internet ou solicitem acesso aos dados do usuário. A JungleVPN não recomenda o uso desses servidores se você estiver preocupado com uma possível interferência ou vigilância governamental.",
+      "i3": "Para minimizar o risco, recomendamos conectar-se a servidores em países com instituições democráticas sólidas e leis de privacidade robustas. A JungleVPN não trabalha diretamente com governos de países com baixo nível de democracia e não transfere nenhum dado de usuário para eles. No entanto, a JungleVPN não se responsabiliza por quaisquer ações tomadas pelos governos locais nesses países.",
+      "i4": "Leve essas informações em consideração ao escolher a localização de um servidor. Se você tiver dúvidas ou preocupações sobre privacidade em um local específico, entre em contato com nossa equipe de suporte para obter orientação."
+    },
+    "s7": {
+      "h": "7. Retenção de dados",
+      "u1": "Os dados da conta e de cobrança são retidos enquanto sua conta estiver ativa ou até que você mesmo os exclua, de acordo com nossos Termos de Uso.",
+      "u2": "As comunicações de suporte são retidas por até 3 anos após a resolução do ticket.",
+      "u3": "Dados de diagnóstico técnico, como relatórios de falhas, são retidos por um período máximo de 6 meses."
+    },
+    "s8": {
+      "h": "8. Seus direitos de privacidade",
+      "i1": "Você tem direitos sobre seus dados pessoais nos termos do GDPR e de outras leis de proteção de dados aplicáveis.",
+      "i2_lead": "Você pode:",
+      "i2_u1": "acessar seus dados pessoais e obter uma cópia (Art. 15 do RGPD);",
+      "i2_u2": "retificar dados imprecisos ou incompletos (Art. 16 do RGPD);",
+      "i2_u3": "solicitar o apagamento de seus dados quando não houver base legal para a retenção (Art. 17 do RGPD);",
+      "i2_u4": "receber seus dados em um formato portável (Art. 20 do RGPD);",
+      "i2_u5": "opor-se ao tratamento baseado em interesses legítimos (Art. 21 do RGPD);",
+      "i2_u6": "retirar o consentimento a qualquer momento, quando o tratamento for baseado no consentimento (Art. 7 do RGPD).",
+      "i3": "Para exercer qualquer um desses direitos, entre em contato conosco por e-mail ou pelo nosso bot do Telegram. Responderemos às solicitações verificadas no prazo de 30 dias.",
+      "i4": "Você tem o direito de apresentar uma reclamação junto à autoridade supervisora de proteção de dados portuguesa (CNPD — Comissão Nacional de Proteção de Dados, www.cnpd.pt) ou junto à autoridade supervisora do seu país de residência na UE."
+    },
+    "s9": {
+      "h": "9. Medidas de segurança",
+      "i1": "Utilizamos medidas de segurança padrão do setor para proteger seus dados, incluindo criptografia em trânsito e em repouso, controles de acesso e monitoramento contra acessos não autorizados.",
+      "i2": "Nenhum método de transmissão ou armazenamento é totalmente seguro. Caso tomemos conhecimento de uma violação de dados que afete seus dados pessoais, notificaremos você e as autoridades competentes, conforme exigido por lei."
+    },
+    "s10": {
+      "h": "10. Transferências internacionais de dados",
+      "i1": "Seus dados podem ser processados em países fora do seu país de residência, inclusive fora do Espaço Econômico Europeu.",
+      "i2": "Nesses casos, contamos com medidas de proteção adequadas, como cláusulas contratuais padrão aprovadas pela Comissão Europeia, para garantir que seus dados recebam um nível equivalente de proteção."
+    },
+    "s11": {
+      "h": "11. Privacidade de crianças",
+      "i1": "O Serviço destina-se a pessoas com 18 anos ou mais, de acordo com nossos Termos de Uso.",
+      "i2": "Não coletamos intencionalmente dados pessoais de menores de idade. Caso tomemos conhecimento de que isso tenha ocorrido, os excluiremos imediatamente."
+    },
+    "s12": {
+      "h": "12. Alterações a esta Política",
+      "i1": "Podemos atualizar esta Política periodicamente.",
+      "i2": "Alterações significativas serão comunicadas por e-mail ou por meio de um aviso em destaque no Serviço antes de entrarem em vigor.",
+      "i3": "O uso continuado do Serviço após a entrada em vigor das alterações significa que você aceita a Política atualizada."
+    },
+    "s13": {
+      "h": "13. Entre em contato conosco",
+      "i1_lead": "Para quaisquer dúvidas sobre esta Política ou seus dados pessoais, entre em contato com nossa equipe de suporte por meio do ",
+      "i1_botLink": "bot do Telegram",
+      "i1_mid": " ou por e-mail em ",
+      "i1_emailLink": "support@jungle-vpn.com",
+      "i1_tail": "."
+    }
+  },
+  "cookies": {
+    "pageTitle": "Política de Cookies",
+    "footer": "Esta Política de Cookies faz parte dos Termos de Uso e da Política de Privacidade do JungleVPN. Ao continuar a utilizar o Serviço, você reconhece que leu e compreendeu como utilizamos os cookies.",
+    "s1": {
+      "h": "1. Introdução",
+      "i1": "Esta Política de Cookies explica como a JungleVPN utiliza cookies e tecnologias de rastreamento semelhantes em nosso site, no bot do Telegram e nos aplicativos (em conjunto, o “Serviço”), e como você pode controlá-los.",
+      "i2": "Cookies são pequenos arquivos armazenados no seu dispositivo que permitem que um site ou aplicativo lembre-se de informações sobre a sua visita. Utilizamos cookies definidos diretamente por nós (“de primeira parte”) e cookies definidos por serviços dos quais dependemos (“de terceiros”).",
+      "i3": "Sempre que dependemos do seu consentimento, você pode retirá-lo a qualquer momento — consulte a Seção 5, Gerenciando suas preferências."
+    },
+    "s2": {
+      "h": "2. Como usamos cookies",
+      "i1_lead": "Cookies necessários — essenciais para o funcionamento do Serviço e sempre ativos:",
+      "i1_u1": "manter você conectado e lembrar suas preferências de idioma e interface;",
+      "i1_u2": "reconhecer um código de indicação ou link de marketing pelo qual você chegou, para que ele possa ser creditado corretamente.",
+      "i2_lead": "Cookies de medição — usados somente após sua aceitação, para entender como o Serviço é utilizado e para identificar e corrigir problemas:",
+      "i2_u1": "visualizações de páginas, uso de recursos e diagnósticos de erros e falhas, coletados por meio do PostHog (consulte a Seção 3)."
+    },
+    "s3": {
+      "h": "3. Serviços de terceiros",
+      "i1": "O PostHog é o serviço de análise e rastreamento que utilizamos em todo o Serviço. Ele fornece análises de produto, reprodução de sessões e rastreamento de erros para que possamos entender o uso e corrigir bugs.",
+      "i2_lead": "Por meio do PostHog, podemos coletar:",
+      "i2_u1": "páginas visualizadas, recursos utilizados e botões clicados;",
+      "i2_u2": "uma reprodução das interações na tela — cliques, rolagem e digitação; o texto digitado nos campos de entrada é mascarado e nunca é capturado;",
+      "i2_u3": "tipo de dispositivo e navegador, localização aproximada derivada do seu endereço IP e registros de erros do console.",
+      "i3": "O PostHog processa esses dados na União Europeia. Antes de você responder ao banner de cookies, os dados são coletados sem um identificador persistente (“modo sem cookies”); assim que você aceitar, sua atividade ao longo das visitas será vinculada para formar um panorama mais completo de como o Serviço é utilizado."
+    },
+    "s4": {
+      "h": "4. Cookies que definimos",
+      "lead": "A tabela abaixo lista os cookies que nosso site define atualmente.",
+      "table": {
+        "name": "Cookie",
+        "purpose": "Finalidade",
+        "duration": "Duração"
+      },
+      "rows": {
+        "jvReferral": {
+          "name": "jv_referral",
+          "purpose": "Lembra o código de indicação com o qual você chegou, para que o usuário que indicou receba o crédito.",
+          "duration": "30 dias"
+        },
+        "jvAttr": {
+          "name": "jv_attr",
+          "purpose": "Lembra qual campanha ou link o trouxe ao site, para fins de atribuição de marketing.",
+          "duration": "30 dias"
+        },
+        "postHog": {
+          "name": "ph_*_posthog",
+          "purpose": "Definido somente após você aceitar os cookies de medição; vincula sua atividade entre visitas ao mesmo perfil do PostHog.",
+          "duration": "1 ano"
+        }
+      }
+    },
+    "s5": {
+      "h": "5. Gerenciamento de suas preferências",
+      "i1": "Na sua primeira visita, um banner permite que você aceite ou recuse os cookies de medição. Recusá-los não impede que o Serviço meça o uso anônimo — apenas impede que o PostHog vincule essa atividade a um identificador persistente.",
+      "i2": "Você pode alterar sua escolha a qualquer momento limpando os cookies e os dados do site do seu navegador para o nosso domínio, o que fará com que o banner reapareça.",
+      "i3": "A maioria dos navegadores também permite que você visualize, bloqueie ou exclua cookies diretamente em suas configurações (por exemplo, o Chrome, o Firefox, o Safari e o Edge possuem, cada um, uma seção chamada “Cookies e dados do site”). Bloquear cookies necessários pode impedir que partes do Serviço funcionem."
+    },
+    "s6": {
+      "h": "6. Política relacionada",
+      "i1_lead": "Esta Política de Cookies deve ser lida em conjunto com nossa ",
+      "i1_link": "Política de Privacidade",
+      "i1_tail": ", que aborda quais dados pessoais coletamos, por que os coletamos e quais são seus direitos sobre eles."
+    },
+    "s7": {
+      "h": "7. Alterações a esta política",
+      "i1": "Podemos atualizar esta Política de Cookies periodicamente para refletir alterações nos cookies e nos serviços que utilizamos.",
+      "i2": "Alterações significativas serão comunicadas por e-mail ou por meio de um aviso em destaque no Serviço antes de entrarem em vigor."
+    },
+    "s8": {
+      "h": "8. Entre em contato conosco",
+      "i1_lead": "Para quaisquer dúvidas sobre esta Política, entre em contato com nossa equipe de suporte por meio do ",
+      "i1_botLink": "bot do Telegram",
+      "i1_mid": " ou por e-mail em ",
+      "i1_emailLink": "support@jungle-vpn.com",
+      "i1_tail": "."
+    }
+  },
+  "menu": {
+    "pageTitle": "Menu",
+    "transactionHistory": "Histórico de transações",
+    "referrals": "Indicações",
+    "affiliates": "Compartilhe e ganhe",
+    "subtitle": "Gerencie as configurações da sua conta"
+  },
+  "referrals": {
+    "pageTitle": "Indicações",
+    "hero": {
+      "badge": "30 dias por amigo",
+      "title": "Assinatura gratuita por indicar o JungleVPN",
+      "subtitle": "Convide amigos para o JungleVPN e ganhe 30 dias de assinatura por cada inscrição.",
+      "cta": "Convide amigos"
+    },
+    "howItWorks": {
+      "badge": "Guia rápido",
+      "title": "Como funciona?",
+      "subtitle": "Siga estas etapas para ganhar dias grátis de assinatura",
+      "share": {
+        "title": "Compartilhe seu link de indicação com um amigo",
+        "description": "Basta copiá-lo da sua conta e enviá-lo da maneira que preferir."
+      },
+      "subscribe": {
+        "title": "Seu amigo assina o JungleVPN",
+        "description": "Ele escolhe qualquer plano e aproveita a internet privada."
+      },
+      "reward": {
+        "title": "Vocês dois ganham 30 dias extras de assinatura",
+        "description": "O crédito é concedido imediatamente após o seu amigo pagar pela assinatura."
+      }
+    },
+    "inviteBanner": {
+      "title": "Convide amigos e ganhe dias grátis de assinatura",
+      "cta": "Convide agora"
+    },
+    "step1": {
+      "title": "Compartilhe seu link de indicação com um amigo",
+      "copy": "Copiar",
+      "copied": "Copiado"
+    },
+    "step2": {
+      "title": "Seu amigo se inscreve no JungleVPN",
+      "description": "Apenas para novos usuários."
+    },
+    "step3": {
+      "title": "Seu amigo ganha 30 dias de assinatura",
+      "description": "O crédito é concedido imediatamente após o pagamento da assinatura."
+    },
+    "step4": {
+      "title": "Você ganha 30 dias de assinatura",
+      "description": "O crédito é concedido imediatamente após o seu amigo pagar pela assinatura."
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "JungleVPN",
+      "subtitle": "Proteja sua conexão, navegue com privacidade e fique seguro em redes Wi-Fi públicas — com uma única VPN para todos os seus dispositivos.",
+      "cta": "Experimente agora",
+      "login": "Faça login",
+      "guarantee": "Garantia de reembolso de 30 dias",
+      "features": {
+        "feature1": "Tráfego ilimitado em todos os seus dispositivos",
+        "feature2": "Servidores rápidos em vários locais",
+        "feature3": "Equipe de suporte atenciosa 24 horas por dia, 7 dias por semana"
+      },
+      "stats": {
+        "locations": {
+          "value": "Mais de 6",
+          "label": "locais"
+        },
+        "traffic": {
+          "value": "Tráfego",
+          "label": "tráfego"
+        },
+        "devices": {
+          "value": "Todos os",
+          "label": "dispositivos"
+        }
+      },
+      "bento": {
+        "speed": {
+          "title": "Velocidade ilimitada",
+          "description": "Streaming e chamadas sem lentidão."
+        },
+        "privacy": {
+          "title": "Tráfego ilimitado",
+          "description": "Navegue o quanto quiser!"
+        },
+        "devices": {
+          "title": "Política de não registro de logs",
+          "description": "Tudo o que você faz online é seu"
+        }
+      }
+    },
+    "howItWorks": {
+      "chip": "Comece agora",
+      "titleStart": "Bastam",
+      "titleBrand": "três passos simples",
+      "subtitle": "Uma configuração simples em três etapas, projetada para que você se conecte de forma rápida e segura.",
+      "install": {
+        "title": "Instale o aplicativo",
+        "description": "Baixe e instale o aplicativo no seu dispositivo. Compatível com todas as plataformas."
+      },
+      "subscribe": {
+        "title": "Adicione seu link",
+        "description": "Abra seu link de assinatura pessoal e importe-o para o aplicativo. Suas configurações de conexão são adicionadas automaticamente — não é necessária nenhuma configuração manual do servidor."
+      },
+      "connect": {
+        "title": "Conecte-se e use o JungleVPN",
+        "description": "Abra o aplicativo, selecione a conexão desejada e toque em “Conectar”. Sua configuração de VPN está pronta para uso, com acesso aos locais de servidores incluídos na sua assinatura do JungleVPN."
+      },
+      "note": "Observação: oferecemos diversos planos à sua escolha. Os métodos de pagamento aceitos são cartão de crédito, Apple Pay ou PayPal."
+    },
+    "trust": {
+      "chip": "Privacidade em primeiro lugar",
+      "title": "Confiado por milhares de usuários",
+      "users": "Confiado mundialmente para navegação privada, conexões seguras em redes públicas e acesso confiável durante viagens.",
+      "countries": "Uma rede distribuída de localizações de servidores permite que você controle como e onde se conecta, para que possa escolher o que melhor atende às suas necessidades sem comprometer a segurança.",
+      "servers": "Infraestrutura de alta velocidade projetada para um desempenho estável no dia a dia, seja na navegação, streaming, videochamadas ou outras atividades que exigem grande volume de dados, com monitoramento contínuo para garantir confiabilidade e qualidade."
+    },
+    "testimonials": {
+      "chip": "Confiado por milhares",
+      "title": "Por que os clientes adoram o JungleVPN",
+      "setup": {
+        "quote": "A configuração levou cerca de cinco minutos. Instalei o HAPP, importei o link da assinatura e já estava conectado — sem precisar entender configurações de servidor.",
+        "name": "Bilal Ahmed"
+      },
+      "remote": {
+        "quote": "Trabalho em cafés na maioria dos dias, então uma conexão criptografada em redes Wi-Fi públicas foi o principal motivo pelo qual fiz a assinatura. Ela simplesmente fica ligada e eu nem preciso mais me preocupar com isso.",
+        "name": "Briana Patton"
+      },
+      "routing": {
+        "quote": "O roteamento inteligente foi algo que eu não esperava que me importasse. Só o que precisa da VPN passa por ela, então meus aplicativos bancários e locais continuam funcionando normalmente.",
+        "name": "Omar Raza"
+      },
+      "calls": {
+        "quote": "As videochamadas funcionam bem à noite, quando tudo o mais fica mais lento. Não precisei mudar de local para conseguir uma conexão estável.",
+        "name": "Farhan Siddiqui"
+      },
+      "multiDevice": {
+        "quote": "Uma única assinatura para o meu celular, meu laptop e o laptop da minha parceira. Esse foi o fator decisivo para nós.",
+        "name": "Aliza Khan"
+      },
+      "support": {
+        "quote": "Tive uma dúvida sobre minha assinatura e recebi uma resposta de uma pessoa de verdade em cerca de dez minutos. Sem enrolação com tickets, sem bot.",
+        "name": "David Chen"
+      },
+      "dataCap": {
+        "quote": "Não ter limite mensal de dados significa que não preciso mais racionar streaming ou downloads. Eu costumava atingir o limite da minha antiga VPN gratuita em uma semana.",
+        "name": "Sara Mitchell"
+      },
+      "privacy": {
+        "quote": "O que eu queria era uma política de privacidade clara e uma conexão que não caísse. Foi isso que recebi, e pude conferir tudo antes de pagar.",
+        "name": "Priya Nair"
+      }
+    },
+    "features": {
+      "title": "Por que as pessoas escolhem o JungleVPN",
+      "titleStart": "Por que as pessoas escolhem",
+      "titleBrand": "JungleVPN",
+      "subtitle": "Configuração simples, uso diário confiável e suporte quando você precisar.",
+      "ready": {
+        "title": "Pronto em minutos",
+        "description": "Importe sua assinatura e conecte-se — sem necessidade de configuração manual ou ajustes técnicos."
+      },
+      "money": {
+        "title": "Garantia de reembolso de 30 dias",
+        "description": "Não é o que você procura? Entre em contato conosco em até 30 dias após a compra para obter um reembolso sem complicações."
+      },
+      "globe": {
+        "title": "Use em todos os seus dispositivos",
+        "description": "Uma única assinatura cobre todos os seus dispositivos, para que você fique conectado em casa, no trabalho ou durante viagens."
+      },
+      "support": {
+        "title": "Suporte humano",
+        "description": "Receba ajuda de uma equipe de suporte real com questões relacionadas à configuração, assinaturas ou conexão — geralmente em até 10 minutos."
+      }
+    },
+    "countries": {
+      "label": "Servidores em mais de 6 países",
+      "names": {
+        "us": "Estados Unidos",
+        "de": "Alemanha",
+        "nl": "Países Baixos",
+        "at": "Áustria",
+        "fi": "Finlândia",
+        "ru": "Rússia"
+      }
+    },
+    "pricing": {
+      "title": "Nossos planos",
+      "subtitle": "Escolha o plano que melhor se adapta às suas necessidades. Todos os planos incluem os mesmos recursos básicos.",
+      "period": "1 mês",
+      "interval": "\/ mês",
+      "guarantee": "Garantia de reembolso de 30 dias",
+      "cta": "Escolha o plano",
+      "advantage1": "Velocidade e dados ilimitados",
+      "advantage2": "Funciona em todos os seus dispositivos",
+      "advantage3": "Acesso seguro onde quer que você esteja",
+      "advantage4": "Suporte sempre que você precisar",
+      "badge": "A melhor escolha",
+      "totalLabel": "Total",
+      "noDiscount": "Flexibilidade máxima. Cancele a qualquer momento.",
+      "discount": "Economize {{percent}}%",
+      "monthlySubtitle": "Flexibilidade máxima. Cancele a qualquer momento.",
+      "yearlyPeriod": "1 ano",
+      "yearlyDiscount": "Economize 40% — menor preço mensal",
+      "daysPeriod": "{{count}} dias",
+      "monthsPeriod": "{{count}} meses",
+      "includesTitle": "Todos os planos incluem:",
+      "includes1": "Tráfego ilimitado",
+      "includes2": "Acesso a todos os locais de servidores",
+      "includes3": "Todos os seus dispositivos",
+      "includes4": "Suporte humano",
+      "includes5": "Roteamento inteligente",
+      "ctaPlan": "Escolha {{period}}",
+      "discountBest": "Economize {{percent}}% — menor preço mensal",
+      "badgeValue": "Melhor custo-benefício"
+    },
+    "faq": {
+      "title": "Tem dúvidas antes de se conectar?",
+      "q1": {
+        "question": "Como faço para configurar o JungleVPN?",
+        "answer": "Instale o HAPP no seu dispositivo, abra o link pessoal da sua assinatura do JungleVPN e importe-o para o aplicativo. Suas configurações de conexão são adicionadas automaticamente, portanto, não é necessário configurar os servidores manualmente. Na maioria dos casos, a configuração leva apenas alguns minutos."
+      },
+      "q2": {
+        "question": "Em quais dispositivos posso usar o JungleVPN?",
+        "answer": "O JungleVPN funciona em todas as plataformas. Uma assinatura pode ser usada em todos os seus dispositivos, então você pode proteger seu celular, laptop e outros dispositivos compatíveis com um único plano."
+      },
+      "q4": {
+        "question": "O que acontece se eu não ficar satisfeito após a compra?",
+        "answer": "O JungleVPN inclui uma garantia de reembolso de 30 dias. Se o serviço não for adequado para você, entre em contato com nossa equipe de suporte dentro do prazo de reembolso válido e nós o orientaremos sobre o processo de reembolso de acordo com os termos aplicáveis."
+      },
+      "subtitle": "Tudo o que você precisa saber sobre configuração, dispositivos, privacidade e sua assinatura.",
+      "q5": {
+        "question": "Quais informações o JungleVPN coleta?",
+        "answer": "O JungleVPN foi projetado com a privacidade em mente e tem como objetivo minimizar o processamento desnecessário de dados. Explicamos claramente quais informações são necessárias para operar sua conta, assinatura e serviço em nossa Política de Privacidade, incluindo como elas são utilizadas e retidas."
+      }
+    },
+    "partnership": {
+      "title": "Compartilhe a JungleVPN. Seja recompensado.",
+      "subtitle": "Escolha o programa que melhor se adapta a você — ganhe comissões como parceiro ou convide amigos e recebam recompensas juntos.",
+      "learnMore": "Saiba mais",
+      "affiliate": {
+        "title": "Programa de Afiliados",
+        "description": "Ideal para criadores de conteúdo e parceiros. Transforme seu público em uma fonte de receita recorrente. Compartilhe seu link exclusivo de parceiro do JungleVPN e ganhe comissões pelas assinaturas qualificadas geradas por meio de suas indicações.",
+        "cta": "Torne-se um parceiro →"
+      },
+      "referral": {
+        "title": "Programa de Indicação",
+        "description": "Ideal para usuários do JungleVPN. Convide amigos usando seu link de indicação pessoal. Quando eles se cadastrarem por meio do seu convite, vocês dois receberão a recompensa.",
+        "cta": "Convide um amigo →"
+      }
+    },
+    "cta": {
+      "title": "Adquira o JungleVPN hoje mesmo",
+      "subtitle": "Não ficou satisfeito? Receba o reembolso total, sem perguntas."
+    },
+    "trialPeriodBanner": {
+      "title": "{{days}} dias de teste por apenas {{price}} {{currency}}"
+    },
+    "footer": {
+      "copyright": "© {{year}} JungleVPN. Todos os direitos reservados.",
+      "terms": "Termos",
+      "privacy": "Privacidade",
+      "cookies": "Cookies",
+      "support": "Suporte",
+      "affiliate": "Programa de afiliados",
+      "referral": "Indicação",
+      "pricing": "Preços",
+      "partnership": "Parceria",
+      "howItWorks": "Como funciona",
+      "faq": "Perguntas frequentes",
+      "locations": "Localizações",
+      "whatIsVpn": "O que é uma VPN?"
+    },
+    "bento": {
+      "titleStart": "Tudo o que você precisa,",
+      "titleBrand": "integrado",
+      "subtitle": "Tecnologia focada na privacidade, acesso flexível e ferramentas projetadas para o uso diário.",
+      "learnMore": "Saiba mais",
+      "affiliate": {
+        "title": "Programa de Afiliados",
+        "description": "Ganhe comissões indicando o JungleVPN ao seu público, com um link de indicação exclusivo e acompanhamento transparente das conversões e recompensas."
+      },
+      "security": {
+        "title": "Segurança desde a concepção",
+        "description": "Sua conexão é criptografada entre o seu dispositivo e o servidor do JungleVPN, protegendo seu tráfego em redes públicas e não confiáveis."
+      },
+      "referral": {
+        "title": "Programa de Indicação",
+        "description": "Convide amigos usando seu link de indicação pessoal e receba recompensas quando eles se cadastrarem. Compartilhamento simples, recompensas claras."
+      },
+      "privacy": {
+        "title": "Privacidade em primeiro lugar",
+        "description": "O JungleVPN foi desenvolvido para minimizar a coleta desnecessária de dados e manter sua conexão privada."
+      },
+      "speed": {
+        "title": "Tráfego ilimitado",
+        "description": "Navegue, assista a vídeos, faça chamadas de vídeo e use serviços online sem limite mensal de tráfego."
+      },
+      "smartRouting": {
+        "title": "Uma VPN para todos os seus dispositivos",
+        "description": "Instale o JungleVPN em qualquer um dos seus dispositivos — oferecemos uma ampla variedade de aplicativos compatíveis."
+      }
+    },
+    "comparison": {
+      "chip": "Vamos comparar",
+      "titleStart": "JungleVPN x",
+      "titleBrand": "VPNs gratuitas",
+      "subtitle": "As VPNs gratuitas podem ser úteis para uso ocasional, mas geralmente apresentam desvantagens em termos de velocidade, escolha de servidores, suporte e privacidade. Veja como o JungleVPN foi projetado para um uso diário mais consistente.",
+      "header": {
+        "feature": "Recurso",
+        "ours": "JungleVPN",
+        "theirs": "VPN gratuita típica"
+      },
+      "rows": {
+        "traffic": {
+          "feature": "Tráfego",
+          "ours": "Ilimitado",
+          "theirs": "Frequentemente limitado"
+        },
+        "locations": {
+          "feature": "Localizações de servidores",
+          "ours": "Vários locais em todo o mundo",
+          "theirs": "Geralmente menos locais e menos opções"
+        },
+        "performance": {
+          "feature": "Desempenho",
+          "ours": "Infraestrutura de alta velocidade",
+          "theirs": "As velocidades podem ser limitadas durante períodos de pico"
+        },
+        "devices": {
+          "feature": "Compatibilidade com dispositivos",
+          "ours": "Todos os seus dispositivos",
+          "theirs": "Os limites por dispositivo variam"
+        },
+        "support": {
+          "feature": "Suporte ao cliente",
+          "ours": "Suporte por pessoas 24 horas por dia, 7 dias por semana",
+          "theirs": "Respostas automáticas"
+        },
+        "privacy": {
+          "feature": "Rastreia sua atividade online",
+          "ours": "Política de não registro de logs",
+          "theirs": "Possível"
+        },
+        "advertising": {
+          "feature": "Publicidade",
+          "ours": "Sem anúncios",
+          "theirs": "Depende de publicidade"
+        },
+        "setup": {
+          "feature": "Configuração da conexão",
+          "ours": "Configuração simples por meio do HAPP e do seu link de assinatura pessoal",
+          "theirs": "A configuração e os protocolos disponíveis variam de acordo com o provedor"
+        },
+        "smartRouting": {
+          "feature": "Roteamento inteligente",
+          "ours": "Encaminhe o tráfego pela VPN apenas quando necessário",
+          "theirs": "Frequentemente indisponível"
+        },
+        "bestFor": {
+          "feature": "Ideal para",
+          "ours": "Uso diário confiável, viagens, Wi-Fi público e vários dispositivos",
+          "theirs": "Uso ocasional ou básico de VPN"
+        }
+      }
+    },
+    "info": {
+      "what": {
+        "title": "O que é uma VPN?",
+        "subtitle": "Uma VPN (Rede Privada Virtual) cria uma conexão criptografada entre seu dispositivo e um servidor VPN, ajudando a proteger seu tráfego e reduzir a quantidade de informações de conexão visíveis ao seu provedor de internet e às redes locais.",
+        "encryption": {
+          "title": "Criptografia",
+          "description": "Seu tráfego de internet é criptografado antes de sair do seu dispositivo e permanece protegido até chegar ao servidor VPN. Isso ajuda a reduzir o risco de interceptação ao usar redes públicas ou não confiáveis."
+        },
+        "masking": {
+          "title": "Proteção do endereço IP",
+          "description": "Quando você se conecta pela JungleVPN, os sites veem o endereço IP do servidor VPN em vez do seu endereço IP doméstico. Isso adiciona uma camada extra de privacidade e permite que você se conecte por meio dos locais de servidores disponíveis."
+        },
+        "tunnel": {
+          "title": "Túnel VPN seguro",
+          "description": "Seu dispositivo se comunica com o servidor da JungleVPN por meio de um túnel VPN criptografado. Isso ajuda a proteger sua conexão em redes de hotéis, aeroportos, cafés e outras redes nas quais você talvez não confie totalmente."
+        }
+      },
+      "why": {
+        "title": "Por que a JungleVPN é ideal para o dia a dia",
+        "subtitle": "Proteja sua conexão em casa, durante viagens e em redes públicas — sem adicionar complexidade desnecessária à maneira como você usa a internet.",
+        "wifi": {
+          "title": "Fique mais seguro em redes Wi-Fi públicas",
+          "description": "As redes públicas em hotéis, aeroportos e cafés nem sempre são redes que você controla. O JungleVPN criptografa sua conexão entre o seu dispositivo e o servidor VPN, ajudando a proteger seu tráfego em redes não confiáveis."
+        },
+        "privacy": {
+          "title": "Mantenha sua conexão mais privada",
+          "description": "Uma VPN ajuda a reduzir a quantidade de informações de conexão visíveis para seu provedor de internet e para a rede local. Seu tráfego passa por uma conexão VPN criptografada, em vez de passar diretamente pela rede que você está usando."
+        },
+        "travel": {
+          "title": "Fique conectado durante viagens",
+          "description": "Use os locais de servidores disponíveis do JungleVPN quando estiver fora de casa e precisar de uma conexão segura e familiar para navegação diária, trabalho, chamadas e serviços online."
+        },
+        "smartRouting": {
+          "title": "Roteamento inteligente para o uso diário",
+          "description": "Roteie apenas o tráfego que precisa de proteção por VPN, enquanto outras conexões continuam diretamente. Isso reduz trocas desnecessárias e ajuda os aplicativos e serviços do dia a dia a funcionarem de maneira mais natural."
+        }
+      },
+      "stats": {
+        "speed": "Velocidade máxima do servidor",
+        "countries": "Países dos servidores",
+        "guarantee_value": "30 dias",
+        "guarantee": "Garantia de reembolso",
+        "support_value": "~10 m",
+        "support": "Tempo médio de resposta do suporte"
+      },
+      "devices": {
+        "title": "Funciona em todas as plataformas",
+        "subtitle": "Uma única assinatura cobre todos os seus dispositivos — sem taxas extras, sem limites.",
+        "ios": "iOS",
+        "android": "Android",
+        "macos": "macOS",
+        "windows": "Windows",
+        "appleTv": "Apple TV",
+        "androidTv": "Android TV",
+        "cta": "Conectar"
+      }
+    },
+    "locations": {
+      "hero": {
+        "title": "Os servidores da JungleVPN estão espalhados por todo o mundo",
+        "subtitle": "Os servidores VPN estão localizados em todo o mundo. Use a internet como se estivesse na América do Norte ou do Sul, na Europa ou na Ásia.",
+        "mapAlt": "Mapa-múndi mostrando os locais dos servidores da JungleVPN"
+      },
+      "benefits": {
+        "devices": {
+          "title": "Uma única VPN para todos os seus dispositivos",
+          "description": "Instale a JungleVPN em qualquer um dos seus dispositivos — oferecemos uma ampla variedade de aplicativos compatíveis."
+        },
+        "traffic": {
+          "title": "Tráfego ilimitado",
+          "description": "Navegue, assista a vídeos, faça chamadas de vídeo e use serviços online sem limite mensal de tráfego."
+        }
+      },
+      "world": {
+        "title": "JungleVPN — acompanha você pelo mundo",
+        "subtitle": "Todos merecem ter acesso a uma internet privada e segura.",
+        "everywhere": {
+          "title": "Proteja sua conexão em qualquer lugar",
+          "description": "Funciona em todo o mundo."
+        },
+        "travel": {
+          "title": "Viaje com tranquilidade",
+          "description": "Ajudamos você a acessar seus sites e serviços favoritos durante as viagens."
+        },
+        "wifi": {
+          "title": "Conexão Wi-Fi segura",
+          "description": "Garanta sua segurança em redes públicas."
+        },
+        "private": {
+          "title": "Navegação privada, sempre",
+          "description": "O JungleVPN criptografa o tráfego e protege seus dados pessoais contra olhares curiosos."
+        }
+      }
+    },
+    "whatIsVpn": {
+      "hero": {
+        "title": "O que é uma VPN, em linguagem simples?",
+        "subtitle": "Uma VPN cria um túnel criptografado entre o seu dispositivo e um servidor em que você confia. Veja a seguir o que isso significa na prática, o que ela protege e o que não protege."
+      },
+      "how": {
+        "title": "Como funciona uma conexão VPN",
+        "subtitle": "Quatro etapas ocorrem toda vez que você toca em “conectar” — geralmente em menos de um segundo.",
+        "connect": {
+          "title": "1. Seu dispositivo se conecta",
+          "description": "O aplicativo de VPN abre uma conexão com um servidor da JungleVPN no país que você escolheu."
+        },
+        "encrypt": {
+          "title": "2. O tráfego é criptografado",
+          "description": "Tudo o que sai do seu dispositivo é criptografado primeiro, de modo que o Wi-Fi do café, o roteador e seu provedor veem dados codificados em vez dos sites que você acessa."
+        },
+        "tunnel": {
+          "title": "3. Ele passa pelo túnel",
+          "description": "O tráfego criptografado passa pelo túnel até o servidor VPN, que o descriptografa e encaminha a solicitação em seu nome."
+        },
+        "exit": {
+          "title": "4. O site responde ao servidor",
+          "description": "Os sites veem o endereço IP e a localização do servidor, e não o seu IP doméstico. A resposta retorna pelo mesmo túnel criptografado."
+        }
+      },
+      "useCases": {
+        "title": "Quando uma VPN realmente ajuda",
+        "subtitle": "Não é mágica — são algumas situações bem concretas do dia a dia.",
+        "wifi": {
+          "title": "Wi-Fi público",
+          "description": "Aeroportos, hotéis e cafés operam redes que você não pode verificar. A criptografia mantém seu tráfego ilegível para todas as outras pessoas conectadas a elas."
+        },
+        "travel": {
+          "title": "Viagens",
+          "description": "Conecte-se por meio de um servidor no seu país para continuar usando os sites e serviços dos quais você normalmente depende enquanto estiver no exterior."
+        },
+        "privacy": {
+          "title": "Privacidade no dia a dia",
+          "description": "Seu provedor de internet e as redes pelas quais você passa têm muito menos informações sobre os sites que você visita."
+        },
+        "work": {
+          "title": "Trabalho remoto",
+          "description": "Uma única conexão criptografada protege seu laptop, celular e tablet, não importa onde você esteja trabalhando naquele dia."
+        }
+      },
+      "myths": {
+        "title": "O que uma VPN não é",
+        "subtitle": "Ter clareza sobre os limites é mais importante do que o marketing.",
+        "anonymity": {
+          "myth": "“Uma VPN me torna anônimo.”",
+          "fact": "Ela oculta seu endereço IP e criptografa seu tráfego. Ela não apaga as contas nas quais você está conectado, os cookies ou a impressão digital do navegador."
+        },
+        "speed": {
+          "myth": "“Uma VPN sempre deixa tudo mais lento.”",
+          "fact": "O tráfego segue por um caminho mais longo, então alguma latência é inevitável — mas em um servidor próximo e bem equipado, a diferença geralmente não é perceptível."
+        },
+        "legal": {
+          "myth": "“Uma VPN substitui o antivírus.”",
+          "fact": "Uma VPN protege os dados em trânsito. Ela não pode impedir que você baixe malware ou forneça sua senha a uma página de phishing."
+        }
+      }
+    }
+  },
+  "transactions": {
+    "pageTitle": "Histórico de transações",
+    "noTransactions": "Ainda não há transações",
+    "noPaymentsFound": "Nenhum pagamento encontrado",
+    "searchAriaLabel": "Pesquisar",
+    "details": {
+      "pageTitle": "Detalhes da transação",
+      "title": "Detalhes do pagamento",
+      "paymentId": "ID do pagamento",
+      "userId": "ID do usuário",
+      "telegramId": "ID do Telegram",
+      "provider": "Provedor",
+      "status": "Status",
+      "amount": "Valor",
+      "period": "Período",
+      "periodValue": "{{count}} mês(es)",
+      "starsValue": "{{amount}} estrelas",
+      "createdAt": "Criado",
+      "paidAt": "Pago em",
+      "copy": "Copiar {{label}}"
+    }
+  },
+  "plans": {
+    "pageTitle": "Selecione um plano",
+    "pageDescription": "O cartão vinculado será cobrado de acordo com o plano selecionado",
+    "tabsAriaLabel": "Selecione um plano de assinatura",
+    "month_one": "{{count}} mês",
+    "month_other": "{{count}} meses",
+    "perMonth": "por mês",
+    "continueButton": "Continuar",
+    "year_one": "{{count}} ano",
+    "year_other": "{{count}} anos"
+  },
+  "subscriptionLinkWidget": {
+    "getLink": "Adicionar novo dispositivo",
+    "scanQrCode": "Escaneie o código QR",
+    "copyLink": "Copiar link",
+    "linkCopied": "Copiado",
+    "addToDeviceTitle": "Adicionar a outro dispositivo",
+    "addToDeviceSteps": {
+      "step1": "Escaneie o código QR pelo aplicativo em outro dispositivo ou acesse o link do QR.",
+      "step2": "Ou simplesmente copie o link e siga as instruções."
+    }
+  },
+  "subscriptionFail": {
+    "title": "O pagamento não foi concluído",
+    "description": "Não foi debitado nenhum valor. Você pode escolher um plano e tentar novamente.",
+    "retry": "Tente novamente"
+  },
+  "subscriptionSuccess": {
+    "title": "Sua assinatura está pronta",
+    "description": "Aproveite a internet privada e gratuita",
+    "connect": "Conectar"
+  },
+  "getSubscription": {
+    "step_email_title": "Insira o e-mail da sua conta JungleVPN",
+    "email_placeholder": "email@example.com",
+    "email_description": "Necessário para gerenciar sua assinatura",
+    "email_hint_label": "Por que precisamos do seu e-mail",
+    "email_hint": "Se você já usou o JungleVPN antes, adicionaremos a assinatura à sua conta existente. Caso contrário, criaremos uma nova conta com este e-mail.",
+    "email_required_error": "Insira seu endereço de e-mail",
+    "email_invalid_error": "Insira um endereço de e-mail válido",
+    "checkout_error": "Não foi possível iniciar o pagamento. Tente novamente.",
+    "throttled_error": "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
+    "active_subscription_error": "Você já possui uma assinatura ativa com este e-mail. Gerencie-a no seu perfil.",
+    "terms_link": "Termos da assinatura",
+    "step_payment_title": "Selecione uma forma de pagamento",
+    "card_method": "Cartão de crédito ou débito",
+    "submit": "Prosseguir para o pagamento",
+    "order_title": "Seu pedido",
+    "order_item": "JungleVPN por {{period}}",
+    "discount": "Desconto de {{percent}}%",
+    "plan_unavailable_title": "Este plano não está disponível",
+    "plan_unavailable_description": "Escolha a duração da assinatura na <1>página de preços<\/1>.",
+    "features_title": "Incluído na assinatura",
+    "guarantee": "Garantia de reembolso de 30 dias",
+    "active_dialog": {
+      "title": "Você já tem uma assinatura",
+      "description": "<1>{{email}}<\/1> já possui uma assinatura ativa do JungleVPN, portanto, não há nada para comprar aqui.",
+      "hint": "Faça login para ver seu plano, faturas e forma de pagamento.",
+      "to_profile": "Acesse o perfil",
+      "login": "Faça login",
+      "use_another_email": "Use um e-mail diferente"
+    }
+  },
+  "paymentFooter": {
+    "copyright": "© {{year}} JungleVPN. Todos os direitos reservados.",
+    "terms": "Termos de Serviço",
+    "support": "Entre em contato conosco"
+  },
+  "paddleCheckout": {
+    "title": "Finalizar compra",
+    "subtitle": "Conclua o pagamento para ativar sua assinatura"
+  },
+  "ipStatus": {
+    "yourIp": "Seu IP: {{ip}}",
+    "protected": "Você está protegido!",
+    "unprotected": "Você não está protegido!"
+  },
+  "myIp": {
+    "title": "Os sites sabem muito sobre você",
+    "subtitle": "Sem uma VPN, seus dados reais ficam à disposição de todos os serviços na Internet.",
+    "learn": "Noções básicas sobre privacidade",
+    "connection": {
+      "title": "O que um endereço IP pode revelar sobre você?"
+    },
+    "unavailable": "Indisponível",
+    "mapAlt": "Mapa mostrando sua localização aproximada: {{location}}",
+    "approximateLocation": "Localização aproximada com base no seu endereço IP.",
+    "findPublicIp": {
+      "title": "Como descobrir seu endereço IP público",
+      "body": "Para visualizar seu endereço IP público, basta olhar na parte superior desta página. Você verá informações sobre seu IP, incluindo a localização da sua conexão, o provedor de serviços de internet e se sua conexão é segura."
+    },
+    "status": {
+      "checking": "Verificando sua conexão",
+      "protected": "Sua conexão está protegida",
+      "unprotected": "Sua conexão está visível"
+    },
+    "card": {
+      "ip": "IP",
+      "location": "Localização",
+      "isp": "Provedor de internet",
+      "dns": "Provedor de DNS",
+      "browser": "Navegador",
+      "os": "Sistema operacional"
+    },
+    "browser": {
+      "unknown": "Navegador desconhecido"
+    },
+    "os": {
+      "unknown": "Sistema operacional desconhecido"
+    },
+    "whatIs": { "title": "O que é um IP?" },
+    "reveal": {
+      "title": "O que seu endereço IP e sua conexão revelam",
+      "body": "Seu endereço IP é como o endereço digital da sua casa. Todo site que você visita pode vê-lo e descobrir sua localização aproximada, seu provedor de internet e muito mais."
+    },
+    "fingerprint": {
+      "title": "Os sites podem coletar ainda mais informações sobre você",
+      "body": "Além do seu endereço IP, os sites podem detectar seu navegador, sistema operacional, resolução da tela, configurações de idioma e muito mais por meio da identificação do navegador."
+    },
+    "vpn": {
+      "title": "É possível ocultar sua localização alterando seu endereço IP?",
+      "body": "Sim, usando uma VPN. Quando você se conecta a um servidor VPN, os sites veem o endereço IP do servidor em vez do seu. Isso oculta sua localização real e protege sua privacidade."
+    },
+    "aboutCards": {
+      "ipAddress": {
+        "label": "127.0.0.1",
+        "paragraph1": "Um endereço IP é um número único atribuído a todos os dispositivos, incluindo computadores, tablets e smartphones, durante uma conexão à internet."
+      },
+      "publicIpAddresses": {
+        "label": "Endereços IP públicos",
+        "paragraph1": "Eles podem ser comparados a um endereço postal. Você não recebe uma carta de um amigo se não fornecer seu endereço postal, e não consegue baixar imagens e textos de um site se não fornecer seu endereço IP."
+      },
+      "privateIpAddresses": {
+        "label": "Endereços IP privados",
+        "paragraph1": "Seu computador possui não apenas um endereço IP público, mas também um endereço IP privado. Estes são atribuídos quando você se conecta a uma rede privada.",
+        "paragraph2": "Os endereços IP privados são usados para transmitir informações dentro de uma rede privada sem se conectar à Internet. Normalmente, os endereços IP privados começam com a combinação de números 192.168, o que indica que pertencem a uma rede privada.",
+        "paragraph3": "Os endereços IP privados são atribuídos pelos roteadores quando o dispositivo está conectado à sua rede doméstica."
+      },
+      "versions": {
+        "label": "Versões de endereços IP",
+        "paragraph1": "Existem dois padrões de endereço IP em uso atualmente: IP versão 4 (IPv4) e IP versão 6 (IPv6). A diferença entre eles está no formato e no número de caracteres. No entanto, ambos os padrões são usados para identificação de dispositivos e endereçamento baseado em localização.",
+        "paragraph2": "O IPv4 consiste em quatro conjuntos de 1 a 3 dígitos separados por um ponto, por exemplo, 170.0.0.1. O número máximo de combinações únicas possíveis é de cerca de 4 bilhões. Quando o número de dispositivos conectados ultrapassou 4 bilhões, foi necessário um novo padrão: o IPv6.",
+        "paragraph3": "O IPv6 consiste em oito grupos de quatro dígitos hexadecimais separados por dois pontos, por exemplo, 3ffe:1900:fe21:4545. Ele permite 3,4×10^38 combinações únicas possíveis, o que é suficiente para o futuro previsível."
+      }
+    }
+  }
+}

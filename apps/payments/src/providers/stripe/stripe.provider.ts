@@ -2,7 +2,8 @@ import * as process from 'node:process';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
-import { getExtraDevicePrice, getPriceForPeriod } from '@payments/utils/amount';
+import { PlanService } from '@payments/catalog/plan.service';
+import { getExtraDevicePrice } from '@payments/utils/amount';
 import { resolveReturnUrl } from '@payments/utils/return-origin';
 import { toSavedMethodDto } from '@payments/utils/saved-method';
 import {
@@ -13,7 +14,6 @@ import {
 } from '@workspace/database';
 import {
   CreateStripeSessionDto,
-  type PaymentPurpose,
   type ProviderPortalDto,
   type ProviderSubscriptionDto,
 } from '@workspace/types';
@@ -28,6 +28,9 @@ const SUBSCRIPTION_RETURN_PATH = '/payment/success';
 const SUBSCRIPTION_CANCEL_PATH = '/payment/fail';
 
 /** The subscription statuses that count as "this customer is currently subscribed". */
+/** The Stripe price a checkout bills, and its amount in EUR. */
+type StripeCharge = { amount: string; priceId: string };
+
 const LIVE_SUBSCRIPTION_STATUSES = [
   'active',
   'trialing',
@@ -48,6 +51,7 @@ export class StripeProvider {
     private readonly analyticsClient: AnalyticsClientService,
     @InjectRepository(SavedPaymentMethod)
     private readonly savedMethodRepository: Repository<SavedPaymentMethod>,
+    private readonly planService: PlanService,
   ) {
     this.stripe = stripeClientService.stripe;
   }
@@ -56,9 +60,9 @@ export class StripeProvider {
     await this.stripeWebhookService.handleWebhook(payload);
   }
 
-  async createPayment(dto: CreateStripeSessionDto, origin?: string) {
+  async createPayment(dto: CreateStripeSessionDto, origin?: string, charge?: StripeCharge) {
     const purchaseType = dto.purchaseType ?? 'subscription';
-    const priceId = this.getPriceId(purchaseType, dto.selectedPeriod);
+    const { priceId } = charge ?? (await this.resolveCharge(dto));
     const customerId = await this.resolveCustomerId(dto);
 
     const isFirstEverPayment = await this.isFirstEverPayment(dto.userId, customerId);
@@ -165,12 +169,13 @@ export class StripeProvider {
    * analytics — only how the payer is identified differs.
    */
   async openSession(dto: CreateStripeSessionDto, origin?: string): Promise<Session> {
-    const { userId, selectedPeriod } = dto;
+    const { userId } = dto;
     const purpose = dto.purchaseType ?? 'subscription';
 
-    const amount = this.resolveAmount(purpose, selectedPeriod);
+    const charge = await this.resolveCharge(dto);
+    const { amount } = charge;
 
-    const session = await this.createPayment(dto, origin);
+    const session = await this.createPayment(dto, origin, charge);
 
     // A subscriber sent to the Billing Portal has bought nothing: recording a
     // pending sale for it would leave a row no webhook ever settles, and would
@@ -197,14 +202,27 @@ export class StripeProvider {
     return session;
   }
 
-  resolveAmount(purpose: PaymentPurpose, selectedPeriod: number): string {
-    try {
-      return purpose === 'extra_device'
-        ? getExtraDevicePrice('EUR')
-        : getPriceForPeriod('EUR', selectedPeriod);
-    } catch (error) {
-      throw new BadRequestException((error as Error).message);
+  /**
+   * What a checkout bills: the Stripe price and its EUR amount. A subscription
+   * is priced from its plan, which must be on sale at Stripe; an extra device
+   * from its own configured price. No fallback to another price — a plan that
+   * can't be priced would otherwise be sold as the wrong one.
+   */
+  async resolveCharge(
+    dto: Pick<CreateStripeSessionDto, 'purchaseType' | 'planId'>,
+  ): Promise<StripeCharge> {
+    if (dto.purchaseType === 'extra_device') {
+      const priceId = process.env.STRIPE_EXTRA_DEVICE_PRICE_ID;
+      if (!priceId) throw new BadRequestException('Extra device price configuration missing');
+      try {
+        return { amount: getExtraDevicePrice('EUR'), priceId };
+      } catch (error) {
+        throw new BadRequestException((error as Error).message);
+      }
     }
+
+    const plan = await this.planService.getForCheckout(dto.planId ?? '', 'stripe');
+    return { amount: String(plan.basePrice), priceId: plan.providerPriceId ?? '' };
   }
 
   /**
@@ -394,27 +412,5 @@ export class StripeProvider {
       this.logger.error(`Error checking subscription for customer ${customerId}`, error);
       throw error;
     }
-  }
-
-  private getPriceId(
-    purchaseType: 'subscription' | 'extra_device' = 'subscription',
-    selectedPeriod?: number,
-  ): string {
-    if (purchaseType === 'extra_device') {
-      const priceId = process.env.STRIPE_EXTRA_DEVICE_PRICE_ID;
-      if (!priceId) {
-        throw new Error('Extra device price configuration missing');
-      }
-      return priceId;
-    }
-
-    const period = selectedPeriod ?? 30;
-    const priceId = process.env[`STRIPE_PRICE_ID_DAYS_${period}`];
-    if (!priceId) {
-      throw new Error(
-        `Subscription price configuration missing: STRIPE_PRICE_ID_DAYS_${period} is not set for a ${period} day plan`,
-      );
-    }
-    return priceId;
   }
 }

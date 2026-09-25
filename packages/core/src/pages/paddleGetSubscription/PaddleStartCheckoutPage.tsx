@@ -25,10 +25,10 @@ export default function PaddleStartCheckoutPage() {
   // (and with it the detected country) only after this callback is handed to it.
   const countryCodeRef = useRef<string | null>(null);
 
-  const startCheckout = async ({ email, selectedPeriod }: CheckoutRequest) => {
+  const startCheckout = async ({ email, planId, selectedPeriod }: CheckoutRequest) => {
     const { priceId, customData } = await paymentsApi.createPublicPaddleCheckout({
       email,
-      selectedPeriod,
+      planId,
       toltReferralId: window.tolt_referral ?? null,
       inviterId: getReferralUserId() ?? undefined,
     });

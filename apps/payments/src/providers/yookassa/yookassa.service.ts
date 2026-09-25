@@ -10,8 +10,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
+import { PlanService } from '@payments/catalog/plan.service';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
-import { getPriceForPeriod } from '@payments/utils/amount';
 import { PaymentsUtils } from '@payments/utils/utils';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import {
@@ -57,6 +57,7 @@ export class YookassaService {
     private readonly analyticsClient: AnalyticsClientService,
     private readonly toltService: ToltService,
     private readonly remnaUserResolver: RemnaUserResolverService,
+    private readonly planService: PlanService,
   ) {}
 
   // ── Query methods ────────────────────────────────────────────────────────
@@ -142,15 +143,16 @@ export class YookassaService {
       promoCode,
       userStatus,
       metadata,
+      planId,
       ...paymentFields
     } = dto;
 
-    const selectedPeriod = purpose === 'extra_device' ? 0 : dto.selectedPeriod;
-
-    const amountValue =
+    const plan =
       purpose === 'extra_device'
-        ? this.paymentsUtils.getExtraDevicePriceRUB()
-        : getPriceForPeriod('RUB', selectedPeriod);
+        ? null
+        : await this.planService.getForCheckout(planId ?? '', 'yookassa');
+    const selectedPeriod = plan?.billingPeriod ?? 0;
+    const amountValue = plan ? String(plan.basePrice) : this.paymentsUtils.getExtraDevicePriceRUB();
 
     // Validate any promo up front so the user gets immediate feedback. Only
     // subscription payments carry promos; the binding check is at fulfillment.
@@ -331,7 +333,7 @@ export class YookassaService {
     });
     const isFirstPayment = priorSucceeded === 0;
 
-    const isTrialPayment = record.selectedPeriod === 7;
+    const isTrialPayment = await this.planService.isTrial('yookassa', record.selectedPeriod);
 
     // Extend subscription BEFORE writing the idempotency stamp.
     // If this throws, paidAt remains null so YooKassa's next retry will re-enter

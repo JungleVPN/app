@@ -1,4 +1,5 @@
 import { openLink } from '@tma.js/sdk-react';
+import type { SubscriptionPlanDto } from '@workspace/types';
 import { useRemnawaveApi } from '../../../../api';
 import { coreEnv } from '../../../../env';
 import { useCreatePaymentSession, useDeleteSavedMethod, useNavigation } from '../../../../hooks';
@@ -11,7 +12,7 @@ import {
 } from '../../../../stores';
 import { phCapture, rememberPendingYookassaPayment } from '../../../../utils';
 
-export function useYookassaPayment(selectedPeriod: number) {
+export function useYookassaPayment(plan: SubscriptionPlanDto | undefined) {
   const { rmnUser, tgUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { setYookassaMethods } = useSavedMethodsStoreActions();
@@ -37,7 +38,7 @@ export function useYookassaPayment(selectedPeriod: number) {
   };
 
   const handleYookassaPayment = async (email?: string, promoCode?: string) => {
-    if (!rmnUser) return;
+    if (!rmnUser || !plan) return;
 
     let activeUser = rmnUser;
 
@@ -66,14 +67,14 @@ export function useYookassaPayment(selectedPeriod: number) {
         type: 'redirect',
       },
       email: activeUser.email,
-      selectedPeriod,
+      planId: plan.planId,
     });
 
     if (!session?.url) return;
 
     rememberPendingYookassaPayment(session.id);
 
-    phCapture('checkout_started', { payment_provider: 'yookassa', months: selectedPeriod });
+    phCapture('checkout_started', { payment_provider: 'yookassa', days: plan.days });
     if (isNativeApp) {
       openLink(session.url);
     } else {

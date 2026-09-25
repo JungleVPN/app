@@ -69,7 +69,7 @@ export const router = createMemoryRouter(
               Component: ProtectedPlansPage,
             },
             {
-              path: 'payments',
+              path: 'payments/:planId?',
               Component: ProtectedPaymentPage,
             },
             {

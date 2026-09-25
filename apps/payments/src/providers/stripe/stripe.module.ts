@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AnalyticsClientModule } from '@payments/analytics/analytics-client.module';
+import { PlanModule } from '@payments/catalog/plan.module';
 import { StripeController } from '@payments/providers/stripe/stripe.controller';
 import { StripeProvider } from '@payments/providers/stripe/stripe.provider';
 import { StripeClientService } from '@payments/providers/stripe/stripe-client.service';
@@ -28,6 +29,7 @@ import { ToltModule } from '../../tolt/tolt.module';
     PromoModule,
     AnalyticsClientModule,
     ToltModule,
+    PlanModule,
   ],
   controllers: [StripeController],
   exports: [StripeProvider, StripeWebhookService],

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from '@payments/admin/admin.module';
 import { AnalyticsClientModule } from '@payments/analytics/analytics-client.module';
+import { PlanModule } from '@payments/catalog/plan.module';
 import { EmailNotificationModule } from '@payments/notifications/email-notification.module';
 import { PaymentStatusService } from '@payments/payment-status/payment-status.service';
 import { PromoService } from '@payments/promo/promo.service';
@@ -18,6 +19,7 @@ import { AutopaymentService } from './autopayment.service';
     EmailNotificationModule,
     AdminModule,
     AnalyticsClientModule,
+    PlanModule,
   ],
   controllers: [AutopaymentController],
   exports: [AutopaymentService],

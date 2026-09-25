@@ -34,9 +34,7 @@ export default function PlansPage() {
     const plan = sortedPlans.find((p) => p.days === selectedPeriod) ?? sortedPlans[0];
     if (!plan) return;
     phCapture('plan_selected', { months: plan.days });
-    navigate(profilePaymentPath, {
-      state: { selectedPlan: { days: plan.days, pricing: plan.planPricing } },
-    });
+    navigate(`${profilePaymentPath}/${plan.planId}`);
   };
 
   if (hasActiveMethod || isLoading) return <Loading />;

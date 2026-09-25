@@ -2,9 +2,10 @@ import 'reflect-metadata';
 import * as process from 'node:process';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
+import { PlanService } from '@payments/catalog/plan.service';
 import { AutopaymentService } from '@payments/providers/yookassa/autopayment/autopayment.service';
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
-import type { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
+import type { Plan, PlanProvider, SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { RemnawebhookPayload, WebhookEventEnum } from '@workspace/types';
 import type { Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,7 +15,25 @@ vi.mock('@workspace/database', () => ({
   YookassaPayment: class {},
   Promo: class {},
   PromoRedemption: class {},
+  Plan: class {},
 }));
+
+const ruPlan = (overrides: Partial<Plan> = {}): Plan => ({
+  id: 'ru-30',
+  type: 'recurring',
+  billingPeriod: 30,
+  basePrice: 200,
+  provider: 'yookassa',
+  providerPriceId: null,
+  availableForPurchase: true,
+  customData: {},
+  ...overrides,
+});
+
+const planServiceWith = (rows: Plan[]) =>
+  new PlanService({
+    find: async () => rows,
+  } as never);
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -51,8 +70,6 @@ describe('AutopaymentService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    process.env.ALLOWED_PERIODS_IN_DAYS = '1';
-    process.env.PRICE_RUB_DAYS_30 = '200';
     process.env.BOT_URL = 'http://bot:7080';
     process.env.BOT_NOTIFY_SECRET = 'secret';
     process.env.PAYMENT_DESCRIPTION = 'Test payment';
@@ -93,6 +110,7 @@ describe('AutopaymentService', () => {
       yookassaProvider,
       eventEmitter,
       analyticsClient,
+      planServiceWith([ruPlan()]),
     );
 
     // Stub delay to make tests fast
@@ -100,8 +118,6 @@ describe('AutopaymentService', () => {
   });
 
   afterEach(() => {
-    delete process.env.ALLOWED_PERIODS_IN_DAYS;
-    delete process.env.PRICE_RUB_DAYS_30;
     delete process.env.BOT_URL;
     delete process.env.BOT_NOTIFY_SECRET;
     delete process.env.PAYMENT_DESCRIPTION;
@@ -516,8 +532,29 @@ describe('AutopaymentService', () => {
       });
     });
 
-    // An unpriceable period (a legacy row, or a plan withdrawn from sale) has
-    // no defensible charge, so no charge is made.
+    // A subscriber keeps renewing a period after it is taken off sale.
+    it('renews a period that is no longer on sale at its current price', async () => {
+      service = new AutopaymentService(
+        savedMethodRepo,
+        yookassaPaymentRepo,
+        yookassaProvider,
+        eventEmitter,
+        analyticsClient,
+        planServiceWith([ruPlan({ availableForPurchase: false, basePrice: 150 })]),
+      );
+      vi.spyOn(service as any, 'delay').mockResolvedValue(undefined);
+      mockSmFindOneBy.mockResolvedValue({ paymentMethodId: 'pm_1', isActive: true });
+      mockCreate.mockResolvedValue({ id: 'pay_1', status: 'succeeded' });
+
+      await service.init(makePayload(42));
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ amount: { value: '150', currency: 'RUB' } }),
+      );
+    });
+
+    // A period that was never priced (a legacy row) has no defensible charge,
+    // so no charge is made.
     it('gives up without charging when the renewed period has no configured price', async () => {
       mockYkFindOne.mockResolvedValue({ selectedPeriod: 0, amount: '100' });
 

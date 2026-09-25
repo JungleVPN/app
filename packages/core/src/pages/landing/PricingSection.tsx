@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { PaymentMethodIcons } from '../../components';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { useNavigation, usePlans } from '../../hooks';
+import { useAppRoutes } from '../../runtime';
 import { Grid, GridItem } from '../../ui';
 import { Heading } from '../../ui/Heading';
 import { Paragraph } from '../../ui/Paragraph';
 import { calculatePricing, cn, mapPlans } from '../../utils';
 import { formatPeriod } from '../../utils/planPricing';
-import { planSlug } from '../getSubscription/planSlug';
 
 const HIGHLIGHTED_PLAN_PERIOD = 365;
 const HIGHLIGHTED_DESKTOP_POSITION = 1;
@@ -48,17 +48,14 @@ function buildPlanOrders(plans: SubscriptionPlanDto[]): Map<number, PlanOrder> {
  * where the plans are the hero. On the landing page the section sits far below the fold,
  * so the animation would play unseen and the cards are rendered static instead.
  */
-export function PricingSection({
-  animateOnMount = false,
-}: {
-  animateOnMount?: boolean;
-} = {}) {
+export function PricingSection({ animateOnMount = false }: { animateOnMount?: boolean } = {}) {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const plans = usePlans();
   const formattedPlans = mapPlans(plans);
 
-  const handleCtaClick = (months: number) => navigate(`/payment/${planSlug(months)}`);
+  const { getSubscriptionPath } = useAppRoutes();
+  const handleCtaClick = (planId: string) => navigate(getSubscriptionPath(planId));
 
   const sharedProps = {
     interval: t('landing.pricing.interval'),
@@ -125,7 +122,7 @@ export function PricingSection({
                     }
                     highlighted={isHighlighted}
                     badge={badge}
-                    onCtaClick={() => handleCtaClick(plan.days)}
+                    onCtaClick={() => handleCtaClick(plan.planId)}
                   />
                 </motion.div>
               </GridItem>

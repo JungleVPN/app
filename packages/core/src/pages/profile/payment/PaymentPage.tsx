@@ -4,12 +4,12 @@ import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
 import type { PaymentMethod } from '@workspace/types';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router';
+import { useParams } from 'react-router';
 import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url';
 import { FeaturesCard, Loading } from '../../../components';
-import { useBackButton, useNavigation } from '../../../hooks';
+import { useBackButton, useNavigation, usePlans } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
-import { useNavbarStore, usePlatformStore } from '../../../stores';
+import { useNavbarStore, usePlanById, usePlansStatus, usePlatformStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
 import { GLOBAL_PAYMENT_PROVIDER, phCapture, userScope } from '../../../utils';
 import { PaymentForm } from './components/PaymentForm';
@@ -20,8 +20,16 @@ import { getButtonLabel, type SelectedPlan } from './utils/getButtonLabel';
 
 export default function PaymentPage() {
   const { t } = useTranslation();
-  const location = useLocation();
-  const selectedPlan = location.state?.selectedPlan as SelectedPlan | undefined;
+  const { planId } = useParams();
+  // The plan lives in the URL so a reload keeps it; the store is filled on
+  // demand when the page is opened directly.
+  usePlans();
+  const plansStatus = usePlansStatus();
+  const plan = usePlanById(planId);
+  const selectedPlan: SelectedPlan | undefined = plan
+    ? { days: plan.days, pricing: plan.planPricing }
+    : undefined;
+  const arePlansSettled = plansStatus === 'loaded' || plansStatus === 'error';
 
   const {
     needsEmailInput,
@@ -43,7 +51,7 @@ export default function PaymentPage() {
     isPaddlePaying,
     paddleError,
     validatePromo,
-  } = usePayment(selectedPlan?.days ?? 30);
+  } = usePayment(plan);
 
   useEffect(() => {
     phCapture('payments_viewed');
@@ -72,10 +80,10 @@ export default function PaymentPage() {
   }, [setNavbarVisible, successState.isOpen]);
 
   useEffect(() => {
-    if (!isLoading && !hasActiveMethod && !selectedPlan) {
+    if (!isLoading && arePlansSettled && !hasActiveMethod && !selectedPlan) {
       navigate(profilePlansPath);
     }
-  }, [isLoading, hasActiveMethod, selectedPlan, navigate, profilePlansPath]);
+  }, [isLoading, arePlansSettled, hasActiveMethod, selectedPlan, navigate, profilePlansPath]);
 
   const buttonLabel = selectedPlan ? getButtonLabel(selectedPlan, t) : '';
 
@@ -100,7 +108,7 @@ export default function PaymentPage() {
       title={t('payment.pageTitle')}
       subtitle={t('payment.pageSubtitle')}
     >
-      {isLoading ? (
+      {isLoading || (planId !== undefined && !arePlansSettled) ? (
         <Loading />
       ) : hasActiveMethod ? (
         <div className='flex flex-col gap-3'>

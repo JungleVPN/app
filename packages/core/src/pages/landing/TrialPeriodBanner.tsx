@@ -2,13 +2,13 @@ import { Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import InviteArtwork from '../../assets/icons/invite-icon.svg?react';
 import { useNavigation, usePlans } from '../../hooks';
+import { useAppRoutes } from '../../runtime';
 import { Heading, Paragraph } from '../../ui';
-import { planSlug } from '../getSubscription/planSlug';
 
 export function TrialPeriodBanner() {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const handleCtaClick = (days: number) => navigate(`/payment/${planSlug(days)}`);
+  const { getSubscriptionPath } = useAppRoutes();
 
   const plans = usePlans();
 
@@ -29,7 +29,7 @@ export function TrialPeriodBanner() {
           <Button
             size='lg'
             className='bg-white text-black font-semibold shadow-lg w-2/4'
-            onClick={() => handleCtaClick(plan.days)}
+            onClick={() => navigate(getSubscriptionPath(plan.planId))}
           >
             {t('common.cta')}
           </Button>

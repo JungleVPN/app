@@ -25,7 +25,6 @@ export function useExtraDevicePayment() {
       telegramId: tgUser?.id != null ? Number(tgUser.id) : null,
       purpose: 'extra_device',
       save_payment_method: false,
-      selectedPeriod: 1,
       confirmation: {
         return_url: isNativeApp
           ? coreEnv.tmaAppUrl

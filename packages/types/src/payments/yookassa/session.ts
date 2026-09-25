@@ -13,7 +13,7 @@ export interface PaymentSession {
  * Extends the native YooKassa request with our own fields stored server-side;
  * metadata is intentionally omitted — context is persisted in the DB record.
  * `amount` is optional because the server prices the payment from
- * `selectedPeriod` and ignores anything the caller sends.
+ * `planId` and ignores anything the caller sends.
  */
 export interface CreateYookassaSessionDto
   extends Omit<Payments.CreatePaymentRequest, 'capture' | 'amount'> {
@@ -31,8 +31,8 @@ export interface CreateYookassaSessionDto
   promoCode?: string | null;
   /** Subscription status from remnawave, when known — used to validate the promo. */
   userStatus?: string;
-  /** Subscription plan in days. Defaults to the first allowed period. */
-  selectedPeriod: number;
+  /** The `planId` from `/plans`. Required for a subscription; ignored for 'extra_device'. */
+  planId?: string;
 }
 
 /**
@@ -44,8 +44,8 @@ export interface CreateYookassaSessionDto
 export interface CreatePublicYookassaSessionDto {
   /** Payer's email. The account is found-or-created from it server-side. */
   email: string;
-  /** Subscription plan in months (1, 3, 6, 12). */
-  selectedPeriod: number;
+  /** The `planId` from `/plans`. */
+  planId: string;
   /** Where YooKassa returns the payer once they are done paying. */
   returnUrl: string;
   /** Tolt affiliate referral id (`window.tolt_referral`), when present. */

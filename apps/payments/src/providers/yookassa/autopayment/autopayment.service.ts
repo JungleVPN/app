@@ -3,8 +3,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
+import { PlanService } from '@payments/catalog/plan.service';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
-import { getPriceForPeriod } from '@payments/utils/amount';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { Payments, RemnawebhookPayload, UserDto, WebhookEventEnum } from '@workspace/types';
 import { Repository } from 'typeorm';
@@ -24,6 +24,7 @@ export class AutopaymentService {
     private readonly yookassaProvider: YooKassaProvider,
     private readonly eventEmitter: EventEmitter2,
     private readonly analyticsClient: AnalyticsClientService,
+    private readonly planService: PlanService,
   ) {}
 
   async init(payload: RemnawebhookPayload): Promise<void> {
@@ -186,7 +187,8 @@ export class AutopaymentService {
    *
    * The period comes from the last *settled subscription* payment: a device-slot
    * purchase or an abandoned checkout says nothing about the customer's plan.
-   * The price comes from configuration, never from the previous row — copying
+   * The price comes from the `subscription_plans` table — even for a period since taken off
+   * sale — never from the previous row: copying
    * the old amount forward would renew a since-changed price (or a one-off
    * device charge) for the life of the subscription.
    */
@@ -203,7 +205,8 @@ export class AutopaymentService {
     }
 
     const { selectedPeriod } = previousPayment;
-    return { selectedPeriod, amount: getPriceForPeriod('RUB', selectedPeriod) };
+    const plan = await this.planService.findForRenewal('yookassa', selectedPeriod);
+    return { selectedPeriod, amount: String(plan.basePrice) };
   }
 
   private async executeAutopayment(
