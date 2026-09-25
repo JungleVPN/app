@@ -241,6 +241,13 @@ describe('UserNotConnectedListener', () => {
       expect(await emailHtmlFor('global', 'pt')).toContain('lang="pt"');
     });
 
+    // Telegram reports regional tags such as `pt-br`, and that raw value is what lands in `lang`.
+    it('picks the email language from the base of a regional user lang', async () => {
+      expect(await emailHtmlFor('global', 'pt-br')).toContain('lang="pt"');
+      expect(await emailHtmlFor('global', 'pt-BR')).toContain('lang="pt"');
+      expect(await emailHtmlFor('global', 'en-US')).toContain('lang="en"');
+    });
+
     // The panel ships `user.not_connected` with activeInternalSquads always empty
     // for performance, so nothing about the storefront can be read off the payload:
     // the scope is asked for by user id.

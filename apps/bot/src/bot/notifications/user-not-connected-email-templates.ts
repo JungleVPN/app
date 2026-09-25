@@ -24,6 +24,12 @@ export function isSupportedNotConnectedLocale(locale: string): locale is NotConn
   );
 }
 
+/** Reduces a stored `lang` such as Telegram's `pt-br` to the email language it names. */
+export function toNotConnectedEmailLocale(lang: string): NotConnectedEmailLocale | undefined {
+  const base = lang.split(/[-_]/)[0].toLowerCase();
+  return isSupportedNotConnectedLocale(base) ? base : undefined;
+}
+
 interface NotConnectedEmailCopy {
   subject: string;
   kicker: string;

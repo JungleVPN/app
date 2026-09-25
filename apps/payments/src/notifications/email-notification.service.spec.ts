@@ -357,6 +357,11 @@ describe('EmailNotificationService', () => {
       expect(indonesian).toContain('Pembayaran diterima');
       expect(hindi).toContain('भुगतान मिल गया');
       expect(portuguese).toContain('Pagamento recebido');
+
+      // Telegram reports regional tags such as `pt-br`, and that raw value is what lands in `lang`.
+      expect(await subjectsFor('pt-br')).toBe(portuguese);
+      expect(await subjectsFor('PT-BR')).toBe(portuguese);
+      expect(await subjectsFor('en-US')).toBe(english);
     });
 
     it('logs and swallows a send failure without throwing', async () => {

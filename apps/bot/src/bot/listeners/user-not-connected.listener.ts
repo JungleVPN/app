@@ -5,9 +5,9 @@ import { LocalisationService } from '@bot/localisation/localisation.service';
 import {
   buildNotConnectedEmailHtml,
   buildNotConnectedEmailSubject,
-  isSupportedNotConnectedLocale,
   NotConnectedEmailLocale,
   NotConnectedEmailStage,
+  toNotConnectedEmailLocale,
 } from '@bot/notifications/user-not-connected-email-templates';
 import { ZohoEmailService } from '@bot/notifications/zoho-email.service';
 import { safeSendMessage } from '@bot/utils/utils';
@@ -133,9 +133,8 @@ export class UserNotConnectedListener {
       return;
     }
 
-    const emailLocale: NotConnectedEmailLocale = isSupportedNotConnectedLocale(locale)
-      ? locale
-      : DEFAULT_EMAIL_LOCALE;
+    const emailLocale: NotConnectedEmailLocale =
+      toNotConnectedEmailLocale(locale) ?? DEFAULT_EMAIL_LOCALE;
     const subject = buildNotConnectedEmailSubject(emailLocale, stage);
     const html = buildNotConnectedEmailHtml({
       locale: emailLocale,

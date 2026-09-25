@@ -18,8 +18,8 @@ import {
   buildPaymentSuccessEmailHtml,
   buildPaymentSuccessSubject,
   ExpiryEmailLocale,
-  isSupportedEmailLocale,
   PaymentIssueReason,
+  toEmailLocale,
 } from './email-templates';
 
 type SupportedLocale = ExpiryEmailLocale;
@@ -370,7 +370,8 @@ export class EmailNotificationService {
 
       const metadata = (data as any)?.metadata ?? data;
       const lang = (metadata as any)?.lang;
-      if (typeof lang === 'string' && isSupportedEmailLocale(lang)) return lang;
+      const locale = typeof lang === 'string' ? toEmailLocale(lang) : undefined;
+      if (locale) return locale;
     } catch {
       // fall through to default
     }

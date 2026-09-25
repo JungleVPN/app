@@ -15,6 +15,12 @@ export function isSupportedEmailLocale(locale: string): locale is EmailLocale {
   );
 }
 
+/** Reduces a stored `lang` such as Telegram's `pt-br` to the email language it names. */
+export function toEmailLocale(lang: string): EmailLocale | undefined {
+  const base = lang.split(/[-_]/)[0].toLowerCase();
+  return isSupportedEmailLocale(base) ? base : undefined;
+}
+
 // ── Shared shell ──────────────────────────────────────────────────────────────
 
 interface EmailShellParams {
