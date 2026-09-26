@@ -17,6 +17,7 @@ import { TelegramStarsPayment } from './entities/telegram-stars-payment.entity';
 import { ToltReferral } from './entities/tolt-referral.entity';
 import { ToltTransaction } from './entities/tolt-transaction.entity';
 import { UserAttribution } from './entities/user-attribution.entity';
+import { WhopPayment } from './entities/whop-payment.entity';
 import { YookassaPayment } from './entities/yookassa-payment.entity';
 
 config({ path: path.resolve(process.cwd(), '.env.development') });
@@ -44,6 +45,7 @@ export const dataSourceOptions: DataSourceOptions = {
     SavedPaymentMethod,
     StripePayment,
     PaddlePayment,
+    WhopPayment,
     Plan,
     TelegramStarsPayment,
     YookassaPayment,
