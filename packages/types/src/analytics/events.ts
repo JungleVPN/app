@@ -60,7 +60,7 @@ export type PaymentRefundedEvent = {
 export type PaymentFailedEvent = {
   event: 'payment_failed';
   userId: RemnaUserId;
-  provider: 'yookassa' | 'stripe' | 'paddle';
+  provider: 'yookassa' | 'stripe' | 'paddle' | 'whop';
   paymentId: string;
   reason: string;
 };
@@ -68,7 +68,7 @@ export type PaymentFailedEvent = {
 export type PaymentMethodSavedEvent = {
   event: 'payment_method_saved';
   userId: RemnaUserId;
-  provider: 'yookassa' | 'stripe' | 'paddle';
+  provider: 'yookassa' | 'stripe' | 'paddle' | 'whop';
   paymentId: string;
   methodType: string;
 };

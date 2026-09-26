@@ -180,4 +180,35 @@ describe('PlanService', () => {
       await expect(service.findByAmount('stripe', 6)).rejects.toThrow(/ambiguous/i);
     });
   });
+
+  describe('findByProviderPriceId', () => {
+    const whop = (overrides: Partial<Plan> = {}) =>
+      plan({ provider: 'whop', providerPriceId: 'plan_30', ...overrides });
+
+    it("returns the provider's plan billed under that catalog id", async () => {
+      const onSale = whop({ id: 'whop-30' });
+      const service = serviceWith([onSale, whop({ id: 'whop-90', providerPriceId: 'plan_90' })]);
+
+      await expect(service.findByProviderPriceId('whop', 'plan_30')).resolves.toBe(onSale);
+    });
+
+    it('still resolves a plan taken off sale, so existing subscribers keep renewing', async () => {
+      const retired = whop({ id: 'whop-retired', availableForPurchase: false });
+      const service = serviceWith([retired]);
+
+      await expect(service.findByProviderPriceId('whop', 'plan_30')).resolves.toBe(retired);
+    });
+
+    it("ignores another provider's plan carrying the same id", async () => {
+      const service = serviceWith([whop({ provider: 'paddle' })]);
+
+      await expect(service.findByProviderPriceId('whop', 'plan_30')).resolves.toBeUndefined();
+    });
+
+    it('returns undefined for an id no plan is billed under', async () => {
+      const service = serviceWith([whop()]);
+
+      await expect(service.findByProviderPriceId('whop', 'plan_unknown')).resolves.toBeUndefined();
+    });
+  });
 });

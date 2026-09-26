@@ -1,7 +1,8 @@
 import 'reflect-metadata';
+import { createHmac } from 'node:crypto';
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import { ACTIVE_SUBSCRIPTION_CODE, type CreatePublicWhopCheckoutDto } from '@workspace/types';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WhopController } from './whop.controller';
 
 describe('WhopController.createPublicCheckout', () => {
@@ -106,5 +107,91 @@ describe('WhopController.createPublicCheckout', () => {
       code: ACTIVE_SUBSCRIPTION_CODE,
     });
     expect(whopProvider.createCheckout).not.toHaveBeenCalled();
+  });
+});
+
+describe('WhopController.webhook', () => {
+  const SECRET = 'ws_test_secret';
+  const BODY = JSON.stringify({ type: 'payment.succeeded', data: { id: 'pay_1' } });
+
+  /** Signs `body` the way Whop does: Standard Webhooks, HMAC-SHA256 keyed by the raw secret. */
+  const signedHeaders = (body: string, secret = SECRET) => {
+    const id = 'msg_1';
+    const timestamp = String(Math.floor(Date.now() / 1000));
+    const signature = createHmac('sha256', Buffer.from(secret, 'utf8'))
+      .update(`${id}.${timestamp}.${body}`)
+      .digest('base64');
+    return {
+      'webhook-id': id,
+      'webhook-timestamp': timestamp,
+      'webhook-signature': `v1,${signature}`,
+    };
+  };
+
+  const reqWith = (rawBody?: string) =>
+    ({ rawBody: rawBody === undefined ? undefined : Buffer.from(rawBody) }) as never;
+
+  const controllerWith = (
+    handleWebhook: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(undefined),
+  ) => {
+    const whopProvider = { handleWebhook };
+    return { controller: new WhopController(whopProvider as never), whopProvider };
+  };
+
+  let originalSecret: string | undefined;
+  beforeEach(() => {
+    originalSecret = process.env.WHOP_WEBHOOK_SECRET;
+    process.env.WHOP_WEBHOOK_SECRET = SECRET;
+  });
+  afterEach(() => {
+    if (originalSecret === undefined) delete process.env.WHOP_WEBHOOK_SECRET;
+    else process.env.WHOP_WEBHOOK_SECRET = originalSecret;
+  });
+
+  it('hands a correctly signed event to the provider and acknowledges it', async () => {
+    const { controller, whopProvider } = controllerWith();
+
+    const result = await controller.webhook(reqWith(BODY), signedHeaders(BODY));
+
+    expect(result).toEqual({ received: true });
+    expect(whopProvider.handleWebhook).toHaveBeenCalledWith(JSON.parse(BODY));
+  });
+
+  it('rejects a request with no raw body, since the signature cannot be verified without it', async () => {
+    const { controller, whopProvider } = controllerWith();
+
+    await expect(controller.webhook(reqWith(undefined), signedHeaders(BODY))).rejects.toThrow(
+      BadRequestException,
+    );
+    expect(whopProvider.handleWebhook).not.toHaveBeenCalled();
+  });
+
+  it('rejects when WHOP_WEBHOOK_SECRET is not configured, rather than skip verification', async () => {
+    delete process.env.WHOP_WEBHOOK_SECRET;
+    const { controller, whopProvider } = controllerWith();
+
+    await expect(controller.webhook(reqWith(BODY), signedHeaders(BODY))).rejects.toThrow(
+      BadRequestException,
+    );
+    expect(whopProvider.handleWebhook).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['signed with another secret', (body: string) => signedHeaders(body, 'ws_attacker')],
+    ['signed over a different body', () => signedHeaders('{"type":"payment.succeeded"}')],
+    ['unsigned', () => ({})],
+  ])('rejects a payload %s without processing it', async (_case, headersFor) => {
+    const { controller, whopProvider } = controllerWith();
+
+    await expect(controller.webhook(reqWith(BODY), headersFor(BODY))).rejects.toThrow(
+      BadRequestException,
+    );
+    expect(whopProvider.handleWebhook).not.toHaveBeenCalled();
+  });
+
+  it('lets a processing failure propagate as a 5xx, so Whop retries the delivery', async () => {
+    const { controller } = controllerWith(vi.fn().mockRejectedValue(new Error('boom')));
+
+    await expect(controller.webhook(reqWith(BODY), signedHeaders(BODY))).rejects.toThrow('boom');
   });
 });

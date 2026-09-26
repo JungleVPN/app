@@ -2,13 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { PlanService } from '@payments/catalog/plan.service';
 import type { WhopCheckoutPayload } from '@workspace/types';
 import { WhopClientService } from './whop-client.service';
+import { WhopWebhookService } from './whop-webhook.service';
 
 @Injectable()
 export class WhopProvider {
   constructor(
     private readonly whopClientService: WhopClientService,
+    private readonly whopWebhookService: WhopWebhookService,
     private readonly planService: PlanService,
   ) {}
+
+  /** Takes the signature-verified webhook body; the webhook service validates its shape. */
+  async handleWebhook(event: unknown): Promise<void> {
+    await this.whopWebhookService.handleWebhook(event);
+  }
 
   async hasActiveSubscription(email: string): Promise<boolean> {
     return this.whopClientService.hasActiveSubscription(email);

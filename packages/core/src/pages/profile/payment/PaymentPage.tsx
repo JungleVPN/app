@@ -92,6 +92,8 @@ export default function PaymentPage() {
     stripe: isStripePaying,
     stars: isStarsPaying,
     paddle: isPaddlePaying,
+    // Not selectable until the Whop profile flow lands.
+    whop: false,
   };
   const isPending = isPendingByMethod[selectedMethod];
 

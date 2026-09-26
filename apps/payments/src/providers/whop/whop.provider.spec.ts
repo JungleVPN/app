@@ -29,11 +29,13 @@ const providerWith = () => {
     hasActiveSubscription: vi.fn().mockResolvedValue(false),
     createCheckoutConfiguration: vi.fn().mockResolvedValue('ch_1'),
   };
+  const whopWebhookService = { handleWebhook: vi.fn().mockResolvedValue(undefined) };
   const provider = new WhopProvider(
     whopClientService as never,
+    whopWebhookService as never,
     new PlanService({ find: async () => CATALOG } as never),
   );
-  return { provider, whopClientService };
+  return { provider, whopClientService, whopWebhookService };
 };
 
 describe('WhopProvider', () => {
@@ -120,6 +122,17 @@ describe('WhopProvider', () => {
 
       await expect(provider.hasActiveSubscription('payer@test.com')).resolves.toBe(true);
       expect(whopClientService.hasActiveSubscription).toHaveBeenCalledWith('payer@test.com');
+    });
+  });
+
+  describe('handleWebhook', () => {
+    it('delegates to the webhook service', async () => {
+      const { provider, whopWebhookService } = providerWith();
+      const event = { type: 'payment.succeeded', data: {} };
+
+      await provider.handleWebhook(event);
+
+      expect(whopWebhookService.handleWebhook).toHaveBeenCalledWith(event);
     });
   });
 });

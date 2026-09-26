@@ -87,6 +87,17 @@ export class PlanService {
     return matches[0];
   }
 
+  /**
+   * The plan billed under a provider's catalog id, on sale or not — how a
+   * webhook that only carries that id learns which period was paid for.
+   */
+  async findByProviderPriceId(
+    provider: PlanProvider,
+    providerPriceId: string,
+  ): Promise<Plan | undefined> {
+    return (await this.plansOf(provider)).find((row) => row.providerPriceId === providerPriceId);
+  }
+
   /** The plan for a period, preferring the one on sale over a retired one. */
   private async planForPeriod(provider: PlanProvider, days: number): Promise<Plan | undefined> {
     const rows = (await this.plansOf(provider)).filter((row) => row.billingPeriod === days);
