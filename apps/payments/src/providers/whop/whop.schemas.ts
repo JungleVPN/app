@@ -41,6 +41,19 @@ export const WhopMembershipSchema = z.object({
   status: z.string(),
 });
 
+export const WhopRefundSchema = z.object({
+  id: z.string(),
+  /** Major units of `currency`. */
+  amount: z.number(),
+  /** Lowercase ISO code, e.g. `eur`. */
+  currency: z.string(),
+  /** `pending`, `requires_action`, `succeeded`, `failed` or `canceled`. */
+  status: z.string(),
+  /** The payment refunded; null once Whop no longer has it. */
+  payment: z.object({ id: z.string() }).nullable(),
+});
+
 export type WhopWebhookEnvelope = z.infer<typeof WhopWebhookEnvelopeSchema>;
 export type WhopPaymentData = z.infer<typeof WhopPaymentSchema>;
 export type WhopMembershipData = z.infer<typeof WhopMembershipSchema>;
+export type WhopRefundData = z.infer<typeof WhopRefundSchema>;

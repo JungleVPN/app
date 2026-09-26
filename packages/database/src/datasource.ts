@@ -18,6 +18,7 @@ import { ToltReferral } from './entities/tolt-referral.entity';
 import { ToltTransaction } from './entities/tolt-transaction.entity';
 import { UserAttribution } from './entities/user-attribution.entity';
 import { WhopPayment } from './entities/whop-payment.entity';
+import { WhopRefund } from './entities/whop-refund.entity';
 import { YookassaPayment } from './entities/yookassa-payment.entity';
 
 config({ path: path.resolve(process.cwd(), '.env.development') });
@@ -46,6 +47,7 @@ export const dataSourceOptions: DataSourceOptions = {
     StripePayment,
     PaddlePayment,
     WhopPayment,
+    WhopRefund,
     Plan,
     TelegramStarsPayment,
     YookassaPayment,

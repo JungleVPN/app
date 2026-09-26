@@ -15,4 +15,5 @@ export * from './entities/tolt-referral.entity';
 export * from './entities/tolt-transaction.entity';
 export * from './entities/user-attribution.entity';
 export * from './entities/whop-payment.entity';
+export * from './entities/whop-refund.entity';
 export * from './entities/yookassa-payment.entity';

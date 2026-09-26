@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { PlanService } from '@payments/catalog/plan.service';
 import { isReportableCurrency } from '@payments/providers/paddle/paddle.utils';
-import { SavedPaymentMethod, WhopPayment } from '@workspace/database';
+import { SavedPaymentMethod, WhopPayment, WhopRefund } from '@workspace/database';
 import { Payments, WebhookEventEnum } from '@workspace/types';
 import { In, Not, Repository } from 'typeorm';
 import { RemnaUserResolverService } from '../../auth/remna-user-resolver.service';
@@ -15,6 +15,8 @@ import {
   WhopMembershipSchema,
   type WhopPaymentData,
   WhopPaymentSchema,
+  type WhopRefundData,
+  WhopRefundSchema,
   WhopWebhookEnvelopeSchema,
 } from './whop.schemas';
 
@@ -99,6 +101,8 @@ export class WhopWebhookService {
     private readonly toltService: ToltService,
     private readonly remnaUserResolver: RemnaUserResolverService,
     private readonly planService: PlanService,
+    @InjectRepository(WhopRefund)
+    private readonly whopRefundRepo: Repository<WhopRefund>,
   ) {}
 
   /** Takes the signature-verified, but otherwise untrusted, webhook body. */
@@ -111,6 +115,10 @@ export class WhopWebhookService {
         break;
       case 'payment.failed':
         await this.handlePaymentFailed(WhopPaymentSchema.parse(event.data));
+        break;
+      case 'refund.created':
+      case 'refund.updated':
+        await this.handleRefund(WhopRefundSchema.parse(event.data));
         break;
       case 'membership.deactivated':
         await this.handleMembershipDeactivated(WhopMembershipSchema.parse(event.data));
@@ -319,6 +327,68 @@ export class WhopWebhookService {
         `Failed to delete saved Whop method for membership ${membership.id}`,
         error,
       );
+    }
+  }
+
+  // ── refund.created / refund.updated ──────────────────────────────────────
+  /**
+   * Reports a refund once it has actually gone through. Whop may create it
+   * `pending` and settle it on a later `refund.updated`, and announces it on
+   * both events, so the `whop_refunds` insert makes each one count once.
+   */
+  private async handleRefund(refund: WhopRefundData): Promise<void> {
+    if (refund.status !== 'succeeded') return;
+
+    const paymentId = refund.payment?.id;
+    const record = paymentId ? await this.whopPaymentRepo.findOneBy({ id: paymentId }) : null;
+    if (!paymentId || !record) {
+      this.logger.warn(
+        `Whop refund ${refund.id} (payment ${paymentId ?? 'unknown'}) has no local payment — cannot attribute`,
+      );
+      return;
+    }
+
+    const currency = refund.currency.toUpperCase();
+    if (!(await this.claimRefund({ id: refund.id, paymentId, amount: refund.amount, currency }))) {
+      this.logger.log(`Whop refund ${refund.id} already reported — ignoring`);
+      return;
+    }
+
+    const isPartial = record.amount != null && refund.amount > 0 && refund.amount < record.amount;
+
+    this.logger.log(
+      `Whop payment ${paymentId} refunded ${refund.amount} of ${record.amount} — refund ${refund.id}`,
+    );
+
+    if (record.userId != null) {
+      await this.analyticsClient.track({
+        event: 'payment_refunded',
+        userId: record.userId,
+        provider: 'whop',
+        isPartial,
+        amount: String(refund.amount),
+        currency,
+      });
+    } else {
+      this.logger.warn(`Refunded Whop payment ${paymentId}: no userId to attribute it to`);
+    }
+
+    await this.toltService.reportRefund({ chargeId: paymentId, isPartial });
+  }
+
+  /** Records a refund as reported; false when an earlier delivery already did. */
+  private async claimRefund(refund: {
+    id: string;
+    paymentId: string;
+    amount: number;
+    currency: string;
+  }): Promise<boolean> {
+    try {
+      await this.whopRefundRepo.insert(refund);
+      return true;
+    } catch (error) {
+      if (isUniqueViolation(error)) return false;
+      throw error;
     }
   }
 

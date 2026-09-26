@@ -8,6 +8,7 @@ import { UnfulfilledPaymentError, WhopWebhookService } from './whop-webhook.serv
 
 vi.mock('@workspace/database', () => ({
   WhopPayment: class {},
+  WhopRefund: class {},
   PaddlePayment: class {},
   StripePayment: class {},
   YookassaPayment: class {},
@@ -64,6 +65,21 @@ const paymentFailed = (overrides: Record<string, unknown> = {}) => ({
   data: paymentData({ billing_reason: 'subscription_cycle', ...overrides }),
 });
 
+const refundEvent = (
+  type: 'refund.created' | 'refund.updated',
+  overrides: Record<string, unknown> = {},
+) => ({
+  type,
+  data: {
+    id: 'rf_1',
+    amount: 6,
+    currency: 'eur',
+    status: 'succeeded',
+    payment: { id: 'pay_1' },
+    ...overrides,
+  },
+});
+
 const membershipDeactivated = (status: string) => ({
   type: 'membership.deactivated',
   data: { id: 'mem_1', status },
@@ -84,12 +100,16 @@ const setup = (options: { catalog?: Plan[] } = {}) => {
     save: vi.fn(async (row: unknown) => row),
     create: vi.fn((row: unknown) => row),
   };
+  const refundRepo = { insert: vi.fn().mockResolvedValue({}) };
   const paymentStatusService = {
     handleUserUpdates: vi.fn().mockResolvedValue({ success: true }),
   };
   const eventEmitter = { emit: vi.fn() };
   const analyticsClient = { track: vi.fn().mockResolvedValue(undefined) };
-  const toltService = { reportConversion: vi.fn().mockResolvedValue(undefined) };
+  const toltService = {
+    reportConversion: vi.fn().mockResolvedValue(undefined),
+    reportRefund: vi.fn().mockResolvedValue(undefined),
+  };
   const remnaUserResolver = {
     resolveOrCreate: vi.fn().mockResolvedValue(NEW_ACCOUNT_ID),
     findByEmail: vi.fn().mockResolvedValue(EXISTING_ACCOUNT_ID),
@@ -107,12 +127,14 @@ const setup = (options: { catalog?: Plan[] } = {}) => {
     toltService as never,
     remnaUserResolver as never,
     planService,
+    refundRepo as never,
   );
 
   return {
     service,
     paymentRepo,
     savedMethodRepo,
+    refundRepo,
     paymentStatusService,
     eventEmitter,
     analyticsClient,
@@ -451,6 +473,120 @@ describe('WhopWebhookService', () => {
       await expect(
         service.handleWebhook(membershipDeactivated('canceled')),
       ).resolves.toBeUndefined();
+    });
+  });
+
+  describe('refunds', () => {
+    const paidRecord = (overrides: Record<string, unknown> = {}) => ({
+      id: 'pay_1',
+      userId: EXISTING_ACCOUNT_ID,
+      amount: 6,
+      ...overrides,
+    });
+
+    it.each([
+      ['refund.created'],
+      ['refund.updated'],
+    ] as const)('reports a succeeded refund announced by %s', async (type) => {
+      const { service, paymentRepo, refundRepo, analyticsClient, toltService } = setup();
+      paymentRepo.findOneBy.mockResolvedValue(paidRecord());
+
+      await service.handleWebhook(refundEvent(type));
+
+      expect(refundRepo.insert).toHaveBeenCalledWith({
+        id: 'rf_1',
+        paymentId: 'pay_1',
+        amount: 6,
+        currency: 'EUR',
+      });
+      expect(analyticsClient.track).toHaveBeenCalledWith({
+        event: 'payment_refunded',
+        userId: EXISTING_ACCOUNT_ID,
+        provider: 'whop',
+        isPartial: false,
+        amount: '6',
+        currency: 'EUR',
+      });
+      expect(toltService.reportRefund).toHaveBeenCalledWith({
+        chargeId: 'pay_1',
+        isPartial: false,
+      });
+    });
+
+    it('flags a refund of less than was paid as partial', async () => {
+      const { service, paymentRepo, analyticsClient, toltService } = setup();
+      paymentRepo.findOneBy.mockResolvedValue(paidRecord({ amount: 6 }));
+
+      await service.handleWebhook(refundEvent('refund.created', { amount: 2 }));
+
+      expect(analyticsClient.track).toHaveBeenCalledWith(
+        expect.objectContaining({ isPartial: true, amount: '2' }),
+      );
+      expect(toltService.reportRefund).toHaveBeenCalledWith({
+        chargeId: 'pay_1',
+        isPartial: true,
+      });
+    });
+
+    it.each([
+      ['pending'],
+      ['requires_action'],
+      ['failed'],
+      ['canceled'],
+    ])('waits while the refund is %s', async (status) => {
+      const { service, paymentRepo, refundRepo, toltService } = setup();
+      paymentRepo.findOneBy.mockResolvedValue(paidRecord());
+
+      await service.handleWebhook(refundEvent('refund.created', { status }));
+
+      expect(refundRepo.insert).not.toHaveBeenCalled();
+      expect(toltService.reportRefund).not.toHaveBeenCalled();
+    });
+
+    it('reports a refund only once, however many times Whop announces it', async () => {
+      const { service, paymentRepo, refundRepo, analyticsClient, toltService } = setup();
+      paymentRepo.findOneBy.mockResolvedValue(paidRecord());
+      refundRepo.insert.mockRejectedValue(uniqueViolationError());
+
+      await service.handleWebhook(refundEvent('refund.updated'));
+
+      expect(analyticsClient.track).not.toHaveBeenCalled();
+      expect(toltService.reportRefund).not.toHaveBeenCalled();
+    });
+
+    it('surfaces a storage failure rather than treat it as already reported', async () => {
+      const { service, paymentRepo, refundRepo, toltService } = setup();
+      paymentRepo.findOneBy.mockResolvedValue(paidRecord());
+      refundRepo.insert.mockRejectedValue(new Error('db down'));
+
+      await expect(service.handleWebhook(refundEvent('refund.created'))).rejects.toThrow('db down');
+      expect(toltService.reportRefund).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['a payment we never recorded', null, { id: 'pay_1' }],
+      ['a refund Whop no longer links to a payment', paidRecord(), null],
+    ])('cannot attribute %s, and reports nothing', async (_case, record, payment) => {
+      const { service, paymentRepo, refundRepo, toltService } = setup();
+      paymentRepo.findOneBy.mockResolvedValue(record);
+
+      await service.handleWebhook(refundEvent('refund.created', { payment }));
+
+      expect(refundRepo.insert).not.toHaveBeenCalled();
+      expect(toltService.reportRefund).not.toHaveBeenCalled();
+    });
+
+    it('still reverses the affiliate commission when the payment has no account', async () => {
+      const { service, paymentRepo, analyticsClient, toltService } = setup();
+      paymentRepo.findOneBy.mockResolvedValue(paidRecord({ userId: null }));
+
+      await service.handleWebhook(refundEvent('refund.created'));
+
+      expect(analyticsClient.track).not.toHaveBeenCalled();
+      expect(toltService.reportRefund).toHaveBeenCalledWith({
+        chargeId: 'pay_1',
+        isPartial: false,
+      });
     });
   });
 
