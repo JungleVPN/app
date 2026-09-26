@@ -179,6 +179,60 @@ describe('WebhookService', () => {
     });
   });
 
+  describe('forwardWhopWebhook', () => {
+    it('forwards the raw body and all three Standard Webhooks signature headers', async () => {
+      const rawBody = Buffer.from('{"type":"payment.succeeded"}');
+      await service.forwardWhopWebhook(rawBody, {
+        id: 'msg_1',
+        timestamp: '1790000000',
+        signature: 'v1,abc',
+      });
+
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        expect.stringContaining('/whop/webhook'),
+        rawBody,
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'content-type': 'application/json',
+            'webhook-id': 'msg_1',
+            'webhook-timestamp': '1790000000',
+            'webhook-signature': 'v1,abc',
+          }),
+        }),
+      );
+    });
+
+    it('authenticates to the payments service with the inter-service secret', async () => {
+      process.env.INTER_SERVICE_SECRET = 'inter_secret';
+
+      await service.forwardWhopWebhook(Buffer.from('{}'), {
+        id: 'msg_1',
+        timestamp: '1790000000',
+        signature: 'v1,abc',
+      });
+
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Buffer),
+        expect.objectContaining({
+          headers: expect.objectContaining({ 'x-service-secret': 'inter_secret' }),
+        }),
+      );
+    });
+
+    it('rethrows a failed forward, so Whop sees a non-2xx and redelivers', async () => {
+      mockAxiosPost.mockRejectedValueOnce(new Error('payments down'));
+
+      await expect(
+        service.forwardWhopWebhook(Buffer.from('{}'), {
+          id: 'msg_1',
+          timestamp: '1790000000',
+          signature: 'v1,abc',
+        }),
+      ).rejects.toThrow('payments down');
+    });
+  });
+
   describe('forwardYookassaWebhook', () => {
     it('forwards payload and IP to payments service', async () => {
       const payload = { type: 'notification', event: 'payment.succeeded', object: {} } as any;

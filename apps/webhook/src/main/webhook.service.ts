@@ -134,6 +134,33 @@ export class WebhookService {
     }
   }
 
+  /**
+   * Whop signs with Standard Webhooks: the signature covers the id and
+   * timestamp headers too, so all three must reach the payments service
+   * unchanged for its verification to pass.
+   */
+  async forwardWhopWebhook(
+    rawBody: Buffer,
+    signature: { id: string; timestamp: string; signature: string },
+  ): Promise<void> {
+    try {
+      await axios.post(`${this.paymentsBaseUrl}${apiRoutes.payments.whopWebhook}`, rawBody, {
+        headers: {
+          'content-type': 'application/json',
+          'webhook-id': signature.id,
+          'webhook-timestamp': signature.timestamp,
+          'webhook-signature': signature.signature,
+          'x-service-secret': process.env.INTER_SERVICE_SECRET,
+        },
+        // Send raw buffer, don't let axios transform it
+        transformRequest: [(data: Buffer) => data],
+      });
+    } catch (error) {
+      this.logger.error('Failed to forward Whop webhook to payments service');
+      throw error;
+    }
+  }
+
   async forwardYookassaWebhook(payload: PaymentWebhookNotification, ip: string): Promise<void> {
     await axios.post(`${this.paymentsBaseUrl}${apiRoutes.payments.yookassaWebhook}`, payload, {
       headers: {

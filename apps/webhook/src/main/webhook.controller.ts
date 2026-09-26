@@ -71,4 +71,21 @@ export class WebhookController {
     await this.webhookService.forwardPaddleWebhook(rawBody, signature);
     return { received: true };
   }
+
+  @Post('payment/whop')
+  @HttpCode(200)
+  async handleWhopEvents(
+    @Headers('webhook-id') id: string,
+    @Headers('webhook-timestamp') timestamp: string,
+    @Headers('webhook-signature') signature: string,
+    @Req() req: RawBodyRequest<Record<string, unknown>>,
+  ) {
+    const rawBody = req.rawBody;
+    if (!rawBody) {
+      return { received: false, error: 'Missing raw body' };
+    }
+
+    await this.webhookService.forwardWhopWebhook(rawBody, { id, timestamp, signature });
+    return { received: true };
+  }
 }
