@@ -24,6 +24,9 @@ vi.mock('@workspace/database', () => ({
 /** The account the webhook creates for a payer who had none. */
 const NEW_ACCOUNT_ID = 9001;
 
+/** The account an email already belongs to. */
+const EXISTING_ACCOUNT_ID = 4242;
+
 const uniqueViolationError = () =>
   Object.assign(new Error('duplicate key value violates unique constraint'), { code: '23505' });
 
@@ -56,9 +59,20 @@ const paymentSucceeded = (overrides: Record<string, unknown> = {}) => ({
   data: paymentData(overrides),
 });
 
+const paymentFailed = (overrides: Record<string, unknown> = {}) => ({
+  type: 'payment.failed',
+  data: paymentData({ billing_reason: 'subscription_cycle', ...overrides }),
+});
+
+const membershipDeactivated = (status: string) => ({
+  type: 'membership.deactivated',
+  data: { id: 'mem_1', status },
+});
+
 const setup = (options: { catalog?: Plan[] } = {}) => {
   const paymentRepo = {
     insert: vi.fn().mockResolvedValue({}),
+    findOneBy: vi.fn().mockResolvedValue(null),
     update: vi.fn().mockResolvedValue({ affected: 1 }),
     save: vi.fn(async (row: unknown) => row),
     create: vi.fn((row: unknown) => row),
@@ -66,6 +80,7 @@ const setup = (options: { catalog?: Plan[] } = {}) => {
   const savedMethodRepo = {
     findOneBy: vi.fn().mockResolvedValue(null),
     update: vi.fn().mockResolvedValue({ affected: 0 }),
+    delete: vi.fn().mockResolvedValue({ affected: 1 }),
     save: vi.fn(async (row: unknown) => row),
     create: vi.fn((row: unknown) => row),
   };
@@ -75,7 +90,10 @@ const setup = (options: { catalog?: Plan[] } = {}) => {
   const eventEmitter = { emit: vi.fn() };
   const analyticsClient = { track: vi.fn().mockResolvedValue(undefined) };
   const toltService = { reportConversion: vi.fn().mockResolvedValue(undefined) };
-  const remnaUserResolver = { resolveOrCreate: vi.fn().mockResolvedValue(NEW_ACCOUNT_ID) };
+  const remnaUserResolver = {
+    resolveOrCreate: vi.fn().mockResolvedValue(NEW_ACCOUNT_ID),
+    findByEmail: vi.fn().mockResolvedValue(EXISTING_ACCOUNT_ID),
+  };
   const planService = new PlanService({
     find: async () => options.catalog ?? [whopPlan()],
   } as never);
@@ -266,7 +284,7 @@ describe('WhopWebhookService', () => {
       await service.handleWebhook(paymentSucceeded());
 
       expect(paymentRepo.update).toHaveBeenCalledWith(
-        { id: 'pay_1', status: Not(In(['paid', 'processing'])) },
+        { id: 'pay_1', status: Not(In(['paid', 'processing', 'canceled'])) },
         { status: 'processing' },
       );
       expect(paymentStatusService.handleUserUpdates).not.toHaveBeenCalled();
@@ -317,6 +335,122 @@ describe('WhopWebhookService', () => {
         service.handleWebhook({ type: 'payment.succeeded', data: { id: 'pay_1' } }),
       ).rejects.toThrow();
       expect(paymentRepo.insert).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('payment.failed', () => {
+    it('records the failure against the existing account, without creating one', async () => {
+      const { service, paymentRepo, remnaUserResolver } = setup();
+
+      await service.handleWebhook(paymentFailed({ total: 6 }));
+
+      expect(remnaUserResolver.findByEmail).toHaveBeenCalledWith('payer@test.com');
+      expect(remnaUserResolver.resolveOrCreate).not.toHaveBeenCalled();
+      expect(paymentRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'pay_1',
+          status: 'failed',
+          userId: EXISTING_ACCOUNT_ID,
+          amount: 6,
+          currency: 'EUR',
+          customer: 'user_1',
+          membershipId: 'mem_1',
+          paidAt: null,
+        }),
+      );
+    });
+
+    it('notifies the payer and tracks the failure when a renewal fails', async () => {
+      const { service, eventEmitter, analyticsClient } = setup();
+
+      await service.handleWebhook(paymentFailed());
+
+      expect(eventEmitter.emit).toHaveBeenCalledWith(WebhookEventEnum['payment.canceled'], {
+        userId: EXISTING_ACCOUNT_ID,
+        provider: 'whop',
+        reason: 'general_decline',
+      });
+      expect(analyticsClient.track).toHaveBeenCalledWith({
+        event: 'payment_failed',
+        userId: EXISTING_ACCOUNT_ID,
+        provider: 'whop',
+        paymentId: 'pay_1',
+        reason: 'general_decline',
+      });
+    });
+
+    it('stays quiet about a failed first checkout, which Whop shows the payer inline', async () => {
+      const { service, paymentRepo, eventEmitter, analyticsClient } = setup();
+
+      await service.handleWebhook(paymentFailed({ billing_reason: 'subscription_create' }));
+
+      expect(paymentRepo.save).toHaveBeenCalledWith(expect.objectContaining({ status: 'failed' }));
+      expect(eventEmitter.emit).not.toHaveBeenCalled();
+      expect(analyticsClient.track).not.toHaveBeenCalled();
+    });
+
+    it('records but does not notify a failure for an email with no account', async () => {
+      const { service, paymentRepo, remnaUserResolver, eventEmitter } = setup();
+      remnaUserResolver.findByEmail.mockResolvedValue(null);
+
+      await service.handleWebhook(paymentFailed());
+
+      expect(paymentRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'failed', userId: null }),
+      );
+      expect(eventEmitter.emit).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['paid'],
+      ['processing'],
+    ])('never downgrades a payment already %s, so it cannot be fulfilled twice', async (status) => {
+      const { service, paymentRepo, eventEmitter } = setup();
+      paymentRepo.findOneBy.mockResolvedValue({ id: 'pay_1', status });
+
+      await service.handleWebhook(paymentFailed());
+
+      expect(paymentRepo.save).not.toHaveBeenCalled();
+      expect(eventEmitter.emit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('membership.deactivated', () => {
+    it.each([
+      ['canceled'],
+      ['expired'],
+      ['completed'],
+    ])('marks the payments canceled and forgets the saved method once %s', async (status) => {
+      const { service, paymentRepo, savedMethodRepo } = setup();
+
+      await service.handleWebhook(membershipDeactivated(status));
+
+      expect(paymentRepo.update).toHaveBeenCalledWith(
+        { membershipId: 'mem_1' },
+        { status: 'canceled' },
+      );
+      expect(savedMethodRepo.delete).toHaveBeenCalledWith({
+        provider: 'whop',
+        paymentMethodId: 'mem_1',
+      });
+    });
+
+    it('leaves a past-due membership alone, since Whop may still recover the renewal', async () => {
+      const { service, paymentRepo, savedMethodRepo } = setup();
+
+      await service.handleWebhook(membershipDeactivated('past_due'));
+
+      expect(paymentRepo.update).not.toHaveBeenCalled();
+      expect(savedMethodRepo.delete).not.toHaveBeenCalled();
+    });
+
+    it('still marks the payments canceled when forgetting the saved method fails', async () => {
+      const { service, savedMethodRepo } = setup();
+      savedMethodRepo.delete.mockRejectedValue(new Error('db down'));
+
+      await expect(
+        service.handleWebhook(membershipDeactivated('canceled')),
+      ).resolves.toBeUndefined();
     });
   });
 

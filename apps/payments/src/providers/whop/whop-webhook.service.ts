@@ -10,7 +10,13 @@ import { In, Not, Repository } from 'typeorm';
 import { RemnaUserResolverService } from '../../auth/remna-user-resolver.service';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
 import { ToltService } from '../../tolt/tolt.service';
-import { type WhopPaymentData, WhopPaymentSchema, WhopWebhookEnvelopeSchema } from './whop.schemas';
+import {
+  type WhopMembershipData,
+  WhopMembershipSchema,
+  type WhopPaymentData,
+  WhopPaymentSchema,
+  WhopWebhookEnvelopeSchema,
+} from './whop.schemas';
 
 /**
  * Status for a payment Whop settled that we could not turn into the thing
@@ -21,6 +27,27 @@ const UNFULFILLED_STATUS = 'unfulfilled';
 
 /** Transient status of a claimed payment, until it resolves to a terminal one. */
 const PROCESSING_STATUS = 'processing';
+
+/**
+ * Statuses a payment row can never be claimed out of. Paddle only guards
+ * 'paid'/'processing'; 'canceled' is added here so a redelivered success for
+ * a membership that has since ended cannot extend the subscription again.
+ */
+const NON_RECLAIMABLE_STATUSES = ['paid', PROCESSING_STATUS, 'canceled'];
+
+/** Statuses a payment.failed must never overwrite: the money already landed, or is landing. */
+const FULFILLED_OR_FULFILLING_STATUSES = ['paid', PROCESSING_STATUS];
+
+/**
+ * Membership statuses after which the membership can never bill again.
+ * `membership.deactivated` also fires for `past_due`, which Whop may still
+ * recover, so that one leaves the saved method in place.
+ */
+const TERMINAL_MEMBERSHIP_STATUSES: ReadonlySet<string> = new Set([
+  'canceled',
+  'expired',
+  'completed',
+]);
 
 /** The `billing_reason` Whop gives an automatic renewal charge. */
 const RENEWAL_BILLING_REASON = 'subscription_cycle';
@@ -81,6 +108,12 @@ export class WhopWebhookService {
     switch (event.type) {
       case 'payment.succeeded':
         await this.handlePaymentSucceeded(WhopPaymentSchema.parse(event.data));
+        break;
+      case 'payment.failed':
+        await this.handlePaymentFailed(WhopPaymentSchema.parse(event.data));
+        break;
+      case 'membership.deactivated':
+        await this.handleMembershipDeactivated(WhopMembershipSchema.parse(event.data));
         break;
       default:
         this.logger.debug(`Unhandled Whop event: ${event.type}`);
@@ -194,6 +227,101 @@ export class WhopWebhookService {
     }
   }
 
+  // ── payment.failed ───────────────────────────────────────────────────────
+  private async handlePaymentFailed(payment: WhopPaymentData): Promise<void> {
+    // Deliveries can arrive out of order, and a payment id can fail and then
+    // succeed on retry. Overwriting a 'paid' row with 'failed' would let a
+    // redelivered success claim it again and extend the subscription twice.
+    const existing = await this.whopPaymentRepo.findOneBy({ id: payment.id });
+    if (existing && FULFILLED_OR_FULFILLING_STATUSES.includes(existing.status)) {
+      this.logger.log(
+        `Whop payment ${payment.id} is already ${existing.status} — ignoring its failure event`,
+      );
+      return;
+    }
+
+    const email = (payment.metadata?.email ?? payment.user?.email)?.trim();
+    // A failed charge is not the moment to create an account for a payer who
+    // has none yet — only a settled one earns that (mirrors Paddle).
+    const userId = email ? await this.remnaUserResolver.findByEmail(email) : null;
+
+    await this.persistPayment(
+      {
+        id: payment.id,
+        userId,
+        customer: payment.user?.id ?? null,
+        membershipId: payment.membership?.id ?? null,
+        amount: payment.total ?? 0,
+        currency: payment.currency.toUpperCase(),
+        paidAt: null,
+      },
+      'failed',
+    );
+
+    this.logger.warn(`Whop payment failed: ${payment.id}`);
+
+    if (!userId) return;
+
+    // Initial checkout failures are shown to the payer inline by Whop's own
+    // checkout — only a renewal failure warrants a push notification.
+    if (payment.billing_reason !== RENEWAL_BILLING_REASON) {
+      this.logger.log(
+        `Whop payment ${payment.id} failed on initial checkout — skipping notification`,
+      );
+      return;
+    }
+
+    this.eventEmitter.emit(WebhookEventEnum['payment.canceled'], {
+      userId,
+      provider: 'whop',
+      reason: 'general_decline',
+    } satisfies Payments.PaymentFailedEventPayload);
+
+    await this.analyticsClient.track({
+      event: 'payment_failed',
+      userId,
+      provider: 'whop',
+      paymentId: payment.id,
+      reason: 'general_decline',
+    });
+  }
+
+  // ── membership.deactivated ───────────────────────────────────────────────
+  private async handleMembershipDeactivated(membership: WhopMembershipData): Promise<void> {
+    if (!TERMINAL_MEMBERSHIP_STATUSES.has(membership.status)) {
+      this.logger.log(
+        `Whop membership ${membership.id} deactivated as ${membership.status} — may recover, keeping it`,
+      );
+      return;
+    }
+
+    const result = await this.whopPaymentRepo.update(
+      { membershipId: membership.id },
+      { status: 'canceled' },
+    );
+    if (result.affected) {
+      this.logger.log(`Whop membership ${membership.id} ended — rows marked canceled`);
+    }
+
+    // An ended membership can never be charged again, so the saved method is
+    // dead weight. Best-effort: a failure here must not stop Whop's retry
+    // from re-running this path (mirrors Paddle).
+    try {
+      const deleted = await this.savedMethodRepo.delete({
+        provider: 'whop',
+        paymentMethodId: membership.id,
+      });
+      if (deleted.affected) {
+        this.logger.log(`Removed saved Whop payment method for membership ${membership.id}`);
+      }
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete saved Whop method for membership ${membership.id}`,
+        error,
+      );
+    }
+  }
+
   private async activatePaymentMethod(record: WhopPaymentRecord): Promise<void> {
     const { userId, membershipId } = record;
     if (!userId || !membershipId) return;
@@ -264,7 +392,7 @@ export class WhopWebhookService {
     }
 
     const result = await this.whopPaymentRepo.update(
-      { id: paymentId, status: Not(In(['paid', PROCESSING_STATUS])) },
+      { id: paymentId, status: Not(In(NON_RECLAIMABLE_STATUSES)) },
       { status: PROCESSING_STATUS },
     );
     return (result.affected ?? 0) > 0;

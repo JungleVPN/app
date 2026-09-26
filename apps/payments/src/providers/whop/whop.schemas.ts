@@ -36,5 +36,11 @@ export const WhopPaymentSchema = z.object({
   user: z.object({ id: z.string(), email: z.string().nullable() }).nullable(),
 });
 
+export const WhopMembershipSchema = z.object({
+  id: z.string(),
+  status: z.string(),
+});
+
 export type WhopWebhookEnvelope = z.infer<typeof WhopWebhookEnvelopeSchema>;
 export type WhopPaymentData = z.infer<typeof WhopPaymentSchema>;
+export type WhopMembershipData = z.infer<typeof WhopMembershipSchema>;
