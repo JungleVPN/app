@@ -31,6 +31,9 @@ describe('resolveProvider', () => {
 
     process.env.GLOBAL_PAYMENT_PROVIDER = 'STRIPE';
     expect(resolveProvider('https://jungle-vpn.com')).toBe('stripe');
+
+    process.env.GLOBAL_PAYMENT_PROVIDER = 'whop';
+    expect(resolveProvider('https://jungle-vpn.com')).toBe('whop');
   });
 
   it('refuses a global provider that cannot take global payments', () => {
@@ -47,5 +50,6 @@ describe('providerCurrency', () => {
     expect(providerCurrency('yookassa')).toBe('RUB');
     expect(providerCurrency('stripe')).toBe('EUR');
     expect(providerCurrency('paddle')).toBe('EUR');
+    expect(providerCurrency('whop')).toBe('EUR');
   });
 });

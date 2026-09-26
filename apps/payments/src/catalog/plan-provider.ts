@@ -3,12 +3,13 @@ import { scopeForOrigin } from '@workspace/types';
 
 type GlobalProvider = Exclude<PlanProvider, 'yookassa'>;
 
-const GLOBAL_PROVIDERS: readonly GlobalProvider[] = ['stripe', 'paddle'];
+const GLOBAL_PROVIDERS: readonly GlobalProvider[] = ['stripe', 'paddle', 'whop'];
 
 const PROVIDER_CURRENCY: Record<PlanProvider, 'RUB' | 'EUR'> = {
   yookassa: 'RUB',
   stripe: 'EUR',
   paddle: 'EUR',
+  whop: 'EUR',
 };
 
 const isGlobalProvider = (value: string): value is GlobalProvider =>

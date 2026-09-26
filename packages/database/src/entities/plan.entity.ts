@@ -2,7 +2,7 @@ import { Check, Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { bigintTransformer } from '../utils/transformers';
 
 export type PlanType = 'one_time' | 'recurring';
-export type PlanProvider = 'yookassa' | 'stripe' | 'paddle';
+export type PlanProvider = 'yookassa' | 'stripe' | 'paddle' | 'whop';
 
 /**
  * One purchasable price, at one provider, for one billing period — the single
@@ -44,7 +44,11 @@ export class Plan {
   })
   basePrice: number;
 
-  @Column({ type: 'enum', enum: ['yookassa', 'stripe', 'paddle'], enumName: 'plan_provider' })
+  @Column({
+    type: 'enum',
+    enum: ['yookassa', 'stripe', 'paddle', 'whop'],
+    enumName: 'plan_provider',
+  })
   provider: PlanProvider;
 
   /** The provider's catalog price id; null for YooKassa, which has no catalog. */
