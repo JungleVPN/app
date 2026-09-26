@@ -13,6 +13,7 @@ const page = <T>(items: T[]) => ({
 const membersList = vi.fn();
 const membershipsList = vi.fn();
 const checkoutConfigurationsCreate = vi.fn();
+const membershipsCancel = vi.fn();
 const WhopClient = vi.fn();
 
 vi.mock('@whop/sdk', () => ({
@@ -24,7 +25,7 @@ vi.mock('@whop/sdk', () => ({
     WhopClient(options);
     return {
       members: { list: membersList },
-      memberships: { list: membershipsList },
+      memberships: { list: membershipsList, cancel: membershipsCancel },
       checkoutConfigurations: { create: checkoutConfigurationsCreate },
     };
   }),
@@ -178,6 +179,23 @@ describe('WhopClientService', () => {
         plan_id: 'plan_month',
         metadata: { email: 'payer@test.com' },
       });
+    });
+  });
+
+  describe('cancelMembership', () => {
+    it('stops the membership renewing, keeping access until the period ends', async () => {
+      membershipsCancel.mockResolvedValue({
+        id: 'mem_1',
+        cancel_at_period_end: true,
+        current_period_end: '2026-10-26T10:00:00Z',
+      });
+      const service = new WhopClientService();
+
+      await expect(service.cancelMembership('mem_1')).resolves.toEqual({
+        cancelAtPeriodEnd: true,
+        accessUntil: '2026-10-26T10:00:00Z',
+      });
+      expect(membershipsCancel).toHaveBeenCalledWith({ id: 'mem_1', cancel_at_period_end: true });
     });
   });
 });

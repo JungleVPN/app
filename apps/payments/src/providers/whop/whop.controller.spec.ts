@@ -3,6 +3,7 @@ import { createHmac } from 'node:crypto';
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import { ACTIVE_SUBSCRIPTION_CODE, type CreatePublicWhopCheckoutDto } from '@workspace/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ClientUserGuard } from '../../auth/client-user.guard';
 import { WhopController } from './whop.controller';
 
 describe('WhopController.createPublicCheckout', () => {
@@ -193,5 +194,47 @@ describe('WhopController.webhook', () => {
     const { controller } = controllerWith(vi.fn().mockRejectedValue(new Error('boom')));
 
     await expect(controller.webhook(reqWith(BODY), signedHeaders(BODY))).rejects.toThrow('boom');
+  });
+});
+
+describe('WhopController — authenticated routes', () => {
+  const controllerWith = () => {
+    const whopProvider = {
+      getSubscriptionStatus: vi.fn().mockResolvedValue({ active: true, methods: [] }),
+      cancelSubscription: vi
+        .fn()
+        .mockResolvedValue({ cancelAtPeriodEnd: true, accessUntil: '2026-10-26T10:00:00Z' }),
+    };
+    return { controller: new WhopController(whopProvider as never), whopProvider };
+  };
+
+  const guardsOf = (method: keyof WhopController) =>
+    Reflect.getMetadata('__guards__', WhopController.prototype[method]) ?? [];
+
+  it("returns the authenticated user's subscription status", async () => {
+    const { controller, whopProvider } = controllerWith();
+
+    await expect(controller.getSubscriptionStatus(1000)).resolves.toEqual({
+      active: true,
+      methods: [],
+    });
+    expect(whopProvider.getSubscriptionStatus).toHaveBeenCalledWith(1000);
+  });
+
+  it("cancels the authenticated user's own subscription", async () => {
+    const { controller, whopProvider } = controllerWith();
+
+    await expect(controller.cancelSubscription(1000)).resolves.toEqual({
+      cancelAtPeriodEnd: true,
+      accessUntil: '2026-10-26T10:00:00Z',
+    });
+    expect(whopProvider.cancelSubscription).toHaveBeenCalledWith(1000);
+  });
+
+  it.each([
+    ['getSubscriptionStatus'],
+    ['cancelSubscription'],
+  ] as const)('requires a signed-in user for %s', (method) => {
+    expect(guardsOf(method)).toContain(ClientUserGuard);
   });
 });

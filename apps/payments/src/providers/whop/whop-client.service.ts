@@ -79,6 +79,24 @@ export class WhopClientService {
     return configuration.id;
   }
 
+  /**
+   * Stops `membershipId` renewing. Access continues until the current period
+   * ends — the user keeps what they paid for; Whop's `membership.deactivated`
+   * then retires the saved method when it lapses.
+   */
+  async cancelMembership(
+    membershipId: string,
+  ): Promise<{ cancelAtPeriodEnd: boolean; accessUntil: string | null }> {
+    const membership = await this.whop.memberships.cancel({
+      id: membershipId,
+      cancel_at_period_end: true,
+    });
+    return {
+      cancelAtPeriodEnd: membership.cancel_at_period_end,
+      accessUntil: membership.current_period_end,
+    };
+  }
+
   private async hasLiveMembership(userId: string): Promise<boolean> {
     const memberships = await this.whop.memberships.list({
       account_id: this.accountId,

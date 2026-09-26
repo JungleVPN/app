@@ -4,6 +4,7 @@ import {
   Body,
   ConflictException,
   Controller,
+  Get,
   Headers,
   HttpCode,
   Logger,
@@ -15,8 +16,12 @@ import { unwrapWebhook } from '@whop/sdk/helpers';
 import {
   ACTIVE_SUBSCRIPTION_CODE,
   type CreatePublicWhopCheckoutDto,
+  type ProviderSubscriptionDto,
+  type WhopCancelDto,
   type WhopCheckoutPayload,
 } from '@workspace/types';
+import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
+import { ClientUserGuard } from '../../auth/client-user.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
 import { PublicCheckoutRateLimitGuard } from '../../guards/public-checkout-rate-limit.guard';
 import { WhopProvider } from './whop.provider';
@@ -61,6 +66,30 @@ export class WhopController {
       inviterId: dto.inviterId,
       origin,
     });
+  }
+
+  /**
+   * Active-subscription status for the authenticated user, read from our own
+   * saved-method rows — no Whop call (mirrors Paddle).
+   */
+  @Get('subscription')
+  @UseGuards(ClientUserGuard)
+  async getSubscriptionStatus(
+    @AuthenticatedUserId() userId: number,
+  ): Promise<ProviderSubscriptionDto> {
+    return this.whopProvider.getSubscriptionStatus(userId);
+  }
+
+  /**
+   * Cancels the authenticated user's own Whop subscription at period end —
+   * Whop's stand-in for Paddle's portal. The user id comes only from the
+   * session, so no request can reach another user's membership.
+   */
+  @Post('cancel')
+  @HttpCode(200)
+  @UseGuards(ClientUserGuard)
+  async cancelSubscription(@AuthenticatedUserId() userId: number): Promise<WhopCancelDto> {
+    return this.whopProvider.cancelSubscription(userId);
   }
 
   /**

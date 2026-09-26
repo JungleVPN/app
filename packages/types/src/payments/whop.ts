@@ -24,3 +24,14 @@ export interface CreatePublicWhopCheckoutDto {
 export interface WhopCheckoutPayload {
   checkoutConfigurationId: string;
 }
+
+/**
+ * The outcome of POST /payments/whop/cancel. Whop has no customer portal to
+ * send the user to, so cancellation is ours: the membership stops renewing
+ * and stays usable until `accessUntil`.
+ */
+export interface WhopCancelDto {
+  cancelAtPeriodEnd: boolean;
+  /** ISO timestamp the paid period ends; null when Whop reports none. */
+  accessUntil: string | null;
+}
