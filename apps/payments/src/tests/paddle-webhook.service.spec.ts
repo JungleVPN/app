@@ -13,6 +13,7 @@ import type { ToltService } from '../tolt/tolt.service';
 
 vi.mock('@workspace/database', () => ({
   PaddlePayment: class {},
+  WhopPayment: class {},
   StripePayment: class {},
   YookassaPayment: class {},
   TelegramStarsPayment: class {},

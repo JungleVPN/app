@@ -4,6 +4,7 @@ import {
   PaddlePayment,
   StripePayment,
   TelegramStarsPayment,
+  WhopPayment,
   YookassaPayment,
 } from '@workspace/database';
 import type { AdminPaymentDto } from '@workspace/types';
@@ -20,28 +21,41 @@ export class AdminService {
     private readonly stripeRepo: Repository<StripePayment>,
     @InjectRepository(PaddlePayment)
     private readonly paddleRepo: Repository<PaddlePayment>,
+    @InjectRepository(WhopPayment)
+    private readonly whopRepo: Repository<WhopPayment>,
   ) {}
 
   async hasEverPaid(userId: number): Promise<boolean> {
     const settled = { purpose: 'subscription', paidAt: Not(IsNull()) } as const;
-    const [yookassa, stars, stripe] = await Promise.all([
+    // Whop only sells subscriptions, so its table has no `purpose` to filter on.
+    // Paddle's result is left out of the answer, as it was before Whop.
+    const [yookassa, stars, stripe, , whop] = await Promise.all([
       this.yookassaRepo.exists({ where: { userId, ...settled } }),
       this.starsRepo.exists({ where: { userId, ...settled } }),
       this.stripeRepo.exists({ where: { userId, ...settled } }),
       this.paddleRepo.exists({ where: { userId, ...settled } }),
+      this.whopRepo.exists({ where: { userId, paidAt: Not(IsNull()) } }),
     ]);
-    return yookassa || stars || stripe;
+    return yookassa || stars || stripe || whop;
   }
 
   async search(q: string): Promise<AdminPaymentDto[]> {
-    const [yookassaResults, starsResults, stripeResults, paddleResults] = await Promise.all([
-      this.searchYookassa(q),
-      this.searchStars(q),
-      this.searchStripe(q),
-      this.searchPaddle(q),
-    ]);
+    const [yookassaResults, starsResults, stripeResults, paddleResults, whopResults] =
+      await Promise.all([
+        this.searchYookassa(q),
+        this.searchStars(q),
+        this.searchStripe(q),
+        this.searchPaddle(q),
+        this.searchWhop(q),
+      ]);
 
-    const results = [...yookassaResults, ...starsResults, ...stripeResults, ...paddleResults];
+    const results = [
+      ...yookassaResults,
+      ...starsResults,
+      ...stripeResults,
+      ...paddleResults,
+      ...whopResults,
+    ];
 
     // Sort newest first
     results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -230,6 +244,39 @@ export class AdminService {
         telegramId: null,
         status: p.status,
         purpose: p.purpose,
+        amount: p.amount != null ? String(p.amount) : undefined,
+        currency: p.currency ?? undefined,
+        selectedPeriod: 0,
+        createdAt: p.createdAt,
+        paidAt: p.paidAt,
+      }),
+    );
+  }
+
+  private async searchWhop(q: string): Promise<AdminPaymentDto[]> {
+    const rows = await this.whopRepo
+      .createQueryBuilder('p')
+      .where(
+        AdminService.matchesQuery(q, AdminService.asNumeric(q), {
+          text: ['p.id', 'p.customer'],
+          numeric: ['p.userId'],
+        }),
+      )
+      .andWhere('p.status NOT IN (:...unsettled)', {
+        unsettled: AdminService.UNSETTLED_STATUSES,
+      })
+      .orderBy('p.createdAt', 'DESC')
+      .getMany();
+
+    return rows.map(
+      (p): AdminPaymentDto => ({
+        paymentId: p.id,
+        provider: 'whop',
+        userId: p.userId ?? 0,
+        telegramId: null,
+        status: p.status,
+        // Whop only sells subscriptions, so its table stores no purpose.
+        purpose: 'subscription',
         amount: p.amount != null ? String(p.amount) : undefined,
         currency: p.currency ?? undefined,
         selectedPeriod: 0,

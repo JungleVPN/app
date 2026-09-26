@@ -16,6 +16,7 @@ import type { ToltService } from '../tolt/tolt.service';
 vi.mock('@workspace/database', () => ({
   StripePayment: class {},
   PaddlePayment: class {},
+  WhopPayment: class {},
   YookassaPayment: class {},
   TelegramStarsPayment: class {},
   SavedPaymentMethod: class {},

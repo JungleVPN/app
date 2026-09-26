@@ -20,6 +20,7 @@ vi.mock('@workspace/database', () => {
   return {
     YookassaPayment: class {},
     PaddlePayment: class {},
+    WhopPayment: class {},
     TelegramStarsPayment: class {},
     StripePayment: class {},
     SavedPaymentMethod: class {},

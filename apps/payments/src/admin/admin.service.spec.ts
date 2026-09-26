@@ -22,14 +22,15 @@ import {
   PaddlePayment,
   StripePayment,
   TelegramStarsPayment,
+  WhopPayment,
   YookassaPayment,
 } from '@workspace/database';
 import type { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
-import { DataSource } from 'typeorm';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { DataSource, IsNull, Not } from 'typeorm';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { AdminService } from './admin.service';
 
-const ENTITIES = [YookassaPayment, TelegramStarsPayment, StripePayment, PaddlePayment];
+const ENTITIES = [YookassaPayment, TelegramStarsPayment, StripePayment, PaddlePayment, WhopPayment];
 
 let dataSource: DataSource;
 
@@ -75,6 +76,7 @@ async function runSearch(
     repoFor(TelegramStarsPayment),
     repoFor(StripePayment),
     repoFor(PaddlePayment),
+    repoFor(WhopPayment),
   );
 
   await service.search(query);
@@ -98,6 +100,7 @@ describe('AdminService.search — the pending filter must survive every OR branc
     ['TelegramStarsPayment', TelegramStarsPayment.name],
     ['StripePayment', StripePayment.name],
     ['PaddlePayment', PaddlePayment.name],
+    ['WhopPayment', WhopPayment.name],
   ] as const;
 
   it.each(providers)('%s keeps the status check outside the OR group', async (_label, key) => {
@@ -187,5 +190,95 @@ describe('AdminService.search — unsettled placeholder rows are never returned'
       expect(bound).toContain('pending');
       expect(bound).toContain('completed');
     }
+  });
+});
+
+describe('AdminService — Whop payments', () => {
+  const whopRow = (overrides: Partial<WhopPayment> = {}): WhopPayment => ({
+    id: 'pay_1',
+    userId: 4821,
+    customer: 'user_1',
+    membershipId: 'mem_1',
+    amount: 5.99,
+    currency: 'EUR',
+    status: 'paid',
+    createdAt: new Date('2026-09-01T10:00:00Z'),
+    updatedAt: new Date('2026-09-01T10:00:00Z'),
+    paidAt: new Date('2026-09-01T10:00:00Z'),
+    ...overrides,
+  });
+
+  /** Every provider empty except Whop, which answers with `rows` / `whopExists`. */
+  const serviceWith = ({
+    rows = [],
+    whopExists = false,
+  }: {
+    rows?: WhopPayment[];
+    whopExists?: boolean;
+  }) => {
+    const repo = (answer: { rows: unknown[]; exists: boolean }) => {
+      const qb = {
+        where: () => qb,
+        andWhere: () => qb,
+        orderBy: () => qb,
+        getMany: async () => answer.rows,
+      };
+      return { createQueryBuilder: () => qb, exists: vi.fn().mockResolvedValue(answer.exists) };
+    };
+    const empty = () => repo({ rows: [], exists: false });
+    const whopRepo = repo({ rows, exists: whopExists });
+    const service = new AdminService(
+      empty() as never,
+      empty() as never,
+      empty() as never,
+      empty() as never,
+      whopRepo as never,
+    );
+    return { service, whopRepo };
+  };
+
+  it('lists a Whop payment as a subscription, with its amount and currency', async () => {
+    const { service } = serviceWith({ rows: [whopRow()] });
+
+    await expect(service.search('4821')).resolves.toEqual([
+      {
+        paymentId: 'pay_1',
+        provider: 'whop',
+        userId: 4821,
+        telegramId: null,
+        status: 'paid',
+        purpose: 'subscription',
+        amount: '5.99',
+        currency: 'EUR',
+        selectedPeriod: 0,
+        createdAt: new Date('2026-09-01T10:00:00Z'),
+        paidAt: new Date('2026-09-01T10:00:00Z'),
+      },
+    ]);
+  });
+
+  it('leaves amount and currency out for a Whop row that never recorded them', async () => {
+    const { service } = serviceWith({
+      rows: [whopRow({ amount: null, currency: null, userId: null })],
+    });
+
+    const [result] = await service.search('pay_1');
+
+    expect(result).toMatchObject({ userId: 0, amount: undefined, currency: undefined });
+  });
+
+  it('counts a settled Whop payment as having paid', async () => {
+    const { service, whopRepo } = serviceWith({ whopExists: true });
+
+    await expect(service.hasEverPaid(4821)).resolves.toBe(true);
+    expect(whopRepo.exists).toHaveBeenCalledWith({
+      where: { userId: 4821, paidAt: Not(IsNull()) },
+    });
+  });
+
+  it('does not count a user with no settled payment anywhere', async () => {
+    const { service } = serviceWith({ whopExists: false });
+
+    await expect(service.hasEverPaid(4821)).resolves.toBe(false);
   });
 });

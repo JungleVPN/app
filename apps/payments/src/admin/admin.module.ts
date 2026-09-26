@@ -4,6 +4,7 @@ import {
   PaddlePayment,
   StripePayment,
   TelegramStarsPayment,
+  WhopPayment,
   YookassaPayment,
 } from '@workspace/database';
 import { InterServiceGuard } from '../guards/inter-service.guard';
@@ -12,7 +13,13 @@ import { AdminService } from './admin.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([YookassaPayment, TelegramStarsPayment, StripePayment, PaddlePayment]),
+    TypeOrmModule.forFeature([
+      YookassaPayment,
+      TelegramStarsPayment,
+      StripePayment,
+      PaddlePayment,
+      WhopPayment,
+    ]),
   ],
   controllers: [AdminController],
   providers: [AdminService, InterServiceGuard],

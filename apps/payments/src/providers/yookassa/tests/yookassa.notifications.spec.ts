@@ -30,6 +30,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@workspace/database', () => ({
   YookassaPayment: class {},
   PaddlePayment: class {},
+  WhopPayment: class {},
   TelegramStarsPayment: class {},
   StripePayment: class {},
   SavedPaymentMethod: class {},

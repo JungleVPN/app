@@ -19,6 +19,7 @@ import type { StripeWebhookService } from '../providers/stripe/stripe-webhook.se
 vi.mock('@workspace/database', () => ({
   StripePayment: class {},
   PaddlePayment: class {},
+  WhopPayment: class {},
   YookassaPayment: class {},
   TelegramStarsPayment: class {},
   SavedPaymentMethod: class {},

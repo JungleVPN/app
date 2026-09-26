@@ -11,6 +11,7 @@ vi.mock('@workspace/database', () => ({
   TelegramStarsPayment: class {},
   YookassaPayment: class {},
   PaddlePayment: class {},
+  WhopPayment: class {},
   StripePayment: class {},
   Promo: class {},
   PromoRedemption: class {},
