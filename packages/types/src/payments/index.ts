@@ -14,4 +14,5 @@ export * from './provider-subscription';
 export * from './stripe';
 export * from './telegram-stars';
 export * from './tolt';
+export * from './whop';
 export * from './yookassa';

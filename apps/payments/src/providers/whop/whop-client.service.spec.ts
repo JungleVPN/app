@@ -12,6 +12,7 @@ const page = <T>(items: T[]) => ({
 
 const membersList = vi.fn();
 const membershipsList = vi.fn();
+const checkoutConfigurationsCreate = vi.fn();
 const WhopClient = vi.fn();
 
 vi.mock('@whop/sdk', () => ({
@@ -24,6 +25,7 @@ vi.mock('@whop/sdk', () => ({
     return {
       members: { list: membersList },
       memberships: { list: membershipsList },
+      checkoutConfigurations: { create: checkoutConfigurationsCreate },
     };
   }),
 }));
@@ -155,6 +157,27 @@ describe('WhopClientService', () => {
       const service = new WhopClientService();
 
       await expect(service.hasActiveSubscription('payer@test.com')).rejects.toThrow('Whop is down');
+    });
+  });
+
+  describe('createCheckoutConfiguration', () => {
+    it('creates a configuration for the Whop plan, stamped with our metadata, and returns its id', async () => {
+      checkoutConfigurationsCreate.mockResolvedValue({
+        id: 'ch_1',
+        purchase_url: 'https://whop.test',
+      });
+      const service = new WhopClientService();
+
+      const id = await service.createCheckoutConfiguration({
+        planId: 'plan_month',
+        metadata: { email: 'payer@test.com' },
+      });
+
+      expect(id).toBe('ch_1');
+      expect(checkoutConfigurationsCreate).toHaveBeenCalledWith({
+        plan_id: 'plan_month',
+        metadata: { email: 'payer@test.com' },
+      });
     });
   });
 });

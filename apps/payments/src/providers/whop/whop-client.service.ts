@@ -63,6 +63,22 @@ export class WhopClientService {
     }
   }
 
+  /**
+   * Creates the checkout configuration the embedded checkout mounts, and
+   * returns its id. Whop copies `metadata` onto every payment and membership
+   * the checkout produces — that is how the webhook identifies the payer.
+   */
+  async createCheckoutConfiguration(input: {
+    planId: string;
+    metadata: Record<string, string>;
+  }): Promise<string> {
+    const configuration = await this.whop.checkoutConfigurations.create({
+      plan_id: input.planId,
+      metadata: input.metadata,
+    });
+    return configuration.id;
+  }
+
   private async hasLiveMembership(userId: string): Promise<boolean> {
     const memberships = await this.whop.memberships.list({
       account_id: this.accountId,

@@ -25,6 +25,7 @@ export const apiRoutes = {
     paddleSubscription: '/paddle/subscription',
     paddlePortal: '/paddle/portal',
     paddleWebhook: '/paddle/webhook',
+    whopPublicCreateCheckout: '/whop/public-create-checkout',
     yookassaCreateSession: '/yookassa/create-session',
     yookassaPublicCreateSession: '/yookassa/public-create-session',
     yookassaWebhook: '/yookassa/webhook',
