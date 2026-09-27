@@ -1,10 +1,33 @@
 import 'reflect-metadata';
 import { createHmac } from 'node:crypto';
 import { BadRequestException, ConflictException } from '@nestjs/common';
-import { ACTIVE_SUBSCRIPTION_CODE, type CreatePublicWhopCheckoutDto } from '@workspace/types';
+import {
+  ACTIVE_SUBSCRIPTION_CODE,
+  type CreatePublicWhopCheckoutDto,
+  type PayPublicWhopCheckoutDto,
+} from '@workspace/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ClientUserGuard } from '../../auth/client-user.guard';
 import { WhopController } from './whop.controller';
+
+const controllerWith = (
+  overrides: {
+    resolveCheckoutPlanId?: ReturnType<typeof vi.fn>;
+    hasActiveSubscription?: ReturnType<typeof vi.fn>;
+  } = {},
+) => {
+  const whopProvider = {
+    resolveCheckoutPlanId:
+      overrides.resolveCheckoutPlanId ?? vi.fn().mockResolvedValue('plan_month_1'),
+    hasActiveSubscription: overrides.hasActiveSubscription ?? vi.fn().mockResolvedValue(false),
+    checkoutTarget: vi.fn((planId: string) => ({ accountId: 'biz_test', planId })),
+    payCheckout: vi
+      .fn()
+      .mockResolvedValue({ paymentId: 'pay_1', status: 'open', clientSecret: 'sec_1' }),
+  };
+  const controller = new WhopController(whopProvider as never);
+  return { controller, whopProvider };
+};
 
 describe('WhopController.createPublicCheckout', () => {
   const publicDto = (
@@ -15,57 +38,22 @@ describe('WhopController.createPublicCheckout', () => {
     ...overrides,
   });
 
-  const controllerWith = (
-    overrides: {
-      resolveCheckoutPlanId?: ReturnType<typeof vi.fn>;
-      hasActiveSubscription?: ReturnType<typeof vi.fn>;
-    } = {},
-  ) => {
-    const whopProvider = {
-      resolveCheckoutPlanId:
-        overrides.resolveCheckoutPlanId ?? vi.fn().mockResolvedValue('plan_month_1'),
-      hasActiveSubscription: overrides.hasActiveSubscription ?? vi.fn().mockResolvedValue(false),
-      createCheckout: vi.fn().mockResolvedValue({ checkoutConfigurationId: 'ch_1' }),
-    };
-    const controller = new WhopController(whopProvider as never);
-    return { controller, whopProvider };
-  };
-
-  it('returns the checkout configuration for a valid, unsubscribed payer', async () => {
-    const { controller } = controllerWith();
-
-    await expect(controller.createPublicCheckout(publicDto(), 'https://app.test')).resolves.toEqual(
-      { checkoutConfigurationId: 'ch_1' },
-    );
-  });
-
-  it('normalises the email before using it', async () => {
+  it('returns the account and Whop plan to mount the card form for a valid, unsubscribed payer', async () => {
     const { controller, whopProvider } = controllerWith();
 
-    await controller.createPublicCheckout(publicDto({ email: '  Payer@Test.com ' }), undefined);
+    await expect(controller.createPublicCheckout(publicDto())).resolves.toEqual({
+      accountId: 'biz_test',
+      planId: 'plan_month_1',
+    });
+    expect(whopProvider.resolveCheckoutPlanId).toHaveBeenCalledWith('whop-30');
+  });
+
+  it('normalises the email before checking it', async () => {
+    const { controller, whopProvider } = controllerWith();
+
+    await controller.createPublicCheckout(publicDto({ email: '  Payer@Test.com ' }));
 
     expect(whopProvider.hasActiveSubscription).toHaveBeenCalledWith('payer@test.com');
-    expect(whopProvider.createCheckout).toHaveBeenCalledWith(
-      expect.objectContaining({ email: 'payer@test.com' }),
-    );
-  });
-
-  it('bills the resolved Whop plan and forwards referral, inviter and origin', async () => {
-    const { controller, whopProvider } = controllerWith();
-
-    await controller.createPublicCheckout(
-      publicDto({ toltReferralId: 'tolt_9', inviterId: 1337 }),
-      'https://jungle-vpn.com',
-    );
-
-    expect(whopProvider.resolveCheckoutPlanId).toHaveBeenCalledWith('whop-30');
-    expect(whopProvider.createCheckout).toHaveBeenCalledWith({
-      email: 'payer@test.com',
-      whopPlanId: 'plan_month_1',
-      toltReferralId: 'tolt_9',
-      inviterId: 1337,
-      origin: 'https://jungle-vpn.com',
-    });
   });
 
   it.each([
@@ -75,11 +63,10 @@ describe('WhopController.createPublicCheckout', () => {
   ])('refuses the malformed email %j without ever reaching Whop', async (email) => {
     const { controller, whopProvider } = controllerWith();
 
-    await expect(
-      controller.createPublicCheckout(publicDto({ email }), 'https://app.test'),
-    ).rejects.toThrow(BadRequestException);
+    await expect(controller.createPublicCheckout(publicDto({ email }))).rejects.toThrow(
+      BadRequestException,
+    );
     expect(whopProvider.hasActiveSubscription).not.toHaveBeenCalled();
-    expect(whopProvider.createCheckout).not.toHaveBeenCalled();
   });
 
   it('refuses a plan that is not on sale, before ever asking Whop about the email', async () => {
@@ -87,27 +74,118 @@ describe('WhopController.createPublicCheckout', () => {
       resolveCheckoutPlanId: vi.fn().mockRejectedValue(new BadRequestException('Not on sale')),
     });
 
-    await expect(
-      controller.createPublicCheckout(publicDto({ planId: 'nope' }), 'https://app.test'),
-    ).rejects.toThrow(BadRequestException);
+    await expect(controller.createPublicCheckout(publicDto({ planId: 'nope' }))).rejects.toThrow(
+      BadRequestException,
+    );
     expect(whopProvider.hasActiveSubscription).not.toHaveBeenCalled();
-    expect(whopProvider.createCheckout).not.toHaveBeenCalled();
   });
 
-  it('refuses a payer who already has an active Whop membership, without creating a checkout', async () => {
-    const { controller, whopProvider } = controllerWith({
+  it('refuses a payer who already has an active Whop membership', async () => {
+    const { controller } = controllerWith({
       hasActiveSubscription: vi.fn().mockResolvedValue(true),
     });
 
     const error = await controller
-      .createPublicCheckout(publicDto(), 'https://app.test')
+      .createPublicCheckout(publicDto())
       .catch((caught: unknown) => caught);
 
     expect(error).toBeInstanceOf(ConflictException);
     expect((error as ConflictException).getResponse()).toMatchObject({
       code: ACTIVE_SUBSCRIPTION_CODE,
     });
-    expect(whopProvider.createCheckout).not.toHaveBeenCalled();
+  });
+});
+
+describe('WhopController.payPublicCheckout', () => {
+  const payDto = (overrides: Partial<PayPublicWhopCheckoutDto> = {}): PayPublicWhopCheckoutDto => ({
+    email: 'payer@test.com',
+    planId: 'whop-30',
+    confirmationToken: 'ctok_1',
+    returnUrl: 'https://app.test/payment/success',
+    ...overrides,
+  });
+
+  it('returns the payment Whop created for a valid, unsubscribed payer', async () => {
+    const { controller } = controllerWith();
+
+    await expect(controller.payPublicCheckout(payDto(), 'https://app.test')).resolves.toEqual({
+      paymentId: 'pay_1',
+      status: 'open',
+      clientSecret: 'sec_1',
+    });
+  });
+
+  it('charges the resolved Whop plan, forwarding the card, return page, referral, inviter and origin', async () => {
+    const { controller, whopProvider } = controllerWith();
+
+    await controller.payPublicCheckout(
+      payDto({ email: '  Payer@Test.com ', toltReferralId: 'tolt_9', inviterId: 1337 }),
+      'https://jungle-vpn.com',
+    );
+
+    expect(whopProvider.resolveCheckoutPlanId).toHaveBeenCalledWith('whop-30');
+    expect(whopProvider.payCheckout).toHaveBeenCalledWith({
+      email: 'payer@test.com',
+      whopPlanId: 'plan_month_1',
+      confirmationToken: 'ctok_1',
+      returnUrl: 'https://app.test/payment/success',
+      toltReferralId: 'tolt_9',
+      inviterId: 1337,
+      origin: 'https://jungle-vpn.com',
+    });
+  });
+
+  it('refuses a malformed email without charging', async () => {
+    const { controller, whopProvider } = controllerWith();
+
+    await expect(
+      controller.payPublicCheckout(payDto({ email: 'nope' }), undefined),
+    ).rejects.toThrow(BadRequestException);
+    expect(whopProvider.payCheckout).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [''],
+    ['pm_1'],
+    [undefined],
+  ])('refuses the confirmation token %j without reaching Whop', async (confirmationToken) => {
+    const { controller, whopProvider } = controllerWith();
+
+    await expect(
+      controller.payPublicCheckout(
+        payDto({ confirmationToken: confirmationToken as string }),
+        undefined,
+      ),
+    ).rejects.toThrow(BadRequestException);
+    expect(whopProvider.resolveCheckoutPlanId).not.toHaveBeenCalled();
+    expect(whopProvider.payCheckout).not.toHaveBeenCalled();
+  });
+
+  it('refuses a plan that is not on sale without charging', async () => {
+    const { controller, whopProvider } = controllerWith({
+      resolveCheckoutPlanId: vi.fn().mockRejectedValue(new BadRequestException('Not on sale')),
+    });
+
+    await expect(controller.payPublicCheckout(payDto(), undefined)).rejects.toThrow(
+      BadRequestException,
+    );
+    expect(whopProvider.payCheckout).not.toHaveBeenCalled();
+  });
+
+  it('refuses a payer who subscribed in the meantime, without charging', async () => {
+    const { controller, whopProvider } = controllerWith({
+      hasActiveSubscription: vi.fn().mockResolvedValue(true),
+    });
+
+    const error = await controller
+      .payPublicCheckout(payDto(), undefined)
+      .catch((caught: unknown) => caught);
+
+    expect(error).toBeInstanceOf(ConflictException);
+    expect((error as ConflictException).getResponse()).toMatchObject({
+      code: ACTIVE_SUBSCRIPTION_CODE,
+    });
+    expect(whopProvider.payCheckout).not.toHaveBeenCalled();
   });
 });
 

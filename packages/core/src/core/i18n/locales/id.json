@@ -1202,6 +1202,22 @@
     "title": "Lakukan Pembayaran",
     "subtitle": "Selesaikan pembayaran Anda untuk mengaktifkan langganan Anda"
   },
+  "whopCheckout": {
+    "card_title": "Detail kartu",
+    "card_number": "Nomor kartu",
+    "expiry": "Tanggal kedaluwarsa",
+    "cvc": "Kode keamanan",
+    "name": "Nama pada kartu",
+    "name_placeholder": "Sesuai yang tertera di kartu",
+    "country": "Negara",
+    "postal_code": "Kode pos",
+    "pay": "Bayar",
+    "errors": {
+      "card_invalid": "Periksa detail kartu Anda dan coba lagi.",
+      "declined": "Kartu Anda ditolak. Coba kartu lain atau hubungi bank Anda.",
+      "not_completed": "Pembayaran belum selesai. Silakan coba lagi."
+    }
+  },
   "ipStatus": {
     "yourIp": "IP Anda: {{ip}}",
     "protected": "Anda terlindungi!",

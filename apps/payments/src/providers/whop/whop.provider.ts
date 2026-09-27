@@ -3,7 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PlanService } from '@payments/catalog/plan.service';
 import { toSavedMethodDto } from '@payments/utils/saved-method';
 import { SavedPaymentMethod } from '@workspace/database';
-import type { ProviderSubscriptionDto, WhopCancelDto, WhopCheckoutPayload } from '@workspace/types';
+import type {
+  ProviderSubscriptionDto,
+  WhopCancelDto,
+  WhopCheckoutPayload,
+  WhopPaymentDto,
+} from '@workspace/types';
 import { Repository } from 'typeorm';
 import { WhopClientService } from './whop-client.service';
 import { WhopWebhookService } from './whop-webhook.service';
@@ -40,28 +45,36 @@ export class WhopProvider {
     return plan.providerPriceId;
   }
 
+  /** What the browser mounts the card form against: our account and the Whop plan being bought. */
+  checkoutTarget(whopPlanId: string): WhopCheckoutPayload {
+    return { accountId: this.whopClientService.accountId, planId: whopPlanId };
+  }
+
   /**
-   * Creates the checkout configuration for the public pricing page, stamped
-   * with the metadata a later webhook needs to identify the payer once the
-   * checkout settles
+   * Charges the card the browser tokenised, stamped with the metadata a later
+   * webhook needs to identify the payer once the payment settles
    */
-  async createCheckout(input: {
+  async payCheckout(input: {
     email: string;
     whopPlanId: string;
+    confirmationToken: string;
+    returnUrl: string;
     toltReferralId?: string | null;
     inviterId?: number;
     origin?: string;
-  }): Promise<WhopCheckoutPayload> {
+  }): Promise<WhopPaymentDto> {
     const metadata: Record<string, string> = { email: input.email };
     if (input.toltReferralId) metadata.toltReferralId = input.toltReferralId;
     if (input.inviterId != null) metadata.inviterId = String(input.inviterId);
     if (input.origin) metadata.signupOrigin = input.origin;
 
-    const checkoutConfigurationId = await this.whopClientService.createCheckoutConfiguration({
+    return this.whopClientService.createPayment({
       planId: input.whopPlanId,
+      confirmationToken: input.confirmationToken,
+      email: input.email,
       metadata,
+      returnUrl: input.returnUrl,
     });
-    return { checkoutConfigurationId };
   }
 
   /**

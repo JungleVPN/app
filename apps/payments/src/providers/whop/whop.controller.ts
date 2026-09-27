@@ -16,9 +16,11 @@ import { unwrapWebhook } from '@whop/sdk/helpers';
 import {
   ACTIVE_SUBSCRIPTION_CODE,
   type CreatePublicWhopCheckoutDto,
+  type PayPublicWhopCheckoutDto,
   type ProviderSubscriptionDto,
   type WhopCancelDto,
   type WhopCheckoutPayload,
+  type WhopPaymentDto,
 } from '@workspace/types';
 import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
 import { ClientUserGuard } from '../../auth/client-user.guard';
@@ -29,6 +31,9 @@ import { WhopProvider } from './whop.provider';
 /** Mirrors the pattern the Stripe and Paddle public routes validate emails against. */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** What `payments.createConfirmationToken()` mints in the browser. */
+const CONFIRMATION_TOKEN_PREFIX = 'ctok_';
+
 @Controller('whop')
 export class WhopController {
   private readonly logger = new Logger(WhopController.name);
@@ -36,32 +41,43 @@ export class WhopController {
   constructor(private readonly whopProvider: WhopProvider) {}
 
   /**
-   * Validates and prepares an anonymous Whop checkout. Like Paddle, the
-   * browser mounts the checkout itself; unlike Paddle, what it mounts is a
-   * checkout configuration that only Whop can create — so the duplicate
-   * check runs first, and a rejected payer leaves nothing behind on Whop.
+   * Validates an anonymous Whop checkout before the browser mounts the card
+   * form. Nothing is created on Whop here: the payment only exists once the
+   * payer submits their card to `public-pay`.
    */
   @Post('public-create-checkout')
   @UseGuards(PublicCheckoutRateLimitGuard)
   async createPublicCheckout(
     @Body() dto: CreatePublicWhopCheckoutDto,
-    @Headers('origin') origin?: string,
   ): Promise<WhopCheckoutPayload> {
-    const email = dto.email?.trim().toLocaleLowerCase() ?? '';
-    if (!EMAIL_PATTERN.test(email)) {
-      throw new BadRequestException('A valid email is required');
+    const { whopPlanId } = await this.validateCheckout(dto);
+    return this.whopProvider.checkoutTarget(whopPlanId);
+  }
+
+  /**
+   * Charges the card the browser tokenised. The checkout is validated again —
+   * nothing ties this call to an earlier `public-create-checkout` — so a
+   * payer who subscribed in the meantime is refused before any charge.
+   *
+   * Not behind the public-checkout rate limit: its per-email allowance would
+   * lock out a payer retrying after a decline, and every call already needs
+   * a confirmation token only Whop's card fields can mint.
+   */
+  @Post('public-pay')
+  async payPublicCheckout(
+    @Body() dto: PayPublicWhopCheckoutDto,
+    @Headers('origin') origin?: string,
+  ): Promise<WhopPaymentDto> {
+    if (!dto.confirmationToken?.startsWith(CONFIRMATION_TOKEN_PREFIX)) {
+      throw new BadRequestException('A confirmation token is required');
     }
+    const { email, whopPlanId } = await this.validateCheckout(dto);
 
-    // Pricing is checked first, so a rejected checkout costs no Whop round trip.
-    const whopPlanId = await this.whopProvider.resolveCheckoutPlanId(dto.planId);
-
-    if (await this.whopProvider.hasActiveSubscription(email)) {
-      throw this.activeSubscriptionConflict();
-    }
-
-    return this.whopProvider.createCheckout({
+    return this.whopProvider.payCheckout({
       email,
       whopPlanId,
+      confirmationToken: dto.confirmationToken,
+      returnUrl: dto.returnUrl,
       toltReferralId: dto.toltReferralId,
       inviterId: dto.inviterId,
       origin,
@@ -90,6 +106,27 @@ export class WhopController {
   @UseGuards(ClientUserGuard)
   async cancelSubscription(@AuthenticatedUserId() userId: number): Promise<WhopCancelDto> {
     return this.whopProvider.cancelSubscription(userId);
+  }
+
+  /**
+   * The checks every public checkout call runs: a well-formed email, a plan
+   * on sale, and no live membership for that email. Pricing is checked first,
+   * so a rejected checkout costs no Whop round trip.
+   */
+  private async validateCheckout(
+    dto: CreatePublicWhopCheckoutDto,
+  ): Promise<{ email: string; whopPlanId: string }> {
+    const email = dto.email?.trim().toLocaleLowerCase() ?? '';
+    if (!EMAIL_PATTERN.test(email)) {
+      throw new BadRequestException('A valid email is required');
+    }
+
+    const whopPlanId = await this.whopProvider.resolveCheckoutPlanId(dto.planId);
+
+    if (await this.whopProvider.hasActiveSubscription(email)) {
+      throw this.activeSubscriptionConflict();
+    }
+    return { email, whopPlanId };
   }
 
   /**
@@ -139,7 +176,6 @@ export class WhopController {
       throw new BadRequestException('Invalid Whop signature');
     }
 
-    this.logger.log(`Received Whop webhook ${headers['webhook-id'] ?? '(no id)'}`);
     await this.whopProvider.handleWebhook(event);
     return { received: true };
   }

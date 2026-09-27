@@ -1202,6 +1202,22 @@
     "title": "Finalizar compra",
     "subtitle": "Conclua o pagamento para ativar sua assinatura"
   },
+  "whopCheckout": {
+    "card_title": "Dados do cartão",
+    "card_number": "Número do cartão",
+    "expiry": "Data de validade",
+    "cvc": "Código de segurança",
+    "name": "Nome no cartão",
+    "name_placeholder": "Como aparece no seu cartão",
+    "country": "País",
+    "postal_code": "Código postal",
+    "pay": "Pagar",
+    "errors": {
+      "card_invalid": "Verifique os dados do seu cartão e tente novamente.",
+      "declined": "Seu cartão foi recusado. Tente outro cartão ou entre em contato com seu banco.",
+      "not_completed": "O pagamento não foi concluído. Tente novamente."
+    }
+  },
   "ipStatus": {
     "yourIp": "Seu IP: {{ip}}",
     "protected": "Você está protegido!",

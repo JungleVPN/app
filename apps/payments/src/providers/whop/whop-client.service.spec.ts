@@ -12,7 +12,7 @@ const page = <T>(items: T[]) => ({
 
 const membersList = vi.fn();
 const membershipsList = vi.fn();
-const checkoutConfigurationsCreate = vi.fn();
+const paymentsCreate = vi.fn();
 const membershipsCancel = vi.fn();
 const WhopClient = vi.fn();
 
@@ -26,7 +26,7 @@ vi.mock('@whop/sdk', () => ({
     return {
       members: { list: membersList },
       memberships: { list: membershipsList, cancel: membershipsCancel },
-      checkoutConfigurations: { create: checkoutConfigurationsCreate },
+      payments: { create: paymentsCreate },
     };
   }),
 }));
@@ -161,24 +161,42 @@ describe('WhopClientService', () => {
     });
   });
 
-  describe('createCheckoutConfiguration', () => {
-    it('creates a configuration for the Whop plan, stamped with our metadata, and returns its id', async () => {
-      checkoutConfigurationsCreate.mockResolvedValue({
-        id: 'ch_1',
-        purchase_url: 'https://whop.test',
-      });
+  describe('createPayment', () => {
+    it('charges the confirmation token for the Whop plan on our account, stamped with our metadata', async () => {
+      paymentsCreate.mockResolvedValue({ id: 'pay_1', status: 'open', client_secret: 'sec_1' });
       const service = new WhopClientService();
 
-      const id = await service.createCheckoutConfiguration({
+      await service.createPayment({
         planId: 'plan_month',
+        confirmationToken: 'ctok_1',
+        email: 'payer@test.com',
         metadata: { email: 'payer@test.com' },
+        returnUrl: 'https://app.test/payment/success',
       });
 
-      expect(id).toBe('ch_1');
-      expect(checkoutConfigurationsCreate).toHaveBeenCalledWith({
+      expect(paymentsCreate).toHaveBeenCalledWith({
+        account_id: 'biz_test',
         plan_id: 'plan_month',
+        confirmation_token: 'ctok_1',
+        email: 'payer@test.com',
         metadata: { email: 'payer@test.com' },
+        return_url: 'https://app.test/payment/success',
       });
+    });
+
+    it('returns what the browser needs to finish the payment', async () => {
+      paymentsCreate.mockResolvedValue({ id: 'pay_1', status: 'open', client_secret: 'sec_1' });
+      const service = new WhopClientService();
+
+      const payment = await service.createPayment({
+        planId: 'plan_month',
+        confirmationToken: 'ctok_1',
+        email: 'payer@test.com',
+        metadata: {},
+        returnUrl: 'https://app.test/payment/success',
+      });
+
+      expect(payment).toEqual({ paymentId: 'pay_1', status: 'open', clientSecret: 'sec_1' });
     });
   });
 

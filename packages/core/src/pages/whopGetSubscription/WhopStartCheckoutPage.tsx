@@ -10,8 +10,8 @@ import type { WhopCheckoutState } from '../whopCheckout/whopCheckoutState';
 /**
  * Global checkout through Whop: the email step and the order summary, up to
  * the point a payment can begin (mirrors Paddle's). The backend validates the
- * request and creates the checkout configuration; the checkout itself is
- * mounted on the one dedicated checkout route.
+ * request; the card form itself is mounted on the one dedicated checkout
+ * route.
  */
 export default function WhopStartCheckoutPage() {
   const paymentsApi = usePaymentsApi();
@@ -19,15 +19,16 @@ export default function WhopStartCheckoutPage() {
   const { paddleCheckoutPath } = useAppRoutes();
 
   const startCheckout = async ({ email, planId, selectedPeriod }: CheckoutRequest) => {
-    const { checkoutConfigurationId } = await paymentsApi.createPublicWhopCheckout({
+    const request = {
       email,
       planId,
       toltReferralId: window.tolt_referral ?? null,
       inviterId: getReferralUserId() ?? undefined,
-    });
+    };
+    const { accountId, planId: whopPlanId } = await paymentsApi.createPublicWhopCheckout(request);
 
     navigate(paddleCheckoutPath, {
-      state: { checkoutConfigurationId, email, selectedPeriod } satisfies WhopCheckoutState,
+      state: { accountId, whopPlanId, request, selectedPeriod } satisfies WhopCheckoutState,
     });
   };
 

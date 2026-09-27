@@ -19,3 +19,11 @@ vi.mock('posthog-js', () => ({
     setPersonProperties: vi.fn(),
   },
 }));
+
+// jsdom has no `CSS.escape`; react-aria's collections (ComboBox, ListBox) call it
+// to look items up by key while a list is open.
+if (typeof globalThis.CSS?.escape !== 'function') {
+  Object.assign(globalThis, {
+    CSS: { ...globalThis.CSS, escape: (value: string) => value.replace(/[^\w-]/g, '\\$&') },
+  });
+}

@@ -32,7 +32,7 @@ export function Block({
         <Card.Content className='flex flex-col gap-0 p-0'>{children}</Card.Content>
       </Card>
 
-      {description && <Paragraph>{description}</Paragraph>}
+      {description && <Paragraph className={'text-sm lg:text-sm ml-4'}>{description}</Paragraph>}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { loadWhop, type WhopLoad } from '@whop/elements';
-import { Checkout, CheckoutElement, WhopElements } from '@whop/elements-react';
+import { Payments, WhopElements } from '@whop/elements-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
@@ -7,8 +7,9 @@ import { i18n } from '../../core/i18n';
 import { useBackButton, useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useNavbarStore } from '../../stores';
-import { Container, Page } from '../../ui';
+import { Page } from '../../ui';
 import { PRICING_PATH } from '../../utils';
+import { WhopCardForm } from './WhopCardForm';
 import { isWhopCheckoutState } from './whopCheckoutState';
 import { getWhopEnvironment, toWhopLocale } from './whopEnv';
 
@@ -49,24 +50,21 @@ export default function WhopCheckoutPage({ fallbackPath }: WhopCheckoutPageProps
 
   if (!checkout) return null;
 
+  const returnUrl = `${window.location.origin}${paymentReturnPath}`;
+
   return (
-    <Container maxWidth={'md'}>
-      <Page title={t('paddleCheckout.title')} subtitle={t('paddleCheckout.subtitle')}>
-        {elements && (
-          <WhopElements
-            elements={elements}
-            environment={getWhopEnvironment()}
-            locale={toWhopLocale(i18n.language)}
-          >
-            <Checkout
-              checkoutConfiguration={checkout.checkoutConfigurationId}
-              returnUrl={`${window.location.origin}${paymentReturnPath}`}
-            >
-              <CheckoutElement buyerEmail={checkout.email} lockBuyerEmail />
-            </Checkout>
-          </WhopElements>
-        )}
-      </Page>
-    </Container>
+    <Page title={t('paddleCheckout.title')} subtitle={t('paddleCheckout.subtitle')}>
+      {elements && (
+        <WhopElements
+          elements={elements}
+          environment={getWhopEnvironment()}
+          locale={toWhopLocale(i18n.language)}
+        >
+          <Payments accountId={checkout.accountId} plan={checkout.whopPlanId} returnUrl={returnUrl}>
+            <WhopCardForm checkout={checkout} returnUrl={returnUrl} />
+          </Payments>
+        </WhopElements>
+      )}
+    </Page>
   );
 }

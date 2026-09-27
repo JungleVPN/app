@@ -10,8 +10,8 @@ import type { WhopCheckoutState } from '../../../whopCheckout/whopCheckoutState'
 
 /**
  * Starts a Whop checkout from the profile payment page (mirrors
- * `usePaddlePayment`): the backend creates the checkout configuration, and
- * the profile checkout route mounts it.
+ * `usePaddlePayment`): the backend validates the checkout, and the profile
+ * checkout route mounts the card form for it.
  */
 export function useWhopPayment(plan: SubscriptionPlanDto | undefined) {
   const { t } = useTranslation();
@@ -34,19 +34,21 @@ export function useWhopPayment(plan: SubscriptionPlanDto | undefined) {
       const payerEmail = email ?? rmnUser.email ?? undefined;
       if (!payerEmail) return;
 
-      const { checkoutConfigurationId } = await paymentsApi.createPublicWhopCheckout({
+      const request = {
         email: payerEmail,
         planId: plan.planId,
         toltReferralId: window.tolt_referral ?? null,
         inviterId: getReferralUserId() ?? undefined,
-      });
+      };
+      const { accountId, planId: whopPlanId } = await paymentsApi.createPublicWhopCheckout(request);
 
       phCapture('checkout_started', { payment_provider: 'whop', days: plan.days });
 
       navigate(profilePaddleCheckoutPath, {
         state: {
-          checkoutConfigurationId,
-          email: payerEmail,
+          accountId,
+          whopPlanId,
+          request,
           selectedPeriod: plan.days,
         } satisfies WhopCheckoutState,
       });

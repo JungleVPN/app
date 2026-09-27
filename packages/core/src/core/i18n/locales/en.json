@@ -1202,6 +1202,22 @@
     "title": "Checkout",
     "subtitle": "Complete your payment to activate your subscription"
   },
+  "whopCheckout": {
+    "card_title": "Card details",
+    "card_number": "Card number",
+    "expiry": "Expiration date",
+    "cvc": "Security code",
+    "name": "Name on card",
+    "name_placeholder": "As shown on your card",
+    "country": "Country",
+    "postal_code": "Postal code",
+    "pay": "Pay",
+    "errors": {
+      "card_invalid": "Check your card details and try again.",
+      "declined": "Your card was declined. Try another card or contact your bank.",
+      "not_completed": "The payment wasn't completed. Please try again."
+    }
+  },
   "ipStatus": {
     "yourIp": "Your IP: {{ip}}",
     "protected": "You are protected!",

@@ -1,9 +1,9 @@
 /**
  * Public Whop checkout-init request — POST /payments/whop/public-create-checkout.
  *
- * Same shape as Paddle's: the browser mounts Whop's embedded checkout itself,
- * so this endpoint only validates the request (email, plan, duplicate
- * subscription) and creates the checkout configuration it mounts.
+ * Validates the request (email, plan, duplicate subscription) before the
+ * browser mounts the card form; nothing is created on Whop until the payer
+ * submits their card (see `PayPublicWhopCheckoutDto`).
  */
 export interface CreatePublicWhopCheckoutDto {
   /** Payer's email, carried as metadata so the webhook can identify them. */
@@ -17,12 +17,34 @@ export interface CreatePublicWhopCheckoutDto {
 }
 
 /**
- * What the frontend needs to mount Whop's embedded checkout: the checkout
- * configuration (`ch_...`), which already carries the plan to bill and the
- * metadata every resulting payment and membership is stamped with.
+ * What the frontend needs to mount Whop's card fields: the account we sell
+ * from (`biz_...`) and the Whop plan (`plan_...`) being bought.
  */
 export interface WhopCheckoutPayload {
-  checkoutConfigurationId: string;
+  accountId: string;
+  planId: string;
+}
+
+/**
+ * Public Whop payment request — POST /payments/whop/public-pay. The same
+ * checkout request, re-validated, plus the card the browser tokenised.
+ */
+export interface PayPublicWhopCheckoutDto extends CreatePublicWhopCheckoutDto {
+  /** Single-use confirmation token (`ctok_...`) from `payments.createConfirmationToken()`. */
+  confirmationToken: string;
+  /** Where the buyer lands after an off-site step such as a 3DS bank page. */
+  returnUrl: string;
+}
+
+/**
+ * The payment Whop created. `paid` is final; anything else is finished in the
+ * browser by handing `clientSecret` to Whop's `handleNextAction`.
+ */
+export interface WhopPaymentDto {
+  paymentId: string;
+  status: string;
+  /** Unlocks only this payment, so it is safe to hand to the browser. */
+  clientSecret: string | null;
 }
 
 /**

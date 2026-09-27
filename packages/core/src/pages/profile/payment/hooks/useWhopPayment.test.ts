@@ -1,7 +1,7 @@
 /**
  * useWhopPayment — starting a Whop checkout from the profile payment page.
- * The backend creates the checkout configuration; the page only hands it to
- * the one checkout route that mounts Whop's embedded checkout.
+ * The backend validates the checkout; the page hands the result to the one
+ * checkout route that mounts Whop's card fields.
  */
 import { act, renderHook } from '@testing-library/react';
 import { ACTIVE_SUBSCRIPTION_CODE } from '@workspace/types';
@@ -32,7 +32,10 @@ const plan = { planId: 'plan-90', days: 90 } as never;
 describe('useWhopPayment', () => {
   beforeEach(() => {
     auth.rmnUser = { id: 42, email: 'account@test.com' };
-    paymentsApi.createPublicWhopCheckout.mockResolvedValue({ checkoutConfigurationId: 'ch_1' });
+    paymentsApi.createPublicWhopCheckout.mockResolvedValue({
+      accountId: 'biz_1',
+      planId: 'plan_q',
+    });
   });
 
   it("creates a Whop checkout for the plan, billed to the account's email", async () => {
@@ -48,13 +51,23 @@ describe('useWhopPayment', () => {
     });
   });
 
-  it('opens the profile checkout route with the checkout it created', async () => {
+  it('opens the profile checkout route with the validated checkout', async () => {
     const { result } = renderHook(() => useWhopPayment(plan));
 
     await act(() => result.current.handleWhopPayment());
 
     expect(navigate).toHaveBeenCalledWith('/profile/checkout', {
-      state: { checkoutConfigurationId: 'ch_1', email: 'account@test.com', selectedPeriod: 90 },
+      state: {
+        accountId: 'biz_1',
+        whopPlanId: 'plan_q',
+        request: {
+          email: 'account@test.com',
+          planId: 'plan-90',
+          toltReferralId: null,
+          inviterId: 7,
+        },
+        selectedPeriod: 90,
+      },
     });
     expect(phCapture).toHaveBeenCalledWith('checkout_started', {
       payment_provider: 'whop',

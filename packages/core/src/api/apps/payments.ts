@@ -12,6 +12,7 @@ import {
   type PaddleCheckoutPayload,
   PaymentSession,
   type Payments,
+  type PayPublicWhopCheckoutDto,
   type ProviderPortalDto,
   type ProviderSubscriptionDto,
   type RecordToltClickDto,
@@ -22,6 +23,7 @@ import {
   type ValidatePromoResponse,
   type WhopCancelDto,
   type WhopCheckoutPayload,
+  type WhopPaymentDto,
 } from '@workspace/types';
 import type { ApiClient } from '../client';
 
@@ -68,12 +70,19 @@ export function createPaymentsApi(client: ApiClient) {
     },
 
     /**
-     * Validates an anonymous Whop checkout and creates the checkout
-     * configuration the embedded Whop checkout mounts — unlike Paddle's, only
-     * Whop can create it, so it comes back from the server.
+     * Validates an anonymous Whop checkout and returns the account and Whop
+     * plan the card form mounts against. Nothing is charged yet.
      */
     async createPublicWhopCheckout(dto: CreatePublicWhopCheckoutDto): Promise<WhopCheckoutPayload> {
       return client.post<WhopCheckoutPayload>(apiRoutes.payments.whopPublicCreateCheckout, dto);
+    },
+
+    /**
+     * Charges the card Whop's fields tokenised. The returned payment may still
+     * need a buyer step (3DS), finished in the browser with its client secret.
+     */
+    async payPublicWhopCheckout(dto: PayPublicWhopCheckoutDto): Promise<WhopPaymentDto> {
+      return client.post<WhopPaymentDto>(apiRoutes.payments.whopPublicPay, dto);
     },
 
     /**

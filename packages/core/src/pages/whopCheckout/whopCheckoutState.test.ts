@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { isWhopCheckoutState } from './whopCheckoutState';
 
-const valid = { checkoutConfigurationId: 'ch_1', email: 'payer@test.com', selectedPeriod: 30 };
+const valid = {
+  accountId: 'biz_1',
+  whopPlanId: 'plan_1',
+  request: { email: 'payer@test.com', planId: 'whop-30', toltReferralId: null },
+  selectedPeriod: 30,
+};
 
 describe('isWhopCheckoutState', () => {
   it('accepts what the start-checkout page hands over', () => {
@@ -10,12 +15,19 @@ describe('isWhopCheckoutState', () => {
 
   it.each([
     ['no state at all (a reload or a shared link)', null],
-    ['a non-object', 'ch_1'],
-    ['a missing checkout configuration', { ...valid, checkoutConfigurationId: undefined }],
-    ['an empty checkout configuration', { ...valid, checkoutConfigurationId: '' }],
-    ['a missing email', { ...valid, email: undefined }],
-    ['an empty email', { ...valid, email: '' }],
+    ['a non-object', 'biz_1'],
+    ['a missing account', { ...valid, accountId: undefined }],
+    ['an empty account', { ...valid, accountId: '' }],
+    ['a missing Whop plan', { ...valid, whopPlanId: undefined }],
+    ['an empty Whop plan', { ...valid, whopPlanId: '' }],
+    ['a missing checkout request', { ...valid, request: undefined }],
+    ['a checkout request with no email', { ...valid, request: { ...valid.request, email: '' } }],
+    ['a checkout request with no plan', { ...valid, request: { ...valid.request, planId: '' } }],
     ['a missing period', { ...valid, selectedPeriod: undefined }],
+    [
+      'the old checkout-configuration state',
+      { checkoutConfigurationId: 'ch_1', email: 'payer@test.com', selectedPeriod: 30 },
+    ],
     [
       "Paddle's checkout state",
       { priceId: 'pri_1', customData: {}, email: 'a@b.co', selectedPeriod: 30 },

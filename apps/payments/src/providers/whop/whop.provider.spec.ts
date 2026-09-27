@@ -27,7 +27,10 @@ const CATALOG: Plan[] = [
 const providerWith = () => {
   const whopClientService = {
     hasActiveSubscription: vi.fn().mockResolvedValue(false),
-    createCheckoutConfiguration: vi.fn().mockResolvedValue('ch_1'),
+    accountId: 'biz_test',
+    createPayment: vi
+      .fn()
+      .mockResolvedValue({ paymentId: 'pay_1', status: 'open', clientSecret: 'sec_1' }),
     cancelMembership: vi
       .fn()
       .mockResolvedValue({ cancelAtPeriodEnd: true, accessUntil: '2026-10-26T10:00:00Z' }),
@@ -63,30 +66,50 @@ describe('WhopProvider', () => {
     });
   });
 
-  describe('createCheckout', () => {
-    const checkout = (overrides: Partial<Parameters<WhopProvider['createCheckout']>[0]> = {}) => ({
+  describe('checkoutTarget', () => {
+    it('names the account we sell from and the Whop plan to mount the card form for', () => {
+      const { provider } = providerWith();
+
+      expect(provider.checkoutTarget('plan_month_1')).toEqual({
+        accountId: 'biz_test',
+        planId: 'plan_month_1',
+      });
+    });
+  });
+
+  describe('payCheckout', () => {
+    const payment = (overrides: Partial<Parameters<WhopProvider['payCheckout']>[0]> = {}) => ({
       email: 'payer@test.com',
       whopPlanId: 'plan_month_1',
+      confirmationToken: 'ctok_1',
+      returnUrl: 'https://app.test/payment/success',
       ...overrides,
     });
 
-    it('returns the id of the checkout configuration Whop created for the plan', async () => {
+    it('charges the tokenised card for the Whop plan and returns the payment', async () => {
       const { provider, whopClientService } = providerWith();
 
-      await expect(provider.createCheckout(checkout())).resolves.toEqual({
-        checkoutConfigurationId: 'ch_1',
+      await expect(provider.payCheckout(payment())).resolves.toEqual({
+        paymentId: 'pay_1',
+        status: 'open',
+        clientSecret: 'sec_1',
       });
-      expect(whopClientService.createCheckoutConfiguration).toHaveBeenCalledWith(
-        expect.objectContaining({ planId: 'plan_month_1' }),
+      expect(whopClientService.createPayment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          planId: 'plan_month_1',
+          confirmationToken: 'ctok_1',
+          email: 'payer@test.com',
+          returnUrl: 'https://app.test/payment/success',
+        }),
       );
     });
 
     it('carries the payer email as metadata, so a webhook can identify them', async () => {
       const { provider, whopClientService } = providerWith();
 
-      await provider.createCheckout(checkout());
+      await provider.payCheckout(payment());
 
-      expect(whopClientService.createCheckoutConfiguration).toHaveBeenCalledWith(
+      expect(whopClientService.createPayment).toHaveBeenCalledWith(
         expect.objectContaining({ metadata: { email: 'payer@test.com' } }),
       );
     });
@@ -94,11 +117,11 @@ describe('WhopProvider', () => {
     it('carries the affiliate referral, inviter and signup origin when present', async () => {
       const { provider, whopClientService } = providerWith();
 
-      await provider.createCheckout(
-        checkout({ toltReferralId: 'tolt_9', inviterId: 1337, origin: 'https://jungle-vpn.com' }),
+      await provider.payCheckout(
+        payment({ toltReferralId: 'tolt_9', inviterId: 1337, origin: 'https://jungle-vpn.com' }),
       );
 
-      expect(whopClientService.createCheckoutConfiguration).toHaveBeenCalledWith(
+      expect(whopClientService.createPayment).toHaveBeenCalledWith(
         expect.objectContaining({
           metadata: {
             email: 'payer@test.com',
@@ -113,9 +136,9 @@ describe('WhopProvider', () => {
     it('omits absent optional fields entirely rather than sending them empty', async () => {
       const { provider, whopClientService } = providerWith();
 
-      await provider.createCheckout(checkout({ toltReferralId: null }));
+      await provider.payCheckout(payment({ toltReferralId: null }));
 
-      const [{ metadata }] = whopClientService.createCheckoutConfiguration.mock.calls[0];
+      const [{ metadata }] = whopClientService.createPayment.mock.calls[0];
       expect(Object.keys(metadata)).toEqual(['email']);
     });
   });

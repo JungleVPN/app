@@ -26,6 +26,7 @@ export const apiRoutes = {
     paddlePortal: '/paddle/portal',
     paddleWebhook: '/paddle/webhook',
     whopPublicCreateCheckout: '/whop/public-create-checkout',
+    whopPublicPay: '/whop/public-pay',
     whopWebhook: '/whop/webhook',
     whopSubscription: '/whop/subscription',
     whopCancel: '/whop/cancel',

@@ -1202,6 +1202,22 @@
     "title": "Finalizar compra",
     "subtitle": "Completa el pago para activar tu suscripción"
   },
+  "whopCheckout": {
+    "card_title": "Datos de la tarjeta",
+    "card_number": "Número de tarjeta",
+    "expiry": "Fecha de vencimiento",
+    "cvc": "Código de seguridad",
+    "name": "Nombre en la tarjeta",
+    "name_placeholder": "Tal como aparece en tu tarjeta",
+    "country": "País",
+    "postal_code": "Código postal",
+    "pay": "Pagar",
+    "errors": {
+      "card_invalid": "Revisa los datos de tu tarjeta e inténtalo de nuevo.",
+      "declined": "Tu tarjeta fue rechazada. Prueba con otra tarjeta o contacta con tu banco.",
+      "not_completed": "El pago no se completó. Inténtalo de nuevo."
+    }
+  },
   "ipStatus": {
     "yourIp": "Tu IP: {{ip}}",
     "protected": "¡Estás protegido!",

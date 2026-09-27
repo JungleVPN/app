@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WhopClient, WhopEnvironment } from '@whop/sdk';
+import type { WhopPaymentDto } from '@workspace/types';
 
 /**
  * The membership statuses that count as "this customer is currently subscribed".
@@ -64,19 +65,27 @@ export class WhopClientService {
   }
 
   /**
-   * Creates the checkout configuration the embedded checkout mounts, and
-   * returns its id. Whop copies `metadata` onto every payment and membership
-   * the checkout produces — that is how the webhook identifies the payer.
+   * Charges the card the browser tokenised (`ctok_...`) for `planId`. Whop
+   * copies `metadata` onto the payment — that is how the webhook identifies
+   * the payer. The payment may still need a buyer step (3DS), which the
+   * browser finishes with `clientSecret`.
    */
-  async createCheckoutConfiguration(input: {
+  async createPayment(input: {
     planId: string;
+    confirmationToken: string;
+    email: string;
     metadata: Record<string, string>;
-  }): Promise<string> {
-    const configuration = await this.whop.checkoutConfigurations.create({
+    returnUrl: string;
+  }): Promise<WhopPaymentDto> {
+    const payment = await this.whop.payments.create({
+      account_id: this.accountId,
       plan_id: input.planId,
+      confirmation_token: input.confirmationToken,
+      email: input.email,
       metadata: input.metadata,
+      return_url: input.returnUrl,
     });
-    return configuration.id;
+    return { paymentId: payment.id, status: payment.status, clientSecret: payment.client_secret };
   }
 
   /**

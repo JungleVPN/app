@@ -1202,6 +1202,22 @@
     "title": "Ödeme",
     "subtitle": "Aboneliğinizi etkinleştirmek için ödemenizi tamamlayın"
   },
+  "whopCheckout": {
+    "card_title": "Kart bilgileri",
+    "card_number": "Kart numarası",
+    "expiry": "Son kullanma tarihi",
+    "cvc": "Güvenlik kodu",
+    "name": "Kart üzerindeki isim",
+    "name_placeholder": "Kartınızda yazdığı gibi",
+    "country": "Ülke",
+    "postal_code": "Posta kodu",
+    "pay": "Öde",
+    "errors": {
+      "card_invalid": "Kart bilgilerinizi kontrol edip tekrar deneyin.",
+      "declined": "Kartınız reddedildi. Başka bir kart deneyin veya bankanızla iletişime geçin.",
+      "not_completed": "Ödeme tamamlanmadı. Lütfen tekrar deneyin."
+    }
+  },
   "ipStatus": {
     "yourIp": "IP adresiniz: {{ip}}",
     "protected": "Korunuyorsunuz!",
