@@ -5,6 +5,7 @@ import { usePaddlePayment } from './usePaddlePayment';
 import { usePromoValidation } from './usePromoValidation';
 import { useStripePayment } from './useStripePayment';
 import { useTelegramStarsPayment } from './useTelegramStarsPayment';
+import { useWhopPayment } from './useWhopPayment';
 import { useYookassaPayment } from './useYookassaPayment';
 
 export function usePayment(plan: SubscriptionPlanDto | undefined) {
@@ -16,6 +17,7 @@ export function usePayment(plan: SubscriptionPlanDto | undefined) {
   const yookassa = useYookassaPayment(plan);
   const stripe = useStripePayment(plan);
   const paddle = usePaddlePayment(plan);
+  const whop = useWhopPayment(plan);
   const stars = useTelegramStarsPayment(plan?.days ?? 30);
   const { validatePromo } = usePromoValidation();
 
@@ -26,6 +28,7 @@ export function usePayment(plan: SubscriptionPlanDto | undefined) {
     ...yookassa,
     ...stripe,
     ...paddle,
+    ...whop,
     ...stars,
   };
 }

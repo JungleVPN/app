@@ -50,6 +50,9 @@ export default function PaymentPage() {
     handlePaddlePayment,
     isPaddlePaying,
     paddleError,
+    handleWhopPayment,
+    isWhopPaying,
+    whopError,
     validatePromo,
   } = usePayment(plan);
 
@@ -68,7 +71,7 @@ export default function PaymentPage() {
 
   // RU visitors and Telegram users pay through YooKassa; everyone else checks
   // out through whichever global provider is currently enabled.
-  const globalMethod: PaymentMethod = GLOBAL_PAYMENT_PROVIDER === 'paddle' ? 'paddle' : 'stripe';
+  const globalMethod: PaymentMethod = GLOBAL_PAYMENT_PROVIDER;
   const [selectedMethod] = useState<PaymentMethod>(
     isRu || platformType === 'telegram' ? 'yookassa' : globalMethod,
   );
@@ -92,8 +95,7 @@ export default function PaymentPage() {
     stripe: isStripePaying,
     stars: isStarsPaying,
     paddle: isPaddlePaying,
-    // Not selectable until the Whop profile flow lands.
-    whop: false,
+    whop: isWhopPaying,
   };
   const isPending = isPendingByMethod[selectedMethod];
 
@@ -161,12 +163,17 @@ export default function PaymentPage() {
             buttonLabel={buttonLabel}
             isPending={isPending}
             starsError={starsError}
-            paymentError={paddleError}
+            paymentError={paddleError ?? whopError}
             platformType={platformType}
-            enablePromo={selectedMethod !== 'stripe' && selectedMethod !== 'paddle'}
+            enablePromo={
+              selectedMethod !== 'stripe' &&
+              selectedMethod !== 'paddle' &&
+              selectedMethod !== 'whop'
+            }
             onYookassaPayment={handleYookassaPayment}
             onStripePayment={handleStripePayment}
             onPaddlePayment={handlePaddlePayment}
+            onWhopPayment={handleWhopPayment}
             onStarsPayment={handleStarsPayment}
             onValidatePromo={validatePromo}
           >
