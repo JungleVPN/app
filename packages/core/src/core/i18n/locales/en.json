@@ -168,6 +168,14 @@
       "canceled": "Your subscription is canceled and won't renew.",
       "error": "Couldn't cancel your subscription. Please try again."
     },
+    "whopSubscription": {
+      "product": "Product",
+      "price": "Price",
+      "status": "Status",
+      "paymentMethod": "Payment method",
+      "pricePerPeriod": "{{price}} / {{period}}",
+      "renewsOn": "Renews {{date}}"
+    },
     "deleteMethod": {
       "title": "Remove payment method?",
       "body": "This card will be removed and auto-renewal will be disabled. New card will be added on next manual payment",

@@ -40,6 +40,18 @@ export function formatIntlPrice(amount: string, currencyCode: string): string {
   }).format(Number(amount));
 }
 
+/**
+ * Formats an amount that arrives as a plain number (so its precision is not
+ * carried in the string), with the currency's own number of decimals.
+ */
+export function formatAmount(amount: number, currencyCode: string): string {
+  return new Intl.NumberFormat(displayLocale(), {
+    style: 'currency',
+    currency: currencyCode,
+    currencyDisplay: 'narrowSymbol',
+  }).format(amount);
+}
+
 /** Formats a plan's pricing amount in the currency the backend quoted it in. */
 export function formatPlanPrice(pricing: { currencyCode: string }, amount: string): string {
   return formatIntlPrice(amount, pricing.currencyCode);

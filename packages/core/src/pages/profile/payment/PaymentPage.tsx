@@ -9,7 +9,13 @@ import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url'
 import { FeaturesCard, Loading } from '../../../components';
 import { useBackButton, useNavigation, usePlans } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
-import { useNavbarStore, usePlanById, usePlansStatus, usePlatformStore } from '../../../stores';
+import {
+  useNavbarStore,
+  usePlanById,
+  usePlansStatus,
+  usePlatformStore,
+  useWhopSubscription,
+} from '../../../stores';
 import { LottieIcon } from '../../../ui';
 import { GLOBAL_PAYMENT_PROVIDER, phCapture, userScope } from '../../../utils';
 import { PaymentForm } from './components/PaymentForm';
@@ -70,6 +76,7 @@ export default function PaymentPage() {
     hasWhopSubscription,
   } = useSavedPayment();
 
+  const [whopMethod] = useWhopSubscription().methods;
   const { platformType } = usePlatformStore();
   const { setNavbarVisible } = useNavbarStore();
   const navigate = useNavigation();
@@ -154,7 +161,7 @@ export default function PaymentPage() {
               )}
             </Button>
           ) : hasWhopSubscription ? (
-            <WhopSubscriptionCard />
+            <WhopSubscriptionCard method={whopMethod} />
           ) : null}
           <SavedMethod
             hasManagedSubscription={

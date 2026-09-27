@@ -168,6 +168,14 @@
       "canceled": "Tu suscripción está cancelada y no se renovará.",
       "error": "No se pudo cancelar tu suscripción. Inténtalo de nuevo."
     },
+    "whopSubscription": {
+      "product": "Producto",
+      "price": "Precio",
+      "status": "Estado",
+      "paymentMethod": "Método de pago",
+      "pricePerPeriod": "{{price}} \/ {{period}}",
+      "renewsOn": "Se renueva el {{date}}"
+    },
     "deleteMethod": {
       "title": "¿Eliminar la forma de pago?",
       "body": "Esta tarjeta se eliminará y se desactivará la renovación automática. Se añadirá una nueva tarjeta en el próximo pago manual",

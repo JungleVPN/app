@@ -4,6 +4,7 @@
  * confirmation, at period end, with the end date shown once it is done.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { SavedMethodDto } from '@workspace/types';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ar from '../../../../core/i18n/locales/ar.json';
@@ -30,6 +31,25 @@ vi.mock('../../../../ui/Paragraph', () => ({
   Paragraph: ({ children }: { children: ReactNode }) => <p>{children}</p>,
 }));
 
+const whopMethod = (overrides: Partial<SavedMethodDto> = {}): SavedMethodDto => ({
+  id: 'row-1',
+  userId: 1000,
+  provider: 'whop',
+  paymentMethodId: 'mem_1',
+  paymentMethodType: 'whop',
+  title: 'Visa •••• 1303',
+  card: { last4: '1303', cardType: 'visa' },
+  isActive: true,
+  productName: 'Jungle VPN',
+  amount: 0.4,
+  currency: 'EUR',
+  billingPeriod: 30,
+  renewsAt: '2026-10-27T10:00:00.000Z',
+  createdAt: '2026-09-27T10:00:00.000Z',
+  updatedAt: '2026-09-27T10:00:00.000Z',
+  ...overrides,
+});
+
 const openAndConfirm = async () => {
   fireEvent.click(screen.getByRole('button', { name: 'payment.whopCancel.button' }));
   fireEvent.click(await screen.findByRole('button', { name: 'payment.whopCancel.confirm' }));
@@ -41,6 +61,53 @@ describe('WhopSubscriptionCard', () => {
       cancelAtPeriodEnd: true,
       accessUntil: '2026-10-26T10:00:00Z',
     });
+  });
+
+  it('shows the product, price, renewal date and card the subscription is on', () => {
+    render(<WhopSubscriptionCard method={whopMethod()} />);
+
+    expect(screen.getByText('Jungle VPN')).toBeTruthy();
+    expect(screen.getByText(/€0\.40/)).toBeTruthy();
+    expect(screen.getByText(/payment\.whopSubscription\.renewsOn.*October 27, 2026/)).toBeTruthy();
+    expect(screen.getByText('•••• 1303')).toBeTruthy();
+  });
+
+  it("falls back to Whop's own name for a payment method that is not a card", () => {
+    render(<WhopSubscriptionCard method={whopMethod({ card: null, title: 'Klarna' })} />);
+
+    expect(screen.getByText('Klarna')).toBeTruthy();
+  });
+
+  it('leaves out what has not been recorded yet, keeping the cancel button', () => {
+    render(
+      <WhopSubscriptionCard
+        method={whopMethod({
+          productName: null,
+          amount: null,
+          currency: null,
+          billingPeriod: null,
+          renewsAt: null,
+          title: null,
+          card: null,
+        })}
+      />,
+    );
+
+    expect(screen.queryByText('payment.whopSubscription.product')).toBeNull();
+    expect(screen.queryByText('payment.whopSubscription.price')).toBeNull();
+    expect(screen.queryByText('payment.whopSubscription.status')).toBeNull();
+    expect(screen.queryByText('payment.whopSubscription.paymentMethod')).toBeNull();
+    expect(screen.getByRole('button', { name: 'payment.whopCancel.button' })).toBeTruthy();
+  });
+
+  it('stops promising a renewal once the subscription is canceled', async () => {
+    render(<WhopSubscriptionCard method={whopMethod()} />);
+
+    await openAndConfirm();
+
+    expect(await screen.findByText(/payment\.whopCancel\.endsOn/)).toBeTruthy();
+    expect(screen.queryByText(/payment\.whopSubscription\.renewsOn/)).toBeNull();
+    expect(screen.getByText('Jungle VPN')).toBeTruthy();
   });
 
   it('cancels only after the user confirms', async () => {
@@ -106,6 +173,18 @@ describe('WhopSubscriptionCard', () => {
       .whopCancel;
 
     expect(Object.keys(copy ?? {}).sort()).toEqual(Object.keys(en.payment.whopCancel).sort());
+    for (const text of Object.values(copy ?? {})) expect(text.trim()).not.toBe('');
+  });
+
+  it.each(
+    Object.entries({ ar, en, es, hi, id, pt, ru, tr }),
+  )('has every piece of subscription detail copy in %s', (_language, locale) => {
+    const copy = (locale as { payment: { whopSubscription?: Record<string, string> } }).payment
+      .whopSubscription;
+
+    expect(Object.keys(copy ?? {}).sort()).toEqual(
+      ['paymentMethod', 'price', 'pricePerPeriod', 'product', 'renewsOn', 'status'].sort(),
+    );
     for (const text of Object.values(copy ?? {})) expect(text.trim()).not.toBe('');
   });
 });

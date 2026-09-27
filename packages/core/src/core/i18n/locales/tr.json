@@ -168,6 +168,14 @@
       "canceled": "Aboneliğin iptal edildi ve yenilenmeyecek.",
       "error": "Aboneliğin iptal edilemedi. Lütfen tekrar dene."
     },
+    "whopSubscription": {
+      "product": "Ürün",
+      "price": "Fiyat",
+      "status": "Durum",
+      "paymentMethod": "Ödeme yöntemi",
+      "pricePerPeriod": "{{price}} \/ {{period}}",
+      "renewsOn": "{{date}} tarihinde yenilenir"
+    },
     "deleteMethod": {
       "title": "Ödeme yöntemini kaldırmak ister misiniz?",
       "body": "Bu kart kaldırılacak ve otomatik yenileme devre dışı bırakılacaktır. Bir sonraki manuel ödemede yeni bir kart eklenecektir",
