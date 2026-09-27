@@ -64,6 +64,47 @@ const RENEWAL_BILLING_REASON = 'subscription_cycle';
 
 const POSTGRES_UNIQUE_VIOLATION = '23505';
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** What the profile page shows about a Whop subscription, as of its latest charge. */
+type SubscriptionDetails = Pick<
+  SavedPaymentMethod,
+  'productName' | 'amount' | 'currency' | 'billingPeriod' | 'renewsAt' | 'title' | 'card'
+>;
+
+/** Whop's `paid_at` as a Date, taking a number as Unix seconds; now when it is missing. */
+function paidAtOf(payment: WhopPaymentData): Date {
+  const paidAt = payment.paid_at;
+  if (typeof paidAt === 'number') return new Date(paidAt * 1000);
+  if (paidAt) return new Date(paidAt);
+  return new Date();
+}
+
+function cardOf(payment: WhopPaymentData): SavedPaymentMethod['card'] {
+  if (!payment.card_last4) return null;
+  return {
+    last4: payment.card_last4,
+    ...(payment.card_brand ? { cardType: payment.card_brand } : {}),
+    ...(payment.card_exp_month != null ? { expiryMonth: String(payment.card_exp_month) } : {}),
+    ...(payment.card_exp_year != null ? { expiryYear: String(payment.card_exp_year) } : {}),
+  };
+}
+
+function subscriptionDetailsOf(
+  payment: WhopPaymentData,
+  charge: { amount: number; currency: string; billingPeriod: number },
+): SubscriptionDetails {
+  return {
+    productName: payment.product?.title ?? null,
+    amount: charge.amount,
+    currency: charge.currency,
+    billingPeriod: charge.billingPeriod,
+    renewsAt: new Date(paidAtOf(payment).getTime() + charge.billingPeriod * DAY_MS),
+    title: payment.payment_instrument?.display_name ?? null,
+    card: cardOf(payment),
+  };
+}
+
 /** True for the error a unique-constraint conflict raises, however it got wrapped on the way up. */
 function isUniqueViolation(error: unknown): boolean {
   const candidate = error as { code?: unknown; driverError?: { code?: unknown } } | null;
@@ -259,7 +300,10 @@ export class WhopWebhookService {
     await this.persistPayment(record, 'paid');
 
     if (payment.billing_reason !== ONE_TIME_BILLING_REASON) {
-      await this.activatePaymentMethod(record);
+      await this.activatePaymentMethod(
+        record,
+        subscriptionDetailsOf(payment, { amount, currency, billingPeriod: selectedPeriod }),
+      );
     }
 
     this.eventEmitter.emit(WebhookEventEnum['payment.succeeded'], {
@@ -449,16 +493,21 @@ export class WhopWebhookService {
     }
   }
 
-  private async activatePaymentMethod(record: WhopPaymentRecord): Promise<void> {
+  /**
+   * Saves the membership as the user's active Whop method, carrying the
+   * latest charge's details so the profile page reads them from here.
+   */
+  private async activatePaymentMethod(
+    record: WhopPaymentRecord,
+    details: SubscriptionDetails,
+  ): Promise<void> {
     const { userId, membershipId } = record;
     if (!userId || !membershipId) return;
 
     try {
       const existing = await this.savedMethodRepo.findOneBy({ paymentMethodId: membershipId });
       if (existing) {
-        if (!existing.isActive) {
-          await this.savedMethodRepo.update({ id: existing.id }, { isActive: true });
-        }
+        await this.savedMethodRepo.update({ id: existing.id }, { ...details, isActive: true });
         return;
       }
 
@@ -473,8 +522,7 @@ export class WhopWebhookService {
           provider: 'whop',
           paymentMethodId: membershipId,
           paymentMethodType: 'whop',
-          title: null,
-          card: null,
+          ...details,
           isActive: true,
         }),
       );

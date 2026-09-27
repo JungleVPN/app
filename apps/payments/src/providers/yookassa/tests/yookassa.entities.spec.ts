@@ -223,20 +223,33 @@ describe('SavedPaymentMethod entity', () => {
     expect(tableNameOf(SavedPaymentMethod)).toBe('saved_payment_methods');
   });
 
-  it('declares exactly the columns the autopayment flow reads and writes', () => {
+  it('declares exactly the columns the autopayment flow and the Whop webhook read and write', () => {
     expect([...columns.keys()].sort()).toEqual([
+      'amount',
+      'billingPeriod',
       'card',
       'createdAt',
+      'currency',
       'id',
       'isActive',
       'paymentMethodId',
       'paymentMethodType',
+      'productName',
       'provider',
+      'renewsAt',
       'title',
       'updatedAt',
       'userId',
     ]);
   });
+
+  // Only the Whop webhook fills the subscription details; YooKassa rows leave them empty.
+  it.each([['productName'], ['amount'], ['currency'], ['billingPeriod'], ['renewsAt']])(
+    'leaves %s optional',
+    (column) => {
+      expect(columns.get(column)?.options.nullable).toBe(true);
+    },
+  );
 
   // Unlike a payment, the row has no natural external key, so the database
   // generates a uuid.

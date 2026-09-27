@@ -23,6 +23,16 @@ export interface SavedMethodDto {
     issuerCountry?: string;
   } | null;
   isActive: boolean;
+  /** What the subscription is for, e.g. "Jungle VPN". Whop only; null elsewhere. */
+  productName: string | null;
+  /** Last amount charged, in major units of `currency`. Whop only; null elsewhere. */
+  amount: number | null;
+  /** Uppercase ISO code of `amount`, e.g. "EUR". Whop only; null elsewhere. */
+  currency: string | null;
+  /** Days each charge pays for. Whop only; null elsewhere. */
+  billingPeriod: number | null;
+  /** ISO date-time the next charge is due. Whop only; null elsewhere. */
+  renewsAt: string | null;
   createdAt: string;
   updatedAt: string;
 }

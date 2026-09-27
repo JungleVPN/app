@@ -56,6 +56,17 @@ const paymentData = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+/** The display fields Whop sends on a card payment. */
+const cardPaymentDetails = {
+  paid_at: '2026-09-27T10:00:00.000Z',
+  product: { id: 'prod_1', title: 'Jungle VPN' },
+  card_brand: 'visa',
+  card_last4: '1303',
+  card_exp_month: 4,
+  card_exp_year: 2029,
+  payment_instrument: { display_name: 'Visa •••• 1303' },
+};
+
 const paymentSucceeded = (overrides: Record<string, unknown> = {}) => ({
   type: 'payment.succeeded',
   data: paymentData(overrides),
@@ -259,8 +270,89 @@ describe('WhopWebhookService', () => {
 
       await service.handleWebhook(paymentSucceeded());
 
-      expect(savedMethodRepo.update).toHaveBeenCalledWith({ id: 42 }, { isActive: true });
+      expect(savedMethodRepo.update).toHaveBeenCalledWith(
+        { id: 42 },
+        expect.objectContaining({ isActive: true }),
+      );
       expect(savedMethodRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('keeps what the payment says about the subscription on the saved method, for the profile page', async () => {
+      const { service, savedMethodRepo } = setup();
+
+      await service.handleWebhook(paymentSucceeded(cardPaymentDetails));
+
+      expect(savedMethodRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          productName: 'Jungle VPN',
+          amount: 6,
+          currency: 'EUR',
+          billingPeriod: 30,
+          renewsAt: new Date('2026-10-27T10:00:00.000Z'),
+          title: 'Visa •••• 1303',
+          card: { last4: '1303', cardType: 'visa', expiryMonth: '4', expiryYear: '2029' },
+        }),
+      );
+    });
+
+    it("refreshes a known membership's details on every renewal", async () => {
+      const { service, savedMethodRepo } = setup();
+      savedMethodRepo.findOneBy.mockResolvedValue({ id: 42, isActive: true });
+
+      await service.handleWebhook(
+        paymentSucceeded({
+          ...cardPaymentDetails,
+          billing_reason: 'subscription_cycle',
+          paid_at: '2026-10-27T10:00:00.000Z',
+          card_last4: '9999',
+        }),
+      );
+
+      expect(savedMethodRepo.update).toHaveBeenCalledWith(
+        { id: 42 },
+        expect.objectContaining({
+          isActive: true,
+          renewsAt: new Date('2026-11-26T10:00:00.000Z'),
+          card: expect.objectContaining({ last4: '9999' }),
+        }),
+      );
+    });
+
+    it('reads a paid_at Whop sends as a Unix timestamp', async () => {
+      const { service, savedMethodRepo } = setup();
+
+      await service.handleWebhook(
+        paymentSucceeded({ paid_at: Date.parse('2026-09-27T10:00:00.000Z') / 1000 }),
+      );
+
+      expect(savedMethodRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({ renewsAt: new Date('2026-10-27T10:00:00.000Z') }),
+      );
+    });
+
+    it('counts the renewal from now when Whop omits paid_at', async () => {
+      vi.useFakeTimers({ now: new Date('2026-09-27T12:00:00.000Z'), toFake: ['Date'] });
+      try {
+        const { service, savedMethodRepo } = setup();
+
+        await service.handleWebhook(paymentSucceeded());
+
+        expect(savedMethodRepo.save).toHaveBeenCalledWith(
+          expect.objectContaining({ renewsAt: new Date('2026-10-27T12:00:00.000Z') }),
+        );
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('saves the method without card details when the payment was not made by card', async () => {
+      const { service, savedMethodRepo } = setup();
+
+      await service.handleWebhook(paymentSucceeded());
+
+      expect(savedMethodRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({ productName: null, title: null, card: null }),
+      );
     });
 
     it('announces the payment to the rest of the system', async () => {

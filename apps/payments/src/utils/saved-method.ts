@@ -18,6 +18,11 @@ export function toSavedMethodDto(method: SavedPaymentMethod): SavedMethodDto {
     title: method.title,
     card: method.card,
     isActive: method.isActive,
+    productName: method.productName ?? null,
+    amount: method.amount ?? null,
+    currency: method.currency ?? null,
+    billingPeriod: method.billingPeriod ?? null,
+    renewsAt: method.renewsAt?.toISOString() ?? null,
     createdAt: method.createdAt?.toISOString() ?? new Date(0).toISOString(),
     updatedAt: method.updatedAt?.toISOString() ?? new Date(0).toISOString(),
   };

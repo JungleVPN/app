@@ -44,6 +44,26 @@ export class SavedPaymentMethod {
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
+  /** What the subscription is for, e.g. "Jungle VPN". Whop only. */
+  @Column({ type: 'varchar', nullable: true })
+  productName: string | null;
+
+  /** Last amount charged, in major units of `currency`. Whop only. */
+  @Column({ type: 'double precision', nullable: true })
+  amount: number | null;
+
+  /** Uppercase ISO code of `amount`, e.g. "EUR". Whop only. */
+  @Column({ type: 'varchar', nullable: true })
+  currency: string | null;
+
+  /** Days each charge pays for. Whop only. */
+  @Column({ type: 'int', nullable: true })
+  billingPeriod: number | null;
+
+  /** When the next charge is due: the last charge plus `billingPeriod`. Whop only. */
+  @Column({ type: 'timestamptz', nullable: true })
+  renewsAt: Date | null;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 

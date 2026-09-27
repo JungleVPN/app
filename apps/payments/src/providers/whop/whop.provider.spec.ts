@@ -268,6 +268,49 @@ describe('WhopProvider', () => {
       expect(status.methods[0]?.createdAt).toBe('2026-01-01T00:00:00.000Z');
     });
 
+    it('reports the product, price, renewal date and card the webhook stored, without asking Whop', async () => {
+      const { provider, savedMethodRepo, whopClientService } = providerWith();
+      savedMethodRepo.find.mockResolvedValue([
+        whopRow({
+          productName: 'Jungle VPN',
+          amount: 0.4,
+          currency: 'EUR',
+          billingPeriod: 30,
+          renewsAt: new Date('2026-10-27T10:00:00.000Z'),
+          title: 'Visa •••• 1303',
+          card: { last4: '1303', cardType: 'visa' },
+        }),
+      ]);
+
+      const [method] = (await provider.getSubscriptionStatus(1000)).methods;
+
+      expect(method).toMatchObject({
+        productName: 'Jungle VPN',
+        amount: 0.4,
+        currency: 'EUR',
+        billingPeriod: 30,
+        renewsAt: '2026-10-27T10:00:00.000Z',
+        title: 'Visa •••• 1303',
+        card: { last4: '1303', cardType: 'visa' },
+      });
+      expect(whopClientService.cancelMembership).not.toHaveBeenCalled();
+    });
+
+    it('reports no renewal date for a row the webhook has not filled in yet', async () => {
+      const { provider, savedMethodRepo } = providerWith();
+      savedMethodRepo.find.mockResolvedValue([whopRow()]);
+
+      const [method] = (await provider.getSubscriptionStatus(1000)).methods;
+
+      expect(method).toMatchObject({
+        productName: null,
+        amount: null,
+        currency: null,
+        billingPeriod: null,
+        renewsAt: null,
+      });
+    });
+
     it('reports no subscription for a user with no saved Whop row', async () => {
       const { provider } = providerWith();
 

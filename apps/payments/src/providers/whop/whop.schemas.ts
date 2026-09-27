@@ -36,6 +36,15 @@ export const WhopPaymentSchema = z.object({
   plan: z.object({ id: z.string() }).nullable(),
   membership: z.object({ id: z.string() }).nullable(),
   user: z.object({ id: z.string(), email: z.string().nullable() }).nullable(),
+  /** ISO date-time; the docs also call it a Unix timestamp, so seconds are accepted too. */
+  paid_at: z.union([z.string(), z.number()]).nullish(),
+  product: z.object({ title: z.string() }).nullish(),
+  card_brand: z.string().nullish(),
+  card_last4: z.string().nullish(),
+  card_exp_month: z.number().nullish(),
+  card_exp_year: z.number().nullish(),
+  /** `display_name` is buyer-facing, e.g. "Visa •••• 4242". */
+  payment_instrument: z.object({ display_name: z.string() }).nullish(),
 });
 
 export const WhopMembershipSchema = z.object({
