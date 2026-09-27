@@ -158,6 +158,16 @@
     "stripeManageButton": "Manage subscription",
     "autoRenewalHint": "Means that payment method is saved for auto-renewal",
     "savedMethodsDescription": "You have payment method linked that will be used for sub renewal. If you wish to pay manually just delete it.",
+    "whopCancel": {
+      "button": "Cancel subscription",
+      "title": "Cancel your subscription?",
+      "body": "It won't renew. You keep access until the end of the period you've already paid for.",
+      "keep": "Keep subscription",
+      "confirm": "Cancel subscription",
+      "endsOn": "Your subscription is canceled and ends on {{date}}.",
+      "canceled": "Your subscription is canceled and won't renew.",
+      "error": "Couldn't cancel your subscription. Please try again."
+    },
     "deleteMethod": {
       "title": "Remove payment method?",
       "body": "This card will be removed and auto-renewal will be disabled. New card will be added on next manual payment",

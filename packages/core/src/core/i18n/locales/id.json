@@ -158,6 +158,16 @@
     "stripeManageButton": "Kelola langganan",
     "autoRenewalHint": "Artinya, metode pembayaran telah disimpan untuk perpanjangan otomatis",
     "savedMethodsDescription": "Anda telah menghubungkan metode pembayaran yang akan digunakan untuk perpanjangan langganan. Jika Anda ingin membayar secara manual, hapus saja metode pembayaran tersebut.",
+    "whopCancel": {
+      "button": "Batalkan langganan",
+      "title": "Batalkan langganan Anda?",
+      "body": "Langganan tidak akan diperpanjang. Anda tetap memiliki akses hingga akhir periode yang sudah dibayar.",
+      "keep": "Pertahankan langganan",
+      "confirm": "Batalkan langganan",
+      "endsOn": "Langganan Anda dibatalkan dan berakhir pada {{date}}.",
+      "canceled": "Langganan Anda dibatalkan dan tidak akan diperpanjang.",
+      "error": "Gagal membatalkan langganan Anda. Silakan coba lagi."
+    },
     "deleteMethod": {
       "title": "Hapus metode pembayaran?",
       "body": "Kartu ini akan dihapus dan perpanjangan otomatis akan dinonaktifkan. Kartu baru akan ditambahkan pada pembayaran manual berikutnya",

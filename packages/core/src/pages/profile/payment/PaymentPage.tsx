@@ -14,6 +14,7 @@ import { LottieIcon } from '../../../ui';
 import { GLOBAL_PAYMENT_PROVIDER, phCapture, userScope } from '../../../utils';
 import { PaymentForm } from './components/PaymentForm';
 import { SavedMethod } from './components/SavedMethod';
+import { WhopSubscriptionCard } from './components/WhopSubscriptionCard';
 import { usePayment } from './hooks/usePayment';
 import { useSavedPayment } from './hooks/useSavedPayment';
 import { getButtonLabel, type SelectedPlan } from './utils/getButtonLabel';
@@ -60,8 +61,14 @@ export default function PaymentPage() {
     phCapture('payments_viewed');
   }, []);
 
-  const { savedMethods, isLoading, hasActiveMethod, hasStripeSubscription, hasPaddleSubscription } =
-    useSavedPayment();
+  const {
+    savedMethods,
+    isLoading,
+    hasActiveMethod,
+    hasStripeSubscription,
+    hasPaddleSubscription,
+    hasWhopSubscription,
+  } = useSavedPayment();
 
   const { platformType } = usePlatformStore();
   const { setNavbarVisible } = useNavbarStore();
@@ -146,9 +153,13 @@ export default function PaymentPage() {
                 </>
               )}
             </Button>
+          ) : hasWhopSubscription ? (
+            <WhopSubscriptionCard />
           ) : null}
           <SavedMethod
-            hasManagedSubscription={hasStripeSubscription || hasPaddleSubscription}
+            hasManagedSubscription={
+              hasStripeSubscription || hasPaddleSubscription || hasWhopSubscription
+            }
             savedMethods={savedMethods}
             isLoadingMethods={isLoading}
             isDeleting={isDeleting}

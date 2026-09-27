@@ -158,6 +158,16 @@
     "stripeManageButton": "Gerenciar assinatura",
     "autoRenewalHint": "Isso significa que a forma de pagamento está salva para renovação automática",
     "savedMethodsDescription": "Você tem um meio de pagamento vinculado que será usado para a renovação da assinatura. Se desejar pagar manualmente, basta excluí-lo.",
+    "whopCancel": {
+      "button": "Cancelar assinatura",
+      "title": "Cancelar sua assinatura?",
+      "body": "Ela não será renovada. Você mantém o acesso até o fim do período já pago.",
+      "keep": "Manter assinatura",
+      "confirm": "Cancelar assinatura",
+      "endsOn": "Sua assinatura foi cancelada e termina em {{date}}.",
+      "canceled": "Sua assinatura foi cancelada e não será renovada.",
+      "error": "Não foi possível cancelar sua assinatura. Tente novamente."
+    },
     "deleteMethod": {
       "title": "Remover forma de pagamento?",
       "body": "Este cartão será removido e a renovação automática será desativada. Um novo cartão será adicionado no próximo pagamento manual",

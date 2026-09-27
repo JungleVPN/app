@@ -158,6 +158,16 @@
     "stripeManageButton": "Gestionar la suscripción",
     "autoRenewalHint": "Significa que el método de pago está guardado para la renovación automática",
     "savedMethodsDescription": "Tienes vinculado un método de pago que se utilizará para la renovación de la suscripción. Si deseas pagar manualmente, solo tienes que eliminarlo.",
+    "whopCancel": {
+      "button": "Cancelar suscripción",
+      "title": "¿Cancelar tu suscripción?",
+      "body": "No se renovará. Mantienes el acceso hasta el final del periodo que ya has pagado.",
+      "keep": "Mantener suscripción",
+      "confirm": "Cancelar suscripción",
+      "endsOn": "Tu suscripción está cancelada y termina el {{date}}.",
+      "canceled": "Tu suscripción está cancelada y no se renovará.",
+      "error": "No se pudo cancelar tu suscripción. Inténtalo de nuevo."
+    },
     "deleteMethod": {
       "title": "¿Eliminar la forma de pago?",
       "body": "Esta tarjeta se eliminará y se desactivará la renovación automática. Se añadirá una nueva tarjeta en el próximo pago manual",

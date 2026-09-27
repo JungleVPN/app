@@ -158,6 +158,16 @@
     "stripeManageButton": "Aboneliği yönet",
     "autoRenewalHint": "Bu, ödeme yönteminin otomatik yenileme için kaydedildiği anlamına gelir",
     "savedMethodsDescription": "Aboneliğin yenilenmesi için kullanılacak bir ödeme yöntemi bağladınız. Manuel olarak ödeme yapmak istiyorsanız, bunu silmeniz yeterlidir.",
+    "whopCancel": {
+      "button": "Aboneliği iptal et",
+      "title": "Aboneliğin iptal edilsin mi?",
+      "body": "Abonelik yenilenmeyecek. Ödemesini yaptığın dönemin sonuna kadar erişimin devam eder.",
+      "keep": "Aboneliği sürdür",
+      "confirm": "Aboneliği iptal et",
+      "endsOn": "Aboneliğin iptal edildi ve {{date}} tarihinde sona erecek.",
+      "canceled": "Aboneliğin iptal edildi ve yenilenmeyecek.",
+      "error": "Aboneliğin iptal edilemedi. Lütfen tekrar dene."
+    },
     "deleteMethod": {
       "title": "Ödeme yöntemini kaldırmak ister misiniz?",
       "body": "Bu kart kaldırılacak ve otomatik yenileme devre dışı bırakılacaktır. Bir sonraki manuel ödemede yeni bir kart eklenecektir",

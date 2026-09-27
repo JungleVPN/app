@@ -12,7 +12,7 @@ interface SavedMethodProps {
   isLoadingMethods: boolean;
   isDeleting?: boolean;
   onDelete?: (id: string) => void;
-  /** True for a provider (Stripe, Paddle) that manages renewals and payment methods itself — nothing for our own list to show. */
+  /** True for a provider (Stripe, Paddle, Whop) that manages renewals and payment methods itself — nothing for our own list to show. */
   hasManagedSubscription?: boolean;
 }
 

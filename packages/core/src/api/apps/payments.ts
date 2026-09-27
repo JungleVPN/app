@@ -20,6 +20,7 @@ import {
   type TelegramStarsInvoiceResponse,
   type ValidatePromoDto,
   type ValidatePromoResponse,
+  type WhopCancelDto,
   type WhopCheckoutPayload,
 } from '@workspace/types';
 import type { ApiClient } from '../client';
@@ -91,6 +92,14 @@ export function createPaymentsApi(client: ApiClient) {
     /** The same question for Whop, answered the same way. */
     async getWhopSubscription(): Promise<ProviderSubscriptionDto> {
       return client.get<ProviderSubscriptionDto>(apiRoutes.payments.whopSubscription);
+    },
+
+    /**
+     * Cancels the user's Whop subscription at period end. Whop has no customer
+     * portal to send them to, so this is its stand-in for the portal URL.
+     */
+    async cancelWhopSubscription(): Promise<WhopCancelDto> {
+      return client.post<WhopCancelDto>(apiRoutes.payments.whopCancel, {});
     },
 
     /**
