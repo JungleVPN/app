@@ -11,17 +11,29 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiClientError } from '../../api';
 import WhopCheckoutPage from './WhopCheckoutPage';
 
-const { navigate, location, elementsProps, paymentsProps, cardFields, payments, whop, api } =
-  vi.hoisted(() => ({
-    navigate: vi.fn(),
-    location: { state: null as unknown },
-    elementsProps: vi.fn(),
-    paymentsProps: vi.fn(),
-    cardFields: { onChange: (_payload: { complete: boolean }) => {} },
-    payments: { createConfirmationToken: vi.fn() },
-    whop: { payments: { handleNextAction: vi.fn() } },
-    api: { payPublicWhopCheckout: vi.fn() },
-  }));
+const {
+  navigate,
+  location,
+  elementsProps,
+  paymentsProps,
+  checkoutProps,
+  expressProps,
+  cardFields,
+  payments,
+  whop,
+  api,
+} = vi.hoisted(() => ({
+  navigate: vi.fn(),
+  location: { state: null as unknown },
+  elementsProps: vi.fn(),
+  paymentsProps: vi.fn(),
+  checkoutProps: vi.fn(),
+  expressProps: vi.fn(),
+  cardFields: { onChange: (_payload: { complete: boolean }) => {} },
+  payments: { createConfirmationToken: vi.fn() },
+  whop: { payments: { handleNextAction: vi.fn() } },
+  api: { payPublicWhopCheckout: vi.fn() },
+}));
 
 vi.mock('@whop/elements', () => ({
   loadWhop: () => 'whop-loader',
@@ -37,6 +49,14 @@ vi.mock('@whop/elements-react', () => ({
   Payments: ({ children, ...props }: { children: ReactNode }) => {
     paymentsProps(props);
     return <>{children}</>;
+  },
+  Checkout: ({ children, ...props }: { children: ReactNode }) => {
+    checkoutProps(props);
+    return <>{children}</>;
+  },
+  ExpressCheckoutElement: (props: object) => {
+    expressProps(props);
+    return <div data-testid='express-checkout' />;
   },
   CardFields: ({
     children,
@@ -182,6 +202,69 @@ describe('WhopCheckoutPage', () => {
       render(<WhopCheckoutPage fallbackPath='/profile/plans' />);
 
       expect(navigate).toHaveBeenCalledWith('/profile/plans', { replace: true });
+    });
+  });
+
+  describe('wallets', () => {
+    const lastCheckout = () => checkoutProps.mock.lastCall?.[0];
+
+    it('offers Apple Pay and Google Pay for the Whop plan the backend validated', async () => {
+      render(<WhopCheckoutPage />);
+
+      await screen.findByTestId('express-checkout');
+      expect(checkoutProps).toHaveBeenLastCalledWith(
+        expect.objectContaining({ plan: 'plan_1', returnUrl: RETURN_URL }),
+      );
+      expect(expressProps).toHaveBeenLastCalledWith(
+        expect.objectContaining({ layout: 'auto', wallets: ['apple_pay', 'google_pay'] }),
+      );
+    });
+
+    it('stamps the payment with what the webhook identifies the payer by, as the card charge does', async () => {
+      render(<WhopCheckoutPage />);
+
+      await screen.findByTestId('express-checkout');
+      expect(lastCheckout().metadata).toEqual({
+        email: 'payer@test.com',
+        inviterId: '7',
+        signupOrigin: window.location.origin,
+      });
+    });
+
+    it('carries the Tolt referral when the visitor arrived through one', async () => {
+      location.state = {
+        accountId: 'biz_1',
+        whopPlanId: 'plan_1',
+        request: { email: 'payer@test.com', planId: 'whop-30', toltReferralId: 'tolt_1' },
+        selectedPeriod: 30,
+      };
+      render(<WhopCheckoutPage />);
+
+      await screen.findByTestId('express-checkout');
+      expect(lastCheckout().metadata).toEqual({
+        email: 'payer@test.com',
+        toltReferralId: 'tolt_1',
+        signupOrigin: window.location.origin,
+      });
+    });
+
+    it('keeps the same metadata across re-renders, since Whop refuses a changed checkout', async () => {
+      const { rerender } = render(<WhopCheckoutPage />);
+      await screen.findByTestId('express-checkout');
+      rerender(<WhopCheckoutPage />);
+
+      const [first, last] = [checkoutProps.mock.calls[0][0], lastCheckout()];
+      expect(checkoutProps.mock.calls.length).toBeGreaterThan(1);
+      expect(last.metadata).toBe(first.metadata);
+    });
+
+    it('goes to the success page once the wallet payment completes', async () => {
+      render(<WhopCheckoutPage />);
+
+      await screen.findByTestId('express-checkout');
+      lastCheckout().onComplete({ result: 'payment', paymentId: 'pay_1', sessionId: 'ses_1' });
+
+      expect(navigate).toHaveBeenCalledWith('/payment/success', { replace: true });
     });
   });
 

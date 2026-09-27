@@ -39,3 +39,19 @@ export function isWhopCheckoutState(value: unknown): value is WhopCheckoutState 
     typeof state.selectedPeriod === 'number'
   );
 }
+
+/**
+ * The metadata a wallet payment carries so the webhook identifies the payer —
+ * the same keys the backend stamps on a card charge in `payCheckout`.
+ */
+export function whopCheckoutMetadata(
+  request: CreatePublicWhopCheckoutDto,
+  origin: string,
+): Record<string, string> {
+  return {
+    email: request.email,
+    ...(request.toltReferralId ? { toltReferralId: request.toltReferralId } : {}),
+    ...(request.inviterId != null ? { inviterId: String(request.inviterId) } : {}),
+    signupOrigin: origin,
+  };
+}

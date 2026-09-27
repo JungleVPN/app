@@ -1,6 +1,6 @@
 import { loadWhop, type WhopLoad } from '@whop/elements';
-import { Payments, WhopElements } from '@whop/elements-react';
-import { useEffect, useState } from 'react';
+import { Checkout, ExpressCheckoutElement, Payments, WhopElements } from '@whop/elements-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { i18n } from '../../core/i18n';
@@ -10,7 +10,7 @@ import { useNavbarStore } from '../../stores';
 import { Page } from '../../ui';
 import { PRICING_PATH } from '../../utils';
 import { WhopCardForm } from './WhopCardForm';
-import { isWhopCheckoutState } from './whopCheckoutState';
+import { isWhopCheckoutState, whopCheckoutMetadata } from './whopCheckoutState';
 import { getWhopEnvironment, toWhopLocale } from './whopEnv';
 
 interface WhopCheckoutPageProps {
@@ -28,6 +28,11 @@ export default function WhopCheckoutPage({ fallbackPath }: WhopCheckoutPageProps
   const [elements, setElements] = useState<WhopLoad | undefined>();
 
   const checkout = isWhopCheckoutState(state) ? state : null;
+  const request = checkout?.request;
+  const walletMetadata = useMemo(
+    () => (request ? whopCheckoutMetadata(request, window.location.origin) : undefined),
+    [request],
+  );
 
   useBackButton(() => navigate(-1));
 
@@ -60,6 +65,14 @@ export default function WhopCheckoutPage({ fallbackPath }: WhopCheckoutPageProps
           environment={getWhopEnvironment()}
           locale={toWhopLocale(i18n.language)}
         >
+          <Checkout
+            plan={checkout.whopPlanId}
+            returnUrl={returnUrl}
+            metadata={walletMetadata}
+            onComplete={() => navigate(paymentReturnPath, { replace: true })}
+          >
+            <ExpressCheckoutElement layout='auto' wallets={['apple_pay', 'google_pay']} />
+          </Checkout>
           <Payments accountId={checkout.accountId} plan={checkout.whopPlanId} returnUrl={returnUrl}>
             <WhopCardForm checkout={checkout} returnUrl={returnUrl} />
           </Payments>
