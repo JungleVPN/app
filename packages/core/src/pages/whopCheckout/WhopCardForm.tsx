@@ -34,7 +34,7 @@ class CardTokenError extends Error {}
 const SETTLED_STATUSES: ReadonlySet<string> = new Set(['succeeded', 'processing']);
 
 /** Matches Whop's hosted fields: a hairline at rest, a dark 2px edge and a light outer ring on focus. */
-const INPUT_CLASS = [
+export const INPUT_CLASS = [
   'w-full rounded-lg border border-[#0000001f] bg-transparent shadow-none',
   'focus-visible:border-[#222222]! focus-visible:shadow-[0_0_0_1px_#222222]! focus-visible:ring-0!',
   'focus-visible:outline-solid! focus-visible:outline-1! focus-visible:outline-offset-2! focus-visible:outline-[#dddddd]!',
@@ -142,6 +142,7 @@ export function WhopCardForm({ checkout, returnUrl }: WhopCardFormProps) {
       ...checkout.request,
       confirmationToken,
       returnUrl,
+      ...(checkout.promo ? { promoCode: checkout.promo.code } : {}),
     });
     if (payment.status === 'paid') return payment.status;
     if (!whop || !payment.clientSecret) return 'whopCheckout.errors.not_completed';
@@ -255,6 +256,7 @@ export function WhopCardForm({ checkout, returnUrl }: WhopCardFormProps) {
               <Input autoComplete='postal-code' className={INPUT_CLASS} />
             </TextField>
           </div>
+
         </div>
       </Block>
 

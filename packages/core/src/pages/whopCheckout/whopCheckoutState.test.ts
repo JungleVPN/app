@@ -13,6 +13,12 @@ describe('isWhopCheckoutState', () => {
     expect(isWhopCheckoutState(valid)).toBe(true);
   });
 
+  it('accepts a promo code the start-checkout page already checked', () => {
+    const promo = { code: 'SPRING20', promoType: 'percentage', amountOff: 20, currency: 'usd' };
+
+    expect(isWhopCheckoutState({ ...valid, promo })).toBe(true);
+  });
+
   it.each([
     ['no state at all (a reload or a shared link)', null],
     ['a non-object', 'biz_1'],
@@ -24,6 +30,8 @@ describe('isWhopCheckoutState', () => {
     ['a checkout request with no email', { ...valid, request: { ...valid.request, email: '' } }],
     ['a checkout request with no plan', { ...valid, request: { ...valid.request, planId: '' } }],
     ['a missing period', { ...valid, selectedPeriod: undefined }],
+    ['a promo code that is not an object', { ...valid, promo: 'SPRING20' }],
+    ['a promo code with no code', { ...valid, promo: { code: '' } }],
     [
       'the old checkout-configuration state',
       { checkoutConfigurationId: 'ch_1', email: 'payer@test.com', selectedPeriod: 30 },

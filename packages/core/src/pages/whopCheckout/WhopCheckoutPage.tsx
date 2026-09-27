@@ -65,8 +65,10 @@ export default function WhopCheckoutPage({ fallbackPath }: WhopCheckoutPageProps
           environment={getWhopEnvironment()}
           locale={toWhopLocale(i18n.language)}
         >
+          {/* Whop fixes a checkout's promo code when it opens: seed the one applied earlier. */}
           <Checkout
             plan={checkout.whopPlanId}
+            promoCode={checkout.promo?.code}
             returnUrl={returnUrl}
             metadata={walletMetadata}
             onComplete={() => navigate(paymentReturnPath, { replace: true })}

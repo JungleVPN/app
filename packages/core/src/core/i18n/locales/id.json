@@ -1180,6 +1180,8 @@
     "order_title": "Pesanan Anda",
     "order_item": "JungleVPN selama {{period}}",
     "discount": "Diskon {{percent}}%",
+    "promo_discount": "Diskon {{percent}}%",
+    "promo_discount_amount": "Diskon {{amount}}",
     "plan_unavailable_title": "Paket ini tidak tersedia",
     "plan_unavailable_description": "Pilih durasi langganan di <1>halaman harga<\/1>.",
     "features_title": "Termasuk dalam langganan",
@@ -1212,10 +1214,14 @@
     "country": "Negara",
     "postal_code": "Kode pos",
     "pay": "Bayar",
+    "promo_code": "Kode promo",
+    "promo_apply": "Terapkan",
+    "promo_remove": "Hapus kode promo",
     "errors": {
       "card_invalid": "Periksa detail kartu Anda dan coba lagi.",
       "declined": "Kartu Anda ditolak. Coba kartu lain atau hubungi bank Anda.",
-      "not_completed": "Pembayaran belum selesai. Silakan coba lagi."
+      "not_completed": "Pembayaran belum selesai. Silakan coba lagi.",
+      "promo_invalid": "Kode promo ini tidak berlaku untuk paket ini."
     }
   },
   "ipStatus": {

@@ -1205,6 +1205,8 @@
     "order_title": "Ваш заказ",
     "order_item": "JungleVPN на {{period}}",
     "discount": "Скидка {{percent}}%",
+    "promo_discount": "Скидка {{percent}}%",
+    "promo_discount_amount": "Скидка {{amount}}",
     "plan_unavailable_title": "Этот тариф недоступен",
     "plan_unavailable_description": "Выберите срок подписки на <1>странице тарифов</1>.",
     "features_title": "Входит в подписку",
@@ -1237,10 +1239,14 @@
     "country": "Страна",
     "postal_code": "Почтовый индекс",
     "pay": "Оплатить",
+    "promo_code": "Промокод",
+    "promo_apply": "Применить",
+    "promo_remove": "Удалить промокод",
     "errors": {
       "card_invalid": "Проверьте данные карты и попробуйте снова.",
       "declined": "Карта отклонена. Попробуйте другую карту или обратитесь в банк.",
-      "not_completed": "Оплата не завершена. Попробуйте ещё раз."
+      "not_completed": "Оплата не завершена. Попробуйте ещё раз.",
+      "promo_invalid": "Этот промокод не действует для выбранного тарифа."
     }
   },
   "ipStatus": {

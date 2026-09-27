@@ -8,6 +8,8 @@ import {
 } from '@workspace/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ClientUserGuard } from '../../auth/client-user.guard';
+import { PublicCheckoutRateLimitGuard } from '../../guards/public-checkout-rate-limit.guard';
+import { PublicPromoCodeRateLimitGuard } from '../../guards/public-promo-code-rate-limit.guard';
 import { WhopController } from './whop.controller';
 
 const controllerWith = (
@@ -24,6 +26,12 @@ const controllerWith = (
     payCheckout: vi
       .fn()
       .mockResolvedValue({ paymentId: 'pay_1', status: 'open', clientSecret: 'sec_1' }),
+    checkPromoCode: vi.fn().mockResolvedValue({
+      code: 'SPRING20',
+      promoType: 'percentage',
+      amountOff: 20,
+      currency: 'usd',
+    }),
   };
   const controller = new WhopController(whopProvider as never);
   return { controller, whopProvider };
@@ -135,6 +143,32 @@ describe('WhopController.payPublicCheckout', () => {
     });
   });
 
+  it('forwards the promo code the payer applied', async () => {
+    const { controller, whopProvider } = controllerWith();
+
+    await controller.payPublicCheckout(payDto({ promoCode: 'SPRING20' }), undefined);
+
+    expect(whopProvider.payCheckout).toHaveBeenCalledWith(
+      expect.objectContaining({ promoCode: 'SPRING20' }),
+    );
+  });
+
+  it('refuses a promo code that is not text, without reaching Whop', async () => {
+    const { controller, whopProvider } = controllerWith();
+
+    await expect(
+      controller.payPublicCheckout(payDto({ promoCode: 123 as never }), undefined),
+    ).rejects.toThrow(BadRequestException);
+    expect(whopProvider.resolveCheckoutPlanId).not.toHaveBeenCalled();
+    expect(whopProvider.payCheckout).not.toHaveBeenCalled();
+  });
+
+  it('caps promo code guesses, since a refused code answers whether it exists', () => {
+    const guards = Reflect.getMetadata('__guards__', WhopController.prototype.payPublicCheckout);
+
+    expect(guards).toContain(PublicPromoCodeRateLimitGuard);
+  });
+
   it('refuses a malformed email without charging', async () => {
     const { controller, whopProvider } = controllerWith();
 
@@ -186,6 +220,59 @@ describe('WhopController.payPublicCheckout', () => {
       code: ACTIVE_SUBSCRIPTION_CODE,
     });
     expect(whopProvider.payCheckout).not.toHaveBeenCalled();
+  });
+});
+
+describe('WhopController.checkPublicPromoCode', () => {
+  it('describes the discount a promo code gives the chosen plan', async () => {
+    const { controller, whopProvider } = controllerWith();
+
+    await expect(
+      controller.checkPublicPromoCode({ planId: 'whop-30', promoCode: 'spring20' }),
+    ).resolves.toEqual({
+      code: 'SPRING20',
+      promoType: 'percentage',
+      amountOff: 20,
+      currency: 'usd',
+    });
+    expect(whopProvider.resolveCheckoutPlanId).toHaveBeenCalledWith('whop-30');
+    expect(whopProvider.checkPromoCode).toHaveBeenCalledWith({
+      promoCode: 'spring20',
+      whopPlanId: 'plan_month_1',
+    });
+  });
+
+  it.each([
+    [''],
+    ['   '],
+    [undefined],
+    [123],
+    [{ code: 'SPRING20' }],
+  ])('refuses the promo code %j without reaching Whop', async (promoCode) => {
+    const { controller, whopProvider } = controllerWith();
+
+    await expect(
+      controller.checkPublicPromoCode({ planId: 'whop-30', promoCode: promoCode as never }),
+    ).rejects.toThrow(BadRequestException);
+    expect(whopProvider.checkPromoCode).not.toHaveBeenCalled();
+  });
+
+  it('refuses a plan that is not on sale, without looking the code up', async () => {
+    const { controller, whopProvider } = controllerWith({
+      resolveCheckoutPlanId: vi.fn().mockRejectedValue(new BadRequestException('Not on sale')),
+    });
+
+    await expect(
+      controller.checkPublicPromoCode({ planId: 'whop-old', promoCode: 'SPRING20' }),
+    ).rejects.toThrow(BadRequestException);
+    expect(whopProvider.checkPromoCode).not.toHaveBeenCalled();
+  });
+
+  it('caps promo code guesses on their own allowance, leaving the checkout allowance to checkouts', () => {
+    const guards = Reflect.getMetadata('__guards__', WhopController.prototype.checkPublicPromoCode);
+
+    expect(guards).toContain(PublicPromoCodeRateLimitGuard);
+    expect(guards).not.toContain(PublicCheckoutRateLimitGuard);
   });
 });
 

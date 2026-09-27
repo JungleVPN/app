@@ -34,6 +34,30 @@ export interface PayPublicWhopCheckoutDto extends CreatePublicWhopCheckoutDto {
   confirmationToken: string;
   /** Where the buyer lands after an off-site step such as a 3DS bank page. */
   returnUrl: string;
+  /** The promo code the payer applied, as they typed it. */
+  promoCode?: string;
+}
+
+/** The 400 code for a promo code that does not discount the plan being bought. */
+export const PROMO_CODE_INVALID_CODE = 'promo_code_invalid';
+
+/**
+ * Public promo-code check — POST /payments/whop/public-promo-code: whether
+ * `promoCode` discounts our `planId`, before the payer pays.
+ */
+export interface CheckWhopPromoCodeDto {
+  planId: string;
+  promoCode: string;
+}
+
+/** A promo code that discounts the plan being bought. */
+export interface WhopPromoCodeDto {
+  /** The code as Whop stores it — what the wallet checkout is given. */
+  code: string;
+  promoType: 'percentage' | 'flat_amount';
+  /** Percent off for `percentage`, currency units off for `flat_amount`. */
+  amountOff: number;
+  currency: string;
 }
 
 /**

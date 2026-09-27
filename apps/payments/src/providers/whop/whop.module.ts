@@ -4,6 +4,7 @@ import { AnalyticsClientModule } from '@payments/analytics/analytics-client.modu
 import { PlanModule } from '@payments/catalog/plan.module';
 import { SavedPaymentMethod, WhopPayment, WhopRefund } from '@workspace/database';
 import { PublicCheckoutRateLimitGuard } from '../../guards/public-checkout-rate-limit.guard';
+import { PublicPromoCodeRateLimitGuard } from '../../guards/public-promo-code-rate-limit.guard';
 import { PaymentStatusModule } from '../../payment-status/payment-status.module';
 import { ToltModule } from '../../tolt/tolt.module';
 import { WhopController } from './whop.controller';
@@ -21,6 +22,12 @@ import { WhopWebhookService } from './whop-webhook.service';
   ],
   controllers: [WhopController],
   exports: [WhopProvider, WhopWebhookService, WhopClientService],
-  providers: [WhopClientService, WhopProvider, WhopWebhookService, PublicCheckoutRateLimitGuard],
+  providers: [
+    WhopClientService,
+    WhopProvider,
+    WhopWebhookService,
+    PublicCheckoutRateLimitGuard,
+    PublicPromoCodeRateLimitGuard,
+  ],
 })
 export class WhopModule {}

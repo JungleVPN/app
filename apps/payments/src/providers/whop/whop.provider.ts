@@ -1,13 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PlanService } from '@payments/catalog/plan.service';
 import { toSavedMethodDto } from '@payments/utils/saved-method';
 import { SavedPaymentMethod } from '@workspace/database';
-import type {
-  ProviderSubscriptionDto,
-  WhopCancelDto,
-  WhopCheckoutPayload,
-  WhopPaymentDto,
+import {
+  PROMO_CODE_INVALID_CODE,
+  type ProviderSubscriptionDto,
+  type WhopCancelDto,
+  type WhopCheckoutPayload,
+  type WhopPaymentDto,
+  type WhopPromoCodeDto,
 } from '@workspace/types';
 import { Repository } from 'typeorm';
 import { WhopClientService } from './whop-client.service';
@@ -62,11 +64,16 @@ export class WhopProvider {
     toltReferralId?: string | null;
     inviterId?: number;
     origin?: string;
+    promoCode?: string;
   }): Promise<WhopPaymentDto> {
     const metadata: Record<string, string> = { email: input.email };
     if (input.toltReferralId) metadata.toltReferralId = input.toltReferralId;
     if (input.inviterId != null) metadata.inviterId = String(input.inviterId);
     if (input.origin) metadata.signupOrigin = input.origin;
+
+    const promo = input.promoCode
+      ? await this.findPromoCodeOrRefuse(input.promoCode, input.whopPlanId)
+      : null;
 
     return this.whopClientService.createPayment({
       planId: input.whopPlanId,
@@ -74,7 +81,34 @@ export class WhopProvider {
       email: input.email,
       metadata,
       returnUrl: input.returnUrl,
+      ...(promo ? { promoCodeId: promo.id } : {}),
     });
+  }
+
+  /** The discount `promoCode` gives `whopPlanId`, refusing a code the plan does not offer. */
+  async checkPromoCode(input: {
+    promoCode: string;
+    whopPlanId: string;
+  }): Promise<WhopPromoCodeDto> {
+    const { id: _id, ...discount } = await this.findPromoCodeOrRefuse(
+      input.promoCode,
+      input.whopPlanId,
+    );
+    return discount;
+  }
+
+  private async findPromoCodeOrRefuse(promoCode: string, whopPlanId: string) {
+    const promo = await this.whopClientService.findPromoCode({
+      code: promoCode,
+      planId: whopPlanId,
+    });
+    if (!promo) {
+      throw new BadRequestException({
+        code: PROMO_CODE_INVALID_CODE,
+        message: 'This promo code does not apply to the chosen plan',
+      });
+    }
+    return promo;
   }
 
   /**

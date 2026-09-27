@@ -1180,6 +1180,8 @@
     "order_title": "Your order",
     "order_item": "JungleVPN for {{period}}",
     "discount": "Discount {{percent}}%",
+    "promo_discount": "{{percent}}% off",
+    "promo_discount_amount": "{{amount}} off",
     "plan_unavailable_title": "This plan isn't available",
     "plan_unavailable_description": "Pick a subscription length on the <1>pricing page</1>.",
     "features_title": "Included in the subscription",
@@ -1212,10 +1214,14 @@
     "country": "Country",
     "postal_code": "Postal code",
     "pay": "Pay",
+    "promo_code": "Promo code",
+    "promo_apply": "Apply",
+    "promo_remove": "Remove promo code",
     "errors": {
       "card_invalid": "Check your card details and try again.",
       "declined": "Your card was declined. Try another card or contact your bank.",
-      "not_completed": "The payment wasn't completed. Please try again."
+      "not_completed": "The payment wasn't completed. Please try again.",
+      "promo_invalid": "This promo code doesn't apply to this plan."
     }
   },
   "ipStatus": {

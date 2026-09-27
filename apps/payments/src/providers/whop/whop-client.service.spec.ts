@@ -13,6 +13,7 @@ const page = <T>(items: T[]) => ({
 const membersList = vi.fn();
 const membershipsList = vi.fn();
 const paymentsCreate = vi.fn();
+const promoCodesList = vi.fn();
 const membershipsCancel = vi.fn();
 const WhopClient = vi.fn();
 
@@ -27,6 +28,7 @@ vi.mock('@whop/sdk', () => ({
       members: { list: membersList },
       memberships: { list: membershipsList, cancel: membershipsCancel },
       payments: { create: paymentsCreate },
+      promoCodes: { list: promoCodesList },
     };
   }),
 }));
@@ -161,6 +163,155 @@ describe('WhopClientService', () => {
     });
   });
 
+  describe('findPromoCode', () => {
+    const promo = (overrides: Record<string, unknown> = {}) => ({
+      id: 'promo_1',
+      code: 'SPRING20',
+      status: 'active',
+      promo_type: 'percentage',
+      amount_off: 0.2,
+      currency: 'usd',
+      expires_at: null,
+      unlimited_stock: true,
+      stock: 0,
+      uses: 0,
+      new_users_only: false,
+      existing_memberships_only: false,
+      churned_users_only: false,
+      one_per_customer: false,
+      ...overrides,
+    });
+
+    it("looks only at our account's active codes for the plan being bought", async () => {
+      promoCodesList.mockResolvedValue(page([]));
+      const service = new WhopClientService();
+
+      await service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' });
+
+      expect(promoCodesList).toHaveBeenCalledWith({
+        account_id: 'biz_test',
+        plan_ids: 'plan_month',
+        status: 'active',
+      });
+    });
+
+    it('finds the code the payer typed, ignoring case and surrounding spaces', async () => {
+      promoCodesList.mockResolvedValue(
+        page([promo({ id: 'promo_other', code: 'WINTER' }), promo()]),
+      );
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: '  spring20 ', planId: 'plan_month' }),
+      ).resolves.toEqual({
+        id: 'promo_1',
+        code: 'SPRING20',
+        promoType: 'percentage',
+        amountOff: 20,
+        currency: 'usd',
+      });
+    });
+
+    it.each([
+      [0.99, 99],
+      [0.07, 7],
+      [0.125, 12.5],
+    ])('reports a %s percentage fraction from Whop as %s percent off', async (fraction, percent) => {
+      promoCodesList.mockResolvedValue(page([promo({ amount_off: fraction })]));
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
+      ).resolves.toMatchObject({ amountOff: percent });
+    });
+
+    it('reports a fixed discount in currency units, as Whop gives it', async () => {
+      promoCodesList.mockResolvedValue(
+        page([promo({ promo_type: 'flat_amount', amount_off: 5.5 })]),
+      );
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
+      ).resolves.toMatchObject({ promoType: 'flat_amount', amountOff: 5.5 });
+    });
+
+    it('finds nothing for a code the plan does not offer', async () => {
+      promoCodesList.mockResolvedValue(page([promo()]));
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: 'NOPE', planId: 'plan_month' }),
+      ).resolves.toBeNull();
+    });
+
+    it('finds nothing for a code that has expired', async () => {
+      promoCodesList.mockResolvedValue(page([promo({ expires_at: '2000-01-01T00:00:00Z' })]));
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
+      ).resolves.toBeNull();
+    });
+
+    it.each([
+      ['new_users_only'],
+      ['existing_memberships_only'],
+      ['churned_users_only'],
+      ['one_per_customer'],
+    ])(
+      'finds nothing for a code restricted by %s, since the payer cannot be checked against it before paying',
+      async (restriction) => {
+        promoCodesList.mockResolvedValue(page([promo({ [restriction]: true })]));
+        const service = new WhopClientService();
+
+        await expect(
+          service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
+        ).resolves.toBeNull();
+      },
+    );
+
+    it('still finds a code that expires later', async () => {
+      promoCodesList.mockResolvedValue(page([promo({ expires_at: '2999-01-01T00:00:00Z' })]));
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
+      ).resolves.toMatchObject({ id: 'promo_1' });
+    });
+
+    it('finds nothing for a code whose limited stock is used up', async () => {
+      promoCodesList.mockResolvedValue(
+        page([promo({ unlimited_stock: false, stock: 5, uses: 5 })]),
+      );
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
+      ).resolves.toBeNull();
+    });
+
+    it('still finds a limited code with uses left', async () => {
+      promoCodesList.mockResolvedValue(
+        page([promo({ unlimited_stock: false, stock: 5, uses: 4 })]),
+      );
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
+      ).resolves.toMatchObject({ id: 'promo_1' });
+    });
+
+    it('finds nothing for a blank code, without asking Whop', async () => {
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: '   ', planId: 'plan_month' }),
+      ).resolves.toBeNull();
+      expect(promoCodesList).not.toHaveBeenCalled();
+    });
+  });
+
   describe('createPayment', () => {
     it('charges the confirmation token for the Whop plan on our account, stamped with our metadata', async () => {
       paymentsCreate.mockResolvedValue({ id: 'pay_1', status: 'open', client_secret: 'sec_1' });
@@ -182,6 +333,24 @@ describe('WhopClientService', () => {
         metadata: { email: 'payer@test.com' },
         return_url: 'https://app.test/payment/success',
       });
+    });
+
+    it('applies the promo code the payer entered', async () => {
+      paymentsCreate.mockResolvedValue({ id: 'pay_1', status: 'open', client_secret: 'sec_1' });
+      const service = new WhopClientService();
+
+      await service.createPayment({
+        planId: 'plan_month',
+        confirmationToken: 'ctok_1',
+        email: 'payer@test.com',
+        metadata: {},
+        returnUrl: 'https://app.test/payment/success',
+        promoCodeId: 'promo_1',
+      });
+
+      expect(paymentsCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ promo_code_id: 'promo_1' }),
+      );
     });
 
     it('returns what the browser needs to finish the payment', async () => {

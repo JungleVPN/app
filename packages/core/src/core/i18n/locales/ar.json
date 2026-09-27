@@ -1180,6 +1180,8 @@
     "order_title": "طلبك",
     "order_item": "JungleVPN لمدة {{period}}",
     "discount": "خصم {{percent}}%",
+    "promo_discount": "خصم {{percent}}%",
+    "promo_discount_amount": "خصم {{amount}}",
     "plan_unavailable_title": "هذه الخطة غير متوفرة",
     "plan_unavailable_description": "اختر مدة الاشتراك في <1>صفحة الأسعار<\/1>.",
     "features_title": "يشمل الاشتراك",
@@ -1212,10 +1214,14 @@
     "country": "الدولة",
     "postal_code": "الرمز البريدي",
     "pay": "ادفع",
+    "promo_code": "رمز الخصم",
+    "promo_apply": "تطبيق",
+    "promo_remove": "إزالة الرمز الترويجي",
     "errors": {
       "card_invalid": "تحقق من بيانات بطاقتك وحاول مرة أخرى.",
       "declined": "تم رفض بطاقتك. جرّب بطاقة أخرى أو تواصل مع البنك.",
-      "not_completed": "لم تكتمل عملية الدفع. يرجى المحاولة مرة أخرى."
+      "not_completed": "لم تكتمل عملية الدفع. يرجى المحاولة مرة أخرى.",
+      "promo_invalid": "رمز الخصم هذا لا ينطبق على هذه الخطة."
     }
   },
   "ipStatus": {

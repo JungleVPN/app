@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PlanService } from '@payments/catalog/plan.service';
 import type { Plan } from '@workspace/database';
+import { PROMO_CODE_INVALID_CODE } from '@workspace/types';
 import { describe, expect, it, vi } from 'vitest';
 import { WhopProvider } from './whop.provider';
 
@@ -31,6 +32,13 @@ const providerWith = () => {
     createPayment: vi
       .fn()
       .mockResolvedValue({ paymentId: 'pay_1', status: 'open', clientSecret: 'sec_1' }),
+    findPromoCode: vi.fn().mockResolvedValue({
+      id: 'promo_1',
+      code: 'SPRING20',
+      promoType: 'percentage',
+      amountOff: 20,
+      currency: 'usd',
+    }),
     cancelMembership: vi
       .fn()
       .mockResolvedValue({ cancelAtPeriodEnd: true, accessUntil: '2026-10-26T10:00:00Z' }),
@@ -73,6 +81,37 @@ describe('WhopProvider', () => {
       expect(provider.checkoutTarget('plan_month_1')).toEqual({
         accountId: 'biz_test',
         planId: 'plan_month_1',
+      });
+    });
+  });
+
+  describe('checkPromoCode', () => {
+    it('describes the discount a code gives the Whop plan, without its Whop id', async () => {
+      const { provider, whopClientService } = providerWith();
+
+      await expect(
+        provider.checkPromoCode({ promoCode: 'spring20', whopPlanId: 'plan_month_1' }),
+      ).resolves.toEqual({
+        code: 'SPRING20',
+        promoType: 'percentage',
+        amountOff: 20,
+        currency: 'usd',
+      });
+      expect(whopClientService.findPromoCode).toHaveBeenCalledWith({
+        code: 'spring20',
+        planId: 'plan_month_1',
+      });
+    });
+
+    it('refuses a code the plan does not offer, with a code the page recognises', async () => {
+      const { provider, whopClientService } = providerWith();
+      whopClientService.findPromoCode.mockResolvedValue(null);
+
+      const refusal = provider.checkPromoCode({ promoCode: 'NOPE', whopPlanId: 'plan_month_1' });
+
+      await expect(refusal).rejects.toThrow(BadRequestException);
+      await expect(refusal).rejects.toMatchObject({
+        response: { code: PROMO_CODE_INVALID_CODE },
       });
     });
   });
@@ -130,6 +169,41 @@ describe('WhopProvider', () => {
             signupOrigin: 'https://jungle-vpn.com',
           },
         }),
+      );
+    });
+
+    it('charges with the promo code the payer applied', async () => {
+      const { provider, whopClientService } = providerWith();
+
+      await provider.payCheckout(payment({ promoCode: 'spring20' }));
+
+      expect(whopClientService.findPromoCode).toHaveBeenCalledWith({
+        code: 'spring20',
+        planId: 'plan_month_1',
+      });
+      expect(whopClientService.createPayment).toHaveBeenCalledWith(
+        expect.objectContaining({ promoCodeId: 'promo_1' }),
+      );
+    });
+
+    it('refuses a promo code that no longer applies, without charging', async () => {
+      const { provider, whopClientService } = providerWith();
+      whopClientService.findPromoCode.mockResolvedValue(null);
+
+      await expect(provider.payCheckout(payment({ promoCode: 'NOPE' }))).rejects.toMatchObject({
+        response: { code: PROMO_CODE_INVALID_CODE },
+      });
+      expect(whopClientService.createPayment).not.toHaveBeenCalled();
+    });
+
+    it('charges full price without looking anything up when no code was applied', async () => {
+      const { provider, whopClientService } = providerWith();
+
+      await provider.payCheckout(payment());
+
+      expect(whopClientService.findPromoCode).not.toHaveBeenCalled();
+      expect(whopClientService.createPayment).toHaveBeenCalledWith(
+        expect.not.objectContaining({ promoCodeId: expect.anything() }),
       );
     });
 

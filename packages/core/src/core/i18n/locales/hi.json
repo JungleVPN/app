@@ -1180,6 +1180,8 @@
     "order_title": "आपका ऑर्डर",
     "order_item": "{{period}} के लिए JungleVPN",
     "discount": "छूट {{percent}}%",
+    "promo_discount": "{{percent}}% की छूट",
+    "promo_discount_amount": "{{amount}} की छूट",
     "plan_unavailable_title": "यह योजना उपलब्ध नहीं है",
     "plan_unavailable_description": "<1>मूल्य निर्धारण पृष्ठ<\/1> पर सदस्यता की अवधि चुनें।",
     "features_title": "सब्सक्रिप्शन में शामिल",
@@ -1212,10 +1214,14 @@
     "country": "देश",
     "postal_code": "पिन कोड",
     "pay": "भुगतान करें",
+    "promo_code": "प्रोमो कोड",
+    "promo_apply": "लागू करें",
+    "promo_remove": "प्रोमो कोड हटाएं",
     "errors": {
       "card_invalid": "अपने कार्ड का विवरण जाँचें और फिर से प्रयास करें।",
       "declined": "आपका कार्ड अस्वीकार कर दिया गया। कोई दूसरा कार्ड आज़माएँ या अपने बैंक से संपर्क करें।",
-      "not_completed": "भुगतान पूरा नहीं हुआ। कृपया फिर से प्रयास करें।"
+      "not_completed": "भुगतान पूरा नहीं हुआ। कृपया फिर से प्रयास करें।",
+      "promo_invalid": "यह प्रोमो कोड इस प्लान पर लागू नहीं होता।"
     }
   },
   "ipStatus": {

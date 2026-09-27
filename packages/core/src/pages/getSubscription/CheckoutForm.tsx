@@ -11,7 +11,7 @@ import {
 } from '@heroui/react';
 import { IconChevronRight, IconHelpCircle, IconMail, IconRestore } from '@tabler/icons-react';
 import type { SubscriptionPlanDto } from '@workspace/types';
-import { SyntheticEvent, useEffect } from 'react';
+import { type ReactNode, SyntheticEvent, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Logo from '../../assets/Logo.svg?react';
 import { FeaturesCard, Link, PaymentMethodIcons } from '../../components';
@@ -33,6 +33,14 @@ interface CheckoutFormProps {
   plan: SubscriptionPlanDto | undefined;
   /** False while the provider still can't start a payment — no plan, or its SDK not loaded yet. */
   canSubmit: boolean;
+  /** A provider's promo code entry, shown in the payment step above the submit button. */
+  promoCodeSlot?: ReactNode;
+  /**
+   * An applied promo code's effect on the order, replacing the plan's own
+   * discount: `total` is the new amount, absent when the saving can't be
+   * priced, and `label` names the saving.
+   */
+  promoDiscount?: { total?: string; label: string };
   handleSubmit: (event: SyntheticEvent) => void;
   handleEmailChange: (value: string) => void;
 }
@@ -63,12 +71,16 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
     emailError,
     plan,
     canSubmit,
+    promoCodeSlot,
+    promoDiscount,
     selectedPeriod,
     checkoutError,
     isPending,
     handleEmailChange,
     handleSubmit,
   } = props;
+
+  const [havePromo, setHavePromo] = useState(false);
 
   useEffect(() => {
     scrollToTop();
@@ -77,10 +89,25 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
   const { t } = useTranslation();
   const { open: openTerms } = useTermsStore();
 
+  const togglePromoCode = () => {
+    setHavePromo(true);
+  };
+
   // Already resolved to this visitor's own currency by the backend — this
   // form only formats it, and never learns which provider quoted it.
   const pricing = plan?.planPricing ?? null;
   const format = (amount: string) => (pricing ? formatPlanPrice(pricing, amount) : amount);
+
+  // An applied promo code replaces the plan's own discount: the plan price is
+  // what gets crossed out, and the promo's saving is the one chip shown.
+  const planCrossedOut =
+    pricing && pricing.discountPercent > 0 && !plan?.isTrial ? pricing.fullTotal : null;
+  const crossedOutPrice = promoDiscount ? promoDiscount.total && pricing?.total : planCrossedOut;
+  const planDiscountLabel =
+    pricing && pricing.discountPercent > 0
+      ? t('getSubscription.discount', { percent: pricing.discountPercent })
+      : null;
+  const discountLabel = promoDiscount ? promoDiscount.label : planDiscountLabel;
 
   return (
     <>
@@ -113,7 +140,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                           className='w-full rounded-full ps-11 data-invalid:border data-invalid:border-danger'
                           placeholder={t('getSubscription.email_placeholder')}
                           value={email}
-                          variant='secondary'
+                          variant='primary'
                           onChange={(event) => handleEmailChange(event.target.value)}
                         />
                       </div>
@@ -186,7 +213,17 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
 
           <GridItem size={{ base: 12, sm: 12, md: 12, lg: 6 }}>
             <div className='flex flex-col gap-6'>
-              <Block className='p-5 sm:p-6'>
+              <Block
+                className='p-5 sm:p-6'
+                description={
+                  <div className='flex items-center px-1'>
+                    <span className='flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary'>
+                      <IconRestore stroke={2} />
+                    </span>
+                    <Paragraph>{t('getSubscription.guarantee')}</Paragraph>
+                  </div>
+                }
+              >
                 <div className='flex flex-col gap-5'>
                   <Heading as='h3'>{t('getSubscription.order_title')}</Heading>
 
@@ -202,26 +239,35 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                           </Paragraph>
                         </div>
                         <div className='flex shrink-0 items-baseline gap-2'>
-                          {pricing.discountPercent > 0 && !plan?.isTrial && pricing.fullTotal && (
+                          {crossedOutPrice && (
                             <span className='text-sm text-muted line-through'>
-                              {format(pricing.fullTotal)}
+                              {format(crossedOutPrice)}
                             </span>
                           )}
-                          <span className='text-base font-semibold'>{format(pricing.total)}</span>
+                          <span className='text-base font-semibold'>
+                            {format(promoDiscount?.total ?? pricing.total)}
+                          </span>
                         </div>
                       </div>
 
-                      {pricing.discountPercent > 0 && (
+                      {discountLabel && (
                         <Chip
                           size='sm'
                           className={`w-fit border-none text-[white] ${BRAND_GRADIENT}`}
                         >
-                          <Chip.Label>
-                            {t('getSubscription.discount', {
-                              percent: pricing.discountPercent,
-                            })}
-                          </Chip.Label>
+                          <Chip.Label>{discountLabel}</Chip.Label>
                         </Chip>
+                      )}
+
+                      {havePromo ? (
+                        promoCodeSlot
+                      ) : (
+                        <Paragraph
+                          onClick={togglePromoCode}
+                          className={'hover:underline cursor-pointer text-sm lg:text-sm'}
+                        >
+                          Have promo?
+                        </Paragraph>
                       )}
                     </div>
                   ) : (
@@ -241,13 +287,6 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                   />
                 </div>
               </Block>
-
-              <div className='flex items-center px-1'>
-                <span className='flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary'>
-                  <IconRestore stroke={2} />
-                </span>
-                <Paragraph>{t('getSubscription.guarantee')}</Paragraph>
-              </div>
             </div>
           </GridItem>
         </Grid>

@@ -1,4 +1,4 @@
-import type { CreatePublicWhopCheckoutDto } from '@workspace/types';
+import type { CreatePublicWhopCheckoutDto, WhopPromoCodeDto } from '@workspace/types';
 
 /**
  * What the dedicated Whop checkout route needs to mount the card form, handed
@@ -18,6 +18,12 @@ export interface WhopCheckoutState {
   request: CreatePublicWhopCheckoutDto;
   /** Plan length in days — carried for analytics, not billing (the plan decides that). */
   selectedPeriod: number;
+  /**
+   * The promo code the payer applied before starting, already checked against
+   * the plan. Whop fixes a checkout's code when it opens, so it is settled here
+   * rather than on the checkout route.
+   */
+  promo?: WhopPromoCodeDto;
 }
 
 const isNonEmptyString = (value: unknown): value is string =>
@@ -29,6 +35,11 @@ function isCheckoutRequest(value: unknown): value is CreatePublicWhopCheckoutDto
   return isNonEmptyString(request.email) && isNonEmptyString(request.planId);
 }
 
+function isPromo(value: unknown): value is WhopPromoCodeDto {
+  if (typeof value !== 'object' || value === null) return false;
+  return isNonEmptyString((value as Partial<WhopPromoCodeDto>).code);
+}
+
 export function isWhopCheckoutState(value: unknown): value is WhopCheckoutState {
   if (typeof value !== 'object' || value === null) return false;
   const state = value as Partial<WhopCheckoutState>;
@@ -36,7 +47,8 @@ export function isWhopCheckoutState(value: unknown): value is WhopCheckoutState 
     isNonEmptyString(state.accountId) &&
     isNonEmptyString(state.whopPlanId) &&
     isCheckoutRequest(state.request) &&
-    typeof state.selectedPeriod === 'number'
+    typeof state.selectedPeriod === 'number' &&
+    (state.promo === undefined || isPromo(state.promo))
   );
 }
 

@@ -5,7 +5,7 @@
  * the app's language rather than Whop's.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { ACTIVE_SUBSCRIPTION_CODE } from '@workspace/types';
+import { ACTIVE_SUBSCRIPTION_CODE, PROMO_CODE_INVALID_CODE } from '@workspace/types';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiClientError } from '../../api';
@@ -118,7 +118,7 @@ const fillCard = () => {
 
 const renderFilledAndPay = async () => {
   render(<WhopCheckoutPage />);
-  await screen.findByTestId('whop-elements');
+  await screen.findByTestId('card-number');
   fillCard();
   await waitFor(() => expect(payButton().hasAttribute('disabled')).toBe(false));
   fireEvent.click(payButton());
@@ -149,7 +149,7 @@ describe('WhopCheckoutPage', () => {
     it('mounts the card form for the account and Whop plan the backend validated', async () => {
       render(<WhopCheckoutPage />);
 
-      await screen.findByTestId('whop-elements');
+      await screen.findByTestId('card-number');
       expect(paymentsProps).toHaveBeenLastCalledWith(
         expect.objectContaining({ accountId: 'biz_1', plan: 'plan_1', returnUrl: RETURN_URL }),
       );
@@ -158,7 +158,7 @@ describe('WhopCheckoutPage', () => {
     it("talks to the configured Whop environment, in the visitor's language", async () => {
       render(<WhopCheckoutPage />);
 
-      await screen.findByTestId('whop-elements');
+      await screen.findByTestId('card-number');
       expect(elementsProps).toHaveBeenLastCalledWith(
         expect.objectContaining({ elements: 'whop-loader', environment: 'sandbox', locale: 'es' }),
       );
@@ -167,7 +167,7 @@ describe('WhopCheckoutPage', () => {
     it('labels every card field with our own translations', async () => {
       render(<WhopCheckoutPage />);
 
-      await screen.findByTestId('whop-elements');
+      await screen.findByTestId('card-number');
       for (const key of [
         'whopCheckout.card_title',
         'whopCheckout.card_number',
@@ -193,7 +193,7 @@ describe('WhopCheckoutPage', () => {
       render(<WhopCheckoutPage />);
 
       expect(navigate).toHaveBeenCalledWith('/pricing', { replace: true });
-      expect(screen.queryByTestId('whop-elements')).toBeNull();
+      expect(screen.queryAllByTestId('whop-elements')).toHaveLength(0);
     });
 
     it('falls back to the path it was given, such as the profile plans page', () => {
@@ -268,10 +268,77 @@ describe('WhopCheckoutPage', () => {
     });
   });
 
+  describe('promo code', () => {
+    const SPRING20 = { code: 'SPRING20', promoType: 'percentage', amountOff: 20, currency: 'usd' };
+    const seedPromo = () => {
+      location.state = { ...(location.state as object), promo: SPRING20 };
+    };
+    const invalidPromo = () =>
+      new ApiClientError({
+        status: 400,
+        message: 'Bad Request',
+        data: { code: PROMO_CODE_INVALID_CODE },
+      });
+
+    it('offers no promo code field, since the code is settled before the checkout opens', async () => {
+      render(<WhopCheckoutPage />);
+      await screen.findByTestId('card-number');
+
+      expect(screen.queryByLabelText('whopCheckout.promo_code')).toBeNull();
+    });
+
+    it('opens the wallet checkout with the code the payer applied before starting', async () => {
+      seedPromo();
+      render(<WhopCheckoutPage />);
+      await screen.findByTestId('express-checkout');
+
+      expect(checkoutProps).toHaveBeenLastCalledWith(
+        expect.objectContaining({ promoCode: 'SPRING20' }),
+      );
+    });
+
+    it('opens the wallet checkout at full price when no code was applied', async () => {
+      render(<WhopCheckoutPage />);
+      await screen.findByTestId('express-checkout');
+
+      expect(checkoutProps.mock.lastCall?.[0].promoCode).toBeUndefined();
+    });
+
+    it('charges the card with the code the payer applied before starting', async () => {
+      seedPromo();
+
+      await renderFilledAndPay();
+
+      await waitFor(() =>
+        expect(api.payPublicWhopCheckout).toHaveBeenCalledWith(
+          expect.objectContaining({ promoCode: 'SPRING20' }),
+        ),
+      );
+    });
+
+    it('charges the card at full price when no code was applied', async () => {
+      await renderFilledAndPay();
+
+      await waitFor(() => expect(api.payPublicWhopCheckout).toHaveBeenCalled());
+      expect(api.payPublicWhopCheckout.mock.lastCall?.[0]).not.toHaveProperty('promoCode');
+    });
+
+    it('explains a code that stopped applying by the time the card is charged', async () => {
+      seedPromo();
+      api.payPublicWhopCheckout.mockRejectedValue(invalidPromo());
+
+      await renderFilledAndPay();
+
+      expect((await screen.findByRole('alert')).textContent).toBe(
+        'whopCheckout.errors.promo_invalid',
+      );
+    });
+  });
+
   describe('pay button', () => {
     it('stays disabled until the card is complete', async () => {
       render(<WhopCheckoutPage />);
-      await screen.findByTestId('whop-elements');
+      await screen.findByTestId('card-number');
 
       fireEvent.change(screen.getByLabelText('whopCheckout.name'), {
         target: { value: 'Ada Lovelace' },
@@ -288,7 +355,7 @@ describe('WhopCheckoutPage', () => {
       ['postal code', 'whopCheckout.postal_code'],
     ])('stays disabled without the %s', async (_case, label) => {
       render(<WhopCheckoutPage />);
-      await screen.findByTestId('whop-elements');
+      await screen.findByTestId('card-number');
 
       fillCard();
       fireEvent.change(screen.getByLabelText(label), { target: { value: '  ' } });
@@ -302,14 +369,14 @@ describe('WhopCheckoutPage', () => {
 
     it("preselects the country the visitor's language points to", async () => {
       render(<WhopCheckoutPage />);
-      await screen.findByTestId('whop-elements');
+      await screen.findByTestId('card-number');
 
       expect((countryInput() as HTMLInputElement).value).toBe('España');
     });
 
     it('lets the payer search for their country by typing part of its name', async () => {
       render(<WhopCheckoutPage />);
-      await screen.findByTestId('whop-elements');
+      await screen.findByTestId('card-number');
       fillCard();
 
       countryInput().focus();
@@ -332,7 +399,7 @@ describe('WhopCheckoutPage', () => {
 
     it('takes the country the browser autofills along with the postal code', async () => {
       const { container } = render(<WhopCheckoutPage />);
-      await screen.findByTestId('whop-elements');
+      await screen.findByTestId('card-number');
       fillCard();
 
       const autofill = container.querySelector('select[autocomplete="country"]');
@@ -352,7 +419,7 @@ describe('WhopCheckoutPage', () => {
 
     it('keeps the autofillable country in step with the one the payer picked', async () => {
       const { container } = render(<WhopCheckoutPage />);
-      await screen.findByTestId('whop-elements');
+      await screen.findByTestId('card-number');
 
       const autofill = container.querySelector<HTMLSelectElement>('select[autocomplete="country"]');
 
@@ -363,7 +430,7 @@ describe('WhopCheckoutPage', () => {
 
     it('blocks paying once the payer clears the country', async () => {
       render(<WhopCheckoutPage />);
-      await screen.findByTestId('whop-elements');
+      await screen.findByTestId('card-number');
       fillCard();
 
       fireEvent.change(countryInput(), { target: { value: '' } });

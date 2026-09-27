@@ -2,6 +2,7 @@ import {
   type AdminPaymentDto,
   apiRoutes,
   type CaptureToltReferralDto,
+  type CheckWhopPromoCodeDto,
   type CreatePublicPaddleCheckoutDto,
   type CreatePublicStripeSessionDto,
   type CreatePublicWhopCheckoutDto,
@@ -24,6 +25,7 @@ import {
   type WhopCancelDto,
   type WhopCheckoutPayload,
   type WhopPaymentDto,
+  type WhopPromoCodeDto,
 } from '@workspace/types';
 import type { ApiClient } from '../client';
 
@@ -83,6 +85,11 @@ export function createPaymentsApi(client: ApiClient) {
      */
     async payPublicWhopCheckout(dto: PayPublicWhopCheckoutDto): Promise<WhopPaymentDto> {
       return client.post<WhopPaymentDto>(apiRoutes.payments.whopPublicPay, dto);
+    },
+
+    /** The discount a promo code gives the chosen plan; a 400 when it gives none. */
+    async checkPublicWhopPromoCode(dto: CheckWhopPromoCodeDto): Promise<WhopPromoCodeDto> {
+      return client.post<WhopPromoCodeDto>(apiRoutes.payments.whopPublicPromoCode, dto);
     },
 
     /**

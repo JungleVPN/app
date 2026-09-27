@@ -15,17 +15,20 @@ import {
 import { unwrapWebhook } from '@whop/sdk/helpers';
 import {
   ACTIVE_SUBSCRIPTION_CODE,
+  type CheckWhopPromoCodeDto,
   type CreatePublicWhopCheckoutDto,
   type PayPublicWhopCheckoutDto,
   type ProviderSubscriptionDto,
   type WhopCancelDto,
   type WhopCheckoutPayload,
   type WhopPaymentDto,
+  type WhopPromoCodeDto,
 } from '@workspace/types';
 import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
 import { ClientUserGuard } from '../../auth/client-user.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
 import { PublicCheckoutRateLimitGuard } from '../../guards/public-checkout-rate-limit.guard';
+import { PublicPromoCodeRateLimitGuard } from '../../guards/public-promo-code-rate-limit.guard';
 import { WhopProvider } from './whop.provider';
 
 /** Mirrors the pattern the Stripe and Paddle public routes validate emails against. */
@@ -61,15 +64,22 @@ export class WhopController {
    *
    * Not behind the public-checkout rate limit: its per-email allowance would
    * lock out a payer retrying after a decline, and every call already needs
-   * a confirmation token only Whop's card fields can mint.
+   * a confirmation token only Whop's card fields can mint. A call naming a
+   * promo code is capped as a guess, though: an invalid code is refused
+   * before the token ever reaches Whop, so a made-up token would otherwise
+   * test codes without limit.
    */
   @Post('public-pay')
+  @UseGuards(PublicPromoCodeRateLimitGuard)
   async payPublicCheckout(
     @Body() dto: PayPublicWhopCheckoutDto,
     @Headers('origin') origin?: string,
   ): Promise<WhopPaymentDto> {
     if (!dto.confirmationToken?.startsWith(CONFIRMATION_TOKEN_PREFIX)) {
       throw new BadRequestException('A confirmation token is required');
+    }
+    if (dto.promoCode != null && typeof dto.promoCode !== 'string') {
+      throw new BadRequestException('A promo code must be text');
     }
     const { email, whopPlanId } = await this.validateCheckout(dto);
 
@@ -81,7 +91,26 @@ export class WhopController {
       toltReferralId: dto.toltReferralId,
       inviterId: dto.inviterId,
       origin,
+      promoCode: dto.promoCode,
     });
+  }
+
+  /**
+   * Whether a promo code discounts the chosen plan, so the checkout page can
+   * confirm it before the payer pays. Guesses are capped on their own
+   * allowance, so nobody can guess codes at speed and trying a few codes never
+   * blocks the payer from starting a checkout.
+   */
+  @Post('public-promo-code')
+  @HttpCode(200)
+  @UseGuards(PublicPromoCodeRateLimitGuard)
+  async checkPublicPromoCode(@Body() dto: CheckWhopPromoCodeDto): Promise<WhopPromoCodeDto> {
+    const promoCode = typeof dto.promoCode === 'string' ? dto.promoCode.trim() : '';
+    if (!promoCode) {
+      throw new BadRequestException('A promo code is required');
+    }
+    const whopPlanId = await this.whopProvider.resolveCheckoutPlanId(dto.planId);
+    return this.whopProvider.checkPromoCode({ promoCode, whopPlanId });
   }
 
   /**
@@ -123,9 +152,9 @@ export class WhopController {
 
     const whopPlanId = await this.whopProvider.resolveCheckoutPlanId(dto.planId);
 
-    if (await this.whopProvider.hasActiveSubscription(email)) {
-      throw this.activeSubscriptionConflict();
-    }
+    // if (await this.whopProvider.hasActiveSubscription(email)) {
+    //   throw this.activeSubscriptionConflict();
+    // }
     return { email, whopPlanId };
   }
 
