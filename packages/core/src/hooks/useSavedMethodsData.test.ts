@@ -6,12 +6,14 @@ import { useSavedMethodsData } from './useSavedMethodsData';
 const getYookassaSavedMethods = vi.fn();
 const getStripeSubscription = vi.fn();
 const getPaddleSubscription = vi.fn();
+const getWhopSubscription = vi.fn();
 
 vi.mock('../runtime', () => ({
   usePaymentsApi: () => ({
     getYookassaSavedMethods,
     getStripeSubscription,
     getPaddleSubscription,
+    getWhopSubscription,
   }),
 }));
 
@@ -35,9 +37,10 @@ describe('useSavedMethodsData', () => {
     getYookassaSavedMethods.mockResolvedValue([yookassaMethod()]);
     getStripeSubscription.mockResolvedValue({ active: false, methods: [] });
     getPaddleSubscription.mockResolvedValue({ active: false, methods: [] });
+    getWhopSubscription.mockResolvedValue({ active: false, methods: [] });
   });
 
-  it('asks all three providers whether the user has billing with them', async () => {
+  it('asks every provider whether the user has billing with them', async () => {
     renderHook(() => useSavedMethodsData(nextUserId()));
 
     await waitFor(() => expect(useSavedMethodsStore.getState().isLoaded).toBe(true));
@@ -45,6 +48,7 @@ describe('useSavedMethodsData', () => {
     expect(getYookassaSavedMethods).toHaveBeenCalledTimes(1);
     expect(getStripeSubscription).toHaveBeenCalledTimes(1);
     expect(getPaddleSubscription).toHaveBeenCalledTimes(1);
+    expect(getWhopSubscription).toHaveBeenCalledTimes(1);
   });
 
   it('stores the Paddle subscription so a Paddle subscriber is not treated as having no billing', async () => {
@@ -56,6 +60,30 @@ describe('useSavedMethodsData', () => {
     await waitFor(() => expect(useSavedMethodsStore.getState().isLoaded).toBe(true));
 
     expect(useSavedMethodsStore.getState().paddle).toEqual({ active: true, methods: [] });
+  });
+
+  it('stores the Whop subscription so a Whop subscriber is not treated as having no billing', async () => {
+    getYookassaSavedMethods.mockResolvedValue([]);
+    getWhopSubscription.mockResolvedValue({ active: true, methods: [] });
+
+    renderHook(() => useSavedMethodsData(nextUserId()));
+
+    await waitFor(() => expect(useSavedMethodsStore.getState().isLoaded).toBe(true));
+
+    expect(useSavedMethodsStore.getState().whop).toEqual({ active: true, methods: [] });
+  });
+
+  it('still finishes loading when Whop cannot be reached', async () => {
+    getWhopSubscription.mockRejectedValue(new Error('whop down'));
+    getPaddleSubscription.mockResolvedValue({ active: true, methods: [] });
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    renderHook(() => useSavedMethodsData(nextUserId()));
+
+    await waitFor(() => expect(useSavedMethodsStore.getState().isLoaded).toBe(true));
+
+    expect(useSavedMethodsStore.getState().whop).toEqual({ active: false, methods: [] });
+    expect(useSavedMethodsStore.getState().paddle.active).toBe(true);
   });
 
   it('stores the Stripe subscription instead of discarding the response', async () => {
@@ -103,6 +131,7 @@ describe('useSavedMethodsData', () => {
     expect(getYookassaSavedMethods).not.toHaveBeenCalled();
     expect(getStripeSubscription).not.toHaveBeenCalled();
     expect(getPaddleSubscription).not.toHaveBeenCalled();
+    expect(getWhopSubscription).not.toHaveBeenCalled();
     expect(useSavedMethodsStore.getState().isLoaded).toBe(false);
   });
 

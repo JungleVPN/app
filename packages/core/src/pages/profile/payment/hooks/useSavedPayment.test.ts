@@ -32,19 +32,36 @@ describe('useSavedPayment', () => {
     expect(result.current.hasActiveMethod).toBe(false);
     expect(result.current.hasStripeSubscription).toBe(false);
     expect(result.current.hasPaddleSubscription).toBe(false);
+    expect(result.current.hasWhopSubscription).toBe(false);
   });
 
-  it('reports no billing for a user none of the three providers knows', () => {
+  it('reports no billing for a user none of the providers knows', () => {
     useSavedMethodsStore.getState().actions.setBillingState({
       yookassa: yookassa(),
       stripe: inactive,
       paddle: inactive,
+      whop: inactive,
     });
 
     const { result } = renderHook(() => useSavedPayment());
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.hasActiveMethod).toBe(false);
+  });
+
+  it('recognises a Whop subscriber who has no saved YooKassa method', () => {
+    useSavedMethodsStore.getState().actions.setBillingState({
+      yookassa: yookassa(),
+      stripe: inactive,
+      paddle: inactive,
+      whop: subscribed,
+    });
+
+    const { result } = renderHook(() => useSavedPayment());
+
+    expect(result.current.hasActiveMethod).toBe(true);
+    expect(result.current.hasWhopSubscription).toBe(true);
+    expect(result.current.hasPaddleSubscription).toBe(false);
   });
 
   // The regression this hook is being fixed for: a Paddle subscriber has no row
@@ -55,6 +72,7 @@ describe('useSavedPayment', () => {
       yookassa: yookassa(),
       stripe: inactive,
       paddle: subscribed,
+      whop: inactive,
     });
 
     const { result } = renderHook(() => useSavedPayment());
@@ -69,6 +87,7 @@ describe('useSavedPayment', () => {
       yookassa: yookassa(),
       stripe: subscribed,
       paddle: inactive,
+      whop: inactive,
     });
 
     const { result } = renderHook(() => useSavedPayment());
@@ -85,6 +104,7 @@ describe('useSavedPayment', () => {
       yookassa: yookassa(),
       stripe: inactive,
       paddle: inactive,
+      whop: inactive,
     });
 
     const { result } = renderHook(() => useSavedPayment());
@@ -98,6 +118,7 @@ describe('useSavedPayment', () => {
       yookassa: yookassa([yookassaMethod()]),
       stripe: inactive,
       paddle: inactive,
+      whop: inactive,
     });
 
     const { result } = renderHook(() => useSavedPayment());
@@ -112,6 +133,7 @@ describe('useSavedPayment', () => {
       yookassa: yookassa([yookassaMethod({ isActive: false })]),
       stripe: inactive,
       paddle: inactive,
+      whop: inactive,
     });
 
     const { result } = renderHook(() => useSavedPayment());
@@ -124,6 +146,7 @@ describe('useSavedPayment', () => {
       yookassa: yookassa([yookassaMethod()]),
       stripe: inactive,
       paddle: inactive,
+      whop: inactive,
     });
 
     const { result } = renderHook(() => useSavedPayment());

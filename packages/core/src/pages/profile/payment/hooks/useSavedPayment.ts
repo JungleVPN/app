@@ -3,13 +3,14 @@ import {
   useIsBillingLoaded,
   usePaddleSubscription,
   useStripeSubscription,
+  useWhopSubscription,
   useYookassaSubscription,
 } from '../../../../stores';
 
 /**
  * The user's billing as the payment page needs it.
  *
- * Each provider is asked about itself: a Stripe or Paddle subscriber has no
+ * Each provider is asked about itself: a Stripe, Paddle or Whop subscriber has no
  * YooKassa saved method, so deriving the provider flags from that list — as
  * this once did — reported them as having no subscription to manage.
  */
@@ -17,6 +18,7 @@ export const useSavedPayment = () => {
   const yookassa = useYookassaSubscription();
   const stripe = useStripeSubscription();
   const paddle = usePaddleSubscription();
+  const whop = useWhopSubscription();
   const hasActiveMethod = useHasActiveBilling();
   const isLoaded = useIsBillingLoaded();
 
@@ -27,5 +29,6 @@ export const useSavedPayment = () => {
     hasActiveMethod,
     hasStripeSubscription: stripe.active,
     hasPaddleSubscription: paddle.active,
+    hasWhopSubscription: whop.active,
   };
 };

@@ -8,12 +8,14 @@ import { create } from 'zustand';
  * has to special-case one of them. They are kept apart rather than merged into
  * a single list because "which provider is this user subscribed through"
  * decides what the UI can offer: YooKassa methods we list and delete ourselves,
- * while Stripe and Paddle are managed in the provider's own portal.
+ * while Stripe and Paddle are managed in the provider's own portal, and a Whop
+ * subscription is cancelled through our own backend.
  */
 export interface IBillingState {
   yookassa: ProviderSubscriptionDto;
   stripe: ProviderSubscriptionDto;
   paddle: ProviderSubscriptionDto;
+  whop: ProviderSubscriptionDto;
 }
 
 export interface ISavedMethodsState extends IBillingState {
@@ -39,6 +41,7 @@ const initialState: ISavedMethodsState = {
   yookassa: NO_PROVIDER_SUBSCRIPTION,
   stripe: NO_PROVIDER_SUBSCRIPTION,
   paddle: NO_PROVIDER_SUBSCRIPTION,
+  whop: NO_PROVIDER_SUBSCRIPTION,
   isLoaded: false,
 };
 
@@ -64,6 +67,7 @@ export const useSavedMethodsStoreActions = () => useSavedMethodsStore((store) =>
 export const useYookassaSubscription = () => useSavedMethodsStore((state) => state.yookassa);
 export const useStripeSubscription = () => useSavedMethodsStore((state) => state.stripe);
 export const usePaddleSubscription = () => useSavedMethodsStore((state) => state.paddle);
+export const useWhopSubscription = () => useSavedMethodsStore((state) => state.whop);
 
 export const useIsBillingLoaded = () => useSavedMethodsStore((state) => state.isLoaded);
 
@@ -71,5 +75,5 @@ export const useIsBillingLoaded = () => useSavedMethodsStore((state) => state.is
 export const useHasActiveBilling = () => useSavedMethodsStore(selectHasActiveBilling);
 
 export function selectHasActiveBilling(state: IBillingState): boolean {
-  return state.yookassa.active || state.stripe.active || state.paddle.active;
+  return state.yookassa.active || state.stripe.active || state.paddle.active || state.whop.active;
 }

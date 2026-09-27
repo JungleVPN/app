@@ -88,6 +88,11 @@ export function createPaymentsApi(client: ApiClient) {
       return client.get<ProviderSubscriptionDto>(apiRoutes.payments.paddleSubscription);
     },
 
+    /** The same question for Whop, answered the same way. */
+    async getWhopSubscription(): Promise<ProviderSubscriptionDto> {
+      return client.get<ProviderSubscriptionDto>(apiRoutes.payments.whopSubscription);
+    },
+
     /**
      * A fresh Stripe Billing Portal URL. Minted on demand because portal
      * sessions expire — ask only when the user presses "manage".

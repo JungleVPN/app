@@ -15,15 +15,15 @@ import { toProviderSubscription, useSavedMethodsStore } from '../stores';
 const pendingUserIds = new Set<number>();
 
 /**
- * Pre-fetches the user's billing from all three providers.
+ * Pre-fetches the user's billing from every provider.
  *
- * All three have to be asked: each answers only for itself, so asking YooKassa
- * alone reports a Stripe or Paddle subscriber as having no billing at all.
- * None of the three calls the provider's API — every answer comes from our own
+ * Each has to be asked: each answers only for itself, so asking YooKassa alone
+ * reports a Stripe, Paddle or Whop subscriber as having no billing at all.
+ * None of these calls the provider's API — every answer comes from our own
  * records — so this stays cheap enough to run on every profile load.
  *
  * A provider that fails is treated as "no billing there" rather than failing
- * the batch, so one provider being down cannot hide the other two's answers or
+ * the batch, so one provider being down cannot hide the others' answers or
  * leave the UI stuck loading.
  */
 export function useSavedMethodsData(userId: number | undefined): void {
@@ -49,9 +49,10 @@ export function useSavedMethodsData(userId: number | undefined): void {
         .catch(onFailure('YooKassa')) as Promise<ProviderSubscriptionDto>,
       paymentsApi.getStripeSubscription().catch(onFailure('Stripe')),
       paymentsApi.getPaddleSubscription().catch(onFailure('Paddle')),
+      paymentsApi.getWhopSubscription().catch(onFailure('Whop')),
     ])
-      .then(([yookassa, stripe, paddle]) => {
-        useSavedMethodsStore.getState().actions.setBillingState({ yookassa, stripe, paddle });
+      .then(([yookassa, stripe, paddle, whop]) => {
+        useSavedMethodsStore.getState().actions.setBillingState({ yookassa, stripe, paddle, whop });
       })
       .finally(() => pendingUserIds.delete(userId));
   }, [userId, paymentsApi]);

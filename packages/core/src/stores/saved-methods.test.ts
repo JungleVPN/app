@@ -42,6 +42,7 @@ describe('saved methods store', () => {
         yookassa: inactive,
         stripe: { active: true, methods: [] },
         paddle: inactive,
+        whop: inactive,
       });
 
       useSavedMethodsStore.getState().actions.setYookassaMethods([method()]);
@@ -53,13 +54,19 @@ describe('saved methods store', () => {
   describe('selectHasActiveBilling', () => {
     it('is true when any single provider reports a subscription', () => {
       expect(
-        selectHasActiveBilling({ yookassa: inactive, stripe: inactive, paddle: inactive }),
+        selectHasActiveBilling({
+          yookassa: inactive,
+          stripe: inactive,
+          paddle: inactive,
+          whop: inactive,
+        }),
       ).toBe(false);
       expect(
         selectHasActiveBilling({
           yookassa: { active: true, methods: [method()] },
           stripe: inactive,
           paddle: inactive,
+          whop: inactive,
         }),
       ).toBe(true);
       expect(
@@ -67,6 +74,7 @@ describe('saved methods store', () => {
           yookassa: inactive,
           stripe: { active: true, methods: [] },
           paddle: inactive,
+          whop: inactive,
         }),
       ).toBe(true);
       expect(
@@ -74,6 +82,15 @@ describe('saved methods store', () => {
           yookassa: inactive,
           stripe: inactive,
           paddle: { active: true, methods: [] },
+          whop: inactive,
+        }),
+      ).toBe(true);
+      expect(
+        selectHasActiveBilling({
+          yookassa: inactive,
+          stripe: inactive,
+          paddle: inactive,
+          whop: { active: true, methods: [] },
         }),
       ).toBe(true);
     });
@@ -86,12 +103,16 @@ describe('saved methods store', () => {
     expect(state.yookassa).toEqual(inactive);
     expect(state.stripe).toEqual(inactive);
     expect(state.paddle).toEqual(inactive);
+    expect(state.whop).toEqual(inactive);
   });
 
   it('marks billing loaded once every provider has answered', () => {
-    useSavedMethodsStore
-      .getState()
-      .actions.setBillingState({ yookassa: inactive, stripe: inactive, paddle: inactive });
+    useSavedMethodsStore.getState().actions.setBillingState({
+      yookassa: inactive,
+      stripe: inactive,
+      paddle: inactive,
+      whop: inactive,
+    });
 
     expect(useSavedMethodsStore.getState().isLoaded).toBe(true);
   });

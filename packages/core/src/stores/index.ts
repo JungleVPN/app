@@ -41,6 +41,7 @@ export {
   useSavedMethodsStore,
   useSavedMethodsStoreActions,
   useStripeSubscription,
+  useWhopSubscription,
   useYookassaSubscription,
 } from './saved-methods';
 export type { ISubscriptionConfigActions, ISubscriptionConfigState } from './subscription-config';
