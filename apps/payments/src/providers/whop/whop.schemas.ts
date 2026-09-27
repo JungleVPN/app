@@ -24,6 +24,8 @@ const WhopMetadataSchema = z
 
 export const WhopPaymentSchema = z.object({
   id: z.string(),
+  /** `paid` once the money is collected; `payment.created` can already carry it. */
+  status: z.string().nullish(),
   /** Major units, excluding buyer fees. */
   total: z.number().nullable(),
   /** Lowercase ISO code, e.g. `eur`. */

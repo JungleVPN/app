@@ -7,6 +7,7 @@ import { isReportableCurrency } from '@payments/providers/paddle/paddle.utils';
 import { SavedPaymentMethod, WhopPayment, WhopRefund } from '@workspace/database';
 import { Payments, WebhookEventEnum } from '@workspace/types';
 import { In, Not, Repository } from 'typeorm';
+import type { z } from 'zod';
 import { RemnaUserResolverService } from '../../auth/remna-user-resolver.service';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
 import { ToltService } from '../../tolt/tolt.service';
@@ -17,6 +18,7 @@ import {
   WhopPaymentSchema,
   type WhopRefundData,
   WhopRefundSchema,
+  type WhopWebhookEnvelope,
   WhopWebhookEnvelopeSchema,
 } from './whop.schemas';
 
@@ -50,6 +52,12 @@ const TERMINAL_MEMBERSHIP_STATUSES: ReadonlySet<string> = new Set([
   'expired',
   'completed',
 ]);
+
+/** The status of a payment whose money Whop has collected. */
+const PAID_PAYMENT_STATUS = 'paid';
+
+/** The `billing_reason` Whop gives a one-off purchase, whose membership never renews. */
+const ONE_TIME_BILLING_REASON = 'one_time';
 
 /** The `billing_reason` Whop gives an automatic renewal charge. */
 const RENEWAL_BILLING_REASON = 'subscription_cycle';
@@ -108,24 +116,70 @@ export class WhopWebhookService {
   /** Takes the signature-verified, but otherwise untrusted, webhook body. */
   async handleWebhook(body: unknown): Promise<void> {
     const event = WhopWebhookEnvelopeSchema.parse(body);
+    this.logger.log(`Whop event ${event.type}`);
 
     switch (event.type) {
       case 'payment.succeeded':
-        await this.handlePaymentSucceeded(WhopPaymentSchema.parse(event.data));
+        await this.handlePaymentSucceeded(this.parseData(event, WhopPaymentSchema));
+        break;
+      case 'payment.created':
+        await this.handlePaymentCreated(this.parseData(event, WhopPaymentSchema));
         break;
       case 'payment.failed':
-        await this.handlePaymentFailed(WhopPaymentSchema.parse(event.data));
+        await this.handlePaymentFailed(this.parseData(event, WhopPaymentSchema));
         break;
       case 'refund.created':
       case 'refund.updated':
-        await this.handleRefund(WhopRefundSchema.parse(event.data));
+        await this.handleRefund(this.parseData(event, WhopRefundSchema));
         break;
       case 'membership.deactivated':
-        await this.handleMembershipDeactivated(WhopMembershipSchema.parse(event.data));
+        await this.handleMembershipDeactivated(this.parseData(event, WhopMembershipSchema));
         break;
       default:
         this.logger.debug(`Unhandled Whop event: ${event.type}`);
     }
+  }
+
+  /**
+   * Parses an event's data, and when it does not match says which event it
+   * was and which fields arrived — names only, since values carry the
+   * payer's email — so a payload Whop changed under us is diagnosable from
+   * the log alone. Rethrows: the 5xx makes Whop redeliver once it is fixed.
+   */
+  private parseData<T>(event: WhopWebhookEnvelope, schema: z.ZodType<T>): T {
+    const result = schema.safeParse(event.data);
+    if (result.success) return result.data;
+
+    const received =
+      event.data && typeof event.data === 'object'
+        ? Object.keys(event.data).sort().join(', ')
+        : typeof event.data;
+    const mismatched = [...new Set(result.error.issues.map((issue) => issue.path.join('.')))].join(
+      ', ',
+    );
+    this.logger.error(
+      `Whop ${event.type} payload does not match its schema — mismatched: ${mismatched}; received fields: ${received}`,
+    );
+    throw result.error;
+  }
+
+  // ── payment.created ──────────────────────────────────────────────────────
+  /**
+   * An on-session checkout charges at once, so Whop creates the payment
+   * already paid and sends only `payment.created` for it — no
+   * `payment.succeeded` follows. A paid one is fulfilled exactly like a
+   * success; the claim on the payment id makes it count once whichever of the
+   * two events arrives, or if both do. An unpaid one is left for
+   * `payment.succeeded`.
+   */
+  private async handlePaymentCreated(payment: WhopPaymentData): Promise<void> {
+    if (payment.status !== PAID_PAYMENT_STATUS) {
+      this.logger.log(
+        `Whop payment ${payment.id} created as ${payment.status ?? 'unknown'} — awaiting payment.succeeded`,
+      );
+      return;
+    }
+    await this.handlePaymentSucceeded(payment);
   }
 
   // ── payment.succeeded ────────────────────────────────────────────────────
@@ -203,7 +257,10 @@ export class WhopWebhookService {
     }
 
     await this.persistPayment(record, 'paid');
-    await this.activatePaymentMethod(record);
+
+    if (payment.billing_reason !== ONE_TIME_BILLING_REASON) {
+      await this.activatePaymentMethod(record);
+    }
 
     this.eventEmitter.emit(WebhookEventEnum['payment.succeeded'], {
       userId,

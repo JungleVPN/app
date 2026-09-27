@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { Logger } from '@nestjs/common';
 import { PlanService } from '@payments/catalog/plan.service';
 import type { Plan } from '@workspace/database';
 import { WebhookEventEnum } from '@workspace/types';
@@ -58,6 +59,11 @@ const paymentData = (overrides: Record<string, unknown> = {}) => ({
 const paymentSucceeded = (overrides: Record<string, unknown> = {}) => ({
   type: 'payment.succeeded',
   data: paymentData(overrides),
+});
+
+const paymentCreated = (status: string, overrides: Record<string, unknown> = {}) => ({
+  type: 'payment.created',
+  data: paymentData({ status, ...overrides }),
 });
 
 const paymentFailed = (overrides: Record<string, unknown> = {}) => ({
@@ -229,6 +235,24 @@ describe('WhopWebhookService', () => {
       );
     });
 
+    it('saves no subscription method for a one-time purchase, whose membership never renews', async () => {
+      const { service, savedMethodRepo, paymentStatusService, paymentRepo, analyticsClient } =
+        setup();
+
+      await service.handleWebhook(paymentSucceeded({ billing_reason: 'one_time' }));
+
+      expect(paymentStatusService.handleUserUpdates).toHaveBeenCalled();
+      expect(paymentRepo.save).toHaveBeenLastCalledWith(
+        expect.objectContaining({ status: 'paid', membershipId: 'mem_1' }),
+      );
+      expect(savedMethodRepo.findOneBy).not.toHaveBeenCalled();
+      expect(savedMethodRepo.update).not.toHaveBeenCalled();
+      expect(savedMethodRepo.save).not.toHaveBeenCalled();
+      expect(analyticsClient.track).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event: 'payment_method_saved' }),
+      );
+    });
+
     it('reactivates a known membership instead of saving it twice', async () => {
       const { service, savedMethodRepo } = setup();
       savedMethodRepo.findOneBy.mockResolvedValue({ id: 42, isActive: false });
@@ -357,6 +381,53 @@ describe('WhopWebhookService', () => {
         service.handleWebhook({ type: 'payment.succeeded', data: { id: 'pay_1' } }),
       ).rejects.toThrow();
       expect(paymentRepo.insert).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * An on-session checkout charges at once, so Whop creates the payment
+   * already paid and sends `payment.created` for it — with no
+   * `payment.succeeded` after. A paid `payment.created` fulfils; the claim
+   * on the payment id keeps it from counting twice if both ever arrive.
+   */
+  describe('payment.created', () => {
+    it('fulfils a payment Whop created already paid', async () => {
+      const { service, paymentStatusService, paymentRepo } = setup();
+
+      await service.handleWebhook(paymentCreated('paid'));
+
+      expect(paymentStatusService.handleUserUpdates).toHaveBeenCalledWith({
+        selectedPeriod: 30,
+        userId: NEW_ACCOUNT_ID,
+        purpose: 'subscription',
+      });
+      expect(paymentRepo.save).toHaveBeenLastCalledWith(
+        expect.objectContaining({ id: 'pay_1', status: 'paid' }),
+      );
+    });
+
+    it.each([
+      ['open'],
+      ['draft'],
+      [undefined],
+    ])('leaves a payment created as %s for payment.succeeded to fulfil', async (status) => {
+      const { service, paymentStatusService, paymentRepo } = setup();
+
+      await service.handleWebhook(paymentCreated(status as string));
+
+      expect(paymentRepo.insert).not.toHaveBeenCalled();
+      expect(paymentStatusService.handleUserUpdates).not.toHaveBeenCalled();
+    });
+
+    it('does not fulfil again when payment.succeeded follows for the same payment', async () => {
+      const { service, paymentRepo, paymentStatusService } = setup();
+
+      await service.handleWebhook(paymentCreated('paid'));
+      paymentRepo.insert.mockRejectedValue(uniqueViolationError());
+      paymentRepo.update.mockResolvedValue({ affected: 0 });
+      await service.handleWebhook(paymentSucceeded());
+
+      expect(paymentStatusService.handleUserUpdates).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -587,6 +658,37 @@ describe('WhopWebhookService', () => {
         chargeId: 'pay_1',
         isPartial: false,
       });
+    });
+  });
+
+  describe('logging', () => {
+    it('names the event type of every delivery it receives', async () => {
+      const log = vi.spyOn(Logger.prototype, 'log').mockImplementation(() => {});
+      const { service } = setup();
+
+      await service.handleWebhook({ type: 'membership.activated', data: {} });
+
+      expect(log).toHaveBeenCalledWith(expect.stringContaining('membership.activated'));
+      log.mockRestore();
+    });
+
+    it('names the event and the fields it did receive when a payload does not match, without values', async () => {
+      const error = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
+      const { service } = setup();
+
+      await expect(
+        service.handleWebhook({
+          type: 'payment.succeeded',
+          data: { id: 'pay_1', currency: 'eur', user: { email: 'secret@test.com' } },
+        }),
+      ).rejects.toThrow();
+
+      const message = String(error.mock.calls[0]?.[0]);
+      expect(message).toContain('payment.succeeded');
+      expect(message).toContain('currency, id, user');
+      expect(message).toContain('total');
+      expect(message).not.toContain('secret@test.com');
+      error.mockRestore();
     });
   });
 
