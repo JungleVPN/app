@@ -1,3 +1,5 @@
+export { default as GlobalCheckoutPage } from './checkout/GlobalCheckoutPage';
+export { ProtectedGlobalCheckoutPage } from './checkout/protected';
 export { default as ConnectEmailPage } from './connectEmailPage/ConnectEmailPage';
 export { default as CookiePolicyPage } from './cookies/CookiePolicyPage';
 export { default as GetSubscriptionPage } from './getSubscription/GetSubscriptionPage';
@@ -6,8 +8,6 @@ export { default as LocationsPage } from './locations/LocationsPage';
 export { default as ConfirmPage } from './login/confirm/ConfirmPage';
 export { default as LoginPage } from './login/LoginPage';
 export { default as MyIpPage } from './myIp/MyIpPage';
-export { default as PaddleCheckoutPage } from './paddleCheckout/PaddleCheckoutPage';
-export { ProtectedPaddleCheckoutPage } from './paddleCheckout/protected';
 export { PublicPlansPage } from './plans/PlansPage';
 export { default as PricingPage } from './pricing/PricingPage';
 export { default as PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';

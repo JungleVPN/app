@@ -116,7 +116,7 @@ export function createRoutes(
             // Static segment, so it wins over `/payment/:planId` below.
             {
               path: '/payment/checkout',
-              lazy: () => pages().then((m) => ({ Component: m.PaddleCheckoutPage })),
+              lazy: () => pages().then((m) => ({ Component: m.GlobalCheckoutPage })),
             },
             {
               path: '/payment/:planId',
@@ -160,7 +160,7 @@ export function createRoutes(
             },
             {
               path: 'checkout',
-              lazy: () => pages().then((m) => ({ Component: m.ProtectedPaddleCheckoutPage })),
+              lazy: () => pages().then((m) => ({ Component: m.ProtectedGlobalCheckoutPage })),
             },
             {
               path: 'devices',

@@ -4,6 +4,7 @@ import {
   type CaptureToltReferralDto,
   type CreatePublicPaddleCheckoutDto,
   type CreatePublicStripeSessionDto,
+  type CreatePublicWhopCheckoutDto,
   type CreatePublicYookassaSessionDto,
   type CreateStripeSessionDto,
   type CreateTelegramStarsInvoiceDto,
@@ -19,6 +20,7 @@ import {
   type TelegramStarsInvoiceResponse,
   type ValidatePromoDto,
   type ValidatePromoResponse,
+  type WhopCheckoutPayload,
 } from '@workspace/types';
 import type { ApiClient } from '../client';
 
@@ -62,6 +64,15 @@ export function createPaymentsApi(client: ApiClient) {
       dto: CreatePublicPaddleCheckoutDto,
     ): Promise<PaddleCheckoutPayload> {
       return client.post<PaddleCheckoutPayload>(apiRoutes.payments.paddlePublicCreateCheckout, dto);
+    },
+
+    /**
+     * Validates an anonymous Whop checkout and creates the checkout
+     * configuration the embedded Whop checkout mounts — unlike Paddle's, only
+     * Whop can create it, so it comes back from the server.
+     */
+    async createPublicWhopCheckout(dto: CreatePublicWhopCheckoutDto): Promise<WhopCheckoutPayload> {
+      return client.post<WhopCheckoutPayload>(apiRoutes.payments.whopPublicCreateCheckout, dto);
     },
 
     /**

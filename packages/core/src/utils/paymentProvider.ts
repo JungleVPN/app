@@ -1,8 +1,9 @@
 /**
  * Which provider global (non-RU) visitors check out through — both on the
  * public `/payment/:planId` route and on the authenticated profile payment
- * page. Paddle is primary; Stripe stays fully wired behind the same flows, so
- * switching back is this one env var and nothing else.
+ * page. One of `paddle` (the default), `whop` or `stripe`: all three stay fully
+ * wired behind the same flows, so switching between them is this one env var
+ * (matched by `GLOBAL_PAYMENT_PROVIDER` on the payments service).
  *
  * RU visitors never reach here — they pay through YooKassa in the profile.
  */

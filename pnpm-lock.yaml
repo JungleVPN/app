@@ -722,6 +722,12 @@ importers:
       '@tma.js/sdk-react':
         specifier: ^3.0.19
         version: 3.0.19(@types/react@19.2.14)(react@19.2.5)(typescript@5.9.3)
+      '@whop/elements':
+        specifier: ^1.1.0
+        version: 1.1.0
+      '@whop/elements-react':
+        specifier: ^1.1.0
+        version: 1.1.0(@whop/elements@1.1.0)(react@19.2.5)
       '@workspace/types':
         specifier: workspace:*
         version: link:../types
@@ -2998,6 +3004,15 @@ packages:
 
   '@webassemblyjs/wast-printer@1.14.1':
     resolution: {integrity: sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw==}
+
+  '@whop/elements-react@1.1.0':
+    resolution: {integrity: sha512-JH8sPSnaFqv5NGv75Tz42ARebqL/RxL9kWtQjz4GxuLpC+ko7dXLSp6ZlnXsiPAcqopfJGWSgb+HMYpGnROjNw==}
+    peerDependencies:
+      '@whop/elements': ^1.1.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@whop/elements@1.1.0':
+    resolution: {integrity: sha512-qDN+FHBIiu93ZFY9cL8+8OF8wS3UTEHhie25A92K4DnyaxUJUwGpVUIsEL2DM9xPBdwJEq35GZlqhmuwSllNBA==}
 
   '@whop/sdk@2.0.0':
     resolution: {integrity: sha512-QWa/Iw5NBfmvqlO3Q+AxFlTh920o899E1aKww2tLQSn4TigDhttXM0hsl5NUMvkPyC89u3xHvVQkX7Z7AKmHhg==}
@@ -8456,6 +8471,14 @@ snapshots:
     dependencies:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
+
+  '@whop/elements-react@1.1.0(@whop/elements@1.1.0)(react@19.2.5)':
+    dependencies:
+      '@whop/elements': 1.1.0
+      react: 19.2.5
+      use-sync-external-store: 1.6.0(react@19.2.5)
+
+  '@whop/elements@1.1.0': {}
 
   '@whop/sdk@2.0.0':
     dependencies:

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { currentScope, GLOBAL_PAYMENT_PROVIDER, phCapture } from '../../utils';
 import PaddleStartCheckoutPage from '../paddleGetSubscription/PaddleStartCheckoutPage';
 import RuStartCheckoutPage from '../ruGetSubscription/RuStartCheckoutPage';
+import WhopStartCheckoutPage from '../whopGetSubscription/WhopStartCheckoutPage';
 import StripeCheckoutPage from './StripeCheckoutPage';
 
 /**
@@ -21,6 +22,8 @@ export default function GetSubscriptionPage() {
   }, []);
 
   if (currentScope() === 'ru') return <RuStartCheckoutPage />;
+
+  if (GLOBAL_PAYMENT_PROVIDER === 'whop') return <WhopStartCheckoutPage />;
 
   return GLOBAL_PAYMENT_PROVIDER === 'paddle' ? (
     <PaddleStartCheckoutPage />

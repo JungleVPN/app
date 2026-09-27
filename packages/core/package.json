@@ -35,6 +35,8 @@
     "@remnawave/subscription-page-types": "^0.4.0",
     "@tabler/icons-react": "^3.31.0",
     "@tma.js/sdk-react": "^3.0.19",
+    "@whop/elements": "^1.1.0",
+    "@whop/elements-react": "^1.1.0",
     "@workspace/types": "workspace:*",
     "clsx": "^2.1.1",
     "cobe": "^2.0.1",
