@@ -641,6 +641,43 @@ describe('WhopWebhookService', () => {
       expect(analyticsClient.track).not.toHaveBeenCalled();
     });
 
+    it("records and notifies a failed renewal against the membership's account, not the Whop user's email", async () => {
+      const { service, savedMethodRepo, remnaUserResolver, paymentRepo, eventEmitter } = setup();
+      savedMethodRepo.findOneBy.mockResolvedValue({ id: 42, userId: 7777 });
+
+      await service.handleWebhook(
+        paymentFailed({
+          metadata: null,
+          user: { id: 'user_wallet', email: 'wallet-owner@test.com' },
+        }),
+      );
+
+      expect(savedMethodRepo.findOneBy).toHaveBeenCalledWith({
+        provider: 'whop',
+        paymentMethodId: 'mem_1',
+      });
+      expect(remnaUserResolver.findByEmail).not.toHaveBeenCalled();
+      expect(paymentRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'failed', userId: 7777 }),
+      );
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        WebhookEventEnum['payment.canceled'],
+        expect.objectContaining({ userId: 7777 }),
+      );
+    });
+
+    it('looks the payer up by email when the failed payment names no membership', async () => {
+      const { service, savedMethodRepo, remnaUserResolver, paymentRepo } = setup();
+
+      await service.handleWebhook(paymentFailed({ membership: null }));
+
+      expect(savedMethodRepo.findOneBy).not.toHaveBeenCalled();
+      expect(remnaUserResolver.findByEmail).toHaveBeenCalledWith('payer@test.com');
+      expect(paymentRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({ userId: EXISTING_ACCOUNT_ID }),
+      );
+    });
+
     it('records but does not notify a failure for an email with no account', async () => {
       const { service, paymentRepo, remnaUserResolver, eventEmitter } = setup();
       remnaUserResolver.findByEmail.mockResolvedValue(null);

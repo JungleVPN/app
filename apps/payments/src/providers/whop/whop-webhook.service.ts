@@ -369,7 +369,9 @@ export class WhopWebhookService {
     const email = (payment.metadata?.email ?? payment.user?.email)?.trim();
     // A failed charge is not the moment to create an account for a payer who
     // has none yet — only a settled one earns that (mirrors Paddle).
-    const userId = email ? await this.remnaUserResolver.findByEmail(email) : null;
+    const userId =
+      (await this.findMembershipOwner(payment.membership?.id)) ??
+      (email ? await this.remnaUserResolver.findByEmail(email) : null);
 
     await this.persistPayment(
       {
