@@ -129,7 +129,7 @@ export default function PaymentPage() {
       {isLoading || (planId !== undefined && !arePlansSettled) ? (
         <Loading />
       ) : hasActiveMethod ? (
-        <div className='flex flex-col gap-3'>
+        <div className='flex flex-col gap-2'>
           {hasStripeSubscription ? (
             <Button
               fullWidth

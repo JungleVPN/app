@@ -12,6 +12,8 @@ import { RemnaUserResolverService } from '../../auth/remna-user-resolver.service
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
 import { ToltService } from '../../tolt/tolt.service';
 import {
+  type WhopCancelAtPeriodEndChangedData,
+  WhopCancelAtPeriodEndChangedSchema,
   type WhopMembershipData,
   WhopMembershipSchema,
   type WhopPaymentData,
@@ -179,6 +181,11 @@ export class WhopWebhookService {
         break;
       case 'membership.deactivated':
         await this.handleMembershipDeactivated(this.parseData(event, WhopMembershipSchema));
+        break;
+      case 'membership.cancel_at_period_end_changed':
+        await this.handleCancelAtPeriodEndChanged(
+          this.parseData(event, WhopCancelAtPeriodEndChangedSchema),
+        );
         break;
       default:
         this.logger.debug(`Unhandled Whop event: ${event.type}`);
@@ -439,23 +446,42 @@ export class WhopWebhookService {
       this.logger.log(`Whop membership ${membership.id} ended — rows marked canceled`);
     }
 
-    // An ended membership can never be charged again, so the saved method is
-    // dead weight. Best-effort: a failure here must not stop Whop's retry
-    // from re-running this path (mirrors Paddle).
+    // An ended membership can never be charged again. The row is kept as a
+    // record, never deleted. Best-effort: a failure here must not stop Whop's
+    // retry from re-running this path (mirrors Paddle).
     try {
-      const deleted = await this.savedMethodRepo.delete({
-        provider: 'whop',
-        paymentMethodId: membership.id,
-      });
-      if (deleted.affected) {
-        this.logger.log(`Removed saved Whop payment method for membership ${membership.id}`);
+      const terminated = await this.savedMethodRepo.update(
+        { provider: 'whop', paymentMethodId: membership.id },
+        { status: 'terminated', isActive: false },
+      );
+      if (terminated.affected) {
+        this.logger.log(`Terminated saved Whop payment method for membership ${membership.id}`);
       }
     } catch (error) {
       this.logger.error(
-        `Failed to delete saved Whop method for membership ${membership.id}`,
+        `Failed to terminate saved Whop method for membership ${membership.id}`,
         error,
       );
     }
+  }
+
+  // ── membership.cancel_at_period_end_changed ──────────────────────────────
+  /**
+   * A cancel or resume made anywhere — our profile page, the Whop app, or
+   * support. A terminated membership stays terminated: it can never bill again.
+   */
+  private async handleCancelAtPeriodEndChanged(
+    membership: WhopCancelAtPeriodEndChangedData,
+  ): Promise<void> {
+    const saved = await this.savedMethodRepo.findOneBy({
+      provider: 'whop',
+      paymentMethodId: membership.id,
+    });
+    if (!saved || saved.status === 'terminated') return;
+
+    const status = membership.cancel_at_period_end ? 'canceled' : 'active';
+    await this.savedMethodRepo.update({ id: saved.id }, { status });
+    this.logger.log(`Whop membership ${membership.id} is now ${status}`);
   }
 
   // ── refund.created / refund.updated ──────────────────────────────────────
@@ -551,6 +577,7 @@ export class WhopWebhookService {
           paymentMethodType: 'whop',
           ...details,
           isActive: true,
+          status: 'active',
         }),
       );
 

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
 import { PlanService } from '@payments/catalog/plan.service';
@@ -151,13 +156,20 @@ export class WhopProvider {
    * Cancels `userId`'s Whop membership at period end. Takes the place of
    * Paddle's `getPortalUrl`: Whop has no per-customer portal to send the user
    * to, so the one self-service action is done here, on the user's behalf.
+   * The row is marked canceled at once, so a reload shows it without waiting
+   * for Whop's `membership.cancel_at_period_end_changed`.
    */
   async cancelSubscription(userId: number): Promise<WhopCancelDto> {
     const [latest] = await this.findActiveMethods(userId);
     if (!latest) {
       throw new NotFoundException('No active Whop subscription to cancel');
     }
-    return this.whopClientService.cancelMembership(latest.paymentMethodId);
+    if (latest.status === 'canceled') {
+      throw new ConflictException('Whop subscription is already canceled');
+    }
+    const canceled = await this.whopClientService.cancelMembership(latest.paymentMethodId);
+    await this.savedMethodRepository.update({ id: latest.id }, { status: 'canceled' });
+    return canceled;
   }
 
   private findActiveMethods(userId: number): Promise<SavedPaymentMethod[]> {

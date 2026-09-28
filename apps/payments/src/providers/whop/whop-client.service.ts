@@ -125,7 +125,7 @@ export class WhopClientService {
   /**
    * Stops `membershipId` renewing. Access continues until the current period
    * ends — the user keeps what they paid for; Whop's `membership.deactivated`
-   * then retires the saved method when it lapses.
+   * then marks the saved method terminated when it lapses.
    */
   async cancelMembership(
     membershipId: string,

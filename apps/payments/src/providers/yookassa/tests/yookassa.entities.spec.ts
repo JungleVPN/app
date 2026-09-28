@@ -237,19 +237,24 @@ describe('SavedPaymentMethod entity', () => {
       'productName',
       'provider',
       'renewsAt',
+      'status',
       'title',
       'updatedAt',
       'userId',
     ]);
   });
 
-  // Only the Whop webhook fills the subscription details; YooKassa rows leave them empty.
-  it.each([['productName'], ['amount'], ['currency'], ['billingPeriod'], ['renewsAt']])(
-    'leaves %s optional',
-    (column) => {
-      expect(columns.get(column)?.options.nullable).toBe(true);
-    },
-  );
+  // Only Whop fills the subscription details and status; YooKassa rows leave them empty.
+  it.each([
+    ['productName'],
+    ['amount'],
+    ['currency'],
+    ['billingPeriod'],
+    ['renewsAt'],
+    ['status'],
+  ])('leaves %s optional', (column) => {
+    expect(columns.get(column)?.options.nullable).toBe(true);
+  });
 
   // Unlike a payment, the row has no natural external key, so the database
   // generates a uuid.

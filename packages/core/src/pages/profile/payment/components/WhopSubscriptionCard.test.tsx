@@ -1,7 +1,8 @@
 /**
  * WhopSubscriptionCard — Whop's stand-in for the Stripe/Paddle "Manage"
  * button. Whop has no customer portal, so cancelling happens here: behind a
- * confirmation, at period end, with the end date shown once it is done.
+ * confirmation, at period end, with the end date shown once it is done —
+ * and again on every reload, from the status the backend now keeps.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { SavedMethodDto } from '@workspace/types';
@@ -45,6 +46,7 @@ const whopMethod = (overrides: Partial<SavedMethodDto> = {}): SavedMethodDto => 
   currency: 'EUR',
   billingPeriod: 30,
   renewsAt: '2026-10-27T10:00:00.000Z',
+  status: 'active',
   createdAt: '2026-09-27T10:00:00.000Z',
   updatedAt: '2026-09-27T10:00:00.000Z',
   ...overrides,
@@ -108,6 +110,21 @@ describe('WhopSubscriptionCard', () => {
     expect(await screen.findByText(/payment\.whopCancel\.endsOn/)).toBeTruthy();
     expect(screen.queryByText(/payment\.whopSubscription\.renewsOn/)).toBeNull();
     expect(screen.getByText('Jungle VPN')).toBeTruthy();
+  });
+
+  it('shows a subscription canceled earlier as canceled after a reload, until its period ends', () => {
+    render(<WhopSubscriptionCard method={whopMethod({ status: 'canceled' })} />);
+
+    expect(screen.getByText(/payment\.whopCancel\.endsOn.*October 27, 2026/)).toBeTruthy();
+    expect(screen.queryByText(/payment\.whopSubscription\.renewsOn/)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'payment.whopCancel.button' })).toBeNull();
+    expect(screen.getByText('Jungle VPN')).toBeTruthy();
+  });
+
+  it('offers to cancel a subscription saved before statuses were tracked', () => {
+    render(<WhopSubscriptionCard method={whopMethod({ status: null })} />);
+
+    expect(screen.getByRole('button', { name: 'payment.whopCancel.button' })).toBeTruthy();
   });
 
   it('cancels only after the user confirms', async () => {

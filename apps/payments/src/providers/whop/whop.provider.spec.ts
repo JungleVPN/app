@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { PlanService } from '@payments/catalog/plan.service';
 import { VisitorCurrencyService } from '@payments/catalog/visitor-currency.service';
 import type { Plan } from '@workspace/database';
@@ -49,7 +49,10 @@ const providerWith = (countryCode: string | null = null) => {
       .fn()
       .mockResolvedValue({ cancelAtPeriodEnd: true, accessUntil: '2026-10-26T10:00:00Z' }),
   };
-  const savedMethodRepo = { find: vi.fn().mockResolvedValue([]) };
+  const savedMethodRepo = {
+    find: vi.fn().mockResolvedValue([]),
+    update: vi.fn().mockResolvedValue({ affected: 1 }),
+  };
   const whopWebhookService = { handleWebhook: vi.fn().mockResolvedValue(undefined) };
   const userResolver = { findByEmail: vi.fn().mockResolvedValue(null) };
   const planService = new PlanService({ find: async () => CATALOG } as never);
@@ -382,6 +385,25 @@ describe('WhopProvider', () => {
       });
     });
 
+    it('reports whether the subscription is active or canceled at period end', async () => {
+      const { provider, savedMethodRepo } = providerWith();
+      savedMethodRepo.find.mockResolvedValue([whopRow({ status: 'canceled' })]);
+
+      const status = await provider.getSubscriptionStatus(1000);
+
+      expect(status.active).toBe(true);
+      expect(status.methods[0]?.status).toBe('canceled');
+    });
+
+    it('reports no status for a row saved before statuses were tracked', async () => {
+      const { provider, savedMethodRepo } = providerWith();
+      savedMethodRepo.find.mockResolvedValue([whopRow()]);
+
+      const [method] = (await provider.getSubscriptionStatus(1000)).methods;
+
+      expect(method?.status).toBeNull();
+    });
+
     it('reports no subscription for a user with no saved Whop row', async () => {
       const { provider } = providerWith();
 
@@ -408,8 +430,8 @@ describe('WhopProvider', () => {
     it("cancels the user's active membership at period end", async () => {
       const { provider, savedMethodRepo, whopClientService } = providerWith();
       savedMethodRepo.find.mockResolvedValue([
-        { paymentMethodId: 'mem_2' },
-        { paymentMethodId: 'mem_1' },
+        { id: 'row-2', paymentMethodId: 'mem_2', status: 'active' },
+        { id: 'row-1', paymentMethodId: 'mem_1', status: 'active' },
       ]);
 
       await expect(provider.cancelSubscription(1000)).resolves.toEqual({
@@ -421,6 +443,34 @@ describe('WhopProvider', () => {
         order: { createdAt: 'DESC' },
       });
       expect(whopClientService.cancelMembership).toHaveBeenCalledWith('mem_2');
+    });
+
+    it('marks the membership canceled, so a reload shows it as canceled', async () => {
+      const { provider, savedMethodRepo } = providerWith();
+      savedMethodRepo.find.mockResolvedValue([{ id: 'row-2', paymentMethodId: 'mem_2' }]);
+
+      await provider.cancelSubscription(1000);
+
+      expect(savedMethodRepo.update).toHaveBeenCalledWith({ id: 'row-2' }, { status: 'canceled' });
+    });
+
+    it('leaves the row as it was when Whop refuses the cancellation', async () => {
+      const { provider, savedMethodRepo, whopClientService } = providerWith();
+      savedMethodRepo.find.mockResolvedValue([{ id: 'row-2', paymentMethodId: 'mem_2' }]);
+      whopClientService.cancelMembership.mockRejectedValue(new Error('whop down'));
+
+      await expect(provider.cancelSubscription(1000)).rejects.toThrow('whop down');
+      expect(savedMethodRepo.update).not.toHaveBeenCalled();
+    });
+
+    it('refuses to cancel a membership already canceled, without calling Whop', async () => {
+      const { provider, savedMethodRepo, whopClientService } = providerWith();
+      savedMethodRepo.find.mockResolvedValue([
+        { id: 'row-2', paymentMethodId: 'mem_2', status: 'canceled' },
+      ]);
+
+      await expect(provider.cancelSubscription(1000)).rejects.toBeInstanceOf(ConflictException);
+      expect(whopClientService.cancelMembership).not.toHaveBeenCalled();
     });
 
     it('refuses when the user has no active Whop membership, without calling Whop', async () => {

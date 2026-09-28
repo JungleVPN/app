@@ -103,6 +103,11 @@ const membershipDeactivated = (status: string) => ({
   data: { id: 'mem_1', status },
 });
 
+const cancelAtPeriodEndChanged = (cancelAtPeriodEnd: boolean) => ({
+  type: 'membership.cancel_at_period_end_changed',
+  data: { id: 'mem_1', status: 'active', cancel_at_period_end: cancelAtPeriodEnd },
+});
+
 const setup = (options: { catalog?: Plan[] } = {}) => {
   const paymentRepo = {
     insert: vi.fn().mockResolvedValue({}),
@@ -310,6 +315,7 @@ describe('WhopWebhookService', () => {
           paymentMethodId: 'mem_1',
           paymentMethodType: 'whop',
           isActive: true,
+          status: 'active',
         }),
       );
     });
@@ -370,6 +376,18 @@ describe('WhopWebhookService', () => {
       expect(paymentRepo.save).toHaveBeenLastCalledWith(expect.objectContaining({ amount: 0.6 }));
       expect(savedMethodRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({ amount: 6, currency: 'EUR', billingPeriod: 30 }),
+      );
+    });
+
+    it('keeps a canceled membership canceled when a late success for it arrives', async () => {
+      const { service, savedMethodRepo } = setup();
+      savedMethodRepo.findOneBy.mockResolvedValue({ id: 42, isActive: true, status: 'canceled' });
+
+      await service.handleWebhook(paymentSucceeded());
+
+      expect(savedMethodRepo.update).toHaveBeenCalledWith(
+        { id: 42 },
+        expect.not.objectContaining({ status: expect.anything() }),
       );
     });
 
@@ -720,7 +738,7 @@ describe('WhopWebhookService', () => {
       ['canceled'],
       ['expired'],
       ['completed'],
-    ])('marks the payments canceled and forgets the saved method once %s', async (status) => {
+    ])('marks the payments canceled and the saved method terminated once %s', async (status) => {
       const { service, paymentRepo, savedMethodRepo } = setup();
 
       await service.handleWebhook(membershipDeactivated(status));
@@ -729,10 +747,18 @@ describe('WhopWebhookService', () => {
         { membershipId: 'mem_1' },
         { status: 'canceled' },
       );
-      expect(savedMethodRepo.delete).toHaveBeenCalledWith({
-        provider: 'whop',
-        paymentMethodId: 'mem_1',
-      });
+      expect(savedMethodRepo.update).toHaveBeenCalledWith(
+        { provider: 'whop', paymentMethodId: 'mem_1' },
+        { status: 'terminated', isActive: false },
+      );
+    });
+
+    it('never deletes the saved method, keeping it as a record', async () => {
+      const { service, savedMethodRepo } = setup();
+
+      await service.handleWebhook(membershipDeactivated('canceled'));
+
+      expect(savedMethodRepo.delete).not.toHaveBeenCalled();
     });
 
     it('leaves a past-due membership alone, since Whop may still recover the renewal', async () => {
@@ -741,16 +767,62 @@ describe('WhopWebhookService', () => {
       await service.handleWebhook(membershipDeactivated('past_due'));
 
       expect(paymentRepo.update).not.toHaveBeenCalled();
-      expect(savedMethodRepo.delete).not.toHaveBeenCalled();
+      expect(savedMethodRepo.update).not.toHaveBeenCalled();
     });
 
-    it('still marks the payments canceled when forgetting the saved method fails', async () => {
-      const { service, savedMethodRepo } = setup();
-      savedMethodRepo.delete.mockRejectedValue(new Error('db down'));
+    it('still marks the payments canceled when terminating the saved method fails', async () => {
+      const { service, paymentRepo, savedMethodRepo } = setup();
+      savedMethodRepo.update.mockRejectedValue(new Error('db down'));
 
       await expect(
         service.handleWebhook(membershipDeactivated('canceled')),
       ).resolves.toBeUndefined();
+      expect(paymentRepo.update).toHaveBeenCalledWith(
+        { membershipId: 'mem_1' },
+        { status: 'canceled' },
+      );
+    });
+  });
+
+  /** Fires for a cancel or resume made anywhere — our profile page, the Whop app, or support. */
+  describe('membership.cancel_at_period_end_changed', () => {
+    it('marks the saved method canceled when the membership is set to end with its period', async () => {
+      const { service, savedMethodRepo } = setup();
+      savedMethodRepo.findOneBy.mockResolvedValue({ id: 42, status: 'active' });
+
+      await service.handleWebhook(cancelAtPeriodEndChanged(true));
+
+      expect(savedMethodRepo.findOneBy).toHaveBeenCalledWith({
+        provider: 'whop',
+        paymentMethodId: 'mem_1',
+      });
+      expect(savedMethodRepo.update).toHaveBeenCalledWith({ id: 42 }, { status: 'canceled' });
+    });
+
+    it('marks the saved method active again when the cancellation is withdrawn', async () => {
+      const { service, savedMethodRepo } = setup();
+      savedMethodRepo.findOneBy.mockResolvedValue({ id: 42, status: 'canceled' });
+
+      await service.handleWebhook(cancelAtPeriodEndChanged(false));
+
+      expect(savedMethodRepo.update).toHaveBeenCalledWith({ id: 42 }, { status: 'active' });
+    });
+
+    it('never revives a terminated membership', async () => {
+      const { service, savedMethodRepo } = setup();
+      savedMethodRepo.findOneBy.mockResolvedValue({ id: 42, status: 'terminated' });
+
+      await service.handleWebhook(cancelAtPeriodEndChanged(false));
+
+      expect(savedMethodRepo.update).not.toHaveBeenCalled();
+    });
+
+    it('ignores a membership we never saved', async () => {
+      const { service, savedMethodRepo } = setup();
+
+      await service.handleWebhook(cancelAtPeriodEndChanged(true));
+
+      expect(savedMethodRepo.update).not.toHaveBeenCalled();
     });
   });
 

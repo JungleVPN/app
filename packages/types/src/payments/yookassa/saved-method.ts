@@ -1,5 +1,11 @@
 import type { RemnaUserId } from '../../remnawave';
 /**
+ * Where a Whop subscription stands: renewing, `canceled` to end with its paid
+ * period (access continues until `renewsAt`), or `terminated` for good.
+ */
+export type SavedMethodStatus = 'active' | 'canceled' | 'terminated';
+
+/**
  * DTO returned by GET /api/payments/yookassa/saved-methods/:userId.
  * Shape mirrors the SavedPaymentMethod TypeORM entity.
  */
@@ -33,6 +39,8 @@ export interface SavedMethodDto {
   billingPeriod: number | null;
   /** ISO date-time the next charge is due. Whop only; null elsewhere. */
   renewsAt: string | null;
+  /** Whop only; null elsewhere, and on Whop rows saved before it was tracked. */
+  status: SavedMethodStatus | null;
   createdAt: string;
   updatedAt: string;
 }

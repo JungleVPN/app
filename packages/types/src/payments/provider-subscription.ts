@@ -5,7 +5,7 @@ import type { SavedMethodDto } from './yookassa/saved-method';
  *
  * Read from our own `saved_payment_methods` rows, never from the provider's
  * API: the webhooks already maintain those rows (a paid invoice activates one,
- * a cancelled subscription deletes it), so the DB is the record we own and can
+ * a cancelled subscription deletes it — or, for Whop, marks it `terminated`), so the DB is the record we own and can
  * read on every page load for free.
  *
  * `methods` carries what we hold for that provider: YooKassa's saved cards,

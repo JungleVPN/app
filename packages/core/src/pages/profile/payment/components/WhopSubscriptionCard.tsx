@@ -70,7 +70,7 @@ function SubscriptionDetails({ rows }: { rows: DetailRow[] }) {
         {rows.map((row, index) => (
           <Fragment key={row.label}>
             {index > 0 ? <Separator className='shrink-0' variant='secondary' /> : null}
-            <div className='flex min-h-[52px] items-center justify-between gap-3 px-4 py-2.5'>
+            <div className='flex min-h-13 items-center justify-between gap-3 px-4 py-2.5'>
               <dt className='text-sm text-muted'>{row.label}</dt>
               <dd className='text-end text-sm'>{row.value}</dd>
             </div>
@@ -87,14 +87,19 @@ function SubscriptionDetails({ rows }: { rows: DetailRow[] }) {
  * cancelling — happens here: behind a confirmation, at period end, so the
  * user keeps what they paid for.
  *
- * The end date shown is the cancel response's; the backend keeps reporting the
- * subscription active until Whop ends it, so it is not re-read on a reload.
+ * Right after cancelling, the end date shown is the cancel response's. On a
+ * reload it comes from the saved method: the backend marks it `canceled` and
+ * keeps reporting it until Whop ends it, access running until `renewsAt`.
  */
 export function WhopSubscriptionCard({ method }: { method?: SavedMethodDto }) {
   const { t, i18n } = useTranslation();
   const paymentsApi = usePaymentsApi();
   const confirm = useOverlayState();
-  const [state, setState] = useState<CancelState>({ status: 'idle' });
+  const [state, setState] = useState<CancelState>(() =>
+    method?.status === 'canceled'
+      ? { status: 'canceled', accessUntil: method.renewsAt }
+      : { status: 'idle' },
+  );
 
   const cancel = async () => {
     setState({ status: 'canceling' });
@@ -120,7 +125,7 @@ export function WhopSubscriptionCard({ method }: { method?: SavedMethodDto }) {
     return (
       <>
         {details}
-        <Paragraph>
+        <Paragraph className={'ml-4'}>
           {state.accessUntil
             ? t('payment.whopCancel.endsOn', {
                 date: formatDate(state.accessUntil, i18n.language, { dateStyle: 'long' }),

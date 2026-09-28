@@ -23,6 +23,7 @@ export function toSavedMethodDto(method: SavedPaymentMethod): SavedMethodDto {
     currency: method.currency ?? null,
     billingPeriod: method.billingPeriod ?? null,
     renewsAt: method.renewsAt?.toISOString() ?? null,
+    status: method.status ?? null,
     createdAt: method.createdAt?.toISOString() ?? new Date(0).toISOString(),
     updatedAt: method.updatedAt?.toISOString() ?? new Date(0).toISOString(),
   };

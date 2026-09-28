@@ -1,3 +1,4 @@
+import type { SavedMethodStatus } from '@workspace/types';
 import {
   Column,
   CreateDateColumn,
@@ -63,6 +64,13 @@ export class SavedPaymentMethod {
   /** When the next charge is due: the last charge plus `billingPeriod`. Whop only. */
   @Column({ type: 'timestamptz', nullable: true })
   renewsAt: Date | null;
+
+  /**
+   * Whop only; null elsewhere, and on Whop rows saved before it was tracked.
+   * A Whop row is never deleted — an ended membership becomes `terminated`.
+   */
+  @Column({ type: 'varchar', nullable: true })
+  status: SavedMethodStatus | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

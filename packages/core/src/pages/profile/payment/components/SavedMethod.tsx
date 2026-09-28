@@ -34,18 +34,20 @@ export function SavedMethod({
   const description = (
     <>
       {!hasManagedSubscription && (
-        <span className={'mb-3'}>{t('payment.savedMethodsDescription')}</span>
+        <>
+          <span className={'mb-3'}>{t('payment.savedMethodsDescription')}</span>
+          <Paragraph>
+            {t('terms.paymentConsentLead')}
+            <button
+              className='cursor-pointer underline underline-offset-2'
+              type='button'
+              onClick={openTerms}
+            >
+              {t('terms.paymentLinkLabel')}
+            </button>
+          </Paragraph>
+        </>
       )}
-      <Paragraph>
-        {t('terms.paymentConsentLead')}
-        <button
-          className='cursor-pointer underline underline-offset-2'
-          type='button'
-          onClick={openTerms}
-        >
-          {t('terms.paymentLinkLabel')}
-        </button>
-      </Paragraph>
     </>
   );
 

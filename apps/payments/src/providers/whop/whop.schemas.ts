@@ -52,6 +52,12 @@ export const WhopMembershipSchema = z.object({
   status: z.string(),
 });
 
+export const WhopCancelAtPeriodEndChangedSchema = z.object({
+  id: z.string(),
+  /** Whether the membership stops renewing once its current period ends. */
+  cancel_at_period_end: z.boolean(),
+});
+
 export const WhopRefundSchema = z.object({
   id: z.string(),
   /** Major units of `currency`. */
@@ -67,4 +73,5 @@ export const WhopRefundSchema = z.object({
 export type WhopWebhookEnvelope = z.infer<typeof WhopWebhookEnvelopeSchema>;
 export type WhopPaymentData = z.infer<typeof WhopPaymentSchema>;
 export type WhopMembershipData = z.infer<typeof WhopMembershipSchema>;
+export type WhopCancelAtPeriodEndChangedData = z.infer<typeof WhopCancelAtPeriodEndChangedSchema>;
 export type WhopRefundData = z.infer<typeof WhopRefundSchema>;
