@@ -23,6 +23,11 @@ export interface CreatePublicWhopCheckoutDto {
 export interface WhopCheckoutPayload {
   accountId: string;
   planId: string;
+  /**
+   * Whether the plan renews. A wallet token for a renewing plan must be
+   * minted with `setupFutureUsage: 'off_session'`, or Whop refuses it.
+   */
+  renews: boolean;
 }
 
 /**

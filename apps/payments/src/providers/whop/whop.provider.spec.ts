@@ -26,6 +26,7 @@ const CATALOG: Plan[] = [
   plan('whop-usd-30', { currency: 'USD', providerPriceId: 'plan_usd_1' }),
   plan('whop-retired', { billingPeriod: 90, availableForPurchase: false }),
   plan('paddle-30', { provider: 'paddle', providerPriceId: 'pri_month_1' }),
+  plan('whop-7-once', { type: 'one_time', billingPeriod: 7, providerPriceId: 'plan_once_1' }),
 ];
 
 const PAYER_IP = '203.0.113.5';
@@ -98,12 +99,21 @@ describe('WhopProvider', () => {
   });
 
   describe('checkoutTarget', () => {
-    it('names the account we sell from and the Whop plan to mount the card form for', () => {
+    it('names the account we sell from and the Whop plan to mount the card form for', async () => {
       const { provider } = providerWith();
 
-      expect(provider.checkoutTarget('plan_month_1')).toEqual({
+      await expect(provider.checkoutTarget('plan_month_1')).resolves.toEqual({
         accountId: 'biz_test',
         planId: 'plan_month_1',
+        renews: true,
+      });
+    });
+
+    it('says a one-time plan does not renew, so a wallet saves no card for it', async () => {
+      const { provider } = providerWith();
+
+      await expect(provider.checkoutTarget('plan_once_1')).resolves.toMatchObject({
+        renews: false,
       });
     });
   });

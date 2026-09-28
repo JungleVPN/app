@@ -50,12 +50,17 @@ export default function WhopStartCheckoutPage() {
       inviterId: getReferralUserId() ?? undefined,
     };
     const charge = checkout.plan && shownCharge(checkout.plan.planPricing, price);
-    const { accountId, planId: whopPlanId } = await paymentsApi.createPublicWhopCheckout(request);
+    const {
+      accountId,
+      planId: whopPlanId,
+      renews,
+    } = await paymentsApi.createPublicWhopCheckout(request);
 
     navigate(paddleCheckoutPath, {
       state: {
         accountId,
         whopPlanId,
+        renews,
         request,
         selectedPeriod,
         ...(promo ? { promo } : {}),

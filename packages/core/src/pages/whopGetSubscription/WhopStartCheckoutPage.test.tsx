@@ -107,7 +107,11 @@ const discountShown = () => screen.findByTestId('order-discount');
 describe('WhopStartCheckoutPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    api.createPublicWhopCheckout.mockResolvedValue({ accountId: 'biz_1', planId: 'plan_1' });
+    api.createPublicWhopCheckout.mockResolvedValue({
+      accountId: 'biz_1',
+      planId: 'plan_1',
+      renews: true,
+    });
   });
 
   it('tells the payer the price already includes tax, since Whop plans are tax-inclusive', () => {
@@ -230,6 +234,7 @@ describe('WhopStartCheckoutPage', () => {
       state: {
         accountId: 'biz_1',
         whopPlanId: 'plan_1',
+        renews: true,
         request: {
           email: 'payer@test.com',
           planId: 'whop-30',

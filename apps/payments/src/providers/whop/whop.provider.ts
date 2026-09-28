@@ -51,9 +51,18 @@ export class WhopProvider {
     return plan.providerPriceId;
   }
 
-  /** What the browser mounts the card form against: our account and the Whop plan being bought. */
-  checkoutTarget(whopPlanId: string): WhopCheckoutPayload {
-    return { accountId: this.whopClientService.accountId, planId: whopPlanId };
+  /**
+   * What the browser mounts the card form against: our account, the Whop plan
+   * being bought, and whether it renews — a wallet token for a renewing plan
+   * must be minted for off-session reuse, or Whop refuses it.
+   */
+  async checkoutTarget(whopPlanId: string): Promise<WhopCheckoutPayload> {
+    const plan = await this.planService.findByProviderPriceId('whop', whopPlanId);
+    return {
+      accountId: this.whopClientService.accountId,
+      planId: whopPlanId,
+      renews: plan?.type === 'recurring',
+    };
   }
 
   /**

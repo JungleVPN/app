@@ -76,7 +76,7 @@ export function ApplePayButton({ locale, onClick }: WalletButtonProps) {
       ref={button}
       aria-label='Apple Pay'
       buttonstyle='black'
-      className='block w-full [--apple-pay-button-border-radius:9999px] [--apple-pay-button-height:40px] [--apple-pay-button-width:100%]'
+      className='block w-full [--apple-pay-button-border-radius:20px] [--apple-pay-button-height:40px] [--apple-pay-button-width:100%]'
       locale={locale}
       role='button'
       type='plain'

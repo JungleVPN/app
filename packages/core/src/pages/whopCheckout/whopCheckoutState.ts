@@ -14,6 +14,8 @@ export interface WhopCheckoutState {
   accountId: string;
   /** The Whop plan (`plan_...`) being bought. */
   whopPlanId: string;
+  /** Whether the plan renews, so a wallet must save the card for off-session renewals. */
+  renews?: boolean;
   /** The validated checkout request, sent again with the card to `public-pay`. */
   request: CreatePublicWhopCheckoutDto;
   /** Plan length in days — carried for analytics, not billing (the plan decides that). */
@@ -66,6 +68,7 @@ export function isWhopCheckoutState(value: unknown): value is WhopCheckoutState 
     isNonEmptyString(state.whopPlanId) &&
     isCheckoutRequest(state.request) &&
     typeof state.selectedPeriod === 'number' &&
+    (state.renews === undefined || typeof state.renews === 'boolean') &&
     (state.promo === undefined || isPromo(state.promo)) &&
     (state.charge === undefined || isCharge(state.charge))
   );

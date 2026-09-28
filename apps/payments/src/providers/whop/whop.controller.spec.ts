@@ -24,7 +24,11 @@ const controllerWith = (
     resolveCheckoutPlanId:
       overrides.resolveCheckoutPlanId ?? vi.fn().mockResolvedValue('plan_month_1'),
     hasActiveSubscription: overrides.hasActiveSubscription ?? vi.fn().mockResolvedValue(false),
-    checkoutTarget: vi.fn((planId: string) => ({ accountId: 'biz_test', planId })),
+    checkoutTarget: vi.fn(async (planId: string) => ({
+      accountId: 'biz_test',
+      planId,
+      renews: true,
+    })),
     payCheckout: vi
       .fn()
       .mockResolvedValue({ paymentId: 'pay_1', status: 'open', clientSecret: 'sec_1' }),
@@ -54,6 +58,7 @@ describe('WhopController.createPublicCheckout', () => {
     await expect(controller.createPublicCheckout(publicDto(), PAYER_IP)).resolves.toEqual({
       accountId: 'biz_test',
       planId: 'plan_month_1',
+      renews: true,
     });
     expect(whopProvider.resolveCheckoutPlanId).toHaveBeenCalledWith('whop-30', PAYER_IP);
   });

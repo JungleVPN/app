@@ -54,7 +54,7 @@ export function WhopWalletButtons({ checkout, returnUrl }: WhopWalletButtonsProp
   const { pay, error } = useWhopPay({ checkout, returnUrl });
   const [sheet, setSheet] = useState<WalletSheet | null>(null);
   const [wallets, setWallets] = useState<Wallet[]>([]);
-  const { accountId, charge } = checkout;
+  const { accountId, charge, renews } = checkout;
   const amount = charge?.amount;
   const currency = charge?.currency;
 
@@ -66,6 +66,8 @@ export function WhopWalletButtons({ checkout, returnUrl }: WhopWalletButtonsProp
       amount: toMinorUnits({ amount, currency }),
       currency,
       requestPayerEmail: false,
+      // Whop refuses a renewing plan's token unless it is minted for off-session reuse.
+      ...(renews ? { setupFutureUsage: 'off_session' as const } : {}),
     });
     request
       .canMakePayment()
@@ -78,7 +80,7 @@ export function WhopWalletButtons({ checkout, returnUrl }: WhopWalletButtonsProp
     return () => {
       isCurrent = false;
     };
-  }, [whop, accountId, amount, currency]);
+  }, [whop, accountId, amount, currency, renews]);
 
   if (!sheet || wallets.length === 0) return null;
 
@@ -97,8 +99,9 @@ export function WhopWalletButtons({ checkout, returnUrl }: WhopWalletButtonsProp
     );
 
   return (
-    <div className='flex w-full flex-col gap-3 mb-4'>
-      <div className='flex flex-col gap-3 sm:flex-row'>
+    <div className='@container mb-4 flex w-full flex-col gap-3'>
+      {/* Side by side only while each button keeps Google Pay's 240px minimum: 2 × 240 + the 12px gap. */}
+      <div className='flex flex-col gap-3 @min-[492px]:flex-row @min-[492px]:*:flex-1'>
         {wallets.map((wallet) =>
           wallet === 'apple_pay' ? (
             <ApplePayButton key={wallet} locale={locale} onClick={() => openSheet(wallet)} />

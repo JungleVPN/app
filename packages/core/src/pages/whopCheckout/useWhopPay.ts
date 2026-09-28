@@ -49,22 +49,24 @@ export function useWhopPay({
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const charge = async (confirmationToken: string): Promise<string | null> => {
+  /** `'paid'`, null when the payer left for an off-site step, or the text to show them. */
+  const charge = async (confirmationToken: string): Promise<'paid' | null | { error: string }> => {
     const payment = await paymentsApi.payPublicWhopCheckout({
       ...checkout.request,
       confirmationToken,
       returnUrl,
       ...(checkout.promo ? { promoCode: checkout.promo.code } : {}),
     });
-    if (payment.status === 'paid') return payment.status;
-    if (!whop || !payment.clientSecret) return 'whopCheckout.errors.not_completed';
+    if (payment.status === 'paid') return 'paid';
+    if (!whop || !payment.clientSecret) return { error: t('whopCheckout.errors.not_completed') };
 
     const result = await whop.payments.handleNextAction({ clientSecret: payment.clientSecret });
     if (result.redirected) return null;
     if (SETTLED_STATUSES.has(result.status)) return 'paid';
-    return result.lastPaymentError
-      ? 'whopCheckout.errors.declined'
-      : 'whopCheckout.errors.not_completed';
+    const { lastPaymentError } = result;
+    if (!lastPaymentError) return { error: t('whopCheckout.errors.not_completed') };
+    // Whop's own explanation, such as a charge below its minimum, says more than a generic decline.
+    return { error: lastPaymentError.message?.trim() || t('whopCheckout.errors.declined') };
   };
 
   /** Runs `tokenise` before anything else awaits, so a wallet sheet opens within the tap. */
@@ -80,7 +82,7 @@ export function useWhopPay({
         navigate(paymentReturnPath, { replace: true });
         return;
       }
-      if (outcome) setError(t(outcome));
+      if (outcome) setError(outcome.error);
     } catch (caught) {
       setError(t(payErrorKey(caught)));
     } finally {

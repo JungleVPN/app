@@ -19,6 +19,10 @@ describe('isWhopCheckoutState', () => {
     expect(isWhopCheckoutState({ ...valid, promo })).toBe(true);
   });
 
+  it('accepts whether the plan renews', () => {
+    expect(isWhopCheckoutState({ ...valid, renews: true })).toBe(true);
+  });
+
   it('accepts the total the payer was shown', () => {
     expect(isWhopCheckoutState({ ...valid, charge: { amount: '8.00', currency: 'USD' } })).toBe(
       true,
@@ -26,6 +30,7 @@ describe('isWhopCheckoutState', () => {
   });
 
   it.each([
+    ['a renewal flag that is not a boolean', { ...valid, renews: 'yes' }],
     ['a total that is not an object', { ...valid, charge: '8.00' }],
     ['a total with no amount', { ...valid, charge: { amount: '', currency: 'USD' } }],
     ['a total with no currency', { ...valid, charge: { amount: '8.00', currency: '' } }],

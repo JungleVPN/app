@@ -237,6 +237,16 @@ describe('WhopCheckoutPage', () => {
       });
     });
 
+    it('asks the sheet to save the card for renewals when the plan renews', async () => {
+      location.state = { ...(location.state as object), renews: true };
+      render(<WhopCheckoutPage />);
+
+      await applePay();
+      expect(whop.payments.paymentRequest.create).toHaveBeenCalledWith(
+        expect.objectContaining({ setupFutureUsage: 'off_session' }),
+      );
+    });
+
     it("keeps a currency's own precision, such as yen with no minor unit", async () => {
       location.state = {
         ...(location.state as object),
@@ -409,7 +419,7 @@ describe('WhopCheckoutPage', () => {
 
       fireEvent.click(await applePay());
 
-      expect((await screen.findByRole('alert')).textContent).toBe('whopCheckout.errors.declined');
+      expect((await screen.findByRole('alert')).textContent).toBe('Declined');
       expect(whop.payments.handleNextAction).toHaveBeenCalledWith({ clientSecret: 'sec_1' });
     });
 
@@ -682,18 +692,37 @@ describe('WhopCheckoutPage', () => {
         clientSecret: 'sec_1',
       });
 
-    it('reports a decline without echoing Whop’s English message', async () => {
+    it("shows Whop's own explanation of why the payment failed", async () => {
+      pendingPayment();
+      whop.payments.handleNextAction.mockResolvedValue({
+        status: 'requires_confirmation',
+        redirected: false,
+        lastPaymentError: {
+          code: 'processing_error',
+          decline_code: null,
+          message: 'This amount is too low. It must be at least €0.44.',
+        },
+      });
+
+      await renderFilledAndPay();
+
+      expect((await screen.findByRole('alert')).textContent).toBe(
+        'This amount is too low. It must be at least €0.44.',
+      );
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('reports a decline in our own words when Whop gives no explanation', async () => {
       pendingPayment();
       whop.payments.handleNextAction.mockResolvedValue({
         status: 'failed',
         redirected: false,
-        lastPaymentError: { code: 'card_declined', message: 'Your card was declined.' },
+        lastPaymentError: { code: 'card_declined', message: null },
       });
 
       await renderFilledAndPay();
 
       expect((await screen.findByRole('alert')).textContent).toBe('whopCheckout.errors.declined');
-      expect(navigate).not.toHaveBeenCalled();
     });
 
     it('asks the payer to try again when they dismiss the verification step', async () => {
