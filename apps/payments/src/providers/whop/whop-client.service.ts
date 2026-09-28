@@ -79,6 +79,7 @@ export class WhopClientService {
    */
   async hasActiveSubscription(email: string): Promise<boolean> {
     const members = await this.whop.members.list({ account_id: this.accountId, query: email });
+    console.log(members.response.data);
     const userIds = members.data.flatMap((member) => (member.user ? [member.user.id] : []));
     if (userIds.length === 0) return false;
 

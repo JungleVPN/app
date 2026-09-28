@@ -9,13 +9,15 @@ import {
 } from '@whop/elements-react';
 import { type Key, type ReactNode, type SyntheticEvent, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useRemnawaveApi } from '../../api';
 import { i18n } from '../../core/i18n';
+import { useIpStatus } from '../../hooks';
 import { useTermsStore } from '../../stores';
 import { Block, Paragraph } from '../../ui';
 import {
   type BillingCountryOption,
   billingCountryOptions,
-  defaultBillingCountry,
+  preselectedBillingCountry,
 } from './billingCountry';
 import { CardTokenError, useWhopPay } from './useWhopPay';
 import type { WhopCheckoutState } from './whopCheckoutState';
@@ -90,11 +92,13 @@ export function WhopCardForm({ checkout, returnUrl }: WhopCardFormProps) {
   const whop = useWhop();
   const { pay, isPending, error } = useWhopPay({ checkout, returnUrl });
   const { open: openTerms } = useTermsStore();
+  const ipStatus = useIpStatus(useRemnawaveApi());
 
   const countries = useMemo(() => billingCountryOptions(i18n.language), []);
   const [isCardComplete, setIsCardComplete] = useState(false);
   const [name, setName] = useState('');
-  const [country, setCountry] = useState(() => defaultBillingCountry(i18n.language));
+  const [pickedCountry, setCountry] = useState<string | null>(null);
+  const country = pickedCountry ?? preselectedBillingCountry({ ipStatus, language: i18n.language });
   const [postalCode, setPostalCode] = useState('');
 
   const canPay =

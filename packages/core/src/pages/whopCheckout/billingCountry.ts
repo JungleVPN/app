@@ -1,3 +1,5 @@
+import type { IpStatusDto } from '@workspace/types';
+
 /** ISO 3166-1 alpha-2 codes a card can be billed to. Names come from `Intl`, in the visitor's language. */
 const COUNTRY_CODES: readonly string[] = [
   'AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI',
@@ -39,4 +41,20 @@ export function defaultBillingCountry(language: string): string {
   } catch {
     return '';
   }
+}
+
+/**
+ * The country to preselect for a payer: the one their address is in, else
+ * the one their language points to. An address on one of our VPN nodes (or
+ * one we cannot tell apart from one) says where the node is, not the payer.
+ */
+export function preselectedBillingCountry({
+  ipStatus,
+  language,
+}: {
+  ipStatus: IpStatusDto | null;
+  language: string;
+}): string {
+  const addressCountry = ipStatus?.protected === false ? (ipStatus.countryCode ?? '') : '';
+  return KNOWN_CODES.has(addressCountry) ? addressCountry : defaultBillingCountry(language);
 }

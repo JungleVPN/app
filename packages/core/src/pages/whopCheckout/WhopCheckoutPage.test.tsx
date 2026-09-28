@@ -5,6 +5,7 @@
  * the app's language rather than Whop's.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { IpStatusDto } from '@workspace/types';
 import { ACTIVE_SUBSCRIPTION_CODE, PROMO_CODE_INVALID_CODE } from '@workspace/types';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -22,6 +23,7 @@ const {
   whop,
   api,
   loadScript,
+  visitor,
 } = vi.hoisted(() => {
   const walletSheet = { canMakePayment: vi.fn(), show: vi.fn() };
   return {
@@ -40,6 +42,7 @@ const {
     },
     api: { payPublicWhopCheckout: vi.fn() },
     loadScript: vi.fn(),
+    visitor: { ipStatus: null as IpStatusDto | null },
   };
 });
 
@@ -90,7 +93,15 @@ vi.mock('@whop/elements-react', () => ({
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 vi.mock('react-router', () => ({ useLocation: () => location }));
 vi.mock('../../core/i18n', () => ({ i18n: { language: 'es' } }));
-vi.mock('../../hooks', () => ({ useBackButton: () => {}, useNavigation: () => navigate }));
+vi.mock('../../hooks', () => ({
+  useBackButton: () => {},
+  useNavigation: () => navigate,
+  useIpStatus: () => visitor.ipStatus,
+}));
+vi.mock('../../api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api')>()),
+  useRemnawaveApi: () => ({}),
+}));
 vi.mock('../../runtime', () => ({
   useAppRoutes: () => ({ paymentReturnPath: '/payment/success' }),
   usePaymentsApi: () => api,
@@ -140,6 +151,7 @@ describe('WhopCheckoutPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv('PUBLIC_WHOP_ENVIRONMENT', 'sandbox');
+    visitor.ipStatus = null;
     location.state = {
       accountId: 'biz_1',
       whopPlanId: 'plan_1',
@@ -538,6 +550,58 @@ describe('WhopCheckoutPage', () => {
       await screen.findByTestId('card-number');
 
       expect((countryInput() as HTMLInputElement).value).toBe('España');
+    });
+
+    const francePayer: IpStatusDto = {
+      ip: '203.0.113.7',
+      countryCode: 'FR',
+      city: 'Paris',
+      isp: null,
+      latitude: null,
+      longitude: null,
+      protected: false,
+    };
+
+    it("preselects the country the visitor's address is in", async () => {
+      visitor.ipStatus = francePayer;
+      render(<WhopCheckoutPage />);
+      await screen.findByTestId('card-number');
+      fillCard();
+
+      expect((countryInput() as HTMLInputElement).value).toBe('Francia');
+      await waitFor(() => expect(payButton().hasAttribute('disabled')).toBe(false));
+      fireEvent.click(payButton());
+      await waitFor(() =>
+        expect(payments.createConfirmationToken).toHaveBeenCalledWith({
+          billingDetails: expect.objectContaining({
+            address: { country: 'FR', postal_code: '28001' },
+          }),
+        }),
+      );
+    });
+
+    it("moves to the address's country once the lookup answers after the form appeared", async () => {
+      const { rerender } = render(<WhopCheckoutPage />);
+      await screen.findByTestId('card-number');
+      expect((countryInput() as HTMLInputElement).value).toBe('España');
+
+      visitor.ipStatus = francePayer;
+      rerender(<WhopCheckoutPage />);
+
+      await waitFor(() => expect((countryInput() as HTMLInputElement).value).toBe('Francia'));
+    });
+
+    it("keeps the payer's own pick when the address lookup answers later", async () => {
+      const { container, rerender } = render(<WhopCheckoutPage />);
+      await screen.findByTestId('card-number');
+      const autofill = container.querySelector('select[autocomplete="country"]');
+      if (!autofill) throw new Error('no autofillable country field');
+      fireEvent.change(autofill, { target: { value: 'PT' } });
+
+      visitor.ipStatus = francePayer;
+      rerender(<WhopCheckoutPage />);
+
+      await waitFor(() => expect((countryInput() as HTMLInputElement).value).toBe('Portugal'));
     });
 
     it('lets the payer search for their country by typing part of its name', async () => {
