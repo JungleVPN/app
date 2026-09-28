@@ -159,9 +159,9 @@ export class WhopController {
 
     const whopPlanId = await this.whopProvider.resolveCheckoutPlanId(dto.planId, ip || null);
 
-    // if (await this.whopProvider.hasActiveSubscription(email)) {
-    //   throw this.activeSubscriptionConflict();
-    // }
+    if (await this.whopProvider.hasActiveSubscription(email)) {
+      throw this.activeSubscriptionConflict();
+    }
     return { email, whopPlanId };
   }
 

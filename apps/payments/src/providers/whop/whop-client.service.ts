@@ -109,7 +109,7 @@ export class WhopClientService {
       plan_ids: input.planId,
       status: 'active',
     });
-    console.log(codes.data);
+
     const now = Date.now();
     for await (const promo of codes.data) {
       if (promo.code?.toLocaleUpperCase() !== wanted) continue;
