@@ -1,14 +1,14 @@
 import * as process from 'node:process';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { trustReverseProxy } from './trust-reverse-proxy';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
 
-  // Trust the reverse-proxy / ngrok hop so that @Ip() and req.ip resolve
-  // to the real client IP from X-Forwarded-For instead of the Docker
-  // internal gateway address.
-  app.getHttpAdapter().getInstance().set('trust proxy', true);
+  // So that @Ip() and req.ip resolve to the real client IP from
+  // X-Forwarded-For instead of the Docker internal gateway address.
+  trustReverseProxy(app.getHttpAdapter().getInstance());
 
   const corsOriginEnv = process.env.CORS_ORIGIN;
   if (!corsOriginEnv) {
