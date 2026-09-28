@@ -164,7 +164,7 @@
       "body": "It won't renew. You keep access until the end of the period you've already paid for.",
       "keep": "Keep subscription",
       "confirm": "Cancel subscription",
-      "endsOn": "Your subscription is canceled and ends on {{date}}.",
+      "endsOn": "Your subscription is canceled and ends on {{date}}. You will not be charged after that date.",
       "canceled": "Your subscription is canceled and won't renew.",
       "error": "Couldn't cancel your subscription. Please try again."
     },

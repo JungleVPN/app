@@ -164,7 +164,7 @@
       "body": "Langganan tidak akan diperpanjang. Anda tetap memiliki akses hingga akhir periode yang sudah dibayar.",
       "keep": "Pertahankan langganan",
       "confirm": "Batalkan langganan",
-      "endsOn": "Langganan Anda dibatalkan dan berakhir pada {{date}}.",
+      "endsOn": "Langganan Anda dibatalkan dan berakhir pada {{date}}. Anda tidak akan ditagih setelah tanggal tersebut.",
       "canceled": "Langganan Anda dibatalkan dan tidak akan diperpanjang.",
       "error": "Gagal membatalkan langganan Anda. Silakan coba lagi."
     },

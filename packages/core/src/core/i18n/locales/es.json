@@ -164,7 +164,7 @@
       "body": "No se renovará. Mantienes el acceso hasta el final del periodo que ya has pagado.",
       "keep": "Mantener suscripción",
       "confirm": "Cancelar suscripción",
-      "endsOn": "Tu suscripción está cancelada y termina el {{date}}.",
+      "endsOn": "Tu suscripción está cancelada y termina el {{date}}. No se te cobrará después de esa fecha.",
       "canceled": "Tu suscripción está cancelada y no se renovará.",
       "error": "No se pudo cancelar tu suscripción. Inténtalo de nuevo."
     },

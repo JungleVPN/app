@@ -164,7 +164,7 @@
       "body": "Ela não será renovada. Você mantém o acesso até o fim do período já pago.",
       "keep": "Manter assinatura",
       "confirm": "Cancelar assinatura",
-      "endsOn": "Sua assinatura foi cancelada e termina em {{date}}.",
+      "endsOn": "Sua assinatura foi cancelada e termina em {{date}}. Você não será cobrado após essa data.",
       "canceled": "Sua assinatura foi cancelada e não será renovada.",
       "error": "Não foi possível cancelar sua assinatura. Tente novamente."
     },

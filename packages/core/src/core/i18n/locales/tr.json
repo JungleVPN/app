@@ -164,7 +164,7 @@
       "body": "Abonelik yenilenmeyecek. Ödemesini yaptığın dönemin sonuna kadar erişimin devam eder.",
       "keep": "Aboneliği sürdür",
       "confirm": "Aboneliği iptal et",
-      "endsOn": "Aboneliğin iptal edildi ve {{date}} tarihinde sona erecek.",
+      "endsOn": "Aboneliğin iptal edildi ve {{date}} tarihinde sona erecek. Bu tarihten sonra ücret alınmayacak.",
       "canceled": "Aboneliğin iptal edildi ve yenilenmeyecek.",
       "error": "Aboneliğin iptal edilemedi. Lütfen tekrar dene."
     },
