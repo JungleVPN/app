@@ -112,3 +112,17 @@ describe('CheckoutForm order summary', () => {
     expect(screen.queryByText('$60.00')).toBeNull();
   });
 });
+
+describe('CheckoutForm tax note', () => {
+  it('tells the payer the price includes tax when the provider guarantees it', () => {
+    renderForm({ taxNote: 'getSubscription.tax_included_note' });
+
+    expect(screen.getByText('getSubscription.tax_included_note')).toBeTruthy();
+  });
+
+  it('makes no claim about tax otherwise', () => {
+    renderForm();
+
+    expect(screen.queryByText('getSubscription.tax_included_note')).toBeNull();
+  });
+});

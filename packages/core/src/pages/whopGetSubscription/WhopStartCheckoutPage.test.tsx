@@ -48,14 +48,17 @@ vi.mock('../getSubscription/CheckoutForm', () => ({
   CheckoutForm: ({
     promoCodeSlot,
     promoDiscount,
+    taxNote,
     handleSubmit,
   }: {
     promoCodeSlot?: ReactNode;
     promoDiscount?: { total?: string; label: string };
+    taxNote?: string;
     handleSubmit: () => void;
   }) => (
     <>
       {promoCodeSlot}
+      {taxNote && <p data-testid='order-tax-note'>{taxNote}</p>}
       {promoDiscount && (
         <p data-testid='order-discount'>
           {promoDiscount.total ?? 'unchanged'} · {promoDiscount.label}
@@ -105,6 +108,14 @@ describe('WhopStartCheckoutPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     api.createPublicWhopCheckout.mockResolvedValue({ accountId: 'biz_1', planId: 'plan_1' });
+  });
+
+  it('tells the payer the price already includes tax, since Whop plans are tax-inclusive', () => {
+    render(<WhopStartCheckoutPage />);
+
+    expect(screen.getByTestId('order-tax-note').textContent).toBe(
+      'getSubscription.tax_included_note',
+    );
   });
 
   it('checks a promo code against the plan being bought and prices the order with it', async () => {

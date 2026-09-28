@@ -41,6 +41,8 @@ interface CheckoutFormProps {
    * priced, and `label` names the saving.
    */
   promoDiscount?: { total?: string; label: string };
+  /** Shown under the order when the provider guarantees the price already includes tax. */
+  taxNote?: string;
   handleSubmit: (event: SyntheticEvent) => void;
   handleEmailChange: (value: string) => void;
 }
@@ -73,6 +75,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
     canSubmit,
     promoCodeSlot,
     promoDiscount,
+    taxNote,
     selectedPeriod,
     checkoutError,
     isPending,
@@ -258,6 +261,8 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                           <Chip.Label>{discountLabel}</Chip.Label>
                         </Chip>
                       )}
+
+                      {taxNote && <Paragraph className='text-muted'>{taxNote}</Paragraph>}
 
                       {havePromo ? (
                         promoCodeSlot

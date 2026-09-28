@@ -1,4 +1,4 @@
-import type { PaymentMethod } from '@workspace/types';
+import type { PaymentMethod, UserScope } from '@workspace/types';
 
 /** The providers that can take global (non-RU) payments — each a `PaymentMethod` too. */
 export type GlobalPaymentProvider = Extract<PaymentMethod, 'paddle' | 'whop' | 'stripe'>;
@@ -30,3 +30,16 @@ function parseGlobalProvider(value: string | undefined): GlobalPaymentProvider {
 export const GLOBAL_PAYMENT_PROVIDER: GlobalPaymentProvider = parseGlobalProvider(
   import.meta.env.PUBLIC_GLOBAL_PAYMENT_PROVIDER as string | undefined,
 );
+
+/**
+ * Whether the prices this storefront shows already include tax. True only
+ * where Whop takes the payment: its plans are set tax-inclusive, so the
+ * price shown is the price charged. Paddle, Stripe and YooKassa make no such
+ * promise here, so no note is shown for them.
+ */
+export function pricesIncludeTax(input: {
+  scope: UserScope;
+  provider: GlobalPaymentProvider;
+}): boolean {
+  return input.scope === 'global' && input.provider === 'whop';
+}

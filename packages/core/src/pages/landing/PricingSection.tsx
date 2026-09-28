@@ -8,7 +8,14 @@ import { useAppRoutes } from '../../runtime';
 import { Grid, GridItem } from '../../ui';
 import { Heading } from '../../ui/Heading';
 import { Paragraph } from '../../ui/Paragraph';
-import { calculatePricing, cn, mapPlans } from '../../utils';
+import {
+  calculatePricing,
+  cn,
+  currentScope,
+  GLOBAL_PAYMENT_PROVIDER,
+  mapPlans,
+  pricesIncludeTax,
+} from '../../utils';
 import { formatPeriod } from '../../utils/planPricing';
 
 const HIGHLIGHTED_PLAN_PERIOD = 365;
@@ -67,6 +74,10 @@ export function PricingSection({ animateOnMount = false }: { animateOnMount?: bo
   if (plans.length === 0) return null;
 
   const planOrders = buildPlanOrders(plans);
+  const showTaxNote = pricesIncludeTax({
+    scope: currentScope(),
+    provider: GLOBAL_PAYMENT_PROVIDER,
+  });
 
   return (
     <section>
@@ -129,6 +140,12 @@ export function PricingSection({ animateOnMount = false }: { animateOnMount?: bo
             );
           })}
         </Grid>
+
+        {showTaxNote && (
+          <Paragraph className='text-center text-muted'>
+            {t('landing.pricing.tax_included_note')}
+          </Paragraph>
+        )}
 
         <PaymentMethodIcons />
       </div>

@@ -81,14 +81,11 @@ export default function WhopStartCheckoutPage() {
         canSubmit={checkout.plan !== undefined}
         promoCodeSlot={
           checkout.plan && (
-            <WhopPromoCode
-              planId={checkout.plan.planId}
-              applied={promo}
-              onApplyChange={setPromo}
-            />
+            <WhopPromoCode planId={checkout.plan.planId} applied={promo} onApplyChange={setPromo} />
           )
         }
         promoDiscount={promoDiscount ?? undefined}
+        taxNote={t('getSubscription.tax_included_note')}
         handleSubmit={checkout.handleSubmit}
         handleEmailChange={checkout.handleEmailChange}
       />

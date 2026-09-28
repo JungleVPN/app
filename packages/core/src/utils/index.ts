@@ -53,7 +53,11 @@ export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';
 export type { LlmsTxtOptions } from './llmsTxt';
 export { buildLlmsTxt } from './llmsTxt';
-export { GLOBAL_PAYMENT_PROVIDER, type GlobalPaymentProvider } from './paymentProvider';
+export {
+  GLOBAL_PAYMENT_PROVIDER,
+  type GlobalPaymentProvider,
+  pricesIncludeTax,
+} from './paymentProvider';
 export {
   rememberPendingYookassaPayment,
   takePendingYookassaPayment,
