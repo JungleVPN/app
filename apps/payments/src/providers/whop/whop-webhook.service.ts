@@ -66,7 +66,11 @@ const POSTGRES_UNIQUE_VIOLATION = '23505';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** What the profile page shows about a Whop subscription, as of its latest charge. */
+/**
+ * What the profile page shows about a Whop subscription, as of its latest
+ * charge. The price is the plan's, not the charge's: a promo that discounts
+ * only the first charge must not read as the price every renewal will cost.
+ */
 type SubscriptionDetails = Pick<
   SavedPaymentMethod,
   'productName' | 'amount' | 'currency' | 'billingPeriod' | 'renewsAt' | 'title' | 'card'
@@ -293,7 +297,11 @@ export class WhopWebhookService {
     if (payment.billing_reason !== ONE_TIME_BILLING_REASON) {
       await this.activatePaymentMethod(
         record,
-        subscriptionDetailsOf(payment, { amount, currency, billingPeriod: selectedPeriod }),
+        subscriptionDetailsOf(payment, {
+          amount: plan.basePrice,
+          currency: plan.currency,
+          billingPeriod: selectedPeriod,
+        }),
       );
     }
 

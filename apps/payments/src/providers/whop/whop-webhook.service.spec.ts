@@ -362,6 +362,17 @@ describe('WhopWebhookService', () => {
       );
     });
 
+    it("shows the plan's recurring price, not a first charge a promo discounted", async () => {
+      const { service, savedMethodRepo, paymentRepo } = setup();
+
+      await service.handleWebhook(paymentSucceeded({ ...cardPaymentDetails, total: 0.6 }));
+
+      expect(paymentRepo.save).toHaveBeenLastCalledWith(expect.objectContaining({ amount: 0.6 }));
+      expect(savedMethodRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({ amount: 6, currency: 'EUR', billingPeriod: 30 }),
+      );
+    });
+
     it("refreshes a known membership's details on every renewal", async () => {
       const { service, savedMethodRepo } = setup();
       savedMethodRepo.findOneBy.mockResolvedValue({ id: 42, isActive: true });
