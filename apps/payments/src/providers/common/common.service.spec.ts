@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { PlanService } from '@payments/catalog/plan.service';
+import { VisitorCurrencyService } from '@payments/catalog/visitor-currency.service';
 import type { Plan, PlanProvider } from '@workspace/database';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CommonService } from './common.service';
@@ -40,6 +41,17 @@ const planServiceWith = (rows: Plan[]) =>
     find: async () => rows,
   } as never);
 
+const commonService = (
+  paddleClientService: unknown,
+  planService: PlanService,
+  countryOf: (ip: string | null) => Promise<string | null> = async () => null,
+) =>
+  new CommonService(
+    paddleClientService as never,
+    planService,
+    new VisitorCurrencyService(planService, { countryOf } as never),
+  );
+
 describe('CommonService.getPlans', () => {
   let originalEnv: Record<string, string | undefined>;
   let paddleClientService: { getPricePreview: ReturnType<typeof vi.fn> };
@@ -52,7 +64,7 @@ describe('CommonService.getPlans', () => {
     process.env.PUBLIC_DOMAIN_RU = 'thejungle.pro';
 
     paddleClientService = { getPricePreview: vi.fn() };
-    service = new CommonService(paddleClientService as never, planServiceWith(CATALOG));
+    service = commonService(paddleClientService, planServiceWith(CATALOG));
   });
 
   afterEach(() => {
@@ -62,9 +74,32 @@ describe('CommonService.getPlans', () => {
     }
   });
 
+  it("prices a visitor in their country's currency and names the country", async () => {
+    process.env.GLOBAL_PAYMENT_PROVIDER = 'whop';
+    const countryOf = vi.fn(async () => 'US');
+    service = commonService(
+      paddleClientService,
+      planServiceWith([
+        plan('whop', 30, 3.99, 'plan_eur_30'),
+        { ...plan('whop', 30, 4.49, 'plan_usd_30'), id: 'whop-usd-30', currency: 'USD' },
+      ]),
+      countryOf,
+    );
+
+    const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '8.8.8.8' });
+
+    expect(countryOf).toHaveBeenCalledWith('8.8.8.8');
+    expect(plans).toHaveLength(1);
+    expect(plans[0]).toMatchObject({
+      planId: 'whop-usd-30',
+      countryCode: 'US',
+      planPricing: { currencyCode: 'USD' },
+    });
+  });
+
   it("returns no plans, rather than another provider's, when the provider has none on sale", async () => {
-    service = new CommonService(
-      paddleClientService as never,
+    service = commonService(
+      paddleClientService,
       planServiceWith(CATALOG.filter((row) => row.provider !== 'paddle')),
     );
 
@@ -76,8 +111,8 @@ describe('CommonService.getPlans', () => {
 
   describe('trial plans', () => {
     it('marks a one-time plan as the trial and a recurring plan, whatever its length, as not', async () => {
-      service = new CommonService(
-        paddleClientService as never,
+      service = commonService(
+        paddleClientService,
         planServiceWith([
           { ...plan('yookassa', 3, 79), id: 'trial', type: 'one_time' },
           { ...plan('yookassa', 7, 150), id: 'week' },
@@ -93,8 +128,8 @@ describe('CommonService.getPlans', () => {
     });
 
     it('keeps a quoted Paddle trial marked as the trial', async () => {
-      service = new CommonService(
-        paddleClientService as never,
+      service = commonService(
+        paddleClientService,
         planServiceWith([{ ...plan('paddle', 7, 0.99, 'pri_7'), type: 'one_time' }]),
       );
       paddleClientService.getPricePreview.mockResolvedValue({
@@ -111,8 +146,8 @@ describe('CommonService.getPlans', () => {
 
   it('shows a fractional price as stored, e.g. a 0.99 EUR trial', async () => {
     process.env.GLOBAL_PAYMENT_PROVIDER = 'stripe';
-    service = new CommonService(
-      paddleClientService as never,
+    service = commonService(
+      paddleClientService,
       planServiceWith([{ ...plan('stripe', 7, 0.99, 'price_7'), type: 'one_time' }]),
     );
 

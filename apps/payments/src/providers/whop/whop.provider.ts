@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PlanService } from '@payments/catalog/plan.service';
-import { providerCurrency } from '@payments/catalog/plan-provider';
+import { VisitorCurrencyService } from '@payments/catalog/visitor-currency.service';
 import { toSavedMethodDto } from '@payments/utils/saved-method';
 import { SavedPaymentMethod } from '@workspace/database';
 import {
@@ -22,6 +22,7 @@ export class WhopProvider {
     private readonly whopClientService: WhopClientService,
     private readonly whopWebhookService: WhopWebhookService,
     private readonly planService: PlanService,
+    private readonly visitorCurrencyService: VisitorCurrencyService,
     @InjectRepository(SavedPaymentMethod)
     private readonly savedMethodRepository: Repository<SavedPaymentMethod>,
   ) {}
@@ -36,12 +37,14 @@ export class WhopProvider {
   }
 
   /**
-   * The Whop plan (`plan_...`) to bill for our `planId`, refusing a plan that
-   * is not on sale. Kept apart from `createCheckout` so a request can be
-   * rejected before anything is created on Whop.
+   * The Whop plan (`plan_...`) to bill for our `planId`, in the currency the
+   * payer at `clientIp` was priced in, refusing a plan that is not on sale.
+   * Kept apart from `createCheckout` so a request can be rejected before
+   * anything is created on Whop.
    */
-  async resolveCheckoutPlanId(planId: string): Promise<string> {
-    const plan = await this.planService.getForCheckout(planId, 'whop', providerCurrency('whop'));
+  async resolveCheckoutPlanId(planId: string, clientIp: string | null): Promise<string> {
+    const { currency } = await this.visitorCurrencyService.resolve({ provider: 'whop', clientIp });
+    const plan = await this.planService.getForCheckout(planId, 'whop', currency);
     if (!plan.providerPriceId) {
       throw new Error('No Whop plan id was found in resolveCheckoutPlanId');
     }

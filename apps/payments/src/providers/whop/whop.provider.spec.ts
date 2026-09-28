@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PlanService } from '@payments/catalog/plan.service';
+import { VisitorCurrencyService } from '@payments/catalog/visitor-currency.service';
 import type { Plan } from '@workspace/database';
 import { PROMO_CODE_INVALID_CODE } from '@workspace/types';
 import { describe, expect, it, vi } from 'vitest';
@@ -22,11 +23,14 @@ const plan = (id: string, overrides: Partial<Plan> = {}): Plan => ({
 const CATALOG: Plan[] = [
   plan('whop-30'),
   plan('whop-180', { billingPeriod: 180, providerPriceId: 'plan_month_6' }),
+  plan('whop-usd-30', { currency: 'USD', providerPriceId: 'plan_usd_1' }),
   plan('whop-retired', { billingPeriod: 90, availableForPurchase: false }),
   plan('paddle-30', { provider: 'paddle', providerPriceId: 'pri_month_1' }),
 ];
 
-const providerWith = () => {
+const PAYER_IP = '203.0.113.5';
+
+const providerWith = (countryCode: string | null = null) => {
   const whopClientService = {
     hasActiveSubscription: vi.fn().mockResolvedValue(false),
     accountId: 'biz_test',
@@ -46,10 +50,12 @@ const providerWith = () => {
   };
   const savedMethodRepo = { find: vi.fn().mockResolvedValue([]) };
   const whopWebhookService = { handleWebhook: vi.fn().mockResolvedValue(undefined) };
+  const planService = new PlanService({ find: async () => CATALOG } as never);
   const provider = new WhopProvider(
     whopClientService as never,
     whopWebhookService as never,
-    new PlanService({ find: async () => CATALOG } as never),
+    planService,
+    new VisitorCurrencyService(planService, { countryOf: async () => countryCode } as never),
     savedMethodRepo as never,
   );
   return { provider, whopClientService, whopWebhookService, savedMethodRepo };
@@ -60,7 +66,23 @@ describe('WhopProvider', () => {
     it("returns the chosen plan's Whop plan id to bill", async () => {
       const { provider } = providerWith();
 
-      await expect(provider.resolveCheckoutPlanId('whop-180')).resolves.toBe('plan_month_6');
+      await expect(provider.resolveCheckoutPlanId('whop-180', PAYER_IP)).resolves.toBe(
+        'plan_month_6',
+      );
+    });
+
+    it("bills the plan in the payer's currency when the page sent another currency's", async () => {
+      const { provider } = providerWith('US');
+
+      await expect(provider.resolveCheckoutPlanId('whop-30', PAYER_IP)).resolves.toBe('plan_usd_1');
+    });
+
+    it("bills the default currency's plan when the payer's country is priced in none on sale", async () => {
+      const { provider } = providerWith(null);
+
+      await expect(provider.resolveCheckoutPlanId('whop-usd-30', PAYER_IP)).resolves.toBe(
+        'plan_month_1',
+      );
     });
 
     it.each([
@@ -69,7 +91,7 @@ describe('WhopProvider', () => {
     ])('refuses %s, rather than falling back to another plan', async (_case, planId) => {
       const { provider } = providerWith();
 
-      await expect(provider.resolveCheckoutPlanId(planId)).rejects.toBeInstanceOf(
+      await expect(provider.resolveCheckoutPlanId(planId, PAYER_IP)).rejects.toBeInstanceOf(
         BadRequestException,
       );
     });

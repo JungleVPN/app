@@ -12,6 +12,7 @@
 
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
+import { InterServiceGuard } from '../guards/inter-service.guard';
 import { IpStatusController } from './ip-status.controller';
 import type { IpStatusService } from './ip-status.service';
 
@@ -51,5 +52,32 @@ describe('IpStatusController', () => {
     await controller.getIpStatus({ ip: '1.1.1.1' } as never, res as never);
 
     expect(res.set).toHaveBeenCalledWith('Cache-Control', 'no-store');
+  });
+
+  describe('lookup', () => {
+    it('answers with the status of the address an internal caller names', async () => {
+      const { controller, resolve, res } = makeController();
+
+      const body = await controller.lookup('81.84.17.141', res as never);
+
+      expect(resolve).toHaveBeenCalledWith('81.84.17.141');
+      expect(body).toEqual(status);
+      expect(res.set).toHaveBeenCalledWith('Cache-Control', 'no-store');
+    });
+
+    // Public, it would be a free geo-IP service for anyone: only the payments
+    // service needs another visitor's country, to price its plans.
+    it('is reachable only by internal services', () => {
+      const guards: unknown[] =
+        Reflect.getMetadata('__guards__', IpStatusController.prototype.lookup) ?? [];
+
+      expect(guards).toContain(InterServiceGuard);
+    });
+
+    it('keeps the banner endpoint public', () => {
+      expect(
+        Reflect.getMetadata('__guards__', IpStatusController.prototype.getIpStatus),
+      ).toBeUndefined();
+    });
   });
 });

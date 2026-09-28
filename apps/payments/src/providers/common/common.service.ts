@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PlanService } from '@payments/catalog/plan.service';
-import { providerCurrency, resolveProvider } from '@payments/catalog/plan-provider';
+import { resolveProvider } from '@payments/catalog/plan-provider';
+import { VisitorCurrencyService } from '@payments/catalog/visitor-currency.service';
 import { paddleAmountToNumber } from '@payments/providers/paddle/paddle.utils';
 import { PaddleClientService } from '@payments/providers/paddle/paddle-client.service';
 import { buildPricing } from '@payments/utils/amount';
@@ -22,6 +23,7 @@ export class CommonService {
   constructor(
     private readonly paddleClientService: PaddleClientService,
     private readonly planService: PlanService,
+    private readonly visitorCurrencyService: VisitorCurrencyService,
   ) {}
 
   /**
@@ -29,8 +31,9 @@ export class CommonService {
    * be charged in.
    *
    * The storefront the request came from picks the provider (see
-   * `resolveProvider`), and the `subscription_plans` table says what that provider sells.
-   * Paddle additionally quotes the visitor's local currency from `clientIp`,
+   * `resolveProvider`), and the `subscription_plans` table says what that provider sells,
+   * in the currency of the visitor's country when it has plans in it (see
+   * `VisitorCurrencyService`). Paddle additionally quotes the visitor's local currency from `clientIp`,
    * falling back to the table's EUR price when it can't be reached.
    *
    * The response deliberately names no provider: which one takes the payment
@@ -44,14 +47,18 @@ export class CommonService {
     clientIp: string | null;
   }): Promise<SubscriptionPlanDto[]> {
     const provider = resolveProvider(origin);
-    const rows = await this.planService.listForSale(provider, providerCurrency(provider));
+    const { currency, countryCode } = await this.visitorCurrencyService.resolve({
+      provider,
+      clientIp,
+    });
+    const rows = await this.planService.listForSale(provider, currency);
 
     if (rows.length === 0) {
       this.logger.warn(`No ${provider} plans are available for purchase`);
       return [];
     }
 
-    const plans = toPlans(rows);
+    const plans = toPlans(rows, countryCode);
     if (provider !== 'paddle') return plans;
 
     const quote = await this.fetchPaddleQuote(rows, clientIp);
@@ -104,7 +111,7 @@ export class CommonService {
 }
 
 /** Plans priced from the table, in each row's own currency. */
-function toPlans(rows: Plan[]): SubscriptionPlanDto[] {
+function toPlans(rows: Plan[], countryCode: string | null): SubscriptionPlanDto[] {
   const monthly = rows.find((row) => row.billingPeriod === 30);
   const basePrice = monthly ? monthly.basePrice : null;
 
@@ -117,7 +124,7 @@ function toPlans(rows: Plan[]): SubscriptionPlanDto[] {
       total: row.basePrice,
       basePrice,
     }),
-    countryCode: null,
+    countryCode,
     isTrial: row.type === 'one_time',
   }));
 }

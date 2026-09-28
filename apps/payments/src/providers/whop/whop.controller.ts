@@ -7,6 +7,7 @@ import {
   Get,
   Headers,
   HttpCode,
+  Ip,
   Logger,
   Post,
   Req,
@@ -52,8 +53,9 @@ export class WhopController {
   @UseGuards(PublicCheckoutRateLimitGuard)
   async createPublicCheckout(
     @Body() dto: CreatePublicWhopCheckoutDto,
+    @Ip() ip: string,
   ): Promise<WhopCheckoutPayload> {
-    const { whopPlanId } = await this.validateCheckout(dto);
+    const { whopPlanId } = await this.validateCheckout(dto, ip);
     return this.whopProvider.checkoutTarget(whopPlanId);
   }
 
@@ -73,6 +75,7 @@ export class WhopController {
   @UseGuards(PublicPromoCodeRateLimitGuard)
   async payPublicCheckout(
     @Body() dto: PayPublicWhopCheckoutDto,
+    @Ip() ip: string,
     @Headers('origin') origin?: string,
   ): Promise<WhopPaymentDto> {
     if (!dto.confirmationToken?.startsWith(CONFIRMATION_TOKEN_PREFIX)) {
@@ -81,7 +84,7 @@ export class WhopController {
     if (dto.promoCode != null && typeof dto.promoCode !== 'string') {
       throw new BadRequestException('A promo code must be text');
     }
-    const { email, whopPlanId } = await this.validateCheckout(dto);
+    const { email, whopPlanId } = await this.validateCheckout(dto, ip);
 
     return this.whopProvider.payCheckout({
       email,
@@ -104,12 +107,15 @@ export class WhopController {
   @Post('public-promo-code')
   @HttpCode(200)
   @UseGuards(PublicPromoCodeRateLimitGuard)
-  async checkPublicPromoCode(@Body() dto: CheckWhopPromoCodeDto): Promise<WhopPromoCodeDto> {
+  async checkPublicPromoCode(
+    @Body() dto: CheckWhopPromoCodeDto,
+    @Ip() ip: string,
+  ): Promise<WhopPromoCodeDto> {
     const promoCode = typeof dto.promoCode === 'string' ? dto.promoCode.trim() : '';
     if (!promoCode) {
       throw new BadRequestException('A promo code is required');
     }
-    const whopPlanId = await this.whopProvider.resolveCheckoutPlanId(dto.planId);
+    const whopPlanId = await this.whopProvider.resolveCheckoutPlanId(dto.planId, ip || null);
     return this.whopProvider.checkPromoCode({ promoCode, whopPlanId });
   }
 
@@ -144,13 +150,14 @@ export class WhopController {
    */
   private async validateCheckout(
     dto: CreatePublicWhopCheckoutDto,
+    ip: string,
   ): Promise<{ email: string; whopPlanId: string }> {
     const email = dto.email?.trim().toLocaleLowerCase() ?? '';
     if (!EMAIL_PATTERN.test(email)) {
       throw new BadRequestException('A valid email is required');
     }
 
-    const whopPlanId = await this.whopProvider.resolveCheckoutPlanId(dto.planId);
+    const whopPlanId = await this.whopProvider.resolveCheckoutPlanId(dto.planId, ip || null);
 
     // if (await this.whopProvider.hasActiveSubscription(email)) {
     //   throw this.activeSubscriptionConflict();

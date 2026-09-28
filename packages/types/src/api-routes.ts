@@ -59,6 +59,7 @@ export const apiRoutes = {
     // ── public, unauthenticated ──────────────────────────────────────────
     ipStatus: '/ip-status',
     // ── server-to-server (InterServiceGuard) ─────────────────────────────
+    ipStatusLookup: '/ip-status/lookup',
     users: '/users',
     userByTelegramId: (telegramId: number | string) => `/users/by-telegram-id/${telegramId}`,
     userByEmail: (email: string) => `/users/by-email/${encodeURIComponent(email)}`,
