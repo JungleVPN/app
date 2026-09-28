@@ -251,12 +251,6 @@ export class WhopWebhookService {
   }
 
   private async processSucceededPayment(payment: WhopPaymentData): Promise<void> {
-    // Renewals may not carry the checkout metadata, but always carry the payer.
-    const email = (payment.metadata?.email ?? payment.user?.email)?.trim();
-    if (!email) {
-      throw new Error(`Whop payment ${payment.id} has no payer email`);
-    }
-
     const planId = payment.plan?.id;
     const plan = planId ? await this.planService.findByProviderPriceId('whop', planId) : undefined;
     if (!plan) {
@@ -264,12 +258,9 @@ export class WhopWebhookService {
     }
     const selectedPeriod = plan.billingPeriod;
 
-    const inviterId = payment.metadata?.inviterId ? Number(payment.metadata.inviterId) : undefined;
-    const origin = payment.metadata?.signupOrigin ?? null;
-    const userId = await this.remnaUserResolver.resolveOrCreate(undefined, email, {
-      inviterId,
-      origin,
-    });
+    const userId =
+      (await this.findMembershipOwner(payment.membership?.id)) ??
+      (await this.resolvePayerByEmail(payment));
 
     const amount = payment.total ?? 0;
     const currency = payment.currency.toUpperCase();
@@ -337,6 +328,32 @@ export class WhopWebhookService {
   }
 
   // ── payment.failed ───────────────────────────────────────────────────────
+  /**
+   * The account a membership we already saved belongs to. Whop files a wallet
+   * payment under the wallet owner's Whop account, so a renewal's Whop user
+   * can differ from the email the buyer checked out with; the saved
+   * membership keeps the account that checkout email resolved to.
+   */
+  private async findMembershipOwner(membershipId: string | undefined): Promise<number | null> {
+    if (!membershipId) return null;
+    const saved = await this.savedMethodRepo.findOneBy({
+      provider: 'whop',
+      paymentMethodId: membershipId,
+    });
+    return saved?.userId ?? null;
+  }
+
+  /** The first purchase: the checkout email from the metadata, else Whop's payer email. */
+  private async resolvePayerByEmail(payment: WhopPaymentData): Promise<number> {
+    const email = (payment.metadata?.email ?? payment.user?.email)?.trim();
+    if (!email) {
+      throw new Error(`Whop payment ${payment.id} has no payer email`);
+    }
+    const inviterId = payment.metadata?.inviterId ? Number(payment.metadata.inviterId) : undefined;
+    const origin = payment.metadata?.signupOrigin ?? null;
+    return this.remnaUserResolver.resolveOrCreate(undefined, email, { inviterId, origin });
+  }
+
   private async handlePaymentFailed(payment: WhopPaymentData): Promise<void> {
     // Deliveries can arrive out of order, and a payment id can fail and then
     // succeed on retry. Overwriting a 'paid' row with 'failed' would let a

@@ -208,6 +208,73 @@ describe('WhopWebhookService', () => {
       );
     });
 
+    /**
+     * Whop files a wallet payment under the wallet owner's Whop account, so a
+     * renewal's Whop user can differ from the checkout email. A membership we
+     * already saved names the account it belongs to.
+     */
+    describe('a renewal of a membership we already saved', () => {
+      const renewal = (overrides: Record<string, unknown> = {}) =>
+        paymentSucceeded({
+          billing_reason: 'subscription_cycle',
+          metadata: null,
+          user: { id: 'user_wallet', email: 'wallet-owner@test.com' },
+          ...overrides,
+        });
+
+      it("extends the membership's account, not the Whop user's email", async () => {
+        const { service, savedMethodRepo, remnaUserResolver, paymentStatusService } = setup();
+        savedMethodRepo.findOneBy.mockResolvedValue({ id: 42, userId: EXISTING_ACCOUNT_ID });
+
+        await service.handleWebhook(renewal());
+
+        expect(savedMethodRepo.findOneBy).toHaveBeenCalledWith({
+          provider: 'whop',
+          paymentMethodId: 'mem_1',
+        });
+        expect(remnaUserResolver.resolveOrCreate).not.toHaveBeenCalled();
+        expect(paymentStatusService.handleUserUpdates).toHaveBeenCalledWith(
+          expect.objectContaining({ userId: EXISTING_ACCOUNT_ID }),
+        );
+      });
+
+      it("records the payment against the membership's account", async () => {
+        const { service, savedMethodRepo, paymentRepo } = setup();
+        savedMethodRepo.findOneBy.mockResolvedValue({ id: 42, userId: EXISTING_ACCOUNT_ID });
+
+        await service.handleWebhook(renewal());
+
+        expect(paymentRepo.save).toHaveBeenCalledWith(
+          expect.objectContaining({ userId: EXISTING_ACCOUNT_ID, status: 'paid' }),
+        );
+      });
+
+      it('prefers the membership over checkout metadata that names someone else', async () => {
+        const { service, savedMethodRepo, remnaUserResolver, paymentStatusService } = setup();
+        savedMethodRepo.findOneBy.mockResolvedValue({ id: 42, userId: EXISTING_ACCOUNT_ID });
+
+        await service.handleWebhook(renewal({ metadata: { email: 'other@test.com' } }));
+
+        expect(remnaUserResolver.resolveOrCreate).not.toHaveBeenCalled();
+        expect(paymentStatusService.handleUserUpdates).toHaveBeenCalledWith(
+          expect.objectContaining({ userId: EXISTING_ACCOUNT_ID }),
+        );
+      });
+    });
+
+    it('resolves the payer by email when the payment names no membership', async () => {
+      const { service, savedMethodRepo, remnaUserResolver } = setup();
+
+      await service.handleWebhook(paymentSucceeded({ membership: null }));
+
+      expect(savedMethodRepo.findOneBy).not.toHaveBeenCalled();
+      expect(remnaUserResolver.resolveOrCreate).toHaveBeenCalledWith(
+        undefined,
+        'payer@test.com',
+        expect.anything(),
+      );
+    });
+
     it('records the payment as paid, in major units and an uppercase currency', async () => {
       const { service, paymentRepo } = setup();
 
@@ -257,7 +324,6 @@ describe('WhopWebhookService', () => {
       expect(paymentRepo.save).toHaveBeenLastCalledWith(
         expect.objectContaining({ status: 'paid', membershipId: 'mem_1' }),
       );
-      expect(savedMethodRepo.findOneBy).not.toHaveBeenCalled();
       expect(savedMethodRepo.update).not.toHaveBeenCalled();
       expect(savedMethodRepo.save).not.toHaveBeenCalled();
       expect(analyticsClient.track).not.toHaveBeenCalledWith(
