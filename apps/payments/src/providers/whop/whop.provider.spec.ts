@@ -51,6 +51,7 @@ const providerWith = (countryCode: string | null = null) => {
   };
   const savedMethodRepo = { find: vi.fn().mockResolvedValue([]) };
   const whopWebhookService = { handleWebhook: vi.fn().mockResolvedValue(undefined) };
+  const userResolver = { findByEmail: vi.fn().mockResolvedValue(null) };
   const planService = new PlanService({ find: async () => CATALOG } as never);
   const provider = new WhopProvider(
     whopClientService as never,
@@ -58,8 +59,9 @@ const providerWith = (countryCode: string | null = null) => {
     planService,
     new VisitorCurrencyService(planService, { countryOf: async () => countryCode } as never),
     savedMethodRepo as never,
+    userResolver as never,
   );
-  return { provider, whopClientService, whopWebhookService, savedMethodRepo };
+  return { provider, whopClientService, whopWebhookService, savedMethodRepo, userResolver };
 };
 
 describe('WhopProvider', () => {
@@ -250,13 +252,49 @@ describe('WhopProvider', () => {
     });
   });
 
+  /**
+   * Whop files a wallet payment under the wallet owner's Whop account, not the
+   * checkout email, so the guard reads our own rows — keyed by the checkout
+   * email the webhook resolved from the payment metadata.
+   */
   describe('hasActiveSubscription', () => {
-    it('delegates to the Whop client', async () => {
-      const { provider, whopClientService } = providerWith();
-      whopClientService.hasActiveSubscription.mockResolvedValue(true);
+    it('reports a subscription when the checkout email has an active Whop method with us', async () => {
+      const { provider, userResolver, savedMethodRepo } = providerWith();
+      userResolver.findByEmail.mockResolvedValue(1000);
+      savedMethodRepo.find.mockResolvedValue([{ id: 'row-1', userId: 1000 }]);
 
       await expect(provider.hasActiveSubscription('payer@test.com')).resolves.toBe(true);
-      expect(whopClientService.hasActiveSubscription).toHaveBeenCalledWith('payer@test.com');
+      expect(userResolver.findByEmail).toHaveBeenCalledWith('payer@test.com');
+      expect(savedMethodRepo.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { userId: 1000, provider: 'whop', isActive: true },
+        }),
+      );
+    });
+
+    it('reports none when the checkout email has no active Whop method', async () => {
+      const { provider, userResolver, savedMethodRepo } = providerWith();
+      userResolver.findByEmail.mockResolvedValue(1000);
+      savedMethodRepo.find.mockResolvedValue([]);
+
+      await expect(provider.hasActiveSubscription('payer@test.com')).resolves.toBe(false);
+    });
+
+    it('reports none for an email we have no user for, without reading saved methods', async () => {
+      const { provider, userResolver, savedMethodRepo } = providerWith();
+      userResolver.findByEmail.mockResolvedValue(null);
+
+      await expect(provider.hasActiveSubscription('new@test.com')).resolves.toBe(false);
+      expect(savedMethodRepo.find).not.toHaveBeenCalled();
+    });
+
+    it("does not ask Whop, whose member for a wallet payment is the wallet owner's account", async () => {
+      const { provider, userResolver, whopClientService } = providerWith();
+      userResolver.findByEmail.mockResolvedValue(null);
+      whopClientService.hasActiveSubscription.mockResolvedValue(true);
+
+      await expect(provider.hasActiveSubscription('checkout@test.com')).resolves.toBe(false);
+      expect(whopClientService.hasActiveSubscription).not.toHaveBeenCalled();
     });
   });
 

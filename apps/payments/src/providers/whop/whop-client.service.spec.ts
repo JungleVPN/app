@@ -10,8 +10,6 @@ const page = <T>(items: T[]) => ({
   },
 });
 
-const membersList = vi.fn();
-const membershipsList = vi.fn();
 const paymentsCreate = vi.fn();
 const promoCodesList = vi.fn();
 const membershipsCancel = vi.fn();
@@ -25,8 +23,7 @@ vi.mock('@whop/sdk', () => ({
   WhopClient: vi.fn().mockImplementation(function WhopClientMock(options: unknown) {
     WhopClient(options);
     return {
-      members: { list: membersList },
-      memberships: { list: membershipsList, cancel: membershipsCancel },
+      memberships: { cancel: membershipsCancel },
       payments: { create: paymentsCreate },
       promoCodes: { list: promoCodesList },
     };
@@ -97,69 +94,6 @@ describe('WhopClientService', () => {
       expect(WhopClient).toHaveBeenCalledWith(
         expect.objectContaining({ environment: { api: 'https://api.whop.com/api/v1' } }),
       );
-    });
-  });
-
-  describe('hasActiveSubscription', () => {
-    it('reports no subscription when Whop has no member for the email', async () => {
-      membersList.mockResolvedValue(page([]));
-      const service = new WhopClientService();
-
-      await expect(service.hasActiveSubscription('nobody@test.com')).resolves.toBe(false);
-      expect(membersList).toHaveBeenCalledWith(
-        expect.objectContaining({ account_id: 'biz_test', query: 'nobody@test.com' }),
-      );
-      expect(membershipsList).not.toHaveBeenCalled();
-    });
-
-    it('ignores a member that is a business rather than a person', async () => {
-      membersList.mockResolvedValue(page([{ id: 'mber_1', user: null }]));
-      const service = new WhopClientService();
-
-      await expect(service.hasActiveSubscription('payer@test.com')).resolves.toBe(false);
-      expect(membershipsList).not.toHaveBeenCalled();
-    });
-
-    it('reports no subscription when the member has only ended memberships', async () => {
-      membersList.mockResolvedValue(page([{ id: 'mber_1', user: { id: 'user_1' } }]));
-      membershipsList.mockResolvedValue(
-        page([
-          { id: 'mem_1', status: 'canceled' },
-          { id: 'mem_2', status: 'expired' },
-          { id: 'mem_3', status: 'past_due' },
-        ]),
-      );
-      const service = new WhopClientService();
-
-      await expect(service.hasActiveSubscription('payer@test.com')).resolves.toBe(false);
-      expect(membershipsList).toHaveBeenCalledWith(
-        expect.objectContaining({ account_id: 'biz_test', user_id: 'user_1' }),
-      );
-    });
-
-    it.each([
-      'active',
-      'trialing',
-      'canceling',
-    ])('reports a subscription when the member has a %s membership', async (status) => {
-      membersList.mockResolvedValue(page([{ id: 'mber_1', user: { id: 'user_1' } }]));
-      membershipsList.mockResolvedValue(
-        page([
-          { id: 'mem_1', status: 'expired' },
-          { id: 'mem_2', status },
-        ]),
-      );
-      const service = new WhopClientService();
-
-      await expect(service.hasActiveSubscription('payer@test.com')).resolves.toBe(true);
-    });
-
-    it('surfaces a Whop failure rather than let a duplicate checkout through', async () => {
-      membersList.mockResolvedValue(page([{ id: 'mber_1', user: { id: 'user_1' } }]));
-      membershipsList.mockRejectedValue(new Error('Whop is down'));
-      const service = new WhopClientService();
-
-      await expect(service.hasActiveSubscription('payer@test.com')).rejects.toThrow('Whop is down');
     });
   });
 

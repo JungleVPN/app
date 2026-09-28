@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
 import { PlanService } from '@payments/catalog/plan.service';
 import { VisitorCurrencyService } from '@payments/catalog/visitor-currency.service';
 import { toSavedMethodDto } from '@payments/utils/saved-method';
@@ -25,6 +26,7 @@ export class WhopProvider {
     private readonly visitorCurrencyService: VisitorCurrencyService,
     @InjectRepository(SavedPaymentMethod)
     private readonly savedMethodRepository: Repository<SavedPaymentMethod>,
+    private readonly remnaUserResolver: RemnaUserResolverService,
   ) {}
 
   /** Takes the signature-verified webhook body; the webhook service validates its shape. */
@@ -32,8 +34,18 @@ export class WhopProvider {
     await this.whopWebhookService.handleWebhook(event);
   }
 
+  /**
+   * Whether the checkout `email` already has an active Whop subscription,
+   * answered from our own rows rather than Whop's member search: Whop files a
+   * wallet payment under the wallet owner's Whop account, so its member for
+   * a payment need not match the email the buyer checked out with. The
+   * webhook keys our rows by that checkout email (the payment metadata).
+   */
   async hasActiveSubscription(email: string): Promise<boolean> {
-    return this.whopClientService.hasActiveSubscription(email);
+    const userId = await this.remnaUserResolver.findByEmail(email);
+    if (userId == null) return false;
+    const methods = await this.findActiveMethods(userId);
+    return methods.length > 0;
   }
 
   /**
