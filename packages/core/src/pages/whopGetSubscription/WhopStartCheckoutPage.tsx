@@ -1,4 +1,4 @@
-import type { WhopPromoCodeDto } from '@workspace/types';
+import type { PlanPricing, WhopPromoCodeDto } from '@workspace/types';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loading } from '../../components';
@@ -8,13 +8,25 @@ import { formatIntlPrice, getReferralUserId } from '../../utils';
 import { ActiveSubscriptionDialog } from '../getSubscription/ActiveSubscriptionDialog';
 import { CheckoutForm } from '../getSubscription/CheckoutForm';
 import { type CheckoutRequest, useCheckout } from '../getSubscription/useCheckout';
-import type { WhopCheckoutState } from '../whopCheckout/whopCheckoutState';
-import { promoPrice } from './promoPrice';
+import type { WhopCheckoutCharge, WhopCheckoutState } from '../whopCheckout/whopCheckoutState';
+import { type PromoPrice, promoPrice } from './promoPrice';
 import { WhopPromoCode } from './WhopPromoCode';
 
 /** A promo's fixed amount as a price string: whole amounts as they are, others to the cent. */
 const amountString = (amount: number): string =>
   Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
+
+/**
+ * The total the order summary shows — the promo total when a code reprices
+ * it — or undefined when a fixed amount in another currency leaves it unknown.
+ */
+function shownCharge(
+  pricing: PlanPricing,
+  price: PromoPrice | null,
+): WhopCheckoutCharge | undefined {
+  if (!price) return { amount: pricing.total, currency: pricing.currencyCode };
+  return 'total' in price ? { amount: price.total, currency: pricing.currencyCode } : undefined;
+}
 
 /**
  * Global checkout through Whop: the email step and the order summary, up to
@@ -37,6 +49,7 @@ export default function WhopStartCheckoutPage() {
       toltReferralId: window.tolt_referral ?? null,
       inviterId: getReferralUserId() ?? undefined,
     };
+    const charge = checkout.plan && shownCharge(checkout.plan.planPricing, price);
     const { accountId, planId: whopPlanId } = await paymentsApi.createPublicWhopCheckout(request);
 
     navigate(paddleCheckoutPath, {
@@ -46,15 +59,16 @@ export default function WhopStartCheckoutPage() {
         request,
         selectedPeriod,
         ...(promo ? { promo } : {}),
+        ...(charge ? { charge } : {}),
       } satisfies WhopCheckoutState,
     });
   };
 
   const checkout = useCheckout(startCheckout);
+  const price = promo && checkout.plan ? promoPrice(checkout.plan.planPricing, promo) : null;
 
   if (checkout.isLoading) return <Loading />;
 
-  const price = promo && checkout.plan ? promoPrice(checkout.plan.planPricing, promo) : null;
   const promoDiscount =
     price &&
     ('total' in price

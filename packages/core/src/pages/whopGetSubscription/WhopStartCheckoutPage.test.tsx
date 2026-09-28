@@ -238,8 +238,35 @@ describe('WhopStartCheckoutPage', () => {
         },
         selectedPeriod: 30,
         promo: SPRING20,
+        charge: { amount: '8.00', currency: 'USD' },
       },
     });
+  });
+
+  it('hands over the total the payer was shown, which a wallet sheet displays', async () => {
+    render(<WhopStartCheckoutPage />);
+
+    fireEvent.click(startButton());
+
+    await waitFor(() => expect(navigate).toHaveBeenCalled());
+    expect(handedOverState().charge).toEqual({ amount: '10.00', currency: 'USD' });
+  });
+
+  it('hands over no total when a fixed amount in another currency leaves it unknown', async () => {
+    api.checkPublicWhopPromoCode.mockResolvedValue({
+      ...SPRING20,
+      promoType: 'flat_amount',
+      amountOff: 5,
+      currency: 'eur',
+    });
+    render(<WhopStartCheckoutPage />);
+    applyPromo('FIVE');
+    await discountShown();
+
+    fireEvent.click(startButton());
+
+    await waitFor(() => expect(navigate).toHaveBeenCalled());
+    expect(handedOverState()).not.toHaveProperty('charge');
   });
 
   it('starts the checkout at full price when no code was applied', async () => {

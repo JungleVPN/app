@@ -10,28 +10,20 @@ import {
 import { type Key, type ReactNode, type SyntheticEvent, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { i18n } from '../../core/i18n';
-import { useNavigation } from '../../hooks';
-import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import { useTermsStore } from '../../stores';
 import { Block, Paragraph } from '../../ui';
-import { checkoutErrorKey } from '../getSubscription/checkoutErrors';
 import {
   type BillingCountryOption,
   billingCountryOptions,
   defaultBillingCountry,
 } from './billingCountry';
+import { CardTokenError, useWhopPay } from './useWhopPay';
 import type { WhopCheckoutState } from './whopCheckoutState';
 
 interface WhopCardFormProps {
   checkout: WhopCheckoutState;
   returnUrl: string;
 }
-
-/** Thrown when Whop cannot tokenise the card — its own field already marks what is wrong. */
-class CardTokenError extends Error {}
-
-/** A Whop payment status that needs nothing more from the payer. */
-const SETTLED_STATUSES: ReadonlySet<string> = new Set(['succeeded', 'processing']);
 
 /** Matches Whop's hosted fields: a hairline at rest, a dark 2px edge and a light outer ring on focus. */
 export const INPUT_CLASS = [
@@ -90,17 +82,13 @@ function CountryAutofill({
  * card, country, postal code), and our own pay button and messages — so every
  * word the payer reads comes from the app's translations.
  *
- * Pressing pay tokenises the card, charges it through our backend (which
- * re-validates the checkout and stamps the webhook metadata), then hands any
- * pending step such as 3DS to Whop.
+ * Pressing pay tokenises the card and charges it through `useWhopPay`.
  */
 export function WhopCardForm({ checkout, returnUrl }: WhopCardFormProps) {
   const { t } = useTranslation();
   const payments = usePayments();
   const whop = useWhop();
-  const paymentsApi = usePaymentsApi();
-  const navigate = useNavigation();
-  const { paymentReturnPath } = useAppRoutes();
+  const { pay, isPending, error } = useWhopPay({ checkout, returnUrl });
   const { open: openTerms } = useTermsStore();
 
   const countries = useMemo(() => billingCountryOptions(i18n.language), []);
@@ -108,8 +96,6 @@ export function WhopCardForm({ checkout, returnUrl }: WhopCardFormProps) {
   const [name, setName] = useState('');
   const [country, setCountry] = useState(() => defaultBillingCountry(i18n.language));
   const [postalCode, setPostalCode] = useState('');
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const canPay =
     payments !== null &&
@@ -130,62 +116,19 @@ export function WhopCardForm({ checkout, returnUrl }: WhopCardFormProps) {
         },
       });
       return confirmationToken;
-    } catch (error) {
-      console.log(error);
+    } catch {
       throw new CardTokenError();
     }
   };
 
-  const pay = async (): Promise<string | null> => {
-    const confirmationToken = await tokeniseCard();
-    const payment = await paymentsApi.payPublicWhopCheckout({
-      ...checkout.request,
-      confirmationToken,
-      returnUrl,
-      ...(checkout.promo ? { promoCode: checkout.promo.code } : {}),
-    });
-    if (payment.status === 'paid') return payment.status;
-    if (!whop || !payment.clientSecret) return 'whopCheckout.errors.not_completed';
-
-    const result = await whop.payments.handleNextAction({ clientSecret: payment.clientSecret });
-    if (result.redirected) return null;
-    if (SETTLED_STATUSES.has(result.status)) return 'paid';
-    return result.lastPaymentError
-      ? 'whopCheckout.errors.declined'
-      : 'whopCheckout.errors.not_completed';
-  };
-
-  const handleSubmit = async (event: SyntheticEvent) => {
+  const handleSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
-    if (!canPay || isPending) return;
-
-    setIsPending(true);
-    setError(null);
-    try {
-      const outcome = await pay();
-      if (outcome === 'paid') {
-        navigate(paymentReturnPath, { replace: true });
-        return;
-      }
-      if (outcome) setError(t(outcome));
-    } catch (caught) {
-      console.log(caught);
-      setError(
-        t(
-          caught instanceof CardTokenError
-            ? 'whopCheckout.errors.card_invalid'
-            : checkoutErrorKey(caught),
-        ),
-      );
-    } finally {
-      setIsPending(false);
-    }
+    if (canPay) void pay(tokeniseCard);
   };
 
   return (
     <Form className='flex w-full flex-col gap-6' validationBehavior='aria' onSubmit={handleSubmit}>
       <Block
-        title={t('whopCheckout.card_title')}
         className='p-5 sm:p-6'
         description={
           <>
@@ -256,7 +199,6 @@ export function WhopCardForm({ checkout, returnUrl }: WhopCardFormProps) {
               <Input autoComplete='postal-code' className={INPUT_CLASS} />
             </TextField>
           </div>
-
         </div>
       </Block>
 

@@ -16,24 +16,44 @@ const {
   location,
   elementsProps,
   paymentsProps,
-  checkoutProps,
-  expressProps,
   cardFields,
   payments,
+  walletSheet,
   whop,
   api,
-} = vi.hoisted(() => ({
-  navigate: vi.fn(),
-  location: { state: null as unknown },
-  elementsProps: vi.fn(),
-  paymentsProps: vi.fn(),
-  checkoutProps: vi.fn(),
-  expressProps: vi.fn(),
-  cardFields: { onChange: (_payload: { complete: boolean }) => {} },
-  payments: { createConfirmationToken: vi.fn() },
-  whop: { payments: { handleNextAction: vi.fn() } },
-  api: { payPublicWhopCheckout: vi.fn() },
-}));
+  loadScript,
+} = vi.hoisted(() => {
+  const walletSheet = { canMakePayment: vi.fn(), show: vi.fn() };
+  return {
+    navigate: vi.fn(),
+    location: { state: null as unknown },
+    elementsProps: vi.fn(),
+    paymentsProps: vi.fn(),
+    cardFields: { onChange: (_payload: { complete: boolean }) => {} },
+    payments: { createConfirmationToken: vi.fn() },
+    walletSheet,
+    whop: {
+      payments: {
+        handleNextAction: vi.fn(),
+        paymentRequest: { create: vi.fn(() => walletSheet) },
+      },
+    },
+    api: { payPublicWhopCheckout: vi.fn() },
+    loadScript: vi.fn(),
+  };
+});
+
+vi.mock('./loadScript', () => ({ loadScript }));
+
+/** Like Apple's own element: it keeps a click from bubbling past itself, out of React's reach. */
+customElements.define(
+  'apple-pay-button',
+  class extends HTMLElement {
+    connectedCallback() {
+      this.addEventListener('click', (event) => event.stopPropagation());
+    }
+  },
+);
 
 vi.mock('@whop/elements', () => ({
   loadWhop: () => 'whop-loader',
@@ -49,14 +69,6 @@ vi.mock('@whop/elements-react', () => ({
   Payments: ({ children, ...props }: { children: ReactNode }) => {
     paymentsProps(props);
     return <>{children}</>;
-  },
-  Checkout: ({ children, ...props }: { children: ReactNode }) => {
-    checkoutProps(props);
-    return <>{children}</>;
-  },
-  ExpressCheckoutElement: (props: object) => {
-    expressProps(props);
-    return <div data-testid='express-checkout' />;
   },
   CardFields: ({
     children,
@@ -133,7 +145,16 @@ describe('WhopCheckoutPage', () => {
       whopPlanId: 'plan_1',
       request: REQUEST,
       selectedPeriod: 30,
+      charge: { amount: '7.99', currency: 'USD' },
     };
+    loadScript.mockResolvedValue(undefined);
+    walletSheet.canMakePayment.mockResolvedValue({ applePay: true, googlePay: false });
+    walletSheet.show.mockResolvedValue({
+      ctok: 'ctok_wallet',
+      type: 'apple_pay',
+      payer: { email: 'someone-else@icloud.com' },
+      shipping: null,
+    });
     payments.createConfirmationToken.mockResolvedValue({
       confirmationToken: 'ctok_1',
       type: 'card',
@@ -206,65 +227,181 @@ describe('WhopCheckoutPage', () => {
   });
 
   describe('wallets', () => {
-    const lastCheckout = () => checkoutProps.mock.lastCall?.[0];
+    const applePay = () => screen.findByRole('button', { name: 'Apple Pay' });
+    const googlePay = () => screen.queryByRole('button', { name: 'Google Pay' });
 
-    it('offers Apple Pay and Google Pay for the Whop plan the backend validated', async () => {
+    it('prices the wallet sheet at the total the payer was shown, in minor units', async () => {
       render(<WhopCheckoutPage />);
 
-      await screen.findByTestId('express-checkout');
-      expect(checkoutProps).toHaveBeenLastCalledWith(
-        expect.objectContaining({ plan: 'plan_1', returnUrl: RETURN_URL }),
-      );
-      expect(expressProps).toHaveBeenLastCalledWith(
-        expect.objectContaining({ layout: 'auto', wallets: ['apple_pay', 'google_pay'] }),
-      );
-    });
-
-    it('stamps the payment with what the webhook identifies the payer by, as the card charge does', async () => {
-      render(<WhopCheckoutPage />);
-
-      await screen.findByTestId('express-checkout');
-      expect(lastCheckout().metadata).toEqual({
-        email: 'payer@test.com',
-        inviterId: '7',
-        signupOrigin: window.location.origin,
+      await applePay();
+      expect(whop.payments.paymentRequest.create).toHaveBeenCalledWith({
+        accountId: 'biz_1',
+        amount: 799,
+        currency: 'USD',
+        requestPayerEmail: false,
       });
     });
 
-    it('carries the Tolt referral when the visitor arrived through one', async () => {
+    it("keeps a currency's own precision, such as yen with no minor unit", async () => {
       location.state = {
-        accountId: 'biz_1',
-        whopPlanId: 'plan_1',
-        request: { email: 'payer@test.com', planId: 'whop-30', toltReferralId: 'tolt_1' },
-        selectedPeriod: 30,
+        ...(location.state as object),
+        charge: { amount: '1200', currency: 'JPY' },
       };
       render(<WhopCheckoutPage />);
 
-      await screen.findByTestId('express-checkout');
-      expect(lastCheckout().metadata).toEqual({
-        email: 'payer@test.com',
-        toltReferralId: 'tolt_1',
-        signupOrigin: window.location.origin,
+      await applePay();
+      expect(whop.payments.paymentRequest.create).toHaveBeenCalledWith(
+        expect.objectContaining({ amount: 1200, currency: 'JPY' }),
+      );
+    });
+
+    it("shows Apple's own Apple Pay button, as Apple's guidelines require", async () => {
+      const { container } = render(<WhopCheckoutPage />);
+
+      await applePay();
+      const button = container.querySelector('apple-pay-button');
+      expect(button?.getAttribute('buttonstyle')).toBe('black');
+      expect(button?.getAttribute('type')).toBe('plain');
+      expect(button?.getAttribute('locale')).toBe('es');
+      expect(loadScript).toHaveBeenCalledWith(
+        'https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js',
+      );
+    });
+
+    describe('Google Pay', () => {
+      const createButton = vi.fn();
+      const PaymentsClient = vi.fn(function PaymentsClient() {
+        return { createButton };
+      });
+
+      beforeEach(() => {
+        walletSheet.canMakePayment.mockResolvedValue({ applePay: false, googlePay: true });
+        createButton.mockImplementation(({ onClick }: { onClick: () => void }) => {
+          const button = document.createElement('button');
+          button.setAttribute('aria-label', 'Google Pay');
+          button.addEventListener('click', onClick);
+          return button;
+        });
+        vi.stubGlobal('google', { payments: { api: { PaymentsClient } } });
+      });
+
+      it("shows Google's own button, as the Google Pay terms require", async () => {
+        render(<WhopCheckoutPage />);
+
+        await screen.findByRole('button', { name: 'Google Pay' });
+        expect(loadScript).toHaveBeenCalledWith('https://pay.google.com/gp/p/js/pay.js');
+        expect(PaymentsClient).toHaveBeenCalledWith({ environment: 'TEST' });
+        expect(createButton).toHaveBeenCalledWith(
+          expect.objectContaining({
+            buttonColor: 'black',
+            buttonType: 'plain',
+            buttonSizeMode: 'fill',
+            buttonLocale: 'es',
+          }),
+        );
+        expect(screen.queryByRole('button', { name: 'Apple Pay' })).toBeNull();
+      });
+
+      it('opens the sheet with the checkout email', async () => {
+        render(<WhopCheckoutPage />);
+
+        fireEvent.click(await screen.findByRole('button', { name: 'Google Pay' }));
+
+        expect(walletSheet.show).toHaveBeenCalledWith('google_pay', { email: 'payer@test.com' });
       });
     });
 
-    it('keeps the same metadata across re-renders, since Whop refuses a changed checkout', async () => {
-      const { rerender } = render(<WhopCheckoutPage />);
-      await screen.findByTestId('express-checkout');
-      rerender(<WhopCheckoutPage />);
-
-      const [first, last] = [checkoutProps.mock.calls[0][0], lastCheckout()];
-      expect(checkoutProps.mock.calls.length).toBeGreaterThan(1);
-      expect(last.metadata).toBe(first.metadata);
-    });
-
-    it('goes to the success page once the wallet payment completes', async () => {
+    it("offers only the wallets the payer's device can pay with", async () => {
       render(<WhopCheckoutPage />);
 
-      await screen.findByTestId('express-checkout');
-      lastCheckout().onComplete({ result: 'payment', paymentId: 'pay_1', sessionId: 'ses_1' });
+      expect(await applePay()).toBeTruthy();
+      expect(googlePay()).toBeNull();
+    });
 
-      expect(navigate).toHaveBeenCalledWith('/payment/success', { replace: true });
+    it('offers no wallet when the total the payer was shown is unknown', async () => {
+      const { charge: _charge, ...withoutCharge } = location.state as { charge: object };
+      location.state = withoutCharge;
+      render(<WhopCheckoutPage />);
+
+      await screen.findByTestId('card-number');
+      expect(whop.payments.paymentRequest.create).not.toHaveBeenCalled();
+      expect(screen.queryByRole('button', { name: 'Apple Pay' })).toBeNull();
+    });
+
+    it('opens the sheet with the checkout email, so the wallet never supplies its own', async () => {
+      render(<WhopCheckoutPage />);
+
+      fireEvent.click(await applePay());
+
+      expect(walletSheet.show).toHaveBeenCalledWith('apple_pay', { email: 'payer@test.com' });
+    });
+
+    it('charges the wallet token through our backend under the checkout email', async () => {
+      location.state = {
+        ...(location.state as object),
+        promo: { code: 'SPRING20', promoType: 'percentage', amountOff: 20, currency: 'usd' },
+      };
+      render(<WhopCheckoutPage />);
+
+      fireEvent.click(await applePay());
+
+      await waitFor(() =>
+        expect(api.payPublicWhopCheckout).toHaveBeenCalledWith({
+          ...REQUEST,
+          confirmationToken: 'ctok_wallet',
+          returnUrl: RETURN_URL,
+          promoCode: 'SPRING20',
+        }),
+      );
+      await waitFor(() =>
+        expect(navigate).toHaveBeenCalledWith('/payment/success', { replace: true }),
+      );
+    });
+
+    it('finishes a pending step such as 3DS, as the card charge does', async () => {
+      api.payPublicWhopCheckout.mockResolvedValue({
+        paymentId: 'pay_1',
+        status: 'open',
+        clientSecret: 'sec_1',
+      });
+      whop.payments.handleNextAction.mockResolvedValue({
+        status: 'failed',
+        redirected: false,
+        lastPaymentError: { code: 'card_declined', message: 'Declined' },
+      });
+      render(<WhopCheckoutPage />);
+
+      fireEvent.click(await applePay());
+
+      expect((await screen.findByRole('alert')).textContent).toBe('whopCheckout.errors.declined');
+      expect(whop.payments.handleNextAction).toHaveBeenCalledWith({ clientSecret: 'sec_1' });
+    });
+
+    it('charges nothing and stays quiet when the payer dismisses the sheet', async () => {
+      walletSheet.show.mockRejectedValue(new Error('payment_request_cancelled'));
+      render(<WhopCheckoutPage />);
+
+      fireEvent.click(await applePay());
+
+      await waitFor(() => expect(walletSheet.show).toHaveBeenCalled());
+      expect(api.payPublicWhopCheckout).not.toHaveBeenCalled();
+      expect(screen.queryByRole('alert')).toBeNull();
+    });
+
+    it('says so, and logs why, when the sheet could not open at all', async () => {
+      const failure = new Error('walletUnavailable: the sheet could not open');
+      const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+      walletSheet.show.mockRejectedValue(failure);
+      render(<WhopCheckoutPage />);
+
+      fireEvent.click(await applePay());
+
+      expect((await screen.findByRole('alert')).textContent).toBe(
+        'whopCheckout.errors.not_completed',
+      );
+      expect(logged).toHaveBeenCalledWith(expect.any(String), failure);
+      expect(api.payPublicWhopCheckout).not.toHaveBeenCalled();
+      logged.mockRestore();
     });
   });
 
@@ -285,23 +422,6 @@ describe('WhopCheckoutPage', () => {
       await screen.findByTestId('card-number');
 
       expect(screen.queryByLabelText('whopCheckout.promo_code')).toBeNull();
-    });
-
-    it('opens the wallet checkout with the code the payer applied before starting', async () => {
-      seedPromo();
-      render(<WhopCheckoutPage />);
-      await screen.findByTestId('express-checkout');
-
-      expect(checkoutProps).toHaveBeenLastCalledWith(
-        expect.objectContaining({ promoCode: 'SPRING20' }),
-      );
-    });
-
-    it('opens the wallet checkout at full price when no code was applied', async () => {
-      render(<WhopCheckoutPage />);
-      await screen.findByTestId('express-checkout');
-
-      expect(checkoutProps.mock.lastCall?.[0].promoCode).toBeUndefined();
     });
 
     it('charges the card with the code the payer applied before starting', async () => {

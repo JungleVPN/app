@@ -19,7 +19,16 @@ describe('isWhopCheckoutState', () => {
     expect(isWhopCheckoutState({ ...valid, promo })).toBe(true);
   });
 
+  it('accepts the total the payer was shown', () => {
+    expect(isWhopCheckoutState({ ...valid, charge: { amount: '8.00', currency: 'USD' } })).toBe(
+      true,
+    );
+  });
+
   it.each([
+    ['a total that is not an object', { ...valid, charge: '8.00' }],
+    ['a total with no amount', { ...valid, charge: { amount: '', currency: 'USD' } }],
+    ['a total with no currency', { ...valid, charge: { amount: '8.00', currency: '' } }],
     ['no state at all (a reload or a shared link)', null],
     ['a non-object', 'biz_1'],
     ['a missing account', { ...valid, accountId: undefined }],

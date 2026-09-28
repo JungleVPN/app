@@ -24,6 +24,18 @@ export interface WhopCheckoutState {
    * rather than on the checkout route.
    */
   promo?: WhopPromoCodeDto;
+  /**
+   * The total the payer was shown, which a wallet sheet displays. Whop charges
+   * what the plan says; absent when a promo left the total unknown, and then
+   * no wallet is offered.
+   */
+  charge?: WhopCheckoutCharge;
+}
+
+/** An amount as the order summary showed it (`'7.99'`) and its ISO 4217 currency. */
+export interface WhopCheckoutCharge {
+  amount: string;
+  currency: string;
 }
 
 const isNonEmptyString = (value: unknown): value is string =>
@@ -40,6 +52,12 @@ function isPromo(value: unknown): value is WhopPromoCodeDto {
   return isNonEmptyString((value as Partial<WhopPromoCodeDto>).code);
 }
 
+function isCharge(value: unknown): value is WhopCheckoutCharge {
+  if (typeof value !== 'object' || value === null) return false;
+  const charge = value as Partial<WhopCheckoutCharge>;
+  return isNonEmptyString(charge.amount) && isNonEmptyString(charge.currency);
+}
+
 export function isWhopCheckoutState(value: unknown): value is WhopCheckoutState {
   if (typeof value !== 'object' || value === null) return false;
   const state = value as Partial<WhopCheckoutState>;
@@ -48,22 +66,7 @@ export function isWhopCheckoutState(value: unknown): value is WhopCheckoutState 
     isNonEmptyString(state.whopPlanId) &&
     isCheckoutRequest(state.request) &&
     typeof state.selectedPeriod === 'number' &&
-    (state.promo === undefined || isPromo(state.promo))
+    (state.promo === undefined || isPromo(state.promo)) &&
+    (state.charge === undefined || isCharge(state.charge))
   );
-}
-
-/**
- * The metadata a wallet payment carries so the webhook identifies the payer —
- * the same keys the backend stamps on a card charge in `payCheckout`.
- */
-export function whopCheckoutMetadata(
-  request: CreatePublicWhopCheckoutDto,
-  origin: string,
-): Record<string, string> {
-  return {
-    email: request.email,
-    ...(request.toltReferralId ? { toltReferralId: request.toltReferralId } : {}),
-    ...(request.inviterId != null ? { inviterId: String(request.inviterId) } : {}),
-    signupOrigin: origin,
-  };
 }
