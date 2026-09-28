@@ -114,7 +114,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
 
   return (
     <>
-      <Container maxWidth='lg' className='pt-8 pb-44 sm:pb-28'>
+      <Container maxWidth='lg' className='mb-16'>
         <Grid className='gap-6'>
           <GridItem size={{ base: 12, sm: 12, md: 12, lg: 6 }}>
             <Form

@@ -54,7 +54,11 @@ export default function WhopCheckoutPage({ fallbackPath }: WhopCheckoutPageProps
   const returnUrl = `${window.location.origin}${paymentReturnPath}`;
 
   return (
-    <Page title={t('paddleCheckout.title')} subtitle={t('paddleCheckout.subtitle')}>
+    <Page
+      title={t('paddleCheckout.title')}
+      subtitle={t('paddleCheckout.subtitle')}
+      className={'mb-16'}
+    >
       {elements && (
         <WhopElements
           elements={elements}

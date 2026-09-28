@@ -12,6 +12,7 @@ interface PageProps extends PropsWithChildren {
   subtitle?: string;
   description?: string;
   showBackButton?: boolean;
+  className?: string;
 }
 
 export function Page(props: PageProps) {
@@ -24,10 +25,14 @@ export function Page(props: PageProps) {
     description,
     showBackButton = true,
     children,
+    className,
   } = props;
 
   return (
-    <Surface variant={'transparent'} className={'flex flex-col items-center justify-center'}>
+    <Surface
+      variant={'transparent'}
+      className={`flex flex-col items-center justify-center ${className ?? ''}`}
+    >
       <div className={'relative flex w-full items-center justify-center'}>
         {showBackButton && <BackButton className={'absolute top-0 left-0'} />}
         {typeof icon === 'string' ? (

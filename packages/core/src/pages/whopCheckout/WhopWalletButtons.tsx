@@ -23,11 +23,17 @@ function toMinorUnits({ amount, currency }: WhopCheckoutCharge): number {
   return Math.round(Number(amount) * 10 ** maximumFractionDigits);
 }
 
-/** The wallets the device can pay with, best-native first. */
+/**
+ * The wallets to offer, best-native first. Where Apple Pay is the native
+ * wallet (Safari, every iOS browser) it is offered alone, as Whop's own
+ * express checkout does: Google Pay there is a pay.google.com popup that
+ * Safari cuts off from the page, failing with OR_BIBED_15.
+ */
 function availableWallets(availability: WalletAvailability): Wallet[] {
   const isAvailable = (wallet: Wallet) =>
     wallet === 'apple_pay' ? availability.applePay : availability.googlePay;
-  return (availability.order ?? ['apple_pay', 'google_pay']).filter(isAvailable);
+  const ranked = (availability.order ?? ['apple_pay', 'google_pay']).filter(isAvailable);
+  return availability.order?.[0] === 'apple_pay' && availability.applePay ? ['apple_pay'] : ranked;
 }
 
 interface WhopWalletButtonsProps {

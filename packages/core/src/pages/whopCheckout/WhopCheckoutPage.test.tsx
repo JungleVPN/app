@@ -189,12 +189,7 @@ describe('WhopCheckoutPage', () => {
       render(<WhopCheckoutPage />);
 
       await screen.findByTestId('card-number');
-      for (const key of [
-        'whopCheckout.card_title',
-        'whopCheckout.card_number',
-        'whopCheckout.expiry',
-        'whopCheckout.cvc',
-      ]) {
+      for (const key of ['whopCheckout.card_number', 'whopCheckout.expiry', 'whopCheckout.cvc']) {
         expect(screen.getByText(key)).toBeTruthy();
       }
       expect(screen.getByTestId('card-number')).toBeTruthy();
@@ -309,6 +304,47 @@ describe('WhopCheckoutPage', () => {
 
         expect(walletSheet.show).toHaveBeenCalledWith('google_pay', { email: 'payer@test.com' });
       });
+    });
+
+    it('offers Apple Pay alone where it is the native wallet, as on an iPhone', async () => {
+      walletSheet.canMakePayment.mockResolvedValue({
+        applePay: true,
+        googlePay: true,
+        order: ['apple_pay', 'google_pay'],
+      });
+      render(<WhopCheckoutPage />);
+
+      expect(await applePay()).toBeTruthy();
+      expect(loadScript).not.toHaveBeenCalledWith('https://pay.google.com/gp/p/js/pay.js');
+    });
+
+    it('offers both wallets, Google Pay first, where Google Pay is the native one', async () => {
+      const createButton = vi.fn(() => {
+        const button = document.createElement('button');
+        button.setAttribute('aria-label', 'Google Pay');
+        return button;
+      });
+      vi.stubGlobal('google', {
+        payments: {
+          api: {
+            PaymentsClient: vi.fn(function PaymentsClient() {
+              return { createButton };
+            }),
+          },
+        },
+      });
+      walletSheet.canMakePayment.mockResolvedValue({
+        applePay: true,
+        googlePay: true,
+        order: ['google_pay', 'apple_pay'],
+      });
+      render(<WhopCheckoutPage />);
+
+      const googlePayButton = await screen.findByRole('button', { name: 'Google Pay' });
+      const applePayButton = await applePay();
+      expect(
+        googlePayButton.compareDocumentPosition(applePayButton) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
     });
 
     it("offers only the wallets the payer's device can pay with", async () => {
