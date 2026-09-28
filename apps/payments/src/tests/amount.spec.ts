@@ -54,6 +54,32 @@ describe('amount config', () => {
       });
     });
 
+    // 16.99 / 30 * 30 is 16.989999… in floating point; truncating that to the
+    // cent would advertise a monthly price below the one actually charged.
+    it.each([
+      16.99, 3.49, 23.99, 219.99, 0.29,
+    ])("shows a 30-day plan's own total, %s, as its monthly price", (total) => {
+      const pricing = buildPricing({ currency: 'EUR', days: 30, total, basePrice: total });
+
+      expect(pricing.monthly).toBe(String(total));
+      expect(pricing.fullTotal).toBe(String(total));
+    });
+
+    it('still truncates a monthly price that falls between two cents', () => {
+      expect(
+        buildPricing({ currency: 'EUR', days: 365, total: 24.49, basePrice: 3.99 }).monthly,
+      ).toBe('2.01');
+    });
+
+    it.each([
+      ['INR', 2669, '219'],
+      ['IDR', 485500, '39904'],
+    ])('quotes %s in whole units, as its prices are set', (currency, total, monthly) => {
+      const pricing = buildPricing({ currency, days: 365, total, basePrice: null });
+
+      expect(pricing.monthly).toBe(monthly);
+    });
+
     it('rounds RUB to whole rubles, since we never quote kopecks', () => {
       const pricing = buildPricing({ currency: 'RUB', days: 180, total: 882, basePrice: 200 });
 

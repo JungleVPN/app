@@ -39,6 +39,11 @@ describe('currencyForCountry', () => {
     ['PT', 'EUR'],
     ['US', 'USD'],
     ['GB', 'GBP'],
+    ['AE', 'AED'],
+    ['IN', 'INR'],
+    ['ID', 'IDR'],
+    ['BR', 'BRL'],
+    ['TR', 'TRY'],
   ])('prices %s in %s', (country, currency) => {
     expect(currencyForCountry(country)).toBe(currency);
   });

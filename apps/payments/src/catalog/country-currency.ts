@@ -37,6 +37,11 @@ const COUNTRY_CURRENCY: ReadonlyMap<string, string> = new Map([
   ...EURO_COUNTRIES.map((country) => [country, 'EUR'] as const),
   ['US', 'USD'],
   ['GB', 'GBP'],
+  ['AE', 'AED'],
+  ['IN', 'INR'],
+  ['ID', 'IDR'],
+  ['BR', 'BRL'],
+  ['TR', 'TRY'],
 ]);
 
 /** The currency a visitor from `countryCode` is priced in, or null when unmapped. */

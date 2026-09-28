@@ -3,7 +3,14 @@ import type { PlanPricing } from '@workspace/types';
 
 export type Currency = 'RUB' | 'EUR';
 
-const DISPLAY_DECIMALS: Record<string, number> = { RUB: 0, JPY: 0, KRW: 0, CLP: 0 };
+const DISPLAY_DECIMALS: Record<string, number> = {
+  RUB: 0,
+  JPY: 0,
+  KRW: 0,
+  CLP: 0,
+  INR: 0,
+  IDR: 0,
+};
 
 /**
  * The configured price of one extra device slot.
@@ -22,7 +29,9 @@ export function getExtraDevicePrice(currency: Currency): string {
 }
 
 const formatPrice = (value: number, currency: string): string => {
-  const truncated = Math.floor(value * 100) / 100;
+  // Settle floating-point noise before truncating: 16.99 / 30 * 30 is
+  // 16.989999…, which would otherwise truncate a cent below the real price.
+  const truncated = Math.floor(Math.round(value * 1e6) / 1e4) / 100;
 
   const decimals = DISPLAY_DECIMALS[currency] ?? 2;
 
