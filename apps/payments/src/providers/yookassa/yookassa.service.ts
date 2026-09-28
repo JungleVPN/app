@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
 import { PlanService } from '@payments/catalog/plan.service';
+import { providerCurrency } from '@payments/catalog/plan-provider';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { PaymentsUtils } from '@payments/utils/utils';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
@@ -150,7 +151,11 @@ export class YookassaService {
     const plan =
       purpose === 'extra_device'
         ? null
-        : await this.planService.getForCheckout(planId ?? '', 'yookassa');
+        : await this.planService.getForCheckout(
+            planId ?? '',
+            'yookassa',
+            providerCurrency('yookassa'),
+          );
     const selectedPeriod = plan?.billingPeriod ?? 0;
     const amountValue = plan ? String(plan.basePrice) : this.paymentsUtils.getExtraDevicePriceRUB();
 
@@ -339,7 +344,11 @@ export class YookassaService {
     });
     const isFirstPayment = priorSucceeded === 0;
 
-    const isTrialPayment = await this.planService.isTrial('yookassa', record.selectedPeriod);
+    const isTrialPayment = await this.planService.isTrial(
+      'yookassa',
+      record.selectedPeriod,
+      providerCurrency('yookassa'),
+    );
 
     // Extend subscription BEFORE writing the idempotency stamp.
     // If this throws, paidAt remains null so YooKassa's next retry will re-enter

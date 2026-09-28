@@ -37,6 +37,9 @@ export function resolveProvider(origin: string | null | undefined): PlanProvider
   return getGlobalPaymentProvider();
 }
 
-/** The one currency a provider's `basePrice` is denominated in. */
+/**
+ * The currency a provider sells in when nothing picks another one: what
+ * `/plans` lists and where a checkout falls back to.
+ */
 export const providerCurrency = (provider: PlanProvider): 'RUB' | 'EUR' =>
   PROVIDER_CURRENCY[provider];

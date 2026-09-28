@@ -227,6 +227,7 @@ export class StripeWebhookService {
     const { billingPeriod: selectedPeriod } = await this.planService.findByAmount(
       'stripe',
       mapToCorrectAmount(invoice.subtotal),
+      invoice.currency.toUpperCase(),
     );
 
     const isNewUser = !settled.userId;

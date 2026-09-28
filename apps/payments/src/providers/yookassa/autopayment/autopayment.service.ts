@@ -4,6 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { PlanService } from '@payments/catalog/plan.service';
+import { providerCurrency } from '@payments/catalog/plan-provider';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { Payments, RemnawebhookPayload, UserDto, WebhookEventEnum } from '@workspace/types';
@@ -204,7 +205,11 @@ export class AutopaymentService {
     }
 
     const { selectedPeriod } = previousPayment;
-    const plan = await this.planService.findForRenewal('yookassa', selectedPeriod);
+    const plan = await this.planService.findForRenewal(
+      'yookassa',
+      selectedPeriod,
+      providerCurrency('yookassa'),
+    );
     return { selectedPeriod, amount: String(plan.basePrice) };
   }
 

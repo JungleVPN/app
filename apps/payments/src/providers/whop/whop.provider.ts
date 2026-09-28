@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PlanService } from '@payments/catalog/plan.service';
+import { providerCurrency } from '@payments/catalog/plan-provider';
 import { toSavedMethodDto } from '@payments/utils/saved-method';
 import { SavedPaymentMethod } from '@workspace/database';
 import {
@@ -40,7 +41,7 @@ export class WhopProvider {
    * rejected before anything is created on Whop.
    */
   async resolveCheckoutPlanId(planId: string): Promise<string> {
-    const plan = await this.planService.getForCheckout(planId, 'whop');
+    const plan = await this.planService.getForCheckout(planId, 'whop', providerCurrency('whop'));
     if (!plan.providerPriceId) {
       throw new Error('No Whop plan id was found in resolveCheckoutPlanId');
     }

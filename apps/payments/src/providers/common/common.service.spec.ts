@@ -20,6 +20,7 @@ const plan = (
   billingPeriod,
   basePrice,
   provider,
+  currency: provider === 'yookassa' ? 'RUB' : 'EUR',
   providerPriceId,
   availableForPurchase: true,
   customData: {},

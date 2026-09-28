@@ -3,6 +3,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { PlanService } from '@payments/catalog/plan.service';
+import { providerCurrency } from '@payments/catalog/plan-provider';
 import { getExtraDevicePrice } from '@payments/utils/amount';
 import { resolveReturnUrl } from '@payments/utils/return-origin';
 import { toSavedMethodDto } from '@payments/utils/saved-method';
@@ -221,7 +222,11 @@ export class StripeProvider {
       }
     }
 
-    const plan = await this.planService.getForCheckout(dto.planId ?? '', 'stripe');
+    const plan = await this.planService.getForCheckout(
+      dto.planId ?? '',
+      'stripe',
+      providerCurrency('stripe'),
+    );
     return { amount: String(plan.basePrice), priceId: plan.providerPriceId ?? '' };
   }
 

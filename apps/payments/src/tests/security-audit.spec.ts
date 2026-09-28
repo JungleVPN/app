@@ -326,6 +326,7 @@ describe('Security Audit', () => {
       billingPeriod,
       basePrice,
       provider: 'stripe',
+      currency: 'EUR',
       providerPriceId: `price_${billingPeriod}`,
       availableForPurchase: true,
       customData: {},
@@ -335,18 +336,18 @@ describe('Security Audit', () => {
     } as never);
 
     it('throws for an amount not matching any plan price', async () => {
-      await expect(planService.findByAmount('stripe', 999)).rejects.toThrow();
+      await expect(planService.findByAmount('stripe', 999, 'EUR')).rejects.toThrow();
     });
 
     it('throws for amount = 0', async () => {
-      await expect(planService.findByAmount('stripe', 0)).rejects.toThrow();
+      await expect(planService.findByAmount('stripe', 0, 'EUR')).rejects.toThrow();
     });
 
     it('returns the period of the plan priced at that amount', async () => {
-      await expect(planService.findByAmount('stripe', 5)).resolves.toMatchObject({
+      await expect(planService.findByAmount('stripe', 5, 'EUR')).resolves.toMatchObject({
         billingPeriod: 30,
       });
-      await expect(planService.findByAmount('stripe', 12)).resolves.toMatchObject({
+      await expect(planService.findByAmount('stripe', 12, 'EUR')).resolves.toMatchObject({
         billingPeriod: 180,
       });
     });

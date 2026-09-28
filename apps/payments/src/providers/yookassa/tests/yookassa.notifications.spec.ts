@@ -236,6 +236,7 @@ describe('YooKassa payment notifications', () => {
       billingPeriod: 30,
       basePrice: 599,
       provider: 'yookassa',
+      currency: 'RUB',
       providerPriceId: null,
       availableForPurchase: true,
       customData: {},

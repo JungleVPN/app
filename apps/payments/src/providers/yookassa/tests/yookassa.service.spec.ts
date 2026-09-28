@@ -128,6 +128,7 @@ describe('YookassaService', () => {
     billingPeriod,
     basePrice,
     provider: 'yookassa',
+    currency: 'RUB',
     providerPriceId: null,
     availableForPurchase: true,
     customData: {},

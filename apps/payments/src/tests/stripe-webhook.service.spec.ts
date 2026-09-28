@@ -48,6 +48,7 @@ const makeInvoiceEvent = (
         id: 'in_1',
         customer: 'cus_1',
         subtotal: 200,
+        currency: 'eur',
         amount_paid: 200,
         amount_due: 200,
         status: type === 'invoice.payment_succeeded' ? 'paid' : 'open',
@@ -90,6 +91,7 @@ const STRIPE_MONTH: Plan = {
   billingPeriod: 30,
   basePrice: 2,
   provider: 'stripe',
+  currency: 'EUR',
   providerPriceId: 'price_30',
   availableForPurchase: true,
   customData: {},
@@ -500,6 +502,13 @@ describe('StripeWebhookService', () => {
       await expect(
         service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded', { subtotal: 99900 })),
       ).rejects.toThrow();
+      expect(mockHandleUserUpdates).not.toHaveBeenCalled();
+    });
+
+    it('throws when no plan is priced at that amount in the invoice currency', async () => {
+      await expect(
+        service.handleWebhook(makeInvoiceEvent('invoice.payment_succeeded', { currency: 'usd' })),
+      ).rejects.toThrow(/USD/);
       expect(mockHandleUserUpdates).not.toHaveBeenCalled();
     });
 

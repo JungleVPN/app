@@ -38,6 +38,7 @@ const whopPlan = (overrides: Partial<Plan> = {}): Plan => ({
   billingPeriod: 30,
   basePrice: 6,
   provider: 'whop',
+  currency: 'EUR',
   providerPriceId: 'plan_month_1',
   availableForPurchase: true,
   customData: {},

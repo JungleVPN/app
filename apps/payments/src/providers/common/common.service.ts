@@ -44,7 +44,7 @@ export class CommonService {
     clientIp: string | null;
   }): Promise<SubscriptionPlanDto[]> {
     const provider = resolveProvider(origin);
-    const rows = await this.planService.listForSale(provider);
+    const rows = await this.planService.listForSale(provider, providerCurrency(provider));
 
     if (rows.length === 0) {
       this.logger.warn(`No ${provider} plans are available for purchase`);
@@ -103,7 +103,7 @@ export class CommonService {
   }
 }
 
-/** Plans priced from the table, in the provider's own currency. */
+/** Plans priced from the table, in each row's own currency. */
 function toPlans(rows: Plan[]): SubscriptionPlanDto[] {
   const monthly = rows.find((row) => row.billingPeriod === 30);
   const basePrice = monthly ? monthly.basePrice : null;
@@ -112,7 +112,7 @@ function toPlans(rows: Plan[]): SubscriptionPlanDto[] {
     planId: row.id,
     days: row.billingPeriod,
     planPricing: buildPricing({
-      currency: providerCurrency(row.provider),
+      currency: row.currency,
       days: row.billingPeriod,
       total: row.basePrice,
       basePrice,

@@ -37,6 +37,7 @@ const plan = (id: string, overrides: Partial<Plan>): Plan => ({
   billingPeriod: 30,
   basePrice: 10,
   provider: 'stripe',
+  currency: 'EUR',
   providerPriceId: null,
   availableForPurchase: true,
   customData: {},

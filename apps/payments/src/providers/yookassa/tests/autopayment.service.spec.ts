@@ -24,6 +24,7 @@ const ruPlan = (overrides: Partial<Plan> = {}): Plan => ({
   billingPeriod: 30,
   basePrice: 200,
   provider: 'yookassa',
+  currency: 'RUB',
   providerPriceId: null,
   availableForPurchase: true,
   customData: {},

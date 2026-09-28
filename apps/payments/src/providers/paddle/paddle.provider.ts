@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { EventEntity } from '@paddle/paddle-node-sdk';
 import { PlanService } from '@payments/catalog/plan.service';
+import { providerCurrency } from '@payments/catalog/plan-provider';
 import { toSavedMethodDto } from '@payments/utils/saved-method';
 import { PaddlePayment, SavedPaymentMethod } from '@workspace/database';
 import type {
@@ -90,7 +91,11 @@ export class PaddleProvider {
     inviterId?: number;
     origin?: string;
   }): Promise<PaddleCheckoutPayload> {
-    const plan = await this.planService.getForCheckout(input.planId, 'paddle');
+    const plan = await this.planService.getForCheckout(
+      input.planId,
+      'paddle',
+      providerCurrency('paddle'),
+    );
     const priceId = plan.providerPriceId;
 
     if (!priceId) {

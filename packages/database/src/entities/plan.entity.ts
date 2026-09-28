@@ -11,16 +11,15 @@ export type PlanProvider = 'yookassa' | 'stripe' | 'paddle' | 'whop';
  * `availableForPurchase` separates the two: a row taken off sale disappears
  * from `/plans` and can no longer be checked out, but stays here so renewals
  * and webhooks for existing subscribers still resolve it. A partial unique
- * index keeps at most one row per provider and period on sale.
- *
- * Currency is not stored: it is fixed per provider (see `providerCurrency`).
+ * index keeps at most one row per provider, currency and period on sale.
  */
 @Entity('subscription_plans')
-@Index('subscription_plans_one_on_sale_per_period', ['provider', 'billingPeriod'], {
+@Index('subscription_plans_one_on_sale_per_period', ['provider', 'currency', 'billingPeriod'], {
   unique: true,
   where: '"available_for_purchase"',
 })
 @Check('subscription_plans_billing_period_check', '"billing_period" > 0')
+@Check('subscription_plans_currency_check', `"currency" ~ '^[A-Z]{3}$'`)
 @Check('subscription_plans_base_price_check', '"base_price" > 0')
 export class Plan {
   /** Returned to the frontend as `planId`. */
@@ -50,6 +49,10 @@ export class Plan {
     enumName: 'plan_provider',
   })
   provider: PlanProvider;
+
+  /** Uppercase ISO 4217 code `basePrice` is denominated in, e.g. EUR. */
+  @Column({ type: 'text' })
+  currency: string;
 
   /** The provider's catalog price id; null for YooKassa, which has no catalog. */
   @Column({ name: 'provider_price_id', type: 'text', nullable: true, unique: true })

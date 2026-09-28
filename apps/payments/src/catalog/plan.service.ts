@@ -12,23 +12,35 @@ import type { Repository } from 'typeorm';
 export class PlanService {
   constructor(@InjectRepository(Plan) private readonly planRepo: Repository<Plan>) {}
 
-  /** What a visitor can buy from `provider` right now, shortest period first. */
-  async listForSale(provider: PlanProvider): Promise<Plan[]> {
-    return (await this.plansOf(provider))
+  /** What a visitor can buy from `provider` in `currency` right now, shortest period first. */
+  async listForSale(provider: PlanProvider, currency: string): Promise<Plan[]> {
+    return (await this.plansOf(provider, currency))
       .filter((row) => row.availableForPurchase)
       .sort((a, b) => a.billingPeriod - b.billingPeriod);
   }
 
+  /** The currencies `provider` has at least one plan on sale in. */
+  async currenciesForSale(provider: PlanProvider): Promise<string[]> {
+    const onSale = (await this.planRepo.find()).filter(
+      (row) => row.provider === provider && row.availableForPurchase,
+    );
+
+    return [...new Set(onSale.map((row) => row.currency))];
+  }
+
   /**
-   * The plan a checkout is for, on sale at the provider taking the payment.
+   * The plan a checkout is for, on sale at the provider taking the payment,
+   * in the currency the payer is charged in.
    *
-   * A plan from the other storefront is charged as the same period at this
-   * provider's own price: the page picks the provider from the user's stored
-   * scope, `/plans` from the request origin, and the two can disagree.
+   * The plan id comes back from the browser, so it may name another
+   * currency's plan, or — since the page picks the provider from the user's
+   * stored scope and `/plans` from the request origin — the other
+   * storefront's. Either way it is charged as the same period at this
+   * provider's price in `currency`.
    */
-  async getForCheckout(planId: string, provider: PlanProvider): Promise<Plan> {
+  async getForCheckout(planId: string, provider: PlanProvider, currency: string): Promise<Plan> {
     const requested = (await this.planRepo.find()).find((row) => row.id === planId);
-    const plan = (await this.listForSale(provider)).find(
+    const plan = (await this.listForSale(provider, currency)).find(
       (row) =>
         row.id === planId ||
         (requested !== undefined &&
@@ -51,11 +63,11 @@ export class PlanService {
    * for that period, but falls back to a retired one: a subscriber keeps
    * renewing a period after it is taken off sale.
    */
-  async findForRenewal(provider: PlanProvider, days: number): Promise<Plan> {
-    const plan = await this.planForPeriod(provider, days);
+  async findForRenewal(provider: PlanProvider, days: number, currency: string): Promise<Plan> {
+    const plan = await this.planForPeriod(provider, days, currency);
 
     if (!plan) {
-      throw new Error(`No ${provider} plan priced for a ${days} day period`);
+      throw new Error(`No ${provider} plan priced in ${currency} for a ${days} day period`);
     }
 
     return plan;
@@ -65,23 +77,28 @@ export class PlanService {
    * Whether a paid period was the provider's one-time trial. A period with no
    * plan — an extra device, or a legacy period — is not.
    */
-  async isTrial(provider: PlanProvider, days: number): Promise<boolean> {
-    return (await this.planForPeriod(provider, days))?.type === 'one_time';
+  async isTrial(provider: PlanProvider, days: number, currency: string): Promise<boolean> {
+    return (await this.planForPeriod(provider, days, currency))?.type === 'one_time';
   }
 
   /**
-   * The plan a paid amount (major units, e.g. 0.99) was for, on sale or not. Throws
-   * rather than guess when no plan, or more than one period, matches.
+   * The plan a paid amount (major units of `currency`, e.g. 0.99) was for, on
+   * sale or not. Throws rather than guess when no plan, or more than one
+   * period, matches.
    */
-  async findByAmount(provider: PlanProvider, amount: number): Promise<Plan> {
-    const matches = (await this.plansOf(provider)).filter((row) => row.basePrice === amount);
+  async findByAmount(provider: PlanProvider, amount: number, currency: string): Promise<Plan> {
+    const matches = (await this.plansOf(provider, currency)).filter(
+      (row) => row.basePrice === amount,
+    );
     const periods = new Set(matches.map((row) => row.billingPeriod));
 
     if (matches.length === 0) {
-      throw new Error(`Unrecognized ${provider} amount: ${amount}`);
+      throw new Error(`Unrecognized ${provider} amount: ${amount} ${currency}`);
     }
     if (periods.size > 1) {
-      throw new Error(`Ambiguous ${provider} amount ${amount}: matches periods ${[...periods]}`);
+      throw new Error(
+        `Ambiguous ${provider} amount ${amount} ${currency}: matches periods ${[...periods]}`,
+      );
     }
 
     return matches[0];
@@ -95,17 +112,27 @@ export class PlanService {
     provider: PlanProvider,
     providerPriceId: string,
   ): Promise<Plan | undefined> {
-    return (await this.plansOf(provider)).find((row) => row.providerPriceId === providerPriceId);
+    return (await this.planRepo.find()).find(
+      (row) => row.provider === provider && row.providerPriceId === providerPriceId,
+    );
   }
 
   /** The plan for a period, preferring the one on sale over a retired one. */
-  private async planForPeriod(provider: PlanProvider, days: number): Promise<Plan | undefined> {
-    const rows = (await this.plansOf(provider)).filter((row) => row.billingPeriod === days);
+  private async planForPeriod(
+    provider: PlanProvider,
+    days: number,
+    currency: string,
+  ): Promise<Plan | undefined> {
+    const rows = (await this.plansOf(provider, currency)).filter(
+      (row) => row.billingPeriod === days,
+    );
 
     return rows.find((row) => row.availableForPurchase) ?? rows[0];
   }
 
-  private async plansOf(provider: PlanProvider): Promise<Plan[]> {
-    return (await this.planRepo.find()).filter((row) => row.provider === provider);
+  private async plansOf(provider: PlanProvider, currency: string): Promise<Plan[]> {
+    return (await this.planRepo.find()).filter(
+      (row) => row.provider === provider && row.currency === currency,
+    );
   }
 }
