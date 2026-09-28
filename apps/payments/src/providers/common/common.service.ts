@@ -110,7 +110,10 @@ export class CommonService {
   }
 }
 
-/** Plans priced from the table, in each row's own currency. */
+/**
+ * Plans priced from the table, in each row's own currency. A trial is its own
+ * offer, so it is never shown as a discount on the monthly price.
+ */
 function toPlans(rows: Plan[], countryCode: string | null): SubscriptionPlanDto[] {
   const monthly = rows.find((row) => row.billingPeriod === 30);
   const basePrice = monthly ? monthly.basePrice : null;
@@ -122,7 +125,7 @@ function toPlans(rows: Plan[], countryCode: string | null): SubscriptionPlanDto[
       currency: row.currency,
       days: row.billingPeriod,
       total: row.basePrice,
-      basePrice,
+      basePrice: row.type === 'one_time' ? null : basePrice,
     }),
     countryCode,
     isTrial: row.type === 'one_time',
@@ -143,7 +146,7 @@ function applyPaddleQuote(plans: SubscriptionPlanDto[], quote: PaddleQuote): Sub
         currency: quote.currencyCode,
         days: plan.days,
         total,
-        basePrice,
+        basePrice: plan.isTrial ? null : basePrice,
       }),
       countryCode: quote.countryCode,
     };

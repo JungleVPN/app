@@ -127,6 +127,54 @@ describe('CommonService.getPlans', () => {
       ]);
     });
 
+    // A trial is its own offer, not a cut-price month: pricing it against the
+    // monthly plan would show a discount chip (or a negative one) on it.
+    it('gives a trial no discount against the monthly price', async () => {
+      service = commonService(
+        paddleClientService,
+        planServiceWith([
+          { ...plan('yookassa', 7, 30), id: 'trial', type: 'one_time' },
+          plan('yookassa', 30, 500),
+        ]),
+      );
+
+      const plans = await service.getPlans({ origin: RU_ORIGIN, clientIp: null });
+
+      expect(plans.find((row) => row.isTrial)?.planPricing).toMatchObject({
+        discountPercent: 0,
+        fullTotal: null,
+      });
+      expect(plans.find((row) => !row.isTrial)?.planPricing.fullTotal).toBe('500');
+    });
+
+    it('gives a quoted Paddle trial no discount against the quoted monthly price', async () => {
+      service = commonService(
+        paddleClientService,
+        planServiceWith([
+          { ...plan('paddle', 7, 0.99, 'pri_7'), type: 'one_time' },
+          plan('paddle', 30, 6, 'pri_30'),
+        ]),
+      );
+      paddleClientService.getPricePreview.mockResolvedValue({
+        currencyCode: 'USD',
+        address: { countryCode: 'US' },
+        details: {
+          lineItems: [
+            { price: { id: 'pri_7' }, totals: { total: '99' } },
+            { price: { id: 'pri_30' }, totals: { total: '1000' } },
+          ],
+        },
+      });
+
+      const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '203.0.113.5' });
+
+      expect(plans.find((row) => row.isTrial)?.planPricing).toMatchObject({
+        currencyCode: 'USD',
+        discountPercent: 0,
+        fullTotal: null,
+      });
+    });
+
     it('keeps a quoted Paddle trial marked as the trial', async () => {
       service = commonService(
         paddleClientService,
