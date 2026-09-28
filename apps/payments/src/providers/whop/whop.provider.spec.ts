@@ -48,6 +48,7 @@ const providerWith = (countryCode: string | null = null) => {
     cancelMembership: vi
       .fn()
       .mockResolvedValue({ cancelAtPeriodEnd: true, accessUntil: '2026-10-26T10:00:00Z' }),
+    uncancelMembership: vi.fn().mockResolvedValue({ cancelAtPeriodEnd: false }),
   };
   const savedMethodRepo = {
     find: vi.fn().mockResolvedValue([]),
@@ -478,6 +479,60 @@ describe('WhopProvider', () => {
 
       await expect(provider.cancelSubscription(1000)).rejects.toBeInstanceOf(NotFoundException);
       expect(whopClientService.cancelMembership).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('resumeSubscription', () => {
+    it("reverses the cancellation of the user's canceled membership", async () => {
+      const { provider, savedMethodRepo, whopClientService } = providerWith();
+      savedMethodRepo.find.mockResolvedValue([
+        { id: 'row-2', paymentMethodId: 'mem_2', status: 'canceled' },
+      ]);
+
+      await expect(provider.resumeSubscription(1000)).resolves.toEqual({
+        cancelAtPeriodEnd: false,
+      });
+      expect(whopClientService.uncancelMembership).toHaveBeenCalledWith('mem_2');
+    });
+
+    it('marks the membership active again, so a reload shows it renewing', async () => {
+      const { provider, savedMethodRepo } = providerWith();
+      savedMethodRepo.find.mockResolvedValue([
+        { id: 'row-2', paymentMethodId: 'mem_2', status: 'canceled' },
+      ]);
+
+      await provider.resumeSubscription(1000);
+
+      expect(savedMethodRepo.update).toHaveBeenCalledWith({ id: 'row-2' }, { status: 'active' });
+    });
+
+    it('leaves the row canceled when Whop refuses to resume it', async () => {
+      const { provider, savedMethodRepo, whopClientService } = providerWith();
+      savedMethodRepo.find.mockResolvedValue([
+        { id: 'row-2', paymentMethodId: 'mem_2', status: 'canceled' },
+      ]);
+      whopClientService.uncancelMembership.mockRejectedValue(new Error('whop down'));
+
+      await expect(provider.resumeSubscription(1000)).rejects.toThrow('whop down');
+      expect(savedMethodRepo.update).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['active'],
+      [null],
+    ])('refuses to resume a membership that is %s, without calling Whop', async (status) => {
+      const { provider, savedMethodRepo, whopClientService } = providerWith();
+      savedMethodRepo.find.mockResolvedValue([{ id: 'row-2', paymentMethodId: 'mem_2', status }]);
+
+      await expect(provider.resumeSubscription(1000)).rejects.toBeInstanceOf(ConflictException);
+      expect(whopClientService.uncancelMembership).not.toHaveBeenCalled();
+    });
+
+    it('refuses when the user has no Whop membership left to resume', async () => {
+      const { provider, whopClientService } = providerWith();
+
+      await expect(provider.resumeSubscription(1000)).rejects.toBeInstanceOf(NotFoundException);
+      expect(whopClientService.uncancelMembership).not.toHaveBeenCalled();
     });
   });
 });

@@ -21,6 +21,7 @@ import {
   type PayPublicWhopCheckoutDto,
   type ProviderSubscriptionDto,
   type WhopCancelDto,
+  type WhopResumeDto,
   type WhopCheckoutPayload,
   type WhopPaymentDto,
   type WhopPromoCodeDto,
@@ -141,6 +142,17 @@ export class WhopController {
   @UseGuards(ClientUserGuard)
   async cancelSubscription(@AuthenticatedUserId() userId: number): Promise<WhopCancelDto> {
     return this.whopProvider.cancelSubscription(userId);
+  }
+
+  /**
+   * Reverses the authenticated user's own pending cancellation. Like cancel,
+   * the user id comes only from the session.
+   */
+  @Post('resume')
+  @HttpCode(200)
+  @UseGuards(ClientUserGuard)
+  async resumeSubscription(@AuthenticatedUserId() userId: number): Promise<WhopResumeDto> {
+    return this.whopProvider.resumeSubscription(userId);
   }
 
   /**

@@ -13,6 +13,7 @@ const page = <T>(items: T[]) => ({
 const paymentsCreate = vi.fn();
 const promoCodesList = vi.fn();
 const membershipsCancel = vi.fn();
+const membershipsUpdate = vi.fn();
 const WhopClient = vi.fn();
 
 vi.mock('@whop/sdk', () => ({
@@ -23,7 +24,7 @@ vi.mock('@whop/sdk', () => ({
   WhopClient: vi.fn().mockImplementation(function WhopClientMock(options: unknown) {
     WhopClient(options);
     return {
-      memberships: { cancel: membershipsCancel },
+      memberships: { cancel: membershipsCancel, update: membershipsUpdate },
       payments: { create: paymentsCreate },
       promoCodes: { list: promoCodesList },
     };
@@ -193,17 +194,14 @@ describe('WhopClientService', () => {
       ['existing_memberships_only'],
       ['churned_users_only'],
       ['one_per_customer'],
-    ])(
-      'finds nothing for a code restricted by %s, since the payer cannot be checked against it before paying',
-      async (restriction) => {
-        promoCodesList.mockResolvedValue(page([promo({ [restriction]: true })]));
-        const service = new WhopClientService();
+    ])('finds nothing for a code restricted by %s, since the payer cannot be checked against it before paying', async (restriction) => {
+      promoCodesList.mockResolvedValue(page([promo({ [restriction]: true })]));
+      const service = new WhopClientService();
 
-        await expect(
-          service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
-        ).resolves.toBeNull();
-      },
-    );
+      await expect(
+        service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
+      ).resolves.toBeNull();
+    });
 
     it('still finds a code that expires later', async () => {
       promoCodesList.mockResolvedValue(page([promo({ expires_at: '2999-01-01T00:00:00Z' })]));
@@ -317,6 +315,22 @@ describe('WhopClientService', () => {
         accessUntil: '2026-10-26T10:00:00Z',
       });
       expect(membershipsCancel).toHaveBeenCalledWith({ id: 'mem_1', cancel_at_period_end: true });
+    });
+  });
+
+  /**
+   * `uncancel` is Legacy API only and 404s on the current API our SDK calls;
+   * there, a pending cancellation is reversed by updating the membership.
+   */
+  describe('uncancelMembership', () => {
+    it('reverses the pending cancellation, so the membership renews again', async () => {
+      membershipsUpdate.mockResolvedValue({ id: 'mem_1', cancel_at_period_end: false });
+      const service = new WhopClientService();
+
+      await expect(service.uncancelMembership('mem_1')).resolves.toEqual({
+        cancelAtPeriodEnd: false,
+      });
+      expect(membershipsUpdate).toHaveBeenCalledWith({ id: 'mem_1', cancel_at_period_end: false });
     });
   });
 });

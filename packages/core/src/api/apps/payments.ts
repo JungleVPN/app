@@ -23,6 +23,7 @@ import {
   type ValidatePromoDto,
   type ValidatePromoResponse,
   type WhopCancelDto,
+  type WhopResumeDto,
   type WhopCheckoutPayload,
   type WhopPaymentDto,
   type WhopPromoCodeDto,
@@ -116,6 +117,11 @@ export function createPaymentsApi(client: ApiClient) {
      */
     async cancelWhopSubscription(): Promise<WhopCancelDto> {
       return client.post<WhopCancelDto>(apiRoutes.payments.whopCancel, {});
+    },
+
+    /** Reverses the user's pending Whop cancellation, so it renews again. */
+    async resumeWhopSubscription(): Promise<WhopResumeDto> {
+      return client.post<WhopResumeDto>(apiRoutes.payments.whopResume, {});
     },
 
     /**

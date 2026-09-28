@@ -86,3 +86,11 @@ export interface WhopCancelDto {
   /** ISO timestamp the paid period ends; null when Whop reports none. */
   accessUntil: string | null;
 }
+
+/**
+ * The outcome of POST /payments/whop/resume: the pending cancellation is
+ * reversed and the membership renews again at the end of its period.
+ */
+export interface WhopResumeDto {
+  cancelAtPeriodEnd: boolean;
+}

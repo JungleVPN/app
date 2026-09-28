@@ -168,6 +168,10 @@
       "canceled": "Tu suscripción está cancelada y no se renovará.",
       "error": "No se pudo cancelar tu suscripción. Inténtalo de nuevo."
     },
+    "whopResume": {
+      "button": "Reanudar suscripción",
+      "error": "No se pudo reanudar tu suscripción. Inténtalo de nuevo."
+    },
     "whopSubscription": {
       "product": "Producto",
       "price": "Precio",

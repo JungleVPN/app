@@ -17,6 +17,7 @@ import {
   type WhopCheckoutPayload,
   type WhopPaymentDto,
   type WhopPromoCodeDto,
+  type WhopResumeDto,
 } from '@workspace/types';
 import { Repository } from 'typeorm';
 import { WhopClientService } from './whop-client.service';
@@ -170,6 +171,24 @@ export class WhopProvider {
     const canceled = await this.whopClientService.cancelMembership(latest.paymentMethodId);
     await this.savedMethodRepository.update({ id: latest.id }, { status: 'canceled' });
     return canceled;
+  }
+
+  /**
+   * Reverses `userId`'s pending cancellation, so the membership renews again.
+   * Only a canceled membership still in its paid period can be resumed — an
+   * ended one is terminated and no longer among the active methods.
+   */
+  async resumeSubscription(userId: number): Promise<WhopResumeDto> {
+    const [latest] = await this.findActiveMethods(userId);
+    if (!latest) {
+      throw new NotFoundException('No Whop subscription to resume');
+    }
+    if (latest.status !== 'canceled') {
+      throw new ConflictException('Whop subscription is not canceled');
+    }
+    const resumed = await this.whopClientService.uncancelMembership(latest.paymentMethodId);
+    await this.savedMethodRepository.update({ id: latest.id }, { status: 'active' });
+    return resumed;
   }
 
   private findActiveMethods(userId: number): Promise<SavedPaymentMethod[]> {

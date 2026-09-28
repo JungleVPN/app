@@ -383,6 +383,7 @@ describe('WhopController — authenticated routes', () => {
       cancelSubscription: vi
         .fn()
         .mockResolvedValue({ cancelAtPeriodEnd: true, accessUntil: '2026-10-26T10:00:00Z' }),
+      resumeSubscription: vi.fn().mockResolvedValue({ cancelAtPeriodEnd: false }),
     };
     return { controller: new WhopController(whopProvider as never), whopProvider };
   };
@@ -410,9 +411,19 @@ describe('WhopController — authenticated routes', () => {
     expect(whopProvider.cancelSubscription).toHaveBeenCalledWith(1000);
   });
 
+  it("resumes the authenticated user's own canceled subscription", async () => {
+    const { controller, whopProvider } = controllerWith();
+
+    await expect(controller.resumeSubscription(1000)).resolves.toEqual({
+      cancelAtPeriodEnd: false,
+    });
+    expect(whopProvider.resumeSubscription).toHaveBeenCalledWith(1000);
+  });
+
   it.each([
     ['getSubscriptionStatus'],
     ['cancelSubscription'],
+    ['resumeSubscription'],
   ] as const)('requires a signed-in user for %s', (method) => {
     expect(guardsOf(method)).toContain(ClientUserGuard);
   });

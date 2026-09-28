@@ -139,4 +139,17 @@ export class WhopClientService {
       accessUntil: membership.current_period_end,
     };
   }
+
+  /**
+   * Reverses `membershipId`'s pending cancellation, so it renews again at the
+   * end of its period. Only possible before that period ends. Whop's
+   * `uncancel` endpoint is Legacy API only; the current API does it by update.
+   */
+  async uncancelMembership(membershipId: string): Promise<{ cancelAtPeriodEnd: boolean }> {
+    const membership = await this.whop.memberships.update({
+      id: membershipId,
+      cancel_at_period_end: false,
+    });
+    return { cancelAtPeriodEnd: membership.cancel_at_period_end };
+  }
 }

@@ -168,6 +168,10 @@
       "canceled": "Sua assinatura foi cancelada e não será renovada.",
       "error": "Não foi possível cancelar sua assinatura. Tente novamente."
     },
+    "whopResume": {
+      "button": "Retomar assinatura",
+      "error": "Não foi possível retomar sua assinatura. Tente novamente."
+    },
     "whopSubscription": {
       "product": "Produto",
       "price": "Preço",

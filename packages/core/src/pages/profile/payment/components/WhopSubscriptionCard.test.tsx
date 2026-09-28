@@ -18,7 +18,9 @@ import ru from '../../../../core/i18n/locales/ru.json';
 import tr from '../../../../core/i18n/locales/tr.json';
 import { WhopSubscriptionCard } from './WhopSubscriptionCard';
 
-const { paymentsApi } = vi.hoisted(() => ({ paymentsApi: { cancelWhopSubscription: vi.fn() } }));
+const { paymentsApi } = vi.hoisted(() => ({
+  paymentsApi: { cancelWhopSubscription: vi.fn(), resumeWhopSubscription: vi.fn() },
+}));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -63,6 +65,7 @@ describe('WhopSubscriptionCard', () => {
       cancelAtPeriodEnd: true,
       accessUntil: '2026-10-26T10:00:00Z',
     });
+    paymentsApi.resumeWhopSubscription.mockResolvedValue({ cancelAtPeriodEnd: false });
   });
 
   it('shows the product, price, renewal date and card the subscription is on', () => {
@@ -119,6 +122,45 @@ describe('WhopSubscriptionCard', () => {
     expect(screen.queryByText(/payment\.whopSubscription\.renewsOn/)).toBeNull();
     expect(screen.queryByRole('button', { name: 'payment.whopCancel.button' })).toBeNull();
     expect(screen.getByText('Jungle VPN')).toBeTruthy();
+  });
+
+  it('offers to resume a canceled subscription, right below its details', () => {
+    render(<WhopSubscriptionCard method={whopMethod({ status: 'canceled' })} />);
+
+    const resume = screen.getByRole('button', { name: 'payment.whopResume.button' });
+    const details = screen.getByText('Jungle VPN').closest('dl');
+    expect(details?.compareDocumentPosition(resume)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it('renews again once resumed, offering to cancel instead', async () => {
+    render(<WhopSubscriptionCard method={whopMethod({ status: 'canceled' })} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'payment.whopResume.button' }));
+
+    expect(await screen.findByRole('button', { name: 'payment.whopCancel.button' })).toBeTruthy();
+    expect(paymentsApi.resumeWhopSubscription).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(/payment\.whopSubscription\.renewsOn.*October 27, 2026/)).toBeTruthy();
+    expect(screen.queryByText(/payment\.whopCancel\.endsOn/)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'payment.whopResume.button' })).toBeNull();
+  });
+
+  it('offers to resume right after cancelling, too', async () => {
+    render(<WhopSubscriptionCard method={whopMethod()} />);
+
+    await openAndConfirm();
+
+    expect(await screen.findByRole('button', { name: 'payment.whopResume.button' })).toBeTruthy();
+  });
+
+  it('says so and stays canceled when resuming fails', async () => {
+    paymentsApi.resumeWhopSubscription.mockRejectedValue(new Error('whop down'));
+    render(<WhopSubscriptionCard method={whopMethod({ status: 'canceled' })} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'payment.whopResume.button' }));
+
+    expect(await screen.findByText('payment.whopResume.error')).toBeTruthy();
+    expect(screen.getByText(/payment\.whopCancel\.endsOn/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'payment.whopResume.button' })).toBeTruthy();
   });
 
   it('offers to cancel a subscription saved before statuses were tracked', () => {
@@ -190,6 +232,16 @@ describe('WhopSubscriptionCard', () => {
       .whopCancel;
 
     expect(Object.keys(copy ?? {}).sort()).toEqual(Object.keys(en.payment.whopCancel).sort());
+    for (const text of Object.values(copy ?? {})) expect(text.trim()).not.toBe('');
+  });
+
+  it.each(
+    Object.entries({ ar, en, es, hi, id, pt, ru, tr }),
+  )('has every piece of resume copy in %s', (_language, locale) => {
+    const copy = (locale as { payment: { whopResume?: Record<string, string> } }).payment
+      .whopResume;
+
+    expect(Object.keys(copy ?? {}).sort()).toEqual(['button', 'error']);
     for (const text of Object.values(copy ?? {})) expect(text.trim()).not.toBe('');
   });
 

@@ -168,6 +168,10 @@
       "canceled": "Aboneliğin iptal edildi ve yenilenmeyecek.",
       "error": "Aboneliğin iptal edilemedi. Lütfen tekrar dene."
     },
+    "whopResume": {
+      "button": "Aboneliği sürdür",
+      "error": "Aboneliğin sürdürülemedi. Lütfen tekrar dene."
+    },
     "whopSubscription": {
       "product": "Ürün",
       "price": "Fiyat",

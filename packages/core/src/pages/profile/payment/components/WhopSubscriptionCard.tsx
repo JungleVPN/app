@@ -13,7 +13,7 @@ import { formatPeriod } from '../../../../utils/planPricing';
 type CancelState =
   | { status: 'idle' }
   | { status: 'canceling' }
-  | { status: 'canceled'; accessUntil: string | null }
+  | { status: 'canceled'; accessUntil: string | null; resume: 'idle' | 'resuming' | 'failed' }
   | { status: 'failed' };
 
 type DetailRow = { label: string; value: string };
@@ -83,9 +83,9 @@ function SubscriptionDetails({ rows }: { rows: DetailRow[] }) {
 
 /**
  * Whop's stand-in for the Stripe/Paddle "Manage subscription" button. Whop has
- * no customer portal to send the user to, so the one self-service action —
- * cancelling — happens here: behind a confirmation, at period end, so the
- * user keeps what they paid for.
+ * no customer portal to send the user to, so its self-service actions happen
+ * here: cancelling — behind a confirmation, at period end, so the user keeps
+ * what they paid for — and resuming a cancelled one before that period ends.
  *
  * Right after cancelling, the end date shown is the cancel response's. On a
  * reload it comes from the saved method: the backend marks it `canceled` and
@@ -97,7 +97,7 @@ export function WhopSubscriptionCard({ method }: { method?: SavedMethodDto }) {
   const confirm = useOverlayState();
   const [state, setState] = useState<CancelState>(() =>
     method?.status === 'canceled'
-      ? { status: 'canceled', accessUntil: method.renewsAt }
+      ? { status: 'canceled', accessUntil: method.renewsAt, resume: 'idle' }
       : { status: 'idle' },
   );
 
@@ -105,9 +105,19 @@ export function WhopSubscriptionCard({ method }: { method?: SavedMethodDto }) {
     setState({ status: 'canceling' });
     try {
       const { accessUntil } = await paymentsApi.cancelWhopSubscription();
-      setState({ status: 'canceled', accessUntil });
+      setState({ status: 'canceled', accessUntil, resume: 'idle' });
     } catch {
       setState({ status: 'failed' });
+    }
+  };
+
+  const resume = async (accessUntil: string | null) => {
+    setState({ status: 'canceled', accessUntil, resume: 'resuming' });
+    try {
+      await paymentsApi.resumeWhopSubscription();
+      setState({ status: 'idle' });
+    } catch {
+      setState({ status: 'canceled', accessUntil, resume: 'failed' });
     }
   };
 
@@ -122,9 +132,26 @@ export function WhopSubscriptionCard({ method }: { method?: SavedMethodDto }) {
   ) : null;
 
   if (state.status === 'canceled') {
+    const isResuming = state.resume === 'resuming';
     return (
       <>
         {details}
+        <Button
+          fullWidth
+          size='lg'
+          className='[--button-bg-hover:var(--color-success-soft-hover)] [--button-bg-pressed:var(--color-success-soft-hover)] [--button-bg:var(--color-success-soft)] [--button-fg:var(--color-success-soft-foreground)]'
+          isDisabled={isResuming}
+          isPending={isResuming}
+          onPress={() => resume(state.accessUntil)}
+        >
+          {({ isPending }) => (
+            <>
+              {isPending ? <Spinner color='current' size='sm' /> : null}
+              {t('payment.whopResume.button')}
+            </>
+          )}
+        </Button>
+        {state.resume === 'failed' && <Paragraph>{t('payment.whopResume.error')}</Paragraph>}
         <Paragraph className={'ml-4'}>
           {state.accessUntil
             ? t('payment.whopCancel.endsOn', {

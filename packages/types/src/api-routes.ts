@@ -31,6 +31,7 @@ export const apiRoutes = {
     whopWebhook: '/whop/webhook',
     whopSubscription: '/whop/subscription',
     whopCancel: '/whop/cancel',
+    whopResume: '/whop/resume',
     yookassaCreateSession: '/yookassa/create-session',
     yookassaPublicCreateSession: '/yookassa/public-create-session',
     yookassaWebhook: '/yookassa/webhook',

@@ -168,6 +168,10 @@
       "canceled": "Your subscription is canceled and won't renew.",
       "error": "Couldn't cancel your subscription. Please try again."
     },
+    "whopResume": {
+      "button": "Resume subscription",
+      "error": "Couldn't resume your subscription. Please try again."
+    },
     "whopSubscription": {
       "product": "Product",
       "price": "Price",
