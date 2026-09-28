@@ -70,6 +70,7 @@ h3 {
   --has-tabbar: 1;
   --overscroll-top: var(--background);
   --overscroll-bottom: var(--background);
+  --success: oklch(0.48 0.12 155.1 / 0.87);
 }
 
 /* ─── Web dark theme ─────────────────────────────────────────────────────── */
