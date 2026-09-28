@@ -40,7 +40,11 @@ export function useWhopPayment(plan: SubscriptionPlanDto | undefined) {
         toltReferralId: window.tolt_referral ?? null,
         inviterId: getReferralUserId() ?? undefined,
       };
-      const { accountId, planId: whopPlanId } = await paymentsApi.createPublicWhopCheckout(request);
+      const {
+        accountId,
+        planId: whopPlanId,
+        renews,
+      } = await paymentsApi.createPublicWhopCheckout(request);
 
       phCapture('checkout_started', { payment_provider: 'whop', days: plan.days });
 
@@ -48,8 +52,10 @@ export function useWhopPayment(plan: SubscriptionPlanDto | undefined) {
         state: {
           accountId,
           whopPlanId,
+          renews,
           request,
           selectedPeriod: plan.days,
+          charge: { amount: plan.planPricing.total, currency: plan.planPricing.currencyCode },
         } satisfies WhopCheckoutState,
       });
     } catch (error) {

@@ -4,7 +4,7 @@
  * checkout route that mounts Whop's card fields.
  */
 import { act, renderHook } from '@testing-library/react';
-import { ACTIVE_SUBSCRIPTION_CODE } from '@workspace/types';
+import { ACTIVE_SUBSCRIPTION_CODE, type SubscriptionPlanDto } from '@workspace/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiClientError } from '../../../../api';
 import { useWhopPayment } from './useWhopPayment';
@@ -27,7 +27,19 @@ vi.mock('../../../../runtime', () => ({
 vi.mock('../../../../stores', () => ({ useAuthStoreInfo: () => auth }));
 vi.mock('../../../../utils', () => ({ getReferralUserId: () => 7, phCapture }));
 
-const plan = { planId: 'plan-90', days: 90 } as never;
+const plan = {
+  planId: 'plan-90',
+  days: 90,
+  planPricing: {
+    total: '14.99',
+    monthly: '5.00',
+    fullTotal: null,
+    discountPercent: 0,
+    currencyCode: 'EUR',
+  },
+  countryCode: null,
+  isTrial: false,
+} satisfies SubscriptionPlanDto;
 
 describe('useWhopPayment', () => {
   beforeEach(() => {
@@ -35,6 +47,7 @@ describe('useWhopPayment', () => {
     paymentsApi.createPublicWhopCheckout.mockResolvedValue({
       accountId: 'biz_1',
       planId: 'plan_q',
+      renews: true,
     });
   });
 
@@ -60,6 +73,7 @@ describe('useWhopPayment', () => {
       state: {
         accountId: 'biz_1',
         whopPlanId: 'plan_q',
+        renews: true,
         request: {
           email: 'account@test.com',
           planId: 'plan-90',
@@ -67,12 +81,29 @@ describe('useWhopPayment', () => {
           inviterId: 7,
         },
         selectedPeriod: 90,
+        charge: { amount: '14.99', currency: 'EUR' },
       },
     });
     expect(phCapture).toHaveBeenCalledWith('checkout_started', {
       payment_provider: 'whop',
       days: 90,
     });
+  });
+
+  it("marks a one-time plan as not renewing, so a wallet isn't saved for renewals", async () => {
+    paymentsApi.createPublicWhopCheckout.mockResolvedValue({
+      accountId: 'biz_1',
+      planId: 'plan_once',
+      renews: false,
+    });
+    const { result } = renderHook(() => useWhopPayment(plan));
+
+    await act(() => result.current.handleWhopPayment());
+
+    expect(navigate).toHaveBeenCalledWith(
+      '/profile/checkout',
+      expect.objectContaining({ state: expect.objectContaining({ renews: false }) }),
+    );
   });
 
   it('prefers an email the payer typed in over the account email', async () => {
