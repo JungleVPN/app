@@ -8,7 +8,9 @@ async function bootstrap() {
 
   // So that @Ip() and req.ip resolve to the real client IP from
   // X-Forwarded-For instead of the Docker internal gateway address.
-  trustReverseProxy(app.getHttpAdapter().getInstance());
+  trustReverseProxy(app.getHttpAdapter().getInstance(), {
+    trustedHops: process.env.TRUSTED_PROXY_HOPS,
+  });
 
   const corsOriginEnv = process.env.CORS_ORIGIN;
   if (!corsOriginEnv) {

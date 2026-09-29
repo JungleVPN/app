@@ -16,9 +16,12 @@ import express from 'express';
 import { describe, expect, it } from 'vitest';
 import { trustReverseProxy } from '../trust-reverse-proxy';
 
-async function resolveClientIp(headers: Record<string, string> = {}): Promise<string> {
+async function resolveClientIp(
+  headers: Record<string, string> = {},
+  trustedHops?: string,
+): Promise<string> {
   const app = express();
-  trustReverseProxy(app);
+  trustReverseProxy(app, { trustedHops });
   app.get('/ip', (req, res) => {
     res.send(req.ip);
   });
@@ -60,4 +63,34 @@ describe('client IP behind the reverse proxy', () => {
 
     expect(ip).toBe('127.0.0.1');
   });
+
+  it('is the address the outermost trusted proxy saw when more hops are configured', async () => {
+    const ip = await resolveClientIp(
+      { 'x-forwarded-for': '185.71.76.1, 5.255.255.5, 81.84.17.141' },
+      '2',
+    );
+
+    expect(ip).toBe('5.255.255.5');
+  });
+
+  it('trusts a single hop when configured to one', async () => {
+    const ip = await resolveClientIp({ 'x-forwarded-for': '5.255.255.5, 81.84.17.141' }, '1');
+
+    expect(ip).toBe('81.84.17.141');
+  });
+
+  it('trusts a single hop when the configured value is blank', async () => {
+    const ip = await resolveClientIp({ 'x-forwarded-for': '5.255.255.5, 81.84.17.141' }, '');
+
+    expect(ip).toBe('81.84.17.141');
+  });
+
+  it.each(['0', '-1', '1.5', 'abc', 'true', '2 hops'])(
+    'refuses to start with %j trusted hops',
+    (trustedHops) => {
+      expect(() => trustReverseProxy(express(), { trustedHops })).toThrow(
+        `TRUSTED_PROXY_HOPS must be a positive integer, got "${trustedHops}"`,
+      );
+    },
+  );
 });
