@@ -112,6 +112,31 @@ jobs:
     # DEPLOY_* are production's. Staging has its own STAGING_DEPLOY_* set below —
     # do not reuse these there, or a stage push lands on this host.
     steps:
+      - name: Checkout
+        run: |
+          git init
+          git remote add origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+          git fetch --depth 1 origin ${{ github.sha }}
+          git checkout FETCH_HEAD
+
+      # The server only has what CI puts there — without this its compose files
+      # stay at whatever version was copied up by hand.
+      - name: Sync compose files to the server
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USER }}
+          DIR: ${{ secrets.DEPLOY_PATH }}
+          PORT: ${{ secrets.DEPLOY_PORT }}
+        run: |
+          echo "$DEPLOY_KEY" > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+          scp -q -i /tmp/deploy_key -o StrictHostKeyChecking=no -P "$PORT" \
+            compose.yml compose.prod.yml compose.staging.yml "$USER@$HOST:$DIR/"
+          scp -q -i /tmp/deploy_key -o StrictHostKeyChecking=no -P "$PORT" \
+            scripts/sync-db-password.sh "$USER@$HOST:$DIR/scripts/"
+          rm -f /tmp/deploy_key
+
       - name: Deploy via SSH
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
@@ -157,6 +182,31 @@ jobs:
             echo "::error::Missing staging secrets:$missing — refusing to deploy in case it lands on production."
             exit 1
           fi
+
+      - name: Checkout
+        run: |
+          git init
+          git remote add origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+          git fetch --depth 1 origin ${{ github.sha }}
+          git checkout FETCH_HEAD
+
+      # The server only has what CI puts there — without this its compose files
+      # stay at whatever version was copied up by hand.
+      - name: Sync compose files to the server
+        env:
+          DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+          HOST: ${{ secrets.STAGING_DEPLOY_HOST }}
+          USER: ${{ secrets.STAGING_DEPLOY_USER }}
+          DIR: ${{ secrets.STAGING_DEPLOY_PATH }}
+          PORT: ${{ secrets.STAGING_DEPLOY_PORT }}
+        run: |
+          echo "$DEPLOY_KEY" > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+          scp -q -i /tmp/deploy_key -o StrictHostKeyChecking=no -P "$PORT" \
+            compose.yml compose.prod.yml compose.staging.yml "$USER@$HOST:$DIR/"
+          scp -q -i /tmp/deploy_key -o StrictHostKeyChecking=no -P "$PORT" \
+            scripts/sync-db-password.sh "$USER@$HOST:$DIR/scripts/"
+          rm -f /tmp/deploy_key
 
       - name: Deploy via SSH
         env:
