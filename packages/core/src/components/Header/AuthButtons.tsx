@@ -5,7 +5,7 @@ import { useLocation } from 'react-router';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes, useSupabaseClient } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo } from '../../stores';
-import { isLandingPath, PRICING_PATH, scrollToTop } from '../../utils';
+import { isLandingPath, localizePath, PRICING_PATH, scrollToTop } from '../../utils';
 
 export function AuthButtons() {
   const supabase = useSupabaseClient();
@@ -25,7 +25,7 @@ export function AuthButtons() {
   };
 
   const handleTryNow = () => {
-    if (location.pathname === PRICING_PATH) {
+    if (location.pathname === localizePath(PRICING_PATH, location.pathname)) {
       scrollToTop();
     }
 

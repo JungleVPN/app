@@ -1,12 +1,11 @@
 import { Button, Dropdown, Label } from '@heroui/react';
 import type { TSubscriptionPageLanguageCode } from '@remnawave/subscription-page-types';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useRemnawaveApi } from '../../api';
 import { isLocaleAllowed } from '../../core/i18n';
-import { useNavigation } from '../../hooks';
 import { useAuthStore, useSubscriptionConfigStoreActions } from '../../stores';
-import { isLandingPath } from '../../utils';
+import { isMarketingPath, pathForLocale } from '../../utils';
 
 const LANGUAGE_FLAGS: Record<string, string> = {
   ar: '🇦🇪',
@@ -18,18 +17,14 @@ const LANGUAGE_FLAGS: Record<string, string> = {
   tr: '🇹🇷',
 };
 
-/** `en` has no prefix (`/`), every other supported language routes as `/<lang>`. */
-function pathForLocale(locale: string): string {
-  return locale === 'en' ? '/' : `/${locale}`;
-}
-
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
   const { setLanguage } = useSubscriptionConfigStoreActions();
   const remnawaveApi = useRemnawaveApi();
   const rmnUser = useAuthStore((s) => s.rmnUser);
   const location = useLocation();
-  const navigate = useNavigation();
+  // Plain router navigate: useNavigation would re-apply the current language prefix.
+  const navigate = useNavigate();
 
   const handleLanguageChange = async (newLocale: string) => {
     await i18n.changeLanguage(newLocale);
@@ -37,10 +32,10 @@ export function LanguageSwitcher() {
     if (rmnUser?.id) {
       await remnawaveApi.upsertMyMetadata({ lang: newLocale });
     }
-    // Only the landing page is mirrored in the URL — elsewhere the
+    // Only marketing pages are mirrored in the URL — elsewhere the
     // language switch stays purely client-side and the path is left alone.
-    if (isLandingPath(location.pathname)) {
-      navigate(pathForLocale(newLocale), { replace: true });
+    if (isMarketingPath(location.pathname)) {
+      navigate(pathForLocale(location.pathname, newLocale), { replace: true });
     }
   };
 

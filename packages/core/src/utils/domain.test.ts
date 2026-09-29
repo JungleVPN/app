@@ -7,9 +7,11 @@ import {
   isMarketingPath,
   isPlansOrPaymentPlanPath,
   localePolicyForHost,
+  localizePath,
   markdownPathFor,
   normalizeHostname,
   parseDomains,
+  pathForLocale,
   resolveLocaleForHost,
   resolveLocaleForRequest,
   setRequestHostname,
@@ -186,8 +188,61 @@ describe('isMarketingPath', () => {
     expect(isMarketingPath(pathname)).toBe(true);
   });
 
-  it.each(['/login', '/profile/referrals'])('is false for %s', (pathname) => {
+  it.each([
+    '/ar/pricing',
+    '/tr/locations',
+    '/es/what-is-vpn',
+    '/en/my-ip',
+    '/hi/referrals',
+  ])('is true for the language-prefixed marketing surface %s', (pathname) => {
+    expect(isMarketingPath(pathname)).toBe(true);
+  });
+
+  it.each([
+    '/login',
+    '/profile/referrals',
+    '/ar/login',
+    '/ru/pricing',
+  ])('is false for %s', (pathname) => {
     expect(isMarketingPath(pathname)).toBe(false);
+  });
+});
+
+describe('pathForLocale', () => {
+  it('moves a marketing page to another language', () => {
+    expect(pathForLocale('/pricing', 'ar')).toBe('/ar/pricing');
+    expect(pathForLocale('/ar/pricing', 'tr')).toBe('/tr/pricing');
+    expect(pathForLocale('/ar', 'es')).toBe('/es');
+  });
+
+  it('drops the prefix for English', () => {
+    expect(pathForLocale('/ar/pricing', 'en')).toBe('/pricing');
+    expect(pathForLocale('/ar', 'en')).toBe('/');
+  });
+});
+
+describe('localizePath', () => {
+  it('keeps the current language prefix on marketing pages', () => {
+    expect(localizePath('/pricing', '/ar')).toBe('/ar/pricing');
+    expect(localizePath('/locations', '/tr/pricing')).toBe('/tr/locations');
+  });
+
+  it('points the landing page at the language root', () => {
+    expect(localizePath('/', '/es/what-is-vpn')).toBe('/es');
+  });
+
+  it('leaves paths unprefixed when the current page has no language prefix', () => {
+    expect(localizePath('/pricing', '/')).toBe('/pricing');
+    expect(localizePath('/pricing', '/login')).toBe('/pricing');
+  });
+
+  it('leaves non-marketing paths alone', () => {
+    expect(localizePath('/login', '/ar')).toBe('/login');
+    expect(localizePath('/profile/subscription', '/ar/pricing')).toBe('/profile/subscription');
+  });
+
+  it('does not re-prefix a path that already carries a language', () => {
+    expect(localizePath('/tr/pricing', '/ar')).toBe('/tr/pricing');
   });
 });
 
@@ -289,7 +344,12 @@ describe('resolveLocaleForRequest', () => {
     expect(resolveLocaleForRequest('localhost', '/login', domains)).toBe('en');
   });
 
-  it('only matches exact language landing paths, not a leading segment on a deeper route', () => {
+  it('serves the prefixed language on language-prefixed marketing pages', () => {
+    expect(resolveLocaleForRequest('jungle-vpn.com', '/ar/pricing', domains)).toBe('ar');
+    expect(resolveLocaleForRequest('jungle-vpn.com', '/tr/locations', domains)).toBe('tr');
+  });
+
+  it('ignores a language segment in front of a non-marketing route', () => {
     expect(resolveLocaleForRequest('jungle-vpn.com', '/ar/nested', domains)).toBe('en');
     expect(resolveLocaleForRequest('jungle-vpn.com', '/id/nested', domains)).toBe('en');
     expect(resolveLocaleForRequest('jungle-vpn.com', '/hi/nested', domains)).toBe('en');

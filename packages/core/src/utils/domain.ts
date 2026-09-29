@@ -159,14 +159,49 @@ export const MY_IP_PATH = '/my-ip';
  * which share the same transparent, nav-carrying header.
  */
 export function isMarketingPath(pathname: string): boolean {
-  return (
-    isLandingPath(pathname) ||
-    pathname === PRICING_PATH ||
-    pathname === REFERRALS_PATH ||
-    pathname === LOCATIONS_PATH ||
-    pathname === WHAT_IS_VPN_PATH ||
-    pathname === MY_IP_PATH
-  );
+  return isUnprefixedMarketingPath(splitLocalePrefix(pathname).path);
+}
+
+/** The marketing pages that also route under a language prefix, e.g. `/ar/pricing`. */
+export const LOCALIZED_MARKETING_PATHS: readonly string[] = [
+  PRICING_PATH,
+  REFERRALS_PATH,
+  LOCATIONS_PATH,
+  WHAT_IS_VPN_PATH,
+  MY_IP_PATH,
+];
+
+function isUnprefixedMarketingPath(pathname: string): boolean {
+  return pathname === '/' || LOCALIZED_MARKETING_PATHS.includes(pathname);
+}
+
+/**
+ * Splits a marketing path into its language prefix and the page underneath: `/ar/pricing`
+ * is Arabic `/pricing`, `/ar` is Arabic `/`. Anything else has no language prefix.
+ */
+function splitLocalePrefix(pathname: string): { locale: string | null; path: string } {
+  const [, segment = '', ...rest] = pathname.split('/');
+  const path = `/${rest.join('/')}`;
+  const isPathLocale = segment === 'en' || GLOBAL_PATH_LOCALES.includes(segment);
+  if (isPathLocale && isUnprefixedMarketingPath(path)) return { locale: segment, path };
+  return { locale: null, path: pathname };
+}
+
+/** The same marketing page in another language: `/ar/pricing` in Turkish is `/tr/pricing`. */
+export function pathForLocale(pathname: string, locale: string): string {
+  const { path } = splitLocalePrefix(pathname);
+  return locale === 'en' ? path : localizePath(path, `/${locale}`);
+}
+
+/**
+ * Carries the current page's language prefix over to a marketing link, so navigating
+ * from `/ar` to the pricing page lands on `/ar/pricing` rather than dropping back to
+ * English. Non-marketing paths and paths that already name a language are left alone.
+ */
+export function localizePath(to: string, currentPathname: string): string {
+  const { locale } = splitLocalePrefix(currentPathname);
+  if (!locale || !isUnprefixedMarketingPath(to)) return to;
+  return to === '/' ? `/${locale}` : `/${locale}${to}`;
 }
 
 export function isProfilePath(pathname: string): boolean {
@@ -210,8 +245,8 @@ export function markdownPathFor(pathname: string): string {
 }
 
 /**
- * The language to render for a given host + path. An exact global-language landing path
- * wins on the global domain and on any unrestricted host (Mini App,
+ * The language to render for a given host + path. A global-language landing or marketing
+ * path (`/ar`, `/ar/pricing`) wins on the global domain and on any unrestricted host (Mini App,
  * previews, localhost during development); `/` and every other path fall back to
  * the host's normal resolution. RU-only hosts always render Russian, path or not.
  *
@@ -228,8 +263,8 @@ export function resolveLocaleForRequest(
   const allowed = localePolicyForHost(hostname, domains);
   if (allowed === RU_ONLY) return 'ru';
 
-  const segment = pathname.slice(1);
-  if (segment === 'en' || GLOBAL_PATH_LOCALES.includes(segment)) return segment;
+  const { locale } = splitLocalePrefix(pathname);
+  if (locale) return locale;
 
   return allowed?.[0] ?? resolveLocaleForHost(hostname, domains, fallback);
 }

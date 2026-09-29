@@ -1,8 +1,8 @@
 import { Card } from '@heroui/react';
 import type { ReactNode } from 'react';
-import { Link } from 'react-router';
 import { Heading } from '../../ui/Heading';
 import { Paragraph } from '../../ui/Paragraph';
+import { Link } from '../Link/Link';
 
 type FeatureCardProps = {
   variant?: 'feature';
@@ -39,7 +39,7 @@ export function ContentCard(props: ContentCardProps) {
           {description && <Paragraph className={'max-w-md text-muted'}>{description}</Paragraph>}
         </div>
         {learnMoreLabel && (
-          <Link to={learnMoreHref} className='mt-10 text-sm font-medium underline'>
+          <Link href={learnMoreHref} className='mt-10 text-sm font-medium underline'>
             {learnMoreLabel}
           </Link>
         )}

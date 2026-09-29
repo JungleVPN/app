@@ -1,4 +1,12 @@
 import { LandingLayout, ProfileLayout } from '@workspace/core';
+import {
+  LANDING_PATHS,
+  LOCATIONS_PATH,
+  MY_IP_PATH,
+  PRICING_PATH,
+  REFERRALS_PATH,
+  WHAT_IS_VPN_PATH,
+} from '@workspace/core/utils';
 import type { ComponentType } from 'react';
 
 import { WebAppLayout } from '@/layouts/WebAppLayout';
@@ -20,81 +28,34 @@ export function createRoutes(
   WhatIsVpnPage: ComponentType,
   MyIpPage: ComponentType,
 ) {
+  // Every marketing page also routes under each landing's language prefix, e.g. `/ar/pricing`.
+  const marketingPages: [string, ComponentType][] = [
+    [PRICING_PATH, Pricing],
+    [LOCATIONS_PATH, LocationsPage],
+    [WHAT_IS_VPN_PATH, WhatIsVpnPage],
+    [MY_IP_PATH, MyIpPage],
+    [REFERRALS_PATH, ReferralsPage],
+  ];
+
   return [
     {
       Component: WebAppLayout,
       children: [
-        {
-          path: '/',
-          Component: LandingLayout,
-          children: [{ index: true, Component: Landing }],
-        },
-        {
-          path: '/en',
-          Component: LandingLayout,
-          children: [{ index: true, Component: Landing }],
-        },
-        {
-          path: '/ar',
-          Component: LandingLayout,
-          children: [{ index: true, Component: Landing }],
-        },
-        {
-          path: '/tr',
-          Component: LandingLayout,
-          children: [{ index: true, Component: Landing }],
-        },
-        {
-          path: '/id',
-          Component: LandingLayout,
-          children: [{ index: true, Component: Landing }],
-        },
-        {
-          path: '/hi',
-          Component: LandingLayout,
-          children: [{ index: true, Component: Landing }],
-        },
-        {
-          path: '/pt',
-          Component: LandingLayout,
-          children: [{ index: true, Component: Landing }],
-        },
-        {
-          path: '/es',
-          Component: LandingLayout,
-          children: [{ index: true, Component: Landing }],
-        },
-
-        {
-          path: '/pricing',
-          Component: LandingLayout,
-          children: [{ index: true, Component: Pricing }],
-        },
-        {
-          path: '/locations',
-          Component: LandingLayout,
-          children: [{ index: true, Component: LocationsPage }],
-        },
-        {
-          path: '/what-is-vpn',
-          Component: LandingLayout,
-          children: [{ index: true, Component: WhatIsVpnPage }],
-        },
-        {
-          path: '/my-ip',
-          Component: LandingLayout,
-          children: [{ index: true, Component: MyIpPage }],
-        },
-        {
-          path: '/referrals',
-          Component: LandingLayout,
-          children: [
+        ...[...LANDING_PATHS].flatMap((landingPath) => {
+          const prefix = landingPath === '/' ? '' : landingPath;
+          return [
             {
-              index: true,
-              Component: ReferralsPage,
+              path: landingPath,
+              Component: LandingLayout,
+              children: [{ index: true, Component: Landing }],
             },
-          ],
-        },
+            ...marketingPages.map(([path, Page]) => ({
+              path: `${prefix}${path}`,
+              Component: LandingLayout,
+              children: [{ index: true, Component: Page }],
+            })),
+          ];
+        }),
         {
           Component: WebRootLayout,
           children: [

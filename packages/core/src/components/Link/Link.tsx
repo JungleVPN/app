@@ -1,5 +1,6 @@
 import { type FC, type JSX } from 'react';
-import { Link as RouterLink } from 'react-router';
+import { Link as RouterLink, useLocation } from 'react-router';
+import { localizePath } from '../../utils/domain';
 
 export interface LinkProps extends Omit<JSX.IntrinsicElements['a'], 'href'> {
   href: string;
@@ -11,7 +12,8 @@ export interface LinkProps extends Omit<JSX.IntrinsicElements['a'], 'href'> {
  * - External URLs (`http:`/`https:`) render as `<a>`.
  * - `target="_blank"` forces `<a>` — avoid that for in-app paths (e.g. `/terms`): memory routers
  *   have no real URL, so a plain `<a>` triggers full navigation instead of `<RouterLink>`.
- * - Otherwise paths use React Router `<RouterLink>`.
+ * - Otherwise paths use React Router `<RouterLink>`, keeping the current language prefix on
+ *   marketing pages (see `localizePath`).
  */
 export const Link: FC<LinkProps> = ({ className, onClick, href, target, children, ...rest }) => {
   const isExternal = href.startsWith('http') || target === '_blank';
@@ -32,7 +34,17 @@ export const Link: FC<LinkProps> = ({ className, onClick, href, target, children
   }
 
   return (
-    <RouterLink {...rest} to={href} onClick={onClick} className={className}>
+    <InternalLink {...rest} href={href} onClick={onClick} className={className}>
+      {children}
+    </InternalLink>
+  );
+};
+
+const InternalLink: FC<LinkProps> = ({ href, children, ...rest }) => {
+  const { pathname } = useLocation();
+
+  return (
+    <RouterLink {...rest} to={localizePath(href, pathname)}>
       {/*@ts-ignore*/}
       {children}
     </RouterLink>

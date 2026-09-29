@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
-import { type NavigateOptions, type To, useNavigate } from 'react-router';
+import { type NavigateOptions, type To, useLocation, useNavigate } from 'react-router';
+import { localizePath } from '../utils/domain';
 
 interface NavigationOptions extends NavigateOptions {
   target?: 'self' | 'blank';
@@ -7,6 +8,7 @@ interface NavigationOptions extends NavigateOptions {
 
 export function useNavigation() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   return useCallback(
     (to: To | number, options?: NavigationOptions) => {
@@ -20,8 +22,8 @@ export function useNavigation() {
         return;
       }
 
-      navigate(to, options);
+      navigate(typeof to === 'string' ? localizePath(to, pathname) : to, options);
     },
-    [navigate],
+    [navigate, pathname],
   );
 }

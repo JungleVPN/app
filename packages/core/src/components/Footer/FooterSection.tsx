@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import Logo from '../../assets/Logo_dark.svg?react';
 import LogoDark from '../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../hooks';
 import { Container } from '../../ui';
 import { Paragraph } from '../../ui/Paragraph';
-import { LOCATIONS_PATH, scrollToTop, WHAT_IS_VPN_PATH } from '../../utils';
+import { LOCATIONS_PATH, localizePath, scrollToTop, WHAT_IS_VPN_PATH } from '../../utils';
 import { LanguageSwitcher } from '../Header/LanguageSwitcher';
 import { PaymentMethodIcons } from '../PaymentMethods/PaymentMethodIcons';
 import { Platforms } from '../Platforms/Platforms';
@@ -41,6 +41,7 @@ const linkClass = 'text-sm mix-blend-normal transition-colors';
 export function FooterSection() {
   const { t } = useTranslation();
   const { theme } = useTheme();
+  const { pathname } = useLocation();
 
   return (
     <footer className='w-full'>
@@ -70,7 +71,12 @@ export function FooterSection() {
               const label = t(`landing.footer.${key}`);
               if (def.type === 'internal') {
                 return (
-                  <Link key={key} to={def.to} className={linkClass} preventScrollReset={false}>
+                  <Link
+                    key={key}
+                    to={localizePath(def.to, pathname)}
+                    className={linkClass}
+                    preventScrollReset={false}
+                  >
                     {label}
                   </Link>
                 );
