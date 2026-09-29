@@ -5,6 +5,9 @@ x-app-build: &app-build
     TURBO_CONCURRENCY: ${TURBO_CONCURRENCY:-7}
   secrets:
     - env
+    - env_public
+    - env_payments
+    - env_secrets
 
 # Reusable healthcheck for NestJS services — TCP-only so no HTTP 404s flood logs.
 # The NestJS apps have a global prefix (/remnawave, /payments, etc.) so hitting /
@@ -20,7 +23,7 @@ services:
   db:
     image: postgres:17.6
     container_name: jungle-database
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     # sync-db-password.sh wraps the normal postgres entrypoint and runs
     # ALTER USER after every startup so POSTGRES_PASSWORD in .env is always
     # the active password — even when the data volume already exists.
@@ -52,7 +55,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
 
   remnawave:
     build:
@@ -66,7 +69,7 @@ services:
         condition: service_healthy
       migration:
         condition: service_completed_successfully
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${REMNAWAVE_PORT}:${REMNAWAVE_PORT}"
     restart: always
@@ -88,7 +91,7 @@ services:
         condition: service_completed_successfully
       remnawave:
         condition: service_healthy
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${PAYMENTS_PORT}:${PAYMENTS_PORT}"
     restart: always
@@ -108,7 +111,7 @@ services:
         condition: service_healthy
       migration:
         condition: service_completed_successfully
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${ANALYTICS_PORT}:${ANALYTICS_PORT}"
     restart: always
@@ -130,7 +133,7 @@ services:
         condition: service_completed_successfully
       remnawave:
         condition: service_healthy
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${REFERRALS_PORT}:${REFERRALS_PORT}"
     restart: always
@@ -150,7 +153,7 @@ services:
         condition: service_healthy
       migration:
         condition: service_completed_successfully
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${BROADCASTS_PORT}:${BROADCASTS_PORT}"
     restart: always
@@ -172,7 +175,7 @@ services:
         condition: service_completed_successfully
       payments:
         condition: service_healthy
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${WEBHOOK_PORT}:${WEBHOOK_PORT}"
     restart: always
@@ -234,7 +237,7 @@ services:
         condition: service_healthy
       broadcasts:
         condition: service_healthy
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${BOT_PORT:-7070}:${BOT_PORT:-7070}"
     restart: always
@@ -253,3 +256,9 @@ networks:
 secrets:
   env:
     file: .env
+  env_public:
+    file: .env.public
+  env_payments:
+    file: .env.payments
+  env_secrets:
+    file: .env.secrets

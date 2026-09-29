@@ -21,10 +21,10 @@ import { WhopPayment } from './entities/whop-payment.entity';
 import { WhopRefund } from './entities/whop-refund.entity';
 import { YookassaPayment } from './entities/yookassa-payment.entity';
 
-config({ path: path.resolve(process.cwd(), '.env.development') });
-config({ path: path.resolve(process.cwd(), '../../.env.development') });
-config({ path: path.resolve(process.cwd(), '.env') });
-config({ path: path.resolve(process.cwd(), '../../.env') });
+for (const file of ['.env', '.env.public', '.env.payments', '.env.secrets']) {
+  config({ path: path.resolve(process.cwd(), file) });
+  config({ path: path.resolve(process.cwd(), '../../', file) });
+}
 
 // Anything this glob matches is require()d and run as a migration, so it must
 // not reach test files: a compiled *.spec.js here crashes the migration

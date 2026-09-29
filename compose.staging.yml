@@ -12,7 +12,7 @@ services:
   db:
     image: postgres:17.6
     container_name: stage-jungle-database
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     entrypoint: ["sh", "/usr/local/bin/sync-db-password.sh"]
     command: ["postgres"]
     ports:
@@ -38,7 +38,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
 
   remnawave:
     <<: *app-image
@@ -51,7 +51,7 @@ services:
         condition: service_healthy
       migration:
         condition: service_completed_successfully
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${REMNAWAVE_PORT}:${REMNAWAVE_PORT}"
     restart: always
@@ -72,7 +72,7 @@ services:
         condition: service_completed_successfully
       remnawave:
         condition: service_healthy
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${PAYMENTS_PORT}:${PAYMENTS_PORT}"
     restart: always
@@ -91,7 +91,7 @@ services:
         condition: service_healthy
       migration:
         condition: service_completed_successfully
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${ANALYTICS_PORT}:${ANALYTICS_PORT}"
     restart: always
@@ -112,7 +112,7 @@ services:
         condition: service_completed_successfully
       remnawave:
         condition: service_healthy
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${REFERRALS_PORT}:${REFERRALS_PORT}"
     restart: always
@@ -131,7 +131,7 @@ services:
         condition: service_healthy
       migration:
         condition: service_completed_successfully
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${BROADCASTS_PORT}:${BROADCASTS_PORT}"
     restart: always
@@ -152,7 +152,7 @@ services:
         condition: service_completed_successfully
       payments:
         condition: service_healthy
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${WEBHOOK_PORT}:${WEBHOOK_PORT}"
     restart: always
@@ -166,7 +166,7 @@ services:
     command: ["node", "apps/web/server.js"]
     networks:
       - jungle-stage-net
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${WEB_PORT:-7080}:${WEB_PORT:-7080}"
     restart: always
@@ -183,7 +183,7 @@ services:
     command: ["apps/tma/node_modules/.bin/serve", "apps/tma/dist", "--single", "--listen", "tcp://0.0.0.0:${TMA_PORT:-7090}"]
     networks:
       - jungle-stage-net
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${TMA_PORT:-7090}:${TMA_PORT:-7090}"
     restart: always
@@ -213,7 +213,7 @@ services:
         condition: service_healthy
       broadcasts:
         condition: service_healthy
-    env_file: .env
+    env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${BOT_PORT:-7070}:${BOT_PORT:-7070}"
     restart: always

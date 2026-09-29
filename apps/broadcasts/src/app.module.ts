@@ -9,7 +9,7 @@ import { BroadcastService } from './main/broadcast.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['../../.env.development', '../../.env'],
+      envFilePath: ['../../.env', '../../.env.public', '../../.env.payments', '../../.env.secrets'],
       expandVariables: true,
     }),
     TypeOrmModule.forRoot(dataSourceOptions),

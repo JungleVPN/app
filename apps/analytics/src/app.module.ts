@@ -12,7 +12,7 @@ import { PostHogExceptionFilter } from './posthog/posthog-exception.filter';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['../../.env.development', '../../.env'],
+      envFilePath: ['../../.env', '../../.env.public', '../../.env.payments', '../../.env.secrets'],
       expandVariables: true,
     }),
     TypeOrmModule.forRoot(dataSourceOptions),

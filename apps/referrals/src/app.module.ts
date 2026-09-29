@@ -15,7 +15,7 @@ import { ReferralsNotificationModule } from './notifications/referrals-notificat
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['../../.env.development', '../../.env'],
+      envFilePath: ['../../.env', '../../.env.public', '../../.env.payments', '../../.env.secrets'],
       expandVariables: true,
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
@@ -24,6 +24,12 @@ import { ReferralsNotificationModule } from './notifications/referrals-notificat
     ReferralsNotificationModule,
   ],
   controllers: [ReferralController],
-  providers: [ReferralService, RemnaClient, PaymentsClient, InterServiceGuard, AnalyticsClientService],
+  providers: [
+    ReferralService,
+    RemnaClient,
+    PaymentsClient,
+    InterServiceGuard,
+    AnalyticsClientService,
+  ],
 })
 export class AppModule {}

@@ -35,10 +35,19 @@ RUN --mount=type=cache,id=turbo-cache,target=/app/.turbo \
     pnpm turbo build --concurrency=${TURBO_CONCURRENCY} --filter='!@jungle/web' --filter='!@jungle/tma'
 # Vite apps: skip full-project `tsc -b` here — heavy on small VPS RAM; Vite already compiles TS.
 # Run `pnpm --filter @jungle/web typecheck` / `@jungle/tma typecheck` in CI. No sourcemaps in image build.
-# .env is mounted as a BuildKit secret — never written to any image layer.
+# .env files are mounted as BuildKit secrets — never written to any image layer.
+# Secret contents are not part of the cache key, so CI passes a hash of the
+# public vars to rebuild the frontends when one of them changes.
+ARG PUBLIC_ENV_HASH
 RUN --mount=type=secret,id=env,target=/app/.env \
+    --mount=type=secret,id=env_public,target=/app/.env.public \
+    --mount=type=secret,id=env_payments,target=/app/.env.payments \
+    --mount=type=secret,id=env_secrets,target=/app/.env.secrets \
     WEB_BUILD_SOURCEMAP=false pnpm --filter @jungle/web run build:docker
 RUN --mount=type=secret,id=env,target=/app/.env \
+    --mount=type=secret,id=env_public,target=/app/.env.public \
+    --mount=type=secret,id=env_payments,target=/app/.env.payments \
+    --mount=type=secret,id=env_secrets,target=/app/.env.secrets \
     WEB_BUILD_SOURCEMAP=false pnpm --filter @jungle/tma run build:docker
 
 # ── Production dependencies only ─────────────────────────────────────

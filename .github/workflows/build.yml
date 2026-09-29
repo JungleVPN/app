@@ -30,13 +30,50 @@ jobs:
       - name: Log in to ghcr.io
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Write build-time .env
+      # The target server's .env files are the single source of truth for the
+      # build too — Vite bundles only their PUBLIC_*/VITE_* vars. Each branch
+      # reads its own host's secrets with no fallback, so a stage build can
+      # never pick up production's env (or the other way round).
+      - name: Fetch env files from the target server
+        env:
+          IS_STAGE: ${{ github.ref == 'refs/heads/stage' }}
+          STAGING_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+          STAGING_HOST: ${{ secrets.STAGING_DEPLOY_HOST }}
+          STAGING_USER: ${{ secrets.STAGING_DEPLOY_USER }}
+          STAGING_DIR: ${{ secrets.STAGING_DEPLOY_PATH }}
+          STAGING_PORT: ${{ secrets.STAGING_DEPLOY_PORT }}
+          PROD_KEY: ${{ secrets.DEPLOY_KEY }}
+          PROD_HOST: ${{ secrets.DEPLOY_HOST }}
+          PROD_USER: ${{ secrets.DEPLOY_USER }}
+          PROD_DIR: ${{ secrets.DEPLOY_PATH }}
+          PROD_PORT: ${{ secrets.DEPLOY_PORT }}
         run: |
-          if [ "${{ github.ref }}" = "refs/heads/stage" ]; then
-            cp staging.build.env /tmp/build.env
+          if [ "$IS_STAGE" = "true" ]; then
+            KEY="$STAGING_KEY" HOST="$STAGING_HOST" USER="$STAGING_USER" DIR="$STAGING_DIR" PORT="$STAGING_PORT"
           else
-            cp prod.build.env /tmp/build.env
+            KEY="$PROD_KEY" HOST="$PROD_HOST" USER="$PROD_USER" DIR="$PROD_DIR" PORT="$PROD_PORT"
           fi
+          if [ -z "$KEY" ] || [ -z "$HOST" ] || [ -z "$USER" ] || [ -z "$DIR" ] || [ -z "$PORT" ]; then
+            echo "::error::Missing deploy secrets for this branch's server — cannot fetch its env files."
+            exit 1
+          fi
+
+          ENV_DIR="$RUNNER_TEMP/build-env"
+          mkdir -p "$ENV_DIR" && chmod 700 "$ENV_DIR"
+          echo "$KEY" > "$RUNNER_TEMP/deploy_key" && chmod 600 "$RUNNER_TEMP/deploy_key"
+          for f in .env .env.public .env.payments .env.secrets; do
+            scp -q -i "$RUNNER_TEMP/deploy_key" \
+              -o StrictHostKeyChecking=no \
+              -P "$PORT" "$USER@$HOST:$DIR/$f" "$ENV_DIR/$f" \
+              || { rm -f "$RUNNER_TEMP/deploy_key"; echo "::error::Could not fetch $f from $DIR on the server."; exit 1; }
+          done
+          rm -f "$RUNNER_TEMP/deploy_key"
+          chmod 600 "$ENV_DIR"/.env*
+
+          # BuildKit leaves secret contents out of its cache keys. Hash the
+          # public vars so changing one on the server rebuilds the frontends.
+          echo "PUBLIC_ENV_HASH=$(cat "$ENV_DIR"/.env* | grep -E '^(PUBLIC_|VITE_)' | sort | sha256sum | cut -c1-16)" >> "$GITHUB_ENV"
+          echo "ENV_DIR=$ENV_DIR" >> "$GITHUB_ENV"
 
       - name: Build and push
         run: |
@@ -52,11 +89,19 @@ jobs:
             --push \
             --tag "${SHA_TAG}" \
             --tag "${LATEST_TAG}" \
-            --secret id=env,src=/tmp/build.env \
+            --secret id=env,src="$ENV_DIR/.env" \
+            --secret id=env_public,src="$ENV_DIR/.env.public" \
+            --secret id=env_payments,src="$ENV_DIR/.env.payments" \
+            --secret id=env_secrets,src="$ENV_DIR/.env.secrets" \
             --cache-from type=gha \
             --cache-to type=gha,mode=max \
             --build-arg TURBO_CONCURRENCY=7 \
+            --build-arg PUBLIC_ENV_HASH="$PUBLIC_ENV_HASH" \
             .
+
+      - name: Remove fetched env files
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/build-env"
 
   deploy:
     name: Deploy to production
