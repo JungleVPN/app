@@ -5,17 +5,25 @@ import { useRemnawaveApi } from '../../api';
 import { Loading } from '../../components';
 import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { useNavigation } from '../../hooks';
+import { fetchBillingState } from '../../hooks/useSavedMethodsData';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import { useAuthStore, useSubscriptionInfoStore } from '../../stores';
 import { Heading, Paragraph, TgsSticker } from '../../ui';
 import { takePendingYookassaPayment, trackPurchaseConversion } from '../../utils';
 
 type RemnawaveApi = ReturnType<typeof useRemnawaveApi>;
+type PaymentsApi = ReturnType<typeof usePaymentsApi>;
 
-// The profile is fetched once and cached, so after an in-app checkout it still
-// holds the pre-payment expiry. The webhook that extends it may land a moment
-// after the payer does, so poll briefly until the expiry moves.
-async function refreshProfile(remnawaveApi: RemnawaveApi) {
+// The profile and billing are fetched once and cached, so after an in-app
+// checkout they still hold the pre-payment state. The webhook that extends the
+// expiry and records the subscription may land a moment after the payer does,
+// so poll briefly until the expiry moves, then refetch billing.
+async function refreshProfile(remnawaveApi: RemnawaveApi, paymentsApi: PaymentsApi) {
+  await pollProfile(remnawaveApi);
+  await fetchBillingState(paymentsApi);
+}
+
+async function pollProfile(remnawaveApi: RemnawaveApi) {
   const cachedExpiry = useSubscriptionInfoStore.getState().subscription?.user.expiresAt;
   for (let attempt = 0; attempt < 5; attempt++) {
     const user = await remnawaveApi.getMe().catch(() => null);
@@ -47,7 +55,7 @@ export default function SubscriptionSuccessPage() {
 
     if (!paymentId) {
       trackPurchaseConversion();
-      void refreshProfile(remnawaveApi);
+      void refreshProfile(remnawaveApi, paymentsApi);
       setLoading(false);
       return;
     }
@@ -62,7 +70,7 @@ export default function SubscriptionSuccessPage() {
         }
         if (status === 'succeeded') {
           trackPurchaseConversion();
-          void refreshProfile(remnawaveApi);
+          void refreshProfile(remnawaveApi, paymentsApi);
           setLoading(false);
         }
       })

@@ -14,6 +14,33 @@ import { toProviderSubscription, useSavedMethodsStore } from '../stores';
  */
 const pendingUserIds = new Set<number>();
 
+type PaymentsApi = ReturnType<typeof usePaymentsApi>;
+
+/**
+ * Asks every provider for the user's billing and stores the answers.
+ *
+ * A provider that fails is treated as "no billing there" rather than failing
+ * the batch, so one provider being down cannot hide the others' answers or
+ * leave the UI stuck loading.
+ */
+export async function fetchBillingState(paymentsApi: PaymentsApi): Promise<void> {
+  const onFailure = (provider: string) => (err: unknown) => {
+    console.error(`Failed to pre-fetch ${provider} billing:`, err);
+    return NO_PROVIDER_SUBSCRIPTION;
+  };
+
+  const [yookassa, stripe, paddle, whop] = await Promise.all([
+    paymentsApi
+      .getYookassaSavedMethods()
+      .then((methods: SavedMethodDto[]) => toProviderSubscription(methods))
+      .catch(onFailure('YooKassa')) as Promise<ProviderSubscriptionDto>,
+    paymentsApi.getStripeSubscription().catch(onFailure('Stripe')),
+    paymentsApi.getPaddleSubscription().catch(onFailure('Paddle')),
+    paymentsApi.getWhopSubscription().catch(onFailure('Whop')),
+  ]);
+  useSavedMethodsStore.getState().actions.setBillingState({ yookassa, stripe, paddle, whop });
+}
+
 /**
  * Pre-fetches the user's billing from every provider.
  *
@@ -21,10 +48,6 @@ const pendingUserIds = new Set<number>();
  * reports a Stripe, Paddle or Whop subscriber as having no billing at all.
  * None of these calls the provider's API — every answer comes from our own
  * records — so this stays cheap enough to run on every profile load.
- *
- * A provider that fails is treated as "no billing there" rather than failing
- * the batch, so one provider being down cannot hide the others' answers or
- * leave the UI stuck loading.
  */
 export function useSavedMethodsData(userId: number | undefined): void {
   const paymentsApi = usePaymentsApi();
@@ -37,23 +60,6 @@ export function useSavedMethodsData(userId: number | undefined): void {
 
     pendingUserIds.add(userId);
 
-    const onFailure = (provider: string) => (err: unknown) => {
-      console.error(`Failed to pre-fetch ${provider} billing:`, err);
-      return NO_PROVIDER_SUBSCRIPTION;
-    };
-
-    Promise.all([
-      paymentsApi
-        .getYookassaSavedMethods()
-        .then((methods: SavedMethodDto[]) => toProviderSubscription(methods))
-        .catch(onFailure('YooKassa')) as Promise<ProviderSubscriptionDto>,
-      paymentsApi.getStripeSubscription().catch(onFailure('Stripe')),
-      paymentsApi.getPaddleSubscription().catch(onFailure('Paddle')),
-      paymentsApi.getWhopSubscription().catch(onFailure('Whop')),
-    ])
-      .then(([yookassa, stripe, paddle, whop]) => {
-        useSavedMethodsStore.getState().actions.setBillingState({ yookassa, stripe, paddle, whop });
-      })
-      .finally(() => pendingUserIds.delete(userId));
+    fetchBillingState(paymentsApi).finally(() => pendingUserIds.delete(userId));
   }, [userId, paymentsApi]);
 }

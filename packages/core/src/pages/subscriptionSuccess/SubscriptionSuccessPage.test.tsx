@@ -7,12 +7,23 @@
  */
 import { render, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useAuthStore, useSubscriptionInfoStore, type ExtendedSubscription } from '../../stores';
+import {
+  type ExtendedSubscription,
+  useAuthStore,
+  useSavedMethodsStore,
+  useSubscriptionInfoStore,
+} from '../../stores';
 import SubscriptionSuccessPage from './SubscriptionSuccessPage';
 
 const { paymentsApi, remnawaveApi, takePendingYookassaPayment, trackPurchaseConversion, navigate } =
   vi.hoisted(() => ({
-    paymentsApi: { getPublicYookassaPaymentStatus: vi.fn() },
+    paymentsApi: {
+      getPublicYookassaPaymentStatus: vi.fn(),
+      getYookassaSavedMethods: vi.fn(),
+      getStripeSubscription: vi.fn(),
+      getPaddleSubscription: vi.fn(),
+      getWhopSubscription: vi.fn(),
+    },
     remnawaveApi: { getMe: vi.fn(), getSubscriptionInfoByShortUuid: vi.fn() },
     takePendingYookassaPayment: vi.fn(),
     trackPurchaseConversion: vi.fn(),
@@ -43,6 +54,8 @@ const NEW_EXPIRY = '2026-11-01T00:00:00.000Z';
 const profile = (expireAt: string) => ({ id: 1, shortUuid: 'short-1', expireAt });
 const subscription = (expiresAt: string) =>
   ({ user: { shortUuid: 'short-1', expiresAt } }) as unknown as ExtendedSubscription;
+const NO_BILLING = { active: false, methods: [] };
+const ACTIVE_BILLING = { active: true, methods: [] };
 
 describe('SubscriptionSuccessPage', () => {
   beforeEach(() => {
@@ -51,6 +64,11 @@ describe('SubscriptionSuccessPage', () => {
     remnawaveApi.getMe.mockResolvedValue(null);
     useAuthStore.setState({ rmnUser: null });
     useSubscriptionInfoStore.getState().actions.resetState();
+    useSavedMethodsStore.getState().actions.resetState();
+    paymentsApi.getYookassaSavedMethods.mockResolvedValue([]);
+    paymentsApi.getStripeSubscription.mockResolvedValue(NO_BILLING);
+    paymentsApi.getPaddleSubscription.mockResolvedValue(NO_BILLING);
+    paymentsApi.getWhopSubscription.mockResolvedValue(NO_BILLING);
   });
 
   it('refetches the profile so the new expiry shows without a page reload', async () => {
@@ -70,6 +88,22 @@ describe('SubscriptionSuccessPage', () => {
       { timeout: 3000 },
     );
     expect(useAuthStore.getState().rmnUser?.expireAt).toBe(NEW_EXPIRY);
+  });
+
+  it('refetches billing so the payment page shows the new subscription instead of plans', async () => {
+    useSavedMethodsStore.getState().actions.setBillingState({
+      yookassa: NO_BILLING,
+      stripe: NO_BILLING,
+      paddle: NO_BILLING,
+      whop: NO_BILLING,
+    });
+    remnawaveApi.getMe.mockResolvedValue(profile(NEW_EXPIRY));
+    remnawaveApi.getSubscriptionInfoByShortUuid.mockResolvedValue(subscription(NEW_EXPIRY));
+    paymentsApi.getWhopSubscription.mockResolvedValue(ACTIVE_BILLING);
+
+    render(<SubscriptionSuccessPage />);
+
+    await waitFor(() => expect(useSavedMethodsStore.getState().whop.active).toBe(true));
   });
 
   it('keeps the cached profile when YooKassa says the payment was cancelled', async () => {
@@ -97,16 +131,16 @@ describe('SubscriptionSuccessPage', () => {
     await waitFor(() => expect(trackPurchaseConversion).toHaveBeenCalledTimes(1));
   });
 
-  it.each(['canceled', 'pending'])(
-    'does not report a conversion when YooKassa says the payment is %s',
-    async (status) => {
-      takePendingYookassaPayment.mockReturnValue('pay-1');
-      paymentsApi.getPublicYookassaPaymentStatus.mockResolvedValue({ status });
+  it.each([
+    'canceled',
+    'pending',
+  ])('does not report a conversion when YooKassa says the payment is %s', async (status) => {
+    takePendingYookassaPayment.mockReturnValue('pay-1');
+    paymentsApi.getPublicYookassaPaymentStatus.mockResolvedValue({ status });
 
-      render(<SubscriptionSuccessPage />);
+    render(<SubscriptionSuccessPage />);
 
-      await waitFor(() => expect(navigate).toHaveBeenCalledWith('/payment/fail', { replace: true }));
-      expect(trackPurchaseConversion).not.toHaveBeenCalled();
-    },
-  );
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/payment/fail', { replace: true }));
+    expect(trackPurchaseConversion).not.toHaveBeenCalled();
+  });
 });
