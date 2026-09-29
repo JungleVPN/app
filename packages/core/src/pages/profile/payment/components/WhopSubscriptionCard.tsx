@@ -68,7 +68,15 @@ function detailRows(
         }
       : null,
     paymentMethod
-      ? { label: t('payment.whopSubscription.paymentMethod'), value: paymentMethod }
+      ? {
+          label: t('payment.whopSubscription.paymentMethod'),
+          value: (
+            <span className='inline-flex items-center gap-2'>
+              {method.iconUrl ? <img alt='' className='h-5' src={method.iconUrl} /> : null}
+              {paymentMethod}
+            </span>
+          ),
+        }
       : null,
   ];
   return rows.filter((row): row is DetailRow => row !== null);

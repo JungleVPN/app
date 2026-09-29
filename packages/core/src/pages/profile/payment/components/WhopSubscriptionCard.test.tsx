@@ -43,6 +43,7 @@ const whopMethod = (overrides: Partial<SavedMethodDto> = {}): SavedMethodDto => 
   paymentMethodType: 'whop',
   title: 'Visa •••• 1303',
   card: { last4: '1303', cardType: 'visa' },
+  iconUrl: 'https://content.whop.com/payment_methods/visa/icons/card_dark.svg',
   isActive: true,
   productName: 'Jungle VPN',
   amount: 0.4,
@@ -77,6 +78,21 @@ describe('WhopSubscriptionCard', () => {
     expect(screen.getByText('payment.whopSubscription.nextPayment')).toBeTruthy();
     expect(screen.getByText('October 27, 2026')).toBeTruthy();
     expect(screen.getByText('•••• 1303')).toBeTruthy();
+  });
+
+  it('shows the payment method icon next to the card', () => {
+    const { container } = render(<WhopSubscriptionCard method={whopMethod()} />);
+
+    expect(container.querySelector('img')?.getAttribute('src')).toBe(
+      'https://content.whop.com/payment_methods/visa/icons/card_dark.svg',
+    );
+  });
+
+  it('shows the card without an icon when none was recorded', () => {
+    const { container } = render(<WhopSubscriptionCard method={whopMethod({ iconUrl: null })} />);
+
+    expect(screen.getByText('•••• 1303')).toBeTruthy();
+    expect(container.querySelector('img')).toBeNull();
   });
 
   /** Colored like the button that changes it: green like Resume, red like Cancel. */

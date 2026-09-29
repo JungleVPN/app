@@ -28,6 +28,8 @@ export interface SavedMethodDto {
     first6?: string;
     issuerCountry?: string;
   } | null;
+  /** Whop's card-shaped icon for dark surfaces. Whop only; null elsewhere. */
+  iconUrl: string | null;
   isActive: boolean;
   /** What the subscription is for, e.g. "Jungle VPN". Whop only; null elsewhere. */
   productName: string | null;

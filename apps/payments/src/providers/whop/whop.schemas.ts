@@ -44,7 +44,17 @@ export const WhopPaymentSchema = z.object({
   card_exp_month: z.number().nullish(),
   card_exp_year: z.number().nullish(),
   /** `display_name` is buyer-facing, e.g. "Visa •••• 4242". */
-  payment_instrument: z.object({ display_name: z.string() }).nullish(),
+  payment_instrument: z
+    .object({
+      display_name: z.string(),
+      /** Cosmetic, so every level is optional: a changed icon set must not block fulfilment. */
+      icons: z
+        .object({
+          card: z.object({ dark: z.object({ svg: z.string().nullish() }).nullish() }).nullish(),
+        })
+        .nullish(),
+    })
+    .nullish(),
 });
 
 export const WhopMembershipSchema = z.object({

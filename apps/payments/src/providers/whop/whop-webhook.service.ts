@@ -75,7 +75,14 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  */
 type SubscriptionDetails = Pick<
   SavedPaymentMethod,
-  'productName' | 'amount' | 'currency' | 'billingPeriod' | 'renewsAt' | 'title' | 'card'
+  | 'productName'
+  | 'amount'
+  | 'currency'
+  | 'billingPeriod'
+  | 'renewsAt'
+  | 'title'
+  | 'card'
+  | 'iconUrl'
 >;
 
 /** Whop's `paid_at` as a Date, taking a number as Unix seconds; now when it is missing. */
@@ -108,6 +115,7 @@ function subscriptionDetailsOf(
     renewsAt: new Date(paidAtOf(payment).getTime() + charge.billingPeriod * DAY_MS),
     title: payment.payment_instrument?.display_name ?? null,
     card: cardOf(payment),
+    iconUrl: payment.payment_instrument?.icons?.card?.dark?.svg ?? null,
   };
 }
 

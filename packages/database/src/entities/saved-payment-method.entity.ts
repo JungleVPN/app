@@ -42,6 +42,10 @@ export class SavedPaymentMethod {
     issuerCountry?: string;
   } | null;
 
+  /** Whop's card-shaped icon for dark surfaces (`icons.card.dark.svg`). Whop only. */
+  @Column({ type: 'varchar', nullable: true })
+  iconUrl: string | null;
+
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 

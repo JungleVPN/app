@@ -65,7 +65,15 @@ const cardPaymentDetails = {
   card_last4: '1303',
   card_exp_month: 4,
   card_exp_year: 2029,
-  payment_instrument: { display_name: 'Visa •••• 1303' },
+  payment_instrument: {
+    display_name: 'Visa •••• 1303',
+    icons: {
+      card: {
+        dark: { svg: 'https://content.whop.com/payment_methods/visa/icons/card_dark.svg' },
+        light: { svg: 'https://content.whop.com/payment_methods/visa/icons/card_light.svg' },
+      },
+    },
+  },
 };
 
 const paymentSucceeded = (overrides: Record<string, unknown> = {}) => ({
@@ -364,6 +372,7 @@ describe('WhopWebhookService', () => {
           renewsAt: new Date('2026-10-27T10:00:00.000Z'),
           title: 'Visa •••• 1303',
           card: { last4: '1303', cardType: 'visa', expiryMonth: '4', expiryYear: '2029' },
+          iconUrl: 'https://content.whop.com/payment_methods/visa/icons/card_dark.svg',
         }),
       );
     });
@@ -447,7 +456,7 @@ describe('WhopWebhookService', () => {
       await service.handleWebhook(paymentSucceeded());
 
       expect(savedMethodRepo.save).toHaveBeenCalledWith(
-        expect.objectContaining({ productName: null, title: null, card: null }),
+        expect.objectContaining({ productName: null, title: null, card: null, iconUrl: null }),
       );
     });
 

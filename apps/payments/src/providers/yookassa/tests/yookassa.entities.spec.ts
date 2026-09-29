@@ -230,6 +230,7 @@ describe('SavedPaymentMethod entity', () => {
       'card',
       'createdAt',
       'currency',
+      'iconUrl',
       'id',
       'isActive',
       'paymentMethodId',
@@ -252,6 +253,7 @@ describe('SavedPaymentMethod entity', () => {
     ['billingPeriod'],
     ['renewsAt'],
     ['status'],
+    ['iconUrl'],
   ])('leaves %s optional', (column) => {
     expect(columns.get(column)?.options.nullable).toBe(true);
   });

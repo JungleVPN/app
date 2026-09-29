@@ -17,6 +17,7 @@ export function toSavedMethodDto(method: SavedPaymentMethod): SavedMethodDto {
     paymentMethodType: method.paymentMethodType,
     title: method.title,
     card: method.card,
+    iconUrl: method.iconUrl ?? null,
     isActive: method.isActive,
     productName: method.productName ?? null,
     amount: method.amount ?? null,
