@@ -290,6 +290,17 @@ describe('WhopController.checkPublicPromoCode', () => {
   });
 });
 
+describe('WhopController.getPublicPaymentStatus', () => {
+  it('answers whether the webhook has fulfilled the payment, by payment id alone', async () => {
+    const status = { paymentId: 'pay_1', fulfilled: true };
+    const whopProvider = { getPaymentStatus: vi.fn().mockResolvedValue(status) };
+    const controller = new WhopController(whopProvider as never);
+
+    await expect(controller.getPublicPaymentStatus('pay_1')).resolves.toEqual(status);
+    expect(whopProvider.getPaymentStatus).toHaveBeenCalledWith('pay_1');
+  });
+});
+
 describe('WhopController.webhook', () => {
   const SECRET = 'ws_test_secret';
   const BODY = JSON.stringify({ type: 'payment.succeeded', data: { id: 'pay_1' } });

@@ -984,4 +984,30 @@ describe('WhopWebhookService', () => {
 
     await expect(service.handleWebhook({ nope: true })).rejects.toThrow();
   });
+
+  describe('isPaymentFulfilled', () => {
+    it('is true once the webhook has extended the subscription and recorded the payment as paid', async () => {
+      const { service, paymentRepo } = setup();
+      paymentRepo.findOneBy.mockResolvedValue({ id: 'pay_1', status: 'paid' });
+
+      await expect(service.isPaymentFulfilled('pay_1')).resolves.toBe(true);
+      expect(paymentRepo.findOneBy).toHaveBeenCalledWith({ id: 'pay_1' });
+    });
+
+    it.each([['processing'], ['unfulfilled'], ['failed']])(
+      'is false while the payment is %s',
+      async (status) => {
+        const { service, paymentRepo } = setup();
+        paymentRepo.findOneBy.mockResolvedValue({ id: 'pay_1', status });
+
+        await expect(service.isPaymentFulfilled('pay_1')).resolves.toBe(false);
+      },
+    );
+
+    it('is false before any webhook for the payment has arrived', async () => {
+      const { service } = setup();
+
+      await expect(service.isPaymentFulfilled('pay_1')).resolves.toBe(false);
+    });
+  });
 });

@@ -9,6 +9,7 @@ import {
   HttpCode,
   Ip,
   Logger,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -23,6 +24,7 @@ import {
   type WhopCancelDto,
   type WhopCheckoutPayload,
   type WhopPaymentDto,
+  type WhopPaymentStatusDto,
   type WhopPromoCodeDto,
   type WhopResumeDto,
 } from '@workspace/types';
@@ -97,6 +99,17 @@ export class WhopController {
       origin,
       promoCode: dto.promoCode,
     });
+  }
+
+  /**
+   * Whether our webhook has fulfilled a payment, so the checkout can hold the
+   * payer until their subscription is actually extended. The checkout is
+   * anonymous, so knowledge of the payment id is the claim, and the answer
+   * carries only whether it is fulfilled — mirrors YooKassa's public status.
+   */
+  @Get('public-payment-status/:id')
+  getPublicPaymentStatus(@Param('id') id: string): Promise<WhopPaymentStatusDto> {
+    return this.whopProvider.getPaymentStatus(id);
   }
 
   /**

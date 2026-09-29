@@ -31,7 +31,11 @@ vi.mock('../../hooks', () => ({ useNavigation: () => navigate }));
 vi.mock('../../utils', () => ({ takePendingYookassaPayment, trackPurchaseConversion }));
 vi.mock('../../env', () => ({ coreEnv: {}, getTelegramStickerUrl: () => null }));
 vi.mock('../../components', () => ({ Loading: () => <p>loading</p> }));
-vi.mock('../../ui', () => ({ TgsSticker: () => null }));
+vi.mock('../../ui', () => ({
+  TgsSticker: () => null,
+  Heading: ({ children }: { children: React.ReactNode }) => <h1>{children}</h1>,
+  Paragraph: ({ children }: { children: React.ReactNode }) => <p>{children}</p>,
+}));
 
 const OLD_EXPIRY = '2026-10-01T00:00:00.000Z';
 const NEW_EXPIRY = '2026-11-01T00:00:00.000Z';

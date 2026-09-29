@@ -1237,6 +1237,7 @@
       "card_invalid": "Kart bilgilerinizi kontrol edip tekrar deneyin.",
       "declined": "Kartınız reddedildi. Başka bir kart deneyin veya bankanızla iletişime geçin.",
       "not_completed": "Ödeme tamamlanmadı. Lütfen tekrar deneyin.",
+      "activation_delayed": "Ödemeniz alındı, ancak aboneliğinizin etkinleştirilmesi normalden uzun sürüyor. Kısa süre içinde profilinizde görünecek — lütfen tekrar ödeme yapmayın.",
       "promo_invalid": "Bu promosyon kodu bu plan için geçerli değil."
     }
   },

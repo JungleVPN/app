@@ -54,7 +54,10 @@ const providerWith = (countryCode: string | null = null) => {
     find: vi.fn().mockResolvedValue([]),
     update: vi.fn().mockResolvedValue({ affected: 1 }),
   };
-  const whopWebhookService = { handleWebhook: vi.fn().mockResolvedValue(undefined) };
+  const whopWebhookService = {
+    handleWebhook: vi.fn().mockResolvedValue(undefined),
+    isPaymentFulfilled: vi.fn().mockResolvedValue(false),
+  };
   const userResolver = { findByEmail: vi.fn().mockResolvedValue(null) };
   const planService = new PlanService({ find: async () => CATALOG } as never);
   const provider = new WhopProvider(
@@ -310,6 +313,19 @@ describe('WhopProvider', () => {
       await provider.handleWebhook(event);
 
       expect(whopWebhookService.handleWebhook).toHaveBeenCalledWith(event);
+    });
+  });
+
+  describe('getPaymentStatus', () => {
+    it('reports whether the webhook has fulfilled the payment', async () => {
+      const { provider, whopWebhookService } = providerWith();
+      whopWebhookService.isPaymentFulfilled.mockResolvedValue(true);
+
+      await expect(provider.getPaymentStatus('pay_1')).resolves.toEqual({
+        paymentId: 'pay_1',
+        fulfilled: true,
+      });
+      expect(whopWebhookService.isPaymentFulfilled).toHaveBeenCalledWith('pay_1');
     });
   });
 

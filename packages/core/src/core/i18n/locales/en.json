@@ -1237,6 +1237,7 @@
       "card_invalid": "Check your card details and try again.",
       "declined": "Your card was declined. Try another card or contact your bank.",
       "not_completed": "The payment wasn't completed. Please try again.",
+      "activation_delayed": "Your payment went through, but activating your subscription is taking longer than usual. It will appear in your profile shortly — please don't pay again.",
       "promo_invalid": "This promo code doesn't apply to this plan."
     }
   },

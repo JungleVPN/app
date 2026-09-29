@@ -77,6 +77,16 @@ export interface WhopPaymentDto {
 }
 
 /**
+ * Whether our webhook has fulfilled a Whop payment — extended the payer's
+ * subscription and recorded it as paid. The checkout waits on this before
+ * showing success, since Whop reports a charge paid before its webhook lands.
+ */
+export interface WhopPaymentStatusDto {
+  paymentId: string;
+  fulfilled: boolean;
+}
+
+/**
  * The outcome of POST /payments/whop/cancel. Whop has no customer portal to
  * send the user to, so cancellation is ours: the membership stops renewing
  * and stays usable until `accessUntil`.

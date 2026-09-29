@@ -192,6 +192,12 @@ export class WhopWebhookService {
     }
   }
 
+  /** Whether the webhook has extended the subscription for this payment and recorded it as paid. */
+  async isPaymentFulfilled(paymentId: string): Promise<boolean> {
+    const payment = await this.whopPaymentRepo.findOneBy({ id: paymentId });
+    return payment?.status === 'paid';
+  }
+
   /**
    * Parses an event's data, and when it does not match says which event it
    * was and which fields arrived — names only, since values carry the

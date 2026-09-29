@@ -15,6 +15,15 @@ export class WalletSheetError extends Error {}
 /** A Whop payment status that needs nothing more from the payer. */
 const SETTLED_STATUSES: ReadonlySet<string> = new Set(['succeeded', 'processing']);
 
+/**
+ * How long to wait for our webhook to extend the subscription once Whop says
+ * paid. Whop reports the charge before its webhook lands, so showing success
+ * on Whop's word alone would send the payer to a profile that is not yet
+ * extended.
+ */
+const FULFILMENT_POLL_MS = 1000;
+const FULFILMENT_POLL_ATTEMPTS = 60;
+
 function payErrorKey(caught: unknown): string {
   if (caught instanceof CardTokenError) return 'whopCheckout.errors.card_invalid';
   if (caught instanceof WalletSheetError) return 'whopCheckout.errors.not_completed';
@@ -49,24 +58,37 @@ export function useWhopPay({
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /** `'paid'`, null when the payer left for an off-site step, or the text to show them. */
-  const charge = async (confirmationToken: string): Promise<'paid' | null | { error: string }> => {
+  /** The paid payment's id, null when the payer left for an off-site step, or the text to show them. */
+  const charge = async (
+    confirmationToken: string,
+  ): Promise<{ paid: string } | null | { error: string }> => {
     const payment = await paymentsApi.payPublicWhopCheckout({
       ...checkout.request,
       confirmationToken,
       returnUrl,
       ...(checkout.promo ? { promoCode: checkout.promo.code } : {}),
     });
-    if (payment.status === 'paid') return 'paid';
+    const paid = { paid: payment.paymentId };
+    if (payment.status === 'paid') return paid;
     if (!whop || !payment.clientSecret) return { error: t('whopCheckout.errors.not_completed') };
 
     const result = await whop.payments.handleNextAction({ clientSecret: payment.clientSecret });
     if (result.redirected) return null;
-    if (SETTLED_STATUSES.has(result.status)) return 'paid';
+    if (SETTLED_STATUSES.has(result.status)) return paid;
     const { lastPaymentError } = result;
     if (!lastPaymentError) return { error: t('whopCheckout.errors.not_completed') };
     // Whop's own explanation, such as a charge below its minimum, says more than a generic decline.
     return { error: lastPaymentError.message?.trim() || t('whopCheckout.errors.declined') };
+  };
+
+  /** Whether our webhook fulfilled the payment within the wait; a failed lookup just asks again. */
+  const awaitFulfilment = async (paymentId: string): Promise<boolean> => {
+    for (let attempt = 0; attempt < FULFILMENT_POLL_ATTEMPTS; attempt++) {
+      if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, FULFILMENT_POLL_MS));
+      const status = await paymentsApi.getPublicWhopPaymentStatus(paymentId).catch(() => null);
+      if (status?.fulfilled) return true;
+    }
+    return false;
   };
 
   /** Runs `tokenise` before anything else awaits, so a wallet sheet opens within the tap. */
@@ -74,19 +96,26 @@ export function useWhopPay({
     if (isPending) return;
     setIsPending(true);
     setError(null);
+    // Once charged, the form stays locked even if the webhook is late, so the payer cannot pay twice.
+    let charged = false;
     try {
       const confirmationToken = await tokenise();
       if (!confirmationToken) return;
       const outcome = await charge(confirmationToken);
-      if (outcome === 'paid') {
-        navigate(paymentReturnPath, { replace: true });
+      if (outcome && 'paid' in outcome) {
+        charged = true;
+        if (await awaitFulfilment(outcome.paid)) {
+          navigate(paymentReturnPath, { replace: true });
+          return;
+        }
+        setError(t('whopCheckout.errors.activation_delayed'));
         return;
       }
       if (outcome) setError(outcome.error);
     } catch (caught) {
       setError(t(payErrorKey(caught)));
     } finally {
-      setIsPending(false);
+      if (!charged) setIsPending(false);
     }
   };
 

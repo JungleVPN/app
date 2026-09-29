@@ -16,6 +16,7 @@ import {
   type WhopCancelDto,
   type WhopCheckoutPayload,
   type WhopPaymentDto,
+  type WhopPaymentStatusDto,
   type WhopPromoCodeDto,
   type WhopResumeDto,
 } from '@workspace/types';
@@ -38,6 +39,10 @@ export class WhopProvider {
   /** Takes the signature-verified webhook body; the webhook service validates its shape. */
   async handleWebhook(event: unknown): Promise<void> {
     await this.whopWebhookService.handleWebhook(event);
+  }
+
+  async getPaymentStatus(paymentId: string): Promise<WhopPaymentStatusDto> {
+    return { paymentId, fulfilled: await this.whopWebhookService.isPaymentFulfilled(paymentId) };
   }
 
   /**

@@ -1237,6 +1237,7 @@
       "card_invalid": "Revisa los datos de tu tarjeta e inténtalo de nuevo.",
       "declined": "Tu tarjeta fue rechazada. Prueba con otra tarjeta o contacta con tu banco.",
       "not_completed": "El pago no se completó. Inténtalo de nuevo.",
+      "activation_delayed": "Tu pago se ha realizado, pero la activación de tu suscripción está tardando más de lo habitual. Aparecerá en tu perfil en breve; no vuelvas a pagar.",
       "promo_invalid": "Este código promocional no es válido para este plan."
     }
   },

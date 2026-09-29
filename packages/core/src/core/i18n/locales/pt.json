@@ -1237,6 +1237,7 @@
       "card_invalid": "Verifique os dados do seu cartão e tente novamente.",
       "declined": "Seu cartão foi recusado. Tente outro cartão ou entre em contato com seu banco.",
       "not_completed": "O pagamento não foi concluído. Tente novamente.",
+      "activation_delayed": "Seu pagamento foi concluído, mas a ativação da assinatura está demorando mais que o normal. Ela aparecerá no seu perfil em breve — não pague novamente.",
       "promo_invalid": "Este código promocional não é válido para este plano."
     }
   },

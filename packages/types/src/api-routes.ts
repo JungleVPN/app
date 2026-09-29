@@ -28,6 +28,8 @@ export const apiRoutes = {
     whopPublicCreateCheckout: '/whop/public-create-checkout',
     whopPublicPay: '/whop/public-pay',
     whopPublicPromoCode: '/whop/public-promo-code',
+    whopPublicPaymentStatus: (id: string) =>
+      `/whop/public-payment-status/${encodeURIComponent(id)}`,
     whopWebhook: '/whop/webhook',
     whopSubscription: '/whop/subscription',
     whopCancel: '/whop/cancel',

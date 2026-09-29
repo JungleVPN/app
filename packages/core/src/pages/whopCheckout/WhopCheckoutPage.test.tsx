@@ -40,7 +40,7 @@ const {
         paymentRequest: { create: vi.fn(() => walletSheet) },
       },
     },
-    api: { payPublicWhopCheckout: vi.fn() },
+    api: { payPublicWhopCheckout: vi.fn(), getPublicWhopPaymentStatus: vi.fn() },
     loadScript: vi.fn(),
     visitor: { ipStatus: null as IpStatusDto | null },
   };
@@ -176,6 +176,7 @@ describe('WhopCheckoutPage', () => {
       status: 'paid',
       clientSecret: 'sec_1',
     });
+    api.getPublicWhopPaymentStatus.mockResolvedValue({ paymentId: 'pay_1', fulfilled: true });
   });
 
   describe('mounting', () => {
@@ -726,6 +727,44 @@ describe('WhopCheckoutPage', () => {
         expect(navigate).toHaveBeenCalledWith('/payment/success', { replace: true }),
       );
       expect(whop.payments.handleNextAction).toHaveBeenCalledWith({ clientSecret: 'sec_1' });
+    });
+
+    it('waits for our webhook to extend the subscription before showing success', async () => {
+      api.getPublicWhopPaymentStatus
+        .mockResolvedValueOnce({ paymentId: 'pay_1', fulfilled: false })
+        .mockResolvedValue({ paymentId: 'pay_1', fulfilled: true });
+
+      await renderFilledAndPay();
+
+      await waitFor(() => expect(api.getPublicWhopPaymentStatus).toHaveBeenCalledTimes(1));
+      expect(navigate).not.toHaveBeenCalled();
+      await waitFor(
+        () => expect(navigate).toHaveBeenCalledWith('/payment/success', { replace: true }),
+        { timeout: 3000 },
+      );
+      expect(api.getPublicWhopPaymentStatus).toHaveBeenCalledWith('pay_1');
+    });
+
+    it('says activation is delayed, and never lets the payer pay twice, when the webhook is late', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      api.getPublicWhopPaymentStatus.mockResolvedValue({ paymentId: 'pay_1', fulfilled: false });
+
+      try {
+        await renderFilledAndPay();
+        await waitFor(() => expect(api.getPublicWhopPaymentStatus).toHaveBeenCalled());
+        await vi.advanceTimersByTimeAsync(120_000);
+
+        expect((await screen.findByRole('alert')).textContent).toContain(
+          'whopCheckout.errors.activation_delayed',
+        );
+        expect(navigate).not.toHaveBeenCalled();
+
+        fireEvent.click(payButton());
+        await vi.advanceTimersByTimeAsync(1_000);
+        expect(api.payPublicWhopCheckout).toHaveBeenCalledTimes(1);
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('leaves the page to Whop when the pending step redirects off-site', async () => {

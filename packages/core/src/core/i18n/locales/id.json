@@ -1237,6 +1237,7 @@
       "card_invalid": "Periksa detail kartu Anda dan coba lagi.",
       "declined": "Kartu Anda ditolak. Coba kartu lain atau hubungi bank Anda.",
       "not_completed": "Pembayaran belum selesai. Silakan coba lagi.",
+      "activation_delayed": "Pembayaran Anda berhasil, tetapi aktivasi langganan memakan waktu lebih lama dari biasanya. Langganan akan segera muncul di profil Anda — jangan membayar lagi.",
       "promo_invalid": "Kode promo ini tidak berlaku untuk paket ini."
     }
   },

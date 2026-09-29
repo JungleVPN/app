@@ -26,6 +26,7 @@ import {
   type WhopResumeDto,
   type WhopCheckoutPayload,
   type WhopPaymentDto,
+  type WhopPaymentStatusDto,
   type WhopPromoCodeDto,
 } from '@workspace/types';
 import type { ApiClient } from '../client';
@@ -86,6 +87,11 @@ export function createPaymentsApi(client: ApiClient) {
      */
     async payPublicWhopCheckout(dto: PayPublicWhopCheckoutDto): Promise<WhopPaymentDto> {
       return client.post<WhopPaymentDto>(apiRoutes.payments.whopPublicPay, dto);
+    },
+
+    /** Whether our webhook has fulfilled a Whop payment — the checkout waits on this. */
+    async getPublicWhopPaymentStatus(id: string): Promise<WhopPaymentStatusDto> {
+      return client.get<WhopPaymentStatusDto>(apiRoutes.payments.whopPublicPaymentStatus(id));
     },
 
     /** The discount a promo code gives the chosen plan; a 400 when it gives none. */
