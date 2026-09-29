@@ -55,6 +55,12 @@ const profile = (expireAt: string) => ({ id: 1, shortUuid: 'short-1', expireAt }
 const subscription = (expiresAt: string) =>
   ({ user: { shortUuid: 'short-1', expiresAt } }) as unknown as ExtendedSubscription;
 const NO_BILLING = { active: false, methods: [] };
+
+const signInOnWeb = () =>
+  useAuthStore.setState({ loading: false, authUser: { id: 'auth-1' }, tgInitDataRaw: null });
+const browseAsGuest = () =>
+  useAuthStore.setState({ loading: false, authUser: null, tgInitDataRaw: null });
+const settle = () => new Promise((resolve) => setTimeout(resolve, 50));
 const ACTIVE_BILLING = { active: true, methods: [] };
 
 describe('SubscriptionSuccessPage', () => {
@@ -63,6 +69,7 @@ describe('SubscriptionSuccessPage', () => {
     takePendingYookassaPayment.mockReturnValue(null);
     remnawaveApi.getMe.mockResolvedValue(null);
     useAuthStore.setState({ rmnUser: null });
+    signInOnWeb();
     useSubscriptionInfoStore.getState().actions.resetState();
     useSavedMethodsStore.getState().actions.resetState();
     paymentsApi.getYookassaSavedMethods.mockResolvedValue([]);
@@ -104,6 +111,41 @@ describe('SubscriptionSuccessPage', () => {
     render(<SubscriptionSuccessPage />);
 
     await waitFor(() => expect(useSavedMethodsStore.getState().whop.active).toBe(true));
+  });
+
+  it('leaves a guest from the public checkout alone, as they have no profile to refetch', async () => {
+    browseAsGuest();
+
+    render(<SubscriptionSuccessPage />);
+    await settle();
+
+    expect(remnawaveApi.getMe).not.toHaveBeenCalled();
+    expect(paymentsApi.getWhopSubscription).not.toHaveBeenCalled();
+  });
+
+  it('refetches the profile for a Telegram user', async () => {
+    useAuthStore.setState({ loading: false, authUser: null, tgInitDataRaw: 'init-data' });
+    remnawaveApi.getMe.mockResolvedValue(profile(NEW_EXPIRY));
+    remnawaveApi.getSubscriptionInfoByShortUuid.mockResolvedValue(subscription(NEW_EXPIRY));
+
+    render(<SubscriptionSuccessPage />);
+
+    await waitFor(() => expect(useAuthStore.getState().rmnUser?.expireAt).toBe(NEW_EXPIRY));
+  });
+
+  it('waits for the session to resolve before deciding whether to refetch', async () => {
+    useAuthStore.setState({ loading: true, authUser: null, tgInitDataRaw: null });
+    remnawaveApi.getMe.mockResolvedValue(profile(NEW_EXPIRY));
+    remnawaveApi.getSubscriptionInfoByShortUuid.mockResolvedValue(subscription(NEW_EXPIRY));
+
+    render(<SubscriptionSuccessPage />);
+    useAuthStore.setState({ userScope: null });
+    await settle();
+    expect(remnawaveApi.getMe).not.toHaveBeenCalled();
+
+    signInOnWeb();
+
+    await waitFor(() => expect(useAuthStore.getState().rmnUser?.expireAt).toBe(NEW_EXPIRY));
   });
 
   it('keeps the cached profile when YooKassa says the payment was cancelled', async () => {

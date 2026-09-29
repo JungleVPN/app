@@ -7,7 +7,7 @@ import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { useNavigation } from '../../hooks';
 import { fetchBillingState } from '../../hooks/useSavedMethodsData';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
-import { useAuthStore, useSubscriptionInfoStore } from '../../stores';
+import { type IAuthState, useAuthStore, useSubscriptionInfoStore } from '../../stores';
 import { Heading, Paragraph, TgsSticker } from '../../ui';
 import { takePendingYookassaPayment, trackPurchaseConversion } from '../../utils';
 
@@ -19,8 +19,26 @@ type PaymentsApi = ReturnType<typeof usePaymentsApi>;
 // expiry and records the subscription may land a moment after the payer does,
 // so poll briefly until the expiry moves, then refetch billing.
 async function refreshProfile(remnawaveApi: RemnawaveApi, paymentsApi: PaymentsApi) {
+  if (!(await isSignedIn())) return;
   await pollProfile(remnawaveApi);
   await fetchBillingState(paymentsApi);
+}
+
+// The public checkout lands guests here too. They have no profile to refetch,
+// and asking for one only earns a 401, so wait for the session to resolve and
+// refresh signed-in visitors alone.
+function isSignedIn(): Promise<boolean> {
+  const signedIn = ({ authUser, tgInitDataRaw }: IAuthState) =>
+    authUser !== null || tgInitDataRaw !== null;
+  const current = useAuthStore.getState();
+  if (!current.loading) return Promise.resolve(signedIn(current));
+  return new Promise((resolve) => {
+    const unsubscribe = useAuthStore.subscribe((state) => {
+      if (state.loading) return;
+      unsubscribe();
+      resolve(signedIn(state));
+    });
+  });
 }
 
 async function pollProfile(remnawaveApi: RemnawaveApi) {
