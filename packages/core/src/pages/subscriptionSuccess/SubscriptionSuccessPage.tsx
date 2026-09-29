@@ -1,20 +1,41 @@
 import { Button } from '@heroui/react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useRemnawaveApi } from '../../api';
 import { Loading } from '../../components';
 import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
-import { TgsSticker } from '../../ui';
-import { Heading } from '../../ui/Heading';
-import { Paragraph } from '../../ui/Paragraph';
+import { useAuthStore, useSubscriptionInfoStore } from '../../stores';
+import { Heading, Paragraph, TgsSticker } from '../../ui';
 import { takePendingYookassaPayment, trackPurchaseConversion } from '../../utils';
+
+type RemnawaveApi = ReturnType<typeof useRemnawaveApi>;
+
+// The profile is fetched once and cached, so after an in-app checkout it still
+// holds the pre-payment expiry. The webhook that extends it may land a moment
+// after the payer does, so poll briefly until the expiry moves.
+async function refreshProfile(remnawaveApi: RemnawaveApi) {
+  const cachedExpiry = useSubscriptionInfoStore.getState().subscription?.user.expiresAt;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const user = await remnawaveApi.getMe().catch(() => null);
+    const fresh =
+      user && (await remnawaveApi.getSubscriptionInfoByShortUuid(user.shortUuid).catch(() => null));
+    if (user) useAuthStore.getState().actions.setRmnUser(user);
+    if (fresh) {
+      useSubscriptionInfoStore.getState().actions.setSubscriptionInfo({ subscription: fresh });
+    }
+    if (fresh && fresh.user.expiresAt !== cachedExpiry) return;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+}
 
 export default function SubscriptionSuccessPage() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { profileSubscriptionPath, paymentFailPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
+  const remnawaveApi = useRemnawaveApi();
   const successStickerUrl = getTelegramStickerUrl(coreEnv.successStickerFileId);
   const [loading, setLoading] = useState<boolean>(true);
   // YooKassa returns the user here whether they paid or cancelled, so a
@@ -26,6 +47,7 @@ export default function SubscriptionSuccessPage() {
 
     if (!paymentId) {
       trackPurchaseConversion();
+      void refreshProfile(remnawaveApi);
       setLoading(false);
       return;
     }
@@ -40,13 +62,14 @@ export default function SubscriptionSuccessPage() {
         }
         if (status === 'succeeded') {
           trackPurchaseConversion();
+          void refreshProfile(remnawaveApi);
           setLoading(false);
         }
       })
       .catch(() => {
         // Status unknown — leave the optimistic success state in place.
       });
-  }, [paymentsApi, navigate, paymentFailPath]);
+  }, [paymentsApi, remnawaveApi, navigate, paymentFailPath]);
 
   if (loading) return <Loading />;
   return (
