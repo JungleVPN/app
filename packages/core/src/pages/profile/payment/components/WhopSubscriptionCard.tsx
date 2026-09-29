@@ -1,11 +1,10 @@
-import { AlertDialog, Button, Separator, Spinner, useOverlayState } from '@heroui/react';
+import { AlertDialog, Button, Chip, Separator, Spinner, useOverlayState } from '@heroui/react';
 import type { SavedMethodDto } from '@workspace/types';
 import type { TFunction } from 'i18next';
-import { Fragment, useState } from 'react';
+import { Fragment, type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePaymentsApi } from '../../../../runtime';
-import { Block } from '../../../../ui/Block/Block';
-import { Paragraph } from '../../../../ui/Paragraph';
+import { Block, Paragraph } from '../../../../ui';
 import { formatAmount } from '../../../../utils/currency';
 import { formatDate } from '../../../../utils/format';
 import { formatPeriod } from '../../../../utils/planPricing';
@@ -16,7 +15,18 @@ type CancelState =
   | { status: 'canceled'; accessUntil: string | null; resume: 'idle' | 'resuming' | 'failed' }
   | { status: 'failed' };
 
-type DetailRow = { label: string; value: string };
+type DetailRow = { label: string; value: ReactNode };
+
+/** Colored like the button that changes it: green like Resume, red like Cancel. */
+function StatusChip({ canceled, t }: { canceled: boolean; t: TFunction }) {
+  return (
+    <Chip color={canceled ? 'danger' : 'success'} size='sm' variant='soft'>
+      <Chip.Label>
+        {t(canceled ? 'payment.whopSubscription.canceled' : 'payment.whopSubscription.active')}
+      </Chip.Label>
+    </Chip>
+  );
+}
 
 /**
  * The subscription as the latest Whop charge described it. A row the webhook
@@ -25,9 +35,9 @@ type DetailRow = { label: string; value: string };
  */
 function detailRows(
   method: SavedMethodDto,
-  options: { t: TFunction; language: string; showRenewal: boolean },
+  options: { t: TFunction; language: string; canceled: boolean },
 ): DetailRow[] {
-  const { t, language, showRenewal } = options;
+  const { t, language, canceled } = options;
   const price =
     method.amount != null && method.currency ? formatAmount(method.amount, method.currency) : null;
   const paymentMethod = method.card?.last4 ? `•••• ${method.card.last4}` : method.title;
@@ -47,12 +57,14 @@ function detailRows(
             : price,
         }
       : null,
-    showRenewal && method.renewsAt
+    {
+      label: t('payment.whopSubscription.status'),
+      value: <StatusChip canceled={canceled} t={t} />,
+    },
+    !canceled && method.renewsAt
       ? {
-          label: t('payment.whopSubscription.status'),
-          value: t('payment.whopSubscription.renewsOn', {
-            date: formatDate(method.renewsAt, language, { dateStyle: 'long' }),
-          }),
+          label: t('payment.whopSubscription.nextPayment'),
+          value: formatDate(method.renewsAt, language, { dateStyle: 'long' }),
         }
       : null,
     paymentMethod
@@ -126,7 +138,7 @@ export function WhopSubscriptionCard({ method }: { method?: SavedMethodDto }) {
       rows={detailRows(method, {
         t,
         language: i18n.language,
-        showRenewal: state.status !== 'canceled',
+        canceled: state.status === 'canceled',
       })}
     />
   ) : null;

@@ -178,7 +178,9 @@
       "status": "स्थिति",
       "paymentMethod": "भुगतान का तरीका",
       "pricePerPeriod": "{{price}} \/ {{period}}",
-      "renewsOn": "{{date}} को नवीनीकरण"
+      "nextPayment": "अगला भुगतान",
+      "active": "सक्रिय",
+      "canceled": "रद्द"
     },
     "deleteMethod": {
       "title": "भुगतान विधि हटाएँ?",

@@ -180,7 +180,9 @@
       "status": "Статус",
       "paymentMethod": "Способ оплаты",
       "pricePerPeriod": "{{price}} / {{period}}",
-      "renewsOn": "Продлится {{date}}"
+      "nextPayment": "Следующий платёж",
+      "active": "Активна",
+      "canceled": "Отменена"
     },
     "deleteMethod": {
       "title": "Удалить способ оплаты?",

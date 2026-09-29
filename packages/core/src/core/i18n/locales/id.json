@@ -178,7 +178,9 @@
       "status": "Status",
       "paymentMethod": "Metode pembayaran",
       "pricePerPeriod": "{{price}} \/ {{period}}",
-      "renewsOn": "Diperpanjang {{date}}"
+      "nextPayment": "Pembayaran berikutnya",
+      "active": "Aktif",
+      "canceled": "Dibatalkan"
     },
     "deleteMethod": {
       "title": "Hapus metode pembayaran?",

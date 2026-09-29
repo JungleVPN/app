@@ -178,7 +178,9 @@
       "status": "Status",
       "paymentMethod": "Forma de pagamento",
       "pricePerPeriod": "{{price}} \/ {{period}}",
-      "renewsOn": "Renova em {{date}}"
+      "nextPayment": "Próximo pagamento",
+      "active": "Ativa",
+      "canceled": "Cancelada"
     },
     "deleteMethod": {
       "title": "Remover forma de pagamento?",

@@ -178,7 +178,9 @@
       "status": "Status",
       "paymentMethod": "Payment method",
       "pricePerPeriod": "{{price}} / {{period}}",
-      "renewsOn": "Renews {{date}}"
+      "nextPayment": "Next payment",
+      "active": "Active",
+      "canceled": "Canceled"
     },
     "deleteMethod": {
       "title": "Remove payment method?",

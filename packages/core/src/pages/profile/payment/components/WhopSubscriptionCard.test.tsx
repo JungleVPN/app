@@ -30,7 +30,8 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 vi.mock('../../../../runtime', () => ({ usePaymentsApi: () => paymentsApi }));
-vi.mock('../../../../ui/Paragraph', () => ({
+vi.mock('../../../../ui', () => ({
+  Block: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   Paragraph: ({ children }: { children: ReactNode }) => <p>{children}</p>,
 }));
 
@@ -68,13 +69,53 @@ describe('WhopSubscriptionCard', () => {
     paymentsApi.resumeWhopSubscription.mockResolvedValue({ cancelAtPeriodEnd: false });
   });
 
-  it('shows the product, price, renewal date and card the subscription is on', () => {
+  it('shows the product, price, next payment date and card the subscription is on', () => {
     render(<WhopSubscriptionCard method={whopMethod()} />);
 
     expect(screen.getByText('Jungle VPN')).toBeTruthy();
     expect(screen.getByText(/€0\.40/)).toBeTruthy();
-    expect(screen.getByText(/payment\.whopSubscription\.renewsOn.*October 27, 2026/)).toBeTruthy();
+    expect(screen.getByText('payment.whopSubscription.nextPayment')).toBeTruthy();
+    expect(screen.getByText('October 27, 2026')).toBeTruthy();
     expect(screen.getByText('•••• 1303')).toBeTruthy();
+  });
+
+  /** Colored like the button that changes it: green like Resume, red like Cancel. */
+  describe('status chip', () => {
+    const chipOf = (label: string) => screen.getByText(label).closest('.chip');
+
+    it('shows a renewing subscription as active, in green', () => {
+      render(<WhopSubscriptionCard method={whopMethod()} />);
+
+      expect(screen.getByText('payment.whopSubscription.status')).toBeTruthy();
+      expect(chipOf('payment.whopSubscription.active')?.className).toMatch(
+        /chip--success.*chip--soft|chip--soft.*chip--success/,
+      );
+    });
+
+    it('shows a row saved before statuses were tracked as active', () => {
+      render(<WhopSubscriptionCard method={whopMethod({ status: null })} />);
+
+      expect(chipOf('payment.whopSubscription.active')).toBeTruthy();
+    });
+
+    it('shows a canceled subscription as canceled, in red', () => {
+      render(<WhopSubscriptionCard method={whopMethod({ status: 'canceled' })} />);
+
+      expect(chipOf('payment.whopSubscription.canceled')?.className).toMatch(
+        /chip--danger.*chip--soft|chip--soft.*chip--danger/,
+      );
+      expect(screen.queryByText('payment.whopSubscription.active')).toBeNull();
+    });
+
+    it('turns canceled right after cancelling, and active again once resumed', async () => {
+      render(<WhopSubscriptionCard method={whopMethod()} />);
+
+      await openAndConfirm();
+      expect(await screen.findByText('payment.whopSubscription.canceled')).toBeTruthy();
+
+      fireEvent.click(screen.getByRole('button', { name: 'payment.whopResume.button' }));
+      expect(await screen.findByText('payment.whopSubscription.active')).toBeTruthy();
+    });
   });
 
   it("falls back to Whop's own name for a payment method that is not a card", () => {
@@ -100,7 +141,7 @@ describe('WhopSubscriptionCard', () => {
 
     expect(screen.queryByText('payment.whopSubscription.product')).toBeNull();
     expect(screen.queryByText('payment.whopSubscription.price')).toBeNull();
-    expect(screen.queryByText('payment.whopSubscription.status')).toBeNull();
+    expect(screen.queryByText('payment.whopSubscription.nextPayment')).toBeNull();
     expect(screen.queryByText('payment.whopSubscription.paymentMethod')).toBeNull();
     expect(screen.getByRole('button', { name: 'payment.whopCancel.button' })).toBeTruthy();
   });
@@ -111,7 +152,7 @@ describe('WhopSubscriptionCard', () => {
     await openAndConfirm();
 
     expect(await screen.findByText(/payment\.whopCancel\.endsOn/)).toBeTruthy();
-    expect(screen.queryByText(/payment\.whopSubscription\.renewsOn/)).toBeNull();
+    expect(screen.queryByText('payment.whopSubscription.nextPayment')).toBeNull();
     expect(screen.getByText('Jungle VPN')).toBeTruthy();
   });
 
@@ -119,7 +160,7 @@ describe('WhopSubscriptionCard', () => {
     render(<WhopSubscriptionCard method={whopMethod({ status: 'canceled' })} />);
 
     expect(screen.getByText(/payment\.whopCancel\.endsOn.*October 27, 2026/)).toBeTruthy();
-    expect(screen.queryByText(/payment\.whopSubscription\.renewsOn/)).toBeNull();
+    expect(screen.queryByText('payment.whopSubscription.nextPayment')).toBeNull();
     expect(screen.queryByRole('button', { name: 'payment.whopCancel.button' })).toBeNull();
     expect(screen.getByText('Jungle VPN')).toBeTruthy();
   });
@@ -139,7 +180,7 @@ describe('WhopSubscriptionCard', () => {
 
     expect(await screen.findByRole('button', { name: 'payment.whopCancel.button' })).toBeTruthy();
     expect(paymentsApi.resumeWhopSubscription).toHaveBeenCalledTimes(1);
-    expect(screen.getByText(/payment\.whopSubscription\.renewsOn.*October 27, 2026/)).toBeTruthy();
+    expect(screen.getByText('October 27, 2026')).toBeTruthy();
     expect(screen.queryByText(/payment\.whopCancel\.endsOn/)).toBeNull();
     expect(screen.queryByRole('button', { name: 'payment.whopResume.button' })).toBeNull();
   });
@@ -252,7 +293,16 @@ describe('WhopSubscriptionCard', () => {
       .whopSubscription;
 
     expect(Object.keys(copy ?? {}).sort()).toEqual(
-      ['paymentMethod', 'price', 'pricePerPeriod', 'product', 'renewsOn', 'status'].sort(),
+      [
+        'active',
+        'canceled',
+        'nextPayment',
+        'paymentMethod',
+        'price',
+        'pricePerPeriod',
+        'product',
+        'status',
+      ].sort(),
     );
     for (const text of Object.values(copy ?? {})) expect(text.trim()).not.toBe('');
   });

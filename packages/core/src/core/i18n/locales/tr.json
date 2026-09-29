@@ -178,7 +178,9 @@
       "status": "Durum",
       "paymentMethod": "Ödeme yöntemi",
       "pricePerPeriod": "{{price}} \/ {{period}}",
-      "renewsOn": "{{date}} tarihinde yenilenir"
+      "nextPayment": "Sonraki ödeme",
+      "active": "Aktif",
+      "canceled": "İptal edildi"
     },
     "deleteMethod": {
       "title": "Ödeme yöntemini kaldırmak ister misiniz?",
