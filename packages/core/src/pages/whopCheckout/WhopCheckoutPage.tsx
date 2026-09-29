@@ -57,7 +57,7 @@ export default function WhopCheckoutPage({ fallbackPath }: WhopCheckoutPageProps
     <Page
       title={t('paddleCheckout.title')}
       subtitle={t('paddleCheckout.subtitle')}
-      className={'mb-16 max-w-xl'}
+      className={'mb-16 max-w-xl m-auto'}
     >
       {elements && (
         <WhopElements
