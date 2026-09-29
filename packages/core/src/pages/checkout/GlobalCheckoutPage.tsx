@@ -1,4 +1,3 @@
-import { Container } from '../../ui';
 import { GLOBAL_PAYMENT_PROVIDER } from '../../utils';
 import PaddleCheckoutPage from '../paddleCheckout/PaddleCheckoutPage';
 import WhopCheckoutPage from '../whopCheckout/WhopCheckoutPage';
@@ -14,9 +13,7 @@ interface GlobalCheckoutPageProps {
  */
 export default function GlobalCheckoutPage({ fallbackPath }: GlobalCheckoutPageProps) {
   return GLOBAL_PAYMENT_PROVIDER === 'whop' ? (
-    <Container maxWidth={'sm'}>
-      <WhopCheckoutPage fallbackPath={fallbackPath} />
-    </Container>
+    <WhopCheckoutPage fallbackPath={fallbackPath} />
   ) : (
     <PaddleCheckoutPage fallbackPath={fallbackPath} />
   );

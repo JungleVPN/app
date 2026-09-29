@@ -1,4 +1,4 @@
-import { RootLayout, usePlatformStore } from '@workspace/core';
+import { Container, RootLayout, usePlatformStore } from '@workspace/core';
 import { SecondaryFooter } from '@workspace/core/components';
 
 /**
@@ -12,7 +12,9 @@ export function WebPaymentLayout() {
     <div
       className={`${platformType === 'web' ? 'pt-32' : ''} flex flex-col justify-between h-screen`}
     >
-      <RootLayout />
+      <Container className={'mb-16'}>
+        <RootLayout />
+      </Container>
       <SecondaryFooter />
     </div>
   );

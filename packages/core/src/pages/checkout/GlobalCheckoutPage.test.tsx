@@ -5,6 +5,7 @@
  */
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import GlobalCheckoutPage from './GlobalCheckoutPage';
 
 const { provider } = vi.hoisted(() => ({ provider: { current: 'paddle' } }));
 
@@ -19,8 +20,6 @@ vi.mock('../paddleCheckout/PaddleCheckoutPage', () => ({
 vi.mock('../whopCheckout/WhopCheckoutPage', () => ({
   default: ({ fallbackPath }: { fallbackPath?: string }) => <p>whop {fallbackPath}</p>,
 }));
-
-import GlobalCheckoutPage from './GlobalCheckoutPage';
 
 describe('GlobalCheckoutPage', () => {
   it('mounts the Whop checkout when Whop is the global provider', () => {

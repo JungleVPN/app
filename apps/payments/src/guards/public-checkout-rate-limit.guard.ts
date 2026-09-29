@@ -9,10 +9,10 @@ import {
 import { ConfigService } from '@nestjs/config';
 
 /** Default sliding window: ten minutes. */
-const DEFAULT_WINDOW_MS = 10 * 60 * 1000;
+const DEFAULT_WINDOW_MS = 2 * 60 * 1000;
 
 /** Default calls allowed per client IP per window. */
-const DEFAULT_MAX_PER_IP = 5;
+const DEFAULT_MAX_PER_IP = 10;
 
 /**
  * Default calls allowed per payer email per window. Lower than the per-IP

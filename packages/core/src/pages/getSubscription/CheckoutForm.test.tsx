@@ -23,14 +23,9 @@ vi.mock('../../components', () => ({
 vi.mock('../../stores', () => ({ useTermsStore: () => ({ open: () => {} }) }));
 vi.mock('../../ui', () => ({
   Block: ({ children }: { children: ReactNode }) => <section>{children}</section>,
-  Container: ({ children }: { children: ReactNode }) => <>{children}</>,
   Grid: ({ children }: { children: ReactNode }) => <>{children}</>,
   GridItem: ({ children }: { children: ReactNode }) => <>{children}</>,
-}));
-vi.mock('../../ui/Heading', () => ({
   Heading: ({ children }: { children: ReactNode }) => <h3>{children}</h3>,
-}));
-vi.mock('../../ui/Paragraph', () => ({
   Paragraph: ({ children }: { children: ReactNode }) => <p>{children}</p>,
 }));
 vi.mock('../../utils', () => ({

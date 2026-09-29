@@ -21,10 +21,10 @@ import {
   type PayPublicWhopCheckoutDto,
   type ProviderSubscriptionDto,
   type WhopCancelDto,
-  type WhopResumeDto,
   type WhopCheckoutPayload,
   type WhopPaymentDto,
   type WhopPromoCodeDto,
+  type WhopResumeDto,
 } from '@workspace/types';
 import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
 import { ClientUserGuard } from '../../auth/client-user.guard';

@@ -16,9 +16,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import Logo from '../../assets/Logo.svg?react';
 import { FeaturesCard, Link, PaymentMethodIcons } from '../../components';
 import { useTermsStore } from '../../stores';
-import { Block, Container, Grid, GridItem } from '../../ui';
-import { Heading } from '../../ui/Heading';
-import { Paragraph } from '../../ui/Paragraph';
+import { Block, Grid, GridItem, Heading, Paragraph } from '../../ui';
 import { formatPlanPrice, scrollToTop } from '../../utils';
 import { formatPeriod } from '../../utils/planPricing';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
@@ -114,188 +112,183 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
 
   return (
     <>
-      <Container maxWidth='lg' className='mb-16'>
-        <Grid className='gap-6'>
-          <GridItem size={{ base: 12, sm: 12, md: 12, lg: 6 }}>
-            <Form
-              className='flex w-full flex-col gap-6'
-              validationBehavior='aria'
-              onSubmit={handleSubmit}
-            >
-              {!isAuthenticated && (
-                <Block className='p-5 sm:p-6'>
-                  <div className='flex flex-col gap-6'>
-                    <StepHeading step={1} title={t('getSubscription.step_email_title')} />
-
-                    <TextField
-                      isInvalid={emailError.length > 0}
-                      isRequired
-                      name='email'
-                      id='payment-email'
-                      type='email'
-                    >
-                      <div className='relative w-full'>
-                        <span className='pointer-events-none absolute inset-s-4 top-1/2 z-10 flex -translate-y-1/2 items-center text-muted'>
-                          <IconMail size={20} stroke={1.5} />
-                        </span>
-                        <Input
-                          autoComplete='email'
-                          className='w-full rounded-full ps-11 data-invalid:border data-invalid:border-danger'
-                          placeholder={t('getSubscription.email_placeholder')}
-                          value={email}
-                          variant='primary'
-                          onChange={(event) => handleEmailChange(event.target.value)}
-                        />
-                      </div>
-                      {emailError.length > 0 ? (
-                        <FieldError className='ms-4'>{emailError}</FieldError>
-                      ) : (
-                        <div className='flex items-center ms-4'>
-                          <Description>{t('getSubscription.email_description')}</Description>
-                          <Tooltip delay={0} closeDelay={0}>
-                            <Button
-                              aria-label={t('getSubscription.email_hint_label')}
-                              isIconOnly
-                              size='sm'
-                              variant='tertiary'
-                              className='size-5 min-w-0 bg-transparent p-0 text-muted'
-                            >
-                              <IconHelpCircle size={16} stroke={2} />
-                            </Button>
-                            <Tooltip.Content placement='bottom' showArrow className='max-w-72'>
-                              <Tooltip.Arrow />
-                              <Paragraph>{t('getSubscription.email_hint')}</Paragraph>
-                            </Tooltip.Content>
-                          </Tooltip>
-                        </div>
-                      )}
-                    </TextField>
-                  </div>
-                </Block>
-              )}
-
-              <Block
-                className='p-5 sm:p-6'
-                description={
-                  <button
-                    className='flex w-fit cursor-pointer items-center gap-1 text-sm text-muted underline underline-offset-2'
-                    type='button'
-                    onClick={openTerms}
-                  >
-                    {t('getSubscription.terms_link')}
-                    <IconChevronRight size={16} stroke={2} className='rtl:-scale-x-100' />
-                  </button>
-                }
-              >
+      <Grid className='gap-6'>
+        <GridItem size={{ base: 12, sm: 12, md: 12, lg: 6 }}>
+          <Form
+            className='flex w-full flex-col gap-6'
+            validationBehavior='aria'
+            onSubmit={handleSubmit}
+          >
+            {!isAuthenticated && (
+              <Block className='p-5 sm:p-6'>
                 <div className='flex flex-col gap-6'>
-                  <StepHeading step={2} title={t('getSubscription.card_method')} />
+                  <StepHeading step={1} title={t('getSubscription.step_email_title')} />
 
-                  <div className='flex flex-wrap items-center justify-between gap-4'>
-                    <Button
-                      className={`${BRAND_GRADIENT} w-full rounded-full sm:w-auto sm:px-10`}
-                      isDisabled={!canSubmit}
-                      isPending={isPending}
-                      type='submit'
-                    >
-                      {({ isPending: isSubmitPending }) => (
-                        <>
-                          {t('getSubscription.submit')}
-                          {isSubmitPending ? <Spinner color='current' size='sm' /> : null}
-                        </>
-                      )}
-                    </Button>
-
-                    <PaymentMethodIcons className='gap-3' />
-                  </div>
-
-                  {checkoutError && <Paragraph>{checkoutError}</Paragraph>}
-                </div>
-              </Block>
-            </Form>
-          </GridItem>
-
-          <GridItem size={{ base: 12, sm: 12, md: 12, lg: 6 }}>
-            <div className='flex flex-col gap-6'>
-              <Block
-                className='p-5 sm:p-6'
-                description={
-                  <div className='flex items-center px-1'>
-                    <span className='flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary'>
-                      <IconRestore stroke={2} />
-                    </span>
-                    <Paragraph>{t('getSubscription.guarantee')}</Paragraph>
-                  </div>
-                }
-              >
-                <div className='flex flex-col gap-5'>
-                  <Heading as='h3'>{t('getSubscription.order_title')}</Heading>
-
-                  {pricing && selectedPeriod !== null ? (
-                    <div className='flex flex-col gap-2'>
-                      <div className='flex items-start justify-between gap-4'>
-                        <div className='flex items-center gap-3'>
-                          <Logo aria-hidden className='size-8 shrink-0 rounded-lg' />
-                          <Paragraph>
-                            {t('getSubscription.order_item', {
-                              period: formatPeriod(selectedPeriod, t),
-                            })}
-                          </Paragraph>
-                        </div>
-                        <div className='flex shrink-0 items-baseline gap-2'>
-                          {crossedOutPrice && (
-                            <span className='text-sm text-muted line-through'>
-                              {format(crossedOutPrice)}
-                            </span>
-                          )}
-                          <span className='text-base font-semibold'>
-                            {format(promoDiscount?.total ?? pricing.total)}
-                          </span>
-                        </div>
+                  <TextField
+                    isInvalid={emailError.length > 0}
+                    isRequired
+                    name='email'
+                    id='payment-email'
+                    type='email'
+                  >
+                    <div className='relative w-full'>
+                      <span className='pointer-events-none absolute inset-s-4 top-1/2 z-10 flex -translate-y-1/2 items-center text-muted'>
+                        <IconMail size={20} stroke={1.5} />
+                      </span>
+                      <Input
+                        autoComplete='email'
+                        className='w-full rounded-full ps-11 data-invalid:border data-invalid:border-danger'
+                        placeholder={t('getSubscription.email_placeholder')}
+                        value={email}
+                        variant='primary'
+                        onChange={(event) => handleEmailChange(event.target.value)}
+                      />
+                    </div>
+                    {emailError.length > 0 ? (
+                      <FieldError className='ms-4'>{emailError}</FieldError>
+                    ) : (
+                      <div className='flex items-center ms-4'>
+                        <Description>{t('getSubscription.email_description')}</Description>
+                        <Tooltip delay={0} closeDelay={0}>
+                          <Button
+                            aria-label={t('getSubscription.email_hint_label')}
+                            isIconOnly
+                            size='sm'
+                            variant='tertiary'
+                            className='size-5 min-w-0 bg-transparent p-0 text-muted'
+                          >
+                            <IconHelpCircle size={16} stroke={2} />
+                          </Button>
+                          <Tooltip.Content placement='bottom' showArrow className='max-w-72'>
+                            <Tooltip.Arrow />
+                            <Paragraph>{t('getSubscription.email_hint')}</Paragraph>
+                          </Tooltip.Content>
+                        </Tooltip>
                       </div>
-
-                      {discountLabel && (
-                        <Chip
-                          size='sm'
-                          className={`w-fit border-none text-[white] ${BRAND_GRADIENT}`}
-                        >
-                          <Chip.Label>{discountLabel}</Chip.Label>
-                        </Chip>
-                      )}
-
-                      {taxNote && <Paragraph className='text-muted'>{taxNote}</Paragraph>}
-
-                      {havePromo ? (
-                        promoCodeSlot
-                      ) : (
-                        <Paragraph
-                          onClick={togglePromoCode}
-                          className={'hover:underline cursor-pointer text-sm lg:text-sm'}
-                        >
-                          Have promo?
-                        </Paragraph>
-                      )}
-                    </div>
-                  ) : (
-                    <div className='flex flex-col gap-2'>
-                      <Paragraph>{t('getSubscription.plan_unavailable_title')}</Paragraph>
-                      <Paragraph>
-                        <Trans
-                          i18nKey='getSubscription.plan_unavailable_description'
-                          components={{ 1: <Link className='underline' href='/#pricing' /> }}
-                        />
-                      </Paragraph>
-                    </div>
-                  )}
-                  <FeaturesCard
-                    className='p-5 sm:p-6'
-                    title={t('getSubscription.features_title')}
-                  />
+                    )}
+                  </TextField>
                 </div>
               </Block>
-            </div>
-          </GridItem>
-        </Grid>
-      </Container>
+            )}
+
+            <Block
+              className='p-5 sm:p-6'
+              description={
+                <button
+                  className='flex w-fit cursor-pointer items-center gap-1 text-sm text-muted underline underline-offset-2'
+                  type='button'
+                  onClick={openTerms}
+                >
+                  {t('getSubscription.terms_link')}
+                  <IconChevronRight size={16} stroke={2} className='rtl:-scale-x-100' />
+                </button>
+              }
+            >
+              <div className='flex flex-col gap-6'>
+                <StepHeading step={2} title={t('getSubscription.card_method')} />
+
+                <div className='flex flex-wrap items-center justify-between gap-4'>
+                  <Button
+                    className={`${BRAND_GRADIENT} w-full rounded-full sm:w-auto sm:px-10`}
+                    isDisabled={!canSubmit}
+                    isPending={isPending}
+                    type='submit'
+                  >
+                    {({ isPending: isSubmitPending }) => (
+                      <>
+                        {t('getSubscription.submit')}
+                        {isSubmitPending ? <Spinner color='current' size='sm' /> : null}
+                      </>
+                    )}
+                  </Button>
+
+                  <PaymentMethodIcons className='gap-3' />
+                </div>
+
+                {checkoutError && <Paragraph>{checkoutError}</Paragraph>}
+              </div>
+            </Block>
+          </Form>
+        </GridItem>
+
+        <GridItem size={{ base: 12, sm: 12, md: 12, lg: 6 }}>
+          <div className='flex flex-col gap-6'>
+            <Block
+              className='p-5 sm:p-6'
+              description={
+                <div className='flex items-center px-1'>
+                  <span className='flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary'>
+                    <IconRestore stroke={2} />
+                  </span>
+                  <Paragraph>{t('getSubscription.guarantee')}</Paragraph>
+                </div>
+              }
+            >
+              <div className='flex flex-col gap-5'>
+                <Heading as='h3'>{t('getSubscription.order_title')}</Heading>
+
+                {pricing && selectedPeriod !== null ? (
+                  <div className='flex flex-col gap-2'>
+                    <div className='flex items-start justify-between gap-4'>
+                      <div className='flex items-center gap-3'>
+                        <Logo aria-hidden className='size-8 shrink-0 rounded-lg' />
+                        <Paragraph>
+                          {t('getSubscription.order_item', {
+                            period: formatPeriod(selectedPeriod, t),
+                          })}
+                        </Paragraph>
+                      </div>
+                      <div className='flex shrink-0 items-baseline gap-2'>
+                        {crossedOutPrice && (
+                          <span className='text-sm text-muted line-through'>
+                            {format(crossedOutPrice)}
+                          </span>
+                        )}
+                        <span className='text-base font-semibold'>
+                          {format(promoDiscount?.total ?? pricing.total)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {discountLabel && (
+                      <Chip
+                        size='sm'
+                        className={`w-fit border-none text-[white] ${BRAND_GRADIENT}`}
+                      >
+                        <Chip.Label>{discountLabel}</Chip.Label>
+                      </Chip>
+                    )}
+
+                    {taxNote && <Paragraph className='text-muted'>{taxNote}</Paragraph>}
+
+                    {havePromo ? (
+                      promoCodeSlot
+                    ) : (
+                      <Paragraph
+                        onClick={togglePromoCode}
+                        className={'hover:underline cursor-pointer text-sm lg:text-sm'}
+                      >
+                        Have promo?
+                      </Paragraph>
+                    )}
+                  </div>
+                ) : (
+                  <div className='flex flex-col gap-2'>
+                    <Paragraph>{t('getSubscription.plan_unavailable_title')}</Paragraph>
+                    <Paragraph>
+                      <Trans
+                        i18nKey='getSubscription.plan_unavailable_description'
+                        components={{ 1: <Link className='underline' href='/#pricing' /> }}
+                      />
+                    </Paragraph>
+                  </div>
+                )}
+                <FeaturesCard className='p-5 sm:p-6' title={t('getSubscription.features_title')} />
+              </div>
+            </Block>
+          </div>
+        </GridItem>
+      </Grid>
 
       <TermsDialog />
     </>
