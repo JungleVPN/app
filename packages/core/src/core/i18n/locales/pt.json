@@ -856,7 +856,7 @@
       "subtitle": "Não ficou satisfeito? Receba o reembolso total, sem perguntas."
     },
     "trialPeriodBanner": {
-      "title": "{{days}} dias de teste por apenas {{price}} {{currency}}"
+      "title": "{{days}} dias de teste por apenas <hl>{{price}} {{currency}}</hl>"
     },
     "footer": {
       "copyright": "© {{year}} JungleVPN. Todos os direitos reservados.",

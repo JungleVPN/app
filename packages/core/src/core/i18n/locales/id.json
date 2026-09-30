@@ -856,7 +856,7 @@
       "subtitle": "Tidak puas? Dapatkan pengembalian dana penuh, tanpa pertanyaan."
     },
     "trialPeriodBanner": {
-      "title": "Uji coba {{days}} hari hanya seharga {{price}} {{currency}}"
+      "title": "Uji coba {{days}} hari hanya seharga <hl>{{price}} {{currency}}</hl>"
     },
     "footer": {
       "copyright": "© {{year}} JungleVPN. Semua hak dilindungi undang-undang.",

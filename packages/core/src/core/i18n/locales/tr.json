@@ -856,7 +856,7 @@
       "subtitle": "Memnun kalmadınız mı? Hiçbir soru sorulmadan tam para iadesi alın."
     },
     "trialPeriodBanner": {
-      "title": "{{days}} günlük deneme sürümü sadece {{price}} {{currency}} karşılığında"
+      "title": "{{days}} günlük deneme sürümü sadece <hl>{{price}} {{currency}}</hl> karşılığında"
     },
     "footer": {
       "copyright": "© {{year}} JungleVPN. Tüm hakları saklıdır.",

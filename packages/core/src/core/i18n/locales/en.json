@@ -856,7 +856,7 @@
       "subtitle": "Not satisfied? Get a full refund, no questions asked."
     },
     "trialPeriodBanner": {
-      "title": "{{days}} days trial only for {{price}} {{currency}}"
+      "title": "{{days}} days trial only for <hl>{{price}} {{currency}}</hl>"
     },
     "footer": {
       "copyright": "© {{year}} JungleVPN. All rights reserved.",

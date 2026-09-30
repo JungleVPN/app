@@ -856,7 +856,7 @@
       "subtitle": "संतुष्ट नहीं हैं? बिना किसी सवाल के पूरा रिफंड पाएं।"
     },
     "trialPeriodBanner": {
-      "title": "{{days}} दिन का ट्रायल केवल {{price}} {{currency}} के लिए"
+      "title": "{{days}} दिन का ट्रायल केवल <hl>{{price}} {{currency}}</hl> के लिए"
     },
     "footer": {
       "copyright": "© {{year}} जंगलवीपीएन। सर्वाधिकार सुरक्षित।",

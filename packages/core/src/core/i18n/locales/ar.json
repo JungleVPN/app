@@ -856,7 +856,7 @@
       "subtitle": "لست راضيًا؟ احصل على استرداد كامل للمبلغ، دون أي أسئلة."
     },
     "trialPeriodBanner": {
-      "title": "تجربة مجانية لمدة {{days}} يومًا مقابل {{price}} {{currency}} فقط"
+      "title": "تجربة مجانية لمدة {{days}} يومًا مقابل <hl>{{price}} {{currency}}</hl> فقط"
     },
     "footer": {
       "copyright": "© {{year}} JungleVPN. جميع الحقوق محفوظة.",

@@ -861,7 +861,7 @@
       "subtitle": "Не понравилось? Вернём деньги полностью, без лишних вопросов."
     },
     "trialPeriodBanner": {
-      "title": "{{days}} дней пробного периода всего за {{price}} {{currency}}"
+      "title": "{{days}} дней пробного периода всего за <hl>{{price}} {{currency}}</hl>"
     },
     "footer": {
       "copyright": "© {{year}} JungleVPN. Все права защищены.",
