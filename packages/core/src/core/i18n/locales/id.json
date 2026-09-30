@@ -785,6 +785,19 @@
         "ru": "Rusia"
       }
     },
+    "stats": {
+      "title": "Semua negara yang Anda butuhkan — dalam satu langganan",
+      "subtitle": "Kami mengumpulkan lokasi terbaik untuk bekerja, hiburan, dan perjalanan.",
+      "online": "Online",
+      "offline": "Offline",
+      "servers": "Server: {{count}}",
+      "speed": "Hingga 10 Gbps",
+      "memory": "Memori",
+      "cpu": "CPU",
+      "noData": "Belum ada data",
+      "seeAll": "Lihat semua lokasi",
+      "showLess": "Tampilkan lebih sedikit"
+    },
     "pricing": {
       "title": "Paket kami",
       "subtitle": "Pilih paket yang paling sesuai untuk Anda. Setiap paket mencakup fitur-fitur inti yang sama.",

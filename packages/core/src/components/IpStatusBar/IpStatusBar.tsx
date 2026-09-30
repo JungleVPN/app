@@ -1,22 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useRemnawaveApi } from '../../api';
 import { useIpStatus } from '../../hooks';
-
-/** 🇵🇹 from "PT" — regional indicator symbols sit 0x1f1a5 above ASCII capitals. */
-function flagEmoji(countryCode: string): string {
-  if (!/^[a-z]{2}$/i.test(countryCode)) return '';
-  return String.fromCodePoint(
-    ...[...countryCode.toUpperCase()].map((c) => 0x1f1a5 + c.charCodeAt(0)),
-  );
-}
-
-function countryName(countryCode: string, language: string): string {
-  try {
-    return new Intl.DisplayNames([language], { type: 'region' }).of(countryCode) ?? countryCode;
-  } catch {
-    return countryCode;
-  }
-}
+import { countryName, flagEmoji } from '../../utils';
 
 interface IpStatusBarProps {
   className?: string;

@@ -21,6 +21,7 @@ export {
   writeCookie,
   writeJsonCookie,
 } from './cookies';
+export { countryName, flagEmoji } from './country';
 export { formatIntlPrice, formatPlanPrice } from './currency';
 export { toDateString } from './date';
 export { detectOs } from './detectOs';

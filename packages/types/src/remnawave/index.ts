@@ -91,8 +91,9 @@ export type IpStatusDto = {
 
 /**
  * One node as the public Stats block sees it — deliberately nothing more.
- * `uptime` (seconds) and `memoryUsed` (bytes) are `null` until the node has
- * reported its system stats to the panel.
+ * `uptime` is in seconds, memory in bytes, and `cpuLoad` is the one-minute
+ * load average per core (1 = every core busy; it can exceed 1). All four are
+ * `null` until the node has reported its system stats to the panel.
  */
 export type NodeStatDto = {
   name: string;
@@ -100,4 +101,6 @@ export type NodeStatDto = {
   countryCode: string;
   uptime: number | null;
   memoryUsed: number | null;
+  memoryTotal: number | null;
+  cpuLoad: number | null;
 };

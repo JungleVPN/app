@@ -7,6 +7,17 @@ export const NODE_STATS_CACHE_TTL_MS = 60 * 1000;
 type PanelNode = GetNodesCommand.Response['response'][number];
 
 /**
+ * The one-minute load average per core: 1 is every core busy, above 1 is a
+ * queue. Unknown without both figures rather than a misleading 0.
+ */
+const cpuLoad = (system: PanelNode['system']): number | null => {
+  const oneMinute = system?.stats.loadAvg[0];
+  const cores = system?.info.cpus;
+  if (oneMinute === undefined || !cores) return null;
+  return oneMinute / cores;
+};
+
+/**
  * Built field by field rather than by omitting: a new field the panel adds
  * must stay private until someone decides to publish it.
  */
@@ -16,6 +27,8 @@ const toNodeStat = (node: PanelNode): NodeStatDto => ({
   countryCode: node.countryCode,
   uptime: node.system?.stats.uptime ?? null,
   memoryUsed: node.system?.stats.memoryUsed ?? null,
+  memoryTotal: node.system?.info.memoryTotal ?? null,
+  cpuLoad: cpuLoad(node.system),
 });
 
 @Injectable()

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Container, Reveal, RoundedSection } from '../../ui';
 import { phCapture } from '../../utils';
 import { FAQSection } from '../landing/FAQSection';
+import { Stats } from '../landing/Stats';
 import { TrialPeriodBanner } from '../landing/TrialPeriodBanner';
 import { AroundTheWorldSection } from './AroundTheWorldSection';
 import { HeroSection } from './HeroSection';
@@ -22,6 +23,11 @@ export default function LocationsPage() {
         <Container>
           <Reveal>
             <TrialPeriodBanner />
+          </Reveal>
+        </Container>
+        <Container id='locations'>
+          <Reveal amount={0.1}>
+            <Stats />
           </Reveal>
         </Container>
         <Container>

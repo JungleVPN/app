@@ -3,7 +3,7 @@
  *
  * The panel's node objects carry addresses, ports, provider logins, traffic
  * counters and hardware details — none of which a stranger should see. Only
- * the five fields the Stats block renders may leave this service.
+ * the fields the Stats block renders may leave this service.
  *
  * The endpoint is anonymous, so each visitor must not cost a panel call: the
  * list is cached, concurrent misses share one fetch, and a panel outage serves
@@ -29,7 +29,7 @@ const panelNode = (overrides: Record<string, unknown> = {}) => ({
   provider: { uuid: 'p', name: 'Netcup', loginUrl: 'https://secret.example' },
   system: {
     info: { hostname: 'vie-1', cpus: 4, memoryTotal: 8_000 },
-    stats: { memoryFree: 3_000, memoryUsed: 5_000, uptime: 86_400, loadAvg: [0.1] },
+    stats: { memoryFree: 3_000, memoryUsed: 5_000, uptime: 86_400, loadAvg: [0.1, 0.2, 0.3] },
   },
   ...overrides,
 });
@@ -49,20 +49,60 @@ beforeEach(() => {
 });
 
 describe('NodeStatsService.list', () => {
-  it('returns only name, isConnected, countryCode, uptime and memoryUsed for each node', async () => {
+  it('returns only the public fields for each node', async () => {
     const { service } = makeService();
 
     await expect(service.list()).resolves.toStrictEqual([
-      { name: 'Vienna', isConnected: true, countryCode: 'AT', uptime: 86_400, memoryUsed: 5_000 },
+      {
+        name: 'Vienna',
+        isConnected: true,
+        countryCode: 'AT',
+        uptime: 86_400,
+        memoryUsed: 5_000,
+        memoryTotal: 8_000,
+        cpuLoad: 0.025,
+      },
     ]);
   });
 
-  it('reports uptime and memory as unknown for a node that has not reported its system yet', async () => {
+  it('reports system figures as unknown for a node that has not reported its system yet', async () => {
     const { service } = makeService({ nodes: [panelNode({ system: null, isConnected: false })] });
 
     await expect(service.list()).resolves.toStrictEqual([
-      { name: 'Vienna', isConnected: false, countryCode: 'AT', uptime: null, memoryUsed: null },
+      {
+        name: 'Vienna',
+        isConnected: false,
+        countryCode: 'AT',
+        uptime: null,
+        memoryUsed: null,
+        memoryTotal: null,
+        cpuLoad: null,
+      },
     ]);
+  });
+
+  it('expresses CPU load as the one-minute load average per core', async () => {
+    const system = {
+      info: { hostname: 'vie-1', cpus: 2, memoryTotal: 8_000 },
+      stats: { memoryFree: 3_000, memoryUsed: 5_000, uptime: 1, loadAvg: [3, 0.5, 0.2] },
+    };
+    const { service } = makeService({ nodes: [panelNode({ system })] });
+
+    const [stat] = await service.list();
+
+    expect(stat.cpuLoad).toBe(1.5);
+  });
+
+  it('reports CPU load as unknown when the node reports no load average', async () => {
+    const system = {
+      info: { hostname: 'vie-1', cpus: 2, memoryTotal: 8_000 },
+      stats: { memoryFree: 3_000, memoryUsed: 5_000, uptime: 1, loadAvg: [] },
+    };
+    const { service } = makeService({ nodes: [panelNode({ system })] });
+
+    const [stat] = await service.list();
+
+    expect(stat.cpuLoad).toBeNull();
   });
 
   it('leaves disabled nodes out, since they are not part of the service', async () => {

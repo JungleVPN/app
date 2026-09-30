@@ -785,6 +785,19 @@
         "ru": "Rússia"
       }
     },
+    "stats": {
+      "title": "Todos os países de que você precisa — em uma só assinatura",
+      "subtitle": "Reunimos as melhores localizações para trabalho, entretenimento e viagens.",
+      "online": "Online",
+      "offline": "Offline",
+      "servers": "Servidores: {{count}}",
+      "speed": "Até 10 Gbps",
+      "memory": "Memória",
+      "cpu": "CPU",
+      "noData": "Ainda sem dados",
+      "seeAll": "Ver todas as localizações",
+      "showLess": "Mostrar menos"
+    },
     "pricing": {
       "title": "Nossos planos",
       "subtitle": "Escolha o plano que melhor se adapta às suas necessidades. Todos os planos incluem os mesmos recursos básicos.",

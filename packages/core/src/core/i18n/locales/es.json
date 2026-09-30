@@ -785,6 +785,19 @@
         "ru": "Rusia"
       }
     },
+    "stats": {
+      "title": "Todos los países que necesitas, en una sola suscripción",
+      "subtitle": "Reunimos las mejores ubicaciones para trabajar, entretenerte y viajar.",
+      "online": "En línea",
+      "offline": "Sin conexión",
+      "servers": "Servidores: {{count}}",
+      "speed": "Hasta 10 Gbps",
+      "memory": "Memoria",
+      "cpu": "CPU",
+      "noData": "Aún no hay datos",
+      "seeAll": "Ver todas las ubicaciones",
+      "showLess": "Mostrar menos"
+    },
     "pricing": {
       "title": "Nuestros planes",
       "subtitle": "Elige el plan que mejor se adapte a ti. Todos los planes incluyen las mismas funciones básicas.",

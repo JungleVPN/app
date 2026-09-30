@@ -785,6 +785,19 @@
         "ru": "Rusya"
       }
     },
+    "stats": {
+      "title": "İhtiyacınız olan tüm ülkeler — tek abonelikte",
+      "subtitle": "İş, eğlence ve seyahat için en iyi konumları bir araya getirdik.",
+      "online": "Çevrimiçi",
+      "offline": "Çevrimdışı",
+      "servers": "Sunucular: {{count}}",
+      "speed": "10 Gbps'ye kadar",
+      "memory": "Bellek",
+      "cpu": "CPU",
+      "noData": "Henüz veri yok",
+      "seeAll": "Tüm konumları gör",
+      "showLess": "Daha az göster"
+    },
     "pricing": {
       "title": "Planlarımız",
       "subtitle": "Size en uygun planı seçin. Her plan aynı temel özellikleri içerir.",

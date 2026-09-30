@@ -9,6 +9,7 @@ import {
   GetUserByIdResponseDto,
   GetUserHwidDevicesCommand,
   type IpStatusDto,
+  type NodeStatDto,
   type StreamedUserDto,
   UpdateUserCommand,
   UpdateUserResponseDto,
@@ -23,6 +24,11 @@ export function createRemnawaveApi(client: ApiClient) {
      */
     async getIpStatus(signal?: AbortSignal): Promise<IpStatusDto> {
       return client.get<IpStatusDto>(apiRoutes.remnawave.ipStatus, { signal });
+    },
+
+    /** Public and the same for every visitor: live statistics for each server. */
+    async getNodeStats(signal?: AbortSignal): Promise<NodeStatDto[]> {
+      return client.get<NodeStatDto[]>(apiRoutes.remnawave.nodeStats, { signal });
     },
 
     async getUserByEmail(body: { email: string }): Promise<StreamedUserDto[] | null> {
