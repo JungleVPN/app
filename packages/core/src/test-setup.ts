@@ -27,3 +27,9 @@ if (typeof globalThis.CSS?.escape !== 'function') {
     CSS: { ...globalThis.CSS, escape: (value: string) => value.replace(/[^\w-]/g, '\\$&') },
   });
 }
+
+// jsdom has no Web Animations API; react-aria's SelectionIndicator (Tabs) calls
+// `element.getAnimations()` when the selection moves.
+if (typeof Element.prototype.getAnimations !== 'function') {
+  Object.assign(Element.prototype, { getAnimations: () => [] });
+}

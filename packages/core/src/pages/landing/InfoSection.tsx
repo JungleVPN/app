@@ -3,15 +3,13 @@ import FreedomIcon from '../../assets/icons/freedom-icon.svg?react';
 import PrivacyIcon from '../../assets/icons/privacy-icon.svg?react';
 import RoutingIcon from '../../assets/icons/routing-icon.svg?react';
 import SecurityIcon from '../../assets/icons/security-icon.svg?react';
-import { BlurInWords, Grid, GridItem } from '../../ui';
-import { Heading } from '../../ui/Heading';
-import { Paragraph } from '../../ui/Paragraph';
+import { BlurInWords, Grid, GridItem, Heading, Paragraph } from '../../ui';
 
 const USE_CASE_CARDS = [
-  { key: 'wifi', icon: <FreedomIcon />, color: 'text-blue-500' },
-  { key: 'privacy', icon: <PrivacyIcon />, color: 'text-purple-500' },
-  { key: 'travel', icon: <SecurityIcon />, color: 'text-emerald-500' },
-  { key: 'smartRouting', icon: <RoutingIcon />, color: 'text-orange-500' },
+  { key: 'wifi', icon: <FreedomIcon className={'h-14'} />, color: 'text-blue-500' },
+  { key: 'privacy', icon: <PrivacyIcon className={'h-14'} />, color: 'text-purple-500' },
+  { key: 'travel', icon: <SecurityIcon className={'h-14'} />, color: 'text-emerald-500' },
+  { key: 'smartRouting', icon: <RoutingIcon className={'h-14'} />, color: 'text-orange-500' },
 ] as const;
 
 /** `valueKey` is for values that carry a translated unit, e.g. "30-day" / "30 дней". */

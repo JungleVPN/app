@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { FEATURES_TABS, FeaturesTabs } from '../../components';
 import { Container, Reveal, RoundedSection } from '../../ui';
 import { phCapture, scrollToTop } from '../../utils';
 import { CTASection } from '../landing/CTASection';
@@ -23,6 +24,9 @@ export default function PricingPage() {
         <Container className={'flex flex-col gap-32 pt-20'}>
           <Reveal>
             <BenefitsSection />
+          </Reveal>
+          <Reveal className={'my-16'}>
+            <FeaturesTabs tabs={FEATURES_TABS} ariaLabel='Jungle VPN features' />
           </Reveal>
           <Reveal>
             <CTASection onCtaClick={scrollToTop} />

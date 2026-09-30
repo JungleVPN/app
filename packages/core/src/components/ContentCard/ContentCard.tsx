@@ -24,19 +24,47 @@ type StatCardProps = {
   learnMoreHref?: string;
 };
 
-type ContentCardProps = FeatureCardProps | StatCardProps;
+type CompactCardProps = {
+  variant: 'compact';
+  icon: ReactNode;
+  title: string;
+  description: string;
+  className?: string;
+};
+
+type ContentCardProps = FeatureCardProps | StatCardProps | CompactCardProps;
 
 export function ContentCard(props: ContentCardProps) {
+  if (props.variant === 'compact') {
+    const { title, description, icon, className } = props;
+    return (
+      <Card
+        variant='tertiary'
+        className={`flex h-full flex-row-reverse items-center gap-8 bg-white p-8 shadow-surface shadow-md transition-all duration-300 hover:shadow-lg cursor-default ${className ?? ''}`}
+      >
+        <div className='flex flex-1 flex-col gap-4'>
+          <Heading as='h3'>{title}</Heading>
+          <Paragraph className={'text-muted text-base lg:text-lg'}>{description}</Paragraph>
+        </div>
+        <div className='w-20 shrink-0 *:m-0 *:h-auto *:w-full'>{icon}</div>
+      </Card>
+    );
+  }
+
   if (props.variant === 'stat') {
     const { title, description, learnMoreLabel, learnMoreHref = '#', icon, className } = props;
     return (
       <Card
         variant='tertiary'
-        className={`relative bg-white  flex h-full flex-col justify-between p-8 shadow-surface shadow-md min-h-64 ${className ?? ''}`}
+        className={`relative bg-white flex h-full flex-col justify-between items-center p-8 shadow-surface shadow-md min-h-64 transition-all duration-300 hover:shadow-lg cursor-default ${className ?? ''}`}
       >
-        <div>
+        <div className='flex flex-col gap-4 w-full'>
           <Heading as='h3'>{title}</Heading>
-          {description && <Paragraph className={'max-w-md text-muted'}>{description}</Paragraph>}
+          {description && (
+            <Paragraph className={'max-w-md text-muted text-base lg:text-lg'}>
+              {description}
+            </Paragraph>
+          )}
         </div>
         {learnMoreLabel && (
           <Link href={learnMoreHref} className='mt-10 text-sm font-medium underline'>

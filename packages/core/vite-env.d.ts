@@ -16,6 +16,11 @@ declare module '*.svg?react' {
   export default ReactComponent;
 }
 
+declare module '*.png' {
+  const content: string;
+  export default content;
+}
+
 declare module '*.lottie?url' {
   const content: string;
   export default content;
