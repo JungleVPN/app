@@ -1,3 +1,4 @@
+import { cn } from '@heroui/react';
 import type { HTMLAttributes } from 'react';
 
 export type HeadingElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
@@ -18,9 +19,7 @@ const HEADING_SIZE_CLASSES: Record<HeadingElement, string> = {
 export function Heading({ as: Component = 'h1', className, ...props }: HeadingProps) {
   return (
     <Component
-      className={['font-bold tracking-tight', HEADING_SIZE_CLASSES[Component], className]
-        .filter(Boolean)
-        .join(' ')}
+      className={cn('font-bold tracking-tight', HEADING_SIZE_CLASSES[Component], className)}
       {...props}
     />
   );
