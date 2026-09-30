@@ -774,6 +774,40 @@
         "description": "Kurulum, abonelik veya bağlantı sorunlarında gerçek bir destek ekibinden yardım alın — genellikle 10 dakika içinde."
       }
     },
+    "featuresTabs": {
+      "ariaLabel": "Jungle VPN özellikleri",
+      "tabs": {
+        "privacy": "Gizlilik",
+        "securityPerformance": "Güvenlik ve Performans",
+        "features": "Özellikler"
+      },
+      "items": {
+        "maskIp": {
+          "title": "IP adresinizi gizleyin",
+          "description": "Jungle VPN gerçek IP adresinizi gizleyerek web sitelerinin sizi internette takip etmesinin en kolay ve en doğru yolunu engeller."
+        },
+        "noLogs": {
+          "title": "Kayıt tutmama politikası",
+          "description": "Jungle VPN gizliliğinizi tehlikeye atabilecek hiçbir kayıt tutmaz ve İsviçre yasalarına göre kayıt tutmaya zorlanamayız."
+        },
+        "highSpeed": {
+          "title": "Yüksek hız",
+          "description": "Yüksek hızlı VPN sunucu ağımız 10 Gbps'ye kadar bağlantı sunar."
+        },
+        "servers": {
+          "title": "Sunucular ve konumlar",
+          "description": "Jungle VPN, 6'dan fazla ülkede 100'den fazla sunucu çalıştırır; böylece her zaman en hızlı veya ihtiyacınıza en uygun konuma bağlanabilirsiniz."
+        },
+        "support": {
+          "title": "Müşteri desteği / Canlı sohbet",
+          "description": "Sorularınız varsa güler yüzlü ve profesyonel destek ekibimize ulaşın. Ücretli bir planla canlı sohbet desteği günün büyük bölümünde kullanılabilir."
+        },
+        "streaming": {
+          "title": "Yayın akışı",
+          "description": "Evden uzaktayken favori dizilerinizi, filmlerinizi ve spor etkinliklerinizi takılmadan izleyin. Jungle VPN dünyanın dört bir yanındaki birçok popüler yayın hizmetini destekler."
+        }
+      }
+    },
     "countries": {
       "label": "6'dan fazla ülkede sunucular",
       "names": {

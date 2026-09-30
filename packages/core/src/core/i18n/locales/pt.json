@@ -774,6 +774,40 @@
         "description": "Receba ajuda de uma equipe de suporte real com questões relacionadas à configuração, assinaturas ou conexão — geralmente em até 10 minutos."
       }
     },
+    "featuresTabs": {
+      "ariaLabel": "Recursos do Jungle VPN",
+      "tabs": {
+        "privacy": "Privacidade",
+        "securityPerformance": "Segurança e desempenho",
+        "features": "Recursos"
+      },
+      "items": {
+        "maskIp": {
+          "title": "Oculte seu IP",
+          "description": "O Jungle VPN oculta seu endereço IP real, impedindo a forma mais fácil e precisa de os sites rastrearem você online."
+        },
+        "noLogs": {
+          "title": "Política de não registro",
+          "description": "O Jungle VPN não guarda registros que possam comprometer sua privacidade e, pela lei suíça, não podemos ser obrigados a começar a registrar."
+        },
+        "highSpeed": {
+          "title": "Alta velocidade",
+          "description": "Nossa rede de servidores VPN de alta velocidade oferece conexões de até 10 Gbps."
+        },
+        "servers": {
+          "title": "Servidores e locais",
+          "description": "O Jungle VPN tem mais de 100 servidores em mais de 6 países, para que você sempre possa se conectar ao local mais rápido ou útil para você."
+        },
+        "support": {
+          "title": "Suporte / Chat ao vivo",
+          "description": "Se tiver alguma dúvida, fale com nossa equipe de suporte simpática e profissional. Com um plano pago, o chat ao vivo fica disponível na maior parte do dia."
+        },
+        "streaming": {
+          "title": "Streaming",
+          "description": "Assista às suas séries, filmes e eventos esportivos favoritos sem travamentos quando estiver longe de casa. O Jungle VPN é compatível com muitos serviços de streaming populares no mundo todo."
+        }
+      }
+    },
     "countries": {
       "label": "Servidores em mais de 6 países",
       "names": {

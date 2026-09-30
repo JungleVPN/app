@@ -774,6 +774,40 @@
         "description": "Dapatkan bantuan dari tim dukungan yang siap membantu Anda dalam hal pengaturan, langganan, atau masalah koneksi — biasanya dalam waktu 10 menit."
       }
     },
+    "featuresTabs": {
+      "ariaLabel": "Fitur Jungle VPN",
+      "tabs": {
+        "privacy": "Privasi",
+        "securityPerformance": "Keamanan & Performa",
+        "features": "Fitur"
+      },
+      "items": {
+        "maskIp": {
+          "title": "Sembunyikan IP Anda",
+          "description": "Jungle VPN menyembunyikan alamat IP asli Anda, mencegah cara termudah dan paling akurat bagi situs web untuk melacak Anda secara online."
+        },
+        "noLogs": {
+          "title": "Kebijakan tanpa log",
+          "description": "Jungle VPN tidak menyimpan log yang dapat membahayakan privasi Anda, dan berdasarkan hukum Swiss kami tidak dapat diwajibkan untuk mulai mencatat."
+        },
+        "highSpeed": {
+          "title": "Kecepatan tinggi",
+          "description": "Jaringan server VPN berkecepatan tinggi kami menawarkan koneksi hingga 10 Gbps."
+        },
+        "servers": {
+          "title": "Server & lokasi",
+          "description": "Jungle VPN menjalankan lebih dari 100 server di lebih dari 6 negara sehingga Anda selalu dapat terhubung ke lokasi tercepat atau paling sesuai kebutuhan Anda."
+        },
+        "support": {
+          "title": "Dukungan pelanggan / Live chat",
+          "description": "Jika ada pertanyaan, hubungi tim dukungan kami yang ramah dan profesional. Dengan paket berbayar, live chat tersedia hampir sepanjang hari."
+        },
+        "streaming": {
+          "title": "Streaming",
+          "description": "Tonton acara, film, dan pertandingan olahraga favorit Anda tanpa buffering saat bepergian jauh dari rumah. Jungle VPN mendukung banyak layanan streaming populer di seluruh dunia."
+        }
+      }
+    },
     "countries": {
       "label": "Server di lebih dari 6 negara",
       "names": {

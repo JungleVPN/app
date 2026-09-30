@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import FeaturesIcon from '../../assets/icons/features-icon.svg?react';
 import FreedomImage from '../../assets/icons/freedom-icon.svg?react';
 import MaskIPImage from '../../assets/icons/privacy-icon.svg?react';
@@ -6,58 +8,59 @@ import NoLogsImage from '../../assets/icons/security-icon.svg?react';
 import SpeedImage from '../../assets/icons/speed-icon.svg?react';
 import type { FeaturesTab } from './FeaturesTabs';
 
-export const FEATURES_TABS: ReadonlyArray<FeaturesTab> = [
+type FeaturesTabItemContent = {
+  titleKey: string;
+  descriptionKey: string;
+  icon: ReactNode;
+};
+
+type FeaturesTabContent = {
+  id: string;
+  labelKey: string;
+  items: ReadonlyArray<FeaturesTabItemContent>;
+};
+
+const PREFIX = 'landing.featuresTabs';
+
+export const FEATURES_TABS_ARIA_LABEL_KEY = `${PREFIX}.ariaLabel`;
+
+const item = (key: string, icon: ReactNode): FeaturesTabItemContent => ({
+  titleKey: `${PREFIX}.items.${key}.title`,
+  descriptionKey: `${PREFIX}.items.${key}.description`,
+  icon,
+});
+
+export const FEATURES_TABS: ReadonlyArray<FeaturesTabContent> = [
   {
     id: 'privacy',
-    label: 'Privacy',
-    items: [
-      {
-        title: 'Mask your IP',
-        description:
-          'Jungle VPN hides your real IP address, preventing the easiest and most accurate way for websites to track you online.',
-        icon: <MaskIPImage />,
-      },
-      {
-        title: 'No-logs policy',
-        description:
-          'Jungle VPN keeps no logs that can compromise your privacy and under Swiss law we can’t be obligated to start logging.',
-        icon: <NoLogsImage />,
-      },
-    ],
+    labelKey: `${PREFIX}.tabs.privacy`,
+    items: [item('maskIp', <MaskIPImage />), item('noLogs', <NoLogsImage />)],
   },
   {
     id: 'security-performance',
-    label: 'Security & Performance',
-    items: [
-      {
-        title: 'High-speed',
-        description: 'Our network of high-speed VPN servers offers connections up to 10 Gbps.',
-        icon: <SpeedImage />,
-      },
-      {
-        title: 'Servers & locations',
-        description:
-          'Jungle VPN runs over 100 servers in over 6 countries so you can always connect to the fastest or most useful location for your needs.',
-        icon: <FreedomImage />,
-      },
-    ],
+    labelKey: `${PREFIX}.tabs.securityPerformance`,
+    items: [item('highSpeed', <SpeedImage />), item('servers', <FreedomImage />)],
   },
   {
     id: 'features',
-    label: 'Features',
-    items: [
-      {
-        title: 'Customer support / Live chat',
-        description:
-          'If you have any questions, contact our friendly and professional support team. With a paid plan, Live chat support is available most hours.',
-        icon: <RoutingIcon />,
-      },
-      {
-        title: 'Streaming',
-        description:
-          'Watch your favourite shows, movies, and sports events buffering-free when traveling away from home. Jungle VPN supports many popular streaming services around the world.',
-        icon: <FeaturesIcon />,
-      },
-    ],
+    labelKey: `${PREFIX}.tabs.features`,
+    items: [item('support', <RoutingIcon />), item('streaming', <FeaturesIcon />)],
   },
 ];
+
+export function useFeaturesTabs(): { tabs: ReadonlyArray<FeaturesTab>; ariaLabel: string } {
+  const { t } = useTranslation();
+
+  return {
+    ariaLabel: t(FEATURES_TABS_ARIA_LABEL_KEY),
+    tabs: FEATURES_TABS.map(({ id, labelKey, items }) => ({
+      id,
+      label: t(labelKey),
+      items: items.map(({ titleKey, descriptionKey, icon }) => ({
+        title: t(titleKey),
+        description: t(descriptionKey),
+        icon,
+      })),
+    })),
+  };
+}

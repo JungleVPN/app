@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { FEATURES_TABS, FeaturesTabs } from '../../components';
+import { FeaturesTabs, useFeaturesTabs } from '../../components';
 import { Container, Reveal, RoundedSection } from '../../ui';
 import { phCapture, scrollToTop } from '../../utils';
 import { CTASection } from '../landing/CTASection';
@@ -8,6 +8,8 @@ import { PricingSection } from '../landing/PricingSection';
 import { BenefitsSection } from './BenefitsSection';
 
 export default function PricingPage() {
+  const featuresTabs = useFeaturesTabs();
+
   useEffect(() => {
     phCapture('pricing_page_viewed');
   }, []);
@@ -26,7 +28,7 @@ export default function PricingPage() {
             <BenefitsSection />
           </Reveal>
           <Reveal className={'my-16'}>
-            <FeaturesTabs tabs={FEATURES_TABS} ariaLabel='Jungle VPN features' />
+            <FeaturesTabs tabs={featuresTabs.tabs} ariaLabel={featuresTabs.ariaLabel} />
           </Reveal>
           <Reveal>
             <CTASection onCtaClick={scrollToTop} />

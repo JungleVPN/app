@@ -4,7 +4,7 @@ export { CookieConsent } from './CookieConsent/CookieConsent';
 export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorConnection } from './ErrorConnection/ErrorConnection';
 export { FeaturesCard } from './FeaturesCard/FeaturesCard';
-export { FEATURES_TABS, FeaturesTabs } from './FeaturesTabs';
+export { FEATURES_TABS, FeaturesTabs, useFeaturesTabs } from './FeaturesTabs';
 export { FooterSection } from './Footer/FooterSection';
 export { SecondaryFooter } from './Footer/SecondaryFooter';
 export { StickyFooterReveal } from './Footer/StickyFooterReveal';
