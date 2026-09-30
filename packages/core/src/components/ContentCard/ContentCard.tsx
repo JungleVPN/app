@@ -58,7 +58,7 @@ export function ContentCard(props: ContentCardProps) {
         variant='tertiary'
         className={`relative bg-white flex h-full flex-col justify-between items-center p-8 shadow-surface shadow-md min-h-64 transition-all duration-300 hover:shadow-lg cursor-default ${className ?? ''}`}
       >
-        <div className='flex flex-col gap-4 w-full'>
+        <div className='flex flex-col gap-4 w-auto'>
           <Heading as='h3'>{title}</Heading>
           {description && (
             <Paragraph className={'max-w-md text-muted text-base lg:text-lg'}>

@@ -49,7 +49,7 @@ export default function LandingPage() {
           </Reveal>
         </Container>
         <Container>
-          <Reveal>
+          <Reveal amount={0.1}>
             <BentoFeaturesStack />
           </Reveal>
         </Container>

@@ -148,7 +148,7 @@ export function Header() {
       return 'relative';
     }
 
-    return `'w-full sticky top-0 z-100 -mb-[84px] transition-all duration-300 bg-white ${scrolled ? 'shadow-lg' : 'shadow-none'}'`;
+    return `w-full sticky top-0 z-100 -mb-[84px] transition-all duration-300 bg-white ${scrolled ? 'shadow-lg' : 'shadow-none'}`;
   };
 
   return (
