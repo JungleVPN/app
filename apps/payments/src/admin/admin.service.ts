@@ -39,6 +39,35 @@ export class AdminService {
     return yookassa || stars || stripe || whop;
   }
 
+  /**
+   * Whether a YooKassa or Whop payment is its payer's first paid subscription,
+   * for reporting new customers to Google Ads. Only YooKassa and Whop payments
+   * count as having paid before; the payment itself is left out, so the answer
+   * holds whether or not its webhook has stamped it yet. A payment with no
+   * payer yet is never reported as a first.
+   */
+  async isFirstPayment({
+    provider,
+    paymentId,
+  }: {
+    provider: 'yookassa' | 'whop';
+    paymentId: string;
+  }): Promise<boolean> {
+    const payment =
+      provider === 'yookassa'
+        ? await this.yookassaRepo.findOneBy({ id: paymentId })
+        : await this.whopRepo.findOneBy({ id: paymentId });
+    const userId = payment?.userId;
+    if (userId == null) return false;
+
+    const otherPaid = { userId, paidAt: Not(IsNull()), id: Not(paymentId) };
+    const [yookassa, whop] = await Promise.all([
+      this.yookassaRepo.exists({ where: { ...otherPaid, purpose: 'subscription' } }),
+      this.whopRepo.exists({ where: otherPaid }),
+    ]);
+    return !yookassa && !whop;
+  }
+
   async search(q: string): Promise<AdminPaymentDto[]> {
     const [yookassaResults, starsResults, stripeResults, paddleResults, whopResults] =
       await Promise.all([

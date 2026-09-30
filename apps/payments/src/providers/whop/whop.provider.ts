@@ -41,7 +41,7 @@ export class WhopProvider {
     await this.whopWebhookService.handleWebhook(event);
   }
 
-  async getPaymentStatus(paymentId: string): Promise<WhopPaymentStatusDto> {
+  async getPaymentStatus(paymentId: string): Promise<Omit<WhopPaymentStatusDto, 'firstPayment'>> {
     return { paymentId, fulfilled: await this.whopWebhookService.isPaymentFulfilled(paymentId) };
   }
 

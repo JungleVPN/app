@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AnalyticsClientModule } from '@payments/analytics/analytics-client.module';
 import { PlanModule } from '@payments/catalog/plan.module';
 import { SavedPaymentMethod, WhopPayment, WhopRefund } from '@workspace/database';
+import { AdminModule } from '../../admin/admin.module';
 import { PublicCheckoutRateLimitGuard } from '../../guards/public-checkout-rate-limit.guard';
 import { PublicPromoCodeRateLimitGuard } from '../../guards/public-promo-code-rate-limit.guard';
 import { PaymentStatusModule } from '../../payment-status/payment-status.module';
@@ -16,6 +17,7 @@ import { WhopWebhookService } from './whop-webhook.service';
   imports: [
     TypeOrmModule.forFeature([WhopPayment, WhopRefund, SavedPaymentMethod]),
     PaymentStatusModule,
+    AdminModule,
     AnalyticsClientModule,
     ToltModule,
     PlanModule,

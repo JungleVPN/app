@@ -9,6 +9,7 @@ import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
 import { PaymentsUtils } from '@payments/utils/utils';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
+import { AdminModule } from '../../admin/admin.module';
 import { PublicCheckoutRateLimitGuard } from '../../guards/public-checkout-rate-limit.guard';
 import { PaymentStatusModule } from '../../payment-status/payment-status.module';
 import { PromoModule } from '../../promo/promo.module';
@@ -18,6 +19,7 @@ import { ToltModule } from '../../tolt/tolt.module';
   imports: [
     TypeOrmModule.forFeature([YookassaPayment, SavedPaymentMethod]),
     PaymentStatusModule,
+    AdminModule,
     PromoModule,
     BotNotificationModule,
     AnalyticsClientModule,

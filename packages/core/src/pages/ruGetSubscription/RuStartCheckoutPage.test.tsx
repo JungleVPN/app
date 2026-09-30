@@ -12,13 +12,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CheckoutRequest } from '../getSubscription/useCheckout';
 import RuStartCheckoutPage from './RuStartCheckoutPage';
 
-const { createPublicYookassaSession, rememberPendingYookassaPayment, phCapture, useCheckout } =
-  vi.hoisted(() => ({
-    createPublicYookassaSession: vi.fn(),
-    rememberPendingYookassaPayment: vi.fn(),
-    phCapture: vi.fn(),
-    useCheckout: vi.fn(),
-  }));
+const {
+  createPublicYookassaSession,
+  rememberPendingYookassaPayment,
+  rememberPendingPurchase,
+  phCapture,
+  useCheckout,
+} = vi.hoisted(() => ({
+  createPublicYookassaSession: vi.fn(),
+  rememberPendingYookassaPayment: vi.fn(),
+  rememberPendingPurchase: vi.fn(),
+  phCapture: vi.fn(),
+  useCheckout: vi.fn(),
+}));
 
 vi.mock('../../runtime', () => ({
   usePaymentsApi: () => ({ createPublicYookassaSession }),
@@ -26,6 +32,7 @@ vi.mock('../../runtime', () => ({
 }));
 vi.mock('../../utils', () => ({
   rememberPendingYookassaPayment,
+  rememberPendingPurchase,
   phCapture,
   getReferralUserId: () => 42,
 }));
@@ -36,12 +43,19 @@ vi.mock('../getSubscription/ActiveSubscriptionDialog', () => ({
 }));
 vi.mock('../getSubscription/useCheckout', () => ({ useCheckout }));
 
+const plan = (total: string, currencyCode: string) => ({
+  planId: 'ru-3',
+  planPricing: { total, currencyCode },
+});
+
 /** Renders the page and hands back the `startCheckout` it gave `useCheckout`. */
-function renderPage(): (request: CheckoutRequest) => Promise<void> {
+function renderPage(
+  shownPlan: ReturnType<typeof plan> | null = plan('1490', 'RUB'),
+): (request: CheckoutRequest) => Promise<void> {
   let startCheckout: ((request: CheckoutRequest) => Promise<void>) | undefined;
   useCheckout.mockImplementation((start: (request: CheckoutRequest) => Promise<void>) => {
     startCheckout = start;
-    return { isLoading: false, plan: undefined, activeSubscriptionEmail: null };
+    return { isLoading: false, plan: shownPlan ?? undefined, activeSubscriptionEmail: null };
   });
 
   render(<RuStartCheckoutPage />);
@@ -82,6 +96,26 @@ describe('RuStartCheckoutPage', () => {
     expect(window.location.href).toBe('https://yookassa/pay-1');
   });
 
+  it('leaves the purchase behind for Google Ads, with the payment id and the plan total', async () => {
+    await renderPage(plan('1490', 'RUB'))({
+      email: 'payer@test.com',
+      planId: 'ru-3',
+      selectedPeriod: 3,
+    });
+
+    expect(rememberPendingPurchase).toHaveBeenCalledWith({
+      transactionId: 'pay-1',
+      value: 1490,
+      currency: 'RUB',
+    });
+  });
+
+  it('leaves the purchase behind without an amount when the plan is not known', async () => {
+    await renderPage(null)({ email: 'payer@test.com', planId: 'ru-3', selectedPeriod: 3 });
+
+    expect(rememberPendingPurchase).toHaveBeenCalledWith({ transactionId: 'pay-1' });
+  });
+
   it('reports the checkout starting, with the plan being bought', async () => {
     await renderPage()({ email: 'payer@test.com', planId: 'ru-6', selectedPeriod: 6 });
 
@@ -99,6 +133,7 @@ describe('RuStartCheckoutPage', () => {
     await renderPage()({ email: 'payer@test.com', planId: 'ru-1', selectedPeriod: 1 });
 
     expect(rememberPendingYookassaPayment).not.toHaveBeenCalled();
+    expect(rememberPendingPurchase).not.toHaveBeenCalled();
     expect(window.location.href).toBe('');
   });
 

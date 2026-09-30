@@ -39,7 +39,7 @@ const controllerWith = (
       currency: 'usd',
     }),
   };
-  const controller = new WhopController(whopProvider as never);
+  const controller = new WhopController(whopProvider as never, {} as never);
   return { controller, whopProvider };
 };
 
@@ -291,13 +291,57 @@ describe('WhopController.checkPublicPromoCode', () => {
 });
 
 describe('WhopController.getPublicPaymentStatus', () => {
-  it('answers whether the webhook has fulfilled the payment, by payment id alone', async () => {
-    const status = { paymentId: 'pay_1', fulfilled: true };
-    const whopProvider = { getPaymentStatus: vi.fn().mockResolvedValue(status) };
-    const controller = new WhopController(whopProvider as never);
+  const controllerWith = ({
+    fulfilled,
+    firstPayment,
+  }: {
+    fulfilled: boolean;
+    firstPayment: boolean;
+  }) => {
+    const whopProvider = {
+      getPaymentStatus: vi.fn().mockResolvedValue({ paymentId: 'pay_1', fulfilled }),
+    };
+    const adminService = { isFirstPayment: vi.fn().mockResolvedValue(firstPayment) };
+    const controller = new WhopController(whopProvider as never, adminService as never);
+    return { controller, whopProvider, adminService };
+  };
 
-    await expect(controller.getPublicPaymentStatus('pay_1')).resolves.toEqual(status);
+  it('answers whether the webhook has fulfilled the payment, by payment id alone', async () => {
+    const { controller, whopProvider } = controllerWith({ fulfilled: true, firstPayment: false });
+
+    await expect(controller.getPublicPaymentStatus('pay_1')).resolves.toMatchObject({
+      paymentId: 'pay_1',
+      fulfilled: true,
+    });
     expect(whopProvider.getPaymentStatus).toHaveBeenCalledWith('pay_1');
+  });
+
+  it.each([
+    true,
+    false,
+  ])('says whether a fulfilled payment is the payer’s first (%s), for Google Ads', async (firstPayment) => {
+    const { controller, adminService } = controllerWith({ fulfilled: true, firstPayment });
+
+    await expect(controller.getPublicPaymentStatus('pay_1')).resolves.toEqual({
+      paymentId: 'pay_1',
+      fulfilled: true,
+      firstPayment,
+    });
+    expect(adminService.isFirstPayment).toHaveBeenCalledWith({
+      provider: 'whop',
+      paymentId: 'pay_1',
+    });
+  });
+
+  it('does not ask about a payment the webhook has not fulfilled, which has no payer yet', async () => {
+    const { controller, adminService } = controllerWith({ fulfilled: false, firstPayment: true });
+
+    await expect(controller.getPublicPaymentStatus('pay_1')).resolves.toEqual({
+      paymentId: 'pay_1',
+      fulfilled: false,
+      firstPayment: false,
+    });
+    expect(adminService.isFirstPayment).not.toHaveBeenCalled();
   });
 });
 
@@ -326,7 +370,7 @@ describe('WhopController.webhook', () => {
     handleWebhook: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(undefined),
   ) => {
     const whopProvider = { handleWebhook };
-    return { controller: new WhopController(whopProvider as never), whopProvider };
+    return { controller: new WhopController(whopProvider as never, {} as never), whopProvider };
   };
 
   let originalSecret: string | undefined;
@@ -396,7 +440,7 @@ describe('WhopController — authenticated routes', () => {
         .mockResolvedValue({ cancelAtPeriodEnd: true, accessUntil: '2026-10-26T10:00:00Z' }),
       resumeSubscription: vi.fn().mockResolvedValue({ cancelAtPeriodEnd: false }),
     };
-    return { controller: new WhopController(whopProvider as never), whopProvider };
+    return { controller: new WhopController(whopProvider as never, {} as never), whopProvider };
   };
 
   const guardsOf = (method: keyof WhopController) =>

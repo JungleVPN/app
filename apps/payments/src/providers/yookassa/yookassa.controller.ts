@@ -12,13 +12,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { YookassaService } from '@payments/providers/yookassa/yookassa.service';
-import type { YookassaWebhookNotification } from '@workspace/types';
+import type { YookassaPublicPaymentStatusDto, YookassaWebhookNotification } from '@workspace/types';
 import {
   ACTIVE_SUBSCRIPTION_CODE,
   type CreatePublicYookassaSessionDto,
   type CreateYookassaSessionDto,
   type PaymentSession,
 } from '@workspace/types';
+import { AdminService } from '../../admin/admin.service';
 import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
 import { ClientUserGuard } from '../../auth/client-user.guard';
 import { RemnaUserResolverService } from '../../auth/remna-user-resolver.service';
@@ -32,6 +33,7 @@ export class YookassaController {
   constructor(
     private readonly yookassaService: YookassaService,
     private readonly remnaUserResolver: RemnaUserResolverService,
+    private readonly adminService: AdminService,
   ) {}
 
   /**
@@ -82,11 +84,16 @@ export class YookassaController {
   /**
    * Same status, without a credential: the RU checkout is anonymous, so the
    * payer returning from YooKassa has nothing to authenticate with. Knowledge
-   * of the payment id is the claim, and the answer carries only the status.
+   * of the payment id is the claim, and the answer carries only the status
+   * and whether a succeeded payment is the payer's first, for Google Ads.
    */
   @Get('public-payment-status/:id')
-  getPublicPaymentStatus(@Param('id') id: string) {
-    return this.yookassaService.getPublicPaymentStatus(id);
+  async getPublicPaymentStatus(@Param('id') id: string): Promise<YookassaPublicPaymentStatusDto> {
+    const payment = await this.yookassaService.getPublicPaymentStatus(id);
+    const firstPayment =
+      payment.status === 'succeeded' &&
+      (await this.adminService.isFirstPayment({ provider: 'yookassa', paymentId: id }));
+    return { ...payment, firstPayment };
   }
 
   // ── Internal payment records — inter-service only ──────────────────

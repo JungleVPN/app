@@ -50,7 +50,7 @@ export {
   WHAT_IS_VPN_PATH,
 } from './domain';
 export { formatCurrency, truncate } from './format';
-export { trackPurchaseConversion } from './gtag';
+export { type PurchaseConversion, trackPurchaseConversion } from './gtag';
 export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';
 export type { LlmsTxtOptions } from './llmsTxt';
@@ -61,7 +61,10 @@ export {
   pricesIncludeTax,
 } from './paymentProvider';
 export {
+  forgetPendingPurchase,
+  rememberPendingPurchase,
   rememberPendingYookassaPayment,
+  takePendingPurchase,
   takePendingYookassaPayment,
 } from './pendingPayment';
 export type { PlanAmounts, PriceCalculation } from './planPricing';

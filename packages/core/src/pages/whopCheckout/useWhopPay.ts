@@ -1,8 +1,10 @@
 import { useWhop } from '@whop/elements-react';
+import type { WhopPaymentStatusDto } from '@workspace/types';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
+import { forgetPendingPurchase, rememberPendingPurchase } from '../../utils';
 import { checkoutErrorKey } from '../getSubscription/checkoutErrors';
 import type { WhopCheckoutState } from './whopCheckoutState';
 
@@ -58,6 +60,15 @@ export function useWhopPay({
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /** Leaves the purchase for `/payment/success` to report to Google Ads. */
+  const rememberPurchase = (paymentId: string) =>
+    rememberPendingPurchase({
+      transactionId: paymentId,
+      ...(checkout.charge
+        ? { value: Number(checkout.charge.amount), currency: checkout.charge.currency }
+        : {}),
+    });
+
   /** The paid payment's id, null when the payer left for an off-site step, or the text to show them. */
   const charge = async (
     confirmationToken: string,
@@ -72,6 +83,9 @@ export function useWhopPay({
     if (payment.status === 'paid') return paid;
     if (!whop || !payment.clientSecret) return { error: t('whopCheckout.errors.not_completed') };
 
+    // An off-site step returns the payer straight to the success page, so the
+    // purchase is left behind first; a step that fails on the page drops it.
+    rememberPurchase(payment.paymentId);
     const result = await whop.payments.handleNextAction({ clientSecret: payment.clientSecret });
     if (result.redirected) return null;
     if (SETTLED_STATUSES.has(result.status)) return paid;
@@ -81,14 +95,17 @@ export function useWhopPay({
     return { error: lastPaymentError.message?.trim() || t('whopCheckout.errors.declined') };
   };
 
-  /** Whether our webhook fulfilled the payment within the wait; a failed lookup just asks again. */
-  const awaitFulfilment = async (paymentId: string): Promise<boolean> => {
+  /**
+   * Our webhook's answer once it fulfilled the payment, or null when it did not
+   * within the wait; a failed lookup just asks again.
+   */
+  const awaitFulfilment = async (paymentId: string): Promise<WhopPaymentStatusDto | null> => {
     for (let attempt = 0; attempt < FULFILMENT_POLL_ATTEMPTS; attempt++) {
       if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, FULFILMENT_POLL_MS));
       const status = await paymentsApi.getPublicWhopPaymentStatus(paymentId).catch(() => null);
-      if (status?.fulfilled) return true;
+      if (status?.fulfilled) return status;
     }
-    return false;
+    return null;
   };
 
   /** Runs `tokenise` before anything else awaits, so a wallet sheet opens within the tap. */
@@ -104,15 +121,23 @@ export function useWhopPay({
       const outcome = await charge(confirmationToken);
       if (outcome && 'paid' in outcome) {
         charged = true;
-        if (await awaitFulfilment(outcome.paid)) {
+        const fulfilled = await awaitFulfilment(outcome.paid);
+        if (fulfilled) {
+          // Only a customer's first payment is reported to Google Ads.
+          if (fulfilled.firstPayment) rememberPurchase(outcome.paid);
+          else forgetPendingPurchase();
           navigate(paymentReturnPath, { replace: true });
           return;
         }
         setError(t('whopCheckout.errors.activation_delayed'));
         return;
       }
-      if (outcome) setError(outcome.error);
+      if (outcome) {
+        forgetPendingPurchase();
+        setError(outcome.error);
+      }
     } catch (caught) {
+      forgetPendingPurchase();
       setError(t(payErrorKey(caught)));
     } finally {
       if (!charged) setIsPending(false);

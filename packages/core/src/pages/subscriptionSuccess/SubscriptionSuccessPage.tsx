@@ -9,7 +9,12 @@ import { fetchBillingState } from '../../hooks/useSavedMethodsData';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import { type IAuthState, useAuthStore, useSubscriptionInfoStore } from '../../stores';
 import { Heading, Paragraph, TgsSticker } from '../../ui';
-import { takePendingYookassaPayment, trackPurchaseConversion } from '../../utils';
+import {
+  type PurchaseConversion,
+  takePendingPurchase,
+  takePendingYookassaPayment,
+  trackPurchaseConversion,
+} from '../../utils';
 
 type RemnawaveApi = ReturnType<typeof useRemnawaveApi>;
 type PaymentsApi = ReturnType<typeof usePaymentsApi>;
@@ -56,6 +61,80 @@ async function pollProfile(remnawaveApi: RemnawaveApi) {
   }
 }
 
+/**
+ * The outcome Whop appends when an off-site step, such as some 3D Secure
+ * checks, sends the payer back here — which it does whatever happened.
+ */
+function readWhopReturn(): { paymentId: string; status: string } | null {
+  const params = new URLSearchParams(window.location.search);
+  const paymentId = params.get('payment');
+  const status = params.get('status');
+  return paymentId && status ? { paymentId, status } : null;
+}
+
+const WHOP_FULFILMENT_POLL_MS = 1000;
+const WHOP_FULFILMENT_POLL_ATTEMPTS = 30;
+
+/**
+ * Whether our webhook fulfilled a Whop payment as the payer's first
+ * subscription. The webhook may land after the payer does, so ask until it
+ * has; a payment never fulfilled in the wait is not reported.
+ */
+async function isFirstWhopPayment(paymentsApi: PaymentsApi, paymentId: string) {
+  for (let attempt = 0; attempt < WHOP_FULFILMENT_POLL_ATTEMPTS; attempt++) {
+    if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, WHOP_FULFILMENT_POLL_MS));
+    const status = await paymentsApi.getPublicWhopPaymentStatus(paymentId).catch(() => null);
+    if (status?.fulfilled) return status.firstPayment;
+  }
+  return false;
+}
+
+const WHOP_UNPAID_STATUSES: ReadonlySet<string> = new Set(['failed', 'canceled']);
+const YOOKASSA_UNPAID_STATUSES: ReadonlySet<string> = new Set(['canceled', 'pending']);
+
+/**
+ * What the payer came back from: whether it went unpaid, and — settled
+ * separately, as Whop's answer can lag behind the payer — whether it is the
+ * payer's first purchase, the only kind reported to Google Ads.
+ */
+type ReturnCheck = { unpaid: boolean; firstPayment: Promise<boolean> };
+
+/**
+ * Whop's off-site steps and YooKassa return the payer here whether they paid
+ * or not, so their outcome is asked for; a checkout that completed in the app
+ * only leaves a purchase behind for a first payment. A status that cannot be
+ * read stays optimistic and goes unreported.
+ */
+async function checkReturn(
+  paymentsApi: PaymentsApi,
+  purchase: PurchaseConversion | null,
+): Promise<ReturnCheck> {
+  const yookassaPaymentId = takePendingYookassaPayment();
+  const whopReturn = readWhopReturn();
+
+  if (whopReturn) {
+    const reportable =
+      whopReturn.status === 'succeeded' && purchase?.transactionId === whopReturn.paymentId;
+    return {
+      unpaid: WHOP_UNPAID_STATUSES.has(whopReturn.status),
+      firstPayment: reportable
+        ? isFirstWhopPayment(paymentsApi, whopReturn.paymentId)
+        : Promise.resolve(false),
+    };
+  }
+
+  if (!yookassaPaymentId)
+    return { unpaid: false, firstPayment: Promise.resolve(purchase !== null) };
+
+  const payment = await paymentsApi
+    .getPublicYookassaPaymentStatus(yookassaPaymentId)
+    .catch(() => null);
+  return {
+    unpaid: payment !== null && YOOKASSA_UNPAID_STATUSES.has(payment.status),
+    firstPayment: Promise.resolve(payment?.status === 'succeeded' && payment.firstPayment),
+  };
+}
+
 export default function SubscriptionSuccessPage() {
   const { t } = useTranslation();
   const navigate = useNavigation();
@@ -63,41 +142,24 @@ export default function SubscriptionSuccessPage() {
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
   const successStickerUrl = getTelegramStickerUrl(coreEnv.successStickerFileId);
-  const [loading, setLoading] = useState<boolean>(true);
-  // YooKassa returns the user here whether they paid or cancelled, so a
-  // checkout started in this tab has its outcome confirmed before we claim
-  // success. Anything other than an outright cancellation stays optimistic:
-  // 'pending' resolves through the webhook moments later.
+  const [outcome, setOutcome] = useState<'checking' | 'paid' | 'unpaid'>('checking');
+
   useEffect(() => {
-    const paymentId = takePendingYookassaPayment();
-
-    if (!paymentId) {
-      trackPurchaseConversion();
-      void refreshProfile(remnawaveApi, paymentsApi);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    paymentsApi
-      .getPublicYookassaPaymentStatus(paymentId)
-      .then(({ status }) => {
-        if (status === 'canceled' || status === 'pending') {
-          navigate(paymentFailPath, { replace: true });
-          setLoading(false);
-        }
-        if (status === 'succeeded') {
-          trackPurchaseConversion();
-          void refreshProfile(remnawaveApi, paymentsApi);
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        // Status unknown — leave the optimistic success state in place.
+    const purchase = takePendingPurchase();
+    void checkReturn(paymentsApi, purchase).then(({ unpaid, firstPayment }) => {
+      setOutcome(unpaid ? 'unpaid' : 'paid');
+      void firstPayment.then((first) => {
+        if (first && purchase) trackPurchaseConversion(purchase);
       });
-  }, [paymentsApi, remnawaveApi, navigate, paymentFailPath]);
+    });
+  }, [paymentsApi]);
 
-  if (loading) return <Loading />;
+  useEffect(() => {
+    if (outcome === 'unpaid') navigate(paymentFailPath, { replace: true });
+    if (outcome === 'paid') void refreshProfile(remnawaveApi, paymentsApi);
+  }, [outcome, navigate, paymentFailPath, remnawaveApi, paymentsApi]);
+
+  if (outcome !== 'paid') return <Loading />;
   return (
     <main className='flex min-h-full flex-1 flex-col items-center px-6 pt-16 pb-10 sm:justify-center sm:pt-10'>
       <div className='flex w-full max-w-md flex-1 flex-col items-center sm:flex-none'>

@@ -282,3 +282,105 @@ describe('AdminService — Whop payments', () => {
     await expect(service.hasEverPaid(4821)).resolves.toBe(false);
   });
 });
+
+/**
+ * AdminService.isFirstPayment — whether a payment is the user's first paid
+ * subscription, so the checkout reports only new customers to Google Ads.
+ * Only YooKassa and Whop payments count as having paid before.
+ */
+describe('AdminService.isFirstPayment', () => {
+  const serviceWith = ({
+    payer = 4821 as number | null,
+    found = true,
+    yookassaPaidBefore = false,
+    whopPaidBefore = false,
+  }: {
+    payer?: number | null;
+    found?: boolean;
+    yookassaPaidBefore?: boolean;
+    whopPaidBefore?: boolean;
+  }) => {
+    const repo = (exists: boolean) => ({
+      exists: vi.fn().mockResolvedValue(exists),
+      findOneBy: vi.fn().mockResolvedValue(found ? { id: 'pay_1', userId: payer } : null),
+    });
+    const yookassaRepo = repo(yookassaPaidBefore);
+    const whopRepo = repo(whopPaidBefore);
+    const otherRepos = [repo(true), repo(true), repo(true)];
+    const service = new AdminService(
+      yookassaRepo as never,
+      otherRepos[0] as never,
+      otherRepos[1] as never,
+      otherRepos[2] as never,
+      whopRepo as never,
+    );
+    return { service, yookassaRepo, whopRepo, otherRepos };
+  };
+
+  it.each([
+    'yookassa',
+    'whop',
+  ] as const)('is the first %s payment of a user with no other paid YooKassa or Whop payment', async (provider) => {
+    const { service } = serviceWith({});
+
+    await expect(service.isFirstPayment({ provider, paymentId: 'pay_1' })).resolves.toBe(true);
+  });
+
+  it.each([
+    ['YooKassa', { yookassaPaidBefore: true }],
+    ['Whop', { whopPaidBefore: true }],
+  ])('is not the first payment when the user already paid through %s', async (_, paidBefore) => {
+    const { service } = serviceWith(paidBefore);
+
+    await expect(service.isFirstPayment({ provider: 'whop', paymentId: 'pay_1' })).resolves.toBe(
+      false,
+    );
+  });
+
+  it.each([
+    ['is unknown', { found: false }],
+    ['has no user yet', { payer: null }],
+  ])('is not reported as a first payment when the payment %s', async (_, state) => {
+    const { service } = serviceWith(state);
+
+    await expect(
+      service.isFirstPayment({ provider: 'yookassa', paymentId: 'pay_1' }),
+    ).resolves.toBe(false);
+  });
+
+  it.each([
+    'yookassa',
+    'whop',
+  ] as const)('finds the payer of a %s payment from its own table', async (provider) => {
+    const { service, yookassaRepo, whopRepo } = serviceWith({});
+
+    await service.isFirstPayment({ provider, paymentId: 'pay_1' });
+
+    const [own, other] =
+      provider === 'yookassa' ? [yookassaRepo, whopRepo] : [whopRepo, yookassaRepo];
+    expect(own.findOneBy).toHaveBeenCalledWith({ id: 'pay_1' });
+    expect(other.findOneBy).not.toHaveBeenCalled();
+  });
+
+  it('looks for other paid subscriptions of the payer only, leaving out the payment itself', async () => {
+    const { service, yookassaRepo, whopRepo } = serviceWith({});
+
+    await service.isFirstPayment({ provider: 'yookassa', paymentId: 'pay_1' });
+
+    expect(yookassaRepo.exists).toHaveBeenCalledWith({
+      where: { userId: 4821, purpose: 'subscription', paidAt: Not(IsNull()), id: Not('pay_1') },
+    });
+    expect(whopRepo.exists).toHaveBeenCalledWith({
+      where: { userId: 4821, paidAt: Not(IsNull()), id: Not('pay_1') },
+    });
+  });
+
+  it('ignores payments through Paddle, Stripe and Telegram Stars', async () => {
+    const { service, otherRepos } = serviceWith({});
+
+    await expect(service.isFirstPayment({ provider: 'whop', paymentId: 'pay_1' })).resolves.toBe(
+      true,
+    );
+    for (const repo of otherRepos) expect(repo.exists).not.toHaveBeenCalled();
+  });
+});

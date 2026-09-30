@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { BadRequestException } from '@nestjs/common';
+import type { AdminService } from '@payments/admin/admin.service';
 import type { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
 import { YookassaController } from '@payments/providers/yookassa/yookassa.controller';
 import type { YookassaService } from '@payments/providers/yookassa/yookassa.service';
@@ -29,6 +30,7 @@ describe('YookassaController', () => {
   let controller: YookassaController;
   let yookassaService: YookassaService;
   let remnaUserResolver: RemnaUserResolverService;
+  let adminService: AdminService;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -48,7 +50,9 @@ describe('YookassaController', () => {
       resolveOrCreate: vi.fn().mockResolvedValue(77),
     } as unknown as RemnaUserResolverService;
 
-    controller = new YookassaController(yookassaService, remnaUserResolver);
+    adminService = { isFirstPayment: vi.fn().mockResolvedValue(false) } as unknown as AdminService;
+
+    controller = new YookassaController(yookassaService, remnaUserResolver, adminService);
   });
 
   describe('webhook', () => {
@@ -132,13 +136,51 @@ describe('YookassaController', () => {
     // The anonymous payer comes back from YooKassa with no credential, so the
     // payment id is the whole claim — and the answer carries only the status.
     it('delegates to the service using the payment id alone', async () => {
-      const status = { id: 'pay-1', status: 'succeeded' };
-      (yookassaService.getPublicPaymentStatus as any).mockResolvedValue(status);
+      (yookassaService.getPublicPaymentStatus as any).mockResolvedValue({
+        id: 'pay-1',
+        status: 'succeeded',
+      });
 
       const result = await controller.getPublicPaymentStatus('pay-1');
 
       expect(yookassaService.getPublicPaymentStatus).toHaveBeenCalledWith('pay-1');
-      expect(result).toBe(status);
+      expect(result).toMatchObject({ id: 'pay-1', status: 'succeeded' });
+    });
+
+    it.each([
+      true,
+      false,
+    ])('says whether a succeeded payment is the payer’s first (%s), for Google Ads', async (firstPayment) => {
+      (yookassaService.getPublicPaymentStatus as any).mockResolvedValue({
+        id: 'pay-1',
+        status: 'succeeded',
+      });
+      (adminService.isFirstPayment as any).mockResolvedValue(firstPayment);
+
+      await expect(controller.getPublicPaymentStatus('pay-1')).resolves.toEqual({
+        id: 'pay-1',
+        status: 'succeeded',
+        firstPayment,
+      });
+      expect(adminService.isFirstPayment).toHaveBeenCalledWith({
+        provider: 'yookassa',
+        paymentId: 'pay-1',
+      });
+    });
+
+    it.each([
+      'pending',
+      'canceled',
+    ])('does not ask about a %s payment, which is no purchase', async (status) => {
+      (yookassaService.getPublicPaymentStatus as any).mockResolvedValue({ id: 'pay-1', status });
+      (adminService.isFirstPayment as any).mockResolvedValue(true);
+
+      await expect(controller.getPublicPaymentStatus('pay-1')).resolves.toEqual({
+        id: 'pay-1',
+        status,
+        firstPayment: false,
+      });
+      expect(adminService.isFirstPayment).not.toHaveBeenCalled();
     });
   });
 

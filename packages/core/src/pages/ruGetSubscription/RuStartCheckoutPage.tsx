@@ -1,6 +1,11 @@
 import { Loading } from '../../components';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
-import { getReferralUserId, phCapture, rememberPendingYookassaPayment } from '../../utils';
+import {
+  getReferralUserId,
+  phCapture,
+  rememberPendingPurchase,
+  rememberPendingYookassaPayment,
+} from '../../utils';
 import { ActiveSubscriptionDialog } from '../getSubscription/ActiveSubscriptionDialog';
 import { CheckoutForm } from '../getSubscription/CheckoutForm';
 import { type CheckoutRequest, useCheckout } from '../getSubscription/useCheckout';
@@ -13,7 +18,8 @@ import { type CheckoutRequest, useCheckout } from '../getSubscription/useCheckou
  * creates the payment and answers with a confirmation URL, so this page ends
  * in a redirect out of the app rather than a route change. The payment id is
  * remembered first: `/payment/success` sees the same return URL whether the
- * payer paid or cancelled, and that id is how it tells the two apart.
+ * payer paid or cancelled, and that id is how it tells the two apart. The
+ * plan total is remembered with it, for the Google Ads conversion.
  */
 export default function RuStartCheckoutPage() {
   const paymentsApi = usePaymentsApi();
@@ -31,6 +37,11 @@ export default function RuStartCheckoutPage() {
     if (!session?.url) return;
 
     rememberPendingYookassaPayment(session.id);
+    const pricing = checkout.plan?.planPricing;
+    rememberPendingPurchase({
+      transactionId: session.id,
+      ...(pricing ? { value: Number(pricing.total), currency: pricing.currencyCode } : {}),
+    });
     phCapture('checkout_started', { payment_provider: 'yookassa', months: selectedPeriod });
 
     window.location.href = session.url;

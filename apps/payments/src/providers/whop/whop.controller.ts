@@ -28,6 +28,7 @@ import {
   type WhopPromoCodeDto,
   type WhopResumeDto,
 } from '@workspace/types';
+import { AdminService } from '../../admin/admin.service';
 import { AuthenticatedUserId } from '../../auth/authenticated-user.decorator';
 import { ClientUserGuard } from '../../auth/client-user.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
@@ -45,7 +46,10 @@ const CONFIRMATION_TOKEN_PREFIX = 'ctok_';
 export class WhopController {
   private readonly logger = new Logger(WhopController.name);
 
-  constructor(private readonly whopProvider: WhopProvider) {}
+  constructor(
+    private readonly whopProvider: WhopProvider,
+    private readonly adminService: AdminService,
+  ) {}
 
   /**
    * Validates an anonymous Whop checkout before the browser mounts the card
@@ -105,11 +109,16 @@ export class WhopController {
    * Whether our webhook has fulfilled a payment, so the checkout can hold the
    * payer until their subscription is actually extended. The checkout is
    * anonymous, so knowledge of the payment id is the claim, and the answer
-   * carries only whether it is fulfilled — mirrors YooKassa's public status.
+   * carries only whether it is fulfilled, and whether it is the payer's first
+   * for Google Ads — mirrors YooKassa's public status.
    */
   @Get('public-payment-status/:id')
-  getPublicPaymentStatus(@Param('id') id: string): Promise<WhopPaymentStatusDto> {
-    return this.whopProvider.getPaymentStatus(id);
+  async getPublicPaymentStatus(@Param('id') id: string): Promise<WhopPaymentStatusDto> {
+    const status = await this.whopProvider.getPaymentStatus(id);
+    const firstPayment =
+      status.fulfilled &&
+      (await this.adminService.isFirstPayment({ provider: 'whop', paymentId: id }));
+    return { ...status, firstPayment };
   }
 
   /**

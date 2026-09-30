@@ -24,6 +24,8 @@ const {
   api,
   loadScript,
   visitor,
+  rememberPendingPurchase,
+  forgetPendingPurchase,
 } = vi.hoisted(() => {
   const walletSheet = { canMakePayment: vi.fn(), show: vi.fn() };
   return {
@@ -43,6 +45,8 @@ const {
     api: { payPublicWhopCheckout: vi.fn(), getPublicWhopPaymentStatus: vi.fn() },
     loadScript: vi.fn(),
     visitor: { ipStatus: null as IpStatusDto | null },
+    rememberPendingPurchase: vi.fn(),
+    forgetPendingPurchase: vi.fn(),
   };
 });
 
@@ -121,7 +125,11 @@ vi.mock('../../ui', () => ({
   ),
   Paragraph: ({ children, ...props }: { children: ReactNode }) => <p {...props}>{children}</p>,
 }));
-vi.mock('../../utils', () => ({ PRICING_PATH: '/pricing' }));
+vi.mock('../../utils', () => ({
+  PRICING_PATH: '/pricing',
+  rememberPendingPurchase,
+  forgetPendingPurchase,
+}));
 
 const RETURN_URL = `${window.location.origin}/payment/success`;
 const REQUEST = { email: 'payer@test.com', planId: 'whop-30', toltReferralId: null, inviterId: 7 };
@@ -176,7 +184,11 @@ describe('WhopCheckoutPage', () => {
       status: 'paid',
       clientSecret: 'sec_1',
     });
-    api.getPublicWhopPaymentStatus.mockResolvedValue({ paymentId: 'pay_1', fulfilled: true });
+    api.getPublicWhopPaymentStatus.mockResolvedValue({
+      paymentId: 'pay_1',
+      fulfilled: true,
+      firstPayment: true,
+    });
   });
 
   describe('mounting', () => {
@@ -729,6 +741,47 @@ describe('WhopCheckoutPage', () => {
       expect(whop.payments.handleNextAction).toHaveBeenCalledWith({ clientSecret: 'sec_1' });
     });
 
+    it('leaves the purchase behind for Google Ads, with the payment id and the total shown', async () => {
+      await renderFilledAndPay();
+
+      await waitFor(() =>
+        expect(navigate).toHaveBeenCalledWith('/payment/success', { replace: true }),
+      );
+      expect(rememberPendingPurchase).toHaveBeenCalledWith({
+        transactionId: 'pay_1',
+        value: 7.99,
+        currency: 'USD',
+      });
+    });
+
+    it('leaves nothing behind for a returning customer paying again', async () => {
+      api.getPublicWhopPaymentStatus.mockResolvedValue({
+        paymentId: 'pay_1',
+        fulfilled: true,
+        firstPayment: false,
+      });
+
+      await renderFilledAndPay();
+
+      await waitFor(() =>
+        expect(navigate).toHaveBeenCalledWith('/payment/success', { replace: true }),
+      );
+      expect(rememberPendingPurchase).not.toHaveBeenCalled();
+      expect(forgetPendingPurchase).toHaveBeenCalled();
+    });
+
+    it('leaves the purchase behind without an amount when the total shown is unknown', async () => {
+      const { charge: _charge, ...withoutCharge } = location.state as { charge: object };
+      location.state = withoutCharge;
+
+      await renderFilledAndPay();
+
+      await waitFor(() =>
+        expect(navigate).toHaveBeenCalledWith('/payment/success', { replace: true }),
+      );
+      expect(rememberPendingPurchase).toHaveBeenCalledWith({ transactionId: 'pay_1' });
+    });
+
     it('waits for our webhook to extend the subscription before showing success', async () => {
       api.getPublicWhopPaymentStatus
         .mockResolvedValueOnce({ paymentId: 'pay_1', fulfilled: false })
@@ -758,6 +811,7 @@ describe('WhopCheckoutPage', () => {
           'whopCheckout.errors.activation_delayed',
         );
         expect(navigate).not.toHaveBeenCalled();
+        expect(rememberPendingPurchase).not.toHaveBeenCalled();
 
         fireEvent.click(payButton());
         await vi.advanceTimersByTimeAsync(1_000);
@@ -784,6 +838,50 @@ describe('WhopCheckoutPage', () => {
       await waitFor(() => expect(whop.payments.handleNextAction).toHaveBeenCalled());
       expect(navigate).not.toHaveBeenCalled();
       expect(screen.queryByRole('alert')).toBeNull();
+    });
+
+    it('leaves the purchase behind before an off-site step, which returns to the success page', async () => {
+      api.payPublicWhopCheckout.mockResolvedValue({
+        paymentId: 'pay_1',
+        status: 'open',
+        clientSecret: 'sec_1',
+      });
+      whop.payments.handleNextAction.mockResolvedValue({
+        status: 'requires_action',
+        redirected: true,
+        lastPaymentError: null,
+      });
+
+      await renderFilledAndPay();
+
+      await waitFor(() => expect(whop.payments.handleNextAction).toHaveBeenCalled());
+      expect(rememberPendingPurchase).toHaveBeenCalledWith({
+        transactionId: 'pay_1',
+        value: 7.99,
+        currency: 'USD',
+      });
+      const [remembered] = rememberPendingPurchase.mock.invocationCallOrder;
+      const [leftForStep] = whop.payments.handleNextAction.mock.invocationCallOrder;
+      expect(remembered).toBeLessThan(leftForStep ?? 0);
+      expect(forgetPendingPurchase).not.toHaveBeenCalled();
+    });
+
+    it('drops the purchase left behind when the pending step fails on the page', async () => {
+      api.payPublicWhopCheckout.mockResolvedValue({
+        paymentId: 'pay_1',
+        status: 'open',
+        clientSecret: 'sec_1',
+      });
+      whop.payments.handleNextAction.mockResolvedValue({
+        status: 'failed',
+        redirected: false,
+        lastPaymentError: { code: 'card_declined', message: 'Declined' },
+      });
+
+      await renderFilledAndPay();
+
+      await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy());
+      expect(forgetPendingPurchase).toHaveBeenCalled();
     });
   });
 

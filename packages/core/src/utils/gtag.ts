@@ -13,8 +13,27 @@ declare global {
 
 const PURCHASE_CONVERSION_SEND_TO = 'AW-18413233512/296KCJf2pu4cEOjKjsxE';
 
+/**
+ * A completed payment as Google Ads sees it. The transaction id lets Google
+ * drop a repeat report of the same payment; value and currency travel together
+ * and are left out when the amount paid is unknown.
+ */
+export type PurchaseConversion = {
+  transactionId: string;
+  value?: number;
+  currency?: string;
+};
+
 /** Reports a successful payment to Google Ads. No-op if gtag.js hasn't loaded (e.g. blocked). */
-export function trackPurchaseConversion(): void {
+export function trackPurchaseConversion({
+  transactionId,
+  value,
+  currency,
+}: PurchaseConversion): void {
   if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
-  window.gtag('event', 'conversion', { send_to: PURCHASE_CONVERSION_SEND_TO });
+  window.gtag('event', 'conversion', {
+    send_to: PURCHASE_CONVERSION_SEND_TO,
+    transaction_id: transactionId,
+    ...(value !== undefined && currency !== undefined ? { value, currency } : {}),
+  });
 }

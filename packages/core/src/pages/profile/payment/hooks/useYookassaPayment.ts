@@ -10,14 +10,18 @@ import {
   usePlatformStore,
   useSavedMethodsStoreActions,
 } from '../../../../stores';
-import { phCapture, rememberPendingYookassaPayment } from '../../../../utils';
+import {
+  phCapture,
+  rememberPendingPurchase,
+  rememberPendingYookassaPayment,
+} from '../../../../utils';
 
 export function useYookassaPayment(plan: SubscriptionPlanDto | undefined) {
   const { rmnUser, tgUser } = useAuthStoreInfo();
   const { setRmnUser } = useAuthStoreActions();
   const { setYookassaMethods } = useSavedMethodsStoreActions();
   const { platformType, clientPlatform } = usePlatformStore();
-  const { profileSubscriptionPath, profilePlansPath } = useAppRoutes();
+  const { profilePlansPath, paymentReturnPath } = useAppRoutes();
   const navigate = useNavigation();
   const paymentsApi = usePaymentsApi();
   const remnawaveApi = useRemnawaveApi();
@@ -63,7 +67,7 @@ export function useYookassaPayment(plan: SubscriptionPlanDto | undefined) {
       confirmation: {
         return_url: isNativeApp
           ? coreEnv.tmaAppUrl
-          : `${window.location.origin}${profileSubscriptionPath}`,
+          : `${window.location.origin}${paymentReturnPath}`,
         type: 'redirect',
       },
       email: activeUser.email,
@@ -73,6 +77,13 @@ export function useYookassaPayment(plan: SubscriptionPlanDto | undefined) {
     if (!session?.url) return;
 
     rememberPendingYookassaPayment(session.id);
+    // A promo code reprices the plan server-side, so its total is not known here.
+    rememberPendingPurchase({
+      transactionId: session.id,
+      ...(promoCode
+        ? {}
+        : { value: Number(plan.planPricing.total), currency: plan.planPricing.currencyCode }),
+    });
 
     phCapture('checkout_started', { payment_provider: 'yookassa', days: plan.days });
     if (isNativeApp) {

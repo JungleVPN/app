@@ -84,6 +84,8 @@ export interface WhopPaymentDto {
 export interface WhopPaymentStatusDto {
   paymentId: string;
   fulfilled: boolean;
+  /** Whether a fulfilled payment is the payer's first subscription — only a first is reported to Google Ads. */
+  firstPayment: boolean;
 }
 
 /**

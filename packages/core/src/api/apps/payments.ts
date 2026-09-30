@@ -23,11 +23,12 @@ import {
   type ValidatePromoDto,
   type ValidatePromoResponse,
   type WhopCancelDto,
-  type WhopResumeDto,
   type WhopCheckoutPayload,
   type WhopPaymentDto,
   type WhopPaymentStatusDto,
   type WhopPromoCodeDto,
+  type WhopResumeDto,
+  type YookassaPublicPaymentStatusDto,
 } from '@workspace/types';
 import type { ApiClient } from '../client';
 
@@ -159,10 +160,8 @@ export function createPaymentsApi(client: ApiClient) {
      * The same status by payment id alone. The RU checkout is anonymous, so the
      * payer coming back from YooKassa has no credential to look it up with.
      */
-    async getPublicYookassaPaymentStatus(
-      id: string,
-    ): Promise<{ id: string; status: Payments.PaymentStatus }> {
-      return client.get<{ id: string; status: Payments.PaymentStatus }>(
+    async getPublicYookassaPaymentStatus(id: string): Promise<YookassaPublicPaymentStatusDto> {
+      return client.get<YookassaPublicPaymentStatusDto>(
         apiRoutes.payments.yookassaPublicPaymentStatus(id),
       );
     },

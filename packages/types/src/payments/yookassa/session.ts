@@ -2,6 +2,18 @@ import type { RemnaUserId } from '../../remnawave';
 import { PaymentPurpose } from '../common';
 import type { Payments } from './payment';
 
+/**
+ * Response from GET /payments/yookassa/public-payment-status/:id. The payer
+ * returns from YooKassa whether they paid or cancelled, so the checkout reads
+ * the outcome here, and whether a succeeded payment is the payer's first
+ * subscription — only a first is reported to Google Ads.
+ */
+export interface YookassaPublicPaymentStatusDto {
+  id: string;
+  status: Payments.PaymentStatus;
+  firstPayment: boolean;
+}
+
 /** Response from create-session endpoints (both providers) */
 export interface PaymentSession {
   id: string;
