@@ -60,7 +60,7 @@
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 40%, black 100%);
 }
 
-html[dir='rtl'] .bgIcon {
+html[dir="rtl"] .bgIcon {
   mask-image: linear-gradient(to left, transparent 0%, black 40%, black 100%);
   -webkit-mask-image: linear-gradient(to left, transparent 0%, black 40%, black 100%);
 }

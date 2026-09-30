@@ -1,4 +1,5 @@
 import { Tabs } from '@heroui/react';
+import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { Grid } from '../../ui/Grid/Grid';
 import { GridItem } from '../../ui/Grid/GridItem';
@@ -22,7 +23,19 @@ type FeaturesTabsProps = {
   className?: string;
 };
 
+const PANEL_VARIANTS: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+
+const CARD_VARIANTS: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' } },
+};
+
 export function FeaturesTabs({ tabs, ariaLabel, className }: FeaturesTabsProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <section className={className}>
       <Tabs className='w-full items-center'>
@@ -39,19 +52,27 @@ export function FeaturesTabs({ tabs, ariaLabel, className }: FeaturesTabsProps) 
 
         {tabs.map(({ id, items }) => (
           <Tabs.Panel key={id} id={id} className='w-full pt-10'>
-            <Grid>
-              {items.map(({ title, description, icon }) => (
-                <GridItem key={title} size={{ base: 12, lg: 6 }}>
-                  <ContentCard
-                    variant='compact'
-                    title={title}
-                    description={description}
-                    icon={icon}
-                    className={'bg-background'}
-                  />
-                </GridItem>
-              ))}
-            </Grid>
+            <motion.div
+              variants={PANEL_VARIANTS}
+              initial={prefersReducedMotion ? false : 'hidden'}
+              animate='visible'
+            >
+              <Grid>
+                {items.map(({ title, description, icon }) => (
+                  <GridItem key={title} size={{ base: 12, lg: 6 }}>
+                    <motion.div variants={CARD_VARIANTS} className='h-full'>
+                      <ContentCard
+                        variant='compact'
+                        title={title}
+                        description={description}
+                        icon={icon}
+                        className={'bg-background'}
+                      />
+                    </motion.div>
+                  </GridItem>
+                ))}
+              </Grid>
+            </motion.div>
           </Tabs.Panel>
         ))}
       </Tabs>
