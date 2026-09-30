@@ -88,3 +88,16 @@ export type IpStatusDto = {
   longitude: number | null;
   protected: boolean | null;
 };
+
+/**
+ * One node as the public Stats block sees it — deliberately nothing more.
+ * `uptime` (seconds) and `memoryUsed` (bytes) are `null` until the node has
+ * reported its system stats to the panel.
+ */
+export type NodeStatDto = {
+  name: string;
+  isConnected: boolean;
+  countryCode: string;
+  uptime: number | null;
+  memoryUsed: number | null;
+};

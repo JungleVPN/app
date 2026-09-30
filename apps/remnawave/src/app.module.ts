@@ -5,6 +5,7 @@ import { dataSourceOptions } from '@workspace/database';
 import { RemnawaveHealthController } from './health/health.controller';
 import { HwidModule } from './hwid/hwid.module';
 import { IpStatusModule } from './ip-status/ip-status.module';
+import { NodeStatsModule } from './node-stats/node-stats.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { UserModule } from './user/user.module';
 
@@ -20,6 +21,7 @@ import { UserModule } from './user/user.module';
     SubscriptionModule,
     HwidModule,
     IpStatusModule,
+    NodeStatsModule,
   ],
   controllers: [RemnawaveHealthController],
 })

@@ -61,6 +61,7 @@ export const apiRoutes = {
   remnawave: {
     // ── public, unauthenticated ──────────────────────────────────────────
     ipStatus: '/ip-status',
+    nodeStats: '/nodes/stats',
     // ── server-to-server (InterServiceGuard) ─────────────────────────────
     ipStatusLookup: '/ip-status/lookup',
     users: '/users',
