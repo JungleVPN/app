@@ -1,5 +1,6 @@
 import { Avatar } from '@heroui/react';
 import { useAuthStore } from '@workspace/core';
+import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
@@ -25,6 +26,7 @@ import { AuthButtons } from './AuthButtons';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileDrawer } from './MobileDrawer';
 import { OfferMenu } from './OfferMenu';
+import { dropIn } from './dropIn';
 import { ToolsMenu } from './ToolsMenu';
 
 const navItemClass =
@@ -152,10 +154,10 @@ export function Header() {
   };
 
   return (
-    <div className={wrapperClass()}>
+    <motion.div className={wrapperClass()} {...dropIn}>
       <header className={`w-full transition-all duration-300 ${!isLanding ? 'shadow-none ' : ''} `}>
         <Container>{inner}</Container>
       </header>
-    </div>
+    </motion.div>
   );
 }
