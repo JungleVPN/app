@@ -137,7 +137,8 @@ export class EventsService {
         // Merges pre-signup events (bot_started, tma_opened — captured under
         // `tg:{telegramId}` before an account exists) onto this same PostHog
         // person, so the acquisition → payment funnel spans one identity.
-        if (event.telegramId != null) {
+        // A falsy id (0 from older senders) would merge every web signup into one person.
+        if (event.telegramId) {
           this.postHog.alias(`tg:${event.telegramId}`, distinctId);
         }
 

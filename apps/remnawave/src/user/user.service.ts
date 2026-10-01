@@ -257,7 +257,7 @@ export class UserService implements OnModuleInit {
     await this.analyticsClient.track({
       event: 'user_created',
       userId: user.id,
-      telegramId: Number(user.telegramId),
+      telegramId: user.telegramId ? Number(user.telegramId) : null,
       email: user.email ?? null,
     });
 

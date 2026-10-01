@@ -19,7 +19,7 @@ export type TmaOpenedEvent = {
 export type UserCreatedEvent = {
   event: 'user_created';
   userId: RemnaUserId;
-  telegramId: number;
+  telegramId: number | null;
   email: string | null;
 };
 

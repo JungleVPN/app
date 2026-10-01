@@ -215,6 +215,20 @@ describe('EventsService.trackEvent()', () => {
         expect(alias).toHaveBeenCalledWith('tg:999', '2000');
       });
 
+      // A web signup has no Telegram account. Aliasing `tg:0` (or `tg:null`)
+      // would merge every such signup into one person.
+      it.each([
+        0,
+        null,
+      ])('does not alias a tg: id for a signup whose telegramId is %s', async (telegramId) => {
+        const alias = vi.fn();
+        const { service } = buildService({ postHog: buildPostHog(undefined, undefined, alias) });
+
+        await service.trackEvent({ event: 'user_created', userId: 2000, telegramId, email: null });
+
+        expect(alias).not.toHaveBeenCalledWith(expect.stringMatching(/^tg:/), expect.anything());
+      });
+
       it('does not throw when PostHog alias throws', async () => {
         const alias = vi.fn().mockImplementation(() => {
           throw new Error('posthog down');
