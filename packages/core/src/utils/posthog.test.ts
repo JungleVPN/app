@@ -174,6 +174,10 @@ describe('posthog utils', () => {
     it.each([
       'jungle-vpn.com',
       'jungle.community',
+      'thejungle.pro',
+      'www.thejungle.pro',
+      'web.thejungle.pro',
+      'app.thejungle.pro',
     ])('does not tag %s as an internal/test user', async (hostname) => {
       await loadPosthogModule(hostname);
 
@@ -184,10 +188,8 @@ describe('posthog utils', () => {
       'localhost',
       'ru-web.development-env.uk',
       'eu-web.development-env.uk',
-      'thejungle.pro',
-      'www.thejungle.pro',
-      'web.thejungle.pro',
-      'app.thejungle.pro',
+      'eu-stage-web.thejungle.pro',
+      'ru-stage-web.thejungle.pro',
     ])('tags %s traffic as an internal/test user', async (hostname) => {
       await loadPosthogModule(hostname);
 

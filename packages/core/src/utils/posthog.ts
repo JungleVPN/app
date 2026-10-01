@@ -23,8 +23,14 @@ const isDev = import.meta.env.PUBLIC_ANALYTICS_ENVIRONMENT === 'dev';
 
 const isEnabled = typeof window !== 'undefined' && !!token && !!host && !isDev;
 
-/** The only hostnames whose traffic counts as real production usage. Everything else — dev, staging, and legacy domain aliases — is tagged below. */
-const PRODUCTION_HOSTNAMES: ReadonlySet<string> = new Set(['jungle-vpn.com', 'jungle.community']);
+/** The only hostnames whose traffic counts as real production usage (`www.` is stripped first). Everything else — dev and staging — is tagged below. */
+const PRODUCTION_HOSTNAMES: ReadonlySet<string> = new Set([
+  'jungle-vpn.com',
+  'jungle.community',
+  'thejungle.pro',
+  'web.thejungle.pro',
+  'app.thejungle.pro',
+]);
 
 if (typeof window !== 'undefined' && (!token || !host) && import.meta.env.DEV) {
   console.error(
