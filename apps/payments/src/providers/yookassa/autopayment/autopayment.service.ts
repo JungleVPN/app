@@ -228,6 +228,8 @@ export class AutopaymentService {
       metadata: {
         email: user.email ?? undefined,
         userId: String(user.id),
+        // The webhook sees a renewal like any other payment; this is how it tells them apart.
+        autopayment: 'true',
       },
     };
 

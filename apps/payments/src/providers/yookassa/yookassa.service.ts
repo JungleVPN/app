@@ -383,7 +383,7 @@ export class YookassaService {
         purpose: record.purpose,
         selectedPeriod: record.selectedPeriod,
         isFirstPayment,
-        isAutoPayment: false,
+        isAutoPayment: metadata?.autopayment === 'true',
         amount: record.amount,
         currency: 'RUB',
       });

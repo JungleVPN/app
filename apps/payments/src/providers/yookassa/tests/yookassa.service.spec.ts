@@ -1237,6 +1237,19 @@ describe('YookassaService', () => {
       );
     });
 
+    // YooKassa sends the same webhook for a renewal it charged off a saved
+    // method; the metadata the autopayment set is what tells the two apart.
+    it('records a renewal charged off a saved method as an autopayment', async () => {
+      await service.handleWebhook(
+        makeSucceededPayload({ metadata: { userId: '1000', autopayment: 'true' } }),
+        '127.0.0.1',
+      );
+
+      expect(analyticsClient.track).toHaveBeenCalledWith(
+        expect.objectContaining({ event: 'payment_succeeded', isAutoPayment: true }),
+      );
+    });
+
     it('records the purpose and settled amount so revenue and extra-device sales are queryable', async () => {
       mockYkFindOneBy.mockResolvedValue({
         userId: 1000,

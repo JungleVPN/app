@@ -507,6 +507,7 @@ describe('AutopaymentService', () => {
         metadata: {
           email: undefined,
           userId: '1000',
+          autopayment: 'true',
         },
       });
       expect(mockCreate.mock.calls[0][0]).not.toHaveProperty('confirmation');
