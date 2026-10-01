@@ -1,7 +1,7 @@
 import type { TSubscriptionPageLanguageCode } from '@workspace/types';
 import { useEffect } from 'react';
 import { Outlet } from 'react-router';
-import { useRemnawaveApi } from '../api';
+import { useAnalyticsApi, useRemnawaveApi } from '../api';
 import { Navbar } from '../components';
 import { SubscriptionLinkDialog } from '../components/SubscriptionLinkWidget/SubscriptionLinkDialog';
 import { applyUserLang } from '../core/i18n';
@@ -21,6 +21,7 @@ import { captureReferral, phIdentify } from '../utils';
 export function ProfileLayout() {
   const navigate = useNavigation();
   const remnawaveApi = useRemnawaveApi();
+  const analyticsApi = useAnalyticsApi();
   const { tgUser, authUser, rmnUser } = useAuthStoreInfo();
   const { setRmnUser, setUserScope } = useAuthStoreActions();
   const { platformType } = usePlatformStore();
@@ -72,6 +73,15 @@ export function ProfileLayout() {
         .getMe()
         .then((user) => {
           setRmnUser(user ?? null);
+          // Reported once the lookup settles so the open carries the account,
+          // which lets the backend tie the Telegram identity to its payments.
+          if (platformType === 'telegram' && tgUser?.id) {
+            analyticsApi.trackTmaOpened({
+              telegramId: Number(tgUser.id),
+              userId: user?.id ?? null,
+              email: user?.email ?? null,
+            });
+          }
           if (user) {
             // Ties this browser's anonymous distinct_id to the canonical userId, so
             // client-side events (plan_selected, subscription_viewed, ...) merge into
@@ -92,6 +102,7 @@ export function ProfileLayout() {
     getConnectEmailPath,
     publicPlansPath,
     platformType,
+    analyticsApi,
   ]);
 
   useEffect(() => {

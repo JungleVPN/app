@@ -6,24 +6,28 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAuthStore, usePlatformStore } from '../stores';
 import { ProfileLayout } from './ProfileLayout';
 
-const { getMe, phIdentify, navigate, remnawaveApi, currentScope } = vi.hoisted(() => {
-  const getMe = vi.fn();
-  const remnawaveApi = {
-    getMe,
-    getMyMetadata: vi.fn().mockResolvedValue(null),
-    upsertMyMetadata: vi.fn().mockResolvedValue(undefined),
-  };
-  return {
-    getMe,
-    phIdentify: vi.fn(),
-    navigate: vi.fn(),
-    remnawaveApi,
-    currentScope: vi.fn(),
-  };
-});
+const { getMe, phIdentify, navigate, remnawaveApi, currentScope, trackTmaOpened } = vi.hoisted(
+  () => {
+    const getMe = vi.fn();
+    const remnawaveApi = {
+      getMe,
+      getMyMetadata: vi.fn().mockResolvedValue(null),
+      upsertMyMetadata: vi.fn().mockResolvedValue(undefined),
+    };
+    return {
+      getMe,
+      phIdentify: vi.fn(),
+      navigate: vi.fn(),
+      remnawaveApi,
+      currentScope: vi.fn(),
+      trackTmaOpened: vi.fn(),
+    };
+  },
+);
 
 vi.mock('../api', () => ({
   useRemnawaveApi: () => remnawaveApi,
+  useAnalyticsApi: () => ({ trackTmaOpened }),
 }));
 
 vi.mock('../runtime', () => ({
@@ -81,7 +85,10 @@ describe('ProfileLayout', () => {
     });
   });
 
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    vi.clearAllMocks();
+  });
 
   it('identifies the confirmed-login user to PostHog by their canonical userId', async () => {
     getMe.mockResolvedValue(fakeUser({ id: 846 }));
@@ -118,5 +125,50 @@ describe('ProfileLayout', () => {
     renderProfileLayout();
 
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/plans'));
+  });
+
+  // tma_opened carries the account once it is known, so the backend can tie the
+  // Telegram identity (bot_started, earlier opens) to the user's payments.
+  describe('mini app open', () => {
+    const openInTelegram = () => {
+      usePlatformStore.setState({ platformType: 'telegram' });
+      useAuthStore.setState({ authUser: null, tgUser: { id: 777 } as never });
+    };
+
+    it('reports the open with the account the Telegram user already has', async () => {
+      openInTelegram();
+      getMe.mockResolvedValue(fakeUser({ id: 846, email: 'tg@test.com' }));
+
+      renderProfileLayout();
+
+      await waitFor(() =>
+        expect(trackTmaOpened).toHaveBeenCalledWith({
+          telegramId: 777,
+          userId: 846,
+          email: 'tg@test.com',
+        }),
+      );
+      expect(trackTmaOpened).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports the open without an account for a first-time Telegram user', async () => {
+      openInTelegram();
+      getMe.mockResolvedValue(null);
+
+      renderProfileLayout();
+
+      await waitFor(() =>
+        expect(trackTmaOpened).toHaveBeenCalledWith({ telegramId: 777, userId: null, email: null }),
+      );
+    });
+
+    it('reports no mini app open on the web', async () => {
+      getMe.mockResolvedValue(fakeUser());
+
+      renderProfileLayout();
+      await waitFor(() => expect(phIdentify).toHaveBeenCalled());
+
+      expect(trackTmaOpened).not.toHaveBeenCalled();
+    });
   });
 });

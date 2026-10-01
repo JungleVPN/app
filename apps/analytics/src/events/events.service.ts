@@ -134,20 +134,21 @@ export class EventsService {
           },
         });
 
-        // Merges pre-signup events (bot_started, tma_opened — captured under
-        // `tg:{telegramId}` before an account exists) onto this same PostHog
-        // person, so the acquisition → payment funnel spans one identity.
-        // A falsy id (0 from older senders) would merge every web signup into one person.
-        if (event.telegramId) {
-          this.postHog.alias(`tg:${event.telegramId}`, distinctId);
-        }
-
         // Same merge for events captured under `email:{address}` before this
         // account existed (the backend's former `checkout_started`, now reported
         // by the frontend) — the account is created off that very address.
         if (event.email != null && event.email !== '') {
           this.postHog.alias(`email:${event.email.trim().toLowerCase()}`, distinctId);
         }
+      }
+
+      // Merges events captured under `tg:{telegramId}` before the account was
+      // known (bot_started, tma_opened) onto the account's person: at signup
+      // (user_created), and for accounts older than analytics whenever the mini
+      // app reports an open with the account. A falsy id (0 from older senders)
+      // would merge every web signup into one person.
+      if (userId != null && telegramId) {
+        this.postHog.alias(`tg:${telegramId}`, distinctId);
       }
 
       this.postHog.capture(distinctId, event.event, event as unknown as Record<string, unknown>);

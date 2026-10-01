@@ -1,5 +1,4 @@
 import { initData, User } from '@tma.js/sdk-react';
-import { useAnalyticsApi } from '@workspace/core/api';
 import { useAuthStoreActions } from '@workspace/core/stores';
 import { type ReactNode, useEffect } from 'react';
 
@@ -8,7 +7,6 @@ import { type ReactNode, useEffect } from 'react';
  */
 export function TmaAuthProvider({ children }: { children: ReactNode }) {
   const { setTgUser, setTgInitDataRaw, setLoading } = useAuthStoreActions();
-  const analyticsApi = useAnalyticsApi();
 
   useEffect(() => {
     try {
@@ -19,17 +17,17 @@ export function TmaAuthProvider({ children }: { children: ReactNode }) {
         setTgInitDataRaw(raw);
       }
 
+      // tma_opened is reported by ProfileLayout once the account lookup settles,
+      // so it can carry the userId.
       if (user) {
         setTgUser(user as unknown as User);
-        // userId/email are not yet resolved at init time — enrichment happens later.
-        analyticsApi.trackTmaOpened({ telegramId: Number(user.id), email: null, userId: null });
       }
     } catch {
       // Not inside Telegram (local dev).
     } finally {
       setLoading(false);
     }
-  }, [setTgUser, setTgInitDataRaw, setLoading, analyticsApi]);
+  }, [setTgUser, setTgInitDataRaw, setLoading]);
 
   return <>{children}</>;
 }

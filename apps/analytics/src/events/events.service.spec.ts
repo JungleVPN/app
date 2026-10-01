@@ -200,6 +200,40 @@ describe('EventsService.trackEvent()', () => {
       });
     });
 
+    // An existing account opening the mini app ties its Telegram identity (bot
+    // starts and opens captured under `tg:`) to the account's payments.
+    describe('identity merge on events carrying both ids', () => {
+      it('aliases tg: into the userId when a mini app open names the account', async () => {
+        const alias = vi.fn();
+        const capture = vi.fn();
+        const { service } = buildService({ postHog: buildPostHog(capture, undefined, alias) });
+
+        await service.trackEvent({
+          event: 'tma_opened',
+          telegramId: 999,
+          userId: 2000,
+          email: null,
+        });
+
+        expect(alias).toHaveBeenCalledWith('tg:999', '2000');
+        expect(capture).toHaveBeenCalledWith('2000', 'tma_opened', expect.anything());
+      });
+
+      it('aliases nothing for a mini app open without an account', async () => {
+        const alias = vi.fn();
+        const { service } = buildService({ postHog: buildPostHog(undefined, undefined, alias) });
+
+        await service.trackEvent({
+          event: 'tma_opened',
+          telegramId: 999,
+          userId: null,
+          email: null,
+        });
+
+        expect(alias).not.toHaveBeenCalled();
+      });
+    });
+
     describe('identity merge on user_created', () => {
       it('aliases the pre-signup tg: distinct id into the canonical userId', async () => {
         const alias = vi.fn();
