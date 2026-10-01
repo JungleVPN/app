@@ -10,6 +10,8 @@
  * Environment variables (set in .env at the monorepo root):
  *   VITE_PUBLIC_POSTHOG_PROJECT_TOKEN
  *   VITE_PUBLIC_POSTHOG_HOST
+ *   PUBLIC_ANALYTICS_ENVIRONMENT — `dev` sends nothing at all; a dev site shares
+ *     the PostHog project with production. The backend reads it too.
  */
 import posthog from 'posthog-js';
 import { normalizeHostname } from './domain';
@@ -17,7 +19,9 @@ import { normalizeHostname } from './domain';
 const token = import.meta.env.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN as string | undefined;
 const host = import.meta.env.VITE_PUBLIC_POSTHOG_HOST as string | undefined;
 
-const isEnabled = typeof window !== 'undefined' && !!token && !!host;
+const isDev = import.meta.env.PUBLIC_ANALYTICS_ENVIRONMENT === 'dev';
+
+const isEnabled = typeof window !== 'undefined' && !!token && !!host && !isDev;
 
 /** The only hostnames whose traffic counts as real production usage. Everything else — dev, staging, and legacy domain aliases — is tagged below. */
 const PRODUCTION_HOSTNAMES: ReadonlySet<string> = new Set(['jungle-vpn.com', 'jungle.community']);

@@ -1,6 +1,6 @@
 /**
  * PostHogService — the analytics app's only door to PostHog. A dev backend
- * (ANALYTICS_ENVIRONMENT=dev) sends nothing: it shares the PostHog project
+ * (PUBLIC_ANALYTICS_ENVIRONMENT=dev, shared with the frontends) sends nothing: it shares the PostHog project
  * with production, and its sandbox payments would look like real revenue.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -36,7 +36,7 @@ describe('PostHogService', () => {
 
   it('sends nothing from a dev backend, even with an API key', () => {
     vi.stubEnv('POSTHOG_API_KEY', 'phc_test');
-    vi.stubEnv('ANALYTICS_ENVIRONMENT', 'dev');
+    vi.stubEnv('PUBLIC_ANALYTICS_ENVIRONMENT', 'dev');
 
     new PostHogService().capture('1000', 'payment_succeeded', {});
 

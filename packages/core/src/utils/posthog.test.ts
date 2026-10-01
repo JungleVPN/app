@@ -69,6 +69,33 @@ describe('posthog utils', () => {
     });
   });
 
+  // A dev site shares the PostHog project with production; with
+  // PUBLIC_ANALYTICS_ENVIRONMENT=dev it sends nothing, not even pageviews.
+  describe('in a dev environment (PUBLIC_ANALYTICS_ENVIRONMENT=dev)', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+      vi.stubEnv('VITE_PUBLIC_POSTHOG_PROJECT_TOKEN', 'phc_test_token');
+      vi.stubEnv('VITE_PUBLIC_POSTHOG_HOST', 'https://eu.i.posthog.com');
+      vi.stubEnv('PUBLIC_ANALYTICS_ENVIRONMENT', 'dev');
+    });
+
+    it('does not initialise posthog-js, even with a token and host', async () => {
+      await loadPosthogModule('stage.jungle-vpn.com');
+
+      expect(mockedPosthog.init).not.toHaveBeenCalled();
+    });
+
+    it('phCapture and phIdentify are no-ops', async () => {
+      const { phCapture, phIdentify } = await loadPosthogModule('stage.jungle-vpn.com');
+
+      phCapture('checkout_started', { payment_provider: 'whop' });
+      phIdentify('846');
+
+      expect(mockedPosthog.capture).not.toHaveBeenCalled();
+      expect(mockedPosthog.identify).not.toHaveBeenCalled();
+    });
+  });
+
   describe('when both the token and host are configured', () => {
     beforeEach(() => {
       vi.stubEnv('VITE_PUBLIC_POSTHOG_PROJECT_TOKEN', 'phc_test_token');
@@ -144,14 +171,14 @@ describe('posthog utils', () => {
       expect(phConsentStatus()).toBe('pending');
     });
 
-    it.each(['jungle-vpn.com', 'jungle.community'])(
-      'does not tag %s as an internal/test user',
-      async (hostname) => {
-        await loadPosthogModule(hostname);
+    it.each([
+      'jungle-vpn.com',
+      'jungle.community',
+    ])('does not tag %s as an internal/test user', async (hostname) => {
+      await loadPosthogModule(hostname);
 
-        expect(mockedPosthog.setPersonProperties).not.toHaveBeenCalled();
-      },
-    );
+      expect(mockedPosthog.setPersonProperties).not.toHaveBeenCalled();
+    });
 
     it.each([
       'localhost',
