@@ -20,11 +20,9 @@ vi.mock('@heroui/react', () => ({
 }));
 vi.mock('../../env', () => ({ coreEnv: {}, getTelegramStickerUrl: () => null }));
 vi.mock('../../hooks', () => ({ useNavigation: () => vi.fn() }));
-vi.mock('../../ui', () => ({ TgsSticker: () => null }));
-vi.mock('../../ui/Heading', () => ({
+vi.mock('../../ui', () => ({
+  TgsSticker: () => null,
   Heading: ({ children }: { children: ReactNode }) => <h1>{children}</h1>,
-}));
-vi.mock('../../ui/Paragraph', () => ({
   Paragraph: ({ children }: { children: ReactNode }) => <p>{children}</p>,
 }));
 vi.mock('../../utils', async () => {
