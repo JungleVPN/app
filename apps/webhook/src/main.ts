@@ -9,7 +9,7 @@ async function bootstrap() {
   const port = process.env.WEBHOOK_PORT ?? 3003;
   await app.listen(port, '0.0.0.0');
 
-  console.log(`[webhook] listening on port ${port}`);
+  console.log(`[webhook] listening on 0.0.0.0:${port}`);
 }
 
 bootstrap();
