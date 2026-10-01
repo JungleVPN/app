@@ -18,3 +18,13 @@ helm-charts
 
 **/.turbo
 **/tsconfig.tsbuildinfo
+
+**/node_modules
+**/coverage
+**/graphify-out
+**/.DS_Store
+.claude
+.github
+plans
+AGENTS.md
+CLAUDE.md

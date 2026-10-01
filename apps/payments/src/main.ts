@@ -5,6 +5,7 @@ import { trustReverseProxy } from './trust-reverse-proxy';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
+  app.enableShutdownHooks();
 
   // So that @Ip() and req.ip resolve to the real client IP from
   // X-Forwarded-For instead of the Docker internal gateway address.

@@ -1,12 +1,13 @@
 x-app-image: &app-image
   image: ${APP_IMAGE:-ghcr.io/junglevpn/app:latest}
   pull_policy: always
+  init: true
 
 # Reusable healthcheck for NestJS services — TCP-only so no HTTP 404s flood logs.
 x-nest-hc: &nest-hc
-  interval: 10s
+  interval: 3s
   timeout: 5s
-  retries: 5
+  retries: 15
   start_period: 30s
 
 services:
@@ -173,9 +174,9 @@ services:
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+(process.env.WEB_PORT||7080));c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
-      interval: 10s
+      interval: 3s
       timeout: 5s
-      retries: 5
+      retries: 15
       start_period: 15s
 
   tma:
@@ -190,9 +191,9 @@ services:
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "node -e \"const n=require('net'),c=n.createConnection(+(process.env.TMA_PORT||7090));c.on('connect',()=>{c.end();process.exit(0)});c.on('error',()=>process.exit(1))\""]
-      interval: 10s
+      interval: 3s
       timeout: 5s
-      retries: 5
+      retries: 15
       start_period: 15s
 
   bot:

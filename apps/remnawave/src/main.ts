@@ -5,6 +5,7 @@ import { GlobalExceptionFilter } from './common/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
+  app.enableShutdownHooks();
 
   const corsOriginEnv = process.env.CORS_ORIGIN;
   if (!corsOriginEnv) {

@@ -47,6 +47,7 @@ jobs:
           PROD_USER: ${{ secrets.DEPLOY_USER }}
           PROD_DIR: ${{ secrets.DEPLOY_PATH }}
           PROD_PORT: ${{ secrets.DEPLOY_PORT }}
+        shell: bash
         run: |
           if [ "$IS_STAGE" = "true" ]; then
             KEY="$STAGING_KEY" HOST="$STAGING_HOST" USER="$STAGING_USER" DIR="$STAGING_DIR" PORT="$STAGING_PORT"
@@ -61,12 +62,13 @@ jobs:
           ENV_DIR="$RUNNER_TEMP/build-env"
           mkdir -p "$ENV_DIR" && chmod 700 "$ENV_DIR"
           echo "$KEY" > "$RUNNER_TEMP/deploy_key" && chmod 600 "$RUNNER_TEMP/deploy_key"
-          for f in .env .env.public .env.payments .env.secrets; do
-            scp -q -i "$RUNNER_TEMP/deploy_key" \
-              -o StrictHostKeyChecking=no \
-              -P "$PORT" "$USER@$HOST:$DIR/$f" "$ENV_DIR/$f" \
-              || { rm -f "$RUNNER_TEMP/deploy_key"; echo "::error::Could not fetch $f from $DIR on the server."; exit 1; }
-          done
+          # One SSH connection for all four files instead of one scp each.
+          ssh -q -i "$RUNNER_TEMP/deploy_key" \
+            -o StrictHostKeyChecking=no \
+            -p "$PORT" "$USER@$HOST" \
+            "cd '$DIR' && tar -c .env .env.public .env.payments .env.secrets" \
+            | tar -x -C "$ENV_DIR" \
+            || { rm -f "$RUNNER_TEMP/deploy_key"; echo "::error::Could not fetch the env files from $DIR on the server."; exit 1; }
           rm -f "$RUNNER_TEMP/deploy_key"
           chmod 600 "$ENV_DIR"/.env*
 
@@ -81,9 +83,11 @@ jobs:
           if [ "${{ github.ref }}" = "refs/heads/stage" ]; then
             LATEST_TAG="${{ env.IMAGE }}:stage-latest"
             SHA_TAG="${{ env.IMAGE }}:stage-sha-${SHORT_SHA}"
+            CACHE_TAG="${{ env.IMAGE }}:buildcache-stage"
           else
             LATEST_TAG="${{ env.IMAGE }}:latest"
             SHA_TAG="${{ env.IMAGE }}:sha-${SHORT_SHA}"
+            CACHE_TAG="${{ env.IMAGE }}:buildcache"
           fi
           docker buildx build \
             --push \
@@ -93,8 +97,9 @@ jobs:
             --secret id=env_public,src="$ENV_DIR/.env.public" \
             --secret id=env_payments,src="$ENV_DIR/.env.payments" \
             --secret id=env_secrets,src="$ENV_DIR/.env.secrets" \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
+            --cache-from type=registry,ref="${{ env.IMAGE }}:buildcache" \
+            --cache-from type=registry,ref="${CACHE_TAG}" \
+            --cache-to type=registry,ref="${CACHE_TAG}",mode=max,image-manifest=true,oci-mediatypes=true \
             --build-arg TURBO_CONCURRENCY=7 \
             --build-arg PUBLIC_ENV_HASH="$PUBLIC_ENV_HASH" \
             .
