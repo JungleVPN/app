@@ -2,8 +2,14 @@ FROM node:20-alpine AS base
 RUN corepack enable && corepack prepare pnpm@9.13.2 --activate
 WORKDIR /app
 
-# ── Install dependencies ─────────────────────────────────────────────
-FROM base AS deps
+# One image per deployable: nest (all Nest services), web and tma. Each has its
+# own filtered install, so a target only carries the dependencies it needs, and
+# BuildKit builds them in parallel from the same Dockerfile:
+#   docker build --target web .
+#
+# Every package.json goes in before any install so each install layer is keyed
+# on manifests and the lockfile alone.
+FROM base AS manifests
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/payments/package.json ./apps/payments/package.json
 COPY apps/webhook/package.json ./apps/webhook/package.json
@@ -18,11 +24,13 @@ COPY packages/shared-config/package.json ./packages/shared-config/package.json
 COPY packages/types/package.json ./packages/types/package.json
 COPY packages/database/package.json ./packages/database/package.json
 COPY packages/core/package.json ./packages/core/package.json
-RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile
 
-# ── Build the Nest apps and shared packages ──────────────────────────
-FROM deps AS build-nest
+# ── nest ─────────────────────────────────────────────────────────────
+FROM manifests AS deps-nest
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter='!@jungle/web' --filter='!@jungle/tma' --filter='!@workspace/core'
+
+FROM deps-nest AS build-nest
 COPY tsconfig.json turbo.json ./
 COPY packages ./packages
 COPY apps/analytics ./apps/analytics
@@ -36,18 +44,24 @@ COPY apps/webhook ./apps/webhook
 # Override if building on a very constrained host:
 #   docker compose build --build-arg TURBO_CONCURRENCY=4
 ARG TURBO_CONCURRENCY=7
-# The Vite apps are built in their own stages, so they are filtered out here.
 # .turbo cache mount speeds up repeat builds on the same host when no remote cache is set.
 RUN --mount=type=cache,id=turbo-cache,target=/app/.turbo \
-    pnpm turbo build --concurrency=${TURBO_CONCURRENCY} --filter='!@jungle/web' --filter='!@jungle/tma'
+    pnpm turbo build --concurrency=${TURBO_CONCURRENCY} --filter='!@jungle/web' --filter='!@jungle/tma' --filter='!@workspace/core'
 RUN for p in apps/analytics apps/bot apps/broadcasts apps/payments apps/referrals apps/remnawave apps/webhook packages/database packages/types; do \
       mkdir -p /out/$p && cp -r $p/dist /out/$p/dist; \
     done
 
-# ── Build web (Vite) ──────────────────────────────────────────────
-# Independent of the Nest stage, so BuildKit builds them in parallel and a
-# change confined to another app leaves this stage cached.
-FROM deps AS build-web
+FROM manifests AS prod-deps-nest
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --prod --filter='!@jungle/web' --filter='!@jungle/tma' --filter='!@workspace/core'
+
+# ── web ──────────────────────────────────────────────────────────────
+FROM manifests AS deps-web
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter='@jungle/web...'
+
+# ── web: build ────────────────────────────────────────────────────
+FROM deps-web AS build-web
 COPY tsconfig.json turbo.json ./
 COPY packages ./packages
 COPY apps/web ./apps/web
@@ -61,12 +75,21 @@ RUN --mount=type=secret,id=env,target=/app/.env \
     --mount=type=secret,id=env_payments,target=/app/.env.payments \
     --mount=type=secret,id=env_secrets,target=/app/.env.secrets \
     WEB_BUILD_SOURCEMAP=false pnpm --filter @jungle/web run build:docker
-RUN mkdir -p /out/apps/web && cp -r apps/web/dist /out/apps/web/dist && cp apps/web/server.js /out/apps/web/server.js
+RUN mkdir -p /out/apps/web && cp -r apps/web/dist /out/apps/web/dist \
+ && cp apps/web/server.js /out/apps/web/server.js \
+ && mkdir -p /out/packages/types && cp -r packages/types/dist /out/packages/types/dist
 
-# ── Build tma (Vite) ──────────────────────────────────────────────
-# Independent of the Nest stage, so BuildKit builds them in parallel and a
-# change confined to another app leaves this stage cached.
-FROM deps AS build-tma
+FROM manifests AS prod-deps-web
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --prod --filter='@jungle/web'
+
+# ── tma ──────────────────────────────────────────────────────────────
+FROM manifests AS deps-tma
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter='@jungle/tma...'
+
+# ── tma: build ────────────────────────────────────────────────────
+FROM deps-tma AS build-tma
 COPY tsconfig.json turbo.json ./
 COPY packages ./packages
 COPY apps/tma ./apps/tma
@@ -82,18 +105,25 @@ RUN --mount=type=secret,id=env,target=/app/.env \
     WEB_BUILD_SOURCEMAP=false pnpm --filter @jungle/tma run build:docker
 RUN mkdir -p /out/apps/tma && cp -r apps/tma/dist /out/apps/tma/dist
 
-# ── Production dependencies only ─────────────────────────────────────
-# Pruned from the install stage, not the build output: it depends on the
-# lockfile alone, so source changes never invalidate it.
-FROM deps AS prod-deps
-RUN pnpm prune --prod
+FROM manifests AS prod-deps-tma
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --prod --filter='@jungle/tma'
 
-# ── Production image ─────────────────────────────────────────────────
+# ── Runtime images ───────────────────────────────────────────────────
 # Dependencies first, build output last: a deploy that does not touch the
 # lockfile only pulls the small dist layers.
-FROM node:20-alpine AS production
+FROM node:20-alpine AS web
 WORKDIR /app
-COPY --from=prod-deps /app ./
-COPY --from=build-nest /out/ ./
+COPY --from=prod-deps-web /app ./
 COPY --from=build-web /out/ ./
+
+FROM node:20-alpine AS tma
+WORKDIR /app
+COPY --from=prod-deps-tma /app ./
 COPY --from=build-tma /out/ ./
+
+# Last stage, so a plain `docker build .` produces the Nest image.
+FROM node:20-alpine AS nest
+WORKDIR /app
+COPY --from=prod-deps-nest /app ./
+COPY --from=build-nest /out/ ./

@@ -254,9 +254,6 @@ importers:
       '@whop/sdk':
         specifier: ^2.0.0
         version: 2.0.0
-      '@workspace/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       '@workspace/database':
         specifier: workspace:*
         version: link:../../packages/database

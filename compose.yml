@@ -50,6 +50,7 @@ services:
     init: true
     build:
       <<: *app-build
+      target: nest
     command: ["node", "packages/database/dist/run-migrations.js"]
     networks:
       - jungle-net
@@ -62,6 +63,7 @@ services:
     init: true
     build:
       <<: *app-build
+      target: nest
     container_name: remnawave
     command: ["node", "apps/remnawave/dist/main.js"]
     networks:
@@ -83,6 +85,7 @@ services:
     init: true
     build:
       <<: *app-build
+      target: nest
     container_name: payments
     command: ["node", "apps/payments/dist/main.js"]
     networks:
@@ -106,6 +109,7 @@ services:
     init: true
     build:
       <<: *app-build
+      target: nest
     container_name: analytics
     command: ["node", "apps/analytics/dist/main.js"]
     networks:
@@ -127,6 +131,7 @@ services:
     init: true
     build:
       <<: *app-build
+      target: nest
     container_name: referrals
     command: ["node", "apps/referrals/dist/main.js"]
     networks:
@@ -150,6 +155,7 @@ services:
     init: true
     build:
       <<: *app-build
+      target: nest
     container_name: broadcasts
     command: ["node", "apps/broadcasts/dist/main.js"]
     networks:
@@ -171,6 +177,7 @@ services:
     init: true
     build:
       <<: *app-build
+      target: nest
     container_name: webhook
     command: ["node", "apps/webhook/dist/main.js"]
     networks:
@@ -194,6 +201,7 @@ services:
     init: true
     build:
       <<: *app-build
+      target: web
     container_name: web
     command: ["apps/web/node_modules/.bin/serve", "apps/web/dist", "--single", "--listen", "tcp://0.0.0.0:${WEB_PORT:-7080}"]
     networks:
@@ -212,6 +220,7 @@ services:
     init: true
     build:
       <<: *app-build
+      target: tma
     container_name: tma
     command: ["apps/tma/node_modules/.bin/serve", "apps/tma/dist", "--single", "--listen", "tcp://0.0.0.0:${TMA_PORT:-7090}"]
     networks:
@@ -230,6 +239,7 @@ services:
     init: true
     build:
       <<: *app-build
+      target: nest
     container_name: bot
     command: ["node", "apps/bot/dist/main.js"]
     networks:

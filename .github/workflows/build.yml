@@ -77,32 +77,58 @@ jobs:
           echo "PUBLIC_ENV_HASH=$(cat "$ENV_DIR"/.env* | grep -E '^(PUBLIC_|VITE_)' | sort | sha256sum | cut -c1-16)" >> "$GITHUB_ENV"
           echo "ENV_DIR=$ENV_DIR" >> "$GITHUB_ENV"
 
+      # Three images from one Dockerfile: the Nest services, web and tma. They
+      # build in parallel, and an image whose inputs did not change is fully
+      # cached, so it is re-tagged to the same digest and compose leaves its
+      # containers alone on deploy. Each target has its own cache ref because
+      # every export overwrites the ref it writes to.
       - name: Build and push
+        shell: bash
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           if [ "${{ github.ref }}" = "refs/heads/stage" ]; then
-            LATEST_TAG="${{ env.IMAGE }}:stage-latest"
-            SHA_TAG="${{ env.IMAGE }}:stage-sha-${SHORT_SHA}"
-            CACHE_TAG="${{ env.IMAGE }}:buildcache-stage"
+            PREFIX="stage-"
+            CACHE_SUFFIX="-stage"
           else
-            LATEST_TAG="${{ env.IMAGE }}:latest"
-            SHA_TAG="${{ env.IMAGE }}:sha-${SHORT_SHA}"
-            CACHE_TAG="${{ env.IMAGE }}:buildcache"
+            PREFIX=""
+            CACHE_SUFFIX=""
           fi
-          docker buildx build \
-            --push \
-            --tag "${SHA_TAG}" \
-            --tag "${LATEST_TAG}" \
-            --secret id=env,src="$ENV_DIR/.env" \
-            --secret id=env_public,src="$ENV_DIR/.env.public" \
-            --secret id=env_payments,src="$ENV_DIR/.env.payments" \
-            --secret id=env_secrets,src="$ENV_DIR/.env.secrets" \
-            --cache-from type=registry,ref="${{ env.IMAGE }}:buildcache" \
-            --cache-from type=registry,ref="${CACHE_TAG}" \
-            --cache-to type=registry,ref="${CACHE_TAG}",mode=max,image-manifest=true,oci-mediatypes=true \
-            --build-arg TURBO_CONCURRENCY=7 \
-            --build-arg PUBLIC_ENV_HASH="$PUBLIC_ENV_HASH" \
-            .
+
+          build() {
+            local target="$1" repo="$2"
+            docker buildx build \
+              --target "$target" \
+              --push \
+              --tag "${repo}:${PREFIX}sha-${SHORT_SHA}" \
+              --tag "${repo}:${PREFIX}latest" \
+              --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+              --secret id=env,src="$ENV_DIR/.env" \
+              --secret id=env_public,src="$ENV_DIR/.env.public" \
+              --secret id=env_payments,src="$ENV_DIR/.env.payments" \
+              --secret id=env_secrets,src="$ENV_DIR/.env.secrets" \
+              --cache-from type=registry,ref="${IMAGE}:buildcache-${target}" \
+              --cache-from type=registry,ref="${IMAGE}:buildcache-${target}${CACHE_SUFFIX}" \
+              --cache-to type=registry,ref="${IMAGE}:buildcache-${target}${CACHE_SUFFIX}",mode=max,image-manifest=true,oci-mediatypes=true \
+              --build-arg TURBO_CONCURRENCY=7 \
+              --build-arg PUBLIC_ENV_HASH="$PUBLIC_ENV_HASH" \
+              --progress=plain \
+              .
+          }
+
+          build nest "$IMAGE"      > "$RUNNER_TEMP/build-nest.log" 2>&1 & pid_nest=$!
+          build web  "$IMAGE-web"  > "$RUNNER_TEMP/build-web.log"  2>&1 & pid_web=$!
+          build tma  "$IMAGE-tma"  > "$RUNNER_TEMP/build-tma.log"  2>&1 & pid_tma=$!
+
+          status=0
+          wait "$pid_nest" || status=1
+          wait "$pid_web"  || status=1
+          wait "$pid_tma"  || status=1
+          for target in nest web tma; do
+            echo "::group::buildx ${target}"
+            cat "$RUNNER_TEMP/build-${target}.log"
+            echo "::endgroup::"
+          done
+          exit $status
 
       - name: Remove fetched env files
         if: always()
@@ -139,7 +165,7 @@ jobs:
           scp -q -i /tmp/deploy_key -o StrictHostKeyChecking=no -P "$PORT" \
             compose.yml compose.prod.yml compose.staging.yml "$USER@$HOST:$DIR/"
           scp -q -i /tmp/deploy_key -o StrictHostKeyChecking=no -P "$PORT" \
-            scripts/sync-db-password.sh "$USER@$HOST:$DIR/scripts/"
+            scripts/sync-db-password.sh scripts/deploy.sh "$USER@$HOST:$DIR/scripts/"
           rm -f /tmp/deploy_key
 
       - name: Deploy via SSH
@@ -152,7 +178,7 @@ jobs:
             -o StrictHostKeyChecking=no \
             -p ${{ secrets.DEPLOY_PORT }} \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "cd ${{ secrets.DEPLOY_PATH }} && docker compose pull && docker compose up -d && docker image prune -f && docker compose ps"
+            "cd ${{ secrets.DEPLOY_PATH }} && sh scripts/deploy.sh"
           rm -f /tmp/deploy_key
 
   deploy-staging:
@@ -210,7 +236,7 @@ jobs:
           scp -q -i /tmp/deploy_key -o StrictHostKeyChecking=no -P "$PORT" \
             compose.yml compose.prod.yml compose.staging.yml "$USER@$HOST:$DIR/"
           scp -q -i /tmp/deploy_key -o StrictHostKeyChecking=no -P "$PORT" \
-            scripts/sync-db-password.sh "$USER@$HOST:$DIR/scripts/"
+            scripts/sync-db-password.sh scripts/deploy.sh "$USER@$HOST:$DIR/scripts/"
           rm -f /tmp/deploy_key
 
       - name: Deploy via SSH
@@ -226,11 +252,7 @@ jobs:
           ssh -i /tmp/deploy_key \
             -o StrictHostKeyChecking=no \
             -p "$PORT" "$USER@$HOST" \
-              "cd '$DIR' \
-              && docker compose -f compose.staging.yml pull \
-              && docker compose -f compose.staging.yml up -d \
-              && docker image prune -f \
-              && docker compose -f compose.staging.yml ps"
+              "cd '$DIR' && sh scripts/deploy.sh compose.staging.yml"
           rm -f /tmp/deploy_key
 
       # Staging and production share a host, so -f above is the only thing
@@ -253,9 +275,11 @@ jobs:
             "cd '$DIR' && docker compose -f compose.staging.yml config --images")
           rm -f /tmp/deploy_key
           echo "$images"
-          if echo "$images" | grep -qx "$IMAGE:latest"; then
-            echo "::error::Staging resolved to the production image. Check COMPOSE_FILE in $DIR/.env."
-            exit 1
-          fi
-          echo "$images" | grep -qx "$IMAGE:stage-latest" \
-            || { echo "::error::Expected $IMAGE:stage-latest among the resolved images."; exit 1; }
+          for image in "$IMAGE" "$IMAGE-web" "$IMAGE-tma"; do
+            if echo "$images" | grep -qx "$image:latest"; then
+              echo "::error::Staging resolved to the production image $image:latest. Check COMPOSE_FILE in $DIR/.env."
+              exit 1
+            fi
+            echo "$images" | grep -qx "$image:stage-latest" \
+              || { echo "::error::Expected $image:stage-latest among the resolved images."; exit 1; }
+          done

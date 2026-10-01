@@ -21,7 +21,6 @@
     "@nestjs/typeorm": "11.0.0",
     "@paddle/paddle-node-sdk": "^3.10.0",
     "@whop/sdk": "^2.0.0",
-    "@workspace/core": "workspace:*",
     "@workspace/database": "workspace:*",
     "@workspace/types": "workspace:*",
     "axios": "^1.7.0",

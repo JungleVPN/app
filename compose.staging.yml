@@ -3,6 +3,16 @@ x-app-image: &app-image
   pull_policy: always
   init: true
 
+x-web-image: &web-image
+  image: ${APP_WEB_IMAGE:-ghcr.io/junglevpn/app-web:stage-latest}
+  pull_policy: always
+  init: true
+
+x-tma-image: &tma-image
+  image: ${APP_TMA_IMAGE:-ghcr.io/junglevpn/app-tma:stage-latest}
+  pull_policy: always
+  init: true
+
 x-nest-hc: &nest-hc
   interval: 3s
   timeout: 5s
@@ -31,8 +41,11 @@ services:
       retries: 12
       start_period: 15s
 
+  # Not part of `up`: scripts/deploy.sh runs it once, before the app is
+  # touched, so a failed migration leaves the running stack alone.
   migration:
     <<: *app-image
+    profiles: [migrate]
     command: ["node", "packages/database/dist/run-migrations.js"]
     networks:
       - jungle-stage-net
@@ -50,8 +63,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      migration:
-        condition: service_completed_successfully
     env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${REMNAWAVE_PORT}:${REMNAWAVE_PORT}"
@@ -69,8 +80,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      migration:
-        condition: service_completed_successfully
       remnawave:
         condition: service_healthy
     env_file: [.env, .env.public, .env.payments, .env.secrets]
@@ -90,8 +99,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      migration:
-        condition: service_completed_successfully
     env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${ANALYTICS_PORT}:${ANALYTICS_PORT}"
@@ -109,8 +116,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      migration:
-        condition: service_completed_successfully
       remnawave:
         condition: service_healthy
     env_file: [.env, .env.public, .env.payments, .env.secrets]
@@ -130,8 +135,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      migration:
-        condition: service_completed_successfully
     env_file: [.env, .env.public, .env.payments, .env.secrets]
     ports:
       - "127.0.0.1:${BROADCASTS_PORT}:${BROADCASTS_PORT}"
@@ -149,8 +152,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      migration:
-        condition: service_completed_successfully
       payments:
         condition: service_healthy
     env_file: [.env, .env.public, .env.payments, .env.secrets]
@@ -162,7 +163,7 @@ services:
       <<: *nest-hc
 
   web:
-    <<: *app-image
+    <<: *web-image
     container_name: stage-web
     command: ["node", "apps/web/server.js"]
     networks:
@@ -179,7 +180,7 @@ services:
       start_period: 15s
 
   tma:
-    <<: *app-image
+    <<: *tma-image
     container_name: stage-tma
     command: ["apps/tma/node_modules/.bin/serve", "apps/tma/dist", "--single", "--listen", "tcp://0.0.0.0:${TMA_PORT:-7090}"]
     networks:
@@ -204,8 +205,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      migration:
-        condition: service_completed_successfully
       remnawave:
         condition: service_healthy
       payments:
