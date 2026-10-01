@@ -33,7 +33,7 @@ export default function PlansPage() {
   const handleSubmit = () => {
     const plan = sortedPlans.find((p) => p.days === selectedPeriod) ?? sortedPlans[0];
     if (!plan) return;
-    phCapture('plan_selected', { months: plan.days });
+    phCapture('plan_selected', { days: plan.days });
     navigate(`${profilePaymentPath}/${plan.planId}`);
   };
 

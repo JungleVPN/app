@@ -10,7 +10,7 @@ export const PublicPlansPage = () => {
 
   const navigate = useNavigation();
   const plans = usePlans();
-  const [selectedPeriod, setSelectedPeriod] = useState<number>(12);
+  const [selectedPeriod, setSelectedPeriod] = useState<number>(365);
 
   const sortedPlans = mapPlans(plans);
 
@@ -21,7 +21,7 @@ export const PublicPlansPage = () => {
   const handleSubmit = () => {
     const plan = sortedPlans.find((p) => p.days === selectedPeriod) ?? sortedPlans[0];
     if (!plan) return;
-    phCapture('plan_selected', { months: plan.days });
+    phCapture('plan_selected', { days: plan.days });
     navigate(getSubscriptionPath(plan.planId));
   };
 
