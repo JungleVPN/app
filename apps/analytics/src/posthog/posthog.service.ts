@@ -8,6 +8,14 @@ export class PostHogService implements OnModuleDestroy {
   private readonly client: PostHog | null;
 
   constructor() {
+    // A dev backend shares the PostHog project with production, and its sandbox
+    // payments would show up as real revenue.
+    if (process.env.ANALYTICS_ENVIRONMENT === 'dev') {
+      this.logger.log('ANALYTICS_ENVIRONMENT=dev — not sending events to PostHog');
+      this.client = null;
+      return;
+    }
+
     const apiKey = process.env.POSTHOG_API_KEY;
     if (!apiKey) {
       if (process.env.NODE_ENV !== 'production') {
