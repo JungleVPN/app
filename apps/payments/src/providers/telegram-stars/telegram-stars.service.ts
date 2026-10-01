@@ -95,15 +95,6 @@ export class TelegramStarsService implements OnModuleInit {
       [{ label: title, amount: starsAmount }],
     );
 
-    await this.analyticsClient.track({
-      event: 'checkout_started',
-      userId,
-      provider: 'stars',
-      purpose,
-      amount: starsAmount.toString(),
-      currency: 'XTR',
-    });
-
     this.logger.log(`Created Stars invoice for userId=${userId}, recordId=${saved.id}`);
     return { invoiceLink };
   }

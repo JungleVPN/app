@@ -141,9 +141,9 @@ export class EventsService {
           this.postHog.alias(`tg:${event.telegramId}`, distinctId);
         }
 
-        // Same merge for the anonymous checkout funnel: `checkout_started` was
-        // captured under `email:{address}` before this account existed, and the
-        // account is created off that very address once the payment settles.
+        // Same merge for events captured under `email:{address}` before this
+        // account existed (the backend's former `checkout_started`, now reported
+        // by the frontend) — the account is created off that very address.
         if (event.email != null && event.email !== '') {
           this.postHog.alias(`email:${event.email.trim().toLowerCase()}`, distinctId);
         }

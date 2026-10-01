@@ -131,13 +131,14 @@ describe('TelegramStarsService.handlePaymentSucceeded (promo)', () => {
 });
 
 describe('TelegramStarsService — analytics', () => {
-  it('tags checkout_started with the purpose, so a device slot is not counted as a subscription', async () => {
+  // checkout_started is the frontend's to report, where the payer starts it.
+  it('reports no checkout_started when it creates an invoice', async () => {
     const { service } = makeService();
 
-    await service.createInvoice({ ...baseInvoiceDto, purpose: 'extra_device' });
+    await service.createInvoice(baseInvoiceDto);
 
-    expect((service as any).analyticsClient.track).toHaveBeenCalledWith(
-      expect.objectContaining({ event: 'checkout_started', purpose: 'extra_device' }),
+    expect((service as any).analyticsClient.track).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event: 'checkout_started' }),
     );
   });
 

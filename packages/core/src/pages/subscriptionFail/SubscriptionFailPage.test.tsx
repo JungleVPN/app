@@ -1,7 +1,8 @@
 /**
- * SubscriptionFailPage — where a payment that did not go through lands. It
- * reports the failure for the checkout this tab started, and nothing for a
- * direct visit or a reload.
+ * SubscriptionFailPage — where a payment that did not go through lands. The
+ * backend reports the failure from the provider's webhook; this page only
+ * drops the checkout this tab started, so a later visit to the success page
+ * cannot report it as a purchase.
  */
 import { render } from '@testing-library/react';
 import type { ReactNode } from 'react';
@@ -36,23 +37,12 @@ describe('SubscriptionFailPage', () => {
     vi.clearAllMocks();
   });
 
-  it('reports the failed payment for the checkout this tab started', () => {
+  it('drops the checkout this tab started without reporting it', () => {
     takePendingCheckout.mockReturnValue({ paymentProvider: 'yookassa', days: 30 });
 
     render(<SubscriptionFailPage />);
 
-    expect(phCapture).toHaveBeenCalledWith('payment_failed', {
-      payment_provider: 'yookassa',
-      days: 30,
-      reason: 'not_paid',
-    });
-  });
-
-  it('reports nothing for a visit no checkout led to, such as a reload', () => {
-    takePendingCheckout.mockReturnValue(null);
-
-    render(<SubscriptionFailPage />);
-
+    expect(takePendingCheckout).toHaveBeenCalledTimes(1);
     expect(phCapture).not.toHaveBeenCalled();
   });
 });

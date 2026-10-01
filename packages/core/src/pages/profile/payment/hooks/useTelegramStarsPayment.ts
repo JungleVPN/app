@@ -7,6 +7,7 @@ import { coreEnv } from '../../../../env';
 import { useCreateTelegramStarsInvoice } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreInfo, usePlatformStore, useSubscriptionInfoStore } from '../../../../stores';
+import { trackCheckoutStarted } from '../../../../utils';
 
 export function useTelegramStarsPayment(selectedPeriod: number) {
   const { t } = useTranslation();
@@ -43,6 +44,8 @@ export function useTelegramStarsPayment(selectedPeriod: number) {
       setStarsError(t('payment.stars.errorFetch'));
       return;
     }
+
+    trackCheckoutStarted({ paymentProvider: 'stars', days: selectedPeriod });
 
     try {
       const status = await invoice.openUrl(result.invoiceLink);

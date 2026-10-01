@@ -984,10 +984,6 @@ describe('WhopCheckoutPage', () => {
         status: 'open',
         clientSecret: 'sec_1',
       });
-    const reportedFailure = () =>
-      waitFor(() =>
-        expect(phCapture).toHaveBeenCalledWith('payment_failed', expect.anything()),
-      ).then(() => phCapture.mock.calls.find(([event]) => event === 'payment_failed')?.[1]);
 
     it('reports the payment form being shown, with the plan being bought', async () => {
       render(<WhopCheckoutPage />);
@@ -1010,7 +1006,8 @@ describe('WhopCheckoutPage', () => {
       await waitFor(() => expect(phCapture).toHaveBeenCalledWith('payment_submitted', WHOP_30));
     });
 
-    it('reports a decline Whop explains as declined', async () => {
+    // payment_failed is the backend's to report, from the provider's webhook.
+    it('leaves a failed payment for the backend to report', async () => {
       pendingPayment();
       whop.payments.handleNextAction.mockResolvedValue({
         status: 'failed',
@@ -1020,55 +1017,17 @@ describe('WhopCheckoutPage', () => {
 
       await renderFilledAndPay();
 
-      expect(await reportedFailure()).toEqual({ ...WHOP_30, reason: 'declined' });
+      await screen.findByRole('alert');
+      expect(phCapture).not.toHaveBeenCalledWith('payment_failed', expect.anything());
     });
 
-    it('reports a dismissed verification step as not completed', async () => {
-      pendingPayment();
-      whop.payments.handleNextAction.mockResolvedValue({
-        status: 'requires_action',
-        redirected: false,
-        lastPaymentError: null,
-      });
-
-      await renderFilledAndPay();
-
-      expect(await reportedFailure()).toEqual({ ...WHOP_30, reason: 'not_completed' });
-    });
-
-    it('reports a card Whop cannot tokenise as invalid, never as submitted', async () => {
+    it('reports a card Whop cannot tokenise as never submitted', async () => {
       payments.createConfirmationToken.mockRejectedValue(new Error('invalid number'));
 
       await renderFilledAndPay();
 
-      expect(await reportedFailure()).toEqual({ ...WHOP_30, reason: 'card_invalid' });
+      await screen.findByRole('alert');
       expect(phCapture).not.toHaveBeenCalledWith('payment_submitted', expect.anything());
-    });
-
-    it('reports a refusal from our backend with its reason', async () => {
-      api.payPublicWhopCheckout.mockRejectedValue(
-        new ApiClientError({
-          status: 409,
-          message: 'Conflict',
-          data: { code: ACTIVE_SUBSCRIPTION_CODE },
-        }),
-      );
-
-      await renderFilledAndPay();
-
-      expect(await reportedFailure()).toEqual({
-        ...WHOP_30,
-        reason: 'active_subscription_error',
-      });
-    });
-
-    it('reports no failure for a payment that went through', async () => {
-      await renderFilledAndPay();
-
-      await waitFor(() =>
-        expect(navigate).toHaveBeenCalledWith('/payment/success', { replace: true }),
-      );
-      expect(phCapture).not.toHaveBeenCalledWith('payment_failed', expect.anything());
     });
   });
 });

@@ -37,12 +37,6 @@ function payErrorKey(caught: unknown): string {
   return checkoutErrorKey(caught);
 }
 
-/** The last segment of an error's i18n key, such as `card_invalid`, as PostHog reports why a payment failed. */
-const failureReason = (errorKey: string) => errorKey.slice(errorKey.lastIndexOf('.') + 1);
-
-/** Why a charge did not go through: the text shown to the payer, and the reason reported to PostHog. */
-type ChargeFailure = { error: string; reason: string };
-
 /**
  * Tokenises a payment method; resolves null when the payer backed out, such
  * as by dismissing a wallet sheet, and there is nothing to charge.
@@ -75,12 +69,6 @@ export function useWhopPay({
     days: checkout.selectedPeriod,
   });
 
-  const fail = ({ error, reason }: ChargeFailure) => {
-    forgetPendingPurchase();
-    setError(error);
-    phCapture('payment_failed', { ...analytics, reason });
-  };
-
   /** Leaves the purchase for `/payment/success` to report to Google Ads. */
   const rememberPurchase = (paymentId: string) =>
     rememberPendingPurchase({
@@ -90,15 +78,10 @@ export function useWhopPay({
         : {}),
     });
 
-  const notCompleted = (): ChargeFailure => ({
-    error: t('whopCheckout.errors.not_completed'),
-    reason: 'not_completed',
-  });
-
-  /** The paid payment's id, null when the payer left for an off-site step, or why it failed. */
+  /** The paid payment's id, null when the payer left for an off-site step, or the text to show them. */
   const charge = async (
     confirmationToken: string,
-  ): Promise<{ paid: string } | null | ChargeFailure> => {
+  ): Promise<{ paid: string } | null | { error: string }> => {
     const payment = await paymentsApi.payPublicWhopCheckout({
       ...checkout.request,
       confirmationToken,
@@ -107,7 +90,7 @@ export function useWhopPay({
     });
     const paid = { paid: payment.paymentId };
     if (payment.status === 'paid') return paid;
-    if (!whop || !payment.clientSecret) return notCompleted();
+    if (!whop || !payment.clientSecret) return { error: t('whopCheckout.errors.not_completed') };
 
     // An off-site step returns the payer straight to the success page, so the
     // purchase is left behind first; a step that fails on the page drops it.
@@ -116,12 +99,9 @@ export function useWhopPay({
     if (result.redirected) return null;
     if (SETTLED_STATUSES.has(result.status)) return paid;
     const { lastPaymentError } = result;
-    if (!lastPaymentError) return notCompleted();
+    if (!lastPaymentError) return { error: t('whopCheckout.errors.not_completed') };
     // Whop's own explanation, such as a charge below its minimum, says more than a generic decline.
-    return {
-      error: lastPaymentError.message?.trim() || t('whopCheckout.errors.declined'),
-      reason: 'declined',
-    };
+    return { error: lastPaymentError.message?.trim() || t('whopCheckout.errors.declined') };
   };
 
   /**
@@ -162,10 +142,13 @@ export function useWhopPay({
         setError(t('whopCheckout.errors.activation_delayed'));
         return;
       }
-      if (outcome) fail(outcome);
+      if (outcome) {
+        forgetPendingPurchase();
+        setError(outcome.error);
+      }
     } catch (caught) {
-      const errorKey = payErrorKey(caught);
-      fail({ error: t(errorKey), reason: failureReason(errorKey) });
+      forgetPendingPurchase();
+      setError(t(payErrorKey(caught)));
     } finally {
       if (!charged) setIsPending(false);
     }

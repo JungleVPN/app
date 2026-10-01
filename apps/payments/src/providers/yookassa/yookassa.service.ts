@@ -476,14 +476,6 @@ export class YookassaService {
       selectedPeriod: record.selectedPeriod ?? 0,
       reason: cancellation_details.reason,
     } satisfies Payments.PaymentFailedEventPayload);
-
-    await this.analyticsClient.track({
-      event: 'payment_failed',
-      userId,
-      provider: 'yookassa',
-      paymentId: id,
-      reason: cancellation_details.reason ?? 'unknown',
-    });
   }
 
   // ── Saved payment methods ───────────────────────────────────────────────

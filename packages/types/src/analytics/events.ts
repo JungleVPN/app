@@ -23,16 +23,6 @@ export type UserCreatedEvent = {
   email: string | null;
 };
 
-export type CheckoutStartedEvent = {
-  event: 'checkout_started';
-  userId: RemnaUserId | null;
-  email?: string | null;
-  provider: PaymentMethod;
-  purpose: PaymentPurpose;
-  amount: string;
-  currency: string;
-};
-
 export type PaymentSucceededEvent = {
   event: 'payment_succeeded';
   userId: RemnaUserId;
@@ -135,7 +125,6 @@ export type AnalyticsEvent =
   | BotStartedEvent
   | TmaOpenedEvent
   | UserCreatedEvent
-  | CheckoutStartedEvent
   | PaymentSucceededEvent
   | PaymentFailedEvent
   | PaymentRefundedEvent
