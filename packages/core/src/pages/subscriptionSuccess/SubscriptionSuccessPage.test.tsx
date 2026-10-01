@@ -385,10 +385,11 @@ describe('SubscriptionSuccessPage', () => {
       render(<SubscriptionSuccessPage />);
 
       await waitFor(() =>
-        expect(phCapture).toHaveBeenCalledWith('purchase_completed', {
+        expect(phCapture).toHaveBeenCalledWith('checkout_result', {
           payment_provider: 'whop',
           days: 90,
           first_payment: true,
+          status: 'succeeded',
         }),
       );
       expect(phCapture).toHaveBeenCalledTimes(1);
@@ -406,10 +407,11 @@ describe('SubscriptionSuccessPage', () => {
       render(<SubscriptionSuccessPage />);
 
       await waitFor(() =>
-        expect(phCapture).toHaveBeenCalledWith('purchase_completed', {
+        expect(phCapture).toHaveBeenCalledWith('checkout_result', {
           payment_provider: 'yookassa',
           days: 30,
           first_payment: false,
+          status: 'succeeded',
         }),
       );
     });

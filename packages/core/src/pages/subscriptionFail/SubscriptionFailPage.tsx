@@ -4,17 +4,20 @@ import { useTranslation } from 'react-i18next';
 import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { useNavigation } from '../../hooks';
 import { Heading, Paragraph, TgsSticker } from '../../ui';
-import { PRICING_PATH, takePendingCheckout } from '../../utils';
+import { checkoutEventProperties, PRICING_PATH, phCapture, takePendingCheckout } from '../../utils';
 
 export default function SubscriptionFailPage() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const failStickerUrl = getTelegramStickerUrl(coreEnv.failStickerFileId);
 
-  // The backend reports the failure from the provider's webhook. Dropping the
-  // checkout keeps a later visit to the success page from reporting it as a purchase.
+  // Reports how the checkout this tab started ended; reading it also keeps a
+  // later visit to the success page from reporting it as a purchase. The backend
+  // reports payment_failed itself, from the provider's webhook.
   useEffect(() => {
-    takePendingCheckout();
+    const checkout = takePendingCheckout();
+    if (!checkout) return;
+    phCapture('checkout_result', { ...checkoutEventProperties(checkout), status: 'failed' });
   }, []);
 
   return (

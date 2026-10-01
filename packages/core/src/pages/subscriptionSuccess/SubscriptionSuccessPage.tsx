@@ -157,9 +157,10 @@ export default function SubscriptionSuccessPage() {
       void firstPayment.then((first) => {
         if (first && purchase) trackPurchaseConversion(purchase);
         if (checkout) {
-          phCapture('purchase_completed', {
+          phCapture('checkout_result', {
             ...checkoutEventProperties(checkout),
             first_payment: first,
+            status: 'succeeded',
           });
         }
       });
