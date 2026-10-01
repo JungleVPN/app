@@ -16,9 +16,9 @@ import StripeCheckoutPage from './StripeCheckoutPage';
  * Resolved per render rather than at module scope: `currentScope` reads the
  * request hostname, which SSR only knows once a request is in flight.
  */
-export default function GetSubscriptionPage() {
+export default function PreCheckoutPage() {
   useEffect(() => {
-    phCapture('getsub_page_viewed');
+    phCapture('pre_checkout_page_viewed');
   }, []);
 
   if (currentScope() === 'ru') return <RuStartCheckoutPage />;

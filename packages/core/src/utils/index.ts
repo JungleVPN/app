@@ -1,6 +1,12 @@
 export { getAdminId, isAdminUser } from './admin';
 export type { AttributionPayload } from './attribution';
 export { captureAttribution, clearAttribution, getAttribution } from './attribution';
+export type { CheckoutAnalytics } from './checkoutAnalytics';
+export {
+  checkoutEventProperties,
+  takePendingCheckout,
+  trackCheckoutStarted,
+} from './checkoutAnalytics';
 export { cn } from './classnames';
 export type { ColorGradientStyle } from './colorParser';
 export { getColorGradient, getColorGradientSolid } from './colorParser';

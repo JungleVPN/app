@@ -4,14 +4,17 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-const { env } = vi.hoisted(() => ({ env: { provider: 'paddle', scope: 'global' } }));
+const { env, phCapture } = vi.hoisted(() => ({
+  env: { provider: 'paddle', scope: 'global' },
+  phCapture: vi.fn(),
+}));
 
 vi.mock('../../utils', () => ({
   get GLOBAL_PAYMENT_PROVIDER() {
     return env.provider;
   },
   currentScope: () => env.scope,
-  phCapture: () => {},
+  phCapture,
 }));
 vi.mock('../paddleGetSubscription/PaddleStartCheckoutPage', () => ({
   default: () => <p>paddle</p>,
@@ -20,9 +23,9 @@ vi.mock('../whopGetSubscription/WhopStartCheckoutPage', () => ({ default: () => 
 vi.mock('../ruGetSubscription/RuStartCheckoutPage', () => ({ default: () => <p>yookassa</p> }));
 vi.mock('./StripeCheckoutPage', () => ({ default: () => <p>stripe</p> }));
 
-import GetSubscriptionPage from './GetSubscriptionPage';
+import PreCheckoutPage from './PreCheckoutPage';
 
-describe('GetSubscriptionPage', () => {
+describe('PreCheckoutPage', () => {
   it.each([
     ['whop', 'whop'],
     ['paddle', 'paddle'],
@@ -31,7 +34,7 @@ describe('GetSubscriptionPage', () => {
     env.scope = 'global';
     env.provider = configured;
 
-    render(<GetSubscriptionPage />);
+    render(<PreCheckoutPage />);
 
     expect(screen.getByText(expected)).toBeTruthy();
   });
@@ -40,8 +43,14 @@ describe('GetSubscriptionPage', () => {
     env.scope = 'ru';
     env.provider = 'whop';
 
-    render(<GetSubscriptionPage />);
+    render(<PreCheckoutPage />);
 
     expect(screen.getByText('yookassa')).toBeTruthy();
+  });
+
+  it('reports the pre-checkout page being viewed', () => {
+    render(<PreCheckoutPage />);
+
+    expect(phCapture).toHaveBeenCalledWith('pre_checkout_page_viewed');
   });
 });

@@ -81,7 +81,7 @@ export function createRoutes(
             },
             {
               path: '/payment/:planId',
-              lazy: () => pages().then((m) => ({ Component: m.GetSubscriptionPage })),
+              lazy: () => pages().then((m) => ({ Component: m.PreCheckoutPage })),
             },
             {
               path: '/plans',

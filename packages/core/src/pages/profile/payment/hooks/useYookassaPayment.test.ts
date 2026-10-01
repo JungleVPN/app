@@ -14,12 +14,14 @@ const {
   openLink,
   rememberPendingYookassaPayment,
   rememberPendingPurchase,
+  trackCheckoutStarted,
   platform,
 } = vi.hoisted(() => ({
   createSession: vi.fn(),
   openLink: vi.fn(),
   rememberPendingYookassaPayment: vi.fn(),
   rememberPendingPurchase: vi.fn(),
+  trackCheckoutStarted: vi.fn(),
   platform: { platformType: 'web', clientPlatform: 'web' },
 }));
 
@@ -52,6 +54,7 @@ vi.mock('../../../../utils', () => ({
   phCapture: vi.fn(),
   rememberPendingYookassaPayment,
   rememberPendingPurchase,
+  trackCheckoutStarted,
 }));
 
 const plan = {
@@ -131,5 +134,13 @@ describe('useYookassaPayment', () => {
 
     expect(rememberPendingPurchase).not.toHaveBeenCalled();
     expect(window.location.href).toBe('');
+  });
+
+  it('reports the checkout starting, with the plan being bought', async () => {
+    const { result } = renderHook(() => useYookassaPayment(plan));
+
+    await act(() => result.current.handleYookassaPayment());
+
+    expect(trackCheckoutStarted).toHaveBeenCalledWith({ paymentProvider: 'yookassa', days: 90 });
   });
 });

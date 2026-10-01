@@ -26,6 +26,7 @@ const {
   visitor,
   rememberPendingPurchase,
   forgetPendingPurchase,
+  phCapture,
 } = vi.hoisted(() => {
   const walletSheet = { canMakePayment: vi.fn(), show: vi.fn() };
   return {
@@ -47,6 +48,7 @@ const {
     visitor: { ipStatus: null as IpStatusDto | null },
     rememberPendingPurchase: vi.fn(),
     forgetPendingPurchase: vi.fn(),
+    phCapture: vi.fn(),
   };
 });
 
@@ -125,11 +127,16 @@ vi.mock('../../ui', () => ({
   ),
   Paragraph: ({ children, ...props }: { children: ReactNode }) => <p {...props}>{children}</p>,
 }));
-vi.mock('../../utils', () => ({
-  PRICING_PATH: '/pricing',
-  rememberPendingPurchase,
-  forgetPendingPurchase,
-}));
+vi.mock('../../utils', async () => {
+  const { checkoutEventProperties } = await import('../../utils/checkoutAnalytics');
+  return {
+    PRICING_PATH: '/pricing',
+    rememberPendingPurchase,
+    forgetPendingPurchase,
+    phCapture,
+    checkoutEventProperties,
+  };
+});
 
 const RETURN_URL = `${window.location.origin}/payment/success`;
 const REQUEST = { email: 'payer@test.com', planId: 'whop-30', toltReferralId: null, inviterId: 7 };
@@ -966,6 +973,102 @@ describe('WhopCheckoutPage', () => {
       expect((await screen.findByRole('alert')).textContent).toBe(
         'getSubscription.active_subscription_error',
       );
+    });
+  });
+
+  describe('reporting to PostHog', () => {
+    const WHOP_30 = { payment_provider: 'whop', days: 30 };
+    const pendingPayment = () =>
+      api.payPublicWhopCheckout.mockResolvedValue({
+        paymentId: 'pay_1',
+        status: 'open',
+        clientSecret: 'sec_1',
+      });
+    const reportedFailure = () =>
+      waitFor(() =>
+        expect(phCapture).toHaveBeenCalledWith('payment_failed', expect.anything()),
+      ).then(() => phCapture.mock.calls.find(([event]) => event === 'payment_failed')?.[1]);
+
+    it('reports the payment form being shown, with the plan being bought', async () => {
+      render(<WhopCheckoutPage />);
+
+      await screen.findByTestId('card-number');
+      expect(phCapture).toHaveBeenCalledWith('payment_form_viewed', WHOP_30);
+    });
+
+    it('reports no payment form for a visitor with no checkout', () => {
+      location.state = null;
+
+      render(<WhopCheckoutPage />);
+
+      expect(phCapture).not.toHaveBeenCalled();
+    });
+
+    it('reports the payment being submitted once the card is tokenised', async () => {
+      await renderFilledAndPay();
+
+      await waitFor(() => expect(phCapture).toHaveBeenCalledWith('payment_submitted', WHOP_30));
+    });
+
+    it('reports a decline Whop explains as declined', async () => {
+      pendingPayment();
+      whop.payments.handleNextAction.mockResolvedValue({
+        status: 'failed',
+        redirected: false,
+        lastPaymentError: { code: 'card_declined', message: 'Your card was declined.' },
+      });
+
+      await renderFilledAndPay();
+
+      expect(await reportedFailure()).toEqual({ ...WHOP_30, reason: 'declined' });
+    });
+
+    it('reports a dismissed verification step as not completed', async () => {
+      pendingPayment();
+      whop.payments.handleNextAction.mockResolvedValue({
+        status: 'requires_action',
+        redirected: false,
+        lastPaymentError: null,
+      });
+
+      await renderFilledAndPay();
+
+      expect(await reportedFailure()).toEqual({ ...WHOP_30, reason: 'not_completed' });
+    });
+
+    it('reports a card Whop cannot tokenise as invalid, never as submitted', async () => {
+      payments.createConfirmationToken.mockRejectedValue(new Error('invalid number'));
+
+      await renderFilledAndPay();
+
+      expect(await reportedFailure()).toEqual({ ...WHOP_30, reason: 'card_invalid' });
+      expect(phCapture).not.toHaveBeenCalledWith('payment_submitted', expect.anything());
+    });
+
+    it('reports a refusal from our backend with its reason', async () => {
+      api.payPublicWhopCheckout.mockRejectedValue(
+        new ApiClientError({
+          status: 409,
+          message: 'Conflict',
+          data: { code: ACTIVE_SUBSCRIPTION_CODE },
+        }),
+      );
+
+      await renderFilledAndPay();
+
+      expect(await reportedFailure()).toEqual({
+        ...WHOP_30,
+        reason: 'active_subscription_error',
+      });
+    });
+
+    it('reports no failure for a payment that went through', async () => {
+      await renderFilledAndPay();
+
+      await waitFor(() =>
+        expect(navigate).toHaveBeenCalledWith('/payment/success', { replace: true }),
+      );
+      expect(phCapture).not.toHaveBeenCalledWith('payment_failed', expect.anything());
     });
   });
 });

@@ -16,13 +16,13 @@ const {
   createPublicYookassaSession,
   rememberPendingYookassaPayment,
   rememberPendingPurchase,
-  phCapture,
+  trackCheckoutStarted,
   useCheckout,
 } = vi.hoisted(() => ({
   createPublicYookassaSession: vi.fn(),
   rememberPendingYookassaPayment: vi.fn(),
   rememberPendingPurchase: vi.fn(),
-  phCapture: vi.fn(),
+  trackCheckoutStarted: vi.fn(),
   useCheckout: vi.fn(),
 }));
 
@@ -33,7 +33,7 @@ vi.mock('../../runtime', () => ({
 vi.mock('../../utils', () => ({
   rememberPendingYookassaPayment,
   rememberPendingPurchase,
-  phCapture,
+  trackCheckoutStarted,
   getReferralUserId: () => 42,
 }));
 vi.mock('../../components', () => ({ Loading: () => null }));
@@ -119,10 +119,7 @@ describe('RuStartCheckoutPage', () => {
   it('reports the checkout starting, with the plan being bought', async () => {
     await renderPage()({ email: 'payer@test.com', planId: 'ru-6', selectedPeriod: 6 });
 
-    expect(phCapture).toHaveBeenCalledWith('checkout_started', {
-      payment_provider: 'yookassa',
-      months: 6,
-    });
+    expect(trackCheckoutStarted).toHaveBeenCalledWith({ paymentProvider: 'yookassa', days: 6 });
   });
 
   // A session with no confirmation URL is nothing to send anyone to: staying

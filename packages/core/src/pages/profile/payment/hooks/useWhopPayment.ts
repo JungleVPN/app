@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '../../../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreInfo } from '../../../../stores';
-import { getReferralUserId, phCapture } from '../../../../utils';
+import { getReferralUserId, trackCheckoutStarted } from '../../../../utils';
 import { checkoutErrorKey } from '../../../getSubscription/checkoutErrors';
 import type { WhopCheckoutState } from '../../../whopCheckout/whopCheckoutState';
 
@@ -46,7 +46,7 @@ export function useWhopPayment(plan: SubscriptionPlanDto | undefined) {
         renews,
       } = await paymentsApi.createPublicWhopCheckout(request);
 
-      phCapture('checkout_started', { payment_provider: 'whop', days: plan.days });
+      trackCheckoutStarted({ paymentProvider: 'whop', days: plan.days });
 
       navigate(profilePaddleCheckoutPath, {
         state: {

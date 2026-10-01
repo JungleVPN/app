@@ -14,6 +14,7 @@ import {
   phCapture,
   rememberPendingPurchase,
   rememberPendingYookassaPayment,
+  trackCheckoutStarted,
 } from '../../../../utils';
 
 export function useYookassaPayment(plan: SubscriptionPlanDto | undefined) {
@@ -85,7 +86,7 @@ export function useYookassaPayment(plan: SubscriptionPlanDto | undefined) {
         : { value: Number(plan.planPricing.total), currency: plan.planPricing.currencyCode }),
     });
 
-    phCapture('checkout_started', { payment_provider: 'yookassa', days: plan.days });
+    trackCheckoutStarted({ paymentProvider: 'yookassa', days: plan.days });
     if (isNativeApp) {
       openLink(session.url);
     } else {

@@ -1,16 +1,23 @@
 import { Button } from '@heroui/react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { useNavigation } from '../../hooks';
 import { TgsSticker } from '../../ui';
 import { Heading } from '../../ui/Heading';
 import { Paragraph } from '../../ui/Paragraph';
-import { PRICING_PATH } from '../../utils';
+import { checkoutEventProperties, PRICING_PATH, phCapture, takePendingCheckout } from '../../utils';
 
 export default function SubscriptionFailPage() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const failStickerUrl = getTelegramStickerUrl(coreEnv.failStickerFileId);
+
+  useEffect(() => {
+    const checkout = takePendingCheckout();
+    if (!checkout) return;
+    phCapture('payment_failed', { ...checkoutEventProperties(checkout), reason: 'not_paid' });
+  }, []);
 
   return (
     <main className='flex min-h-full flex-1 flex-col items-center px-6 pt-16 pb-10 sm:justify-center sm:pt-10'>

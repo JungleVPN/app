@@ -26,6 +26,8 @@ const {
   takePendingPurchase,
   trackPurchaseConversion,
   navigate,
+  phCapture,
+  takePendingCheckout,
 } = vi.hoisted(() => ({
   paymentsApi: {
     getPublicYookassaPaymentStatus: vi.fn(),
@@ -40,6 +42,8 @@ const {
   takePendingPurchase: vi.fn(),
   trackPurchaseConversion: vi.fn(),
   navigate: vi.fn(),
+  phCapture: vi.fn(),
+  takePendingCheckout: vi.fn(),
 }));
 
 vi.mock('react-i18next', () => ({
@@ -51,11 +55,17 @@ vi.mock('../../runtime', () => ({
 }));
 vi.mock('../../api', () => ({ useRemnawaveApi: () => remnawaveApi }));
 vi.mock('../../hooks', () => ({ useNavigation: () => navigate }));
-vi.mock('../../utils', () => ({
-  takePendingYookassaPayment,
-  takePendingPurchase,
-  trackPurchaseConversion,
-}));
+vi.mock('../../utils', async () => {
+  const { checkoutEventProperties } = await import('../../utils/checkoutAnalytics');
+  return {
+    takePendingYookassaPayment,
+    takePendingPurchase,
+    trackPurchaseConversion,
+    phCapture,
+    takePendingCheckout,
+    checkoutEventProperties,
+  };
+});
 vi.mock('../../env', () => ({ coreEnv: {}, getTelegramStickerUrl: () => null }));
 vi.mock('../../components', () => ({ Loading: () => <p>loading</p> }));
 vi.mock('../../ui', () => ({
@@ -85,6 +95,7 @@ describe('SubscriptionSuccessPage', () => {
     vi.clearAllMocks();
     takePendingYookassaPayment.mockReturnValue(null);
     takePendingPurchase.mockReturnValue(null);
+    takePendingCheckout.mockReturnValue(null);
     window.history.replaceState(null, '', '/payment/success');
     remnawaveApi.getMe.mockResolvedValue(null);
     useAuthStore.setState({ rmnUser: null });
@@ -360,6 +371,68 @@ describe('SubscriptionSuccessPage', () => {
       );
       expect(trackPurchaseConversion).not.toHaveBeenCalled();
       expect(remnawaveApi.getMe).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('reporting the purchase to PostHog', () => {
+    const WHOP_CHECKOUT = { paymentProvider: 'whop', days: 90 };
+    const YOOKASSA_CHECKOUT = { paymentProvider: 'yookassa', days: 30 };
+
+    it('reports a completed first purchase for the checkout this tab started', async () => {
+      takePendingCheckout.mockReturnValue(WHOP_CHECKOUT);
+      takePendingPurchase.mockReturnValue(PURCHASE);
+
+      render(<SubscriptionSuccessPage />);
+
+      await waitFor(() =>
+        expect(phCapture).toHaveBeenCalledWith('purchase_completed', {
+          payment_provider: 'whop',
+          days: 90,
+          first_payment: true,
+        }),
+      );
+      expect(phCapture).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports a returning customer paying again as not their first payment', async () => {
+      takePendingCheckout.mockReturnValue(YOOKASSA_CHECKOUT);
+      takePendingYookassaPayment.mockReturnValue('pay-1');
+      takePendingPurchase.mockReturnValue(PURCHASE);
+      paymentsApi.getPublicYookassaPaymentStatus.mockResolvedValue({
+        status: 'succeeded',
+        firstPayment: false,
+      });
+
+      render(<SubscriptionSuccessPage />);
+
+      await waitFor(() =>
+        expect(phCapture).toHaveBeenCalledWith('purchase_completed', {
+          payment_provider: 'yookassa',
+          days: 30,
+          first_payment: false,
+        }),
+      );
+    });
+
+    it('reports nothing for a visit no checkout led to, such as a reload', async () => {
+      render(<SubscriptionSuccessPage />);
+      await settle();
+
+      expect(phCapture).not.toHaveBeenCalled();
+    });
+
+    it('leaves an unpaid checkout for the failure page to report', async () => {
+      takePendingCheckout.mockReturnValue(YOOKASSA_CHECKOUT);
+      takePendingYookassaPayment.mockReturnValue('pay-1');
+      paymentsApi.getPublicYookassaPaymentStatus.mockResolvedValue({ status: 'canceled' });
+
+      render(<SubscriptionSuccessPage />);
+
+      await waitFor(() =>
+        expect(navigate).toHaveBeenCalledWith('/payment/fail', { replace: true }),
+      );
+      expect(takePendingCheckout).not.toHaveBeenCalled();
+      expect(phCapture).not.toHaveBeenCalled();
     });
   });
 });

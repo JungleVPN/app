@@ -11,8 +11,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiClientError } from '../../api';
 import WhopStartCheckoutPage from './WhopStartCheckoutPage';
 
-const { navigate, api } = vi.hoisted(() => ({
+const { navigate, api, trackCheckoutStarted } = vi.hoisted(() => ({
   navigate: vi.fn(),
+  trackCheckoutStarted: vi.fn(),
   api: { createPublicWhopCheckout: vi.fn(), checkPublicWhopPromoCode: vi.fn() },
 }));
 
@@ -81,6 +82,7 @@ vi.mock('../../runtime', () => ({
 }));
 vi.mock('../../utils', () => ({
   getReferralUserId: () => 7,
+  trackCheckoutStarted,
   formatIntlPrice: (amount: string, currency: string) => `${amount} ${currency}`,
 }));
 vi.mock('../../ui', () => ({
@@ -296,5 +298,15 @@ describe('WhopStartCheckoutPage', () => {
     fireEvent.click(startButton());
     await waitFor(() => expect(navigate).toHaveBeenCalled());
     expect(handedOverState()).not.toHaveProperty('promo');
+  });
+
+  it('reports the checkout starting, with the plan being bought', async () => {
+    render(<WhopStartCheckoutPage />);
+
+    fireEvent.click(startButton());
+
+    await waitFor(() =>
+      expect(trackCheckoutStarted).toHaveBeenCalledWith({ paymentProvider: 'whop', days: 30 }),
+    );
   });
 });

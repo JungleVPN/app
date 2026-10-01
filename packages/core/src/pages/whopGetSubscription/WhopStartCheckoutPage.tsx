@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Loading } from '../../components';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
-import { formatIntlPrice, getReferralUserId } from '../../utils';
+import { formatIntlPrice, getReferralUserId, trackCheckoutStarted } from '../../utils';
 import { ActiveSubscriptionDialog } from '../getSubscription/ActiveSubscriptionDialog';
 import { CheckoutForm } from '../getSubscription/CheckoutForm';
 import { type CheckoutRequest, useCheckout } from '../getSubscription/useCheckout';
@@ -55,6 +55,8 @@ export default function WhopStartCheckoutPage() {
       planId: whopPlanId,
       renews,
     } = await paymentsApi.createPublicWhopCheckout(request);
+
+    trackCheckoutStarted({ paymentProvider: 'whop', days: selectedPeriod });
 
     navigate(paddleCheckoutPath, {
       state: {

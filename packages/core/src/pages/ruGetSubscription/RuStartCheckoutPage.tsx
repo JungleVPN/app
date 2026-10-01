@@ -2,9 +2,9 @@ import { Loading } from '../../components';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import {
   getReferralUserId,
-  phCapture,
   rememberPendingPurchase,
   rememberPendingYookassaPayment,
+  trackCheckoutStarted,
 } from '../../utils';
 import { ActiveSubscriptionDialog } from '../getSubscription/ActiveSubscriptionDialog';
 import { CheckoutForm } from '../getSubscription/CheckoutForm';
@@ -42,7 +42,7 @@ export default function RuStartCheckoutPage() {
       transactionId: session.id,
       ...(pricing ? { value: Number(pricing.total), currency: pricing.currencyCode } : {}),
     });
-    phCapture('checkout_started', { payment_provider: 'yookassa', months: selectedPeriod });
+    trackCheckoutStarted({ paymentProvider: 'yookassa', days: selectedPeriod });
 
     window.location.href = session.url;
   };

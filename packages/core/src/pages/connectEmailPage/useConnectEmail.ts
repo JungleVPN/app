@@ -72,7 +72,7 @@ export function useConnectEmail() {
   // needed since the email was already collected during magic-link login.
   //
   // RU only. On the global domains an account is a paid artefact: it is created by
-  // the backend when a Stripe checkout started from GetSubscriptionPage succeeds, so
+  // the backend when a Stripe checkout started from PreCheckoutPage succeeds, so
   // merely logging in must not conjure one. A logged-in global visitor with no
   // account is sent to the subscription page, which offers them a plan.
   //

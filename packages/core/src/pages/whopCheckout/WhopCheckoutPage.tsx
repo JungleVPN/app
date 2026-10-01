@@ -8,7 +8,7 @@ import { useBackButton, useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useNavbarStore } from '../../stores';
 import { Page } from '../../ui';
-import { PRICING_PATH } from '../../utils';
+import { checkoutEventProperties, PRICING_PATH, phCapture } from '../../utils';
 import { WhopCardForm } from './WhopCardForm';
 import { WhopWalletButtons } from './WhopWalletButtons';
 import { isWhopCheckoutState } from './whopCheckoutState';
@@ -46,7 +46,12 @@ export default function WhopCheckoutPage({ fallbackPath }: WhopCheckoutPageProps
   }, [checkout, fallbackPath, navigate]);
 
   useEffect(() => {
-    if (checkout) setElements(loadWhop());
+    if (!checkout) return;
+    setElements(loadWhop());
+    phCapture(
+      'payment_form_viewed',
+      checkoutEventProperties({ paymentProvider: 'whop', days: checkout.selectedPeriod }),
+    );
   }, [checkout]);
 
   if (!checkout) return null;

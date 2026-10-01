@@ -9,10 +9,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiClientError } from '../../../../api';
 import { useWhopPayment } from './useWhopPayment';
 
-const { paymentsApi, navigate, phCapture, auth } = vi.hoisted(() => ({
+const { paymentsApi, navigate, trackCheckoutStarted, auth } = vi.hoisted(() => ({
   paymentsApi: { createPublicWhopCheckout: vi.fn() },
   navigate: vi.fn(),
-  phCapture: vi.fn(),
+  trackCheckoutStarted: vi.fn(),
   auth: {
     rmnUser: { id: 42, email: 'account@test.com' } as { id: number; email: string | null } | null,
   },
@@ -25,7 +25,7 @@ vi.mock('../../../../runtime', () => ({
   useAppRoutes: () => ({ profilePaddleCheckoutPath: '/profile/checkout' }),
 }));
 vi.mock('../../../../stores', () => ({ useAuthStoreInfo: () => auth }));
-vi.mock('../../../../utils', () => ({ getReferralUserId: () => 7, phCapture }));
+vi.mock('../../../../utils', () => ({ getReferralUserId: () => 7, trackCheckoutStarted }));
 
 const plan = {
   planId: 'plan-90',
@@ -84,10 +84,7 @@ describe('useWhopPayment', () => {
         charge: { amount: '14.99', currency: 'EUR' },
       },
     });
-    expect(phCapture).toHaveBeenCalledWith('checkout_started', {
-      payment_provider: 'whop',
-      days: 90,
-    });
+    expect(trackCheckoutStarted).toHaveBeenCalledWith({ paymentProvider: 'whop', days: 90 });
   });
 
   it("marks a one-time plan as not renewing, so a wallet isn't saved for renewals", async () => {
