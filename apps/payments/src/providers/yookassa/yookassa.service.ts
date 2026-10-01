@@ -429,6 +429,13 @@ export class YookassaService {
       return;
     }
 
+    // A redelivered webhook: this cancel was already handled, so acting on it
+    // again would notify the customer and count the failure twice.
+    if (record?.status === 'canceled') {
+      this.logger.log(`Payment ${id} already canceled — ignoring duplicate webhook`);
+      return;
+    }
+
     await this.yookassaPaymentRepo.update(id, { status, url: null });
 
     if (!cancellation_details || !record) return;
@@ -476,6 +483,14 @@ export class YookassaService {
       selectedPeriod: record.selectedPeriod ?? 0,
       reason: cancellation_details.reason,
     } satisfies Payments.PaymentFailedEventPayload);
+
+    await this.analyticsClient.track({
+      event: 'payment_failed',
+      userId,
+      provider: 'yookassa',
+      paymentId: id,
+      reason: cancellation_details.reason ?? 'unknown',
+    });
   }
 
   // ── Saved payment methods ───────────────────────────────────────────────

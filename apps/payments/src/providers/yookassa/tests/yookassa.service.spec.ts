@@ -1489,6 +1489,23 @@ describe('YookassaService', () => {
 
     // ── duplicate-notification guards ──────────────────────
 
+    // YooKassa redelivers a webhook it thinks went unanswered. The record is
+    // already canceled by then, so reporting again would count one failure twice.
+    it('ignores a redelivered cancel for a payment it already marked canceled', async () => {
+      mockYkFindOneBy.mockResolvedValue({
+        id: 'pay_1',
+        userId: 1000,
+        selectedPeriod: 30,
+        status: 'canceled',
+        paidAt: null,
+      });
+
+      await service.handleWebhook(makeCanceledPayload(), '127.0.0.1');
+
+      expect(analyticsClient.track).not.toHaveBeenCalled();
+      expect(mockEmit).not.toHaveBeenCalled();
+    });
+
     // AutopaymentService has already emitted its own failure event for this
     // charge; emitting again would notify the customer twice.
     it('stays silent for a charge made against a stored method', async () => {
