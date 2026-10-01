@@ -4,6 +4,7 @@ import InviteArtwork from '../../assets/icons/invite-icon.svg?react';
 import { useNavigation, usePlans } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { Heading, Paragraph } from '../../ui';
+import { phCapture } from '../../utils';
 
 export function TrialPeriodBanner() {
   const { t } = useTranslation();
@@ -14,6 +15,12 @@ export function TrialPeriodBanner() {
 
   const plan = plans.find((plan) => plan.isTrial);
   if (!plan) return null;
+
+  const handleCtaClick = () => {
+    phCapture('trial_banner_cta_clicked', { plan_id: plan.planId, days: plan.days });
+    navigate(getSubscriptionPath(plan.planId));
+  };
+
   return (
     <section>
       <div className='flex flex-col items-center gap-10 overflow-hidden rounded-4xl bg-linear-to-r from-purple-400 to-yellow-400 px-8 py-12 md:flex-row md:justify-between md:px-16 md:py-16'>
@@ -37,7 +44,7 @@ export function TrialPeriodBanner() {
           <Button
             size='lg'
             className='bg-white text-black font-semibold shadow-lg w-2/4'
-            onClick={() => navigate(getSubscriptionPath(plan.planId))}
+            onClick={handleCtaClick}
           >
             {t('common.cta')}
           </Button>

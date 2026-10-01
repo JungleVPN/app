@@ -14,6 +14,7 @@ import {
   currentScope,
   GLOBAL_PAYMENT_PROVIDER,
   mapPlans,
+  phCapture,
   pricesIncludeTax,
 } from '../../utils';
 import { formatPeriod } from '../../utils/planPricing';
@@ -62,7 +63,18 @@ export function PricingSection({ animateOnMount = false }: { animateOnMount?: bo
   const formattedPlans = mapPlans(plans);
 
   const { getSubscriptionPath } = useAppRoutes();
-  const handleCtaClick = (planId: string) => navigate(getSubscriptionPath(planId));
+  const handleCtaClick = ({
+    planId,
+    days,
+    highlighted,
+  }: {
+    planId: string;
+    days: number;
+    highlighted: boolean;
+  }) => {
+    phCapture('plan_card_cta_clicked', { plan_id: planId, days, highlighted });
+    navigate(getSubscriptionPath(planId));
+  };
 
   const sharedProps = {
     interval: t('landing.pricing.interval'),
@@ -133,7 +145,13 @@ export function PricingSection({ animateOnMount = false }: { animateOnMount?: bo
                     }
                     highlighted={isHighlighted}
                     badge={badge}
-                    onCtaClick={() => handleCtaClick(plan.planId)}
+                    onCtaClick={() =>
+                      handleCtaClick({
+                        planId: plan.planId,
+                        days: plan.days,
+                        highlighted: isHighlighted,
+                      })
+                    }
                   />
                 </motion.div>
               </GridItem>

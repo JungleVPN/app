@@ -3,14 +3,15 @@
  * where that is guaranteed: the global storefront while Whop, whose plans
  * are tax-inclusive, takes the payment.
  */
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { SubscriptionPlanDto } from '@workspace/types';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PricingSection } from './PricingSection';
 
-const { storefront } = vi.hoisted(() => ({
+const { storefront, phCapture } = vi.hoisted(() => ({
   storefront: { scope: 'global' as 'global' | 'ru', provider: 'whop' as string },
+  phCapture: vi.fn(),
 }));
 
 const PLAN: SubscriptionPlanDto = {
@@ -33,7 +34,22 @@ vi.mock('framer-motion', () => ({
 }));
 vi.mock('../../components', () => ({ PaymentMethodIcons: () => null }));
 vi.mock('../../components/PriceCard/PriceCard', () => ({
-  PriceCard: ({ price }: { price: string }) => <p>{price}</p>,
+  PriceCard: ({
+    price,
+    cta,
+    onCtaClick,
+  }: {
+    price: string;
+    cta: string;
+    onCtaClick: () => void;
+  }) => (
+    <>
+      <p>{price}</p>
+      <button type='button' onClick={onCtaClick}>
+        {cta}
+      </button>
+    </>
+  ),
 }));
 vi.mock('../../ui', () => ({
   Grid: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -50,6 +66,7 @@ vi.mock('../../utils', async () => {
     mapPlans,
     cn,
     pricesIncludeTax,
+    phCapture,
     currentScope: () => storefront.scope,
     get GLOBAL_PAYMENT_PROVIDER() {
       return storefront.provider;
@@ -83,5 +100,19 @@ describe('PricingSection tax note', () => {
     render(<PricingSection />);
 
     expect(screen.queryByText(TAX_NOTE)).toBeNull();
+  });
+});
+
+describe('PricingSection plan card click tracking', () => {
+  it('reports which plan the visitor picked', () => {
+    render(<PricingSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'landing.pricing.cta' }));
+
+    expect(phCapture).toHaveBeenCalledWith('plan_card_cta_clicked', {
+      plan_id: 'whop-30',
+      days: 30,
+      highlighted: false,
+    });
   });
 });
