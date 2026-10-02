@@ -1,4 +1,4 @@
-import { SyntheticEvent, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 import { useNavigation } from '../../../hooks';
@@ -19,8 +19,6 @@ export function useConfirm() {
   const [loading, setLoading] = useState(false);
   const submittingRef = useRef(false);
 
-  // Re-capture here too: `ref` was forwarded onto this URL by useLogin(), so
-  // pick it up in case the original localStorage write didn't survive the hop.
   useEffect(() => {
     captureReferral();
   }, []);
@@ -32,10 +30,7 @@ export function useConfirm() {
     }
   }, [timer]);
 
-  // `code` is passed explicitly by the auto-submit path, where the `otp` state
-  // may not have been committed yet.
-  const handleConfirm = async (e?: SyntheticEvent, code: string = otp) => {
-    e?.preventDefault();
+  const handleComplete = async (code: string = otp) => {
     if (!code || !email || submittingRef.current) return;
 
     submittingRef.current = true;
@@ -77,11 +72,8 @@ export function useConfirm() {
   };
 
   const handleChangeEmail = () => {
-    const to = searchParams.get('to');
-    navigate(to ? `/login?to=${encodeURIComponent(to)}` : '/login');
+    navigate('/login');
   };
-
-  const handleComplete = (code: string) => void handleConfirm(undefined, code);
 
   return {
     otp,
@@ -89,7 +81,6 @@ export function useConfirm() {
     timer,
     error,
     loading,
-    handleConfirm,
     handleComplete,
     handleResend,
     handleChangeEmail,

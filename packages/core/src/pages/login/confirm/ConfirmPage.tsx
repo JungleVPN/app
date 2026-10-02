@@ -8,23 +8,20 @@ import {
   Surface,
 } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import { Block, Container } from '../../../ui';
-import { Heading } from '../../../ui/Heading';
+import { Block, Container, Heading } from '../../../ui';
 import { useConfirm } from './useConfirm';
 
 export default function ConfirmPage() {
   const { t } = useTranslation();
-  const { otp, timer, error, loading, setOtp, handleConfirm, handleComplete,
-    handleResend,
-    handleChangeEmail, } =
+  const { otp, timer, error, loading, setOtp, handleComplete, handleResend, handleChangeEmail } =
     useConfirm();
 
   return (
     <Container maxWidth={'sm'}>
       <Surface className='pt-24' variant='transparent'>
-        <Form onSubmit={(e) => void handleConfirm(e)}>
+        <Form>
           <Block className={'p-4'}>
-            <div className='flex flex-col gap-4 items-center justify-center'>
+            <div className='flex flex-col gap-2 items-center justify-center'>
               <Heading className={'text-xl lg:text-2xl mb-2 text-center'}>
                 {t('confirm.title')}
               </Heading>
@@ -59,17 +56,19 @@ export default function ConfirmPage() {
                 </InputOTP>
               </div>
 
-              <Button
-                className='max-w-xs'
-                isDisabled={timer > 0}
-                variant='ghost'
-                onPress={() => void handleResend()}
-              >
-                {timer > 0 ? t('confirm.resend_in', { timer }) : t('confirm.resend_otp')}
-              </Button>
-              <Button className='max-w-xs' variant='ghost' onPress={handleChangeEmail}>
-                {t('confirm.change_email')}
-              </Button>
+              <div className='flex gap-1 mt-4'>
+                <Button
+                  isDisabled={timer > 0}
+                  variant='ghost'
+                  fullWidth
+                  onPress={() => void handleResend()}
+                >
+                  {timer > 0 ? t('confirm.resend_in', { timer }) : t('confirm.resend_otp')}
+                </Button>
+                <Button fullWidth variant='ghost' onPress={handleChangeEmail}>
+                  {t('confirm.change_email')}
+                </Button>
+              </div>
               <Description className='text-center text-xs'>{t('confirm.hint')}</Description>
             </div>
           </Block>
