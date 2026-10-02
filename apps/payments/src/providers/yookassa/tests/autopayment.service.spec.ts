@@ -348,13 +348,67 @@ describe('AutopaymentService', () => {
       expect(mockYkSave).toHaveBeenCalledTimes(1);
     });
 
-    it('does not persist a record on cancellation — record is saved only on success', async () => {
-      mockCreate.mockResolvedValue({
-        id: 'pay_c',
-        status: 'canceled',
-        cancellation_details: { reason: 'insufficient_funds', party: 'payment_network' },
-        amount: { value: '200', currency: 'RUB' },
-      });
+    it('persists only the last canceled attempt so the failure shows once in the transaction history', async () => {
+      mockCreate
+        .mockResolvedValueOnce({
+          id: 'pay_c1',
+          status: 'canceled',
+          cancellation_details: { reason: 'insufficient_funds', party: 'payment_network' },
+          amount: { value: '200', currency: 'RUB' },
+        })
+        .mockResolvedValueOnce({
+          id: 'pay_c2',
+          status: 'canceled',
+          cancellation_details: { reason: 'insufficient_funds', party: 'payment_network' },
+          amount: { value: '200', currency: 'RUB' },
+        })
+        .mockResolvedValueOnce({
+          id: 'pay_c3',
+          status: 'canceled',
+          cancellation_details: { reason: 'insufficient_funds', party: 'payment_network' },
+          amount: { value: '200', currency: 'RUB' },
+        });
+
+      await service.init(makePayload(42));
+
+      expect(mockYkSave).toHaveBeenCalledTimes(1);
+      expect(mockYkCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'pay_c3',
+          status: 'canceled',
+          amount: '200',
+          currency: 'RUB',
+          userId: 1000,
+          selectedPeriod: 30,
+          paidAt: null,
+        }),
+      );
+    });
+
+    it('persists only the succeeded retry when an earlier attempt was canceled', async () => {
+      mockCreate
+        .mockResolvedValueOnce({
+          id: 'pay_fail',
+          status: 'canceled',
+          cancellation_details: { reason: 'temporary_error', party: 'yoo_kassa' },
+          amount: { value: '200', currency: 'RUB' },
+        })
+        .mockResolvedValueOnce({
+          id: 'pay_ok',
+          status: 'succeeded',
+          amount: { value: '200', currency: 'RUB' },
+        });
+
+      await service.init(makePayload(42));
+
+      expect(mockYkSave).toHaveBeenCalledTimes(1);
+      expect(mockYkCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'pay_ok', status: 'succeeded', paidAt: null }),
+      );
+    });
+
+    it('does not persist anything when the charge could not be attempted', async () => {
+      mockCreate.mockRejectedValue(new Error('network down'));
 
       await service.init(makePayload(42));
 

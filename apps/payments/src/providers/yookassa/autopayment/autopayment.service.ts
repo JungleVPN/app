@@ -129,6 +129,7 @@ export class AutopaymentService {
     | { status: 'error'; reason: Payments.CancelReason | undefined; payment: null }
   > {
     let lastReason: Payments.CancelReason | undefined;
+    let lastFailedPayment: Payments.IPayment | undefined;
 
     let charge: { selectedPeriod: number; amount: string };
     try {
@@ -164,6 +165,8 @@ export class AutopaymentService {
         if (reason) {
           lastReason = reason;
         }
+
+        lastFailedPayment = payment;
       } catch (err: any) {
         this.logger.error(
           `Autopayment attempt ${attempt} for paymentMethodId=${paymentMethodId} failed: ${err.message}`,
@@ -173,6 +176,10 @@ export class AutopaymentService {
       if (attempt < MAX_RETRIES) {
         await this.delay(RETRY_DELAY_MS);
       }
+    }
+
+    if (lastFailedPayment) {
+      await this.recordFailedPayment(lastFailedPayment, user.id, charge);
     }
 
     this.logger.warn(
@@ -234,6 +241,35 @@ export class AutopaymentService {
     };
 
     return this.yookassaProvider.create(request);
+  }
+
+  /**
+   * Keeps the final declined renewal charge in the payment history, one row
+   * per failed renewal rather than one per retry. The `canceled`
+   * webhook only updates rows that exist, so without this a failed autopayment
+   * would leave no trace. A failed write must not stop the failure notifications.
+   */
+  private async recordFailedPayment(
+    payment: Payments.IPayment,
+    userId: number,
+    charge: { selectedPeriod: number; amount: string },
+  ): Promise<void> {
+    try {
+      await this.yookassaPaymentRepo.save(
+        this.yookassaPaymentRepo.create({
+          id: payment.id,
+          status: payment.status,
+          amount: charge.amount,
+          currency: 'RUB',
+          userId,
+          selectedPeriod: charge.selectedPeriod,
+          description: process.env.PAYMENT_DESCRIPTION,
+          paidAt: null,
+        }),
+      );
+    } catch (err: any) {
+      this.logger.error(`Could not record failed autopayment ${payment.id}: ${err.message}`);
+    }
   }
 
   private delay(ms: number): Promise<void> {
