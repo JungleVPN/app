@@ -237,6 +237,11 @@
   "errors": {
     "unknown": "Terjadi kesalahan"
   },
+  "sessionExpired": {
+    "title": "Sesi telah berakhir",
+    "description": "Demi keamanan Anda, aplikasi perlu dibuka ulang. Tutup lalu buka kembali dari bot untuk melanjutkan.",
+    "close": "Tutup aplikasi"
+  },
   "loadError": {
     "title": "Halaman ini tidak dapat dimuat",
     "description": "Periksa koneksi internet Anda dan coba lagi.",

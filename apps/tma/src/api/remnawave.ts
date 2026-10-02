@@ -1,17 +1,6 @@
 import { createApiClient } from '@workspace/core/api';
 import { coreEnv as env } from '@workspace/core/env';
-import { useAuthStore } from '@workspace/core/stores';
+import { telegramAuth } from './telegramAuth';
 
-/**
- * API client pointing to the NestJS remnawave backend.
- * Sends Telegram initData as X-Telegram-Init-Data header so the backend
- * can verify the user's identity without a separate auth handshake.
- */
-export const backendClient = createApiClient({
-  baseUrl: env.remnawaveUrl,
-  getHeaders: (): Record<string, string> => {
-    const { tgInitDataRaw } = useAuthStore.getState();
-    if (tgInitDataRaw) return { 'X-Telegram-Init-Data': tgInitDataRaw };
-    return {};
-  },
-});
+/** API client for the NestJS remnawave backend, authenticated with Telegram initData. */
+export const backendClient = createApiClient({ baseUrl: env.remnawaveUrl, ...telegramAuth });

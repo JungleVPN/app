@@ -237,6 +237,11 @@
   "errors": {
     "unknown": "Ocorreu um erro"
   },
+  "sessionExpired": {
+    "title": "A sessão expirou",
+    "description": "Por segurança, o app precisa ser aberto novamente. Feche-o e abra de novo pelo bot para continuar.",
+    "close": "Fechar o app"
+  },
   "loadError": {
     "title": "Não foi possível carregar esta página",
     "description": "Verifique sua conexão com a internet e tente novamente.",

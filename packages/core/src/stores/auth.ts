@@ -34,6 +34,11 @@ export interface IAuthState {
    * answers for those, see `userScope`.
    */
   userScope: UserScope | null;
+  /**
+   * True once the backend has rejected the mini app's Telegram launch data,
+   * which only renews when the app is opened again.
+   */
+  sessionExpired: boolean;
 }
 
 export interface IAuthActions {
@@ -45,6 +50,7 @@ export interface IAuthActions {
     setTgUser: (user: User | null) => void;
     setTgInitDataRaw: (raw: string | null) => void;
     setUserScope: (scope: UserScope | null) => void;
+    setSessionExpired: (expired: boolean) => void;
   };
 }
 
@@ -56,6 +62,7 @@ const initialState: IAuthState = {
   tgUser: null,
   tgInitDataRaw: null,
   userScope: null,
+  sessionExpired: false,
 };
 
 /**
@@ -86,6 +93,7 @@ export const useAuthStore = create<IAuthActions & IAuthState>()((set, get) => ({
     setTgUser: (tgUser) => set({ tgUser }),
     setTgInitDataRaw: (tgInitDataRaw) => set({ tgInitDataRaw }),
     setUserScope: (userScope) => set({ userScope }),
+    setSessionExpired: (sessionExpired) => set({ sessionExpired }),
   },
 }));
 

@@ -24,6 +24,7 @@ export { PromoDrawer } from './payment/PromoDrawer';
 export { SavedMethodRow } from './payment/SavedMethodRow';
 export { StarsPaymentSuccessDrawer } from './payment/StarsPaymentSuccessDrawer';
 export { ScrollShadowComponent } from './ScrollShadow';
+export { SessionExpired } from './SessionExpired/SessionExpired';
 export { Step } from './Step/Step';
 export { SubscribeCta } from './SubscribeCTA/SubscribeCTA';
 export {

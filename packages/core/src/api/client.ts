@@ -1,6 +1,8 @@
 export interface ApiClientConfig {
   baseUrl: string;
   getHeaders?: () => Record<string, string> | Promise<Record<string, string>>;
+  /** Called when the backend rejects the credentials (401); the request still rejects. */
+  onUnauthorized?: () => void;
 }
 
 export interface ApiRequestOptions {
@@ -53,6 +55,8 @@ export function createApiClient(config: ApiClientConfig) {
     });
 
     if (!response.ok) {
+      if (response.status === 401) config.onUnauthorized?.();
+
       let data: unknown;
       try {
         data = await response.json();

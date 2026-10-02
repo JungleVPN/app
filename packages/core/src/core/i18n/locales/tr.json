@@ -237,6 +237,11 @@
   "errors": {
     "unknown": "Bir hata oluştu"
   },
+  "sessionExpired": {
+    "title": "Oturumun süresi doldu",
+    "description": "Güvenliğiniz için uygulamanın yeniden açılması gerekiyor. Devam etmek için kapatıp bottan tekrar açın.",
+    "close": "Uygulamayı kapat"
+  },
   "loadError": {
     "title": "Bu sayfa yüklenemedi",
     "description": "İnternet bağlantınızı kontrol edip tekrar deneyin.",
