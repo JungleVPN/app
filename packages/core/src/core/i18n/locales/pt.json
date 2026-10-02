@@ -29,7 +29,7 @@
   },
   "confirm": {
     "title": "Digite o código que você recebeu",
-    "submit": "Entrar",
+    "change_email": "Alterar e-mail",
     "resend_in": "Reenviar em {{timer}}s",
     "resend_otp": "Reenviar OTP",
     "hint": "Você receberá um e-mail com o código a ser inserido",
