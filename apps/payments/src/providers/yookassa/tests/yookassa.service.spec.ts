@@ -496,6 +496,104 @@ describe('YookassaService', () => {
   });
 
   // ─────────────────────────────────────────────────────────
+  // payment_error reporting
+  // ─────────────────────────────────────────────────────────
+  describe('payment_error reporting', () => {
+    const paymentErrors = () =>
+      vi
+        .mocked(analyticsClient.track)
+        .mock.calls.map(([event]) => event)
+        .filter((event) => event.event === 'payment_error');
+
+    it('reports a settled payment whose subscription was not extended', async () => {
+      mockHandleUserUpdates.mockResolvedValue({ success: false });
+
+      await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+      expect(paymentErrors()).toEqual([
+        expect.objectContaining({
+          kind: 'subscription_not_extended',
+          provider: 'yookassa',
+          userId: 1000,
+          paymentId: 'pay_1',
+        }),
+      ]);
+    });
+
+    it('reports a settled payment with no record to extend from', async () => {
+      mockYkFindOneBy.mockResolvedValue(null);
+      vi.useFakeTimers();
+      const pending = service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+      await vi.runAllTimersAsync();
+      await pending;
+      vi.useRealTimers();
+
+      expect(paymentErrors()).toEqual([
+        expect.objectContaining({
+          kind: 'subscription_not_extended',
+          userId: null,
+          paymentId: 'pay_1',
+        }),
+      ]);
+    });
+
+    it('reports an extension that throws, with the error as the reason, and still rethrows', async () => {
+      mockHandleUserUpdates.mockRejectedValue(new Error('remnawave timeout'));
+
+      await expect(service.handleWebhook(makeSucceededPayload(), '127.0.0.1')).rejects.toThrow(
+        'remnawave timeout',
+      );
+
+      expect(paymentErrors()).toContainEqual(
+        expect.objectContaining({
+          kind: 'subscription_extension_failed',
+          userId: 1000,
+          paymentId: 'pay_1',
+          reason: 'remnawave timeout',
+        }),
+      );
+    });
+
+    it('reports a replayed succeeded webhook as a duplicate payment', async () => {
+      mockYkFindOneBy.mockResolvedValue({
+        userId: 1000,
+        selectedPeriod: 30,
+        paidAt: new Date(),
+      });
+
+      await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+      expect(paymentErrors()).toEqual([
+        expect.objectContaining({ kind: 'duplicate_payment', userId: 1000, paymentId: 'pay_1' }),
+      ]);
+    });
+
+    it('reports any webhook failure with the webhook event and reason, then rethrows', async () => {
+      mockGetPayment.mockResolvedValue({ status: 'pending' });
+
+      await expect(service.handleWebhook(makeSucceededPayload(), '127.0.0.1')).rejects.toThrow(
+        BadRequestException,
+      );
+
+      expect(paymentErrors()).toEqual([
+        expect.objectContaining({
+          kind: 'webhook_failed',
+          userId: null,
+          paymentId: 'pay_1',
+          webhookEvent: 'payment.succeeded',
+          reason: expect.stringContaining('status mismatch'),
+        }),
+      ]);
+    });
+
+    it('reports nothing for a successfully processed payment', async () => {
+      await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+      expect(paymentErrors()).toEqual([]);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────
   // activatePaymentMethod (exercised via handleWebhook)
   // ─────────────────────────────────────────────────────────
   describe('save payment method flow', () => {

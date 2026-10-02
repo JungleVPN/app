@@ -55,6 +55,27 @@ export type PaymentFailedEvent = {
   reason: string;
 };
 
+export type PaymentErrorKind =
+  | 'subscription_not_extended'
+  | 'subscription_extension_failed'
+  | 'duplicate_payment'
+  | 'webhook_failed';
+
+/**
+ * An operational failure in a provider's payment pipeline, reported so it can
+ * be alerted on in PostHog. `userId` is null when the failure happened before
+ * the payer could be resolved — `paymentId` then keys the report.
+ */
+export type PaymentErrorEvent = {
+  event: 'payment_error';
+  kind: PaymentErrorKind;
+  provider: 'yookassa';
+  userId: RemnaUserId | null;
+  paymentId: string | null;
+  webhookEvent?: string;
+  reason: string;
+};
+
 export type PaymentMethodSavedEvent = {
   event: 'payment_method_saved';
   userId: RemnaUserId;
@@ -128,6 +149,7 @@ export type AnalyticsEvent =
   | PaymentSucceededEvent
   | PaymentFailedEvent
   | PaymentRefundedEvent
+  | PaymentErrorEvent
   | PaymentMethodSavedEvent
   | AutopaymentInitiatedEvent
   | AutopaymentFailedEvent

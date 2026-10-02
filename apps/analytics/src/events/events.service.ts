@@ -36,6 +36,8 @@ export class EventsService {
   private static readonly REVENUE_CRITICAL_EVENTS: ReadonlySet<AnalyticsEvent['event']> = new Set([
     'payment_succeeded',
     'payment_refunded',
+    'payment_error',
+    'autopayment_failed',
   ]);
 
   async trackEvent(event: AnalyticsEvent): Promise<void> {
@@ -116,7 +118,9 @@ export class EventsService {
             ? `tg:${telegramId}`
             : email
               ? `email:${email.trim().toLowerCase()}`
-              : null;
+              : event.event === 'payment_error' && event.paymentId
+                ? `payment:${event.provider}:${event.paymentId}`
+                : null;
 
       if (!distinctId) {
         this.logger.warn(`No identity for PostHog capture: event=${event.event}`);

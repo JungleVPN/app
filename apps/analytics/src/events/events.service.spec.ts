@@ -151,6 +151,26 @@ describe('EventsService.trackEvent()', () => {
       expect(capture).not.toHaveBeenCalled();
     });
 
+    it('keys a payment_error without a user by its payment id', async () => {
+      const capture = vi.fn();
+      const { service } = buildService({ postHog: buildPostHog(capture) });
+
+      await service.trackEvent({
+        event: 'payment_error',
+        kind: 'webhook_failed',
+        provider: 'yookassa',
+        userId: null,
+        paymentId: 'pay_1',
+        reason: 'boom',
+      });
+
+      expect(capture).toHaveBeenCalledWith(
+        'payment:yookassa:pay_1',
+        'payment_error',
+        expect.objectContaining({ kind: 'webhook_failed' }),
+      );
+    });
+
     it('does not throw when PostHog capture throws', async () => {
       const capture = vi.fn().mockImplementation(() => {
         throw new Error('posthog down');
@@ -181,6 +201,31 @@ describe('EventsService.trackEvent()', () => {
 
         expect(flush).toHaveBeenCalledOnce();
       });
+
+      it.each(['payment_error', 'autopayment_failed'] as const)(
+        'flushes immediately after capturing %s',
+        async (event) => {
+          const flush = vi.fn().mockResolvedValue(undefined);
+          const { service } = buildService({
+            postHog: buildPostHog(undefined, undefined, undefined, flush),
+          });
+
+          await service.trackEvent(
+            event === 'payment_error'
+              ? {
+                  event,
+                  kind: 'duplicate_payment',
+                  provider: 'yookassa',
+                  userId: 1000,
+                  paymentId: 'pay_1',
+                  reason: 'replay',
+                }
+              : { event, userId: 1000, provider: 'yookassa', reason: 'insufficient_funds' },
+          );
+
+          expect(flush).toHaveBeenCalledOnce();
+        },
+      );
 
       it('does not flush for non-revenue-critical events', async () => {
         const flush = vi.fn().mockResolvedValue(undefined);

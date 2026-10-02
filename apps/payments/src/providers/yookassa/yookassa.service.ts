@@ -22,6 +22,7 @@ import {
   isBankCardPaymentMethod,
   isRefundNotification,
   isSavablePaymentMethod,
+  type PaymentErrorEvent,
   type PaymentSession,
   Payments,
   type PaymentWebhookNotification,
@@ -236,6 +237,21 @@ export class YookassaService {
   // ── Webhook handling ────────────────────────────────────────────────────
 
   async handleWebhook(payload: YookassaWebhookNotification, ip: string) {
+    try {
+      await this.routeWebhook(payload, ip);
+    } catch (err: unknown) {
+      await this.reportPaymentError({
+        kind: 'webhook_failed',
+        userId: null,
+        paymentId: payload?.object?.id ?? null,
+        webhookEvent: payload?.event,
+        reason: errorMessage(err),
+      });
+      throw err;
+    }
+  }
+
+  private async routeWebhook(payload: YookassaWebhookNotification, ip: string): Promise<void> {
     await this.validateWebhookPayload(payload, ip);
 
     if (isRefundNotification(payload)) {
@@ -329,11 +345,23 @@ export class YookassaService {
       this.logger.error(
         `Payment ${id}: no DB record found after retry — possible orphaned payment, manual recovery needed`,
       );
+      await this.reportPaymentError({
+        kind: 'subscription_not_extended',
+        userId: userId ?? null,
+        paymentId: id,
+        reason: 'no payment record found after retry',
+      });
       return;
     }
 
     if (record.paidAt) {
       this.logger.log(`Payment ${id} already processed — ignoring duplicate webhook`);
+      await this.reportPaymentError({
+        kind: 'duplicate_payment',
+        userId,
+        paymentId: id,
+        reason: 'payment.succeeded redelivered for an already processed payment',
+      });
       return;
     }
 
@@ -353,12 +381,22 @@ export class YookassaService {
     // Extend subscription BEFORE writing the idempotency stamp.
     // If this throws, paidAt remains null so YooKassa's next retry will re-enter
     // and try again once remnawave recovers — rather than being locked out forever.
-    const result = await this.paymentStatusService.handleUserUpdates({
-      selectedPeriod: record.selectedPeriod,
-      userId,
-      purpose: record.purpose,
-      promo: { code: record.promoCode, provider: 'yookassa', paymentId: record.id },
-    });
+    const result = await this.paymentStatusService
+      .handleUserUpdates({
+        selectedPeriod: record.selectedPeriod,
+        userId,
+        purpose: record.purpose,
+        promo: { code: record.promoCode, provider: 'yookassa', paymentId: record.id },
+      })
+      .catch(async (err: unknown) => {
+        await this.reportPaymentError({
+          kind: 'subscription_extension_failed',
+          userId,
+          paymentId: id,
+          reason: errorMessage(err),
+        });
+        throw err;
+      });
 
     await this.yookassaPaymentRepo.update(id, {
       status,
@@ -413,6 +451,13 @@ export class YookassaService {
         currency: 'RUB',
         period: record.selectedPeriod,
         purpose: record.purpose,
+      });
+    } else {
+      await this.reportPaymentError({
+        kind: 'subscription_not_extended',
+        userId,
+        paymentId: id,
+        reason: 'user not found when extending subscription',
       });
     }
   }
@@ -630,6 +675,15 @@ export class YookassaService {
 
   // ── Private helpers ─────────────────────────────────────────────────────
 
+  private async reportPaymentError(
+    error: Omit<PaymentErrorEvent, 'event' | 'provider'>,
+  ): Promise<void> {
+    this.logger.error(
+      `YooKassa payment error [${error.kind}] payment=${error.paymentId ?? 'unknown'} user=${error.userId ?? 'unknown'}: ${error.reason}`,
+    );
+    await this.analyticsClient.track({ event: 'payment_error', provider: 'yookassa', ...error });
+  }
+
   private extractConfirmationUrl(payment: Payments.IPayment): string | undefined {
     const { confirmation } = payment;
     if (confirmation && confirmation.type === 'redirect') {
@@ -644,4 +698,8 @@ export class YookassaService {
       return ipAddr.includes(':') ? `${ipAddr}/128` : `${ipAddr}/32`;
     });
   }
+}
+
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
 }
