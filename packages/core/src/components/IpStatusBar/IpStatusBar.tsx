@@ -1,8 +1,6 @@
-import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useRemnawaveApi } from '../../api';
 import { useIpStatus } from '../../hooks';
-import { dropIn } from '../Header/dropIn';
 import { countryName, flagEmoji } from '../../utils';
 
 interface IpStatusBarProps {
@@ -25,7 +23,7 @@ export function IpStatusBar(props: IpStatusBarProps) {
   // `protected: null` is "we could not tell", and the only honest rendering of
   // that is no claim at all.
   if (!status || status.protected === null || !status.ip) {
-    return <motion.div className='h-5 bg-white z-100' aria-hidden='true' {...dropIn} />;
+    return <div className='h-5 bg-white' aria-hidden='true' />;
   }
 
   const location = status.countryCode
@@ -33,11 +31,10 @@ export function IpStatusBar(props: IpStatusBarProps) {
     : '';
 
   return (
-    <motion.div
-      {...dropIn}
+    <div
       role='status'
       aria-live='polite'
-      className={`flex h-5 z-100 items-center justify-center gap-2 pt-1 px-4 bg-white text-center text-xs text-inherit ${className ? className : ''}`}
+      className={`flex h-5 items-center justify-center gap-2 pt-1 px-4 bg-white text-center text-xs text-inherit ${className ? className : ''}`}
     >
       <span className={'text-muted'}>
         {t('ipStatus.yourIp', { ip: status.ip })}
@@ -47,6 +44,6 @@ export function IpStatusBar(props: IpStatusBarProps) {
         {'• '}
         {t(status.protected ? 'ipStatus.protected' : 'ipStatus.unprotected')}
       </span>
-    </motion.div>
+    </div>
   );
 }

@@ -1,5 +1,5 @@
 import { usePaymentsApi, usePlatformStoreActions, useToltLanding } from '@workspace/core';
-import { CookieConsent, Header, IpStatusBar } from '@workspace/core/components';
+import { CookieConsent, Header } from '@workspace/core/components';
 import { useEffect } from 'react';
 import { Outlet } from 'react-router';
 
@@ -19,7 +19,6 @@ export function WebAppLayout() {
 
   return (
     <>
-      <IpStatusBar />
       <Header />
       <Outlet />
       <CookieConsent />

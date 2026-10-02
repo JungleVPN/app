@@ -19,6 +19,7 @@ import {
   scrollToTop,
 } from '../../utils';
 import { isProfilePath } from '../../utils/domain';
+import { IpStatusBar } from '../IpStatusBar/IpStatusBar';
 import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { SupportButton } from '../SupportWidget/SupportButton';
@@ -146,15 +147,16 @@ export function Header() {
       return 'sticky top-0 z-50 shrink-0 py-3 mt-24';
     }
 
-    if (platformType === 'telegram') {
+    if (isTelegram) {
       return 'relative';
     }
 
-    return `w-full sticky top-0 z-100 -mb-[84px] transition-all duration-300 bg-white ${scrolled ? 'shadow-lg' : 'shadow-none'}`;
+    return `w-full sticky -top-5 z-100 -mb-[84px] transition-all duration-300 bg-white ${scrolled ? 'shadow-lg' : 'shadow-none'}`;
   };
 
   return (
     <motion.div className={wrapperClass()} {...dropIn}>
+      {!isTelegram && <IpStatusBar />}
       <header className={`w-full transition-all duration-300 ${!isLanding ? 'shadow-none ' : ''} `}>
         <Container>{inner}</Container>
       </header>
