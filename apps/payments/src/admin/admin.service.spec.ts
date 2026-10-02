@@ -54,6 +54,7 @@ async function whereClausesFor(query: string): Promise<Record<string, string>> {
 /** As `whereClausesFor`, but also returns the bound parameters per entity. */
 async function runSearch(
   query: string,
+  findByEmail: (email: string) => Promise<number | null> = async () => null,
 ): Promise<{ clauses: Record<string, string>; parameters: Record<string, ObjectLiteral> }> {
   const clauses: Record<string, string> = {};
   const parameters: Record<string, ObjectLiteral> = {};
@@ -77,6 +78,7 @@ async function runSearch(
     repoFor(StripePayment),
     repoFor(PaddlePayment),
     repoFor(WhopPayment),
+    { findByEmail } as never,
   );
 
   await service.search(query);
@@ -233,6 +235,7 @@ describe('AdminService — Whop payments', () => {
       empty() as never,
       empty() as never,
       whopRepo as never,
+      { findByEmail: vi.fn() } as never,
     );
     return { service, whopRepo };
   };
@@ -313,6 +316,7 @@ describe('AdminService.isFirstPayment', () => {
       otherRepos[1] as never,
       otherRepos[2] as never,
       whopRepo as never,
+      { findByEmail: vi.fn() } as never,
     );
     return { service, yookassaRepo, whopRepo, otherRepos };
   };
@@ -382,5 +386,31 @@ describe('AdminService.isFirstPayment', () => {
       true,
     );
     for (const repo of otherRepos) expect(repo.exists).not.toHaveBeenCalled();
+  });
+});
+
+describe('AdminService.search — by email', () => {
+  it('searches the payments of the user the email belongs to', async () => {
+    const findByEmail = vi.fn().mockResolvedValue(4821);
+
+    const { parameters } = await runSearch('Jane@Example.com', findByEmail);
+
+    expect(findByEmail).toHaveBeenCalledWith('Jane@Example.com');
+    expect(parameters.YookassaPayment.numQ).toBe(4821);
+    expect(parameters.WhopPayment.numQ).toBe(4821);
+  });
+
+  it('finds nothing, and queries no provider, when no user has that email', async () => {
+    const { clauses } = await runSearch('nobody@example.com', async () => null);
+
+    expect(clauses).toEqual({});
+  });
+
+  it('does not look up an email for a query that is not one', async () => {
+    const findByEmail = vi.fn();
+
+    await runSearch('pay_abc', findByEmail);
+
+    expect(findByEmail).not.toHaveBeenCalled();
   });
 });

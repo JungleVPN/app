@@ -9,6 +9,7 @@ import {
 } from '@workspace/database';
 import type { AdminPaymentDto } from '@workspace/types';
 import { Brackets, IsNull, Not, Repository } from 'typeorm';
+import { RemnaUserResolverService } from '../auth/remna-user-resolver.service';
 
 @Injectable()
 export class AdminService {
@@ -23,6 +24,7 @@ export class AdminService {
     private readonly paddleRepo: Repository<PaddlePayment>,
     @InjectRepository(WhopPayment)
     private readonly whopRepo: Repository<WhopPayment>,
+    private readonly remnaUserResolver: RemnaUserResolverService,
   ) {}
 
   async hasEverPaid(userId: number): Promise<boolean> {
@@ -68,7 +70,19 @@ export class AdminService {
     return !yookassa && !whop;
   }
 
+  /**
+   * Free-text payment search. An email is not stored on any payment row, so it
+   * is resolved to its Remnawave user id first and the search runs on that id.
+   */
   async search(q: string): Promise<AdminPaymentDto[]> {
+    if (!q.includes('@')) return this.searchAll(q);
+
+    const userId = await this.remnaUserResolver.findByEmail(q);
+    console.log(userId);
+    return userId === null ? [] : this.searchAll(String(userId));
+  }
+
+  private async searchAll(q: string): Promise<AdminPaymentDto[]> {
     const [yookassaResults, starsResults, stripeResults, paddleResults, whopResults] =
       await Promise.all([
         this.searchYookassa(q),

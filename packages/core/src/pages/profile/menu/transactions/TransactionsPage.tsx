@@ -5,8 +5,7 @@ import { Key, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBackButton, useNavigation } from '../../../../hooks';
 import { useAuthStoreInfo, useNavbarStore } from '../../../../stores';
-import { BackButton, Block, Heading } from '../../../../ui';
-import { Paragraph } from '../../../../ui/Paragraph';
+import { BackButton, Block, Heading, Paragraph } from '../../../../ui';
 import { isAdminUser } from '../../../../utils';
 import { PaymentRow } from './components/PaymentRow';
 import { useAdminSearch } from './hooks/useAdminSearch';
@@ -81,7 +80,7 @@ export default function TransactionsPage() {
           <Input
             type='text'
             className='w-full'
-            placeholder='paymentId / userId / telegramId'
+            placeholder='paymentId / userId / telegramId / email'
             value={query}
             variant='secondary'
             onChange={(e) => setQuery(e.target.value)}
