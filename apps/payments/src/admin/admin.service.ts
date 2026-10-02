@@ -78,7 +78,6 @@ export class AdminService {
     if (!q.includes('@')) return this.searchAll(q);
 
     const userId = await this.remnaUserResolver.findByEmail(q);
-    console.log(userId);
     return userId === null ? [] : this.searchAll(String(userId));
   }
 
