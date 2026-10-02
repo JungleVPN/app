@@ -1,14 +1,20 @@
 import { Button, Card, Surface } from '@heroui/react';
 import type { TSubscriptionPagePlatformKey } from '@workspace/types';
 import { useTranslation } from 'react-i18next';
-import { SubscriptionDataError, useNavigation } from '../../hooks';
+import { type SubscriptionDataError, type SubscriptionLoad, useNavigation } from '../../hooks';
 import { useIsConfigLoaded, useSubscriptionConfig, useSubscriptionInfoStore } from '../../stores';
 import '../../utils/initDayjs';
 import { detectOs } from '../../utils';
 import { InstallationGuideConnector } from '../InstallationGuide';
+import { LoadError, type LoadErrorReason } from '../LoadError/LoadError';
 import { Loading } from '../Loading/Loading';
-import { ErrorView } from './components/ErrorView';
 import { SubscriptionInfoSection } from './components/SubscriptionInfoSection';
+
+const LOAD_ERROR_REASONS: Record<SubscriptionDataError, LoadErrorReason> = {
+  ERR_FATCH_USER: 'failed_to_fetch_subscription',
+  ERR_GET_SUB_LINK: 'failed_to_fetch_subscription_link',
+  ERR_PARSE_APPCONFIG: 'failed_to_fetch_subscription_page_config',
+};
 
 const OS_TO_PLATFORM: Record<string, TSubscriptionPagePlatformKey> = {
   android: 'android',
@@ -25,11 +31,10 @@ const OS_TO_PLATFORM: Record<string, TSubscriptionPagePlatformKey> = {
  */
 export function SubscriptionView({
   shortUuid,
-  error = null,
+  load,
 }: {
   shortUuid: string;
-  /** Error from the parent's useSubscriptionData call, if any. */
-  error?: SubscriptionDataError | null;
+  load: SubscriptionLoad;
 }) {
   const { t } = useTranslation();
   const navigate = useNavigation();
@@ -37,7 +42,7 @@ export function SubscriptionView({
   const subscription = useSubscriptionInfoStore((state) => state.subscription);
   const isConfigLoaded = useIsConfigLoaded();
 
-  if (error) return <ErrorView errorCode={error} />;
+  if (load.error) return <LoadError reason={LOAD_ERROR_REASONS[load.error]} onRetry={load.retry} />;
   if (!subscription || !isConfigLoaded) return <Loading />;
 
   if (!shortUuid) {

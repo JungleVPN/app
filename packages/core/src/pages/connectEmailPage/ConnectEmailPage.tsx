@@ -1,7 +1,7 @@
 import { Button, Chip, Description, FieldError, Form, Input, TextField } from '@heroui/react';
 import { IconArrowRight, IconCheck, IconMail } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { Loading } from '../../components';
+import { LoadError, Loading } from '../../components';
 import { Block } from '../../ui';
 import { Paragraph } from '../../ui/Paragraph';
 import styles from './connectEmailPage.module.css';
@@ -9,10 +9,20 @@ import { useConnectEmail } from './useConnectEmail';
 
 export default function ConnectEmailPage() {
   const { t } = useTranslation();
-  const { email, error, hasError, isLoading, isConnecting, handleEmailChange, handleSubmit } =
-    useConnectEmail();
+  const {
+    email,
+    error,
+    hasError,
+    isLoading,
+    isConnecting,
+    connectFailed,
+    retryConnect,
+    handleEmailChange,
+    handleSubmit,
+  } = useConnectEmail();
 
   if (isConnecting) return <Loading />;
+  if (connectFailed) return <LoadError reason='connect_email_to_tg' onRetry={retryConnect} />;
 
   const features = [
     t('connectEmailPage.feature_devices'),

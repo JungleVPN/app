@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import type { User } from '@tma.js/sdk-react';
 import type { CreateUserResponseDto } from '@workspace/types';
 import type { SyntheticEvent } from 'react';
@@ -385,6 +385,48 @@ describe('useConnectEmail', () => {
 
       expect(mockConnectEmail).toHaveBeenCalled();
       expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    // A failed connect used to leave the page "connecting" for good.
+    it('reports the failure instead of connecting forever when connectEmail rejects', async () => {
+      setAuthState({ authUser: { id: 'auth-1' } });
+      setPlatform('web');
+      mockConnectEmail.mockRejectedValue(new Error('network down'));
+      mockGetReferralUserId.mockReturnValue(null);
+
+      const { result } = renderHook(() => useConnectEmail());
+
+      await waitFor(() => expect(result.current.connectFailed).toBe(true));
+      expect(result.current.isConnecting).toBe(false);
+    });
+
+    it('reports the failure when connectEmail returns no account', async () => {
+      setAuthState({ authUser: { id: 'auth-1' } });
+      setPlatform('web');
+      mockConnectEmail.mockResolvedValue(null);
+      mockGetReferralUserId.mockReturnValue(null);
+
+      const { result } = renderHook(() => useConnectEmail());
+
+      await waitFor(() => expect(result.current.connectFailed).toBe(true));
+    });
+
+    it('connects again on retry and goes on to the subscription page', async () => {
+      setAuthState({ authUser: { id: 'auth-1' } });
+      setPlatform('web');
+      mockConnectEmail
+        .mockRejectedValueOnce(new Error('network down'))
+        .mockResolvedValue(createRemnaUser());
+      mockGetAttribution.mockReturnValue(null);
+      mockGetReferralUserId.mockReturnValue(null);
+      const { result } = renderHook(() => useConnectEmail());
+      await waitFor(() => expect(result.current.connectFailed).toBe(true));
+
+      act(() => result.current.retryConnect());
+
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/profile/subscription'));
+      expect(mockConnectEmail).toHaveBeenCalledTimes(2);
+      expect(result.current.connectFailed).toBe(false);
     });
   });
 

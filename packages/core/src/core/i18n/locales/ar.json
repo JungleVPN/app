@@ -237,6 +237,12 @@
   "errors": {
     "unknown": "حدث خطأ ما"
   },
+  "loadError": {
+    "title": "تعذّر تحميل هذه الصفحة",
+    "description": "تحقّق من اتصالك بالإنترنت وحاول مرة أخرى.",
+    "retry": "إعادة المحاولة",
+    "support": "تواصل مع الدعم"
+  },
   "connectEmailPage": {
     "enter_email": "البريد الإلكتروني",
     "email_placeholder": "example@gmail.com",

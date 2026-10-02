@@ -7,7 +7,7 @@
  * has to leave behind first — `/payment/success` sees the same return URL
  * whether the payer paid or cancelled, and that id is all that tells them apart.
  */
-import { cleanup, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CheckoutRequest } from '../getSubscription/useCheckout';
 import RuStartCheckoutPage from './RuStartCheckoutPage';
@@ -18,7 +18,9 @@ const {
   rememberPendingPurchase,
   trackCheckoutStarted,
   useCheckout,
+  loadPlans,
 } = vi.hoisted(() => ({
+  loadPlans: vi.fn(),
   createPublicYookassaSession: vi.fn(),
   rememberPendingYookassaPayment: vi.fn(),
   rememberPendingPurchase: vi.fn(),
@@ -36,7 +38,15 @@ vi.mock('../../utils', () => ({
   trackCheckoutStarted,
   getReferralUserId: () => 42,
 }));
-vi.mock('../../components', () => ({ Loading: () => null }));
+vi.mock('../../components', () => ({
+  Loading: () => null,
+  LoadError: ({ reason, onRetry }: { reason: string; onRetry: () => void }) => (
+    <button type='button' data-reason={reason} onClick={onRetry}>
+      retry
+    </button>
+  ),
+}));
+vi.mock('../../hooks', () => ({ loadPlans }));
 vi.mock('../getSubscription/CheckoutForm', () => ({ CheckoutForm: () => null }));
 vi.mock('../getSubscription/ActiveSubscriptionDialog', () => ({
   ActiveSubscriptionDialog: () => null,
@@ -143,5 +153,19 @@ describe('RuStartCheckoutPage', () => {
     await expect(
       renderPage()({ email: 'payer@test.com', planId: 'ru-1', selectedPeriod: 1 }),
     ).rejects.toBe(refusal);
+  });
+
+  it('offers a retry instead of the form when the plans could not be loaded', () => {
+    useCheckout.mockReturnValue({
+      isLoading: false,
+      loadFailed: true,
+      activeSubscriptionEmail: null,
+    });
+    render(<RuStartCheckoutPage />);
+    expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe('plans');
+
+    fireEvent.click(screen.getByRole('button', { name: 'retry' }));
+
+    expect(loadPlans).toHaveBeenCalledTimes(1);
   });
 });

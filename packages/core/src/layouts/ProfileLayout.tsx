@@ -1,8 +1,8 @@
 import type { TSubscriptionPageLanguageCode } from '@workspace/types';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router';
 import { useAnalyticsApi, useRemnawaveApi } from '../api';
-import { Navbar } from '../components';
+import { LoadError, Navbar } from '../components';
 import { SubscriptionLinkDialog } from '../components/SubscriptionLinkWidget/SubscriptionLinkDialog';
 import { applyUserLang } from '../core/i18n';
 import { useNavigation, useSavedMethodsData, useSubscriptionData, useToltCapture } from '../hooks';
@@ -28,6 +28,9 @@ export function ProfileLayout() {
   const { getConnectEmailPath, publicPlansPath } = useAppRoutes();
   const paymentsApi = usePaymentsApi();
   const { setLanguage } = useSubscriptionConfigStoreActions();
+  // Bumped by a retry, which re-runs the account lookup below.
+  const [lookupAttempt, setLookupAttempt] = useState(0);
+  const [lookupFailed, setLookupFailed] = useState(false);
   // Hand any affiliate attribution to the backend as soon as the user is known.
   // It lives only in this browser session, but the payment it should credit may
   // settle days later — or be a renewal with no browser involved at all.
@@ -66,6 +69,7 @@ export function ProfileLayout() {
   // Guard: skip the API call if rmnUser is already in the store — this avoids a
   // redundant lookup when the user just came through ConnectEmailPage, which
   // already resolved and stored the user before navigating here.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: lookupAttempt is how a retry re-runs this lookup
   useEffect(() => {
     if (useAuthStore.getState().rmnUser) return;
     if (authUser?.email || tgUser?.id) {
@@ -91,9 +95,13 @@ export function ProfileLayout() {
             navigate(getConnectEmailPath);
           } else navigate(publicPlansPath);
         })
-        .catch(console.error);
+        .catch((err) => {
+          console.error(err);
+          setLookupFailed(true);
+        });
     }
   }, [
+    lookupAttempt,
     authUser?.email,
     remnawaveApi,
     setRmnUser,
@@ -139,7 +147,12 @@ export function ProfileLayout() {
     tgUser?.language_code,
   ]);
 
-  useSubscriptionData(rmnUser?.shortUuid);
+  const retryLookup = () => {
+    setLookupFailed(false);
+    setLookupAttempt((attempt) => attempt + 1);
+  };
+
+  const subscriptionLoad = useSubscriptionData(rmnUser?.shortUuid);
   useSavedMethodsData(rmnUser?.id);
 
   return (
@@ -148,7 +161,11 @@ export function ProfileLayout() {
         maxWidth={'sm'}
         className={`${platformType === 'web' ? 'pt-32 pb-22' : 'pt-4 pb-22'}`}
       >
-        <Outlet />
+        {lookupFailed ? (
+          <LoadError reason='could_not_get_account_data' onRetry={retryLookup} />
+        ) : (
+          <Outlet context={subscriptionLoad} />
+        )}
       </Container>
       {rmnUser && <Navbar />}
       <SubscriptionLinkDialog />

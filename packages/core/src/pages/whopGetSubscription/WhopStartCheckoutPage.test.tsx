@@ -11,8 +11,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiClientError } from '../../api';
 import WhopStartCheckoutPage from './WhopStartCheckoutPage';
 
-const { navigate, api, trackCheckoutStarted } = vi.hoisted(() => ({
+const { navigate, api, trackCheckoutStarted, loadPlans, checkoutState } = vi.hoisted(() => ({
   navigate: vi.fn(),
+  loadPlans: vi.fn(),
+  checkoutState: { loadFailed: false },
   trackCheckoutStarted: vi.fn(),
   api: { createPublicWhopCheckout: vi.fn(), checkPublicWhopPromoCode: vi.fn() },
 }));
@@ -43,6 +45,7 @@ vi.mock('../getSubscription/useCheckout', () => ({
     handleEmailChange: () => {},
     handleSubmit: () => startCheckout(REQUEST),
     dismissActiveSubscription: () => {},
+    loadFailed: checkoutState.loadFailed,
   }),
 }));
 vi.mock('../getSubscription/CheckoutForm', () => ({
@@ -74,8 +77,15 @@ vi.mock('../getSubscription/CheckoutForm', () => ({
 vi.mock('../getSubscription/ActiveSubscriptionDialog', () => ({
   ActiveSubscriptionDialog: () => null,
 }));
-vi.mock('../../components', () => ({ Loading: () => <p>loading</p> }));
-vi.mock('../../hooks', () => ({ useNavigation: () => navigate }));
+vi.mock('../../components', () => ({
+  Loading: () => <p>loading</p>,
+  LoadError: ({ reason, onRetry }: { reason: string; onRetry: () => void }) => (
+    <button type='button' data-reason={reason} onClick={onRetry}>
+      retry
+    </button>
+  ),
+}));
+vi.mock('../../hooks', () => ({ useNavigation: () => navigate, loadPlans }));
 vi.mock('../../runtime', () => ({
   useAppRoutes: () => ({ paddleCheckoutPath: '/checkout' }),
   usePaymentsApi: () => api,
@@ -108,6 +118,7 @@ const discountShown = () => screen.findByTestId('order-discount');
 
 describe('WhopStartCheckoutPage', () => {
   beforeEach(() => {
+    checkoutState.loadFailed = false;
     vi.clearAllMocks();
     api.createPublicWhopCheckout.mockResolvedValue({
       accountId: 'biz_1',
@@ -308,5 +319,16 @@ describe('WhopStartCheckoutPage', () => {
     await waitFor(() =>
       expect(trackCheckoutStarted).toHaveBeenCalledWith({ paymentProvider: 'whop', days: 30 }),
     );
+  });
+
+  it('offers a retry instead of the form when the plans could not be loaded', () => {
+    checkoutState.loadFailed = true;
+    render(<WhopStartCheckoutPage />);
+    expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe('plans');
+
+    fireEvent.click(screen.getByRole('button', { name: 'retry' }));
+
+    expect(screen.queryByRole('button', { name: 'getSubscription.submit' })).toBeNull();
+    expect(loadPlans).toHaveBeenCalledTimes(1);
   });
 });

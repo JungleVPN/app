@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { coreEnv } from '../env';
 import { useSubscriptionConfigStore, useSubscriptionInfoStore } from '../stores';
@@ -125,5 +125,45 @@ describe('useSubscriptionData', () => {
     await new Promise((resolve) => setTimeout(resolve, 20));
     expect(mockGetSubpageConfigByShortUuid).not.toHaveBeenCalled();
     expect(mockGetSubscriptionInfoByShortUuid).not.toHaveBeenCalled();
+  });
+
+  // A subscription that never arrives used to leave the page on a spinner for
+  // good; every way it can fail now ends in an error the page can retry.
+  describe('when the subscription cannot be loaded', () => {
+    it('reports an error when the subscription comes back empty', async () => {
+      mockGetSubscriptionInfoByShortUuid.mockResolvedValue(undefined);
+
+      const { result } = renderHook(() => useSubscriptionData('user-1'));
+
+      await waitFor(() => expect(result.current.error).toBe('ERR_GET_SUB_LINK'));
+    });
+
+    it('loads the subscription on retry and clears the error', async () => {
+      mockGetSubscriptionInfoByShortUuid
+        .mockRejectedValueOnce(new Error('network down'))
+        .mockResolvedValue({ shortUuid: 'user-1' });
+      const { result } = renderHook(() => useSubscriptionData('user-1'));
+      await waitFor(() => expect(result.current.error).toBe('ERR_FATCH_USER'));
+
+      act(() => result.current.retry());
+
+      await waitFor(() =>
+        expect(useSubscriptionInfoStore.getState().subscription).toEqual({ shortUuid: 'user-1' }),
+      );
+      expect(result.current.error).toBeNull();
+    });
+
+    it('loads the subscription page config on retry', async () => {
+      mockGetSubscriptionPageConfig
+        .mockRejectedValueOnce(new Error('network down'))
+        .mockResolvedValue({ config: rawConfig() });
+      const { result } = renderHook(() => useSubscriptionData('user-1'));
+      await waitFor(() => expect(result.current.error).toBe('ERR_PARSE_APPCONFIG'));
+
+      act(() => result.current.retry());
+
+      await waitFor(() => expect(useSubscriptionConfigStore.getState().isConfigLoaded).toBe(true));
+      expect(result.current.error).toBeNull();
+    });
   });
 });

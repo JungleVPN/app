@@ -1,8 +1,8 @@
 import type { PlanPricing, WhopPromoCodeDto } from '@workspace/types';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Loading } from '../../components';
-import { useNavigation } from '../../hooks';
+import { LoadError, Loading } from '../../components';
+import { loadPlans, useNavigation } from '../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import { formatIntlPrice, getReferralUserId, trackCheckoutStarted } from '../../utils';
 import { ActiveSubscriptionDialog } from '../getSubscription/ActiveSubscriptionDialog';
@@ -75,6 +75,7 @@ export default function WhopStartCheckoutPage() {
   const price = promo && checkout.plan ? promoPrice(checkout.plan.planPricing, promo) : null;
 
   if (checkout.isLoading) return <Loading />;
+  if (checkout.loadFailed) return <LoadError reason='plans' onRetry={loadPlans} />;
 
   const promoDiscount =
     price &&

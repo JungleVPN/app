@@ -31,6 +31,8 @@ export interface Checkout {
   isAuthenticated: boolean;
   /** True until the plans have loaded. */
   isLoading: boolean;
+  /** True once the plans could not be fetched — there is no plan to pay for until a retry. */
+  loadFailed: boolean;
   email: string;
   emailError: string;
   checkoutError: string | null;
@@ -115,6 +117,7 @@ export function useCheckout(startCheckout: (request: CheckoutRequest) => Promise
     selectedPeriod,
     isAuthenticated: Boolean(authUser),
     isLoading: status === 'idle' || status === 'loading',
+    loadFailed: status === 'error',
     email,
     emailError,
     checkoutError,

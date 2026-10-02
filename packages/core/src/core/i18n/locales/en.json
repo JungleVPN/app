@@ -237,6 +237,12 @@
   "errors": {
     "unknown": "Something went wrong"
   },
+  "loadError": {
+    "title": "Couldn't load this page",
+    "description": "Check your internet connection and try again.",
+    "retry": "Try again",
+    "support": "Contact support"
+  },
   "connectEmailPage": {
     "enter_email": "Email",
     "email_placeholder": "example@gmail.com",

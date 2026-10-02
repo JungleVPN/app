@@ -1,7 +1,26 @@
 import { apiRoutes, SubscriptionPlanDto } from '@workspace/types';
 import { useEffect } from 'react';
 import { coreEnv } from '../env';
-import { usePlansStore, usePlansStoreActions } from '../stores';
+import { usePlansStore } from '../stores';
+
+/**
+ * Fetches the plans into the shared store, unless they are loaded or already
+ * on their way. Also what a "Retry" after a failed load calls.
+ */
+export function loadPlans(): void {
+  const { status, actions } = usePlansStore.getState();
+  if (status === 'loading' || status === 'loaded') return;
+
+  actions.setStatus('loading');
+  const url = `${coreEnv.paymentsUrl}${apiRoutes.payments.plans}`;
+  fetch(url)
+    .then((response) => {
+      if (!response.ok) throw new Error(`Plans request failed (${response.status})`);
+      return response.json();
+    })
+    .then((data: SubscriptionPlanDto[]) => actions.setPlans(data))
+    .catch(() => actions.setStatus('error'));
+}
 
 /**
  * Reads the shared plans from the global store, starting the fetch on first use.
@@ -10,26 +29,10 @@ import { usePlansStore, usePlansStoreActions } from '../stores';
  */
 export const usePlans = () => {
   const plans = usePlansStore((state) => state.plans);
-  const { setPlans, setStatus } = usePlansStoreActions();
 
   useEffect(() => {
-    // Status is read imperatively rather than subscribed to. A failed request
-    // sets 'error', so depending on it here would feed the failure straight back
-    // into this effect and re-request as fast as the network can fail.
-    //
-    // 'error' is still retryable, just not by itself: the next consumer to mount
-    // tries again, so a transient failure does not hide pricing for the rest of
-    // the session even though the store outlives every consumer.
-    const { status } = usePlansStore.getState();
-    if (status === 'loading' || status === 'loaded') return;
-
-    setStatus('loading');
-    const url = `${coreEnv.paymentsUrl}${apiRoutes.payments.plans}`;
-    fetch(url)
-      .then((r) => r.json())
-      .then((data: SubscriptionPlanDto[]) => setPlans(data))
-      .catch(() => setStatus('error'));
-  }, [setPlans, setStatus]);
+    loadPlans();
+  }, []);
 
   return plans;
 };

@@ -237,6 +237,12 @@
   "errors": {
     "unknown": "Bir hata oluştu"
   },
+  "loadError": {
+    "title": "Bu sayfa yüklenemedi",
+    "description": "İnternet bağlantınızı kontrol edip tekrar deneyin.",
+    "retry": "Tekrar dene",
+    "support": "Destekle iletişime geç"
+  },
   "connectEmailPage": {
     "enter_email": "E-posta",
     "email_placeholder": "example@gmail.com",

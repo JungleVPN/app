@@ -1,33 +1,44 @@
-import { cleanup, render, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { GetUserByIdResponseDto } from '@workspace/types';
 import type { ReactNode } from 'react';
-import { MemoryRouter, Route, Routes } from 'react-router';
+import { MemoryRouter, Route, Routes, useOutletContext } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SubscriptionLoad } from '../hooks';
 import { useAuthStore, usePlatformStore } from '../stores';
 import { ProfileLayout } from './ProfileLayout';
 
-const { getMe, phIdentify, navigate, remnawaveApi, currentScope, trackTmaOpened } = vi.hoisted(
-  () => {
-    const getMe = vi.fn();
-    const remnawaveApi = {
-      getMe,
-      getMyMetadata: vi.fn().mockResolvedValue(null),
-      upsertMyMetadata: vi.fn().mockResolvedValue(undefined),
-    };
-    return {
-      getMe,
-      phIdentify: vi.fn(),
-      navigate: vi.fn(),
-      remnawaveApi,
-      currentScope: vi.fn(),
-      trackTmaOpened: vi.fn(),
-    };
-  },
-);
+const {
+  getMe,
+  analyticsApi,
+  phIdentify,
+  navigate,
+  remnawaveApi,
+  currentScope,
+  trackTmaOpened,
+  subscriptionLoad,
+} = vi.hoisted(() => {
+  const getMe = vi.fn();
+  const remnawaveApi = {
+    getMe,
+    getMyMetadata: vi.fn().mockResolvedValue(null),
+    upsertMyMetadata: vi.fn().mockResolvedValue(undefined),
+  };
+  const trackTmaOpened = vi.fn();
+  return {
+    getMe,
+    analyticsApi: { trackTmaOpened },
+    phIdentify: vi.fn(),
+    navigate: vi.fn(),
+    remnawaveApi,
+    currentScope: vi.fn(),
+    trackTmaOpened,
+    subscriptionLoad: { error: null, retry: vi.fn() } as SubscriptionLoad,
+  };
+});
 
 vi.mock('../api', () => ({
   useRemnawaveApi: () => remnawaveApi,
-  useAnalyticsApi: () => ({ trackTmaOpened }),
+  useAnalyticsApi: () => analyticsApi,
 }));
 
 vi.mock('../runtime', () => ({
@@ -38,14 +49,21 @@ vi.mock('../runtime', () => ({
 vi.mock('../hooks', () => ({
   useNavigation: () => navigate,
   useSavedMethodsData: () => undefined,
-  useSubscriptionData: () => undefined,
+  useSubscriptionData: () => subscriptionLoad,
   useToltCapture: () => undefined,
 }));
 
 vi.mock('../ui', () => ({
   Container: ({ children }: { children?: ReactNode }) => <>{children}</>,
 }));
-vi.mock('../components', () => ({ Navbar: () => null }));
+vi.mock('../components', () => ({
+  Navbar: () => null,
+  LoadError: ({ reason, onRetry }: { reason: string; onRetry: () => void }) => (
+    <button type='button' data-reason={reason} onClick={onRetry}>
+      retry
+    </button>
+  ),
+}));
 vi.mock('../components/SubscriptionLinkWidget/SubscriptionLinkDialog', () => ({
   SubscriptionLinkDialog: () => null,
 }));
@@ -59,11 +77,20 @@ function fakeUser(overrides: Partial<GetUserByIdResponseDto> = {}) {
   return { id: 846, shortUuid: 'sub-846', ...overrides } as GetUserByIdResponseDto;
 }
 
+function ProfilePage() {
+  const load = useOutletContext<SubscriptionLoad>();
+  return (
+    <p>{load === subscriptionLoad ? 'profile page' : 'profile page without subscription load'}</p>
+  );
+}
+
 function renderProfileLayout() {
   return render(
     <MemoryRouter initialEntries={['/profile']}>
       <Routes>
-        <Route path={'/profile'} element={<ProfileLayout />} />
+        <Route path={'/profile'} element={<ProfileLayout />}>
+          <Route index element={<ProfilePage />} />
+        </Route>
       </Routes>
     </MemoryRouter>,
   );
@@ -125,6 +152,43 @@ describe('ProfileLayout', () => {
     renderProfileLayout();
 
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/plans'));
+  });
+
+  // A failed lookup used to be logged and nothing else, leaving every profile
+  // page on a spinner with no navbar and no way out.
+  describe('when the account cannot be loaded', () => {
+    it('offers a retry instead of the page', async () => {
+      getMe.mockRejectedValue(new Error('network down'));
+
+      renderProfileLayout();
+
+      expect(await screen.findByRole('button', { name: 'retry' })).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe(
+        'account',
+      );
+      expect(screen.queryByText('profile page')).toBeNull();
+    });
+
+    it('loads the account again and shows the page once retrying succeeds', async () => {
+      getMe.mockRejectedValueOnce(new Error('network down')).mockResolvedValue(fakeUser());
+      renderProfileLayout();
+
+      fireEvent.click(await screen.findByRole('button', { name: 'retry' }));
+
+      expect(await screen.findByText('profile page')).toBeTruthy();
+      expect(getMe).toHaveBeenCalledTimes(2);
+      expect(screen.queryByRole('button', { name: 'retry' })).toBeNull();
+    });
+  });
+
+  // The subscription page shows the loader's failure; the layout owns the
+  // loader, so it hands the result down to whichever page is open.
+  it("gives the open page the subscription loader's result", async () => {
+    getMe.mockResolvedValue(fakeUser());
+
+    renderProfileLayout();
+
+    expect(await screen.findByText('profile page')).toBeTruthy();
   });
 
   // tma_opened carries the account once it is known, so the backend can tie the

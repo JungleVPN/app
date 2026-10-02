@@ -237,6 +237,12 @@
   "errors": {
     "unknown": "Terjadi kesalahan"
   },
+  "loadError": {
+    "title": "Halaman ini tidak dapat dimuat",
+    "description": "Periksa koneksi internet Anda dan coba lagi.",
+    "retry": "Coba lagi",
+    "support": "Hubungi dukungan"
+  },
   "connectEmailPage": {
     "enter_email": "Email",
     "email_placeholder": "example@gmail.com",

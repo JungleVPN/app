@@ -31,6 +31,9 @@ export function useConnectEmail() {
   const { setRmnUser } = useAuthStoreActions();
   const { platformType } = usePlatformStore();
   const connectingRef = useRef(false);
+  const [connectFailed, setConnectFailed] = useState(false);
+  // Bumped by a retry, which re-runs the web auto-connect below.
+  const [connectAttempt, setConnectAttempt] = useState(0);
   const isGlobal = currentScope() === 'global';
 
   // Re-run on every landing: if the user arrives directly at /subscribe with
@@ -78,6 +81,7 @@ export function useConnectEmail() {
   //
   // connectingRef guards against double-invocation from React Strict Mode or
   // multiple onAuthStateChange fires before rmnUser lands in the store.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: connectAttempt is how a retry re-runs the connect
   useEffect(() => {
     if (platformType !== 'web' || !authUser || rmnUser || connectingRef.current) return;
     if (isGlobal) {
@@ -89,7 +93,11 @@ export function useConnectEmail() {
     remnawaveApi
       .connectEmail('', { inviterId: getReferralUserId() ?? undefined })
       .then((user) => {
-        if (!user) return;
+        if (!user) {
+          connectingRef.current = false;
+          setConnectFailed(true);
+          return;
+        }
         setRmnUser(user);
         const attribution = getAttribution();
         if (attribution) analyticsApi.trackUserCreated(user, attribution);
@@ -101,8 +109,10 @@ export function useConnectEmail() {
       .catch((err) => {
         connectingRef.current = false;
         console.error(err);
+        setConnectFailed(true);
       });
   }, [
+    connectAttempt,
     platformType,
     authUser,
     rmnUser,
@@ -190,7 +200,13 @@ export function useConnectEmail() {
     }
   };
 
-  const isConnecting = platformType === 'web' && !isGlobal && !!authUser && !rmnUser;
+  const isConnecting =
+    platformType === 'web' && !isGlobal && !!authUser && !rmnUser && !connectFailed;
+
+  const retryConnect = () => {
+    setConnectFailed(false);
+    setConnectAttempt((attempt) => attempt + 1);
+  };
 
   return {
     email,
@@ -198,6 +214,8 @@ export function useConnectEmail() {
     hasError,
     isLoading,
     isConnecting,
+    connectFailed,
+    retryConnect,
     handleEmailChange,
     handleSubmit,
   };

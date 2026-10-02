@@ -2,7 +2,9 @@ import { Button, Chip, Spinner, Tabs } from '@heroui/react';
 import { SubscriptionPlanDto } from '@workspace/types';
 import { Key } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FeaturesCard } from '../../../components';
+import { FeaturesCard, LoadError } from '../../../components';
+import { loadPlans } from '../../../hooks';
+import { usePlansStatus } from '../../../stores';
 import { Block, Page } from '../../../ui';
 import { formatPlanAmounts } from '../../../utils';
 import { formatPeriod } from '../../../utils/planPricing';
@@ -17,6 +19,10 @@ interface PlansComponentProps {
 export const PlansComponent = (props: PlansComponentProps) => {
   const { t } = useTranslation();
   const { data, activePeriod, onSubmit, handleSelectionChange } = props;
+  const plansStatus = usePlansStatus();
+
+  if (plansStatus === 'error')
+    return <LoadError reason='failed_to_load_plans' onRetry={loadPlans} />;
 
   return (
     <Page title={t('plans.pageTitle')}>

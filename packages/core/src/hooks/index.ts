@@ -10,7 +10,7 @@ export {
   useCreateTelegramStarsInvoice,
   useDeleteSavedMethod,
 } from './use-payment';
-export { usePlans } from './use-plans';
+export { loadPlans, usePlans } from './use-plans';
 export { useToltCapture } from './use-tolt-capture';
 export { useToltLanding } from './use-tolt-landing';
 export { useBackButton } from './useBackButton';
@@ -19,6 +19,6 @@ export { useGuideTranslation } from './useGuideTranslation';
 export { useNavigation } from './useNavigation';
 export { useSavedMethodsData } from './useSavedMethodsData';
 export { useScrollToTopOnNavigate } from './useScrollToTopOnNavigate';
-export type { SubscriptionDataError } from './useSubscriptionData';
+export type { SubscriptionDataError, SubscriptionLoad } from './useSubscriptionData';
 export { useSubscriptionData } from './useSubscriptionData';
 export { useTheme } from './useTheme';

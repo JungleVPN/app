@@ -6,6 +6,12 @@ import { useSubscriptionConfigStore, useSubscriptionInfoStore } from '../stores'
 
 export type SubscriptionDataError = 'ERR_GET_SUB_LINK' | 'ERR_FATCH_USER' | 'ERR_PARSE_APPCONFIG';
 
+/** Why the subscription failed to load, if it did, and how to try again. */
+export interface SubscriptionLoad {
+  error: SubscriptionDataError | null;
+  retry: () => void;
+}
+
 /**
  * Module-level sets track in-flight requests so duplicate UUIDs are not fetched twice.
  * Store reads/writes use `getState()` inside effects only (not reactive deps) to avoid loops.
@@ -13,11 +19,14 @@ export type SubscriptionDataError = 'ERR_GET_SUB_LINK' | 'ERR_FATCH_USER' | 'ERR
 const pendingShortUuids = new Set<string>();
 const pendingConfigShortUuids = new Set<string>();
 
-export function useSubscriptionData(shortUuid: string | undefined) {
+export function useSubscriptionData(shortUuid: string | undefined): SubscriptionLoad {
   const remnawaveApi = useRemnawaveApi();
 
   const [error, setError] = useState<SubscriptionDataError | null>(null);
+  // Bumped by a retry, which re-runs whichever fetch has not landed yet.
+  const [attempt, setAttempt] = useState(0);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: attempt is how a retry re-runs this fetch
   useEffect(() => {
     if (!shortUuid) return;
     // All store access via getState() — never reactive deps.
@@ -29,11 +38,13 @@ export function useSubscriptionData(shortUuid: string | undefined) {
     const fetchSubscription = async () => {
       try {
         const subscriptionInfo = await remnawaveApi.getSubscriptionInfoByShortUuid(shortUuid);
-        if (subscriptionInfo) {
-          useSubscriptionInfoStore
-            .getState()
-            .actions.setSubscriptionInfo({ subscription: { ...subscriptionInfo } });
+        if (!subscriptionInfo) {
+          setError('ERR_GET_SUB_LINK');
+          return;
         }
+        useSubscriptionInfoStore
+          .getState()
+          .actions.setSubscriptionInfo({ subscription: { ...subscriptionInfo } });
       } catch (err) {
         setError(
           err instanceof ApiClientError && err.status === 404
@@ -47,8 +58,9 @@ export function useSubscriptionData(shortUuid: string | undefined) {
     };
 
     void fetchSubscription();
-  }, [shortUuid, remnawaveApi]);
+  }, [shortUuid, remnawaveApi, attempt]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: attempt is how a retry re-runs this fetch
   useEffect(() => {
     if (!shortUuid) return;
     // All store access via getState() — never reactive deps.
@@ -100,7 +112,12 @@ export function useSubscriptionData(shortUuid: string | undefined) {
     };
 
     void fetchConfig();
-  }, [shortUuid, remnawaveApi]);
+  }, [shortUuid, remnawaveApi, attempt]);
 
-  return { error };
+  const retry = () => {
+    setError(null);
+    setAttempt((current) => current + 1);
+  };
+
+  return { error, retry };
 }

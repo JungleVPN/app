@@ -237,6 +237,12 @@
   "errors": {
     "unknown": "Ocorreu um erro"
   },
+  "loadError": {
+    "title": "Não foi possível carregar esta página",
+    "description": "Verifique sua conexão com a internet e tente novamente.",
+    "retry": "Tentar novamente",
+    "support": "Falar com o suporte"
+  },
   "connectEmailPage": {
     "enter_email": "E-mail",
     "email_placeholder": "example@gmail.com",

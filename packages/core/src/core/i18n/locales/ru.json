@@ -239,6 +239,12 @@
   "errors": {
     "unknown": "Произошла ошибка"
   },
+  "loadError": {
+    "title": "Не удалось загрузить страницу",
+    "description": "Проверьте подключение к интернету и попробуйте ещё раз.",
+    "retry": "Попробовать снова",
+    "support": "Написать в поддержку"
+  },
   "connectEmailPage": {
     "enter_email": "Введите email для вашего аккаунта JungleVPN",
     "email_placeholder": "example@gmail.com",

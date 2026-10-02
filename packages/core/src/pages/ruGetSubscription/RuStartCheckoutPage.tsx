@@ -1,4 +1,5 @@
-import { Loading } from '../../components';
+import { LoadError, Loading } from '../../components';
+import { loadPlans } from '../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import {
   getReferralUserId,
@@ -50,6 +51,7 @@ export default function RuStartCheckoutPage() {
   const checkout = useCheckout(startCheckout);
 
   if (checkout.isLoading) return <Loading />;
+  if (checkout.loadFailed) return <LoadError reason='plans' onRetry={loadPlans} />;
 
   return (
     <>

@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePlansStore } from '../stores';
-import { usePlans } from './use-plans';
+import { loadPlans, usePlans } from './use-plans';
 
 vi.mock('../env', () => ({ coreEnv: { paymentsUrl: 'https://payments.test' } }));
 
@@ -18,7 +18,8 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-const resolvesWith = (data: unknown) => fetchMock.mockResolvedValue({ json: async () => data });
+const resolvesWith = (data: unknown) =>
+  fetchMock.mockResolvedValue({ ok: true, json: async () => data });
 
 describe('usePlans', () => {
   it('fetches the plans once and shares them through the store', async () => {
@@ -65,5 +66,40 @@ describe('usePlans', () => {
 
     await waitFor(() => expect(result.current).toEqual([plan]));
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  // A server error still has a JSON body; storing it as the plan list used to
+  // mark the plans loaded and crash every page that sorts them.
+  it('treats an error response as a failed request, not as plans', async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      json: async () => ({ statusCode: 500, message: 'Internal server error' }),
+    });
+
+    const { result } = renderHook(() => usePlans());
+
+    await waitFor(() => expect(usePlansStore.getState().status).toBe('error'));
+    expect(result.current).toEqual([]);
+  });
+
+  it('loads the plans again when retried after a failure', async () => {
+    fetchMock.mockRejectedValue(new Error('payments unreachable'));
+    const { result } = renderHook(() => usePlans());
+    await waitFor(() => expect(usePlansStore.getState().status).toBe('error'));
+
+    resolvesWith([plan]);
+    loadPlans();
+
+    await waitFor(() => expect(result.current).toEqual([plan]));
+    expect(usePlansStore.getState().status).toBe('loaded');
+  });
+
+  it('does not ask again while a request is already in flight', () => {
+    fetchMock.mockReturnValue(new Promise(() => {}));
+    renderHook(() => usePlans());
+
+    loadPlans();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

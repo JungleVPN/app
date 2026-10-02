@@ -237,6 +237,12 @@
   "errors": {
     "unknown": "کچھ غلط ہو گیا"
   },
+  "loadError": {
+    "title": "یہ صفحہ لوڈ نہیں ہو سکا",
+    "description": "اپنا انٹرنیٹ کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
+    "retry": "دوبارہ کوشش کریں",
+    "support": "سپورٹ سے رابطہ کریں"
+  },
   "connectEmailPage": {
     "enter_email": "ای میل",
     "email_placeholder": "example@gmail.com",
