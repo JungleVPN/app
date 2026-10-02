@@ -46,12 +46,22 @@ describe('handleTelegramUnauthorized', () => {
     });
   });
 
-  it('does not report an expiry as a rejection', () => {
+  it('reports an expiry as an expired session, not a rejection', () => {
     launchedFromTelegram();
 
     handleTelegramUnauthorized(rejection({ code: 'init_data_expired' }));
 
-    expect(phCapture).not.toHaveBeenCalled();
+    expect(phCapture).toHaveBeenCalledWith('tma_session_expired', { api_path: '/users/me' });
+    expect(phCapture).not.toHaveBeenCalledWith('tma_auth_rejected', expect.anything());
+  });
+
+  it('reports an expired session once, however many requests it fails', () => {
+    launchedFromTelegram();
+
+    handleTelegramUnauthorized(rejection({ code: 'init_data_expired' }));
+    handleTelegramUnauthorized(rejection({ code: 'init_data_expired' }, '/payments/x'));
+
+    expect(phCapture).toHaveBeenCalledOnce();
   });
 
   it('does nothing when no launch data was sent', () => {

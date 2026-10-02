@@ -5,7 +5,7 @@ import { useLocation } from 'react-router';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes, useSupabaseClient } from '../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo } from '../../stores';
-import { isLandingPath, localizePath, PRICING_PATH, scrollToTop } from '../../utils';
+import { isLandingPath, localizePath, PRICING_PATH, scrollToTop, trackLogout } from '../../utils';
 
 export function AuthButtons() {
   const supabase = useSupabaseClient();
@@ -38,6 +38,7 @@ export function AuthButtons() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    trackLogout();
     setAuthUser(null);
     setRmnUser(null);
     navigate('/');

@@ -3,7 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 import { useNavigation } from '../../../hooks';
 import { useAppRoutes, useSupabaseClient } from '../../../runtime';
-import { captureReferral, phCapture } from '../../../utils';
+import {
+  captureReferral,
+  trackLoginEmailChanged,
+  trackLoginOtpResendFailed,
+  trackLoginOtpResent,
+  trackLoginOtpVerified,
+  trackLoginOtpVerifyFailed,
+} from '../../../utils';
 
 export function useConfirm() {
   const supabase = useSupabaseClient();
@@ -46,11 +53,11 @@ export function useConfirm() {
     submittingRef.current = false;
     if (verifyError) {
       setError(t('confirm.error_invalid_code'));
-      phCapture('otp_invalid_code');
+      trackLoginOtpVerifyFailed(verifyError);
       setOtp('');
       setLoading(false);
     } else {
-      phCapture('otp_verified');
+      trackLoginOtpVerified();
       const to = searchParams.get('to');
       navigate(to ?? profileSubscriptionPath);
     }
@@ -65,13 +72,17 @@ export function useConfirm() {
     });
 
     if (resendError) {
+      trackLoginOtpResendFailed(resendError);
       setError(resendError.message);
+    } else {
+      trackLoginOtpResent();
     }
 
     setTimer(60);
   };
 
   const handleChangeEmail = () => {
+    trackLoginEmailChanged();
     navigate('/login');
   };
 

@@ -1,6 +1,18 @@
 export { getAdminId, isAdminUser } from './admin';
 export type { AttributionPayload } from './attribution';
 export { captureAttribution, clearAttribution, getAttribution } from './attribution';
+export type { AuthFailure } from './authAnalytics';
+export {
+  trackLoginEmailChanged,
+  trackLoginOtpRequested,
+  trackLoginOtpRequestFailed,
+  trackLoginOtpResendFailed,
+  trackLoginOtpResent,
+  trackLoginOtpVerified,
+  trackLoginOtpVerifyFailed,
+  trackLogout,
+  trackTmaSessionExpired,
+} from './authAnalytics';
 export type { CheckoutAnalytics } from './checkoutAnalytics';
 export {
   checkoutEventProperties,

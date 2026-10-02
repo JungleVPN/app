@@ -1,5 +1,5 @@
 import { useAuthStore } from '../stores';
-import { phCapture } from '../utils';
+import { phCapture, trackTmaSessionExpired } from '../utils';
 import type { ApiClientError } from './client';
 
 /** The code both backends attach to a 401 for Telegram launch data past its maximum age. */
@@ -14,10 +14,11 @@ const INIT_DATA_EXPIRED = 'init_data_expired';
  * reopening would not help and the cause is ours to find.
  */
 export function handleTelegramUnauthorized(error: ApiClientError): void {
-  const { tgInitDataRaw, actions } = useAuthStore.getState();
+  const { tgInitDataRaw, sessionExpired, actions } = useAuthStore.getState();
   if (!tgInitDataRaw) return;
 
   if (field(error.data, 'code') === INIT_DATA_EXPIRED) {
+    if (!sessionExpired) trackTmaSessionExpired({ apiPath: error.path });
     actions.setSessionExpired(true);
     return;
   }
