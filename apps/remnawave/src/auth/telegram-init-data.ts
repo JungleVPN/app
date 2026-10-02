@@ -44,7 +44,10 @@ export function parseTelegramInitData(
   const authDate = new Date(parseInt(authDateRaw, 10) * 1000);
   const ageSeconds = (Date.now() - authDate.getTime()) / 1000;
   if (ageSeconds > maxAgeSeconds) {
-    throw new UnauthorizedException('Telegram initData has expired');
+    throw new UnauthorizedException({
+      message: 'Telegram initData has expired',
+      code: 'init_data_expired',
+    });
   }
 
   const userRaw = params.get('user');

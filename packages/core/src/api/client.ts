@@ -1,8 +1,8 @@
 export interface ApiClientConfig {
   baseUrl: string;
   getHeaders?: () => Record<string, string> | Promise<Record<string, string>>;
-  /** Called when the backend rejects the credentials (401); the request still rejects. */
-  onUnauthorized?: () => void;
+  /** Called with the rejection when the backend refuses the credentials (401); the request still rejects. */
+  onUnauthorized?: (error: ApiClientError) => void;
 }
 
 export interface ApiRequestOptions {
@@ -16,17 +16,20 @@ export interface ApiRequestOptions {
 export interface ApiError {
   status: number;
   message: string;
+  path?: string;
   data?: unknown;
 }
 
 export class ApiClientError extends Error {
   public readonly status: number;
+  public readonly path: string | undefined;
   public readonly data: unknown;
 
-  constructor({ status, message, data }: ApiError) {
+  constructor({ status, message, path, data }: ApiError) {
     super(message);
     this.name = 'ApiClientError';
     this.status = status;
+    this.path = path;
     this.data = data;
   }
 }
@@ -55,8 +58,6 @@ export function createApiClient(config: ApiClientConfig) {
     });
 
     if (!response.ok) {
-      if (response.status === 401) config.onUnauthorized?.();
-
       let data: unknown;
       try {
         data = await response.json();
@@ -64,11 +65,14 @@ export function createApiClient(config: ApiClientConfig) {
         data = await response.text();
       }
 
-      throw new ApiClientError({
+      const error = new ApiClientError({
         status: response.status,
         message: `Request failed: ${method} ${path} (${response.status})`,
+        path,
         data,
       });
+      if (response.status === 401) config.onUnauthorized?.(error);
+      throw error;
     }
 
     if (response.status === 204 || response.status === 205) {

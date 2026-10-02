@@ -13,9 +13,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       this.logger.error(exception.message, exception.stack);
+      const code = exceptionCode(exception);
       response.status(status).json({
         statusCode: status,
         error: exception.message,
+        ...(code ? { code } : {}),
       });
       return;
     }
@@ -36,4 +38,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       error: 'Internal server error',
     });
   }
+}
+
+function exceptionCode(exception: HttpException): string | null {
+  const body = exception.getResponse();
+  if (typeof body !== 'object' || body === null || !('code' in body)) return null;
+  return typeof body.code === 'string' ? body.code : null;
 }

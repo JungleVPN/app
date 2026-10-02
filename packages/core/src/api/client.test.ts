@@ -32,6 +32,24 @@ describe('createApiClient: rejected credentials', () => {
     expect(onUnauthorized).toHaveBeenCalledTimes(1);
   });
 
+  // What the backend said decides what the app does: an expired Telegram
+  // session asks for a reopen, any other rejection must not.
+  it('hands the app the rejection, with the backend body and the path', async () => {
+    const onUnauthorized = vi.fn();
+    respondWith(401, { code: 'init_data_expired' });
+    const client = createApiClient({ baseUrl: 'https://api.test', onUnauthorized });
+
+    await expect(client.get('/users/me')).rejects.toBeInstanceOf(ApiClientError);
+
+    const [rejection] = onUnauthorized.mock.calls[0];
+    expect(rejection).toBeInstanceOf(ApiClientError);
+    expect(rejection).toMatchObject({
+      status: 401,
+      path: '/users/me',
+      data: { code: 'init_data_expired' },
+    });
+  });
+
   it('does not treat other failures as rejected credentials', async () => {
     const onUnauthorized = vi.fn();
     respondWith(403);

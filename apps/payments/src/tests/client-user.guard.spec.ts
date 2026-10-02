@@ -46,6 +46,16 @@ function makeJwt(payload: Record<string, unknown>, key: KeyObject = PRIVATE_KEY)
 const futureExp = Math.floor(Date.now() / 1000) + 3600;
 const pastExp = Math.floor(Date.now() / 1000) - 60;
 
+function catchError(fn: () => unknown): UnauthorizedException {
+  try {
+    fn();
+  } catch (error) {
+    if (error instanceof UnauthorizedException) return error;
+    throw error;
+  }
+  throw new Error('expected an UnauthorizedException');
+}
+
 // ── parseTelegramInitData ──────────────────────────────────────────────────
 
 describe('parseTelegramInitData', () => {
@@ -79,6 +89,20 @@ describe('parseTelegramInitData', () => {
   it('throws UnauthorizedException when initData exceeds maxAgeSeconds', () => {
     const raw = makeInitData(123456789, { ageSeconds: 7200 });
     expect(() => parseTelegramInitData(raw, BOT_TOKEN, 3600)).toThrow(UnauthorizedException);
+  });
+
+  // The mini app must tell an expired session (reopen the app) from any other
+  // rejection, so expiry carries a code of its own rather than just a message.
+  it('marks expired initData with the init_data_expired code', () => {
+    const raw = makeInitData(123456789, { ageSeconds: 7200 });
+    const error = catchError(() => parseTelegramInitData(raw, BOT_TOKEN, 3600));
+    expect(error.getResponse()).toMatchObject({ code: 'init_data_expired' });
+  });
+
+  it('does not mark a bad signature as expired', () => {
+    const raw = makeInitData(123456789, { corruptHash: true });
+    const error = catchError(() => parseTelegramInitData(raw, BOT_TOKEN, 3600));
+    expect(error.getResponse()).not.toMatchObject({ code: 'init_data_expired' });
   });
 
   it('accepts initData within maxAgeSeconds', () => {
