@@ -14,6 +14,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { unwrapWebhook } from '@whop/sdk/helpers';
 import {
   ACTIVE_SUBSCRIPTION_CODE,
@@ -49,6 +50,7 @@ export class WhopController {
   constructor(
     private readonly whopProvider: WhopProvider,
     private readonly adminService: AdminService,
+    private readonly analyticsClient: AnalyticsClientService,
   ) {}
 
   /**
@@ -229,24 +231,43 @@ export class WhopController {
   ) {
     const rawBody = req.rawBody;
     if (!rawBody) {
-      this.logger.error('Missing raw body for Whop webhook');
+      await this.reportRejectedWebhook('missing raw body');
       throw new BadRequestException('Missing raw body');
     }
 
     const webhookSecret = process.env.WHOP_WEBHOOK_SECRET;
     if (!webhookSecret) {
+      await this.reportRejectedWebhook('missing WHOP_WEBHOOK_SECRET');
       throw new BadRequestException('Missing WHOP_WEBHOOK_SECRET');
     }
 
     let event: unknown;
     try {
       event = unwrapWebhook(rawBody.toString(), { headers, key: webhookSecret });
-    } catch (err) {
-      this.logger.error('Whop webhook signature verification failed', err);
+    } catch (err: unknown) {
+      await this.reportRejectedWebhook(
+        `invalid signature: ${err instanceof Error ? err.message : String(err)}`,
+      );
       throw new BadRequestException('Invalid Whop signature');
     }
 
     await this.whopProvider.handleWebhook(event);
     return { received: true };
+  }
+
+  /**
+   * A rejected delivery is never retried by Whop, and a misconfigured secret
+   * rejects every one — so each rejection is reported, not just logged.
+   */
+  private async reportRejectedWebhook(reason: string): Promise<void> {
+    this.logger.error(`Whop webhook rejected: ${reason}`);
+    await this.analyticsClient.track({
+      event: 'payment_error',
+      kind: 'webhook_failed',
+      provider: 'whop',
+      userId: null,
+      paymentId: null,
+      reason,
+    });
   }
 }

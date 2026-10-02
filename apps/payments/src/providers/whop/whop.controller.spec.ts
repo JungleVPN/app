@@ -39,7 +39,11 @@ const controllerWith = (
       currency: 'usd',
     }),
   };
-  const controller = new WhopController(whopProvider as never, {} as never);
+  const controller = new WhopController(
+    whopProvider as never,
+    {} as never,
+    { track: vi.fn() } as never,
+  );
   return { controller, whopProvider };
 };
 
@@ -302,7 +306,11 @@ describe('WhopController.getPublicPaymentStatus', () => {
       getPaymentStatus: vi.fn().mockResolvedValue({ paymentId: 'pay_1', fulfilled }),
     };
     const adminService = { isFirstPayment: vi.fn().mockResolvedValue(firstPayment) };
-    const controller = new WhopController(whopProvider as never, adminService as never);
+    const controller = new WhopController(
+      whopProvider as never,
+      adminService as never,
+      { track: vi.fn() } as never,
+    );
     return { controller, whopProvider, adminService };
   };
 
@@ -370,7 +378,12 @@ describe('WhopController.webhook', () => {
     handleWebhook: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(undefined),
   ) => {
     const whopProvider = { handleWebhook };
-    return { controller: new WhopController(whopProvider as never, {} as never), whopProvider };
+    const analyticsClient = { track: vi.fn().mockResolvedValue(undefined) };
+    return {
+      controller: new WhopController(whopProvider as never, {} as never, analyticsClient as never),
+      whopProvider,
+      analyticsClient,
+    };
   };
 
   let originalSecret: string | undefined;
@@ -424,6 +437,41 @@ describe('WhopController.webhook', () => {
     expect(whopProvider.handleWebhook).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ['an invalid signature', () => reqWith(BODY), () => ({}), 'invalid signature'],
+    ['a missing raw body', () => reqWith(undefined), () => signedHeaders(BODY), 'missing raw body'],
+    [
+      'a missing WHOP_WEBHOOK_SECRET',
+      () => {
+        delete process.env.WHOP_WEBHOOK_SECRET;
+        return reqWith(BODY);
+      },
+      () => signedHeaders(BODY),
+      'missing WHOP_WEBHOOK_SECRET',
+    ],
+  ])('reports a webhook rejected for %s as a payment error', async (_case, req, headers, reason) => {
+    const { controller, analyticsClient } = controllerWith();
+
+    await expect(controller.webhook(req(), headers())).rejects.toThrow(BadRequestException);
+
+    expect(analyticsClient.track).toHaveBeenCalledWith({
+      event: 'payment_error',
+      kind: 'webhook_failed',
+      provider: 'whop',
+      userId: null,
+      paymentId: null,
+      reason: expect.stringContaining(reason),
+    });
+  });
+
+  it('reports nothing for a correctly signed webhook', async () => {
+    const { controller, analyticsClient } = controllerWith();
+
+    await controller.webhook(reqWith(BODY), signedHeaders(BODY));
+
+    expect(analyticsClient.track).not.toHaveBeenCalled();
+  });
+
   it('lets a processing failure propagate as a 5xx, so Whop retries the delivery', async () => {
     const { controller } = controllerWith(vi.fn().mockRejectedValue(new Error('boom')));
 
@@ -440,7 +488,14 @@ describe('WhopController — authenticated routes', () => {
         .mockResolvedValue({ cancelAtPeriodEnd: true, accessUntil: '2026-10-26T10:00:00Z' }),
       resumeSubscription: vi.fn().mockResolvedValue({ cancelAtPeriodEnd: false }),
     };
-    return { controller: new WhopController(whopProvider as never, {} as never), whopProvider };
+    return {
+      controller: new WhopController(
+        whopProvider as never,
+        {} as never,
+        { track: vi.fn() } as never,
+      ),
+      whopProvider,
+    };
   };
 
   const guardsOf = (method: keyof WhopController) =>

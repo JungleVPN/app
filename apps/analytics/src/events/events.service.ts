@@ -118,8 +118,8 @@ export class EventsService {
             ? `tg:${telegramId}`
             : email
               ? `email:${email.trim().toLowerCase()}`
-              : event.event === 'payment_error' && event.paymentId
-                ? `payment:${event.provider}:${event.paymentId}`
+              : event.event === 'payment_error'
+                ? `payment:${event.provider}:${event.paymentId ?? 'unknown'}`
                 : null;
 
       if (!distinctId) {

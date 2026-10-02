@@ -120,6 +120,7 @@ const setup = (options: { catalog?: Plan[] } = {}) => {
   const paymentRepo = {
     insert: vi.fn().mockResolvedValue({}),
     findOneBy: vi.fn().mockResolvedValue(null),
+    findOne: vi.fn().mockResolvedValue(null),
     update: vi.fn().mockResolvedValue({ affected: 1 }),
     save: vi.fn(async (row: unknown) => row),
     create: vi.fn((row: unknown) => row),
@@ -581,6 +582,180 @@ describe('WhopWebhookService', () => {
     });
   });
 
+  describe('payment_error reporting', () => {
+    const paymentErrors = (analyticsClient: { track: ReturnType<typeof vi.fn> }) =>
+      analyticsClient.track.mock.calls
+        .map(([event]) => event)
+        .filter((event) => event.event === 'payment_error');
+
+    it('reports a settled payment whose subscription was not extended', async () => {
+      const { service, analyticsClient, paymentStatusService } = setup();
+      paymentStatusService.handleUserUpdates.mockResolvedValue({ success: false });
+
+      await expect(service.handleWebhook(paymentSucceeded())).rejects.toThrow();
+
+      expect(paymentErrors(analyticsClient)).toContainEqual(
+        expect.objectContaining({
+          kind: 'subscription_not_extended',
+          provider: 'whop',
+          userId: NEW_ACCOUNT_ID,
+          paymentId: 'pay_1',
+        }),
+      );
+    });
+
+    it('reports an extension that throws, with the error as the reason, and still rethrows', async () => {
+      const { service, analyticsClient, paymentStatusService } = setup();
+      paymentStatusService.handleUserUpdates.mockRejectedValue(new Error('remnawave timeout'));
+
+      await expect(service.handleWebhook(paymentSucceeded())).rejects.toThrow('remnawave timeout');
+
+      expect(paymentErrors(analyticsClient)).toContainEqual(
+        expect.objectContaining({
+          kind: 'subscription_extension_failed',
+          provider: 'whop',
+          userId: NEW_ACCOUNT_ID,
+          paymentId: 'pay_1',
+          reason: 'remnawave timeout',
+        }),
+      );
+    });
+
+    it('reports a redelivered payment as a duplicate, naming the event that carried it', async () => {
+      const { service, analyticsClient, paymentRepo } = setup();
+      paymentRepo.insert.mockRejectedValue(uniqueViolationError());
+      paymentRepo.update.mockResolvedValue({ affected: 0 });
+
+      await service.handleWebhook(paymentSucceeded());
+
+      expect(paymentErrors(analyticsClient)).toEqual([
+        expect.objectContaining({
+          kind: 'duplicate_payment',
+          provider: 'whop',
+          userId: null,
+          paymentId: 'pay_1',
+          webhookEvent: 'payment.succeeded',
+        }),
+      ]);
+    });
+
+    it('reports a second checkout charge for the same account within the hour as a double charge', async () => {
+      const { service, analyticsClient, paymentRepo } = setup();
+      paymentRepo.findOne.mockResolvedValue({ id: 'pay_0', userId: NEW_ACCOUNT_ID });
+
+      await service.handleWebhook(paymentSucceeded());
+
+      expect(paymentErrors(analyticsClient)).toEqual([
+        expect.objectContaining({
+          kind: 'double_charge',
+          provider: 'whop',
+          userId: NEW_ACCOUNT_ID,
+          paymentId: 'pay_1',
+          reason: expect.stringContaining('pay_0'),
+        }),
+      ]);
+    });
+
+    it('does not look for a double charge on a renewal, which is expected to repeat', async () => {
+      const { service, analyticsClient, paymentRepo } = setup();
+      paymentRepo.findOne.mockResolvedValue({ id: 'pay_0', userId: NEW_ACCOUNT_ID });
+
+      await service.handleWebhook(paymentSucceeded({ billing_reason: 'subscription_cycle' }));
+
+      expect(paymentErrors(analyticsClient)).toEqual([]);
+    });
+
+    it('reports any webhook failure with the webhook event and reason, then rethrows', async () => {
+      const { service, analyticsClient } = setup();
+
+      await expect(
+        service.handleWebhook(paymentSucceeded({ plan: { id: 'plan_unknown' } })),
+      ).rejects.toThrow();
+
+      expect(paymentErrors(analyticsClient)).toEqual([
+        expect.objectContaining({
+          kind: 'webhook_failed',
+          provider: 'whop',
+          userId: null,
+          paymentId: 'pay_1',
+          webhookEvent: 'payment.succeeded',
+          reason: expect.stringContaining('unrecognised plan'),
+        }),
+      ]);
+    });
+
+    it('reports a payload that does not match its schema as a webhook failure', async () => {
+      const { service, analyticsClient } = setup();
+
+      await expect(
+        service.handleWebhook({ type: 'payment.succeeded', data: { id: 'pay_1' } }),
+      ).rejects.toThrow();
+
+      expect(paymentErrors(analyticsClient)).toEqual([
+        expect.objectContaining({
+          kind: 'webhook_failed',
+          paymentId: 'pay_1',
+          webhookEvent: 'payment.succeeded',
+        }),
+      ]);
+    });
+
+    it('reports a payment left stuck in processing when releasing its claim fails', async () => {
+      const { service, analyticsClient, paymentRepo, paymentStatusService } = setup();
+      paymentStatusService.handleUserUpdates.mockRejectedValue(new Error('remnawave timeout'));
+      paymentRepo.update.mockRejectedValue(new Error('db down'));
+
+      await expect(service.handleWebhook(paymentSucceeded())).rejects.toThrow('remnawave timeout');
+
+      expect(paymentErrors(analyticsClient)).toContainEqual(
+        expect.objectContaining({
+          kind: 'payment_stuck_processing',
+          paymentId: 'pay_1',
+          reason: 'db down',
+        }),
+      );
+    });
+
+    it('reports a paid subscription whose payment method could not be saved', async () => {
+      const { service, analyticsClient, savedMethodRepo } = setup();
+      savedMethodRepo.save.mockRejectedValue(new Error('db down'));
+
+      await service.handleWebhook(paymentSucceeded());
+
+      expect(paymentErrors(analyticsClient)).toEqual([
+        expect.objectContaining({
+          kind: 'payment_method_save_failed',
+          userId: NEW_ACCOUNT_ID,
+          paymentId: 'pay_1',
+          reason: 'db down',
+        }),
+      ]);
+    });
+
+    it('reports a succeeded refund for a payment we have no record of', async () => {
+      const { service, analyticsClient } = setup();
+
+      await service.handleWebhook(refundEvent('refund.created'));
+
+      expect(paymentErrors(analyticsClient)).toEqual([
+        expect.objectContaining({
+          kind: 'refund_unattributed',
+          userId: null,
+          paymentId: 'pay_1',
+          webhookEvent: 'refund.created',
+        }),
+      ]);
+    });
+
+    it('reports nothing for a successfully processed payment', async () => {
+      const { service, analyticsClient } = setup();
+
+      await service.handleWebhook(paymentSucceeded());
+
+      expect(paymentErrors(analyticsClient)).toEqual([]);
+    });
+  });
+
   /**
    * An on-session checkout charges at once, so Whop creates the payment
    * already paid and sends `payment.created` for it — with no
@@ -1003,15 +1178,16 @@ describe('WhopWebhookService', () => {
       expect(paymentRepo.findOneBy).toHaveBeenCalledWith({ id: 'pay_1' });
     });
 
-    it.each([['processing'], ['unfulfilled'], ['failed']])(
-      'is false while the payment is %s',
-      async (status) => {
-        const { service, paymentRepo } = setup();
-        paymentRepo.findOneBy.mockResolvedValue({ id: 'pay_1', status });
+    it.each([
+      ['processing'],
+      ['unfulfilled'],
+      ['failed'],
+    ])('is false while the payment is %s', async (status) => {
+      const { service, paymentRepo } = setup();
+      paymentRepo.findOneBy.mockResolvedValue({ id: 'pay_1', status });
 
-        await expect(service.isPaymentFulfilled('pay_1')).resolves.toBe(false);
-      },
-    );
+      await expect(service.isPaymentFulfilled('pay_1')).resolves.toBe(false);
+    });
 
     it('is false before any webhook for the payment has arrived', async () => {
       const { service } = setup();

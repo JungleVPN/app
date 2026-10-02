@@ -5,8 +5,8 @@ import { AnalyticsClientService } from '@payments/analytics/analytics-client.ser
 import { PlanService } from '@payments/catalog/plan.service';
 import { isReportableCurrency } from '@payments/providers/paddle/paddle.utils';
 import { SavedPaymentMethod, WhopPayment, WhopRefund } from '@workspace/database';
-import { Payments, WebhookEventEnum } from '@workspace/types';
-import { In, Not, Repository } from 'typeorm';
+import { type PaymentErrorEvent, Payments, WebhookEventEnum } from '@workspace/types';
+import { In, MoreThan, Not, Repository } from 'typeorm';
 import type { z } from 'zod';
 import { RemnaUserResolverService } from '../../auth/remna-user-resolver.service';
 import { PaymentStatusService } from '../../payment-status/payment-status.service';
@@ -67,6 +67,9 @@ const RENEWAL_BILLING_REASON = 'subscription_cycle';
 const POSTGRES_UNIQUE_VIOLATION = '23505';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** How close together two checkout charges for one account must land to read as a double charge. */
+const DOUBLE_CHARGE_WINDOW_MS = 60 * 60 * 1000;
 
 /**
  * What the profile page shows about a Whop subscription, as of its latest
@@ -170,22 +173,38 @@ export class WhopWebhookService {
 
   /** Takes the signature-verified, but otherwise untrusted, webhook body. */
   async handleWebhook(body: unknown): Promise<void> {
+    try {
+      await this.routeWebhook(body);
+    } catch (error: unknown) {
+      const envelope = WhopWebhookEnvelopeSchema.safeParse(body);
+      await this.reportPaymentError({
+        kind: 'webhook_failed',
+        userId: null,
+        paymentId: envelope.success ? paymentIdOf(envelope.data) : null,
+        webhookEvent: envelope.success ? envelope.data.type : undefined,
+        reason: errorMessage(error),
+      });
+      throw error;
+    }
+  }
+
+  private async routeWebhook(body: unknown): Promise<void> {
     const event = WhopWebhookEnvelopeSchema.parse(body);
     this.logger.log(`Whop event ${event.type}`);
 
     switch (event.type) {
       case 'payment.succeeded':
-        await this.handlePaymentSucceeded(this.parseData(event, WhopPaymentSchema));
+        await this.handlePaymentSucceeded(this.parseData(event, WhopPaymentSchema), event.type);
         break;
       case 'payment.created':
-        await this.handlePaymentCreated(this.parseData(event, WhopPaymentSchema));
+        await this.handlePaymentCreated(this.parseData(event, WhopPaymentSchema), event.type);
         break;
       case 'payment.failed':
         await this.handlePaymentFailed(this.parseData(event, WhopPaymentSchema));
         break;
       case 'refund.created':
       case 'refund.updated':
-        await this.handleRefund(this.parseData(event, WhopRefundSchema));
+        await this.handleRefund(this.parseData(event, WhopRefundSchema), event.type);
         break;
       case 'membership.deactivated':
         await this.handleMembershipDeactivated(this.parseData(event, WhopMembershipSchema));
@@ -238,22 +257,32 @@ export class WhopWebhookService {
    * two events arrives, or if both do. An unpaid one is left for
    * `payment.succeeded`.
    */
-  private async handlePaymentCreated(payment: WhopPaymentData): Promise<void> {
+  private async handlePaymentCreated(
+    payment: WhopPaymentData,
+    webhookEvent: string,
+  ): Promise<void> {
     if (payment.status !== PAID_PAYMENT_STATUS) {
       this.logger.log(
         `Whop payment ${payment.id} created as ${payment.status ?? 'unknown'} — awaiting payment.succeeded`,
       );
       return;
     }
-    await this.handlePaymentSucceeded(payment);
+    await this.handlePaymentSucceeded(payment, webhookEvent);
   }
 
   // ── payment.succeeded ────────────────────────────────────────────────────
-  private async handlePaymentSucceeded(payment: WhopPaymentData): Promise<void> {
+  private async handlePaymentSucceeded(
+    payment: WhopPaymentData,
+    webhookEvent: string,
+  ): Promise<void> {
     if (!(await this.claimPayment(payment.id))) {
-      this.logger.log(
-        `Whop payment ${payment.id} already processed or in progress — ignoring duplicate delivery`,
-      );
+      await this.reportPaymentError({
+        kind: 'duplicate_payment',
+        userId: null,
+        paymentId: payment.id,
+        webhookEvent,
+        reason: 'delivered again for a payment already processed or in progress',
+      });
       return;
     }
 
@@ -265,11 +294,13 @@ export class WhopWebhookService {
       // already moved to 'unfulfilled' below.
       await this.whopPaymentRepo
         .update({ id: payment.id, status: PROCESSING_STATUS }, { status: UNFULFILLED_STATUS })
-        .catch((cleanupError) =>
-          this.logger.error(
-            `Failed to release stuck claim for Whop payment ${payment.id}`,
-            cleanupError,
-          ),
+        .catch((cleanupError: unknown) =>
+          this.reportPaymentError({
+            kind: 'payment_stuck_processing',
+            userId: null,
+            paymentId: payment.id,
+            reason: errorMessage(cleanupError),
+          }),
         );
       throw error;
     }
@@ -300,17 +331,33 @@ export class WhopWebhookService {
       paidAt: new Date(),
     };
 
-    const result = await this.paymentStatusService.handleUserUpdates({
-      selectedPeriod,
-      userId,
-      purpose: 'subscription',
-    });
+    const result = await this.paymentStatusService
+      .handleUserUpdates({ selectedPeriod, userId, purpose: 'subscription' })
+      .catch(async (error: unknown) => {
+        await this.reportPaymentError({
+          kind: 'subscription_extension_failed',
+          userId,
+          paymentId: payment.id,
+          reason: errorMessage(error),
+        });
+        throw error;
+      });
 
     if (!result.success) {
       await this.persistPayment({ ...record, paidAt: null }, UNFULFILLED_STATUS);
+      await this.reportPaymentError({
+        kind: 'subscription_not_extended',
+        userId,
+        paymentId: payment.id,
+        reason: 'subscription update reported no success',
+      });
       throw new UnfulfilledPaymentError(
         `Whop payment ${payment.id}: subscription was not extended for user ${userId}`,
       );
+    }
+
+    if (payment.billing_reason !== RENEWAL_BILLING_REASON) {
+      await this.reportDoubleCharge(record);
     }
 
     await this.persistPayment(record, 'paid');
@@ -504,15 +551,19 @@ export class WhopWebhookService {
    * `pending` and settle it on a later `refund.updated`, and announces it on
    * both events, so the `whop_refunds` insert makes each one count once.
    */
-  private async handleRefund(refund: WhopRefundData): Promise<void> {
+  private async handleRefund(refund: WhopRefundData, webhookEvent: string): Promise<void> {
     if (refund.status !== 'succeeded') return;
 
     const paymentId = refund.payment?.id;
     const record = paymentId ? await this.whopPaymentRepo.findOneBy({ id: paymentId }) : null;
     if (!paymentId || !record) {
-      this.logger.warn(
-        `Whop refund ${refund.id} (payment ${paymentId ?? 'unknown'}) has no local payment — cannot attribute`,
-      );
+      await this.reportPaymentError({
+        kind: 'refund_unattributed',
+        userId: null,
+        paymentId: paymentId ?? null,
+        webhookEvent,
+        reason: `refund ${refund.id} has no local payment to attribute it to`,
+      });
       return;
     }
 
@@ -606,12 +657,48 @@ export class WhopWebhookService {
       this.logger.log(
         `Activated Whop payment method (membership ${membershipId}) for user ${userId}`,
       );
-    } catch (error) {
-      this.logger.error(
-        `Failed to activate Whop saved method for user ${userId} (membership ${membershipId})`,
-        error,
-      );
+    } catch (error: unknown) {
+      await this.reportPaymentError({
+        kind: 'payment_method_save_failed',
+        userId,
+        paymentId: record.id,
+        reason: errorMessage(error),
+      });
     }
+  }
+
+  /**
+   * A checkout charge landing shortly after another paid one for the same
+   * account — usually a payer who submitted twice. Both are fulfilled; this
+   * only flags the pair so the extra charge can be refunded.
+   */
+  private async reportDoubleCharge(record: WhopPaymentRecord): Promise<void> {
+    if (record.userId == null) return;
+    const previous = await this.whopPaymentRepo.findOne({
+      where: {
+        userId: record.userId,
+        status: 'paid',
+        id: Not(record.id),
+        paidAt: MoreThan(new Date(Date.now() - DOUBLE_CHARGE_WINDOW_MS)),
+      },
+    });
+    if (!previous) return;
+
+    await this.reportPaymentError({
+      kind: 'double_charge',
+      userId: record.userId,
+      paymentId: record.id,
+      reason: `paid again within the hour after payment ${previous.id}`,
+    });
+  }
+
+  private async reportPaymentError(
+    error: Omit<PaymentErrorEvent, 'event' | 'provider'>,
+  ): Promise<void> {
+    this.logger.error(
+      `Whop payment error [${error.kind}] payment=${error.paymentId ?? 'unknown'} user=${error.userId ?? 'unknown'}: ${error.reason}`,
+    );
+    await this.analyticsClient.track({ event: 'payment_error', provider: 'whop', ...error });
   }
 
   // ── Persistence (upsert by payment id) ───────────────────────────────────
@@ -640,4 +727,15 @@ export class WhopWebhookService {
     );
     return (result.affected ?? 0) > 0;
   }
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+/** The payment an event is about, read loosely since the data may not have passed its schema. */
+function paymentIdOf(event: WhopWebhookEnvelope): string | null {
+  const data = event.data as { id?: unknown; payment?: { id?: unknown } } | null | undefined;
+  const id = event.type.startsWith('refund.') ? data?.payment?.id : data?.id;
+  return typeof id === 'string' ? id : null;
 }

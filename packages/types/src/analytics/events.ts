@@ -59,7 +59,11 @@ export type PaymentErrorKind =
   | 'subscription_not_extended'
   | 'subscription_extension_failed'
   | 'duplicate_payment'
-  | 'webhook_failed';
+  | 'double_charge'
+  | 'webhook_failed'
+  | 'payment_stuck_processing'
+  | 'payment_method_save_failed'
+  | 'refund_unattributed';
 
 /**
  * An operational failure in a provider's payment pipeline, reported so it can
@@ -69,7 +73,7 @@ export type PaymentErrorKind =
 export type PaymentErrorEvent = {
   event: 'payment_error';
   kind: PaymentErrorKind;
-  provider: 'yookassa';
+  provider: 'yookassa' | 'whop';
   userId: RemnaUserId | null;
   paymentId: string | null;
   webhookEvent?: string;
