@@ -29,7 +29,7 @@
   },
   "confirm": {
     "title": "Masukkan kode yang Anda terima",
-    "submit": "Masuk",
+    "change_email": "Ubah email",
     "resend_in": "Kirim ulang dalam {{timer}} detik",
     "resend_otp": "Kirim ulang OTP",
     "hint": "Anda akan menerima email berisi kode yang harus dimasukkan",

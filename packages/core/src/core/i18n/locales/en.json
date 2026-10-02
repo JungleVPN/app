@@ -29,7 +29,7 @@
   },
   "confirm": {
     "title": "Enter the code you received",
-    "submit": "Log in",
+    "change_email": "Change email",
     "resend_in": "Resend in {{timer}}s",
     "resend_otp": "Resend OTP",
     "hint": "You will receive an email with the code to enter",

@@ -29,7 +29,7 @@
   },
   "confirm": {
     "title": "Aldığınız kodu girin",
-    "submit": "Giriş",
+    "change_email": "E-postayı değiştir",
     "resend_in": "{{timer}} saniye sonra yeniden gönder",
     "resend_otp": "OTP'yi yeniden gönder",
     "hint": "Girmeniz gereken kodu içeren bir e-posta alacaksınız",

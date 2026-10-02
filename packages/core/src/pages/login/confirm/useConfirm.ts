@@ -76,7 +76,22 @@ export function useConfirm() {
     setTimer(60);
   };
 
+  const handleChangeEmail = () => {
+    const to = searchParams.get('to');
+    navigate(to ? `/login?to=${encodeURIComponent(to)}` : '/login');
+  };
+
   const handleComplete = (code: string) => void handleConfirm(undefined, code);
 
-  return { otp, setOtp, timer, error, loading, handleConfirm, handleComplete, handleResend };
+  return {
+    otp,
+    setOtp,
+    timer,
+    error,
+    loading,
+    handleConfirm,
+    handleComplete,
+    handleResend,
+    handleChangeEmail,
+  };
 }
