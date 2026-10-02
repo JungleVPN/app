@@ -1,6 +1,9 @@
 import type { GetUserByIdResponseDto, UserScope } from '@workspace/types';
 import { create } from 'zustand';
 import { AuthSource, User } from '../types/tma';
+import { useSavedMethodsStore } from './saved-methods';
+import { useSubscriptionConfigStore } from './subscription-config';
+import { useSubscriptionInfoStore } from './subscription-info';
 
 /**
  * Platform-agnostic web user identity.
@@ -55,10 +58,28 @@ const initialState: IAuthState = {
   userScope: null,
 };
 
-export const useAuthStore = create<IAuthActions & IAuthState>()((set) => ({
+/**
+ * Everything cached about the signed-in account. It is fetched once and reused
+ * for the session, so it has to go when the account does — otherwise the next
+ * person to sign in on this tab is shown the previous one's subscription link.
+ */
+function forgetAccountData(): void {
+  useSubscriptionInfoStore.getState().actions.resetState();
+  useSubscriptionConfigStore.getState().actions.resetState();
+  useSavedMethodsStore.getState().actions.resetState();
+}
+
+export const useAuthStore = create<IAuthActions & IAuthState>()((set, get) => ({
   ...initialState,
   actions: {
-    setAuthUser: (authUser) => set({ authUser }),
+    setAuthUser: (authUser) => {
+      if (get().authUser?.id === authUser?.id) {
+        set({ authUser });
+        return;
+      }
+      forgetAccountData();
+      set({ authUser, rmnUser: null, userScope: null });
+    },
     setRmnUser: (rmnUser) => set({ rmnUser }),
     setLoading: (loading) => set({ loading }),
     setAuthSource: (authSource) => set({ authSource }),
