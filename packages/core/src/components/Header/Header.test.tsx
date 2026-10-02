@@ -36,6 +36,7 @@ vi.mock('../SubscriptionLinkWidget/SubscriptionLinkWidget', () => ({
   SubscriptionLinkWidget: () => null,
 }));
 vi.mock('../SupportWidget/SupportButton', () => ({ SupportButton: () => null }));
+vi.mock('../IpStatusBar/IpStatusBar', () => ({ IpStatusBar: () => null }));
 
 function renderWebHeader() {
   render(

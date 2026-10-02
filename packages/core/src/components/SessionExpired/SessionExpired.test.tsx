@@ -14,6 +14,7 @@ vi.mock('react-i18next', () => ({
 vi.mock('@tma.js/sdk-react', () => ({ miniApp: { close: closeMiniApp } }));
 vi.mock('../../utils', () => ({ phCapture }));
 vi.mock('../../ui', () => ({
+  Container: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   Heading: ({ children }: { children: ReactNode }) => <h2>{children}</h2>,
   Paragraph: ({ children }: { children: ReactNode }) => <p>{children}</p>,
 }));

@@ -162,7 +162,7 @@ describe('RuStartCheckoutPage', () => {
       activeSubscriptionEmail: null,
     });
     render(<RuStartCheckoutPage />);
-    expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe('plans');
+    expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe('failed_to_load_plans');
 
     fireEvent.click(screen.getByRole('button', { name: 'retry' }));
 

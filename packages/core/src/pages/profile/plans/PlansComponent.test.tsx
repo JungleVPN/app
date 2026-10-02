@@ -51,7 +51,7 @@ describe('PlansComponent', () => {
   it('offers a retry once the plans have failed to load', () => {
     usePlansStore.setState({ status: 'error' });
     renderPlans();
-    expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe('plans');
+    expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe('failed_to_load_plans');
 
     fireEvent.click(screen.getByRole('button', { name: 'retry' }));
 

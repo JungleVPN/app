@@ -51,7 +51,7 @@ export default function RuStartCheckoutPage() {
   const checkout = useCheckout(startCheckout);
 
   if (checkout.isLoading) return <Loading />;
-  if (checkout.loadFailed) return <LoadError reason='plans' onRetry={loadPlans} />;
+  if (checkout.loadFailed) return <LoadError reason='failed_to_load_plans' onRetry={loadPlans} />;
 
   return (
     <>

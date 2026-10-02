@@ -55,7 +55,7 @@ describe('ConnectEmailPage', () => {
     connectEmail.connectFailed = true;
     render(<ConnectEmailPage />);
     expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe(
-      'account_creation',
+      'connect_email_to_tg',
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'retry' }));

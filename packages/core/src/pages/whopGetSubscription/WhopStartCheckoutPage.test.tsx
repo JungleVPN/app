@@ -324,7 +324,7 @@ describe('WhopStartCheckoutPage', () => {
   it('offers a retry instead of the form when the plans could not be loaded', () => {
     checkoutState.loadFailed = true;
     render(<WhopStartCheckoutPage />);
-    expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe('plans');
+    expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe('failed_to_load_plans');
 
     fireEvent.click(screen.getByRole('button', { name: 'retry' }));
 

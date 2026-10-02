@@ -24,7 +24,7 @@ describe('LoadError', () => {
   });
 
   it('tells the user the page could not be loaded', () => {
-    render(<LoadError reason='plans' onRetry={() => {}} />);
+    render(<LoadError reason='failed_to_load_plans' onRetry={() => {}} />);
 
     expect(screen.getByRole('heading', { name: 'loadError.title' })).toBeTruthy();
     expect(screen.getByText('loadError.description')).toBeTruthy();
@@ -32,7 +32,7 @@ describe('LoadError', () => {
 
   it('tries again when the user asks to', () => {
     const onRetry = vi.fn();
-    render(<LoadError reason='plans' onRetry={onRetry} />);
+    render(<LoadError reason='failed_to_load_plans' onRetry={onRetry} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'loadError.retry' }));
 
@@ -40,7 +40,7 @@ describe('LoadError', () => {
   });
 
   it('offers a way to reach support when retrying does not help', () => {
-    render(<LoadError reason='plans' onRetry={() => {}} />);
+    render(<LoadError reason='failed_to_load_plans' onRetry={() => {}} />);
 
     expect(screen.getByRole('button', { name: 'loadError.support' })).toBeTruthy();
   });
@@ -49,19 +49,19 @@ describe('LoadError', () => {
   // invisible: the screen replaced spinners nobody could measure either.
   describe('analytics', () => {
     it('reports once that the screen was shown, with what failed to load', () => {
-      const { rerender } = render(<LoadError reason='account' onRetry={() => {}} />);
-      rerender(<LoadError reason='account' onRetry={() => {}} />);
+      const { rerender } = render(<LoadError reason='could_not_get_account_data' onRetry={() => {}} />);
+      rerender(<LoadError reason='could_not_get_account_data' onRetry={() => {}} />);
 
       expect(phCapture).toHaveBeenCalledTimes(1);
-      expect(phCapture).toHaveBeenCalledWith('load_error_viewed', { reason: 'account' });
+      expect(phCapture).toHaveBeenCalledWith('load_error_viewed', { reason: 'could_not_get_account_data' });
     });
 
     it('reports a retry with what failed to load', () => {
-      render(<LoadError reason='plans' onRetry={() => {}} />);
+      render(<LoadError reason='failed_to_load_plans' onRetry={() => {}} />);
 
       fireEvent.click(screen.getByRole('button', { name: 'loadError.retry' }));
 
-      expect(phCapture).toHaveBeenLastCalledWith('load_error_retry_clicked', { reason: 'plans' });
+      expect(phCapture).toHaveBeenLastCalledWith('load_error_retry_clicked', { reason: 'failed_to_load_plans' });
     });
   });
 });

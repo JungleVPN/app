@@ -164,7 +164,7 @@ describe('ProfileLayout', () => {
 
       expect(await screen.findByRole('button', { name: 'retry' })).toBeTruthy();
       expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe(
-        'account',
+        'could_not_get_account_data',
       );
       expect(screen.queryByText('profile page')).toBeNull();
     });

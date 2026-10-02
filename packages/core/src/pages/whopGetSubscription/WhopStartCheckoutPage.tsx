@@ -75,7 +75,7 @@ export default function WhopStartCheckoutPage() {
   const price = promo && checkout.plan ? promoPrice(checkout.plan.planPricing, promo) : null;
 
   if (checkout.isLoading) return <Loading />;
-  if (checkout.loadFailed) return <LoadError reason='plans' onRetry={loadPlans} />;
+  if (checkout.loadFailed) return <LoadError reason='failed_to_load_plans' onRetry={loadPlans} />;
 
   const promoDiscount =
     price &&

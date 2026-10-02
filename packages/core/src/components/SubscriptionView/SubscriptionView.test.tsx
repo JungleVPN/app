@@ -41,9 +41,9 @@ describe('SubscriptionView', () => {
   });
 
   it.each([
-    ['ERR_FATCH_USER', 'subscription'],
-    ['ERR_GET_SUB_LINK', 'subscription_missing'],
-    ['ERR_PARSE_APPCONFIG', 'subscription_page_config'],
+    ['ERR_FATCH_USER', 'failed_to_fetch_subscription'],
+    ['ERR_GET_SUB_LINK', 'failed_to_fetch_subscription_link'],
+    ['ERR_PARSE_APPCONFIG', 'failed_to_fetch_subscription_page_config'],
   ] as const)('reports a %s failure as %s', (error, reason) => {
     render(<SubscriptionView shortUuid='sub-1' load={{ error, retry: vi.fn() }} />);
 
