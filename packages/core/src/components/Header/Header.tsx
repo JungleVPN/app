@@ -23,10 +23,10 @@ import { Link } from '../Link/Link';
 import { SubscriptionLinkWidget } from '../SubscriptionLinkWidget/SubscriptionLinkWidget';
 import { SupportButton } from '../SupportWidget/SupportButton';
 import { AuthButtons } from './AuthButtons';
+import { dropIn } from './dropIn';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileDrawer } from './MobileDrawer';
 import { OfferMenu } from './OfferMenu';
-import { dropIn } from './dropIn';
 import { ToolsMenu } from './ToolsMenu';
 
 const navItemClass =
@@ -124,7 +124,7 @@ export function Header() {
 
       {/* Desktop controls */}
       <div
-        className={`${isLanding ? 'hidden md:flex' : ''} flex items-center justify-between gap-2 ml-auto`}
+        className={`${isLanding ? 'hidden md:flex' : ''} flex items-center justify-between gap-2 ml-auto rtl:ml-0`}
       >
         {isProfile && <SubscriptionLinkWidget />}
         {!isLanding && <SupportButton />}

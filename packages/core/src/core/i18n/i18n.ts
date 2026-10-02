@@ -15,9 +15,10 @@ import id from './locales/id.json';
 import pt from './locales/pt.json';
 import ru from './locales/ru.json';
 import tr from './locales/tr.json';
+import ur from './locales/ur.json';
 
 export const DEFAULT_LOCALE = import.meta.env.PUBLIC_DEFAULT_LOCALE || 'en';
-export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'tr', 'id', 'hi', 'pt', 'es', 'fa'] as const;
+export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'tr', 'id', 'hi', 'pt', 'es', 'ur', 'fa'] as const;
 
 /** Persian reuses Arabic until a dedicated translation file exists. */
 const resources = {
@@ -29,6 +30,7 @@ const resources = {
   hi: { translation: hi },
   pt: { translation: pt },
   es: { translation: es },
+  ur: { translation: ur },
   fa: { translation: ar },
 } as const;
 

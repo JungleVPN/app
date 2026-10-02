@@ -16,6 +16,7 @@ export function buildLlmsTxt(origin: string, { ruOnly }: LlmsTxtOptions): string
         `- [Hindi](${origin}/hi): Hindi landing page`,
         `- [Portuguese](${origin}/pt): Portuguese landing page`,
         `- [Spanish](${origin}/es): Spanish landing page`,
+        `- [Urdu](${origin}/ur): Urdu landing page`,
       ];
 
   return [

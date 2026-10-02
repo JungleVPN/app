@@ -16,11 +16,6 @@ export function getWhopEnvironment(): 'sandbox' | 'production' {
   return value;
 }
 
-/**
- * The Whop checkout locale for an app language. Whop ships fewer languages
- * than the app, so any it lacks (ru, ar, hi, id) is shown in English rather
- * than left to Whop's own fallback.
- */
 export function toWhopLocale(language: string): WhopElementsLocale {
   const base = language.split('-')[0] ?? language;
   return WHOP_ELEMENTS_LOCALES.includes(base) ? base : 'en';

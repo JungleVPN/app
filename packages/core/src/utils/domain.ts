@@ -1,8 +1,3 @@
-/**
- * Which language a hostname is served in. The RU domains are Russian-only; every other
- * host falls back to the global languages (en, ar, tr, id, hi, pt, es).
- */
-
 import { normalizeHostname, parseDomains, scopeForOrigin, type UserScope } from '@workspace/types';
 import { useAuthStore, usePlatformStore } from '../stores';
 
@@ -29,7 +24,7 @@ export function resolveLocaleForHost(
 
 const RU_ONLY: readonly string[] = ['ru'];
 /** Languages a global host may serve. None besides English has a domain of its own. */
-const GLOBAL: readonly string[] = ['en', 'ar', 'tr', 'id', 'hi', 'pt', 'es'];
+const GLOBAL: readonly string[] = ['en', 'ar', 'tr', 'id', 'hi', 'pt', 'es', 'ur'];
 
 /**
  * The languages a host is allowed to serve, or `null` when the host is not one of the
@@ -123,7 +118,7 @@ const GLOBAL_PATH_LOCALES: readonly string[] = GLOBAL.filter((locale) => locale 
 
 /**
  * The landing-page paths that mirror a language in the URL: `/` and `/en` are
- * English, with dedicated paths for Arabic, Turkish, Indonesian, Hindi, Portuguese and Spanish. Shared by SSR
+ * English, with dedicated paths for Arabic, Turkish, Indonesian, Hindi, Portuguese, Spanish and Urdu. Shared by SSR
  * locale resolution, the header's landing-page layout check, and the language switcher's URL sync — see
  * resolveLocaleForRequest, Header.tsx, AuthButtons.tsx and LanguageSwitcher.tsx.
  */

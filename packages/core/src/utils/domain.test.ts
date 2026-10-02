@@ -130,6 +130,7 @@ describe('localePolicyForHost', () => {
       'hi',
       'pt',
       'es',
+      'ur',
     ]);
   });
 
@@ -146,6 +147,7 @@ describe('localePolicyForHost', () => {
       'hi',
       'pt',
       'es',
+      'ur',
     ]);
   });
 

@@ -107,10 +107,18 @@ const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
       'Protege tu conexión, navega de forma privada y mantén tu seguridad en redes Wi-Fi públicas, con una sola VPN para todos tus dispositivos.',
     ogLocale: 'es_ES',
   },
+  ur: {
+    locale: 'ur',
+    lang: 'ur',
+    title: 'JungleVPN — تیز اور محفوظ VPN',
+    description:
+      'اپنے کنکشن کو محفوظ رکھیں، نجی طور پر براؤز کریں اور عوامی وائی فائی پر محفوظ رہیں — اپنے تمام آلات کے لیے ایک ہی VPN کے ساتھ۔',
+    ogLocale: 'ur_PK',
+  },
 };
 
 /** Landing-page paths per language, for the SSR head's hreflang alternates. */
-const LANDING_PATH_BY_LOCALE: Record<'en' | 'ar' | 'tr' | 'id' | 'hi' | 'pt' | 'es', string> = {
+const LANDING_PATH_BY_LOCALE: Record<'en' | 'ar' | 'tr' | 'id' | 'hi' | 'pt' | 'es' | 'ur', string> = {
   en: '/en',
   ar: '/ar',
   tr: '/tr',
@@ -118,6 +126,7 @@ const LANDING_PATH_BY_LOCALE: Record<'en' | 'ar' | 'tr' | 'id' | 'hi' | 'pt' | '
   hi: '/hi',
   pt: '/pt',
   es: '/es',
+  ur: '/ur',
 };
 
 function resolveConfig(hostname: string, pathname: string): DomainConfig {

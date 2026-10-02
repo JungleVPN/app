@@ -44,6 +44,7 @@ describe('toWhopLocale', () => {
     'ar',
     'hi',
     'id',
+    'ur',
   ])('falls back to English for %s, which Whop does not ship', (language) => {
     expect(toWhopLocale(language)).toBe('en');
   });

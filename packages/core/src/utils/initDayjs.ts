@@ -19,6 +19,7 @@ import 'dayjs/locale/pl';
 import 'dayjs/locale/id';
 import 'dayjs/locale/tk';
 import 'dayjs/locale/th';
+import 'dayjs/locale/ur';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
