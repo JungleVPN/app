@@ -15,7 +15,8 @@ import { useConfirm } from './useConfirm';
 
 export default function ConfirmPage() {
   const { t } = useTranslation();
-  const { otp, timer, error, loading, setOtp, handleConfirm, handleResend } = useConfirm();
+  const { otp, timer, error, loading, setOtp, handleConfirm, handleComplete, handleResend } =
+    useConfirm();
 
   return (
     <Container maxWidth={'sm'}>
@@ -33,7 +34,15 @@ export default function ConfirmPage() {
 
               <div className='flex w-full max-w-xs flex-col gap-2'>
                 <Label className='sr-only'>{t('a11y.otpCode')}</Label>
-                <InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS} value={otp} onChange={setOtp}>
+                <InputOTP
+                  autoComplete='one-time-code'
+                  inputMode='numeric'
+                  maxLength={6}
+                  pattern={REGEXP_ONLY_DIGITS}
+                  value={otp}
+                  onChange={setOtp}
+                  onComplete={handleComplete}
+                >
                   <InputOTP.Group>
                     <InputOTP.Slot index={0} />
                     <InputOTP.Slot index={1} />
