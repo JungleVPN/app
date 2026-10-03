@@ -73,6 +73,34 @@ function sendMarkdown(res, { status, markdown, htmlPath }, hostname) {
 // redirect rather than maintain a second generated file.
 app.get('/llms-full.txt', (_req, res) => res.redirect(302, '/index.md'));
 
+app.get('/robots.txt', async (req, res) => {
+  try {
+    const { robotsTxt } = await loadServerModule();
+    res
+      .status(200)
+      .set({ 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=3600' })
+      .send(robotsTxt(req.hostname));
+  } catch (e) {
+    vite?.ssrFixStacktrace(e);
+    console.error(e.stack);
+    res.status(500).end();
+  }
+});
+
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const { sitemapXml } = await loadServerModule();
+    res
+      .status(200)
+      .set({ 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'public, max-age=3600' })
+      .send(sitemapXml(req.hostname));
+  } catch (e) {
+    vite?.ssrFixStacktrace(e);
+    console.error(e.stack);
+    res.status(500).end();
+  }
+});
+
 app.get('/llms.txt', async (req, res) => {
   try {
     const { llmsTxt } = await loadServerModule();

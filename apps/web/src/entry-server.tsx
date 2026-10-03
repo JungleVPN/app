@@ -10,12 +10,18 @@ import {
 } from '@workspace/core/pages';
 import { AppRoutesProvider, PaymentsApiProvider, SupabaseProvider } from '@workspace/core/runtime';
 import {
+  alternateLinksFor,
   buildLlmsTxt,
+  buildRobotsTxt,
+  buildSitemap,
+  buildStructuredData,
+  canonicalUrl,
   configuredDomains,
   isCrawlablePath,
-  isLandingPath,
+  isIndexablePath,
   localePolicyForHost,
   markdownPathFor,
+  pageSeoFor,
   resolveLocaleForRequest,
   setRequestHostname,
 } from '@workspace/core/utils';
@@ -117,37 +123,56 @@ const LOCALE_CONFIGS: Record<string, Omit<DomainConfig, 'Landing'>> = {
   },
 };
 
-/** Landing-page paths per language, for the SSR head's hreflang alternates. */
-const LANDING_PATH_BY_LOCALE: Record<'en' | 'ar' | 'tr' | 'id' | 'hi' | 'pt' | 'es' | 'ur', string> = {
-  en: '/en',
-  ar: '/ar',
-  tr: '/tr',
-  id: '/id',
-  hi: '/hi',
-  pt: '/pt',
-  es: '/es',
-  ur: '/ur',
-};
-
 function resolveConfig(hostname: string, pathname: string): DomainConfig {
   const localeKey = resolveLocaleForRequest(hostname, pathname, configuredDomains());
   const base = LOCALE_CONFIGS[localeKey] ?? LOCALE_CONFIGS['en']!;
   return { ...base, Landing: LandingPage };
 }
 
+const HTML_ESCAPES: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+};
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"]/g, (char) => HTML_ESCAPES[char] ?? char);
+}
+
+/** The page's own title and description when it has them, else its locale's default. */
+function resolvePageMeta(
+  config: DomainConfig,
+  pathname: string,
+): { title: string; description: string } {
+  return pageSeoFor(pathname, config.locale) ?? config;
+}
+
 /**
- * hreflang alternates for the global domain's landing languages, plus an x-default.
+ * hreflang alternates for pages that exist in several global languages, plus an x-default.
  * RU-only hosts don't offer global-language paths, so they get none of these.
  */
-function landingAlternateLinks(config: DomainConfig, hostname: string, pathname: string): string {
-  if (config.locale === 'ru' || !isLandingPath(pathname)) return '';
+function hreflangLinks(config: DomainConfig, hostname: string, pathname: string): string {
+  if (config.locale === 'ru') return '';
 
   const origin = `https://${hostname}`;
-  const links = (Object.entries(LANDING_PATH_BY_LOCALE) as [string, string][]).map(
-    ([lang, path]) => `<link rel="alternate" hreflang="${lang}" href="${origin}${path}">`,
-  );
-  links.push(`<link rel="alternate" hreflang="x-default" href="${origin}/">`);
-  return links.join('\n    ');
+  return alternateLinksFor(pathname)
+    .map(
+      ({ hreflang, path }) =>
+        `<link rel="alternate" hreflang="${hreflang}" href="${origin}${path}">`,
+    )
+    .join('\n    ');
+}
+
+/** Canonical link and JSON-LD for public pages; private and transactional pages get neither. */
+function indexableHead(hostname: string, pathname: string, title: string): string[] {
+  if (!isIndexablePath(pathname)) return [];
+
+  const origin = `https://${hostname}`;
+  return [
+    `<link rel="canonical" href="${canonicalUrl(origin, pathname)}">`,
+    `<script type="application/ld+json">${buildStructuredData(origin, { pathname, title })}</script>`,
+  ];
 }
 
 /** <link rel="alternate" type="text/markdown"> pointing crawlers at the page's Markdown mirror. */
@@ -177,6 +202,16 @@ function isRuOnlyHost(hostname: string): boolean {
 /** The /llms.txt body for the requesting host, omitting global locales on RU-only domains. */
 export function llmsTxt(hostname: string): string {
   return buildLlmsTxt(`https://${hostname}`, { ruOnly: isRuOnlyHost(hostname) });
+}
+
+/** The /sitemap.xml body for the requesting host, omitting global locales on RU-only domains. */
+export function sitemapXml(hostname: string): string {
+  return buildSitemap(`https://${hostname}`, { ruOnly: isRuOnlyHost(hostname) });
+}
+
+/** The /robots.txt body for the requesting host, naming that host's own sitemap. */
+export function robotsTxt(hostname: string): string {
+  return buildRobotsTxt(`https://${hostname}`);
 }
 
 const appRoutes = {
@@ -276,14 +311,26 @@ export async function render(request: Request, hostname: string) {
 
   const { html, config, pathname, status } = result;
 
+  const { title, description } = resolvePageMeta(config, pathname);
+  const safeTitle = escapeHtml(title);
+  const safeDescription = escapeHtml(description);
+  const pageUrl = canonicalUrl(`https://${hostname}`, pathname);
+
   const head = [
-    `<title>${config.title}</title>`,
-    `<meta name="description" content="${config.description}">`,
-    `<meta property="og:title" content="${config.title}">`,
-    `<meta property="og:description" content="${config.description}">`,
+    `<title>${safeTitle}</title>`,
+    `<meta name="description" content="${safeDescription}">`,
+    `<meta property="og:type" content="website">`,
+    `<meta property="og:site_name" content="JungleVPN">`,
+    `<meta property="og:url" content="${pageUrl}">`,
+    `<meta property="og:title" content="${safeTitle}">`,
+    `<meta property="og:description" content="${safeDescription}">`,
     `<meta property="og:locale" content="${config.ogLocale}">`,
+    `<meta name="twitter:card" content="summary">`,
+    `<meta name="twitter:title" content="${safeTitle}">`,
+    `<meta name="twitter:description" content="${safeDescription}">`,
     `<meta name="google-site-verification" content="${config.locale === 'ru' ? 'jHrpO_dMqnu6IiN8vkunSJldaq0n6RRePzH64f2ByVk' : 'Tth6c3fgzSXFLQHz2UJMhfsnr1yulyUhOLOMc50ULuI'}">`,
-    landingAlternateLinks(config, hostname, pathname),
+    ...indexableHead(hostname, pathname, title),
+    hreflangLinks(config, hostname, pathname),
     markdownAlternateLink(hostname, pathname),
   ]
     .filter(Boolean)
@@ -335,7 +382,7 @@ export async function renderMarkdown(request: Request, hostname: string) {
   const { html, config, status } = result;
   if (status >= 400) return { status };
 
-  const markdown = `# ${config.title}\n\n${htmlToMarkdown(html)}`;
+  const markdown = `# ${resolvePageMeta(config, basePath).title}\n\n${htmlToMarkdown(html)}`;
 
   return { status: 200 as const, markdown, htmlPath: basePath };
 }

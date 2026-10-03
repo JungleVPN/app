@@ -113,6 +113,9 @@ export function userScope(): UserScope {
   return useAuthStore.getState().userScope ?? currentScope();
 }
 
+/** Every language the global domain serves, English included. */
+export const GLOBAL_LOCALES: readonly string[] = GLOBAL;
+
 /** Non-English global languages that route as `/<lang>`. English is the unprefixed `/`. */
 const GLOBAL_PATH_LOCALES: readonly string[] = GLOBAL.filter((locale) => locale !== 'en');
 
@@ -219,8 +222,10 @@ export function isPlansOrPaymentPlanPath(pathname: string): boolean {
 export const CRAWLABLE_PATHS: ReadonlySet<string> = new Set([
   ...LANDING_PATHS,
   PRICING_PATH,
+  LOCATIONS_PATH,
   WHAT_IS_VPN_PATH,
   MY_IP_PATH,
+  REFERRALS_PATH,
   '/terms',
   '/privacy',
   '/cookies',

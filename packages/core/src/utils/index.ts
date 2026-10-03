@@ -100,6 +100,17 @@ export {
 } from './posthog';
 export { captureReferral, clearReferral, getReferral, getReferralUserId } from './referral';
 export { scrollToTop } from './scrollToTop';
+export {
+  alternateLinksFor,
+  buildRobotsTxt,
+  buildSitemap,
+  buildStructuredData,
+  canonicalUrl,
+  isIndexablePath,
+  type PageSeo,
+  pageSeoFor,
+  type SitemapOptions,
+} from './seo';
 export type { Storage } from './storage';
 export { createStorage } from './storage';
 export { TemplateEngine } from './templateEngine';
