@@ -16,8 +16,11 @@ import {
   ProtectedReferralsPage,
   ProtectedTransactionDetailsPage,
   ProtectedTransactionsPage,
+  SubscriptionFailPage,
+  SubscriptionSuccessPage,
 } from '@workspace/core/pages';
-import { createMemoryRouter } from 'react-router';
+import { createElement } from 'react';
+import { createMemoryRouter, Navigate } from 'react-router';
 import { TmaRootLayout } from '@/layouts/TmaRootLayout';
 
 /**
@@ -33,6 +36,10 @@ import { TmaRootLayout } from '@/layouts/TmaRootLayout';
  *   /privacy                  — privacy policy page
  *   /cookies                  — cookie policy page
  *   /affiliates               — public affiliate program page
+ *   /payment/success|fail     — YooKassa return pages: outside Telegram's mobile
+ *                               apps the provider's exit button reopens the
+ *                               mini app at this path
+ *   /pricing                  — the fail page's retry target, sent to the plans tab
  *
  * initialEntries: deep-links (e.g. tma.domain.com/profile/payments) are
  * respected by seeding the memory router with window.location.pathname.
@@ -113,6 +120,18 @@ export const router = createMemoryRouter(
         {
           path: 'affiliates',
           Component: AffiliatePage,
+        },
+        {
+          path: 'payment/success',
+          Component: SubscriptionSuccessPage,
+        },
+        {
+          path: 'payment/fail',
+          Component: SubscriptionFailPage,
+        },
+        {
+          path: 'pricing',
+          element: createElement(Navigate, { to: '/profile/plans', replace: true }),
         },
       ],
     },
