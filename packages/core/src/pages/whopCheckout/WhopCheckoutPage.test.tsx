@@ -389,6 +389,33 @@ describe('WhopCheckoutPage', () => {
       ).toBeTruthy();
     });
 
+    it('ignores wallets Whop ranks that we have no button for', async () => {
+      const createButton = vi.fn(() => {
+        const button = document.createElement('button');
+        button.setAttribute('aria-label', 'Google Pay');
+        return button;
+      });
+      vi.stubGlobal('google', {
+        payments: {
+          api: {
+            PaymentsClient: vi.fn(function PaymentsClient() {
+              return { createButton };
+            }),
+          },
+        },
+      });
+      walletSheet.canMakePayment.mockResolvedValue({
+        applePay: true,
+        googlePay: true,
+        paypalExpress: true,
+        order: ['google_pay', 'apple_pay', 'paypal_express'],
+      });
+      render(<WhopCheckoutPage />);
+
+      await applePay();
+      expect(await screen.findAllByRole('button', { name: 'Google Pay' })).toHaveLength(1);
+    });
+
     it("offers only the wallets the payer's device can pay with", async () => {
       render(<WhopCheckoutPage />);
 

@@ -30,8 +30,9 @@ function toMinorUnits({ amount, currency }: WhopCheckoutCharge): number {
  * Safari cuts off from the page, failing with OR_BIBED_15.
  */
 function availableWallets(availability: WalletAvailability): Wallet[] {
-  const isAvailable = (wallet: Wallet) =>
-    wallet === 'apple_pay' ? availability.applePay : availability.googlePay;
+  const isAvailable = (wallet: string): wallet is Wallet =>
+    (wallet === 'apple_pay' && availability.applePay) ||
+    (wallet === 'google_pay' && availability.googlePay);
   const ranked = (availability.order ?? ['apple_pay', 'google_pay']).filter(isAvailable);
   return availability.order?.[0] === 'apple_pay' && availability.applePay ? ['apple_pay'] : ranked;
 }
