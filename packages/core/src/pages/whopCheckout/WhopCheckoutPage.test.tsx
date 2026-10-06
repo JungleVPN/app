@@ -545,13 +545,20 @@ describe('WhopCheckoutPage', () => {
       });
 
       it('closes the drawer to say activation is delayed, still offering no wallet', async () => {
-        vi.useFakeTimers({ shouldAdvanceTime: true });
-        api.getPublicWhopPaymentStatus.mockResolvedValue({ paymentId: 'pay_1', fulfilled: false });
+        let releaseFirstPoll: () => void = () => {};
+        const firstPoll = new Promise<void>((resolve) => (releaseFirstPoll = resolve));
+        api.getPublicWhopPaymentStatus.mockImplementation(async () => {
+          await firstPoll;
+          return { paymentId: 'pay_1', fulfilled: false };
+        });
+        render(<WhopCheckoutPage />);
+        fireEvent.click(await applePay());
+        await processingDrawer();
 
+        // Only the webhook wait is fast-forwarded, so the drawer had real time to appear.
+        vi.useFakeTimers({ shouldAdvanceTime: true });
         try {
-          render(<WhopCheckoutPage />);
-          fireEvent.click(await applePay());
-          await processingDrawer();
+          releaseFirstPoll();
           await vi.advanceTimersByTimeAsync(120_000);
 
           await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
