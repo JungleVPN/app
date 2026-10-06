@@ -1,5 +1,6 @@
 import { Container, RootLayout, usePlatformStore } from '@workspace/core';
 import { SecondaryFooter } from '@workspace/core/components';
+import { useScrollToTopOnNavigate } from '@workspace/core/hooks';
 
 /**
  * Checkout shell: wider than WebRootLayout so the payment steps and the order
@@ -7,6 +8,7 @@ import { SecondaryFooter } from '@workspace/core/components';
  */
 export function WebPaymentLayout() {
   const { platformType } = usePlatformStore();
+  useScrollToTopOnNavigate();
 
   return (
     <div
