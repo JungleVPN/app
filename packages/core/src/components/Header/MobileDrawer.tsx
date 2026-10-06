@@ -35,7 +35,7 @@ export function MobileDrawer() {
         <IconMenu2 stroke={2} size={20} />
       </Button>
 
-      <Drawer.Backdrop variant='blur' isOpen={isOpen} onOpenChange={setIsOpen} className={'z-100'}>
+      <Drawer.Backdrop variant='blur' isOpen={isOpen} onOpenChange={setIsOpen} className={'z-50'}>
         <Drawer.Content placement={i18n.dir() === 'rtl' ? 'left' : 'right'}>
           <Drawer.Dialog>
             <Drawer.Header className='flex flex-row items-center justify-between'>

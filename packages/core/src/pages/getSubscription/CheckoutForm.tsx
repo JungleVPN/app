@@ -189,7 +189,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
 
                 <div className='flex flex-wrap items-center justify-between gap-4'>
                   <Button
-                    className={`${BRAND_GRADIENT} w-full rounded-full sm:w-auto sm:px-10`}
+                    className={`${BRAND_GRADIENT} w-full rounded-full`}
                     isDisabled={!canSubmit}
                     isPending={isPending}
                     type='submit'
