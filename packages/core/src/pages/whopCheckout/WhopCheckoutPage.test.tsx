@@ -98,6 +98,10 @@ vi.mock('@whop/elements-react', () => ({
 }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 vi.mock('react-router', () => ({ useLocation: () => location }));
+vi.mock('../../env', () => ({
+  coreEnv: { walletLoadingStickerFileId: 'processing-sticker' },
+  getTelegramStickerUrl: (fileId: string) => `sticker:${fileId}`,
+}));
 vi.mock('../../core/i18n', () => ({ i18n: { language: 'es' } }));
 vi.mock('../../hooks', () => ({
   useBackButton: () => {},
@@ -126,6 +130,7 @@ vi.mock('../../ui', () => ({
     </section>
   ),
   Paragraph: ({ children, ...props }: { children: ReactNode }) => <p {...props}>{children}</p>,
+  TgsSticker: ({ src }: { src: string }) => <div data-sticker={src} />,
 }));
 vi.mock('../../utils', async () => {
   const { checkoutEventProperties } = await import('../../utils/checkoutAnalytics');
@@ -154,12 +159,17 @@ const fillCard = () => {
   });
 };
 
-const renderFilledAndPay = async () => {
-  render(<WhopCheckoutPage />);
+/** Fills the card on the page already rendered and presses pay. */
+const fillCardAndPay = async () => {
   await screen.findByTestId('card-number');
   fillCard();
   await waitFor(() => expect(payButton().hasAttribute('disabled')).toBe(false));
   fireEvent.click(payButton());
+};
+
+const renderFilledAndPay = async () => {
+  render(<WhopCheckoutPage />);
+  await fillCardAndPay();
 };
 
 describe('WhopCheckoutPage', () => {
@@ -480,6 +490,105 @@ describe('WhopCheckoutPage', () => {
 
       expect((await screen.findByRole('alert')).textContent).toBe('Declined');
       expect(whop.payments.handleNextAction).toHaveBeenCalledWith({ clientSecret: 'sec_1' });
+    });
+
+    describe('while the wallet payment is processing', () => {
+      const processingDrawer = () =>
+        screen.findByRole('dialog', { name: 'whopCheckout.processing.title' });
+
+      const holdCharge = () => {
+        let settle: (value: unknown) => void = () => {};
+        api.payPublicWhopCheckout.mockReturnValue(new Promise((resolve) => (settle = resolve)));
+        return () => settle({ paymentId: 'pay_1', status: 'failed', clientSecret: null });
+      };
+
+      it('tells the payer in a drawer that it is processing, and offers no wallet to tap again', async () => {
+        holdCharge();
+        render(<WhopCheckoutPage />);
+
+        fireEvent.click(await applePay());
+
+        const drawer = await processingDrawer();
+        expect(drawer.textContent).toContain('whopCheckout.processing.description');
+        expect(drawer.querySelector('[data-sticker]')?.getAttribute('data-sticker')).toBe(
+          'sticker:processing-sticker',
+        );
+        expect(screen.queryByRole('button', { name: 'Apple Pay' })).toBeNull();
+      });
+
+      it('opens no drawer while the wallet sheet is still up', async () => {
+        walletSheet.show.mockReturnValue(new Promise(() => {}));
+        render(<WhopCheckoutPage />);
+
+        fireEvent.click(await applePay());
+
+        await waitFor(() => expect(walletSheet.show).toHaveBeenCalled());
+        expect(screen.queryByRole('dialog')).toBeNull();
+      });
+
+      it('locks the card form, so the payer cannot pay a second time by card', async () => {
+        holdCharge();
+        render(<WhopCheckoutPage />);
+        fireEvent.click(await applePay());
+        await processingDrawer();
+
+        // Behind the drawer the form is out of reach; locked even if it were not.
+        const lockedPayButton = screen.getByRole('button', {
+          name: 'whopCheckout.pay',
+          hidden: true,
+        });
+        fillCard();
+        fireEvent.click(lockedPayButton);
+
+        expect(lockedPayButton.hasAttribute('disabled')).toBe(true);
+        expect(payments.createConfirmationToken).not.toHaveBeenCalled();
+      });
+
+      it('closes the drawer to say activation is delayed, still offering no wallet', async () => {
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        api.getPublicWhopPaymentStatus.mockResolvedValue({ paymentId: 'pay_1', fulfilled: false });
+
+        try {
+          render(<WhopCheckoutPage />);
+          fireEvent.click(await applePay());
+          await processingDrawer();
+          await vi.advanceTimersByTimeAsync(120_000);
+
+          await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+          expect((await screen.findByRole('alert')).textContent).toBe(
+            'whopCheckout.errors.activation_delayed',
+          );
+          expect(screen.queryByRole('button', { name: 'Apple Pay' })).toBeNull();
+        } finally {
+          vi.useRealTimers();
+        }
+      });
+
+      it('offers the wallet again once the payment failed', async () => {
+        const fail = holdCharge();
+        render(<WhopCheckoutPage />);
+        fireEvent.click(await applePay());
+        await processingDrawer();
+
+        fail();
+
+        expect(await applePay()).toBeTruthy();
+        await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+        expect((await screen.findByRole('alert')).textContent).toBe(
+          'whopCheckout.errors.not_completed',
+        );
+      });
+    });
+
+    it('offers no wallet while the card is being charged', async () => {
+      api.payPublicWhopCheckout.mockReturnValue(new Promise(() => {}));
+      render(<WhopCheckoutPage />);
+      await applePay();
+
+      await fillCardAndPay();
+
+      await waitFor(() => expect(api.payPublicWhopCheckout).toHaveBeenCalled());
+      expect(screen.queryByRole('button', { name: 'Apple Pay' })).toBeNull();
     });
 
     it('charges nothing and stays quiet when the payer dismisses the sheet', async () => {

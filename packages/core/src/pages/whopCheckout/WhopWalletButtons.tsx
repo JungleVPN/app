@@ -3,7 +3,8 @@ import { useWhop, type WalletAvailability } from '@whop/elements-react';
 import { useEffect, useState } from 'react';
 import { i18n } from '../../core/i18n';
 import { Paragraph } from '../../ui';
-import { useWhopPay, WalletSheetError } from './useWhopPay';
+import { failureFor, WalletSheetError, type WhopPay } from './useWhopPay';
+import { WhopPaymentProcessingDrawer } from './WhopPaymentProcessingDrawer';
 import { ApplePayButton, GooglePayButton } from './walletButtons';
 import type { WhopCheckoutCharge, WhopCheckoutState } from './whopCheckoutState';
 import { getWhopEnvironment } from './whopEnv';
@@ -39,7 +40,7 @@ function availableWallets(availability: WalletAvailability): Wallet[] {
 
 interface WhopWalletButtonsProps {
   checkout: WhopCheckoutState;
-  returnUrl: string;
+  payment: WhopPay;
 }
 
 /**
@@ -49,10 +50,15 @@ interface WhopWalletButtonsProps {
  * so the sheet's token is charged through our backend like the card is.
  * Each wallet shows its vendor's own button, as their terms require.
  * Offers nothing when the total the payer was shown is unknown.
+ *
+ * Charging and waiting for our webhook can take a while after the sheet
+ * closes, so meanwhile a drawer says the payment is processing and no
+ * payment, by wallet or card, can start until this one settles.
  */
-export function WhopWalletButtons({ checkout, returnUrl }: WhopWalletButtonsProps) {
+export function WhopWalletButtons({ checkout, payment }: WhopWalletButtonsProps) {
   const whop = useWhop();
-  const { pay, error } = useWhopPay({ checkout, returnUrl });
+  const { pay, pendingVia, isCharging } = payment;
+  const error = failureFor(payment, 'wallet');
   const [sheet, setSheet] = useState<WalletSheet | null>(null);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const { accountId, charge, renews } = checkout;
@@ -88,21 +94,28 @@ export function WhopWalletButtons({ checkout, returnUrl }: WhopWalletButtonsProp
   const locale = i18n.language;
 
   const openSheet = (wallet: Wallet) =>
-    pay(() =>
-      sheet
-        .show(wallet, { email: checkout.request.email })
-        .then((result) => result.ctok)
-        .catch((caught: unknown) => {
-          if (caught instanceof Error && caught.message === SHEET_DISMISSED) return null;
-          console.error('Whop wallet sheet failed', caught);
-          throw new WalletSheetError();
-        }),
-    );
+    pay({
+      via: 'wallet',
+      tokenise: () =>
+        sheet
+          .show(wallet, { email: checkout.request.email })
+          .then((result) => result.ctok)
+          .catch((caught: unknown) => {
+            if (caught instanceof Error && caught.message === SHEET_DISMISSED) return null;
+            console.error('Whop wallet sheet failed', caught);
+            throw new WalletSheetError();
+          }),
+    });
+
+  const isLocked = pendingVia !== null;
 
   return (
     <div className='@container mb-4 flex w-full flex-col gap-3'>
-      {/* Side by side only while each button keeps Google Pay's 240px minimum: 2 × 240 + the 12px gap. */}
-      <div className='flex flex-col gap-3 @min-[492px]:flex-row @min-[492px]:*:flex-1'>
+      <div
+        aria-hidden={isLocked || undefined}
+        inert={isLocked}
+        className='flex flex-col gap-3 @min-[492px]:flex-row @min-[492px]:*:flex-1'
+      >
         {wallets.map((wallet) =>
           wallet === 'apple_pay' ? (
             <ApplePayButton key={wallet} locale={locale} onClick={() => openSheet(wallet)} />
@@ -116,6 +129,7 @@ export function WhopWalletButtons({ checkout, returnUrl }: WhopWalletButtonsProp
           ),
         )}
       </div>
+      <WhopPaymentProcessingDrawer isOpen={pendingVia === 'wallet' && isCharging} />
       {error && <Paragraph role='alert'>{error}</Paragraph>}
     </div>
   );

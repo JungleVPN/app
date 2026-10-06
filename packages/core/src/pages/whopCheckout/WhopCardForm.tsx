@@ -19,12 +19,12 @@ import {
   billingCountryOptions,
   preselectedBillingCountry,
 } from './billingCountry';
-import { CardTokenError, useWhopPay } from './useWhopPay';
+import { CardTokenError, failureFor, type WhopPay } from './useWhopPay';
 import type { WhopCheckoutState } from './whopCheckoutState';
 
 interface WhopCardFormProps {
   checkout: WhopCheckoutState;
-  returnUrl: string;
+  payment: WhopPay;
 }
 
 /** Matches Whop's hosted fields: a hairline at rest, a dark 2px edge and a light outer ring on focus. */
@@ -84,13 +84,15 @@ function CountryAutofill({
  * card, country, postal code), and our own pay button and messages — so every
  * word the payer reads comes from the app's translations.
  *
- * Pressing pay tokenises the card and charges it through `useWhopPay`.
+ * Pressing pay tokenises the card and charges it through `useWhopPay`; while
+ * any payment is in flight, a wallet's included, the pay button stays locked.
  */
-export function WhopCardForm({ checkout, returnUrl }: WhopCardFormProps) {
+export function WhopCardForm({ checkout, payment }: WhopCardFormProps) {
   const { t } = useTranslation();
   const payments = usePayments();
   const whop = useWhop();
-  const { pay, isPending, error } = useWhopPay({ checkout, returnUrl });
+  const { pay, pendingVia } = payment;
+  const error = failureFor(payment, 'card');
   const { open: openTerms } = useTermsStore();
   const ipStatus = useIpStatus(useRemnawaveApi());
 
@@ -102,6 +104,7 @@ export function WhopCardForm({ checkout, returnUrl }: WhopCardFormProps) {
   const [postalCode, setPostalCode] = useState('');
 
   const canPay =
+    pendingVia === null &&
     payments !== null &&
     whop !== null &&
     isCardComplete &&
@@ -127,7 +130,7 @@ export function WhopCardForm({ checkout, returnUrl }: WhopCardFormProps) {
 
   const handleSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
-    if (canPay) void pay(tokeniseCard);
+    if (canPay) void pay({ via: 'card', tokenise: tokeniseCard });
   };
 
   return (
@@ -209,7 +212,7 @@ export function WhopCardForm({ checkout, returnUrl }: WhopCardFormProps) {
       <Button
         className='w-full rounded-full bg-linear-to-r from-violet-500 to-amber-400'
         isDisabled={!canPay}
-        isPending={isPending}
+        isPending={pendingVia === 'card'}
         type='submit'
       >
         {({ isPending: isSubmitPending }) => (

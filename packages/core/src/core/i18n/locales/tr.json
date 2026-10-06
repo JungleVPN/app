@@ -1289,6 +1289,10 @@
     "country": "Ülke",
     "postal_code": "Posta kodu",
     "pay": "Öde",
+    "processing": {
+      "title": "Ödemeniz işleniyor",
+      "description": "Bu işlem bir dakika kadar sürebilir. Lütfen bu sayfayı kapatmayın ve tekrar ödeme yapmayın."
+    },
     "promo_code": "Promosyon kodu",
     "promo_apply": "Uygula",
     "promo_remove": "Promosyon kodunu kaldır",

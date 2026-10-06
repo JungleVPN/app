@@ -16,6 +16,8 @@ export const coreEnv = {
   promoCodeStickerFileId: (import.meta.env.PUBLIC_PROMO_CODE_STICKER_FILE_ID ?? '') as string,
   referralsStickerFileId: (import.meta.env.PUBLIC_REFERRALS_STICKER_FILE_ID ?? '') as string,
   affiliateStickerFileId: (import.meta.env.PUBLIC_AFFILIATE_STICKER_FILE_ID ?? '') as string,
+  walletLoadingStickerFileId: (import.meta.env.PUBLIC_WALLET_LOADING_STICKER_FILE_ID ??
+    '') as string,
 
   tmaAppUrl: (import.meta.env.PUBLIC_TMA_APP_URL ?? '') as string,
   webAppUrl: (import.meta.env.PUBLIC_WEB_APP_URL ?? '') as string,

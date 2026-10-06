@@ -9,10 +9,35 @@ import { useAppRoutes } from '../../runtime';
 import { useNavbarStore } from '../../stores';
 import { Page } from '../../ui';
 import { checkoutEventProperties, PRICING_PATH, phCapture } from '../../utils';
+import { useWhopPay } from './useWhopPay';
 import { WhopCardForm } from './WhopCardForm';
 import { WhopWalletButtons } from './WhopWalletButtons';
-import { isWhopCheckoutState } from './whopCheckoutState';
+import { isWhopCheckoutState, type WhopCheckoutState } from './whopCheckoutState';
 import { getWhopEnvironment, toWhopLocale } from './whopEnv';
+
+/**
+ * The wallets and the card form, sharing one payment in flight: while either
+ * is charging, neither can start another, so the payer cannot pay twice.
+ */
+function WhopPaymentMethods({
+  checkout,
+  returnUrl,
+}: {
+  checkout: WhopCheckoutState;
+  returnUrl: string;
+}) {
+  const payment = useWhopPay({ checkout, returnUrl });
+
+  return (
+    <>
+      <WhopWalletButtons checkout={checkout} payment={payment} />
+      <Payments accountId={checkout.accountId} plan={checkout.whopPlanId} returnUrl={returnUrl}>
+        <WhopCardForm checkout={checkout} payment={payment} />
+        <BrandingElement />
+      </Payments>
+    </>
+  );
+}
 
 interface WhopCheckoutPageProps {
   fallbackPath?: string;
@@ -70,11 +95,7 @@ export default function WhopCheckoutPage({ fallbackPath }: WhopCheckoutPageProps
           environment={getWhopEnvironment()}
           locale={toWhopLocale(i18n.language)}
         >
-          <WhopWalletButtons checkout={checkout} returnUrl={returnUrl} />
-          <Payments accountId={checkout.accountId} plan={checkout.whopPlanId} returnUrl={returnUrl}>
-            <WhopCardForm checkout={checkout} returnUrl={returnUrl} />
-            <BrandingElement />
-          </Payments>
+          <WhopPaymentMethods checkout={checkout} returnUrl={returnUrl} />
         </WhopElements>
       )}
     </Page>

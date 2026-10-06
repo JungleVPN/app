@@ -1289,6 +1289,10 @@
     "country": "Negara",
     "postal_code": "Kode pos",
     "pay": "Bayar",
+    "processing": {
+      "title": "Memproses pembayaran Anda",
+      "description": "Ini bisa memakan waktu hingga satu menit. Jangan tutup halaman ini atau membayar lagi."
+    },
     "promo_code": "Kode promo",
     "promo_apply": "Terapkan",
     "promo_remove": "Hapus kode promo",

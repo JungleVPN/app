@@ -1289,6 +1289,10 @@
     "country": "País",
     "postal_code": "Código postal",
     "pay": "Pagar",
+    "processing": {
+      "title": "Procesando tu pago",
+      "description": "Puede tardar hasta un minuto. No cierres esta página ni vuelvas a pagar."
+    },
     "promo_code": "Código promocional",
     "promo_apply": "Aplicar",
     "promo_remove": "Quitar código promocional",

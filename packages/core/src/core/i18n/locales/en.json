@@ -1289,6 +1289,10 @@
     "country": "Country",
     "postal_code": "Postal code",
     "pay": "Pay",
+    "processing": {
+      "title": "Processing your payment",
+      "description": "This can take up to a minute. Please don't close this page or pay again."
+    },
     "promo_code": "Promo code",
     "promo_apply": "Apply",
     "promo_remove": "Remove promo code",

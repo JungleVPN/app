@@ -1,6 +1,6 @@
 import { useWhop } from '@whop/elements-react';
 import type { WhopPaymentStatusDto } from '@workspace/types';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
@@ -43,6 +43,9 @@ function payErrorKey(caught: unknown): string {
  */
 export type Tokenise = () => Promise<string | null>;
 
+/** Where the payer paid from, so only that place shows the progress and any failure. */
+export type PayVia = 'card' | 'wallet';
+
 /**
  * Charges a confirmation token through our backend — which re-validates the
  * checkout, charges it under the email the payer entered, and stamps the
@@ -62,8 +65,12 @@ export function useWhopPay({
   const paymentsApi = usePaymentsApi();
   const navigate = useNavigation();
   const { paymentReturnPath } = useAppRoutes();
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [pendingVia, setPendingVia] = useState<PayVia | null>(null);
+  // Past tokenising: the wallet sheet has closed and the payer is waiting on us.
+  const [isCharging, setIsCharging] = useState(false);
+  const [failure, setFailure] = useState<{ via: PayVia; message: string } | null>(null);
+  // State lags a render behind; a second tap in the same frame must still see the lock.
+  const isLocked = useRef(false);
   const analytics = checkoutEventProperties({
     paymentProvider: 'whop',
     days: checkout.selectedPeriod,
@@ -117,17 +124,23 @@ export function useWhopPay({
     return null;
   };
 
-  /** Runs `tokenise` before anything else awaits, so a wallet sheet opens within the tap. */
-  const pay = async (tokenise: Tokenise): Promise<void> => {
-    if (isPending) return;
-    setIsPending(true);
-    setError(null);
+  /**
+   * Runs `tokenise` before anything else awaits, so a wallet sheet opens within
+   * the tap. One payment at a time across the card and every wallet.
+   */
+  const pay = async ({ via, tokenise }: { via: PayVia; tokenise: Tokenise }): Promise<void> => {
+    if (isLocked.current) return;
+    isLocked.current = true;
+    setPendingVia(via);
+    setFailure(null);
+    const fail = (message: string) => setFailure({ via, message });
     // Once charged, the form stays locked even if the webhook is late, so the payer cannot pay twice.
     let charged = false;
     try {
       const confirmationToken = await tokenise();
       if (!confirmationToken) return;
       phCapture('payment_submitted', analytics);
+      setIsCharging(true);
       const outcome = await charge(confirmationToken);
       if (outcome && 'paid' in outcome) {
         charged = true;
@@ -139,20 +152,32 @@ export function useWhopPay({
           navigate(paymentReturnPath, { replace: true });
           return;
         }
-        setError(t('whopCheckout.errors.activation_delayed'));
+        setIsCharging(false);
+        fail(t('whopCheckout.errors.activation_delayed'));
         return;
       }
       if (outcome) {
         forgetPendingPurchase();
-        setError(outcome.error);
+        fail(outcome.error);
       }
     } catch (caught) {
       forgetPendingPurchase();
-      setError(t(payErrorKey(caught)));
+      fail(t(payErrorKey(caught)));
     } finally {
-      if (!charged) setIsPending(false);
+      if (!charged) {
+        isLocked.current = false;
+        setPendingVia(null);
+        setIsCharging(false);
+      }
     }
   };
 
-  return { pay, isPending, error };
+  return { pay, pendingVia, isCharging, failure };
+}
+
+export type WhopPay = ReturnType<typeof useWhopPay>;
+
+/** The failure to show where the payer paid from `via`, if that is where it happened. */
+export function failureFor({ failure }: WhopPay, via: PayVia): string | null {
+  return failure?.via === via ? failure.message : null;
 }
