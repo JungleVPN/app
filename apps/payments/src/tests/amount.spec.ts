@@ -74,6 +74,7 @@ describe('amount config', () => {
     it.each([
       ['INR', 2669, '219'],
       ['IDR', 485500, '39904'],
+      ['PKR', 8399, '690'],
     ])('quotes %s in whole units, as its prices are set', (currency, total, monthly) => {
       const pricing = buildPricing({ currency, days: 365, total, basePrice: null });
 

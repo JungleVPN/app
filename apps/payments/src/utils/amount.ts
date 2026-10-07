@@ -10,6 +10,7 @@ const DISPLAY_DECIMALS: Record<string, number> = {
   CLP: 0,
   INR: 0,
   IDR: 0,
+  PKR: 0,
 };
 
 /**

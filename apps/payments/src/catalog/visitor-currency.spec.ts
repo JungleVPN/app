@@ -44,6 +44,7 @@ describe('currencyForCountry', () => {
     ['ID', 'IDR'],
     ['BR', 'BRL'],
     ['TR', 'TRY'],
+    ['PK', 'PKR'],
   ])('prices %s in %s', (country, currency) => {
     expect(currencyForCountry(country)).toBe(currency);
   });

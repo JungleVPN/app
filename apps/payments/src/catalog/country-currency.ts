@@ -42,6 +42,7 @@ const COUNTRY_CURRENCY: ReadonlyMap<string, string> = new Map([
   ['ID', 'IDR'],
   ['BR', 'BRL'],
   ['TR', 'TRY'],
+  ['PK', 'PKR'],
 ]);
 
 /** The currency a visitor from `countryCode` is priced in, or null when unmapped. */
