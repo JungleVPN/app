@@ -4,7 +4,7 @@
  * replaces the plan's own discount: the plan price is crossed out and the
  * promo's saving is the one chip shown.
  */
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { PlanPricing, SubscriptionPlanDto } from '@workspace/types';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -29,6 +29,7 @@ vi.mock('../../ui', () => ({
   Paragraph: ({ children }: { children: ReactNode }) => <p>{children}</p>,
 }));
 vi.mock('../../utils', () => ({
+  cn: (...classes: unknown[]) => classes.filter(Boolean).join(' '),
   formatPlanPrice: (_pricing: PlanPricing, amount: string) => `$${amount}`,
   scrollToTop: () => {},
 }));
@@ -61,6 +62,7 @@ const renderForm = (props: Partial<Parameters<typeof CheckoutForm>[0]> = {}) =>
       selectedPeriod={30}
       plan={plan()}
       canSubmit
+      validateEmail={() => true}
       handleSubmit={() => {}}
       handleEmailChange={() => {}}
       {...props}
@@ -119,5 +121,63 @@ describe('CheckoutForm tax note', () => {
     renderForm();
 
     expect(screen.queryByText('getSubscription.tax_included_note')).toBeNull();
+  });
+});
+
+describe('CheckoutForm steps', () => {
+  const next = () => fireEvent.click(screen.getByRole('button', { name: 'common.next' }));
+
+  it('shows only the email block to a visitor at first', () => {
+    renderForm({ isAuthenticated: false, paymentMethodsSlot: <p>methods</p> });
+
+    expect(screen.getByPlaceholderText('getSubscription.email_placeholder')).toBeTruthy();
+    expect(screen.queryByText('methods')).toBeNull();
+    expect(screen.queryByText('getSubscription.order_title')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'common.back' })).toBeNull();
+  });
+
+  it('moves a visitor to the payment methods once the email is valid', async () => {
+    renderForm({ isAuthenticated: false, paymentMethodsSlot: <p>methods</p> });
+
+    next();
+
+    expect(await screen.findByText('methods')).toBeTruthy();
+    expect(screen.getByText('getSubscription.order_title')).toBeTruthy();
+  });
+
+  it('keeps a visitor on the email step while the email is invalid', async () => {
+    const validateEmail = vi.fn(() => false);
+    renderForm({ isAuthenticated: false, validateEmail, paymentMethodsSlot: <p>methods</p> });
+
+    next();
+
+    await waitFor(() => expect(validateEmail).toHaveBeenCalledTimes(1));
+    expect(screen.queryByText('methods')).toBeNull();
+  });
+
+  it('lets a visitor go back to the email step', async () => {
+    renderForm({ isAuthenticated: false });
+    next();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'common.back' }));
+
+    expect(await screen.findByPlaceholderText('getSubscription.email_placeholder')).toBeTruthy();
+  });
+
+  it('shows a signed-in payer the payment methods first, with no email step or Back', () => {
+    renderForm({ isAuthenticated: true, paymentMethodsSlot: <p>methods</p> });
+
+    expect(screen.getByText('methods')).toBeTruthy();
+    expect(screen.queryByPlaceholderText('getSubscription.email_placeholder')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'common.back' })).toBeNull();
+  });
+
+  it('starts the checkout from the payment step', () => {
+    const handleSubmit = vi.fn();
+    renderForm({ isAuthenticated: true, handleSubmit });
+
+    fireEvent.click(screen.getByRole('button', { name: 'getSubscription.submit' }));
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
   });
 });

@@ -14,7 +14,7 @@ export type StepperNavigation = {
   isValidating: boolean;
   goNext: () => Promise<void>;
   goPrevious: () => void;
-  /** Going back is always allowed; going forward needs the current step to validate. */
+  /** Going back is always allowed; going forward — or pressing Next on the last step — needs the current step to validate. */
   goTo: (step: number) => Promise<void>;
 };
 
@@ -29,8 +29,10 @@ export function useStepperNavigation({
 
   const goTo = async (step: number) => {
     const target = Math.min(Math.max(step, 0), lastStep);
-    if (target === currentStep || isValidating) return;
-    if (target < currentStep || !validateStep) return setCurrentStep(target);
+    if (isValidating) return;
+    if (target < currentStep) return setCurrentStep(target);
+    if (target === currentStep && currentStep !== lastStep) return;
+    if (!validateStep) return setCurrentStep(target);
 
     setIsValidating(true);
     try {

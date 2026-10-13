@@ -110,6 +110,7 @@ export default function WhopStartCheckoutPage() {
         paymentMethodsSlot={<WhopPaymentTabs />}
         promoDiscount={promoDiscount ?? undefined}
         taxNote={t('getSubscription.tax_included_note')}
+        validateEmail={checkout.validateEmail}
         handleSubmit={checkout.handleSubmit}
         handleEmailChange={checkout.handleEmailChange}
       />

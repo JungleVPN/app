@@ -57,6 +57,7 @@ export default function PaddleStartCheckoutPage() {
         selectedPeriod={checkout.selectedPeriod}
         plan={checkout.plan}
         canSubmit={checkout.plan !== undefined}
+        validateEmail={checkout.validateEmail}
         handleSubmit={checkout.handleSubmit}
         handleEmailChange={checkout.handleEmailChange}
       />

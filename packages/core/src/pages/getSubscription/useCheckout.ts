@@ -1,5 +1,5 @@
 import type { SubscriptionPlanDto } from '@workspace/types';
-import { type SyntheticEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { usePlans } from '../../hooks';
@@ -40,7 +40,9 @@ export interface Checkout {
   /** The email whose account already subscribes — also the dialog's open state. */
   activeSubscriptionEmail: string | null;
   handleEmailChange: (value: string) => void;
-  handleSubmit: (event: SyntheticEvent) => Promise<void>;
+  /** Checks the payer's email, showing the reason when it is missing or malformed. */
+  validateEmail: () => boolean;
+  handleSubmit: () => Promise<void>;
   dismissActiveSubscription: () => void;
 }
 
@@ -81,20 +83,22 @@ export function useCheckout(startCheckout: (request: CheckoutRequest) => Promise
     if (emailError) setEmailError('');
   };
 
-  const handleSubmit = async (event: SyntheticEvent) => {
-    event.preventDefault();
+  const payerEmail = authUser?.email ?? email;
 
-    const payerEmail = authUser?.email ?? email;
-
+  const checkEmail = (): boolean => {
     if (!payerEmail.trim()) {
       setEmailError(t(EMPTY_EMAIL_ERROR));
-      return;
+      return false;
     }
     if (!validateEmail(payerEmail)) {
       setEmailError(t(INVALID_EMAIL_ERROR));
-      return;
+      return false;
     }
-    if (!plan) return;
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    if (!checkEmail() || !plan) return;
 
     setIsPending(true);
     setCheckoutError(null);
@@ -124,6 +128,7 @@ export function useCheckout(startCheckout: (request: CheckoutRequest) => Promise
     isPending,
     activeSubscriptionEmail,
     handleEmailChange,
+    validateEmail: checkEmail,
     handleSubmit,
     dismissActiveSubscription: () => {
       setEmail('');

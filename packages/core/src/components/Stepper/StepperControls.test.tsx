@@ -38,15 +38,45 @@ describe('StepperControls', () => {
     await waitFor(() => expect(activeTitle()).toBe('Account'));
   });
 
-  it('cannot go back from the first step or forward from the last', async () => {
+  it('shows no Back button on the first step', async () => {
     render(<Wizard />);
 
-    expect(screen.getByRole('button', { name: 'Back' }).hasAttribute('disabled')).toBe(true);
+    expect(screen.queryByRole('button', { name: 'Back' })).toBeNull();
+    next();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Back' })).toBeDefined());
+  });
+
+  it('stays on the last step when Next is pressed there', async () => {
+    render(<Wizard />);
     next();
     await waitFor(() => expect(activeTitle()).toBe('Payment'));
     next();
     await waitFor(() => expect(activeTitle()).toBe('Done'));
-    expect(screen.getByRole('button', { name: 'Next' }).hasAttribute('disabled')).toBe(true);
+
+    next();
+
+    await Promise.resolve();
+    expect(activeTitle()).toBe('Done');
+  });
+
+  it('validates the last step when Next is pressed there', async () => {
+    const checked: number[] = [];
+    render(
+      <Wizard
+        validateStep={(step) => {
+          checked.push(step);
+          return true;
+        }}
+      />,
+    );
+    next();
+    await waitFor(() => expect(activeTitle()).toBe('Payment'));
+    next();
+    await waitFor(() => expect(activeTitle()).toBe('Done'));
+
+    next();
+
+    await waitFor(() => expect(checked).toEqual([0, 1, 2]));
   });
 
   it('stays put when the current step fails validation', async () => {
