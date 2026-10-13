@@ -1239,7 +1239,7 @@
     "connect": "Connect"
   },
   "getSubscription": {
-    "step_email_title": "Enter the email for your account",
+    "step_email_title": "Account",
     "email_placeholder": "email@example.com",
     "email_description": "Needed to manage your subscription",
     "email_hint_label": "Why we need your email",
@@ -1250,9 +1250,11 @@
     "throttled_error": "Too many attempts. Please wait a few minutes and try again.",
     "active_subscription_error": "You already have an active subscription on this email. Manage it from your profile.",
     "terms_link": "Subscription terms",
-    "step_payment_title": "Select a payment method",
+    "step_payment_title": "Payment",
     "card_method": "Credit or debit card",
     "card_tab": "Card",
+    "payment_method_label": "Payment method",
+    "have_promo": "Have promo?",
     "terms_agreement": "By purchasing, you agree to the terms of service, auto-renewal terms, to receive electronic documents, and acknowledge our privacy policy. <1>Learn more</1>",
     "submit": "Proceed to payment",
     "order_title": "Your order",

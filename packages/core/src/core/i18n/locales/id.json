@@ -1239,7 +1239,7 @@
     "connect": "Sambungkan"
   },
   "getSubscription": {
-    "step_email_title": "Masukkan alamat email untuk akun JungleVPN Anda",
+    "step_email_title": "Akun",
     "email_placeholder": "email@example.com",
     "email_description": "Diperlukan untuk mengelola langganan Anda",
     "email_hint_label": "Mengapa kami membutuhkan alamat email Anda",
@@ -1250,9 +1250,11 @@
     "throttled_error": "Terlalu banyak upaya. Silakan tunggu beberapa menit dan coba lagi.",
     "active_subscription_error": "Anda sudah memiliki langganan aktif pada alamat email ini. Kelola langganan tersebut dari profil Anda.",
     "terms_link": "Ketentuan langganan",
-    "step_payment_title": "Pilih metode pembayaran",
+    "step_payment_title": "Pembayaran",
     "card_method": "Kartu kredit atau debit",
     "card_tab": "Kartu",
+    "payment_method_label": "Metode pembayaran",
+    "have_promo": "Punya kode promo?",
     "terms_agreement": "Dengan membeli, Anda menyetujui ketentuan layanan, ketentuan perpanjangan otomatis, dan menerima dokumen elektronik, serta mengakui kebijakan privasi kami. <1>Pelajari lebih lanjut</1>",
     "submit": "Lanjutkan ke pembayaran",
     "order_title": "Pesanan Anda",

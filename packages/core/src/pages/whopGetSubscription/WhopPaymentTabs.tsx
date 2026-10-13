@@ -29,7 +29,6 @@ interface WhopPaymentTabsProps {
 /** The payment methods to choose from; the submit button acts on the selected one. */
 export function WhopPaymentTabs({ wallets, selected, cardPanel, onSelect }: WhopPaymentTabsProps) {
   const { t } = useTranslation();
-  console.log(wallets);
   const tabs: PaymentTab[] = [
     ...wallets.map((wallet) => ({ id: wallet, icon: WALLET_ICONS[wallet] })),
     {
@@ -46,7 +45,7 @@ export function WhopPaymentTabs({ wallets, selected, cardPanel, onSelect }: Whop
       onSelectionChange={(key) => onSelect(key as PaymentMethod)}
     >
       <Tabs.ListContainer>
-        <Tabs.List aria-label='Payment method'>
+        <Tabs.List aria-label={t('getSubscription.payment_method_label')} className={'rounded-4xl'}>
           {tabs.map(({ id, label, icon }) => (
             <Tabs.Tab key={id} id={id} className='flex items-center justify-center gap-2 py-5'>
               {icon}

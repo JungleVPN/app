@@ -31,7 +31,6 @@ export function CheckoutOrderSummary({
   plan,
   promoCodeSlot,
   promoDiscount,
-  taxNote,
 }: CheckoutOrderSummaryProps) {
   const { t } = useTranslation();
   const [havePromo, setHavePromo] = useState(false);
@@ -78,23 +77,26 @@ export function CheckoutOrderSummary({
                   })}
                 </Paragraph>
               </div>
-              <div className='flex shrink-0 items-baseline gap-2'>
-                {crossedOutPrice && (
-                  <span className='text-sm text-muted line-through'>{format(crossedOutPrice)}</span>
+              <div className={'flex flex-col items-end gap-1'}>
+                <div className='flex shrink-0 items-baseline gap-2'>
+                  {crossedOutPrice && (
+                    <span className='text-sm text-muted line-through'>
+                      {format(crossedOutPrice)}
+                    </span>
+                  )}
+                  <span className='text-base font-semibold'>
+                    {format(promoDiscount?.total ?? pricing.total)}
+                  </span>
+                </div>
+                {discountLabel && (
+                  <Chip size='sm' className={`w-fit border-none text-[white] ${BRAND_GRADIENT}`}>
+                    <Chip.Label>{discountLabel}</Chip.Label>
+                  </Chip>
                 )}
-                <span className='text-base font-semibold'>
-                  {format(promoDiscount?.total ?? pricing.total)}
-                </span>
               </div>
             </div>
 
-            {discountLabel && (
-              <Chip size='sm' className={`w-fit border-none text-[white] ${BRAND_GRADIENT}`}>
-                <Chip.Label>{discountLabel}</Chip.Label>
-              </Chip>
-            )}
-
-            {taxNote && <Paragraph className='text-muted'>{taxNote}</Paragraph>}
+            {/*{taxNote && <Paragraph className='text-muted'>{taxNote}</Paragraph>}*/}
 
             {havePromo ? (
               promoCodeSlot
@@ -103,7 +105,7 @@ export function CheckoutOrderSummary({
                 onClick={() => setHavePromo(true)}
                 className={'hover:underline cursor-pointer text-sm lg:text-sm'}
               >
-                Have promo?
+                {t('getSubscription.have_promo')}
               </Paragraph>
             )}
           </div>

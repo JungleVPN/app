@@ -1239,7 +1239,7 @@
     "connect": "Conéctate"
   },
   "getSubscription": {
-    "step_email_title": "Introduce el correo electrónico de tu cuenta de JungleVPN",
+    "step_email_title": "Cuenta",
     "email_placeholder": "email@example.com",
     "email_description": "Necesario para gestionar tu suscripción",
     "email_hint_label": "Por qué necesitamos tu correo electrónico",
@@ -1250,9 +1250,11 @@
     "throttled_error": "Demasiados intentos. Espera unos minutos y vuelve a intentarlo.",
     "active_subscription_error": "Ya tienes una suscripción activa con esta dirección de correo electrónico. Gánala desde tu perfil.",
     "terms_link": "Condiciones de la suscripción",
-    "step_payment_title": "Selecciona una forma de pago",
+    "step_payment_title": "Pago",
     "card_method": "Tarjeta de crédito o débito",
     "card_tab": "Tarjeta",
+    "payment_method_label": "Método de pago",
+    "have_promo": "¿Tienes un código promocional?",
     "terms_agreement": "Al comprar, aceptas los términos del servicio, las condiciones de renovación automática y recibir documentos electrónicos, y reconoces nuestra política de privacidad. <1>Más información</1>",
     "submit": "Proceder al pago",
     "order_title": "Tu pedido",

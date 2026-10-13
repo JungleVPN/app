@@ -1239,7 +1239,7 @@
     "connect": "Bağlan"
   },
   "getSubscription": {
-    "step_email_title": "JungleVPN hesabınızın e-posta adresini girin",
+    "step_email_title": "Hesap",
     "email_placeholder": "email@example.com",
     "email_description": "Aboneliğinizi yönetmek için gereklidir",
     "email_hint_label": "E-postanıza neden ihtiyacımız var?",
@@ -1250,9 +1250,11 @@
     "throttled_error": "Çok fazla deneme yapıldı. Lütfen birkaç dakika bekleyip tekrar deneyin.",
     "active_subscription_error": "Bu e-posta adresinde zaten aktif bir aboneliğiniz var. Profilinizden yönetebilirsiniz.",
     "terms_link": "Abonelik koşulları",
-    "step_payment_title": "Bir ödeme yöntemi seçin",
+    "step_payment_title": "Ödeme",
     "card_method": "Kredi veya banka kartı",
     "card_tab": "Kart",
+    "payment_method_label": "Ödeme yöntemi",
+    "have_promo": "Promosyon kodunuz var mı?",
     "terms_agreement": "Satın alarak hizmet şartlarını, otomatik yenileme koşullarını ve elektronik belgeleri almayı kabul eder, gizlilik politikamızı okuduğunuzu onaylarsınız. <1>Daha fazla bilgi</1>",
     "submit": "Ödemeye devam et",
     "order_title": "Siparişiniz",

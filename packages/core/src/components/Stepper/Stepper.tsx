@@ -94,7 +94,7 @@ function StepperRoot({
         className={cn(
           'flex w-full',
           orientation === 'horizontal'
-            ? 'flex-row items-start'
+            ? 'flex-row items-start justify-center gap-4'
             : cn('flex-col', VERTICAL_GAP[size]),
           className,
         )}
@@ -124,8 +124,8 @@ function StepperStep({ className, children, ...props }: LiHTMLAttributes<HTMLLIE
   const body = (
     <span
       className={cn(
-        'flex items-center gap-3 text-start',
-        isHorizontal ? 'flex-row' : 'flex-col items-start',
+        'flex items-center gap-3 text-center',
+        isHorizontal ? 'flex-row' : 'flex-col items-center',
       )}
     >
       {children}
@@ -138,7 +138,7 @@ function StepperStep({ className, children, ...props }: LiHTMLAttributes<HTMLLIE
       aria-current={status === 'active' ? 'step' : undefined}
       className={cn(
         'relative flex',
-        isHorizontal ? 'flex-1 items-center gap-3 last:flex-none' : 'flex-col',
+        isHorizontal ? 'items-center gap-3 last:flex-none' : 'flex-col',
         className,
       )}
       {...props}

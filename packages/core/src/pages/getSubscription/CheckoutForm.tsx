@@ -2,7 +2,6 @@ import type { SubscriptionPlanDto } from '@workspace/types';
 import { type ReactNode, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stepper, useStepperNavigation } from '../../components';
-import { Grid, GridItem } from '../../ui';
 import { scrollToTop } from '../../utils';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
 import { CheckoutEmailStep } from './CheckoutEmailStep';
@@ -41,8 +40,6 @@ interface CheckoutFormProps {
   handleEmailChange: (value: string) => void;
 }
 
-const HALF_WIDTH = { base: 12, sm: 12, md: 12, lg: 6 } as const;
-
 /**
  * The global checkout page's markup, shared by every payment provider. A
  * visitor goes through two steps: their email, which must pass validation
@@ -78,31 +75,29 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
         </Stepper>
       )}
 
-      <Grid className='gap-6'>
-        <GridItem size={HALF_WIDTH}>
-          {isEmailStep ? (
+      <div className='gap-6 flex flex-col md:flex-row max-w-lg md:max-w-7xl m-auto w-full'>
+        {isEmailStep ? (
+          <div className={'max-w-lg m-auto w-full'}>
             <CheckoutEmailStep
               {...props}
               handleNext={steps.goNext}
               isPending={steps.isValidating}
             />
-          ) : (
-            <CheckoutPaymentStep {...props} isLoading={props.isPaymentLoading} />
-          )}
-        </GridItem>
+          </div>
+        ) : (
+          <CheckoutPaymentStep {...props} isLoading={props.isPaymentLoading} />
+        )}
 
         {!isEmailStep && (
-          <GridItem size={HALF_WIDTH}>
-            <CheckoutOrderSummary
-              plan={plan}
-              selectedPeriod={selectedPeriod}
-              promoCodeSlot={promoCodeSlot}
-              promoDiscount={promoDiscount}
-              taxNote={taxNote}
-            />
-          </GridItem>
+          <CheckoutOrderSummary
+            plan={plan}
+            selectedPeriod={selectedPeriod}
+            promoCodeSlot={promoCodeSlot}
+            promoDiscount={promoDiscount}
+            taxNote={taxNote}
+          />
         )}
-      </Grid>
+      </div>
 
       <TermsDialog />
     </>
