@@ -167,6 +167,7 @@ function WhopStartCheckout() {
           )
         }
         isPaymentLoading={!arePaymentMethodsLoaded}
+        hideAgreement={method === 'card'}
         submitSlot={
           method === 'card' ? undefined : (
             <WhopWalletSubmit

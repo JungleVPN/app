@@ -45,15 +45,20 @@ export function WhopPaymentTabs({ wallets, selected, cardPanel, onSelect }: Whop
       onSelectionChange={(key) => onSelect(key as PaymentMethod)}
     >
       <Tabs.ListContainer>
-        <Tabs.List aria-label={t('getSubscription.payment_method_label')} className={'rounded-4xl'}>
-          {tabs.map(({ id, label, icon }) => (
-            <Tabs.Tab key={id} id={id} className='flex items-center justify-center gap-2 py-5'>
-              {icon}
-              {label}
-              <Tabs.Indicator />
-            </Tabs.Tab>
-          ))}
-        </Tabs.List>
+        {tabs.length > 1 && (
+          <Tabs.List
+            aria-label={t('getSubscription.payment_method_label')}
+            className={'rounded-4xl'}
+          >
+            {tabs.map(({ id, label, icon }) => (
+              <Tabs.Tab key={id} id={id} className='flex items-center justify-center gap-2 py-5'>
+                {icon}
+                {label}
+                <Tabs.Indicator />
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        )}
       </Tabs.ListContainer>
       {tabs.map(({ id }) => (
         <Tabs.Panel key={id} id={id} className='pt-4'>

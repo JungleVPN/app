@@ -16,6 +16,8 @@ interface CheckoutPaymentStepProps {
   isLoading?: boolean;
   /** Replaces the default submit button, for a method whose button has to be its vendor's own. */
   submitSlot?: ReactNode;
+  /** Leaves out the purchase agreement, for a method whose own form already carries the terms. */
+  hideAgreement?: boolean;
   handleSubmit: () => void;
 }
 
@@ -27,6 +29,7 @@ export function CheckoutPaymentStep({
   paymentMethodsSlot,
   isLoading = false,
   submitSlot,
+  hideAgreement = false,
   handleSubmit,
 }: CheckoutPaymentStepProps) {
   const { t } = useTranslation();
@@ -62,20 +65,22 @@ export function CheckoutPaymentStep({
           </Button>
         )}
 
-        <Paragraph className='text-sm text-muted'>
-          <Trans
-            i18nKey='getSubscription.terms_agreement'
-            components={{
-              1: (
-                <button
-                  className='cursor-pointer underline underline-offset-2'
-                  type='button'
-                  onClick={openTerms}
-                />
-              ),
-            }}
-          />
-        </Paragraph>
+        {!hideAgreement && (
+          <Paragraph className='text-sm text-muted'>
+            <Trans
+              i18nKey='getSubscription.terms_agreement'
+              components={{
+                1: (
+                  <button
+                    className='cursor-pointer underline underline-offset-2'
+                    type='button'
+                    onClick={openTerms}
+                  />
+                ),
+              }}
+            />
+          </Paragraph>
+        )}
         {checkoutError && <Paragraph>{checkoutError}</Paragraph>}
       </div>
     </Block>

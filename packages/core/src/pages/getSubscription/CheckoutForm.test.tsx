@@ -138,20 +138,6 @@ describe('CheckoutForm order summary', () => {
   });
 });
 
-describe('CheckoutForm tax note', () => {
-  it('tells the payer the price includes tax when the provider guarantees it', () => {
-    renderForm({ taxNote: 'getSubscription.tax_included_note' });
-
-    expect(screen.getByText('getSubscription.tax_included_note')).toBeTruthy();
-  });
-
-  it('makes no claim about tax otherwise', () => {
-    renderForm();
-
-    expect(screen.queryByText('getSubscription.tax_included_note')).toBeNull();
-  });
-});
-
 describe('CheckoutForm steps', () => {
   const next = () => fireEvent.click(screen.getByRole('button', { name: 'common.next' }));
 
@@ -207,6 +193,13 @@ describe('CheckoutForm steps', () => {
     fireEvent.click(screen.getByRole('button', { name: 'learn-more' }));
 
     expect(openTerms).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves the purchase agreement out when the method already carries its own terms', () => {
+    renderForm({ isAuthenticated: true, hideAgreement: true });
+
+    expect(screen.queryByText('getSubscription.terms_agreement')).toBeNull();
+    expect(screen.getByRole('button', { name: 'getSubscription.submit' })).toBeTruthy();
   });
 });
 

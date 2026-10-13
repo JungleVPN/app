@@ -28,6 +28,8 @@ interface CheckoutFormProps {
   isPaymentLoading?: boolean;
   /** Replaces the default submit button in the payment step. */
   submitSlot?: ReactNode;
+  /** Leaves out the purchase agreement in the payment step. */
+  hideAgreement?: boolean;
   /**
    * An applied promo code's effect on the order, replacing the plan's own
    * discount: `total` is the new amount, absent when the saving can't be

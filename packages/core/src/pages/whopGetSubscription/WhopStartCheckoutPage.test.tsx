@@ -77,6 +77,7 @@ vi.mock('../getSubscription/CheckoutForm', () => ({
     promoCodeSlot,
     paymentMethodsSlot,
     isPaymentLoading,
+    hideAgreement,
     submitSlot,
     promoDiscount,
     taxNote,
@@ -87,6 +88,7 @@ vi.mock('../getSubscription/CheckoutForm', () => ({
     promoCodeSlot?: ReactNode;
     paymentMethodsSlot?: ReactNode;
     isPaymentLoading?: boolean;
+    hideAgreement?: boolean;
     submitSlot?: ReactNode;
     promoDiscount?: { total?: string; label: string };
     taxNote?: string;
@@ -104,6 +106,7 @@ vi.mock('../getSubscription/CheckoutForm', () => ({
         </p>
       )}
       {isPaymentLoading && <p data-testid='payment-loading'>loading</p>}
+      {!hideAgreement && <p data-testid='agreement'>agreement</p>}
       <p data-testid='can-submit'>{String(canSubmit)}</p>
       <button type='button' onClick={completeEmailStep}>
         common.next
@@ -560,5 +563,25 @@ describe('WhopStartCheckoutPage', () => {
     render(<WhopStartCheckoutPage />);
 
     expect(screen.getByTestId('processing-drawer')).toBeTruthy();
+  });
+
+  it('shows our purchase agreement on a wallet tab, which has no Whop terms line', async () => {
+    wallets.sheet = { show: vi.fn() };
+    wallets.available = ['apple_pay'];
+    render(<WhopStartCheckoutPage />);
+
+    fireEvent.click(nextButton());
+
+    await waitFor(() => expect(screen.getByTestId('agreement')).toBeTruthy());
+  });
+
+  it('leaves it out on the card tab, where Whop shows its own terms line', async () => {
+    render(<WhopStartCheckoutPage />);
+
+    fireEvent.click(nextButton());
+
+    await waitFor(() => expect(canSubmit()).not.toBeNull());
+    expect(screen.getByTestId('selected-method').dataset.selected).toBe('card');
+    expect(screen.queryByTestId('agreement')).toBeNull();
   });
 });

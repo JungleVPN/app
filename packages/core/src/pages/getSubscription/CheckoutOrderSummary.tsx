@@ -55,12 +55,12 @@ export function CheckoutOrderSummary({
     <Block
       className='p-5 sm:p-6'
       description={
-        <div className='flex items-center px-1'>
+        <span className='flex items-center px-1'>
           <span className='flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary'>
             <IconRestore stroke={2} />
           </span>
-          <Paragraph>{t('getSubscription.guarantee')}</Paragraph>
-        </div>
+          <span>{t('getSubscription.guarantee')}</span>
+        </span>
       }
     >
       <div className='flex flex-col gap-5'>
