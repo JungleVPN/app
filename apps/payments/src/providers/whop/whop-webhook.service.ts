@@ -177,9 +177,11 @@ export class WhopWebhookService {
       await this.routeWebhook(body);
     } catch (error: unknown) {
       const envelope = WhopWebhookEnvelopeSchema.safeParse(body);
+      // Only a payment's body parses as one: refunds and memberships lack its fields.
+      const payment = envelope.success ? WhopPaymentSchema.safeParse(envelope.data.data) : null;
       await this.reportPaymentError({
         kind: 'webhook_failed',
-        userId: null,
+        userId: payment?.success ? await this.findPayer(payment.data) : null,
         paymentId: envelope.success ? paymentIdOf(envelope.data) : null,
         webhookEvent: envelope.success ? envelope.data.type : undefined,
         reason: errorMessage(error),
@@ -278,7 +280,7 @@ export class WhopWebhookService {
     if (!(await this.claimPayment(payment.id))) {
       await this.reportPaymentError({
         kind: 'duplicate_payment',
-        userId: null,
+        userId: await this.findPayer(payment),
         paymentId: payment.id,
         webhookEvent,
         reason: 'delivered again for a payment already processed or in progress',
@@ -294,10 +296,10 @@ export class WhopWebhookService {
       // already moved to 'unfulfilled' below.
       await this.whopPaymentRepo
         .update({ id: payment.id, status: PROCESSING_STATUS }, { status: UNFULFILLED_STATUS })
-        .catch((cleanupError: unknown) =>
+        .catch(async (cleanupError: unknown) =>
           this.reportPaymentError({
             kind: 'payment_stuck_processing',
-            userId: null,
+            userId: await this.findPayer(payment),
             paymentId: payment.id,
             reason: errorMessage(cleanupError),
           }),
@@ -419,9 +421,25 @@ export class WhopWebhookService {
     return saved?.userId ?? null;
   }
 
+  /**
+   * Whose payment this is, for an error report: the saved membership's owner,
+   * else the existing account of the payer's email. Never creates an account,
+   * and never throws — a report must not hide the error it describes.
+   */
+  private async findPayer(payment: WhopPaymentData): Promise<number | null> {
+    try {
+      const owner = await this.findMembershipOwner(payment.membership?.id);
+      if (owner != null) return owner;
+      const email = payerEmailOf(payment);
+      return email ? await this.remnaUserResolver.findByEmail(email) : null;
+    } catch {
+      return null;
+    }
+  }
+
   /** The first purchase: the checkout email from the metadata, else Whop's payer email. */
   private async resolvePayerByEmail(payment: WhopPaymentData): Promise<number> {
-    const email = (payment.metadata?.email ?? payment.user?.email)?.trim();
+    const email = payerEmailOf(payment);
     if (!email) {
       throw new Error(`Whop payment ${payment.id} has no payer email`);
     }
@@ -442,7 +460,7 @@ export class WhopWebhookService {
       return;
     }
 
-    const email = (payment.metadata?.email ?? payment.user?.email)?.trim();
+    const email = payerEmailOf(payment);
     // A failed charge is not the moment to create an account for a payer who
     // has none yet — only a settled one earns that (mirrors Paddle).
     const userId =
@@ -734,6 +752,11 @@ function errorMessage(error: unknown): string {
 }
 
 /** The payment an event is about, read loosely since the data may not have passed its schema. */
+/** The checkout email from the metadata, else Whop's payer email. */
+function payerEmailOf(payment: WhopPaymentData): string | undefined {
+  return (payment.metadata?.email ?? payment.user?.email)?.trim() || undefined;
+}
+
 function paymentIdOf(event: WhopWebhookEnvelope): string | null {
   const data = event.data as { id?: unknown; payment?: { id?: unknown } } | null | undefined;
   const id = event.type.startsWith('refund.') ? data?.payment?.id : data?.id;

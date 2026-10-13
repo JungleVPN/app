@@ -632,7 +632,7 @@ describe('WhopWebhookService', () => {
         expect.objectContaining({
           kind: 'duplicate_payment',
           provider: 'whop',
-          userId: null,
+          userId: EXISTING_ACCOUNT_ID,
           paymentId: 'pay_1',
           webhookEvent: 'payment.succeeded',
         }),
@@ -676,7 +676,7 @@ describe('WhopWebhookService', () => {
         expect.objectContaining({
           kind: 'webhook_failed',
           provider: 'whop',
-          userId: null,
+          userId: EXISTING_ACCOUNT_ID,
           paymentId: 'pay_1',
           webhookEvent: 'payment.succeeded',
           reason: expect.stringContaining('unrecognised plan'),
@@ -694,10 +694,76 @@ describe('WhopWebhookService', () => {
       expect(paymentErrors(analyticsClient)).toEqual([
         expect.objectContaining({
           kind: 'webhook_failed',
+          userId: null,
           paymentId: 'pay_1',
           webhookEvent: 'payment.succeeded',
         }),
       ]);
+    });
+
+    // A payment that fails before its payer is resolved — an unknown plan,
+    // say — is still somebody's money; the report has to say whose, or the
+    // payer cannot be found to put right.
+    describe('naming the payer of a payment that failed', () => {
+      const failUnknownPlan = (overrides: Record<string, unknown> = {}) =>
+        paymentSucceeded({ plan: { id: 'plan_unknown' }, ...overrides });
+
+      it("names the account the payer's checkout email belongs to, without creating one", async () => {
+        const { service, analyticsClient, remnaUserResolver } = setup();
+
+        await expect(service.handleWebhook(failUnknownPlan())).rejects.toThrow();
+
+        expect(remnaUserResolver.findByEmail).toHaveBeenCalledWith('payer@test.com');
+        expect(remnaUserResolver.resolveOrCreate).not.toHaveBeenCalled();
+        expect(paymentErrors(analyticsClient)).toEqual([
+          expect.objectContaining({ kind: 'webhook_failed', userId: EXISTING_ACCOUNT_ID }),
+        ]);
+      });
+
+      it("names the owner of the payment's saved membership first", async () => {
+        const { service, analyticsClient, savedMethodRepo } = setup();
+        savedMethodRepo.findOneBy.mockResolvedValue({ userId: 77, paymentMethodId: 'mem_1' });
+
+        await expect(service.handleWebhook(failUnknownPlan())).rejects.toThrow();
+
+        expect(paymentErrors(analyticsClient)).toEqual([
+          expect.objectContaining({ kind: 'webhook_failed', userId: 77 }),
+        ]);
+      });
+
+      it("falls back to Whop's payer email when the checkout left none", async () => {
+        const { service, remnaUserResolver } = setup();
+
+        await expect(service.handleWebhook(failUnknownPlan({ metadata: {} }))).rejects.toThrow();
+
+        expect(remnaUserResolver.findByEmail).toHaveBeenCalledWith('whop-user@test.com');
+      });
+
+      it('names nobody when no account matches', async () => {
+        const { service, analyticsClient, remnaUserResolver } = setup();
+        remnaUserResolver.findByEmail.mockResolvedValue(null);
+
+        await expect(service.handleWebhook(failUnknownPlan())).rejects.toThrow();
+
+        expect(paymentErrors(analyticsClient)).toEqual([
+          expect.objectContaining({ kind: 'webhook_failed', userId: null }),
+        ]);
+      });
+
+      it('still reports and rethrows the original failure when the lookup itself fails', async () => {
+        const { service, analyticsClient, remnaUserResolver } = setup();
+        remnaUserResolver.findByEmail.mockRejectedValue(new Error('remnawave down'));
+
+        await expect(service.handleWebhook(failUnknownPlan())).rejects.toThrow('unrecognised plan');
+
+        expect(paymentErrors(analyticsClient)).toEqual([
+          expect.objectContaining({
+            kind: 'webhook_failed',
+            userId: null,
+            reason: expect.stringContaining('unrecognised plan'),
+          }),
+        ]);
+      });
     });
 
     it('reports a payment left stuck in processing when releasing its claim fails', async () => {
@@ -710,6 +776,7 @@ describe('WhopWebhookService', () => {
       expect(paymentErrors(analyticsClient)).toContainEqual(
         expect.objectContaining({
           kind: 'payment_stuck_processing',
+          userId: EXISTING_ACCOUNT_ID,
           paymentId: 'pay_1',
           reason: 'db down',
         }),
