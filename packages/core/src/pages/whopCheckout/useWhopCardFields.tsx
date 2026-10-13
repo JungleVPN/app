@@ -27,7 +27,7 @@ interface WhopCardFieldsProps {
 
 /** Matches Whop's hosted fields: a hairline at rest, a dark 2px edge and a light outer ring on focus. */
 const INPUT_CLASS = [
-  'w-full rounded-lg border border-[#0000001f] bg-transparent shadow-none',
+  'w-full h-11 rounded-lg border border-[#0000001f] bg-transparent shadow-none',
   'focus-visible:border-[#222222]! focus-visible:shadow-[0_0_0_1px_#222222]! focus-visible:ring-0!',
   'focus-visible:outline-solid! focus-visible:outline-1! focus-visible:outline-offset-2! focus-visible:outline-[#dddddd]!',
 ].join(' ');

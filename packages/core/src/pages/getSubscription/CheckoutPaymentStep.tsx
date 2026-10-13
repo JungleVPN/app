@@ -2,7 +2,7 @@ import { Button, Spinner } from '@heroui/react';
 import type { ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useTermsStore } from '../../stores';
-import { Block, Heading, Paragraph } from '../../ui';
+import { Block, Paragraph } from '../../ui';
 import { BRAND_GRADIENT } from './brandGradient';
 
 interface CheckoutPaymentStepProps {
@@ -15,19 +15,6 @@ interface CheckoutPaymentStepProps {
   /** True while the payment methods are still loading; the whole step shows a spinner. */
   isLoading?: boolean;
   handleSubmit: () => void;
-}
-
-function StepHeading({ step, title }: { step: number; title: string }) {
-  return (
-    <div className='flex items-center gap-3'>
-      <span className='flex size-7 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-sm font-semibold'>
-        {step}
-      </span>
-      <Heading as='h3' className={'text-md'}>
-        {title}
-      </Heading>
-    </div>
-  );
 }
 
 /** The payment step: the payment methods and the button that starts the checkout. */
@@ -53,9 +40,8 @@ export function CheckoutPaymentStep({
   }
 
   return (
-    <Block className='p-5 sm:p-6'>
+    <Block className='p-4'>
       <div className='flex flex-col gap-2'>
-        <StepHeading step={2} title={t('getSubscription.step_payment_title')} />
         {paymentMethodsSlot}
         <Button
           className={`${BRAND_GRADIENT} w-full rounded-full`}

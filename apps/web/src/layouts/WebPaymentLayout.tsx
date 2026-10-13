@@ -12,7 +12,7 @@ export function WebPaymentLayout() {
 
   return (
     <div
-      className={`${platformType === 'web' ? 'pt-32' : ''} flex flex-col justify-between h-screen`}
+      className={`${platformType === 'web' ? 'pt-28' : ''} flex flex-col justify-between h-screen`}
     >
       <Container className={'mb-16'}>
         <RootLayout />

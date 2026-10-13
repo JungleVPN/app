@@ -42,9 +42,9 @@ export function Page(props: PageProps) {
         )}
       </div>
       {chip && <Chip color={chipColor}>{chip}</Chip>}
-      <Heading className={'text-2xl lg:text-2xl'}>{title}</Heading>
-      <Paragraph>{subtitle}</Paragraph>
-      <Paragraph>{description}</Paragraph>
+      {title && <Heading className={'text-2xl lg:text-2xl'}>{title}</Heading>}
+      {subtitle && <Paragraph>{subtitle}</Paragraph>}
+      {description && <Paragraph>{description}</Paragraph>}
       <div className={'mt-5 flex w-full flex-col py-2'}>{children}</div>
     </Surface>
   );
