@@ -28,7 +28,12 @@ const {
   cardSubmit: vi.fn(),
   cardPanel: { checkout: null as Record<string, unknown> | null },
   showWalletSheet: vi.fn(),
-  wallets: { sheet: null as object | null, available: [] as string[], isReady: true },
+  wallets: {
+    sheet: null as object | null,
+    available: [] as string[],
+    isReady: true,
+    chargingVia: null as 'card' | 'wallet' | null,
+  },
   loadPlans: vi.fn(),
   checkoutState: { loadFailed: false },
   trackCheckoutStarted: vi.fn(),
@@ -170,10 +175,16 @@ vi.mock('../whopCheckout/whopEnv', () => ({
   toWhopLocale: () => 'en',
 }));
 vi.mock('../whopCheckout/WhopPaymentProcessingDrawer', () => ({
-  WhopPaymentProcessingDrawer: () => null,
+  WhopPaymentProcessingDrawer: ({ isOpen }: { isOpen: boolean }) =>
+    isOpen ? <p data-testid='processing-drawer'>processing</p> : null,
 }));
 vi.mock('../whopCheckout/useWhopPay', () => ({
-  useWhopPay: () => ({ pay, pendingVia: null, isCharging: false, failure: null }),
+  useWhopPay: () => ({
+    pay,
+    pendingVia: wallets.chargingVia,
+    isCharging: wallets.chargingVia !== null,
+    failure: null,
+  }),
   failureFor: () => null,
 }));
 vi.mock('../whopCheckout/whopWallets', () => ({
@@ -242,6 +253,7 @@ describe('WhopStartCheckoutPage', () => {
     wallets.sheet = null;
     wallets.available = [];
     wallets.isReady = true;
+    wallets.chargingVia = null;
     cardPanel.checkout = null;
     vi.clearAllMocks();
     api.createPublicWhopCheckout.mockResolvedValue({
@@ -531,5 +543,22 @@ describe('WhopStartCheckoutPage', () => {
 
     await waitFor(() => expect(screen.getByTestId('selected-method')).toBeTruthy());
     expect(screen.queryByTestId('payment-loading')).toBeNull();
+  });
+
+  it('shows no processing drawer while nothing is being charged', () => {
+    render(<WhopStartCheckoutPage />);
+
+    expect(screen.queryByTestId('processing-drawer')).toBeNull();
+  });
+
+  it.each([
+    'card',
+    'wallet',
+  ] as const)('shows the processing drawer while a %s payment is charging', (via) => {
+    wallets.chargingVia = via;
+
+    render(<WhopStartCheckoutPage />);
+
+    expect(screen.getByTestId('processing-drawer')).toBeTruthy();
   });
 });

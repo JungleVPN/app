@@ -200,7 +200,7 @@ function WhopStartCheckout() {
         handleSubmit={submitPayment}
         handleEmailChange={checkout.handleEmailChange}
       />
-      <WhopPaymentProcessingDrawer isOpen={payment.pendingVia === 'wallet' && payment.isCharging} />
+      <WhopPaymentProcessingDrawer isOpen={payment.isCharging} />
       <ActiveSubscriptionDialog
         email={checkout.activeSubscriptionEmail}
         isLoggedIn={checkout.isAuthenticated}

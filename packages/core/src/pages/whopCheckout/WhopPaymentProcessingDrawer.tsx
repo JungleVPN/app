@@ -4,8 +4,8 @@ import { coreEnv, getTelegramStickerUrl } from '../../env';
 import { Container, Paragraph, TgsSticker } from '../../ui';
 
 /**
- * Shown from the moment a wallet's token is being charged until our webhook
- * activates the subscription — which can take a while after the sheet closes.
+ * Shown from the moment a wallet's or card's token is being charged until our
+ * webhook activates the subscription — which can take a while afterwards.
  * It cannot be dismissed, so the payer is never left wondering whether to pay again.
  */
 export function WhopPaymentProcessingDrawer({ isOpen }: { isOpen: boolean }) {
