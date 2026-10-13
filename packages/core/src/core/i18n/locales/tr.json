@@ -1239,6 +1239,7 @@
     "connect": "Bağlan"
   },
   "getSubscription": {
+    "email_label": "E-posta",
     "step_email_title": "Hesap",
     "email_placeholder": "email@example.com",
     "email_description": "Aboneliğinizi yönetmek için gereklidir",

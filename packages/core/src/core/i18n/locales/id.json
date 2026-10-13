@@ -1239,6 +1239,7 @@
     "connect": "Sambungkan"
   },
   "getSubscription": {
+    "email_label": "Email",
     "step_email_title": "Akun",
     "email_placeholder": "email@example.com",
     "email_description": "Diperlukan untuk mengelola langganan Anda",

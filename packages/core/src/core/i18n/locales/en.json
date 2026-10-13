@@ -1239,6 +1239,7 @@
     "connect": "Connect"
   },
   "getSubscription": {
+    "email_label": "Email",
     "step_email_title": "Account",
     "email_placeholder": "email@example.com",
     "email_description": "Needed to manage your subscription",

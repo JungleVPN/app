@@ -29,6 +29,7 @@ export function CheckoutEmailStep({
       <TextField
         isInvalid={emailError.length > 0}
         isRequired
+        aria-label={t('getSubscription.email_label')}
         name='email'
         id='payment-email'
         type='email'

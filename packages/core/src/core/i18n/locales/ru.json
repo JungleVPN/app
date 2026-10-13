@@ -1264,6 +1264,7 @@
     "connect": "Подключиться"
   },
   "getSubscription": {
+    "email_label": "Email",
     "step_email_title": "Аккаунт",
     "email_placeholder": "email@example.com",
     "email_description": "Нужен для управления подпиской",

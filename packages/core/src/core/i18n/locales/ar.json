@@ -1239,6 +1239,7 @@
     "connect": "اتصل"
   },
   "getSubscription": {
+    "email_label": "البريد الإلكتروني",
     "step_email_title": "الحساب",
     "email_placeholder": "email@example.com",
     "email_description": "مطلوب لإدارة اشتراكك",

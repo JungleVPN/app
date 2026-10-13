@@ -366,3 +366,11 @@ describe('CheckoutForm email step loader', () => {
     await waitFor(() => expect(nextButton().querySelector('.spinner')).toBeNull());
   });
 });
+
+describe('CheckoutForm email field', () => {
+  it('has an accessible name, since it shows no visible label', () => {
+    renderForm({ isAuthenticated: false });
+
+    expect(screen.getByRole('textbox', { name: 'getSubscription.email_label' })).toBeTruthy();
+  });
+});

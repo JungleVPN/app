@@ -67,11 +67,8 @@ function renderApp() {
   }
 }
 
-// Lazy routes must be resolved before hydrating, or the first client render is an empty
-// shell where the server rendered a full page — see preloadMatchedRoutes. Nothing to wait
-// for when there is no server markup to match.
-if (isServerRendered) {
-  void preloadMatchedRoutes(window.location.pathname).then(renderApp);
-} else {
-  renderApp();
-}
+// Lazy routes are resolved before the first render. When hydrating, the first client render
+// would otherwise be an empty shell where the server rendered a full page — see
+// preloadMatchedRoutes. Without server markup (local vite dev) it keeps the router initialised,
+// so React Router has no `HydrateFallback` to ask for while it loads them itself.
+void preloadMatchedRoutes(window.location.pathname).then(renderApp);

@@ -1239,6 +1239,7 @@
     "connect": "कनेक्ट करें"
   },
   "getSubscription": {
+    "email_label": "ईमेल",
     "step_email_title": "खाता",
     "email_placeholder": "email@example.com",
     "email_description": "आपकी सदस्यता का प्रबंधन करने के लिए आवश्यक",

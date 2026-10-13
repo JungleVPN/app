@@ -1239,6 +1239,7 @@
     "connect": "کनेक्ट"
   },
   "getSubscription": {
+    "email_label": "ای میل",
     "step_email_title": "اکاؤنٹ",
     "email_placeholder": "email@example.com",
     "email_description": "آپ کی سبسکرپشن کو منظم کرنے کے لیے درکار",

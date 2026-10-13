@@ -1239,6 +1239,7 @@
     "connect": "Conectar"
   },
   "getSubscription": {
+    "email_label": "E-mail",
     "step_email_title": "Conta",
     "email_placeholder": "email@example.com",
     "email_description": "Necessário para gerenciar sua assinatura",
