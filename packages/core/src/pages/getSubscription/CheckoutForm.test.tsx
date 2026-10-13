@@ -356,3 +356,20 @@ describe('CheckoutForm stepper steps', () => {
     expect(completeEmailStep).not.toHaveBeenCalled();
   });
 });
+
+describe('CheckoutForm email step loader', () => {
+  const nextButton = () => screen.getByRole('button', { name: /common.next/ });
+
+  it('shows a spinner on Next while the email is being checked', async () => {
+    let finish: (isAccepted: boolean) => void = () => {};
+    const completeEmailStep = vi.fn(() => new Promise<boolean>((resolve) => (finish = resolve)));
+    renderForm({ isAuthenticated: false, completeEmailStep });
+    expect(nextButton().querySelector('.spinner')).toBeNull();
+
+    fireEvent.click(nextButton());
+
+    await waitFor(() => expect(nextButton().querySelector('.spinner')).not.toBeNull());
+    finish(false);
+    await waitFor(() => expect(nextButton().querySelector('.spinner')).toBeNull());
+  });
+});

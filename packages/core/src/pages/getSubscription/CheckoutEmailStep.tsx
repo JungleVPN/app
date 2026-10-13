@@ -1,4 +1,4 @@
-import { Button, Description, FieldError, Input, TextField, Tooltip } from '@heroui/react';
+import { Button, Description, FieldError, Input, Spinner, TextField, Tooltip } from '@heroui/react';
 import { IconHelpCircle, IconMail } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Block, Paragraph } from '../../ui';
@@ -76,7 +76,12 @@ export function CheckoutEmailStep({
         isPending={isPending}
         onPress={handleNext}
       >
-        {t('common.next')}
+        {({ isPending: isNextPending }) => (
+          <>
+            {t('common.next')}
+            {isNextPending ? <Spinner color='current' size='sm' /> : null}
+          </>
+        )}
       </Button>
 
       {checkoutError && <Paragraph>{checkoutError}</Paragraph>}

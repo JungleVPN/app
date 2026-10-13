@@ -21,7 +21,7 @@ export default function ConfirmPage() {
       <Form>
         <Block className={'p-4'}>
           <div className='flex flex-col gap-2 items-center justify-center'>
-            <Heading className={'text-xl lg:text-2xl mb-2 text-center'}>
+            <Heading className={'text-lg lg:text-2xl mb-2 text-center'}>
               {t('confirm.title')}
             </Heading>
 
@@ -36,6 +36,7 @@ export default function ConfirmPage() {
                 maxLength={6}
                 pattern={REGEXP_ONLY_DIGITS}
                 value={otp}
+                className={'justify-center'}
                 onChange={setOtp}
                 onComplete={handleComplete}
               >
