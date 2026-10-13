@@ -10,6 +10,7 @@ import { CheckoutForm } from '../getSubscription/CheckoutForm';
 import { type CheckoutRequest, useCheckout } from '../getSubscription/useCheckout';
 import type { WhopCheckoutCharge, WhopCheckoutState } from '../whopCheckout/whopCheckoutState';
 import { type PromoPrice, promoPrice } from './promoPrice';
+import { WhopPaymentTabs } from './WhopPaymentTabs';
 import { WhopPromoCode } from './WhopPromoCode';
 
 /** A promo's fixed amount as a price string: whole amounts as they are, others to the cent. */
@@ -106,6 +107,7 @@ export default function WhopStartCheckoutPage() {
             <WhopPromoCode planId={checkout.plan.planId} applied={promo} onApplyChange={setPromo} />
           )
         }
+        paymentMethodsSlot={<WhopPaymentTabs />}
         promoDiscount={promoDiscount ?? undefined}
         taxNote={t('getSubscription.tax_included_note')}
         handleSubmit={checkout.handleSubmit}

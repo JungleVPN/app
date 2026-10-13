@@ -33,6 +33,8 @@ interface CheckoutFormProps {
   canSubmit: boolean;
   /** A provider's promo code entry, shown in the payment step above the submit button. */
   promoCodeSlot?: ReactNode;
+  /** A provider's payment method choice, shown in the payment step under its heading. */
+  paymentMethodsSlot?: ReactNode;
   /**
    * An applied promo code's effect on the order, replacing the plan's own
    * discount: `total` is the new amount, absent when the saving can't be
@@ -53,7 +55,9 @@ function StepHeading({ step, title }: { step: number; title: string }) {
       <span className='flex size-7 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-sm font-semibold'>
         {step}
       </span>
-      <Heading as='h3'>{title}</Heading>
+      <Heading as='h3' className={'text-md'}>
+        {title}
+      </Heading>
     </div>
   );
 }
@@ -72,6 +76,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
     plan,
     canSubmit,
     promoCodeSlot,
+    paymentMethodsSlot,
     promoDiscount,
     taxNote,
     selectedPeriod,
@@ -185,7 +190,9 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
               }
             >
               <div className='flex flex-col gap-6'>
-                <StepHeading step={2} title={t('getSubscription.card_method')} />
+                <StepHeading step={2} title={t('getSubscription.step_payment_title')} />
+
+                {paymentMethodsSlot}
 
                 <div className='flex flex-wrap items-center justify-between gap-4'>
                   <Button
@@ -201,8 +208,6 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
                       </>
                     )}
                   </Button>
-
-                  <PaymentMethodIcons className='gap-3' />
                 </div>
 
                 {checkoutError && <Paragraph>{checkoutError}</Paragraph>}
