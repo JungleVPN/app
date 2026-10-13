@@ -7,7 +7,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { PlanPricing, SubscriptionPlanDto } from '@workspace/types';
 import { cloneElement, type ReactElement, type ReactNode } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { MemoryRouter, useLocation } from 'react-router';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { getCheckoutEmail, saveCheckoutEmail } from '../../utils/checkoutEmail';
 import { CheckoutForm } from './CheckoutForm';
 
 vi.mock('react-i18next', () => ({
@@ -64,23 +66,36 @@ const plan = (pricing: Partial<PlanPricing> = {}): SubscriptionPlanDto => ({
   },
 });
 
-const renderForm = (props: Partial<Parameters<typeof CheckoutForm>[0]> = {}) =>
+function CurrentUrl() {
+  const { pathname, search } = useLocation();
+  return <p data-testid='url'>{`${pathname}${search}`}</p>;
+}
+
+const renderForm = (
+  props: Partial<Parameters<typeof CheckoutForm>[0]> = {},
+  url = '/payment/whop-30',
+) =>
   render(
-    <CheckoutForm
-      isAuthenticated
-      email='payer@test.com'
-      emailError=''
-      checkoutError={null}
-      isPending={false}
-      selectedPeriod={30}
-      plan={plan()}
-      canSubmit
-      completeEmailStep={() => true}
-      handleSubmit={() => {}}
-      handleEmailChange={() => {}}
-      {...props}
-    />,
+    <MemoryRouter initialEntries={[url]}>
+      <CheckoutForm
+        isAuthenticated
+        email='payer@test.com'
+        emailError=''
+        checkoutError={null}
+        isPending={false}
+        selectedPeriod={30}
+        plan={plan()}
+        canSubmit
+        completeEmailStep={() => true}
+        handleSubmit={() => {}}
+        handleEmailChange={() => {}}
+        {...props}
+      />
+      <CurrentUrl />
+    </MemoryRouter>,
   );
+
+afterEach(() => localStorage.clear());
 
 const isCrossedOut = (text: string) => screen.getByText(text).className.includes('line-through');
 
@@ -192,5 +207,106 @@ describe('CheckoutForm steps', () => {
     fireEvent.click(screen.getByRole('button', { name: 'learn-more' }));
 
     expect(openTerms).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('CheckoutForm step URLs', () => {
+  const url = () => screen.getByTestId('url').textContent;
+  const next = () => fireEvent.click(screen.getByRole('button', { name: 'common.next' }));
+
+  it('moves to its own URL for the payment step when Next passes', async () => {
+    renderForm({ isAuthenticated: false, email: 'payer@test.com' });
+
+    next();
+
+    await waitFor(() => expect(url()).toBe('/payment/whop-30?step=payment'));
+  });
+
+  it('stays on the email URL while Next fails', async () => {
+    const completeEmailStep = vi.fn(() => false);
+    renderForm({ isAuthenticated: false, completeEmailStep });
+
+    next();
+
+    await waitFor(() => expect(completeEmailStep).toHaveBeenCalled());
+    expect(url()).toBe('/payment/whop-30');
+  });
+
+  it('saves the submitted email when Next passes', async () => {
+    renderForm({ isAuthenticated: false, email: 'payer@test.com' });
+
+    next();
+
+    await waitFor(() => expect(getCheckoutEmail()).toBe('payer@test.com'));
+  });
+
+  it('replaces a stored email when a different one is submitted', async () => {
+    saveCheckoutEmail('old@test.com');
+    renderForm({ isAuthenticated: false, email: 'new@test.com' });
+
+    next();
+
+    await waitFor(() => expect(getCheckoutEmail()).toBe('new@test.com'));
+  });
+
+  it('keeps the stored email when Next fails', async () => {
+    saveCheckoutEmail('old@test.com');
+    const completeEmailStep = vi.fn(() => false);
+    renderForm({ isAuthenticated: false, email: 'new@test.com', completeEmailStep });
+
+    next();
+
+    await waitFor(() => expect(completeEmailStep).toHaveBeenCalled());
+    expect(getCheckoutEmail()).toBe('old@test.com');
+  });
+
+  it('shows the payment step when it is reloaded with the email stored', async () => {
+    saveCheckoutEmail('payer@test.com');
+    const completeEmailStep = vi.fn(() => true);
+    renderForm(
+      {
+        isAuthenticated: false,
+        email: 'payer@test.com',
+        completeEmailStep,
+        paymentMethodsSlot: <p>methods</p>,
+      },
+      '/payment/whop-30?step=payment',
+    );
+
+    expect(await screen.findByText('methods')).toBeTruthy();
+    await waitFor(() => expect(completeEmailStep).toHaveBeenCalledTimes(1));
+    expect(url()).toBe('/payment/whop-30?step=payment');
+  });
+
+  it('sends a reload of the payment step back to the email step when it is no longer accepted', async () => {
+    saveCheckoutEmail('payer@test.com');
+    renderForm(
+      { isAuthenticated: false, email: 'payer@test.com', completeEmailStep: () => false },
+      '/payment/whop-30?step=payment',
+    );
+
+    await waitFor(() => expect(url()).toBe('/payment/whop-30'));
+  });
+
+  it('sends a reload of the payment step back to the email step when no email is stored', async () => {
+    renderForm({ isAuthenticated: false, email: '' }, '/payment/whop-30?step=payment');
+
+    await waitFor(() => expect(url()).toBe('/payment/whop-30'));
+  });
+
+  it('does not accept the email twice when the payer moved to the payment step with Next', async () => {
+    const completeEmailStep = vi.fn(() => true);
+    renderForm({ isAuthenticated: false, email: 'payer@test.com', completeEmailStep });
+
+    next();
+
+    await waitFor(() => expect(url()).toBe('/payment/whop-30?step=payment'));
+    expect(completeEmailStep).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores the step URL for a signed-in payer', () => {
+    renderForm({ isAuthenticated: true }, '/payment/whop-30?step=payment');
+
+    expect(screen.queryByRole('button', { name: 'common.next' })).toBeNull();
   });
 });

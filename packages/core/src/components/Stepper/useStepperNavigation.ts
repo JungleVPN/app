@@ -3,6 +3,9 @@ import { useState } from 'react';
 type StepperNavigationOptions = {
   stepCount: number;
   defaultStep?: number;
+  /** The current step, when the caller owns it (the URL, say); it is then changed through `onStepChange`. */
+  step?: number;
+  onStepChange?: (step: number) => void;
   /** Whether the step's content is valid; moving forward from a step waits for a true. */
   validateStep?: (step: number) => boolean | Promise<boolean>;
 };
@@ -21,9 +24,16 @@ export type StepperNavigation = {
 export function useStepperNavigation({
   stepCount,
   defaultStep = 0,
+  step,
+  onStepChange,
   validateStep,
 }: StepperNavigationOptions): StepperNavigation {
-  const [currentStep, setCurrentStep] = useState(defaultStep);
+  const [internalStep, setInternalStep] = useState(defaultStep);
+  const currentStep = step ?? internalStep;
+  const setCurrentStep = (next: number) => {
+    setInternalStep(next);
+    onStepChange?.(next);
+  };
   const [isValidating, setIsValidating] = useState(false);
   const lastStep = stepCount - 1;
 

@@ -1,8 +1,10 @@
 import type { SubscriptionPlanDto } from '@workspace/types';
-import { type ReactNode, useEffect } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router';
 import { Stepper, useStepperNavigation } from '../../components';
 import { scrollToTop } from '../../utils';
+import { getCheckoutEmail, saveCheckoutEmail } from '../../utils/checkoutEmail';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
 import { CheckoutEmailStep } from './CheckoutEmailStep';
 import { CheckoutOrderSummary } from './CheckoutOrderSummary';
@@ -40,6 +42,9 @@ interface CheckoutFormProps {
   handleEmailChange: (value: string) => void;
 }
 
+const STEP_PARAM = 'step';
+const PAYMENT_STEP = 'payment';
+
 /**
  * The global checkout page's markup, shared by every payment provider. A
  * visitor goes through two steps: their email, which must pass validation
@@ -52,8 +57,44 @@ interface CheckoutFormProps {
 export const CheckoutForm = (props: CheckoutFormProps) => {
   const { isAuthenticated, plan, selectedPeriod, promoCodeSlot, promoDiscount, taxNote } = props;
   const { t } = useTranslation();
-  const steps = useStepperNavigation({ stepCount: 2, validateStep: props.completeEmailStep });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlStep = searchParams.get(STEP_PARAM) === PAYMENT_STEP ? 1 : 0;
+  const moveToStep = (step: number, options?: { replace: boolean }) =>
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      if (step === 1) next.set(STEP_PARAM, PAYMENT_STEP);
+      else next.delete(STEP_PARAM);
+      return next;
+    }, options);
+  const steps = useStepperNavigation({
+    stepCount: 2,
+    step: urlStep,
+    onStepChange: moveToStep,
+    validateStep: async () => {
+      const isAccepted = await props.completeEmailStep();
+      if (isAccepted) saveCheckoutEmail(props.email);
+      return isAccepted;
+    },
+  });
   const isEmailStep = !isAuthenticated && steps.currentStep === 0;
+
+  // A reload of the payment step has lost the accepted checkout, so the stored
+  // email is accepted again; the email step is the way back when it cannot be.
+  const isReloadedOnPayment = useRef(!isAuthenticated && urlStep === 1);
+  useEffect(() => {
+    if (!isReloadedOnPayment.current || isAuthenticated) return;
+    if (!props.email) {
+      if (!getCheckoutEmail()) {
+        isReloadedOnPayment.current = false;
+        moveToStep(0, { replace: true });
+      }
+      return;
+    }
+    isReloadedOnPayment.current = false;
+    void Promise.resolve(props.completeEmailStep()).then((isAccepted) => {
+      if (!isAccepted) moveToStep(0, { replace: true });
+    });
+  });
 
   useEffect(() => {
     scrollToTop();

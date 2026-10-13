@@ -5,6 +5,7 @@ import { useParams } from 'react-router';
 import { usePlans } from '../../hooks';
 import { useAuthStore, usePlanById, usePlansStatus } from '../../stores';
 import { scrollToTop, validateEmail } from '../../utils';
+import { getCheckoutEmail } from '../../utils/checkoutEmail';
 import { isActiveSubscriptionError, isThrottledError } from './checkoutErrors';
 
 const EMPTY_EMAIL_ERROR = 'getSubscription.email_required_error';
@@ -69,6 +70,12 @@ export function useCheckout(startCheckout: (request: CheckoutRequest) => Promise
 
   useEffect(() => {
     scrollToTop();
+  }, []);
+
+  // The email submitted on an earlier visit to the checkout, or before a reload.
+  useEffect(() => {
+    const storedEmail = getCheckoutEmail();
+    if (storedEmail) setEmail(storedEmail);
   }, []);
 
   // Starts the one-time fetch if the visitor deep-linked here without passing

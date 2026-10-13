@@ -1,8 +1,9 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type PlansStatus, usePlansStore } from '../../stores';
+import { saveCheckoutEmail } from '../../utils/checkoutEmail';
 import { useCheckout } from './useCheckout';
 
 vi.mock('react-i18next', () => ({
@@ -49,5 +50,29 @@ describe('useCheckout: loading the plan', () => {
     const checkout = checkoutWithPlans('loaded');
 
     expect(checkout.loadFailed).toBe(false);
+  });
+});
+
+describe('useCheckout: the stored email', () => {
+  afterEach(() => {
+    localStorage.clear();
+    usePlansStore.setState(usePlansStore.getState().actions.getInitialState());
+  });
+
+  it('starts from the email stored on an earlier visit', async () => {
+    saveCheckoutEmail('payer@test.com');
+    usePlansStore.setState({ status: 'loaded' });
+
+    const { result } = renderHook(() => useCheckout(async () => {}), { wrapper });
+
+    await waitFor(() => expect(result.current.email).toBe('payer@test.com'));
+  });
+
+  it('starts empty when nothing is stored', () => {
+    usePlansStore.setState({ status: 'loaded' });
+
+    const { result } = renderHook(() => useCheckout(async () => {}), { wrapper });
+
+    expect(result.current.email).toBe('');
   });
 });

@@ -18,6 +18,7 @@ import {
   takePendingYookassaPayment,
   trackPurchaseConversion,
 } from '../../utils';
+import { clearCheckoutEmail } from '../../utils/checkoutEmail';
 
 type RemnawaveApi = ReturnType<typeof useRemnawaveApi>;
 type PaymentsApi = ReturnType<typeof usePaymentsApi>;
@@ -153,6 +154,7 @@ export default function SubscriptionSuccessPage() {
       setOutcome(unpaid ? 'unpaid' : 'paid');
       // An unpaid checkout is left for `/payment/fail` to report.
       if (unpaid) return;
+      clearCheckoutEmail();
       const checkout = takePendingCheckout();
       void firstPayment.then((first) => {
         if (first && purchase) trackPurchaseConversion(purchase);

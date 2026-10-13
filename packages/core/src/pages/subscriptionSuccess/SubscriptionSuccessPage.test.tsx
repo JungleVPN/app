@@ -17,6 +17,7 @@ import {
   useSavedMethodsStore,
   useSubscriptionInfoStore,
 } from '../../stores';
+import { getCheckoutEmail, saveCheckoutEmail } from '../../utils/checkoutEmail';
 import SubscriptionSuccessPage from './SubscriptionSuccessPage';
 
 const {
@@ -93,6 +94,7 @@ const PURCHASE = { transactionId: 'pay-1', value: 1490, currency: 'RUB' };
 describe('SubscriptionSuccessPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
     takePendingYookassaPayment.mockReturnValue(null);
     takePendingPurchase.mockReturnValue(null);
     takePendingCheckout.mockReturnValue(null);
@@ -186,6 +188,25 @@ describe('SubscriptionSuccessPage', () => {
 
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/payment/fail', { replace: true }));
     expect(remnawaveApi.getMe).not.toHaveBeenCalled();
+  });
+
+  it('forgets the stored checkout email once the payment has succeeded', async () => {
+    saveCheckoutEmail('payer@test.com');
+
+    render(<SubscriptionSuccessPage />);
+
+    await waitFor(() => expect(getCheckoutEmail()).toBe(''));
+  });
+
+  it('keeps the stored checkout email when the payment was not completed', async () => {
+    saveCheckoutEmail('payer@test.com');
+    takePendingYookassaPayment.mockReturnValue('pay-1');
+    paymentsApi.getPublicYookassaPaymentStatus.mockResolvedValue({ status: 'canceled' });
+
+    render(<SubscriptionSuccessPage />);
+
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/payment/fail', { replace: true }));
+    expect(getCheckoutEmail()).toBe('payer@test.com');
   });
 
   it('reports the purchase the checkout left behind, with its id and amount', async () => {
