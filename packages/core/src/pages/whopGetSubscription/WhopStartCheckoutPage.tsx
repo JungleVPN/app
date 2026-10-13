@@ -20,6 +20,7 @@ import { type PromoPrice, promoPrice } from './promoPrice';
 import { WhopCardPanel } from './WhopCardPanel';
 import { type PaymentMethod, WhopPaymentTabs } from './WhopPaymentTabs';
 import { WhopPromoCode } from './WhopPromoCode';
+import { WhopWalletSubmit } from './WhopWalletSubmit';
 
 /** A promo's fixed amount as a price string: whole amounts as they are, others to the cent. */
 const amountString = (amount: number): string =>
@@ -145,6 +146,7 @@ function WhopStartCheckout() {
 
   const arePaymentMethodsLoaded = prepared !== null && isReady;
   const canPay = prepared !== null && (method === 'card' ? isCardPayable : sheet !== null);
+  const isPaying = checkout.isPending || payment.pendingVia !== null;
 
   return (
     <>
@@ -155,7 +157,7 @@ function WhopStartCheckout() {
         checkoutError={
           checkout.checkoutError ?? failureFor(payment, method === 'card' ? 'card' : 'wallet')
         }
-        isPending={checkout.isPending || payment.pendingVia !== null}
+        isPending={isPaying}
         selectedPeriod={checkout.selectedPeriod}
         plan={checkout.plan}
         canSubmit={checkout.plan !== undefined && canPay}
@@ -165,6 +167,15 @@ function WhopStartCheckout() {
           )
         }
         isPaymentLoading={!arePaymentMethodsLoaded}
+        submitSlot={
+          method === 'card' ? undefined : (
+            <WhopWalletSubmit
+              wallet={method}
+              isDisabled={!(checkout.plan !== undefined && canPay) || isPaying}
+              onClick={submitPayment}
+            />
+          )
+        }
         paymentMethodsSlot={
           arePaymentMethodsLoaded && (
             <WhopPaymentTabs

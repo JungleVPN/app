@@ -20,17 +20,19 @@ function toMinorUnits({ amount, currency }: WhopCheckoutCharge): number {
 }
 
 /**
- * The wallets to offer, best-native first. Where Apple Pay is the native
+ * The wallets to offer. Apple Pay always comes first when it is available, and
+ * otherwise Whop's order, best-native first. Where Apple Pay is the native
  * wallet (Safari, every iOS browser) it is offered alone, as Whop's own
  * express checkout does: Google Pay there is a pay.google.com popup that
  * Safari cuts off from the page, failing with OR_BIBED_15.
  */
-function availableWallets(availability: WalletAvailability): Wallet[] {
+export function availableWallets(availability: WalletAvailability): Wallet[] {
   const isAvailable = (wallet: string): wallet is Wallet =>
     (wallet === 'apple_pay' && availability.applePay) ||
     (wallet === 'google_pay' && availability.googlePay);
   const ranked = (availability.order ?? ['apple_pay', 'google_pay']).filter(isAvailable);
-  return availability.order?.[0] === 'apple_pay' && availability.applePay ? ['apple_pay'] : ranked;
+  if (availability.order?.[0] === 'apple_pay' && availability.applePay) return ['apple_pay'];
+  return [...ranked].sort((a, b) => Number(b === 'apple_pay') - Number(a === 'apple_pay'));
 }
 
 /**

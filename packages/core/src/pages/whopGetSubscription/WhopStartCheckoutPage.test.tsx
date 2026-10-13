@@ -72,6 +72,7 @@ vi.mock('../getSubscription/CheckoutForm', () => ({
     promoCodeSlot,
     paymentMethodsSlot,
     isPaymentLoading,
+    submitSlot,
     promoDiscount,
     taxNote,
     canSubmit,
@@ -81,6 +82,7 @@ vi.mock('../getSubscription/CheckoutForm', () => ({
     promoCodeSlot?: ReactNode;
     paymentMethodsSlot?: ReactNode;
     isPaymentLoading?: boolean;
+    submitSlot?: ReactNode;
     promoDiscount?: { total?: string; label: string };
     taxNote?: string;
     canSubmit: boolean;
@@ -101,9 +103,11 @@ vi.mock('../getSubscription/CheckoutForm', () => ({
       <button type='button' onClick={completeEmailStep}>
         common.next
       </button>
-      <button type='button' onClick={handleSubmit}>
-        getSubscription.submit
-      </button>
+      {submitSlot ?? (
+        <button type='button' onClick={handleSubmit}>
+          getSubscription.submit
+        </button>
+      )}
     </>
   ),
 }));
@@ -144,6 +148,18 @@ vi.mock('./WhopCardPanel', () => ({
     useEffect(() => onCanPayChange(true), [onCanPayChange]);
     return <p>card-inputs</p>;
   },
+}));
+vi.mock('../whopCheckout/walletButtons', () => ({
+  ApplePayButton: ({ onClick }: { onClick: () => void }) => (
+    <button type='button' onClick={onClick}>
+      apple-pay-button
+    </button>
+  ),
+  GooglePayButton: ({ onClick }: { onClick: () => void }) => (
+    <button type='button' onClick={onClick}>
+      google-pay-button
+    </button>
+  ),
 }));
 vi.mock('@whop/elements', () => ({ loadWhop: () => ({}) }));
 vi.mock('@whop/elements-react', () => ({
@@ -464,7 +480,8 @@ describe('WhopStartCheckoutPage', () => {
     fireEvent.click(nextButton());
     await waitFor(() => expect(canSubmit()).toBe('true'));
     expect(screen.getByTestId('selected-method').dataset.selected).toBe('apple_pay');
-    fireEvent.click(startButton());
+    expect(screen.queryByRole('button', { name: 'getSubscription.submit' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'apple-pay-button' }));
 
     expect(pay).toHaveBeenCalledWith({ via: 'wallet', tokenise: expect.any(Function) });
     expect(cardSubmit).not.toHaveBeenCalled();
@@ -480,7 +497,7 @@ describe('WhopStartCheckoutPage', () => {
     fireEvent.click(nextButton());
     fireEvent.click(await screen.findByRole('button', { name: 'tab:google_pay' }));
     await waitFor(() => expect(canSubmit()).toBe('true'));
-    fireEvent.click(startButton());
+    fireEvent.click(screen.getByRole('button', { name: 'google-pay-button' }));
 
     pay.mock.calls[0]?.[0].tokenise();
     expect(showWalletSheet).toHaveBeenCalledWith(wallets.sheet, 'google_pay', 'payer@test.com');

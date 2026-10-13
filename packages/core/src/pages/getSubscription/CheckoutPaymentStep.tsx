@@ -14,6 +14,8 @@ interface CheckoutPaymentStepProps {
   paymentMethodsSlot?: ReactNode;
   /** True while the payment methods are still loading; the whole step shows a spinner. */
   isLoading?: boolean;
+  /** Replaces the default submit button, for a method whose button has to be its vendor's own. */
+  submitSlot?: ReactNode;
   handleSubmit: () => void;
 }
 
@@ -24,6 +26,7 @@ export function CheckoutPaymentStep({
   canSubmit,
   paymentMethodsSlot,
   isLoading = false,
+  submitSlot,
   handleSubmit,
 }: CheckoutPaymentStepProps) {
   const { t } = useTranslation();
@@ -43,19 +46,21 @@ export function CheckoutPaymentStep({
     <Block className='p-4'>
       <div className='flex flex-col gap-2'>
         {paymentMethodsSlot}
-        <Button
-          className={`${BRAND_GRADIENT} w-full rounded-full`}
-          isDisabled={!canSubmit}
-          isPending={isPending}
-          onPress={handleSubmit}
-        >
-          {({ isPending: isSubmitPending }) => (
-            <>
-              {t('getSubscription.submit')}
-              {isSubmitPending ? <Spinner color='current' size='sm' /> : null}
-            </>
-          )}
-        </Button>
+        {submitSlot ?? (
+          <Button
+            className={`${BRAND_GRADIENT} w-full rounded-full`}
+            isDisabled={!canSubmit}
+            isPending={isPending}
+            onPress={handleSubmit}
+          >
+            {({ isPending: isSubmitPending }) => (
+              <>
+                {t('getSubscription.submit')}
+                {isSubmitPending ? <Spinner color='current' size='sm' /> : null}
+              </>
+            )}
+          </Button>
+        )}
 
         <Paragraph className='text-sm text-muted'>
           <Trans

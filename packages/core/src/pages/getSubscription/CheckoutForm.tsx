@@ -25,6 +25,8 @@ interface CheckoutFormProps {
   paymentMethodsSlot?: ReactNode;
   /** True while the payment methods are still loading. */
   isPaymentLoading?: boolean;
+  /** Replaces the default submit button in the payment step. */
+  submitSlot?: ReactNode;
   /**
    * An applied promo code's effect on the order, replacing the plan's own
    * discount: `total` is the new amount, absent when the saving can't be

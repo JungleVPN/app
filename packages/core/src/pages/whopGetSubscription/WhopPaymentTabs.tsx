@@ -29,6 +29,7 @@ interface WhopPaymentTabsProps {
 /** The payment methods to choose from; the submit button acts on the selected one. */
 export function WhopPaymentTabs({ wallets, selected, cardPanel, onSelect }: WhopPaymentTabsProps) {
   const { t } = useTranslation();
+  console.log(wallets);
   const tabs: PaymentTab[] = [
     ...wallets.map((wallet) => ({ id: wallet, icon: WALLET_ICONS[wallet] })),
     {
