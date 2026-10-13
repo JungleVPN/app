@@ -1,5 +1,7 @@
 {
   "common": {
+    "back": "Geri",
+    "next": "İleri",
     "features": {
       "title": "Aboneliğe neler dahildir:"
     },

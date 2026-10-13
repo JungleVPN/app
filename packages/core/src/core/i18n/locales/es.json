@@ -1,5 +1,7 @@
 {
   "common": {
+    "back": "Atrás",
+    "next": "Siguiente",
     "features": {
       "title": "Qué incluye la suscripción:"
     },

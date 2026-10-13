@@ -26,6 +26,13 @@ export { StarsPaymentSuccessDrawer } from './payment/StarsPaymentSuccessDrawer';
 export { ScrollShadowComponent } from './ScrollShadow';
 export { SessionExpired } from './SessionExpired/SessionExpired';
 export { Step } from './Step/Step';
+export {
+  Stepper,
+  StepperControls,
+  type StepperNavigation,
+  useStepperNavigation,
+  useStepperStep,
+} from './Stepper';
 export { SubscribeCta } from './SubscribeCTA/SubscribeCTA';
 export {
   SubscriptionInfoCards,

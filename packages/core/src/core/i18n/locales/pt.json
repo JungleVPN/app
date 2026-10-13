@@ -1,5 +1,7 @@
 {
   "common": {
+    "back": "Voltar",
+    "next": "Seguinte",
     "features": {
       "title": "O que está incluído na assinatura:"
     },

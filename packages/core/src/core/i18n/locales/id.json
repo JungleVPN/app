@@ -1,5 +1,7 @@
 {
   "common": {
+    "back": "Kembali",
+    "next": "Berikutnya",
     "features": {
       "title": "Apa saja yang termasuk dalam langganan:"
     },

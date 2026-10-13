@@ -1,5 +1,7 @@
 {
   "common": {
+    "back": "Back",
+    "next": "Next",
     "features": {
       "title": "What's included in the subscription:"
     },
