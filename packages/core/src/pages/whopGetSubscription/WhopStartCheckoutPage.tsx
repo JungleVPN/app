@@ -1,16 +1,23 @@
+import { loadWhop, type WhopLoad } from '@whop/elements';
+import { WhopElements } from '@whop/elements-react';
 import type { PlanPricing, WhopPromoCodeDto } from '@workspace/types';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LoadError, Loading } from '../../components';
+import { i18n } from '../../core/i18n';
 import { loadPlans, useNavigation } from '../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import { formatIntlPrice, getReferralUserId, trackCheckoutStarted } from '../../utils';
 import { ActiveSubscriptionDialog } from '../getSubscription/ActiveSubscriptionDialog';
 import { CheckoutForm } from '../getSubscription/CheckoutForm';
 import { type CheckoutRequest, useCheckout } from '../getSubscription/useCheckout';
+import { failureFor, useWhopPay } from '../whopCheckout/useWhopPay';
+import { WhopPaymentProcessingDrawer } from '../whopCheckout/WhopPaymentProcessingDrawer';
 import type { WhopCheckoutCharge, WhopCheckoutState } from '../whopCheckout/whopCheckoutState';
+import { getWhopEnvironment, toWhopLocale } from '../whopCheckout/whopEnv';
+import { showWalletSheet, useWhopWalletSheet } from '../whopCheckout/whopWallets';
 import { type PromoPrice, promoPrice } from './promoPrice';
-import { WhopPaymentTabs } from './WhopPaymentTabs';
+import { type PaymentMethod, WhopPaymentTabs } from './WhopPaymentTabs';
 import { WhopPromoCode } from './WhopPromoCode';
 
 /** A promo's fixed amount as a price string: whole amounts as they are, others to the cent. */
@@ -29,19 +36,37 @@ function shownCharge(
   return 'total' in price ? { amount: price.total, currency: pricing.currencyCode } : undefined;
 }
 
+/** The checkout the backend accepted: what a payment needs, before any promo or total. */
+type PreparedCheckout = Pick<
+  WhopCheckoutState,
+  'accountId' | 'whopPlanId' | 'renews' | 'request' | 'selectedPeriod'
+>;
+
+/** Stands in until the backend accepts a checkout; nothing can pay while it does. */
+const NOT_PREPARED: PreparedCheckout = {
+  accountId: '',
+  whopPlanId: '',
+  request: { email: '', planId: '' },
+  selectedPeriod: 0,
+};
+
 /**
- * Global checkout through Whop: the email step and the order summary, up to
- * the point a payment can begin (mirrors Paddle's). The backend validates the
- * request; the card form itself is mounted on the one dedicated checkout
- * route. A promo code is checked and settled here, because Whop fixes a
- * checkout's code when the checkout opens.
+ * Global checkout through Whop. The email step asks the backend to accept the
+ * checkout (email, plan, no active subscription) before the payer reaches the
+ * payment step, so a wallet's sheet can be opened straight from the submit
+ * button — within the tap, as the browser requires. The card form is mounted on
+ * the one dedicated checkout route, which the card tab hands the checkout to.
+ * A promo code is checked and settled here, and rides along with the payment.
  */
-export default function WhopStartCheckoutPage() {
+function WhopStartCheckout() {
   const { t } = useTranslation();
   const paymentsApi = usePaymentsApi();
   const navigate = useNavigation();
-  const { paddleCheckoutPath } = useAppRoutes();
+  const { paddleCheckoutPath, paymentReturnPath } = useAppRoutes();
   const [promo, setPromo] = useState<WhopPromoCodeDto | null>(null);
+  const [prepared, setPrepared] = useState<PreparedCheckout | null>(null);
+  const [chosenMethod, setChosenMethod] = useState<PaymentMethod | null>('apple_pay');
+  const isAutoPrepared = useRef(false);
 
   const startCheckout = async ({ email, planId, selectedPeriod }: CheckoutRequest) => {
     const request = {
@@ -50,7 +75,6 @@ export default function WhopStartCheckoutPage() {
       toltReferralId: window.tolt_referral ?? null,
       inviterId: getReferralUserId() ?? undefined,
     };
-    const charge = checkout.plan && shownCharge(checkout.plan.planPricing, price);
     const {
       accountId,
       planId: whopPlanId,
@@ -59,21 +83,37 @@ export default function WhopStartCheckoutPage() {
 
     trackCheckoutStarted({ paymentProvider: 'whop', days: selectedPeriod });
 
-    navigate(paddleCheckoutPath, {
-      state: {
-        accountId,
-        whopPlanId,
-        renews,
-        request,
-        selectedPeriod,
-        ...(promo ? { promo } : {}),
-        ...(charge ? { charge } : {}),
-      } satisfies WhopCheckoutState,
-    });
+    setPrepared({ accountId, whopPlanId, renews, request, selectedPeriod });
   };
 
   const checkout = useCheckout(startCheckout);
   const price = promo && checkout.plan ? promoPrice(checkout.plan.planPricing, promo) : null;
+  const charge = checkout.plan && shownCharge(checkout.plan.planPricing, price);
+  const whopCheckout: WhopCheckoutState = {
+    ...(prepared ?? NOT_PREPARED),
+    ...(promo ? { promo } : {}),
+    ...(charge ? { charge } : {}),
+  };
+  const payment = useWhopPay({
+    checkout: whopCheckout,
+    returnUrl: `${window.location.origin}${paymentReturnPath}`,
+  });
+  const { sheet, wallets, isReady } = useWhopWalletSheet({
+    checkout: whopCheckout,
+    enabled: prepared !== null,
+  });
+  const method: PaymentMethod =
+    chosenMethod && (chosenMethod === 'card' || wallets.includes(chosenMethod))
+      ? chosenMethod
+      : (wallets[0] ?? 'card');
+
+  // A signed-in payer has no email step, so the checkout is accepted on arrival.
+  const { isAuthenticated, plan, handleSubmit } = checkout;
+  useEffect(() => {
+    if (!isAuthenticated || !plan || isAutoPrepared.current) return;
+    isAutoPrepared.current = true;
+    void handleSubmit();
+  }, [isAuthenticated, plan, handleSubmit]);
 
   if (checkout.isLoading) return <Loading />;
   if (checkout.loadFailed) return <LoadError reason='failed_to_load_plans' onRetry={loadPlans} />;
@@ -91,34 +131,78 @@ export default function WhopStartCheckoutPage() {
           }),
         });
 
+  const submitPayment = () => {
+    if (!prepared) return;
+    if (method === 'card') {
+      navigate(paddleCheckoutPath, { state: whopCheckout });
+      return;
+    }
+    if (!sheet) return;
+    void payment.pay({
+      via: 'wallet',
+      tokenise: () => showWalletSheet(sheet, method, prepared.request.email),
+    });
+  };
+
+  const arePaymentMethodsLoaded = prepared !== null && isReady;
+  const canPay = prepared !== null && (method === 'card' || sheet !== null);
+
   return (
     <>
       <CheckoutForm
         isAuthenticated={checkout.isAuthenticated}
         email={checkout.email}
         emailError={checkout.emailError}
-        checkoutError={checkout.checkoutError}
-        isPending={checkout.isPending}
+        checkoutError={checkout.checkoutError ?? failureFor(payment, 'wallet')}
+        isPending={checkout.isPending || payment.pendingVia !== null}
         selectedPeriod={checkout.selectedPeriod}
         plan={checkout.plan}
-        canSubmit={checkout.plan !== undefined}
+        canSubmit={checkout.plan !== undefined && canPay}
         promoCodeSlot={
           checkout.plan && (
             <WhopPromoCode planId={checkout.plan.planId} applied={promo} onApplyChange={setPromo} />
           )
         }
-        paymentMethodsSlot={<WhopPaymentTabs />}
+        isPaymentLoading={!arePaymentMethodsLoaded}
+        paymentMethodsSlot={
+          arePaymentMethodsLoaded && (
+            <WhopPaymentTabs wallets={wallets} selected={method} onSelect={setChosenMethod} />
+          )
+        }
         promoDiscount={promoDiscount ?? undefined}
         taxNote={t('getSubscription.tax_included_note')}
-        validateEmail={checkout.validateEmail}
-        handleSubmit={checkout.handleSubmit}
+        completeEmailStep={checkout.handleSubmit}
+        handleSubmit={submitPayment}
         handleEmailChange={checkout.handleEmailChange}
       />
+      <WhopPaymentProcessingDrawer isOpen={payment.pendingVia === 'wallet' && payment.isCharging} />
       <ActiveSubscriptionDialog
         email={checkout.activeSubscriptionEmail}
         isLoggedIn={checkout.isAuthenticated}
         onClose={checkout.dismissActiveSubscription}
       />
     </>
+  );
+}
+
+export default function WhopStartCheckoutPage() {
+  // `loadWhop()` injects Whop's script into the document, so it only runs
+  // once mounted in a browser — never during SSR.
+  const [elements, setElements] = useState<WhopLoad | undefined>();
+
+  useEffect(() => {
+    setElements(loadWhop());
+  }, []);
+
+  if (!elements) return <Loading />;
+
+  return (
+    <WhopElements
+      elements={elements}
+      environment={getWhopEnvironment()}
+      locale={toWhopLocale(i18n.language)}
+    >
+      <WhopStartCheckout />
+    </WhopElements>
   );
 }

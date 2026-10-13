@@ -1253,6 +1253,7 @@
     "step_payment_title": "Select a payment method",
     "card_method": "Credit or debit card",
     "card_tab": "Card",
+    "terms_agreement": "By purchasing, you agree to the terms of service, auto-renewal terms, to receive electronic documents, and acknowledge our privacy policy. <1>Learn more</1>",
     "submit": "Proceed to payment",
     "order_title": "Your order",
     "tax_included_note": "Price includes applicable taxes.",

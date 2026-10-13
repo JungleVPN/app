@@ -1253,6 +1253,7 @@
     "step_payment_title": "Bir ödeme yöntemi seçin",
     "card_method": "Kredi veya banka kartı",
     "card_tab": "Kart",
+    "terms_agreement": "Satın alarak hizmet şartlarını, otomatik yenileme koşullarını ve elektronik belgeleri almayı kabul eder, gizlilik politikamızı okuduğunuzu onaylarsınız. <1>Daha fazla bilgi</1>",
     "submit": "Ödemeye devam et",
     "order_title": "Siparişiniz",
     "tax_included_note": "Fiyata geçerli vergiler dahildir.",

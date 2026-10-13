@@ -23,6 +23,8 @@ interface CheckoutFormProps {
   promoCodeSlot?: ReactNode;
   /** A provider's payment method choice, shown in the payment step under its heading. */
   paymentMethodsSlot?: ReactNode;
+  /** True while the payment methods are still loading. */
+  isPaymentLoading?: boolean;
   /**
    * An applied promo code's effect on the order, replacing the plan's own
    * discount: `total` is the new amount, absent when the saving can't be
@@ -31,8 +33,8 @@ interface CheckoutFormProps {
   promoDiscount?: { total?: string; label: string };
   /** Shown under the order when the provider guarantees the price already includes tax. */
   taxNote?: string;
-  /** Checks the payer's email, showing the reason when it is missing or malformed. */
-  validateEmail: () => boolean;
+  /** Finishes the email step — resolves true to move on to payment; shows its own reason when not. */
+  completeEmailStep: () => boolean | Promise<boolean>;
   handleSubmit: () => void;
   handleEmailChange: (value: string) => void;
 }
@@ -51,7 +53,7 @@ const HALF_WIDTH = { base: 12, sm: 12, md: 12, lg: 6 } as const;
 export const CheckoutForm = (props: CheckoutFormProps) => {
   const { isAuthenticated, plan, selectedPeriod, promoCodeSlot, promoDiscount, taxNote } = props;
   const { t } = useTranslation();
-  const steps = useStepperNavigation({ stepCount: 2, validateStep: props.validateEmail });
+  const steps = useStepperNavigation({ stepCount: 2, validateStep: props.completeEmailStep });
   const isEmailStep = !isAuthenticated && steps.currentStep === 0;
 
   useEffect(() => {
@@ -77,10 +79,15 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
       <Grid className='gap-6'>
         <GridItem size={HALF_WIDTH}>
           {isEmailStep ? (
-            <CheckoutEmailStep {...props} handleNext={steps.goNext} />
+            <CheckoutEmailStep
+              {...props}
+              handleNext={steps.goNext}
+              isPending={steps.isValidating}
+            />
           ) : (
             <CheckoutPaymentStep
               {...props}
+              isLoading={props.isPaymentLoading}
               handleBack={isAuthenticated ? undefined : steps.goPrevious}
             />
           )}

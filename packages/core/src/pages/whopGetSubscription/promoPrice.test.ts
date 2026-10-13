@@ -60,9 +60,10 @@ describe('promoPrice', () => {
   });
 
   it('never takes a fixed amount below zero', () => {
-    expect(
-      promoPrice(pricing(), promo({ promoType: 'flat_amount', amountOff: 25 })),
-    ).toEqual({ total: '0.00', percentOff: 100 });
+    expect(promoPrice(pricing(), promo({ promoType: 'flat_amount', amountOff: 25 }))).toEqual({
+      total: '0.00',
+      percentOff: 100,
+    });
   });
 
   it('leaves the total alone for a fixed amount in another currency', () => {

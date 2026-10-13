@@ -11,8 +11,20 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiClientError } from '../../api';
 import WhopStartCheckoutPage from './WhopStartCheckoutPage';
 
-const { navigate, api, trackCheckoutStarted, loadPlans, checkoutState } = vi.hoisted(() => ({
+const {
+  navigate,
+  api,
+  trackCheckoutStarted,
+  loadPlans,
+  checkoutState,
+  pay,
+  wallets,
+  showWalletSheet,
+} = vi.hoisted(() => ({
   navigate: vi.fn(),
+  pay: vi.fn(),
+  showWalletSheet: vi.fn(),
+  wallets: { sheet: null as object | null, available: [] as string[], isReady: true },
   loadPlans: vi.fn(),
   checkoutState: { loadFailed: false },
   trackCheckoutStarted: vi.fn(),
@@ -43,7 +55,10 @@ vi.mock('../getSubscription/useCheckout', () => ({
     isPending: false,
     activeSubscriptionEmail: null,
     handleEmailChange: () => {},
-    handleSubmit: () => startCheckout(REQUEST),
+    handleSubmit: async () => {
+      await startCheckout(REQUEST);
+      return true;
+    },
     dismissActiveSubscription: () => {},
     loadFailed: checkoutState.loadFailed,
   }),
@@ -51,28 +66,84 @@ vi.mock('../getSubscription/useCheckout', () => ({
 vi.mock('../getSubscription/CheckoutForm', () => ({
   CheckoutForm: ({
     promoCodeSlot,
+    paymentMethodsSlot,
+    isPaymentLoading,
     promoDiscount,
     taxNote,
+    canSubmit,
+    completeEmailStep,
     handleSubmit,
   }: {
     promoCodeSlot?: ReactNode;
+    paymentMethodsSlot?: ReactNode;
+    isPaymentLoading?: boolean;
     promoDiscount?: { total?: string; label: string };
     taxNote?: string;
+    canSubmit: boolean;
+    completeEmailStep: () => void;
     handleSubmit: () => void;
   }) => (
     <>
       {promoCodeSlot}
+      {paymentMethodsSlot}
       {taxNote && <p data-testid='order-tax-note'>{taxNote}</p>}
       {promoDiscount && (
         <p data-testid='order-discount'>
           {promoDiscount.total ?? 'unchanged'} · {promoDiscount.label}
         </p>
       )}
+      {isPaymentLoading && <p data-testid='payment-loading'>loading</p>}
+      <p data-testid='can-submit'>{String(canSubmit)}</p>
+      <button type='button' onClick={completeEmailStep}>
+        common.next
+      </button>
       <button type='button' onClick={handleSubmit}>
         getSubscription.submit
       </button>
     </>
   ),
+}));
+vi.mock('../whopGetSubscription/WhopPaymentTabs', () => ({
+  WhopPaymentTabs: ({
+    wallets: available,
+    selected,
+    onSelect,
+  }: {
+    wallets: string[];
+    selected: string;
+    onSelect: (method: string) => void;
+  }) => (
+    <div data-testid='selected-method' data-selected={selected}>
+      {[...available, 'card'].map((method) => (
+        <button key={method} type='button' onClick={() => onSelect(method)}>
+          tab:{method}
+        </button>
+      ))}
+    </div>
+  ),
+}));
+vi.mock('@whop/elements', () => ({ loadWhop: () => ({}) }));
+vi.mock('@whop/elements-react', () => ({
+  WhopElements: ({ children }: { children: ReactNode }) => <>{children}</>,
+}));
+vi.mock('../whopCheckout/whopEnv', () => ({
+  getWhopEnvironment: () => 'sandbox',
+  toWhopLocale: () => 'en',
+}));
+vi.mock('../whopCheckout/WhopPaymentProcessingDrawer', () => ({
+  WhopPaymentProcessingDrawer: () => null,
+}));
+vi.mock('../whopCheckout/useWhopPay', () => ({
+  useWhopPay: () => ({ pay, pendingVia: null, isCharging: false, failure: null }),
+  failureFor: () => null,
+}));
+vi.mock('../whopCheckout/whopWallets', () => ({
+  useWhopWalletSheet: () => ({
+    sheet: wallets.sheet,
+    wallets: wallets.available,
+    isReady: wallets.isReady,
+  }),
+  showWalletSheet,
 }));
 vi.mock('../getSubscription/ActiveSubscriptionDialog', () => ({
   ActiveSubscriptionDialog: () => null,
@@ -87,7 +158,7 @@ vi.mock('../../components', () => ({
 }));
 vi.mock('../../hooks', () => ({ useNavigation: () => navigate, loadPlans }));
 vi.mock('../../runtime', () => ({
-  useAppRoutes: () => ({ paddleCheckoutPath: '/checkout' }),
+  useAppRoutes: () => ({ paddleCheckoutPath: '/checkout', paymentReturnPath: '/payment/return' }),
   usePaymentsApi: () => api,
 }));
 vi.mock('../../utils', () => ({
@@ -112,6 +183,16 @@ const applyPromo = (code: string) => {
   fireEvent.click(applyButton());
 };
 
+const nextButton = () => screen.getByRole('button', { name: 'common.next' });
+const canSubmit = () => screen.getByTestId('can-submit').textContent;
+
+/** Passes the email step, then presses submit once the payment step can take it. */
+const startPayment = async () => {
+  fireEvent.click(nextButton());
+  await waitFor(() => expect(canSubmit()).toBe('true'));
+  fireEvent.click(startButton());
+};
+
 const handedOverState = () => navigate.mock.lastCall?.[1].state;
 const orderDiscount = () => screen.queryByTestId('order-discount')?.textContent ?? null;
 const discountShown = () => screen.findByTestId('order-discount');
@@ -119,6 +200,9 @@ const discountShown = () => screen.findByTestId('order-discount');
 describe('WhopStartCheckoutPage', () => {
   beforeEach(() => {
     checkoutState.loadFailed = false;
+    wallets.sheet = null;
+    wallets.available = [];
+    wallets.isReady = true;
     vi.clearAllMocks();
     api.createPublicWhopCheckout.mockResolvedValue({
       accountId: 'biz_1',
@@ -240,7 +324,7 @@ describe('WhopStartCheckoutPage', () => {
     applyPromo('spring20');
     await discountShown();
 
-    fireEvent.click(startButton());
+    await startPayment();
 
     await waitFor(() => expect(navigate).toHaveBeenCalled());
     expect(navigate).toHaveBeenCalledWith('/checkout', {
@@ -264,7 +348,7 @@ describe('WhopStartCheckoutPage', () => {
   it('hands over the total the payer was shown, which a wallet sheet displays', async () => {
     render(<WhopStartCheckoutPage />);
 
-    fireEvent.click(startButton());
+    await startPayment();
 
     await waitFor(() => expect(navigate).toHaveBeenCalled());
     expect(handedOverState().charge).toEqual({ amount: '10.00', currency: 'USD' });
@@ -281,7 +365,7 @@ describe('WhopStartCheckoutPage', () => {
     applyPromo('FIVE');
     await discountShown();
 
-    fireEvent.click(startButton());
+    await startPayment();
 
     await waitFor(() => expect(navigate).toHaveBeenCalled());
     expect(handedOverState()).not.toHaveProperty('charge');
@@ -290,7 +374,7 @@ describe('WhopStartCheckoutPage', () => {
   it('starts the checkout at full price when no code was applied', async () => {
     render(<WhopStartCheckoutPage />);
 
-    fireEvent.click(startButton());
+    await startPayment();
 
     await waitFor(() => expect(navigate).toHaveBeenCalled());
     expect(handedOverState()).not.toHaveProperty('promo');
@@ -306,7 +390,7 @@ describe('WhopStartCheckoutPage', () => {
 
     expect(orderDiscount()).toBeNull();
     expect(promoInput()).toHaveProperty('value', '');
-    fireEvent.click(startButton());
+    await startPayment();
     await waitFor(() => expect(navigate).toHaveBeenCalled());
     expect(handedOverState()).not.toHaveProperty('promo');
   });
@@ -314,7 +398,7 @@ describe('WhopStartCheckoutPage', () => {
   it('reports the checkout starting, with the plan being bought', async () => {
     render(<WhopStartCheckoutPage />);
 
-    fireEvent.click(startButton());
+    fireEvent.click(nextButton());
 
     await waitFor(() =>
       expect(trackCheckoutStarted).toHaveBeenCalledWith({ paymentProvider: 'whop', days: 30 }),
@@ -324,11 +408,93 @@ describe('WhopStartCheckoutPage', () => {
   it('offers a retry instead of the form when the plans could not be loaded', () => {
     checkoutState.loadFailed = true;
     render(<WhopStartCheckoutPage />);
-    expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe('failed_to_load_plans');
+    expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe(
+      'failed_to_load_plans',
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'retry' }));
 
-    expect(screen.queryByRole('button', { name: 'getSubscription.submit' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'common.next' })).toBeNull();
     expect(loadPlans).toHaveBeenCalledTimes(1);
+  });
+
+  it('accepts the checkout on Next without leaving the page', async () => {
+    render(<WhopStartCheckoutPage />);
+    expect(canSubmit()).toBe('false');
+
+    fireEvent.click(nextButton());
+
+    await waitFor(() => expect(canSubmit()).toBe('true'));
+    expect(api.createPublicWhopCheckout).toHaveBeenCalledTimes(1);
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('opens the card form on the checkout route when the card tab is selected', async () => {
+    render(<WhopStartCheckoutPage />);
+
+    await startPayment();
+
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/checkout', expect.anything()));
+    expect(pay).not.toHaveBeenCalled();
+  });
+
+  it('opens the wallet sheet instead when a wallet tab is selected', async () => {
+    wallets.sheet = { show: vi.fn() };
+    wallets.available = ['apple_pay', 'google_pay'];
+    render(<WhopStartCheckoutPage />);
+
+    fireEvent.click(nextButton());
+    await waitFor(() => expect(canSubmit()).toBe('true'));
+    expect(screen.getByTestId('selected-method').dataset.selected).toBe('apple_pay');
+    fireEvent.click(startButton());
+
+    expect(pay).toHaveBeenCalledWith({ via: 'wallet', tokenise: expect.any(Function) });
+    expect(navigate).not.toHaveBeenCalled();
+    pay.mock.calls[0]?.[0].tokenise();
+    expect(showWalletSheet).toHaveBeenCalledWith(wallets.sheet, 'apple_pay', 'payer@test.com');
+  });
+
+  it('pays with the wallet the payer picked', async () => {
+    wallets.sheet = { show: vi.fn() };
+    wallets.available = ['apple_pay', 'google_pay'];
+    render(<WhopStartCheckoutPage />);
+
+    fireEvent.click(nextButton());
+    fireEvent.click(await screen.findByRole('button', { name: 'tab:google_pay' }));
+    await waitFor(() => expect(canSubmit()).toBe('true'));
+    fireEvent.click(startButton());
+
+    pay.mock.calls[0]?.[0].tokenise();
+    expect(showWalletSheet).toHaveBeenCalledWith(wallets.sheet, 'google_pay', 'payer@test.com');
+  });
+
+  it('cannot pay by wallet before its sheet is ready', async () => {
+    wallets.available = ['apple_pay'];
+    render(<WhopStartCheckoutPage />);
+
+    fireEvent.click(nextButton());
+
+    await waitFor(() => expect(api.createPublicWhopCheckout).toHaveBeenCalled());
+    expect(canSubmit()).toBe('false');
+  });
+
+  it('shows a spinner for the payment methods until the wallets are known', async () => {
+    wallets.isReady = false;
+    render(<WhopStartCheckoutPage />);
+
+    fireEvent.click(nextButton());
+
+    await waitFor(() => expect(api.createPublicWhopCheckout).toHaveBeenCalled());
+    expect(screen.getByTestId('payment-loading')).toBeTruthy();
+    expect(screen.queryByTestId('selected-method')).toBeNull();
+  });
+
+  it('shows the payment methods once they are loaded', async () => {
+    render(<WhopStartCheckoutPage />);
+
+    fireEvent.click(nextButton());
+
+    await waitFor(() => expect(screen.getByTestId('selected-method')).toBeTruthy());
+    expect(screen.queryByTestId('payment-loading')).toBeNull();
   });
 });

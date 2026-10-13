@@ -1,7 +1,6 @@
 import { Button, Spinner } from '@heroui/react';
-import { IconChevronRight } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useTermsStore } from '../../stores';
 import { Block, Heading, Paragraph } from '../../ui';
 import { BRAND_GRADIENT } from './brandGradient';
@@ -13,6 +12,8 @@ interface CheckoutPaymentStepProps {
   canSubmit: boolean;
   /** A provider's payment method choice, shown under the heading. */
   paymentMethodsSlot?: ReactNode;
+  /** True while the payment methods are still loading; the whole step shows a spinner. */
+  isLoading?: boolean;
   /** Returns to the email step; absent when there is none before this step. */
   handleBack?: () => void;
   handleSubmit: () => void;
@@ -37,30 +38,44 @@ export function CheckoutPaymentStep({
   isPending,
   canSubmit,
   paymentMethodsSlot,
+  isLoading = false,
   handleBack,
   handleSubmit,
 }: CheckoutPaymentStepProps) {
   const { t } = useTranslation();
   const { open: openTerms } = useTermsStore();
 
+  if (isLoading) {
+    return (
+      <Block className='p-5 sm:p-6'>
+        <div className='flex min-h-48 items-center justify-center'>
+          <Spinner />
+        </div>
+      </Block>
+    );
+  }
+
   return (
-    <Block
-      className='p-5 sm:p-6'
-      description={
-        <button
-          className='flex w-fit cursor-pointer items-center gap-1 text-sm text-muted underline underline-offset-2'
-          type='button'
-          onClick={openTerms}
-        >
-          {t('getSubscription.terms_link')}
-          <IconChevronRight size={16} stroke={2} className='rtl:-scale-x-100' />
-        </button>
-      }
-    >
+    <Block className='p-5 sm:p-6'>
       <div className='flex flex-col gap-6'>
         <StepHeading step={2} title={t('getSubscription.step_payment_title')} />
 
         {paymentMethodsSlot}
+
+        <Paragraph className='text-sm text-muted'>
+          <Trans
+            i18nKey='getSubscription.terms_agreement'
+            components={{
+              1: (
+                <button
+                  className='cursor-pointer underline underline-offset-2'
+                  type='button'
+                  onClick={openTerms}
+                />
+              ),
+            }}
+          />
+        </Paragraph>
 
         <div className='flex flex-wrap items-center justify-between gap-4'>
           <Button

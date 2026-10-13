@@ -6,6 +6,8 @@ import { Block, Paragraph } from '../../ui';
 interface CheckoutEmailStepProps {
   email: string;
   emailError: string;
+  checkoutError: string | null;
+  isPending: boolean;
   handleEmailChange: (value: string) => void;
   /** Validates the email and moves on to the payment step. */
   handleNext: () => void;
@@ -15,6 +17,8 @@ interface CheckoutEmailStepProps {
 export function CheckoutEmailStep({
   email,
   emailError,
+  checkoutError,
+  isPending,
   handleEmailChange,
   handleNext,
 }: CheckoutEmailStepProps) {
@@ -68,9 +72,11 @@ export function CheckoutEmailStep({
           )}
         </TextField>
 
-        <Button className='ms-auto rounded-full' onPress={handleNext}>
+        <Button className='ms-auto rounded-full' isPending={isPending} onPress={handleNext}>
           {t('common.next')}
         </Button>
+
+        {checkoutError && <Paragraph>{checkoutError}</Paragraph>}
       </div>
     </Block>
   );

@@ -64,7 +64,7 @@ export default function RuStartCheckoutPage() {
         selectedPeriod={checkout.selectedPeriod}
         plan={checkout.plan}
         canSubmit={checkout.plan !== undefined}
-        validateEmail={checkout.validateEmail}
+        completeEmailStep={checkout.validateEmail}
         handleSubmit={checkout.handleSubmit}
         handleEmailChange={checkout.handleEmailChange}
       />

@@ -6,13 +6,24 @@
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { PlanPricing, SubscriptionPlanDto } from '@workspace/types';
-import type { ReactNode } from 'react';
+import { cloneElement, type ReactElement, type ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { CheckoutForm } from './CheckoutForm';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
-  Trans: ({ i18nKey }: { i18nKey: string }) => <>{i18nKey}</>,
+  Trans: ({
+    i18nKey,
+    components,
+  }: {
+    i18nKey: string;
+    components?: Record<number, ReactElement>;
+  }) => (
+    <>
+      {i18nKey}
+      {components?.[1] && cloneElement(components[1], undefined, 'learn-more')}
+    </>
+  ),
 }));
 vi.mock('../../assets/Logo.svg?react', () => ({ default: () => null }));
 vi.mock('../../components', () => ({
@@ -20,7 +31,8 @@ vi.mock('../../components', () => ({
   Link: ({ children }: { children: ReactNode }) => <>{children}</>,
   PaymentMethodIcons: () => null,
 }));
-vi.mock('../../stores', () => ({ useTermsStore: () => ({ open: () => {} }) }));
+const { openTerms } = vi.hoisted(() => ({ openTerms: vi.fn() }));
+vi.mock('../../stores', () => ({ useTermsStore: () => ({ open: openTerms }) }));
 vi.mock('../../ui', () => ({
   Block: ({ children }: { children: ReactNode }) => <section>{children}</section>,
   Grid: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -62,7 +74,7 @@ const renderForm = (props: Partial<Parameters<typeof CheckoutForm>[0]> = {}) =>
       selectedPeriod={30}
       plan={plan()}
       canSubmit
-      validateEmail={() => true}
+      completeEmailStep={() => true}
       handleSubmit={() => {}}
       handleEmailChange={() => {}}
       {...props}
@@ -146,12 +158,12 @@ describe('CheckoutForm steps', () => {
   });
 
   it('keeps a visitor on the email step while the email is invalid', async () => {
-    const validateEmail = vi.fn(() => false);
-    renderForm({ isAuthenticated: false, validateEmail, paymentMethodsSlot: <p>methods</p> });
+    const completeEmailStep = vi.fn(() => false);
+    renderForm({ isAuthenticated: false, completeEmailStep, paymentMethodsSlot: <p>methods</p> });
 
     next();
 
-    await waitFor(() => expect(validateEmail).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(completeEmailStep).toHaveBeenCalledTimes(1));
     expect(screen.queryByText('methods')).toBeNull();
   });
 
@@ -179,5 +191,14 @@ describe('CheckoutForm steps', () => {
     fireEvent.click(screen.getByRole('button', { name: 'getSubscription.submit' }));
 
     expect(handleSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('explains what purchasing agrees to above the submit button, linking to the terms', () => {
+    renderForm({ isAuthenticated: true });
+
+    expect(screen.getByText('getSubscription.terms_agreement')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'learn-more' }));
+
+    expect(openTerms).toHaveBeenCalledTimes(1);
   });
 });

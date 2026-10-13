@@ -4,37 +4,44 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import IconApplePay from '../../assets/icons/apple-pay-short-icon.svg?react';
 import IconGooglePay from '../../assets/icons/google-pay-short-icon.svg?react';
+import type { Wallet } from '../whopCheckout/whopWallets';
 
-type PaymentTab = { id: string; label?: string; icon: ReactNode };
+export type PaymentMethod = Wallet | 'card';
+
+type PaymentTab = { id: PaymentMethod; label?: string; icon: ReactNode };
 
 const ICON_CLASS = 'h-12 w-auto';
 
-/** Apple Pay is the native wallet on Safari and every iOS browser, where Google Pay is cut off. */
-const isApplePayAvailable = (): boolean =>
-  typeof window !== 'undefined' && 'ApplePaySession' in window;
+const WALLET_ICONS: Record<Wallet, ReactNode> = {
+  apple_pay: <IconApplePay className={ICON_CLASS} />,
+  google_pay: <IconGooglePay className={ICON_CLASS} />,
+};
 
-/** Google Pay is offered wherever Apple Pay is not the native wallet. */
-const isGooglePayAvailable = (): boolean => typeof window !== 'undefined' && !isApplePayAvailable();
-
-function paymentTabs(cardLabel: string): PaymentTab[] {
-  return [
-    ...(!isApplePayAvailable()
-      ? [{ id: 'apple_pay', icon: <IconApplePay className={ICON_CLASS} /> }]
-      : []),
-    ...(isGooglePayAvailable()
-      ? [{ id: 'google_pay', icon: <IconGooglePay className={ICON_CLASS} /> }]
-      : []),
-    { id: 'card', label: cardLabel, icon: <IconCreditCard size={20} stroke={1.5} /> },
-  ];
+interface WhopPaymentTabsProps {
+  /** The wallets this browser can pay with; the card is always offered. */
+  wallets: Wallet[];
+  selected: PaymentMethod;
+  onSelect: (method: PaymentMethod) => void;
 }
 
-/** The payment methods to choose from; their content is not built yet. */
-export function WhopPaymentTabs() {
+/** The payment methods to choose from; the submit button acts on the selected one. */
+export function WhopPaymentTabs({ wallets, selected, onSelect }: WhopPaymentTabsProps) {
   const { t } = useTranslation();
-  const tabs = paymentTabs(t('getSubscription.card_tab'));
+  const tabs: PaymentTab[] = [
+    ...wallets.map((wallet) => ({ id: wallet, icon: WALLET_ICONS[wallet] })),
+    {
+      id: 'card',
+      label: t('getSubscription.card_tab'),
+      icon: <IconCreditCard size={20} stroke={1.5} />,
+    },
+  ];
 
   return (
-    <Tabs className='w-full' defaultSelectedKey={tabs[0]?.id}>
+    <Tabs
+      className='w-full'
+      selectedKey={selected}
+      onSelectionChange={(key) => onSelect(key as PaymentMethod)}
+    >
       <Tabs.ListContainer>
         <Tabs.List aria-label='Payment method'>
           {tabs.map(({ id, label, icon }) => (

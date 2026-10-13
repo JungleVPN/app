@@ -1253,6 +1253,7 @@
     "step_payment_title": "Selecciona una forma de pago",
     "card_method": "Tarjeta de crédito o débito",
     "card_tab": "Tarjeta",
+    "terms_agreement": "Al comprar, aceptas los términos del servicio, las condiciones de renovación automática y recibir documentos electrónicos, y reconoces nuestra política de privacidad. <1>Más información</1>",
     "submit": "Proceder al pago",
     "order_title": "Tu pedido",
     "tax_included_note": "El precio incluye los impuestos aplicables.",

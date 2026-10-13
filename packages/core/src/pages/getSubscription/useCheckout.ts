@@ -42,7 +42,8 @@ export interface Checkout {
   handleEmailChange: (value: string) => void;
   /** Checks the payer's email, showing the reason when it is missing or malformed. */
   validateEmail: () => boolean;
-  handleSubmit: () => Promise<void>;
+  /** Validates and starts the checkout; resolves whether it started. */
+  handleSubmit: () => Promise<boolean>;
   dismissActiveSubscription: () => void;
 }
 
@@ -97,20 +98,22 @@ export function useCheckout(startCheckout: (request: CheckoutRequest) => Promise
     return true;
   };
 
-  const handleSubmit = async () => {
-    if (!checkEmail() || !plan) return;
+  const handleSubmit = async (): Promise<boolean> => {
+    if (!checkEmail() || !plan) return false;
 
     setIsPending(true);
     setCheckoutError(null);
     setActiveSubscriptionEmail(null);
     try {
       await startCheckout({ email: payerEmail, planId: plan.planId, selectedPeriod: plan.days });
+      return true;
     } catch (error) {
       if (isActiveSubscriptionError(error)) {
         setActiveSubscriptionEmail(payerEmail);
-        return;
+        return false;
       }
       setCheckoutError(t(isThrottledError(error) ? THROTTLED_ERROR : CHECKOUT_ERROR));
+      return false;
     } finally {
       setIsPending(false);
     }
