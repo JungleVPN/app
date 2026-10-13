@@ -1,7 +1,7 @@
 import type { SubscriptionPlanDto } from '@workspace/types';
 import { type ReactNode, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stepper, useStepperNavigation } from '../../components/Stepper';
+import { Stepper, useStepperNavigation } from '../../components';
 import { Grid, GridItem } from '../../ui';
 import { scrollToTop } from '../../utils';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
@@ -85,11 +85,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
               isPending={steps.isValidating}
             />
           ) : (
-            <CheckoutPaymentStep
-              {...props}
-              isLoading={props.isPaymentLoading}
-              handleBack={isAuthenticated ? undefined : steps.goPrevious}
-            />
+            <CheckoutPaymentStep {...props} isLoading={props.isPaymentLoading} />
           )}
         </GridItem>
 

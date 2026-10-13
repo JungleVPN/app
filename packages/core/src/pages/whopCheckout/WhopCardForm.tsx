@@ -79,21 +79,16 @@ function CountryAutofill({
 }
 
 /**
- * The card form: Whop's PCI-isolated number, expiry and security-code fields
- * with our own labels, the billing details Whop needs for a card (name on
- * card, country, postal code), and our own pay button and messages — so every
- * word the payer reads comes from the app's translations.
- *
- * Pressing pay tokenises the card and charges it through `useWhopPay`; while
- * any payment is in flight, a wallet's included, the pay button stays locked.
+ * The card's inputs — Whop's PCI-isolated number, expiry and security-code
+ * fields with our own labels, plus the billing details Whop needs for a card
+ * (name on card, country, postal code) — with whether the card can be paid and
+ * the call that pays it. Must be rendered within Whop's `Payments` element.
  */
-export function WhopCardForm({ checkout, payment }: WhopCardFormProps) {
+export function useWhopCardFields({ checkout, payment }: WhopCardFormProps) {
   const { t } = useTranslation();
   const payments = usePayments();
   const whop = useWhop();
   const { pay, pendingVia } = payment;
-  const error = failureFor(payment, 'card');
-  const { open: openTerms } = useTermsStore();
   const ipStatus = useIpStatus(useRemnawaveApi());
 
   const countries = useMemo(() => billingCountryOptions(i18n.language), []);
@@ -128,9 +123,92 @@ export function WhopCardForm({ checkout, payment }: WhopCardFormProps) {
     }
   };
 
+  const submit = () => {
+    if (canPay) void pay({ via: 'card', tokenise: tokeniseCard });
+  };
+
+  const inputs = (
+    <div className='flex flex-col gap-4'>
+      <CardFields onChange={({ complete }) => setIsCardComplete(complete)}>
+        <HostedField label={t('whopCheckout.card_number')}>
+          <CardNumberElement />
+        </HostedField>
+        <div className='grid grid-cols-2 gap-4'>
+          <HostedField label={t('whopCheckout.expiry')}>
+            <CardExpiryElement />
+          </HostedField>
+          <HostedField label={t('whopCheckout.cvc')}>
+            <CardCvcElement />
+          </HostedField>
+        </div>
+      </CardFields>
+
+      <TextField isRequired name='cc-name' value={name} onChange={setName}>
+        <Label>{t('whopCheckout.name')}</Label>
+        <Input
+          autoComplete='cc-name'
+          className={INPUT_CLASS}
+          placeholder={t('whopCheckout.name_placeholder')}
+        />
+      </TextField>
+
+      <div className='grid grid-cols-2 gap-4'>
+        <div className='relative'>
+          <ComboBox
+            isRequired
+            defaultItems={countries}
+            selectedKey={country || null}
+            onSelectionChange={(key: Key | null) => setCountry(key == null ? '' : String(key))}
+          >
+            <Label>{t('whopCheckout.country')}</Label>
+            <ComboBox.InputGroup>
+              <Input autoComplete='off' className={INPUT_CLASS} />
+              <ComboBox.Trigger />
+            </ComboBox.InputGroup>
+            <ComboBox.Popover className='bg-overlay text-overlay-foreground'>
+              <ListBox className='text-overlay-foreground'>
+                {(option: BillingCountryOption) => (
+                  <ListBox.Item id={option.code} textValue={option.name}>
+                    <ListBox.ItemIndicator />
+                    <Label>{option.name}</Label>
+                  </ListBox.Item>
+                )}
+              </ListBox>
+            </ComboBox.Popover>
+          </ComboBox>
+          <CountryAutofill countries={countries} value={country} onChange={setCountry} />
+        </div>
+
+        <TextField isRequired name='postal-code' value={postalCode} onChange={setPostalCode}>
+          <Label>{t('whopCheckout.postal_code')}</Label>
+          <Input autoComplete='postal-code' className={INPUT_CLASS} />
+        </TextField>
+      </div>
+    </div>
+  );
+
+  return { inputs, canPay, submit };
+}
+
+/**
+ * The card form: Whop's PCI-isolated number, expiry and security-code fields
+ * with our own labels, the billing details Whop needs for a card (name on
+ * card, country, postal code), and our own pay button and messages — so every
+ * word the payer reads comes from the app's translations.
+ *
+ * Pressing pay tokenises the card and charges it through `useWhopPay`; while
+ * any payment is in flight, a wallet's included, the pay button stays locked.
+ */
+export function WhopCardForm({ checkout, payment }: WhopCardFormProps) {
+  const { t } = useTranslation();
+  const { pendingVia } = payment;
+  const error = failureFor(payment, 'card');
+  const { open: openTerms } = useTermsStore();
+  const { inputs, canPay, submit } = useWhopCardFields({ checkout, payment });
+
   const handleSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
-    if (canPay) void pay({ via: 'card', tokenise: tokeniseCard });
+    submit();
   };
 
   return (
@@ -150,63 +228,7 @@ export function WhopCardForm({ checkout, payment }: WhopCardFormProps) {
           </>
         }
       >
-        <div className='flex flex-col gap-4'>
-          <CardFields onChange={({ complete }) => setIsCardComplete(complete)}>
-            <HostedField label={t('whopCheckout.card_number')}>
-              <CardNumberElement />
-            </HostedField>
-            <div className='grid grid-cols-2 gap-4'>
-              <HostedField label={t('whopCheckout.expiry')}>
-                <CardExpiryElement />
-              </HostedField>
-              <HostedField label={t('whopCheckout.cvc')}>
-                <CardCvcElement />
-              </HostedField>
-            </div>
-          </CardFields>
-
-          <TextField isRequired name='cc-name' value={name} onChange={setName}>
-            <Label>{t('whopCheckout.name')}</Label>
-            <Input
-              autoComplete='cc-name'
-              className={INPUT_CLASS}
-              placeholder={t('whopCheckout.name_placeholder')}
-            />
-          </TextField>
-
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='relative'>
-              <ComboBox
-                isRequired
-                defaultItems={countries}
-                selectedKey={country || null}
-                onSelectionChange={(key: Key | null) => setCountry(key == null ? '' : String(key))}
-              >
-                <Label>{t('whopCheckout.country')}</Label>
-                <ComboBox.InputGroup>
-                  <Input autoComplete='off' className={INPUT_CLASS} />
-                  <ComboBox.Trigger />
-                </ComboBox.InputGroup>
-                <ComboBox.Popover className='bg-overlay text-overlay-foreground'>
-                  <ListBox className='text-overlay-foreground'>
-                    {(option: BillingCountryOption) => (
-                      <ListBox.Item id={option.code} textValue={option.name}>
-                        <ListBox.ItemIndicator />
-                        <Label>{option.name}</Label>
-                      </ListBox.Item>
-                    )}
-                  </ListBox>
-                </ComboBox.Popover>
-              </ComboBox>
-              <CountryAutofill countries={countries} value={country} onChange={setCountry} />
-            </div>
-
-            <TextField isRequired name='postal-code' value={postalCode} onChange={setPostalCode}>
-              <Label>{t('whopCheckout.postal_code')}</Label>
-              <Input autoComplete='postal-code' className={INPUT_CLASS} />
-            </TextField>
-          </div>
-        </div>
+        {inputs}
       </Block>
 
       <Button

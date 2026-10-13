@@ -14,8 +14,6 @@ interface CheckoutPaymentStepProps {
   paymentMethodsSlot?: ReactNode;
   /** True while the payment methods are still loading; the whole step shows a spinner. */
   isLoading?: boolean;
-  /** Returns to the email step; absent when there is none before this step. */
-  handleBack?: () => void;
   handleSubmit: () => void;
 }
 
@@ -39,7 +37,6 @@ export function CheckoutPaymentStep({
   canSubmit,
   paymentMethodsSlot,
   isLoading = false,
-  handleBack,
   handleSubmit,
 }: CheckoutPaymentStepProps) {
   const { t } = useTranslation();
@@ -57,10 +54,22 @@ export function CheckoutPaymentStep({
 
   return (
     <Block className='p-5 sm:p-6'>
-      <div className='flex flex-col gap-6'>
+      <div className='flex flex-col gap-2'>
         <StepHeading step={2} title={t('getSubscription.step_payment_title')} />
-
         {paymentMethodsSlot}
+        <Button
+          className={`${BRAND_GRADIENT} w-full rounded-full`}
+          isDisabled={!canSubmit}
+          isPending={isPending}
+          onPress={handleSubmit}
+        >
+          {({ isPending: isSubmitPending }) => (
+            <>
+              {t('getSubscription.submit')}
+              {isSubmitPending ? <Spinner color='current' size='sm' /> : null}
+            </>
+          )}
+        </Button>
 
         <Paragraph className='text-sm text-muted'>
           <Trans
@@ -76,30 +85,7 @@ export function CheckoutPaymentStep({
             }}
           />
         </Paragraph>
-
-        <div className='flex flex-wrap items-center justify-between gap-4'>
-          <Button
-            className={`${BRAND_GRADIENT} w-full rounded-full`}
-            isDisabled={!canSubmit}
-            isPending={isPending}
-            onPress={handleSubmit}
-          >
-            {({ isPending: isSubmitPending }) => (
-              <>
-                {t('getSubscription.submit')}
-                {isSubmitPending ? <Spinner color='current' size='sm' /> : null}
-              </>
-            )}
-          </Button>
-        </div>
-
         {checkoutError && <Paragraph>{checkoutError}</Paragraph>}
-
-        {handleBack && (
-          <Button className='w-fit rounded-full' variant='secondary' onPress={handleBack}>
-            {t('common.back')}
-          </Button>
-        )}
       </div>
     </Block>
   );

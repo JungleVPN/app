@@ -6,7 +6,7 @@
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { PROMO_CODE_INVALID_CODE } from '@workspace/types';
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiClientError } from '../../api';
 import WhopStartCheckoutPage from './WhopStartCheckoutPage';
@@ -20,9 +20,13 @@ const {
   pay,
   wallets,
   showWalletSheet,
+  cardSubmit,
+  cardPanel,
 } = vi.hoisted(() => ({
   navigate: vi.fn(),
   pay: vi.fn(),
+  cardSubmit: vi.fn(),
+  cardPanel: { checkout: null as Record<string, unknown> | null },
   showWalletSheet: vi.fn(),
   wallets: { sheet: null as object | null, available: [] as string[], isReady: true },
   loadPlans: vi.fn(),
@@ -107,10 +111,12 @@ vi.mock('../whopGetSubscription/WhopPaymentTabs', () => ({
   WhopPaymentTabs: ({
     wallets: available,
     selected,
+    cardPanel: card,
     onSelect,
   }: {
     wallets: string[];
     selected: string;
+    cardPanel: ReactNode;
     onSelect: (method: string) => void;
   }) => (
     <div data-testid='selected-method' data-selected={selected}>
@@ -119,8 +125,25 @@ vi.mock('../whopGetSubscription/WhopPaymentTabs', () => ({
           tab:{method}
         </button>
       ))}
+      {selected === 'card' && card}
     </div>
   ),
+}));
+vi.mock('./WhopCardPanel', () => ({
+  WhopCardPanel: ({
+    checkout,
+    submitRef,
+    onCanPayChange,
+  }: {
+    checkout: Record<string, unknown>;
+    submitRef: { current: () => void };
+    onCanPayChange: (canPay: boolean) => void;
+  }) => {
+    cardPanel.checkout = checkout;
+    submitRef.current = cardSubmit;
+    useEffect(() => onCanPayChange(true), [onCanPayChange]);
+    return <p>card-inputs</p>;
+  },
 }));
 vi.mock('@whop/elements', () => ({ loadWhop: () => ({}) }));
 vi.mock('@whop/elements-react', () => ({
@@ -193,7 +216,7 @@ const startPayment = async () => {
   fireEvent.click(startButton());
 };
 
-const handedOverState = () => navigate.mock.lastCall?.[1].state;
+const handedOverState = () => cardPanel.checkout as Record<string, unknown>;
 const orderDiscount = () => screen.queryByTestId('order-discount')?.textContent ?? null;
 const discountShown = () => screen.findByTestId('order-discount');
 
@@ -203,6 +226,7 @@ describe('WhopStartCheckoutPage', () => {
     wallets.sheet = null;
     wallets.available = [];
     wallets.isReady = true;
+    cardPanel.checkout = null;
     vi.clearAllMocks();
     api.createPublicWhopCheckout.mockResolvedValue({
       accountId: 'biz_1',
@@ -318,7 +342,7 @@ describe('WhopStartCheckoutPage', () => {
     expect(await screen.findByText('getSubscription.throttled_error')).toBeTruthy();
   });
 
-  it('hands the applied code to the checkout route, which opens the checkout with it', async () => {
+  it('pays the card with the applied code, on the total the payer was shown', async () => {
     api.checkPublicWhopPromoCode.mockResolvedValue(SPRING20);
     render(<WhopStartCheckoutPage />);
     applyPromo('spring20');
@@ -326,35 +350,32 @@ describe('WhopStartCheckoutPage', () => {
 
     await startPayment();
 
-    await waitFor(() => expect(navigate).toHaveBeenCalled());
-    expect(navigate).toHaveBeenCalledWith('/checkout', {
-      state: {
-        accountId: 'biz_1',
-        whopPlanId: 'plan_1',
-        renews: true,
-        request: {
-          email: 'payer@test.com',
-          planId: 'whop-30',
-          toltReferralId: null,
-          inviterId: 7,
-        },
-        selectedPeriod: 30,
-        promo: SPRING20,
-        charge: { amount: '8.00', currency: 'USD' },
+    expect(handedOverState()).toEqual({
+      accountId: 'biz_1',
+      whopPlanId: 'plan_1',
+      renews: true,
+      request: {
+        email: 'payer@test.com',
+        planId: 'whop-30',
+        toltReferralId: null,
+        inviterId: 7,
       },
+      selectedPeriod: 30,
+      promo: SPRING20,
+      charge: { amount: '8.00', currency: 'USD' },
     });
+    expect(cardSubmit).toHaveBeenCalledTimes(1);
   });
 
-  it('hands over the total the payer was shown, which a wallet sheet displays', async () => {
+  it('prices the card payment at the total the payer was shown', async () => {
     render(<WhopStartCheckoutPage />);
 
     await startPayment();
 
-    await waitFor(() => expect(navigate).toHaveBeenCalled());
     expect(handedOverState().charge).toEqual({ amount: '10.00', currency: 'USD' });
   });
 
-  it('hands over no total when a fixed amount in another currency leaves it unknown', async () => {
+  it('has no total when a fixed amount in another currency leaves it unknown', async () => {
     api.checkPublicWhopPromoCode.mockResolvedValue({
       ...SPRING20,
       promoType: 'flat_amount',
@@ -367,7 +388,6 @@ describe('WhopStartCheckoutPage', () => {
 
     await startPayment();
 
-    await waitFor(() => expect(navigate).toHaveBeenCalled());
     expect(handedOverState()).not.toHaveProperty('charge');
   });
 
@@ -376,7 +396,6 @@ describe('WhopStartCheckoutPage', () => {
 
     await startPayment();
 
-    await waitFor(() => expect(navigate).toHaveBeenCalled());
     expect(handedOverState()).not.toHaveProperty('promo');
   });
 
@@ -391,7 +410,6 @@ describe('WhopStartCheckoutPage', () => {
     expect(orderDiscount()).toBeNull();
     expect(promoInput()).toHaveProperty('value', '');
     await startPayment();
-    await waitFor(() => expect(navigate).toHaveBeenCalled());
     expect(handedOverState()).not.toHaveProperty('promo');
   });
 
@@ -426,15 +444,15 @@ describe('WhopStartCheckoutPage', () => {
 
     await waitFor(() => expect(canSubmit()).toBe('true'));
     expect(api.createPublicWhopCheckout).toHaveBeenCalledTimes(1);
-    expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('opens the card form on the checkout route when the card tab is selected', async () => {
+  it('shows the card inputs and pays the card from the submit button on the card tab', async () => {
     render(<WhopStartCheckoutPage />);
 
     await startPayment();
 
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/checkout', expect.anything()));
+    expect(screen.getByText('card-inputs')).toBeTruthy();
+    expect(cardSubmit).toHaveBeenCalledTimes(1);
     expect(pay).not.toHaveBeenCalled();
   });
 
@@ -449,7 +467,7 @@ describe('WhopStartCheckoutPage', () => {
     fireEvent.click(startButton());
 
     expect(pay).toHaveBeenCalledWith({ via: 'wallet', tokenise: expect.any(Function) });
-    expect(navigate).not.toHaveBeenCalled();
+    expect(cardSubmit).not.toHaveBeenCalled();
     pay.mock.calls[0]?.[0].tokenise();
     expect(showWalletSheet).toHaveBeenCalledWith(wallets.sheet, 'apple_pay', 'payer@test.com');
   });

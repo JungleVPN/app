@@ -21,11 +21,13 @@ interface WhopPaymentTabsProps {
   /** The wallets this browser can pay with; the card is always offered. */
   wallets: Wallet[];
   selected: PaymentMethod;
+  /** The card inputs, shown while the card tab is selected. */
+  cardPanel?: ReactNode;
   onSelect: (method: PaymentMethod) => void;
 }
 
 /** The payment methods to choose from; the submit button acts on the selected one. */
-export function WhopPaymentTabs({ wallets, selected, onSelect }: WhopPaymentTabsProps) {
+export function WhopPaymentTabs({ wallets, selected, cardPanel, onSelect }: WhopPaymentTabsProps) {
   const { t } = useTranslation();
   const tabs: PaymentTab[] = [
     ...wallets.map((wallet) => ({ id: wallet, icon: WALLET_ICONS[wallet] })),
@@ -54,8 +56,8 @@ export function WhopPaymentTabs({ wallets, selected, onSelect }: WhopPaymentTabs
         </Tabs.List>
       </Tabs.ListContainer>
       {tabs.map(({ id }) => (
-        <Tabs.Panel key={id} id={id}>
-          {null}
+        <Tabs.Panel key={id} id={id} className='pt-4'>
+          {id === 'card' ? cardPanel : null}
         </Tabs.Panel>
       ))}
     </Tabs>
