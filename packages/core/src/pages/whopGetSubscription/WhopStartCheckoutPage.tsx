@@ -67,7 +67,7 @@ function WhopStartCheckout() {
   const [prepared, setPrepared] = useState<PreparedCheckout | null>(null);
   const [chosenMethod, setChosenMethod] = useState<PaymentMethod | null>('apple_pay');
   const [isCardPayable, setIsCardPayable] = useState(false);
-  const isAutoPrepared = useRef(false);
+  const [prepareAttempt, setPrepareAttempt] = useState(0);
   const submitCard = useRef<() => void>(() => {});
 
   const startCheckout = async ({ email, planId, selectedPeriod }: CheckoutRequest) => {
@@ -107,16 +107,28 @@ function WhopStartCheckout() {
       ? chosenMethod
       : (wallets[0] ?? 'card');
 
-  // A signed-in payer has no email step, so the checkout is accepted on arrival.
+  // A signed-in payer has no email step, so the checkout is accepted on arrival
+  // and again on each retry the payer asks for after a failure.
   const { isAuthenticated, plan, handleSubmit } = checkout;
+  const latestHandleSubmit = useRef(handleSubmit);
+  latestHandleSubmit.current = handleSubmit;
+  const hasPlan = plan !== undefined;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: prepareAttempt re-runs the effect on purpose
   useEffect(() => {
-    if (!isAuthenticated || !plan || isAutoPrepared.current) return;
-    isAutoPrepared.current = true;
-    void handleSubmit();
-  }, [isAuthenticated, plan, handleSubmit]);
+    if (!isAuthenticated || !hasPlan) return;
+    void latestHandleSubmit.current();
+  }, [isAuthenticated, hasPlan, prepareAttempt]);
 
   if (checkout.isLoading) return <Loading />;
   if (checkout.loadFailed) return <LoadError reason='failed_to_load_plans' onRetry={loadPlans} />;
+  if (isAuthenticated && !prepared && !checkout.isPending && checkout.checkoutError) {
+    return (
+      <LoadError
+        reason='failed_to_start_checkout'
+        onRetry={() => setPrepareAttempt((attempt) => attempt + 1)}
+      />
+    );
+  }
 
   const promoDiscount =
     price &&

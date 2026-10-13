@@ -28,7 +28,7 @@ export function Block({
         </div>
       )}
 
-      <Card className={`w-full overflow-hidden p-0 ${className ?? ''}`} variant={variant}>
+      <Card className={`w-full overflow-hidden p-0 bg-white ${className ?? ''}`} variant={variant}>
         <Card.Content className='flex flex-col gap-0 p-0'>{children}</Card.Content>
       </Card>
 

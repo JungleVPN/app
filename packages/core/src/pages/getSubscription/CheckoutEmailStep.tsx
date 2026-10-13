@@ -25,7 +25,7 @@ export function CheckoutEmailStep({
   const { t } = useTranslation();
 
   return (
-    <Block className='p-5 sm:p-6 flex flex-col gap-6'>
+    <Block className='p-5 sm:p-6 flex flex-col gap-6' variant={'secondary'}>
       <TextField
         isInvalid={emailError.length > 0}
         isRequired

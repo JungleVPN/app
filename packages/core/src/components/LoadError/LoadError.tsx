@@ -11,6 +11,7 @@ export type LoadErrorReason =
   | 'could_not_get_account_data'
   | 'connect_email_to_tg'
   | 'failed_to_load_plans'
+  | 'failed_to_start_checkout'
   | 'failed_to_fetch_subscription'
   | 'failed_to_fetch_subscription_link'
   | 'failed_to_fetch_subscription_page_config';
