@@ -87,14 +87,12 @@ export default function PaymentPage() {
 
   const buttonLabel = selectedPlan ? getButtonLabel(selectedPlan, t) : '';
 
-  const isPendingByMethod: Record<PaymentMethod, boolean> = {
+  const isPendingByMethod: Partial<Record<PaymentMethod, boolean>> = {
     yookassa: isPaying,
     stripe: isStripePaying,
     stars: isStarsPaying,
-    paddle: false,
-    whop: false,
   };
-  const isPending = isPendingByMethod[selectedMethod];
+  const isPending = isPendingByMethod[selectedMethod] ?? false;
 
   return (
     <Page

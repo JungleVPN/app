@@ -21,12 +21,16 @@ function CardInputs({
   onCanPayChange,
 }: Omit<WhopCardPanelProps, 'returnUrl'>) {
   const { inputs, canPay, submit } = useWhopCardFields({ checkout, payment });
-  submitRef.current = submit;
+
+  useEffect(() => {
+    submitRef.current = submit;
+  });
 
   useEffect(() => {
     onCanPayChange(canPay);
-    return () => onCanPayChange(false);
   }, [canPay, onCanPayChange]);
+
+  useEffect(() => () => onCanPayChange(false), [onCanPayChange]);
 
   return (
     <>
