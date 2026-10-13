@@ -8,6 +8,8 @@ describe('validateEmail', () => {
     'payer@sub.domain.io',
     'user@example.рф',
     'user@example.xn--p1ai',
+    'user@example.भारत',
+    'user@example.বাংলা',
   ])('accepts %s', (email) => {
     expect(validateEmail(email)).toBe(true);
   });
