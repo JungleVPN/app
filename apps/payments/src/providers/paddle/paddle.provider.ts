@@ -5,12 +5,9 @@ import { PlanService } from '@payments/catalog/plan.service';
 import { providerCurrency } from '@payments/catalog/plan-provider';
 import { toSavedMethodDto } from '@payments/utils/saved-method';
 import { PaddlePayment, SavedPaymentMethod } from '@workspace/database';
-import type {
-  PaddleCheckoutPayload,
-  ProviderPortalDto,
-  ProviderSubscriptionDto,
-} from '@workspace/types';
+import type { ProviderPortalDto, ProviderSubscriptionDto } from '@workspace/types';
 import { Repository } from 'typeorm';
+import type { PaddleCheckoutPayload } from './paddle.types';
 import { PaddleClientService } from './paddle-client.service';
 import { PaddleWebhookService } from './paddle-webhook.service';
 

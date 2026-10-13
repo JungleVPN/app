@@ -26,8 +26,6 @@ const appRoutes = {
   publicPlansPath: '/plans',
   profileSubscriptionPath: '/profile/subscription',
   profilePaymentPath: '/profile/payments',
-  paddleCheckoutPath: '/profile/checkout',
-  profilePaddleCheckoutPath: '/profile/checkout',
   profilePlansPath: '/profile/plans',
   profileDevicesPath: '/profile/devices',
   profileExtraDevicePurchasePath: '/profile/devices/extra',

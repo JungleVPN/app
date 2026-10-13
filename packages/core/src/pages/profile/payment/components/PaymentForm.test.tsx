@@ -20,11 +20,10 @@ vi.mock('../../../../ui/Paragraph', () => ({
   Paragraph: ({ children }: { children: ReactNode }) => <p>{children}</p>,
 }));
 
-const renderForm = (selectedMethod: 'whop' | 'paddle') => {
+const renderForm = (selectedMethod: 'yookassa' | 'stripe') => {
   const handlers = {
     onYookassaPayment: vi.fn().mockResolvedValue(undefined),
-    onPaddlePayment: vi.fn().mockResolvedValue(undefined),
-    onWhopPayment: vi.fn().mockResolvedValue(undefined),
+    onStripePayment: vi.fn().mockResolvedValue(undefined),
     onStarsPayment: vi.fn().mockResolvedValue(undefined),
   };
   render(
@@ -43,21 +42,23 @@ const renderForm = (selectedMethod: 'whop' | 'paddle') => {
 };
 
 describe('PaymentForm', () => {
-  it('pays through Whop when Whop is the selected method', async () => {
-    const handlers = renderForm('whop');
+  it('pays through YooKassa when YooKassa is the selected method', async () => {
+    const handlers = renderForm('yookassa');
 
     fireEvent.click(screen.getByRole('button', { name: /Pay/ }));
 
-    await waitFor(() => expect(handlers.onWhopPayment).toHaveBeenCalledWith(undefined, undefined));
-    expect(handlers.onPaddlePayment).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(handlers.onYookassaPayment).toHaveBeenCalledWith(undefined, undefined),
+    );
+    expect(handlers.onStripePayment).not.toHaveBeenCalled();
   });
 
-  it('still pays through Paddle when Paddle is the selected method', async () => {
-    const handlers = renderForm('paddle');
+  it('pays through Stripe when Stripe is the selected method', async () => {
+    const handlers = renderForm('stripe');
 
     fireEvent.click(screen.getByRole('button', { name: /Pay/ }));
 
-    await waitFor(() => expect(handlers.onPaddlePayment).toHaveBeenCalled());
-    expect(handlers.onWhopPayment).not.toHaveBeenCalled();
+    await waitFor(() => expect(handlers.onStripePayment).toHaveBeenCalled());
+    expect(handlers.onYookassaPayment).not.toHaveBeenCalled();
   });
 });

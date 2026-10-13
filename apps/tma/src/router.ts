@@ -10,7 +10,6 @@ import {
 } from '@workspace/core';
 import {
   ProtectedDevicesPage,
-  ProtectedGlobalCheckoutPage,
   ProtectedMenuPage,
   ProtectedPlansPage,
   ProtectedReferralsPage,
@@ -30,7 +29,6 @@ import { TmaRootLayout } from '@/layouts/TmaRootLayout';
  *   /connectEmail          — onboarding for new Telegram users (no ProfileLayout)
  *   /profile/subscription     — subscription tab
  *   /profile/payments         — payments tab
- *   /profile/checkout         — Paddle or Whop checkout (the global provider)
  *   /profile/devices          — devices tab
  *   /terms                    — terms page
  *   /privacy                  — privacy policy page
@@ -78,10 +76,6 @@ export const router = createMemoryRouter(
             {
               path: 'payments/:planId?',
               Component: ProtectedPaymentPage,
-            },
-            {
-              path: 'checkout',
-              Component: ProtectedGlobalCheckoutPage,
             },
             {
               path: 'devices',

@@ -17,10 +17,10 @@ describe('GLOBAL_PAYMENT_PROVIDER', () => {
     await expect(loadProvider()).resolves.toBe('stripe');
   });
 
-  it('falls back to paddle when unset', async () => {
+  it('falls back to whop when unset', async () => {
     vi.stubEnv('PUBLIC_GLOBAL_PAYMENT_PROVIDER', '');
 
-    await expect(loadProvider()).resolves.toBe('paddle');
+    await expect(loadProvider()).resolves.toBe('whop');
   });
 
   it('reads whop as the provider', async () => {
@@ -37,10 +37,10 @@ describe('GLOBAL_PAYMENT_PROVIDER', () => {
 
   // An unknown value must not reach the payment page as a method no button
   // handles — it falls back like an unset one, so both checkout flows agree.
-  it('falls back to paddle for a provider it does not know', async () => {
+  it('falls back to whop for a provider it does not know', async () => {
     vi.stubEnv('PUBLIC_GLOBAL_PAYMENT_PROVIDER', 'padle');
 
-    await expect(loadProvider()).resolves.toBe('paddle');
+    await expect(loadProvider()).resolves.toBe('whop');
   });
 });
 
@@ -52,7 +52,6 @@ describe('pricesIncludeTax', () => {
   });
 
   it.each([
-    'paddle',
     'stripe',
   ] as const)('makes no claim while %s, whose tax setup is its own, takes the payment', async (provider) => {
     const { pricesIncludeTax } = await import('./paymentProvider');

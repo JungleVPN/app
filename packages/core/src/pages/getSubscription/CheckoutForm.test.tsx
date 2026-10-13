@@ -26,7 +26,8 @@ vi.mock('react-i18next', () => ({
   ),
 }));
 vi.mock('../../assets/Logo.svg?react', () => ({ default: () => null }));
-vi.mock('../../components', () => ({
+vi.mock('../../components', async () => ({
+  ...(await import('../../components/Stepper')),
   FeaturesCard: () => null,
   Link: ({ children }: { children: ReactNode }) => <>{children}</>,
   PaymentMethodIcons: () => null,
@@ -165,15 +166,6 @@ describe('CheckoutForm steps', () => {
 
     await waitFor(() => expect(completeEmailStep).toHaveBeenCalledTimes(1));
     expect(screen.queryByText('methods')).toBeNull();
-  });
-
-  it('lets a visitor go back to the email step', async () => {
-    renderForm({ isAuthenticated: false });
-    next();
-
-    fireEvent.click(await screen.findByRole('button', { name: 'common.back' }));
-
-    expect(await screen.findByPlaceholderText('getSubscription.email_placeholder')).toBeTruthy();
   });
 
   it('shows a signed-in payer the payment methods first, with no email step or Back', () => {

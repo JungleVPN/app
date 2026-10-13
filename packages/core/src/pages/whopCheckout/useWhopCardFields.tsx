@@ -1,4 +1,4 @@
-import { Button, ComboBox, Form, Input, Label, ListBox, Spinner, TextField } from '@heroui/react';
+import { ComboBox, Input, Label, ListBox, TextField } from '@heroui/react';
 import {
   CardCvcElement,
   CardExpiryElement,
@@ -7,28 +7,26 @@ import {
   usePayments,
   useWhop,
 } from '@whop/elements-react';
-import { type Key, type ReactNode, type SyntheticEvent, useMemo, useState } from 'react';
+import { type Key, type ReactNode, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRemnawaveApi } from '../../api';
 import { i18n } from '../../core/i18n';
 import { useIpStatus } from '../../hooks';
-import { useTermsStore } from '../../stores';
-import { Block, Paragraph } from '../../ui';
 import {
   type BillingCountryOption,
   billingCountryOptions,
   preselectedBillingCountry,
 } from './billingCountry';
-import { CardTokenError, failureFor, type WhopPay } from './useWhopPay';
+import { CardTokenError, type WhopPay } from './useWhopPay';
 import type { WhopCheckoutState } from './whopCheckoutState';
 
-interface WhopCardFormProps {
+interface WhopCardFieldsProps {
   checkout: WhopCheckoutState;
   payment: WhopPay;
 }
 
 /** Matches Whop's hosted fields: a hairline at rest, a dark 2px edge and a light outer ring on focus. */
-export const INPUT_CLASS = [
+const INPUT_CLASS = [
   'w-full rounded-lg border border-[#0000001f] bg-transparent shadow-none',
   'focus-visible:border-[#222222]! focus-visible:shadow-[0_0_0_1px_#222222]! focus-visible:ring-0!',
   'focus-visible:outline-solid! focus-visible:outline-1! focus-visible:outline-offset-2! focus-visible:outline-[#dddddd]!',
@@ -84,7 +82,7 @@ function CountryAutofill({
  * (name on card, country, postal code) — with whether the card can be paid and
  * the call that pays it. Must be rendered within Whop's `Payments` element.
  */
-export function useWhopCardFields({ checkout, payment }: WhopCardFormProps) {
+export function useWhopCardFields({ checkout, payment }: WhopCardFieldsProps) {
   const { t } = useTranslation();
   const payments = usePayments();
   const whop = useWhop();
@@ -188,64 +186,4 @@ export function useWhopCardFields({ checkout, payment }: WhopCardFormProps) {
   );
 
   return { inputs, canPay, submit };
-}
-
-/**
- * The card form: Whop's PCI-isolated number, expiry and security-code fields
- * with our own labels, the billing details Whop needs for a card (name on
- * card, country, postal code), and our own pay button and messages — so every
- * word the payer reads comes from the app's translations.
- *
- * Pressing pay tokenises the card and charges it through `useWhopPay`; while
- * any payment is in flight, a wallet's included, the pay button stays locked.
- */
-export function WhopCardForm({ checkout, payment }: WhopCardFormProps) {
-  const { t } = useTranslation();
-  const { pendingVia } = payment;
-  const error = failureFor(payment, 'card');
-  const { open: openTerms } = useTermsStore();
-  const { inputs, canPay, submit } = useWhopCardFields({ checkout, payment });
-
-  const handleSubmit = (event: SyntheticEvent) => {
-    event.preventDefault();
-    submit();
-  };
-
-  return (
-    <Form className='flex w-full flex-col gap-6' validationBehavior='aria' onSubmit={handleSubmit}>
-      <Block
-        className='p-5 sm:p-6'
-        description={
-          <>
-            {t('terms.paymentConsentLead')}
-            <button
-              className='cursor-pointer underline underline-offset-2'
-              type='button'
-              onClick={openTerms}
-            >
-              {t('terms.paymentLinkLabel')}
-            </button>
-          </>
-        }
-      >
-        {inputs}
-      </Block>
-
-      <Button
-        className='w-full rounded-full bg-linear-to-r from-violet-500 to-amber-400'
-        isDisabled={!canPay}
-        isPending={pendingVia === 'card'}
-        type='submit'
-      >
-        {({ isPending: isSubmitPending }) => (
-          <>
-            {t('whopCheckout.pay')}
-            {isSubmitPending ? <Spinner color='current' size='sm' /> : null}
-          </>
-        )}
-      </Button>
-
-      {error && <Paragraph role='alert'>{error}</Paragraph>}
-    </Form>
-  );
 }

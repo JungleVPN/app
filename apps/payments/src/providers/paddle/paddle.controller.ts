@@ -15,8 +15,6 @@ import {
 import type { EventEntity } from '@paddle/paddle-node-sdk';
 import {
   ACTIVE_SUBSCRIPTION_CODE,
-  type CreatePublicPaddleCheckoutDto,
-  type PaddleCheckoutPayload,
   type ProviderPortalDto,
   type ProviderSubscriptionDto,
 } from '@workspace/types';
@@ -25,6 +23,7 @@ import { ClientUserGuard } from '../../auth/client-user.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
 import { PublicCheckoutRateLimitGuard } from '../../guards/public-checkout-rate-limit.guard';
 import { PaddleProvider } from './paddle.provider';
+import type { CreatePublicPaddleCheckoutDto, PaddleCheckoutPayload } from './paddle.types';
 import { PaddleClientService } from './paddle-client.service';
 
 /** Mirrors the pattern the Stripe public route validates emails against. */

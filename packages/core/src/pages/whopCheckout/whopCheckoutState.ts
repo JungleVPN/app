@@ -1,13 +1,9 @@
 import type { CreatePublicWhopCheckoutDto, WhopPromoCodeDto } from '@workspace/types';
 
 /**
- * What the dedicated Whop checkout route needs to mount the card form, handed
- * to it as router state by whichever entry point started the payment.
- *
- * Like Paddle's, it is the *result* of the checkout-init call: the entry point
- * owns validation (email, plan, duplicate subscription, throttling) and the
- * route owns the card form. Router state does not survive a reload or a
- * shared link, so a route that finds none sends the visitor back to pick a plan.
+ * What a Whop payment needs: the result of the checkout-init call, which owns
+ * validation (email, plan, duplicate subscription, throttling), plus the promo
+ * and total the payer was shown.
  */
 export interface WhopCheckoutState {
   /** The Whop account (`biz_...`) we sell from. */
@@ -38,38 +34,4 @@ export interface WhopCheckoutState {
 export interface WhopCheckoutCharge {
   amount: string;
   currency: string;
-}
-
-const isNonEmptyString = (value: unknown): value is string =>
-  typeof value === 'string' && value.length > 0;
-
-function isCheckoutRequest(value: unknown): value is CreatePublicWhopCheckoutDto {
-  if (typeof value !== 'object' || value === null) return false;
-  const request = value as Partial<CreatePublicWhopCheckoutDto>;
-  return isNonEmptyString(request.email) && isNonEmptyString(request.planId);
-}
-
-function isPromo(value: unknown): value is WhopPromoCodeDto {
-  if (typeof value !== 'object' || value === null) return false;
-  return isNonEmptyString((value as Partial<WhopPromoCodeDto>).code);
-}
-
-function isCharge(value: unknown): value is WhopCheckoutCharge {
-  if (typeof value !== 'object' || value === null) return false;
-  const charge = value as Partial<WhopCheckoutCharge>;
-  return isNonEmptyString(charge.amount) && isNonEmptyString(charge.currency);
-}
-
-export function isWhopCheckoutState(value: unknown): value is WhopCheckoutState {
-  if (typeof value !== 'object' || value === null) return false;
-  const state = value as Partial<WhopCheckoutState>;
-  return (
-    isNonEmptyString(state.accountId) &&
-    isNonEmptyString(state.whopPlanId) &&
-    isCheckoutRequest(state.request) &&
-    typeof state.selectedPeriod === 'number' &&
-    (state.renews === undefined || typeof state.renews === 'boolean') &&
-    (state.promo === undefined || isPromo(state.promo)) &&
-    (state.charge === undefined || isCharge(state.charge))
-  );
 }

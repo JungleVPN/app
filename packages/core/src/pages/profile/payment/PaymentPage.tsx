@@ -1,4 +1,3 @@
-import { Button, Spinner } from '@heroui/react';
 import { Page } from '@workspace/core';
 import { StarsPaymentSuccessDrawer } from '@workspace/core/components';
 import type { PaymentMethod } from '@workspace/types';
@@ -18,6 +17,7 @@ import {
 } from '../../../stores';
 import { LottieIcon } from '../../../ui';
 import { GLOBAL_PAYMENT_PROVIDER, phCapture, userScope } from '../../../utils';
+import WhopStartCheckoutPage from '../../whopGetSubscription/WhopStartCheckoutPage';
 import { PaymentForm } from './components/PaymentForm';
 import { SavedMethod } from './components/SavedMethod';
 import { WhopSubscriptionCard } from './components/WhopSubscriptionCard';
@@ -50,16 +50,6 @@ export default function PaymentPage() {
     handleYookassaPayment,
     handleStripePayment,
     handleStarsPayment,
-    handleOpenStripePortal,
-    isOpeningStripePortal,
-    handleOpenPaddlePortal,
-    isOpeningPaddlePortal,
-    handlePaddlePayment,
-    isPaddlePaying,
-    paddleError,
-    handleWhopPayment,
-    isWhopPaying,
-    whopError,
     validatePromo,
   } = usePayment(plan);
 
@@ -67,14 +57,7 @@ export default function PaymentPage() {
     phCapture('payments_viewed');
   }, []);
 
-  const {
-    savedMethods,
-    isLoading,
-    hasActiveMethod,
-    hasStripeSubscription,
-    hasPaddleSubscription,
-    hasWhopSubscription,
-  } = useSavedPayment();
+  const { savedMethods, isLoading, hasActiveMethod, hasWhopSubscription } = useSavedPayment();
 
   const [whopMethod] = useWhopSubscription().methods;
   const { platformType } = usePlatformStore();
@@ -108,16 +91,10 @@ export default function PaymentPage() {
     yookassa: isPaying,
     stripe: isStripePaying,
     stars: isStarsPaying,
-    paddle: isPaddlePaying,
-    whop: isWhopPaying,
+    paddle: false,
+    whop: false,
   };
   const isPending = isPendingByMethod[selectedMethod];
-
-  // const handleSelectionChange = (keys: Selection) => {
-  //   if (keys === 'all') return;
-  //   const key = Array.from(keys)[0] as PaymentMethod | undefined;
-  //   if (key) setSelectedMethod(key);
-  // };
 
   return (
     <Page
@@ -130,49 +107,17 @@ export default function PaymentPage() {
         <Loading />
       ) : hasActiveMethod ? (
         <div className='flex flex-col gap-2'>
-          {hasStripeSubscription ? (
-            <Button
-              fullWidth
-              size='lg'
-              isDisabled={isOpeningStripePortal}
-              isPending={isOpeningStripePortal}
-              onPress={handleOpenStripePortal}
-            >
-              {({ isPending }) => (
-                <>
-                  {isPending ? <Spinner color='current' size='sm' /> : null}
-                  {t('payment.stripeManageButton')}
-                </>
-              )}
-            </Button>
-          ) : hasPaddleSubscription ? (
-            <Button
-              fullWidth
-              size='lg'
-              isDisabled={isOpeningPaddlePortal}
-              isPending={isOpeningPaddlePortal}
-              onPress={handleOpenPaddlePortal}
-            >
-              {({ isPending }) => (
-                <>
-                  {isPending ? <Spinner color='current' size='sm' /> : null}
-                  {t('payment.stripeManageButton')}
-                </>
-              )}
-            </Button>
-          ) : hasWhopSubscription ? (
-            <WhopSubscriptionCard method={whopMethod} />
-          ) : null}
+          {hasWhopSubscription ? <WhopSubscriptionCard method={whopMethod} /> : null}
           <SavedMethod
-            hasManagedSubscription={
-              hasStripeSubscription || hasPaddleSubscription || hasWhopSubscription
-            }
+            hasManagedSubscription={hasWhopSubscription}
             savedMethods={savedMethods}
             isLoadingMethods={isLoading}
             isDeleting={isDeleting}
             onDelete={handleDelete}
           />
         </div>
+      ) : selectedMethod === 'whop' ? (
+        <WhopStartCheckoutPage />
       ) : (
         <>
           <PaymentForm
@@ -181,27 +126,13 @@ export default function PaymentPage() {
             buttonLabel={buttonLabel}
             isPending={isPending}
             starsError={starsError}
-            paymentError={paddleError ?? whopError}
             platformType={platformType}
-            enablePromo={
-              selectedMethod !== 'stripe' &&
-              selectedMethod !== 'paddle' &&
-              selectedMethod !== 'whop'
-            }
+            enablePromo={selectedMethod !== 'stripe'}
             onYookassaPayment={handleYookassaPayment}
             onStripePayment={handleStripePayment}
-            onPaddlePayment={handlePaddlePayment}
-            onWhopPayment={handleWhopPayment}
             onStarsPayment={handleStarsPayment}
             onValidatePromo={validatePromo}
-          >
-            {/*<PaymentMethodSelector*/}
-            {/*  selectedMethod={selectedMethod}*/}
-            {/*  starsEnabled={starsEnabled}*/}
-            {/*  onSelectionChange={handleSelectionChange}*/}
-            {/*  isRuDomain={isRu}*/}
-            {/*/>*/}
-          </PaymentForm>
+          />
           <div className={'mt-4'}>
             <FeaturesCard title={t('common.features.title')} />
           </div>

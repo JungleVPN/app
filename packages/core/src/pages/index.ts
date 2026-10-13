@@ -1,5 +1,3 @@
-export { default as GlobalCheckoutPage } from './checkout/GlobalCheckoutPage';
-export { ProtectedGlobalCheckoutPage } from './checkout/protected';
 export { default as ConnectEmailPage } from './connectEmailPage/ConnectEmailPage';
 export { default as CookiePolicyPage } from './cookies/CookiePolicyPage';
 export { default as PreCheckoutPage } from './getSubscription/PreCheckoutPage';

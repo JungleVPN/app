@@ -1,8 +1,9 @@
 import 'reflect-metadata';
 import { BadRequestException, ConflictException } from '@nestjs/common';
-import { ACTIVE_SUBSCRIPTION_CODE, type CreatePublicPaddleCheckoutDto } from '@workspace/types';
+import { ACTIVE_SUBSCRIPTION_CODE } from '@workspace/types';
 import { describe, expect, it, vi } from 'vitest';
 import { PaddleController } from './paddle.controller';
+import type { CreatePublicPaddleCheckoutDto } from './paddle.types';
 
 describe('PaddleController.createPublicCheckout', () => {
   const publicDto = (

@@ -12,8 +12,6 @@ export interface AppRoutes {
   publicPlansPath: string;
   profileSubscriptionPath: string;
   profilePaymentPath: string;
-  paddleCheckoutPath: string;
-  profilePaddleCheckoutPath: string;
   profilePlansPath: string;
   profileDevicesPath: string;
   profileMenuPath: string;
