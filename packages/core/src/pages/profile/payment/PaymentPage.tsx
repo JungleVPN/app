@@ -99,9 +99,9 @@ export default function PaymentPage() {
   return (
     <Page
       showBackButton={!hasActiveMethod && !isLoading}
-      icon={<LottieIcon src={paymentAnimation} />}
-      title={t('payment.pageTitle')}
-      subtitle={t('payment.pageSubtitle')}
+      icon={selectedMethod !== 'whop' ? <LottieIcon src={paymentAnimation} /> : undefined}
+      title={selectedMethod !== 'whop' ? t('payment.pageTitle') : null}
+      subtitle={selectedMethod !== 'whop' ? t('payment.pageSubtitle') : undefined}
     >
       {isLoading || (planId !== undefined && !arePlansSettled) ? (
         <Loading />

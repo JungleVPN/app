@@ -8,7 +8,7 @@ interface PageProps extends PropsWithChildren {
   icon?: string | React.ReactElement;
   chip?: string;
   chipColor?: ChipProps['color'];
-  title: string;
+  title: string | null;
   subtitle?: string;
   description?: string;
   showBackButton?: boolean;
@@ -34,9 +34,9 @@ export function Page(props: PageProps) {
       className={`flex flex-col items-center justify-center ${className ?? ''}`}
     >
       <div className={'relative flex w-full items-center justify-center'}>
-        {showBackButton && <BackButton className={'absolute top-0 left-0'} />}
+        {showBackButton && <BackButton className={'absolute -top-8 left-0'} />}
         {typeof icon === 'string' ? (
-          <img src={icon} alt={title} className={'mx-auto h-25 w-25'} />
+          <img src={icon} alt={title || ''} className={'mx-auto h-25 w-25'} />
         ) : (
           icon
         )}
