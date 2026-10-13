@@ -310,3 +310,49 @@ describe('CheckoutForm step URLs', () => {
     expect(screen.queryByRole('button', { name: 'common.next' })).toBeNull();
   });
 });
+
+describe('CheckoutForm stepper steps', () => {
+  const url = () => screen.getByTestId('url').textContent;
+  const step = (title: string) =>
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(title) }));
+
+  it('moves to the payment step when its number is pressed and the email is valid', async () => {
+    renderForm({ isAuthenticated: false, email: 'payer@test.com' });
+
+    step('step_payment_title');
+
+    await waitFor(() => expect(url()).toBe('/payment/whop-30?step=payment'));
+    expect(getCheckoutEmail()).toBe('payer@test.com');
+  });
+
+  it('stays on the email step when the payment step is pressed with an invalid email', async () => {
+    const completeEmailStep = vi.fn(() => false);
+    renderForm({ isAuthenticated: false, completeEmailStep });
+
+    step('step_payment_title');
+
+    await waitFor(() => expect(completeEmailStep).toHaveBeenCalledTimes(1));
+    expect(url()).toBe('/payment/whop-30');
+  });
+
+  it('goes back to the email step when its number is pressed', async () => {
+    renderForm({ isAuthenticated: false }, '/payment/whop-30?step=payment');
+
+    step('step_email_title');
+
+    await waitFor(() => expect(url()).toBe('/payment/whop-30'));
+  });
+
+  it('does nothing when the step already shown is pressed', async () => {
+    const completeEmailStep = vi.fn(() => true);
+    renderForm({ isAuthenticated: false, completeEmailStep });
+    step('step_payment_title');
+    await waitFor(() => expect(url()).toBe('/payment/whop-30?step=payment'));
+    completeEmailStep.mockClear();
+
+    step('step_payment_title');
+
+    await Promise.resolve();
+    expect(completeEmailStep).not.toHaveBeenCalled();
+  });
+});

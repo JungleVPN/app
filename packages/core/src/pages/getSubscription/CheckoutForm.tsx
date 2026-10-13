@@ -103,7 +103,11 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
   return (
     <>
       {!isAuthenticated && (
-        <Stepper className='mb-6' currentStep={steps.currentStep}>
+        <Stepper
+          className='mb-6'
+          currentStep={steps.currentStep}
+          onStepChange={(step) => step !== steps.currentStep && steps.goTo(step)}
+        >
           <Stepper.Step>
             <Stepper.Indicator />
             <Stepper.Title>{t('getSubscription.step_email_title')}</Stepper.Title>

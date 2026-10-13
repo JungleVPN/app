@@ -71,7 +71,11 @@ export function CheckoutEmailStep({
         )}
       </TextField>
 
-      <Button className='ms-auto rounded-full' isPending={isPending} onPress={handleNext}>
+      <Button
+        className='ms-auto rounded-full w-full mt-4'
+        isPending={isPending}
+        onPress={handleNext}
+      >
         {t('common.next')}
       </Button>
 
