@@ -31,6 +31,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist/client',
+    target: 'es2022',
     sourcemap: process.env.WEB_BUILD_SOURCEMAP !== 'false',
   },
   ssr: {

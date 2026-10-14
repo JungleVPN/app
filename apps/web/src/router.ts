@@ -5,7 +5,7 @@ import {
   PricingPage,
   ReferralsPage,
   WhatIsVpnPage,
-} from '@workspace/core/pages';
+} from '@workspace/core/pages/marketing';
 import { createBrowserRouter, matchRoutes, type RouteObject } from 'react-router';
 
 import { createRoutes } from './routes';

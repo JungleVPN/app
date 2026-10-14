@@ -31,7 +31,16 @@ if (!isProduction) {
   const compression = (await import('compression')).default;
   const sirv = (await import('sirv')).default;
   app.use(compression());
-  app.use(sirv(resolve(__dirname, 'dist/client'), { extensions: [] }));
+  app.use(
+    sirv(resolve(__dirname, 'dist/client'), {
+      extensions: [],
+      setHeaders(res, pathname) {
+        if (pathname.startsWith('/assets/')) {
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        }
+      },
+    }),
+  );
 }
 
 // Loads the SSR entry module: the built bundle in production, transformed

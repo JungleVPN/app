@@ -36,7 +36,7 @@ export function FeaturesSection() {
               key={key}
               className='flex flex-col gap-4 border-b border-divider px-8 py-10 last:border-b-0 sm:px-12 sm:nth-last-[-n+2]:border-b-0 sm:odd:border-e sm:odd:border-divider'
             >
-              <Icon className='h-25 lg:h-40 w-auto' aria-hidden='true' />
+              <Icon className='h-28 lg:h-40 w-fit m-auto' aria-hidden='true' />
               <div className='flex flex-col gap-2'>
                 <Heading as='h3'>{t(`landing.features.${key}.title`)}</Heading>
                 <Paragraph className={'text-muted'}>

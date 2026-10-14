@@ -1,4 +1,3 @@
-import { DotLottie } from '@lottiefiles/dotlottie-web';
 import { useEffect, useRef } from 'react';
 
 interface Props {
@@ -13,24 +12,37 @@ export function LottieIcon({ src, loop = false, autoplay = true, size = 110, cla
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const dotLottie = new DotLottie({
-      canvas: canvasRef.current,
-      src,
-      loop,
-      autoplay,
-    });
+    let player: { play: () => void; pause: () => void; destroy: () => void } | undefined;
+    let disposed = false;
 
+    // The player (JS + ~600 KB WASM) is only fetched once the icon nears the viewport,
+    // keeping it off the critical path of the initial render.
     const io = new IntersectionObserver(
-      ([entry]) => (entry.isIntersecting ? dotLottie.play() : dotLottie.pause()),
-      { threshold: 0 },
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          player?.pause();
+          return;
+        }
+        if (player) {
+          player.play();
+          return;
+        }
+        void import('@lottiefiles/dotlottie-web').then(({ DotLottie }) => {
+          if (disposed || player) return;
+          player = new DotLottie({ canvas, src, loop, autoplay });
+        });
+      },
+      { rootMargin: '200px' },
     );
-    io.observe(canvasRef.current);
+    io.observe(canvas);
 
     return () => {
+      disposed = true;
       io.disconnect();
-      dotLottie.destroy();
+      player?.destroy();
     };
   }, [src, loop, autoplay]);
 

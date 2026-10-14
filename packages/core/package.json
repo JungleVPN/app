@@ -15,6 +15,7 @@
     "./i18n": "./src/core/i18n/index.ts",
     "./core/i18n": "./src/core/i18n/index.ts",
     "./pages": "./src/pages/index.ts",
+    "./pages/marketing": "./src/pages/marketing.ts",
     "./runtime": "./src/runtime/index.ts",
     "./ui": "./src/ui/index.ts",
     "./env": "./src/env.ts"

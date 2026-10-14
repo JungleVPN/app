@@ -20,7 +20,7 @@ function BentoCell({ icon, title, description, className }: BentoCellProps) {
     >
       <div
         aria-hidden
-        className='[&>svg]:h-auto [&>svg]:w-full [&>svg]:max-h-30 sm:[&>svg]:max-h-28 lg:[&>svg]:max-h-none flex h-full items-center justify-center'
+        className='m-auto [&>svg]:h-auto [&>svg]:w-full [&>svg]:max-h-30 sm:[&>svg]:max-h-28 lg:[&>svg]:max-h-60 flex h-auto items-center justify-center'
       >
         {icon}
       </div>
@@ -60,7 +60,7 @@ export function BentoSection() {
             icon={<AllDevicesIcon />}
             title={t('landing.bento.smartRouting.title')}
             description={t('landing.bento.smartRouting.description')}
-            className='min-h-10 lg:row-span-2 lg:border-r lg:border-white/10'
+            className='min-h-8 lg:row-span-2 lg:border-r lg:border-white/10'
           />
 
           <div className='flex flex-col border-t border-white/10 sm:border-t-0 sm:border-l lg:border-l-0 lg:border-r'>
@@ -68,13 +68,13 @@ export function BentoSection() {
               icon={<SecureByDesignIcon />}
               title={t('landing.bento.security.title')}
               description={t('landing.bento.security.description')}
-              className='min-h-10 flex-1'
+              className='min-h-8 flex-1'
             />
             <BentoCell
               icon={<UnlimitedTrafficIcon />}
               title={t('landing.bento.speed.title')}
               description={t('landing.bento.speed.description')}
-              className='min-h-10 flex-1 border-t border-white/10'
+              className='min-h-8 flex-1 border-t border-white/10'
             />
           </div>
 
@@ -82,7 +82,7 @@ export function BentoSection() {
             icon={<PrivacyFirstIcon />}
             title={t('landing.bento.privacy.title')}
             description={t('landing.bento.privacy.description')}
-            className='min-h-10 border-t border-white/10 sm:col-span-2 lg:col-span-1 lg:row-span-2 lg:border-t-0'
+            className='min-h-8 border-t border-white/10 sm:col-span-2 lg:col-span-1 lg:row-span-2 lg:border-t-0'
           />
         </div>
       </div>

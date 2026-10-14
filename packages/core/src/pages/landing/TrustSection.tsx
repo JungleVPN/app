@@ -5,8 +5,7 @@ import LocationsIcon from '../../assets/icons/all-devices-icon.svg?react';
 import ServersIcon from '../../assets/icons/servers-icon.svg?react';
 import UsersIcon from '../../assets/icons/users-icon.svg?react';
 import { ContentCard } from '../../components/ContentCard';
-import { Grid, GridItem } from '../../ui';
-import { Heading } from '../../ui/Heading';
+import { Grid, GridItem, Heading } from '../../ui';
 
 type StatKey = 'users' | 'countries' | 'servers';
 
