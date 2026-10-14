@@ -122,7 +122,7 @@ export function useWhopCardFields({ checkout, payment }: WhopCardFieldsProps) {
   };
 
   const submit = () => {
-    if (canPay) void pay({ via: 'card', tokenise: tokeniseCard });
+    if (canPay) void pay({ method: 'card', tokenise: tokeniseCard });
   };
 
   const inputs = (

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 import { Stepper, useStepperNavigation } from '../../components';
 import { scrollToTop } from '../../utils';
+import { trackEmailStepSubmitted, trackEmailStepViewed } from '../../utils/checkoutAnalytics';
 import { getCheckoutEmail, saveCheckoutEmail } from '../../utils/checkoutEmail';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
 import { CheckoutEmailStep } from './CheckoutEmailStep';
@@ -75,10 +76,15 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
     validateStep: async () => {
       const isAccepted = await props.completeEmailStep();
       if (isAccepted) saveCheckoutEmail(props.email);
+      trackEmailStepSubmitted({ days: selectedPeriod });
       return isAccepted;
     },
   });
   const isEmailStep = !isAuthenticated && steps.currentStep === 0;
+
+  useEffect(() => {
+    if (isEmailStep) trackEmailStepViewed({ days: selectedPeriod });
+  }, [isEmailStep, selectedPeriod]);
 
   // A reload of the payment step has lost the accepted checkout, so the stored
   // email is accepted again; the email step is the way back when it cannot be.

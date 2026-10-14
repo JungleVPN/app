@@ -498,7 +498,7 @@ describe('WhopStartCheckoutPage', () => {
     expect(screen.queryByRole('button', { name: 'getSubscription.submit' })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'apple-pay-button' }));
 
-    expect(pay).toHaveBeenCalledWith({ via: 'wallet', tokenise: expect.any(Function) });
+    expect(pay).toHaveBeenCalledWith({ method: 'apple_pay', tokenise: expect.any(Function) });
     expect(cardSubmit).not.toHaveBeenCalled();
     pay.mock.calls[0]?.[0].tokenise();
     expect(showWalletSheet).toHaveBeenCalledWith(wallets.sheet, 'apple_pay', 'payer@test.com');

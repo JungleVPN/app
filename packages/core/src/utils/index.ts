@@ -13,11 +13,15 @@ export {
   trackLogout,
   trackTmaSessionExpired,
 } from './authAnalytics';
-export type { CheckoutAnalytics } from './checkoutAnalytics';
+export type { CheckoutAnalytics, SubmittedPaymentMethod } from './checkoutAnalytics';
 export {
   checkoutEventProperties,
   takePendingCheckout,
   trackCheckoutStarted,
+  trackEmailStepSubmitted,
+  trackEmailStepViewed,
+  trackPaymentMethodSubmitted,
+  withUserId,
 } from './checkoutAnalytics';
 export { cn } from './classnames';
 export type { ColorGradientStyle } from './colorParser';

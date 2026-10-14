@@ -9,6 +9,8 @@ import {
   forgetPendingPurchase,
   phCapture,
   rememberPendingPurchase,
+  type SubmittedPaymentMethod,
+  trackPaymentMethodSubmitted,
 } from '../../utils';
 import { checkoutErrorKey } from '../getSubscription/checkoutErrors';
 import type { WhopCheckoutState } from './whopCheckoutState';
@@ -128,8 +130,15 @@ export function useWhopPay({
    * Runs `tokenise` before anything else awaits, so a wallet sheet opens within
    * the tap. One payment at a time across the card and every wallet.
    */
-  const pay = async ({ via, tokenise }: { via: PayVia; tokenise: Tokenise }): Promise<void> => {
+  const pay = async ({
+    method,
+    tokenise,
+  }: {
+    method: SubmittedPaymentMethod;
+    tokenise: Tokenise;
+  }): Promise<void> => {
     if (isLocked.current) return;
+    const via: PayVia = method === 'card' ? 'card' : 'wallet';
     isLocked.current = true;
     setPendingVia(via);
     setFailure(null);
@@ -140,6 +149,10 @@ export function useWhopPay({
       const confirmationToken = await tokenise();
       if (!confirmationToken) return;
       phCapture('payment_submitted', analytics);
+      trackPaymentMethodSubmitted(method, {
+        paymentProvider: 'whop',
+        days: checkout.selectedPeriod,
+      });
       setIsCharging(true);
       const outcome = await charge(confirmationToken);
       if (outcome && 'paid' in outcome) {

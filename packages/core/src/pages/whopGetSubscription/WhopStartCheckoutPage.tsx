@@ -151,7 +151,7 @@ function WhopStartCheckout() {
     }
     if (!sheet) return;
     void payment.pay({
-      via: 'wallet',
+      method,
       tokenise: () => showWalletSheet(sheet, method, prepared.request.email),
     });
   };

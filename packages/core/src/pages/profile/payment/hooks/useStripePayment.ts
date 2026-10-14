@@ -5,7 +5,7 @@ import { useRemnawaveApi } from '../../../../api';
 import { useCreateStripeSession } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
 import { useAuthStoreActions, useAuthStoreInfo, usePlatformStore } from '../../../../stores';
-import { phCapture } from '../../../../utils';
+import { phCapture, withUserId } from '../../../../utils';
 
 /**
  * Stripe checkout flow for the web/TMA payment page.
@@ -82,7 +82,10 @@ export function useStripePayment(plan: SubscriptionPlanDto | undefined) {
     });
 
     if (!session?.url) return;
-    phCapture('checkout_started', { payment_provider: 'stripe', days: plan.days });
+    phCapture(
+      'checkout_started',
+      withUserId({ payment_provider: 'stripe', days: plan.days }),
+    );
     redirectTo(session.url);
   };
 
