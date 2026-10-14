@@ -171,6 +171,17 @@
       "canceled": "Aboneliğin iptal edildi ve yenilenmeyecek.",
       "error": "Aboneliğin iptal edilemedi. Lütfen tekrar dene."
     },
+    "yookassaCancel": {
+      "button": "Planı iptal et",
+      "title": "Planınız iptal edilsin mi?",
+      "body": "Otomatik yenileme kapatılacak ve kayıtlı kartınız silinecek. Yenilemek için yeniden ödeme yapmanız gerekecek.",
+      "keep": "Planı koru",
+      "confirm": "Planı iptal et",
+      "error": "Planınız iptal edilemedi. Lütfen tekrar deneyin.",
+      "doneTitle": "Plan iptal edildi",
+      "doneBody": "Planınız iptal edildi. Yenilemek için yeniden ödeme yapmanız gerekir.",
+      "done": "Plan seç"
+    },
     "whopResume": {
       "button": "Aboneliği sürdür",
       "error": "Aboneliğin sürdürülemedi. Lütfen tekrar dene."

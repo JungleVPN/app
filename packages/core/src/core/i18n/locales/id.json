@@ -171,6 +171,17 @@
       "canceled": "Langganan Anda dibatalkan dan tidak akan diperpanjang.",
       "error": "Gagal membatalkan langganan Anda. Silakan coba lagi."
     },
+    "yookassaCancel": {
+      "button": "Batalkan paket",
+      "title": "Batalkan paket Anda?",
+      "body": "Perpanjangan otomatis akan dimatikan dan kartu tersimpan Anda dihapus. Anda perlu membayar lagi untuk memperpanjang.",
+      "keep": "Pertahankan paket",
+      "confirm": "Batalkan paket",
+      "error": "Paket tidak dapat dibatalkan. Silakan coba lagi.",
+      "doneTitle": "Paket dibatalkan",
+      "doneBody": "Paket Anda telah dibatalkan. Untuk memperpanjangnya, Anda perlu membayar lagi.",
+      "done": "Pilih paket"
+    },
     "whopResume": {
       "button": "Lanjutkan langganan",
       "error": "Tidak dapat melanjutkan langganan Anda. Silakan coba lagi."

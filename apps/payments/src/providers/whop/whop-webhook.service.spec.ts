@@ -61,6 +61,7 @@ const paymentData = (overrides: Record<string, unknown> = {}) => ({
 const cardPaymentDetails = {
   paid_at: '2026-09-27T10:00:00.000Z',
   product: { id: 'prod_1', title: 'Jungle VPN' },
+  payment_method_type: 'card',
   card_brand: 'visa',
   card_last4: '1303',
   card_exp_month: 4,
@@ -322,10 +323,40 @@ describe('WhopWebhookService', () => {
           userId: NEW_ACCOUNT_ID,
           provider: 'whop',
           paymentMethodId: 'mem_1',
-          paymentMethodType: 'whop',
+          paymentMethodType: 'card',
           isActive: true,
           status: 'active',
         }),
+      );
+    });
+
+    it.each([
+      'apple_pay',
+      'google_pay',
+    ])('records a %s payment as that method type', async (type) => {
+      const { service, savedMethodRepo, analyticsClient } = setup();
+
+      await service.handleWebhook(
+        paymentSucceeded({ ...cardPaymentDetails, payment_method_type: type }),
+      );
+
+      expect(savedMethodRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({ paymentMethodType: type }),
+      );
+      expect(analyticsClient.track).toHaveBeenCalledWith(
+        expect.objectContaining({ event: 'payment_method_saved', methodType: type }),
+      );
+    });
+
+    it('treats a payment with no reported method type as a card', async () => {
+      const { service, savedMethodRepo } = setup();
+
+      await service.handleWebhook(
+        paymentSucceeded({ ...cardPaymentDetails, payment_method_type: null }),
+      );
+
+      expect(savedMethodRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({ paymentMethodType: 'card' }),
       );
     });
 
@@ -420,6 +451,7 @@ describe('WhopWebhookService', () => {
           isActive: true,
           renewsAt: new Date('2026-11-26T10:00:00.000Z'),
           card: expect.objectContaining({ last4: '9999' }),
+          paymentMethodType: 'card',
         }),
       );
     });

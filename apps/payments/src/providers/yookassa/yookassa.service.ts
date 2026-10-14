@@ -398,10 +398,11 @@ export class YookassaService {
         throw err;
       });
 
+    const paidAt = captured_at ? new Date(captured_at) : new Date();
     await this.yookassaPaymentRepo.update(id, {
       status,
       userId,
-      paidAt: captured_at ? new Date(captured_at) : new Date(),
+      paidAt,
       url: null,
     });
 
@@ -432,7 +433,11 @@ export class YookassaService {
         payment_method.saved &&
         !isTrialPayment
       ) {
-        await this.activatePaymentMethod({ userId, payment_method });
+        await this.activatePaymentMethod({
+          userId,
+          payment_method,
+          details: subscriptionDetails(record, paidAt),
+        });
       }
 
       // Report to the affiliate program. Tolt has no YooKassa integration, so
@@ -546,34 +551,49 @@ export class YookassaService {
       throw new NotFoundException(`Saved payment method ${id} not found for user ${userId}`);
     }
 
-    await this.savedMethodRepo.delete({ id, userId });
-    this.logger.log(`Deleted saved payment method ${id} for user ${userId}`);
+    // Kept as a record, never deleted: a terminated method can never be charged again.
+    await this.savedMethodRepo.update({ id, userId }, { isActive: false, status: 'terminated' });
+    this.logger.log(`Terminated saved payment method ${id} for user ${userId}`);
   }
 
   /**
    * Activates a new payment method for a user.
    *
-   * Idempotent: if `paymentMethodId` already exists, nothing is written.
-   * Deactivates any previously active methods before saving the new one.
+   * If `paymentMethodId` already exists (a renewal, or the user paying again
+   * with a terminated method) its subscription details are refreshed instead
+   * of a second row being saved. Deactivates any previously active methods
+   * before saving or reviving one.
    * Errors are swallowed — this is best-effort and must not block webhook processing.
    */
   private async activatePaymentMethod({
     userId,
     payment_method,
+    details,
   }: {
     userId: number;
     payment_method: IPaymentMethod & IGeneralPayMethod;
+    details: SubscriptionDetails | null;
   }): Promise<void> {
     try {
       const existing = await this.savedMethodRepo.findOneBy({
         paymentMethodId: payment_method.id,
       });
-      if (existing) {
-        this.logger.log(`Payment method ${payment_method.id} already stored — skipping`);
+      if (existing?.isActive) {
+        if (details) await this.savedMethodRepo.update({ id: existing.id }, details);
+        this.logger.log(`Payment method ${payment_method.id} already stored — details refreshed`);
         return;
       }
 
       await this.savedMethodRepo.update({ userId, isActive: true }, { isActive: false });
+
+      if (existing) {
+        await this.savedMethodRepo.update(
+          { id: existing.id },
+          { ...details, status: 'active', isActive: true },
+        );
+        this.logger.log(`Revived payment method ${payment_method.id} for user ${userId}`);
+        return;
+      }
 
       const card = isBankCardPaymentMethod(payment_method) ? payment_method.card : undefined;
 
@@ -593,6 +613,8 @@ export class YookassaService {
               issuerCountry: card.issuer_country,
             }
           : null,
+        ...details,
+        status: 'active',
         isActive: true,
       });
 
@@ -698,6 +720,30 @@ export class YookassaService {
       return ipAddr.includes(':') ? `${ipAddr}/128` : `${ipAddr}/32`;
     });
   }
+}
+
+type SubscriptionDetails = Pick<
+  SavedPaymentMethod,
+  'productName' | 'amount' | 'currency' | 'billingPeriod' | 'renewsAt' | 'status'
+>;
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * What the profile page shows for a subscription, taken from the charge that
+ * just settled. Only a subscription charge describes the subscription — an
+ * extra-device purchase made with the same method must not overwrite it.
+ */
+function subscriptionDetails(record: YookassaPayment, paidAt: Date): SubscriptionDetails | null {
+  if (record.purpose !== 'subscription') return null;
+  return {
+    productName: 'JungleVPN Подписка',
+    amount: Number(record.amount),
+    currency: record.currency,
+    billingPeriod: record.selectedPeriod,
+    renewsAt: new Date(paidAt.getTime() + record.selectedPeriod * DAY_MS),
+    status: 'active',
+  };
 }
 
 function errorMessage(err: unknown): string {

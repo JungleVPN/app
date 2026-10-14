@@ -43,7 +43,10 @@ export const PlansComponent = (props: PlansComponentProps) => {
             className='w-full'
           >
             <Tabs.ListContainer className='w-full'>
-              <Tabs.List aria-label={t('plans.tabsAriaLabel')} className='w-full gap-2 p-0'>
+              <Tabs.List
+                aria-label={t('plans.tabsAriaLabel')}
+                className='w-full gap-2 p-0 rounded-4xl'
+              >
                 {data.map((plan) => {
                   const amounts = formatPlanAmounts(plan.planPricing);
                   const label = formatPeriod(plan.days, t);

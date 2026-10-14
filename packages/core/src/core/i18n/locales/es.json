@@ -171,6 +171,17 @@
       "canceled": "Tu suscripción está cancelada y no se renovará.",
       "error": "No se pudo cancelar tu suscripción. Inténtalo de nuevo."
     },
+    "yookassaCancel": {
+      "button": "Cancelar plan",
+      "title": "¿Cancelar tu plan?",
+      "body": "La renovación automática se desactivará y se eliminará tu tarjeta guardada. Tendrás que pagar de nuevo para renovar.",
+      "keep": "Mantener plan",
+      "confirm": "Cancelar plan",
+      "error": "No se pudo cancelar tu plan. Inténtalo de nuevo.",
+      "doneTitle": "Plan cancelado",
+      "doneBody": "Tu plan ha sido cancelado. Para renovarlo, tendrás que pagar de nuevo.",
+      "done": "Elegir un plan"
+    },
     "whopResume": {
       "button": "Reanudar suscripción",
       "error": "No se pudo reanudar tu suscripción. Inténtalo de nuevo."

@@ -171,6 +171,17 @@
       "canceled": "Your subscription is canceled and won't renew.",
       "error": "Couldn't cancel your subscription. Please try again."
     },
+    "yookassaCancel": {
+      "button": "Cancel plan",
+      "title": "Cancel your plan?",
+      "body": "Auto-renewal will be turned off and your saved card removed. You'll need to pay again to renew.",
+      "keep": "Keep plan",
+      "confirm": "Cancel plan",
+      "error": "Couldn't cancel your plan. Please try again.",
+      "doneTitle": "Plan cancelled",
+      "doneBody": "Your plan has been cancelled. To renew it, you'll need to pay again.",
+      "done": "Choose a plan"
+    },
     "whopResume": {
       "button": "Resume subscription",
       "error": "Couldn't resume your subscription. Please try again."

@@ -39,6 +39,8 @@ export const WhopPaymentSchema = z.object({
   /** ISO date-time; the docs also call it a Unix timestamp, so seconds are accepted too. */
   paid_at: z.union([z.string(), z.number()]).nullish(),
   product: z.object({ title: z.string() }).nullish(),
+  /** `card`, `apple_pay`, `google_pay`, …; null when the processor does not supply one. */
+  payment_method_type: z.string().nullish(),
   card_brand: z.string().nullish(),
   card_last4: z.string().nullish(),
   card_exp_month: z.number().nullish(),

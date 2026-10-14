@@ -8,19 +8,13 @@ import paymentAnimation from '../../../assets/lottie/paymentPageIcon.lottie?url'
 import { FeaturesCard, Loading } from '../../../components';
 import { useBackButton, useNavigation, usePlans } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
-import {
-  useNavbarStore,
-  usePlanById,
-  usePlansStatus,
-  usePlatformStore,
-  useWhopSubscription,
-} from '../../../stores';
+import { useNavbarStore, usePlanById, usePlansStatus, usePlatformStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
-import { GLOBAL_PAYMENT_PROVIDER, phCapture, userScope } from '../../../utils';
+import { currentScope, GLOBAL_PAYMENT_PROVIDER, phCapture } from '../../../utils';
 import WhopStartCheckoutPage from '../../whopGetSubscription/WhopStartCheckoutPage';
 import { PaymentForm } from './components/PaymentForm';
-import { SavedMethod } from './components/SavedMethod';
 import { WhopSubscriptionCard } from './components/WhopSubscriptionCard';
+import { YookassaSubscriptionCard } from './components/YookassaSubscriptionCard';
 import { usePayment } from './hooks/usePayment';
 import { useSavedPayment } from './hooks/useSavedPayment';
 import { getButtonLabel, type SelectedPlan } from './utils/getButtonLabel';
@@ -40,13 +34,11 @@ export default function PaymentPage() {
 
   const {
     needsEmailInput,
-    isDeleting,
     starsError,
     isPaying,
     isStripePaying,
     isStarsPaying,
     successState,
-    handleDelete,
     handleYookassaPayment,
     handleStripePayment,
     handleStarsPayment,
@@ -57,20 +49,23 @@ export default function PaymentPage() {
     phCapture('payments_viewed');
   }, []);
 
-  const { savedMethods, isLoading, hasActiveMethod, hasWhopSubscription } = useSavedPayment();
+  const {
+    whopMethod,
+    yookassaMethod,
+    isLoading,
+    hasActiveMethod,
+    hasWhopSubscription,
+    hasYookassaSubscription,
+  } = useSavedPayment();
 
-  const [whopMethod] = useWhopSubscription().methods;
   const { platformType } = usePlatformStore();
   const { setNavbarVisible } = useNavbarStore();
   const navigate = useNavigation();
   const { profilePlansPath } = useAppRoutes();
-  const isRu = userScope() === 'ru';
+  const isRu = currentScope() === 'ru';
 
-  // RU visitors and Telegram users pay through YooKassa; everyone else checks
-  // out through whichever global provider is currently enabled.
-  const globalMethod: PaymentMethod = GLOBAL_PAYMENT_PROVIDER;
   const [selectedMethod] = useState<PaymentMethod>(
-    isRu || platformType === 'telegram' ? 'yookassa' : globalMethod,
+    isRu || platformType === 'telegram' ? 'yookassa' : GLOBAL_PAYMENT_PROVIDER,
   );
 
   useBackButton(() => navigate(-1));
@@ -93,26 +88,25 @@ export default function PaymentPage() {
     stars: isStarsPaying,
   };
   const isPending = isPendingByMethod[selectedMethod] ?? false;
+  const showPageAssets =
+    hasWhopSubscription || hasYookassaSubscription || selectedMethod === 'yookassa';
 
   return (
     <Page
       showBackButton={!hasActiveMethod && !isLoading}
-      icon={hasActiveMethod ? <LottieIcon src={paymentAnimation} /> : undefined}
-      title={hasActiveMethod ? t('payment.pageTitle') : null}
-      subtitle={hasActiveMethod ? t('payment.pageSubtitle') : undefined}
+      icon={showPageAssets ? <LottieIcon src={paymentAnimation} /> : undefined}
+      title={showPageAssets ? t('payment.pageTitle') : null}
+      subtitle={showPageAssets ? t('payment.pageSubtitle') : undefined}
     >
       {isLoading || (planId !== undefined && !arePlansSettled) ? (
         <Loading />
       ) : hasActiveMethod ? (
         <div className='flex flex-col gap-2'>
-          {hasWhopSubscription ? <WhopSubscriptionCard method={whopMethod} /> : null}
-          <SavedMethod
-            hasManagedSubscription={hasWhopSubscription}
-            savedMethods={savedMethods}
-            isLoadingMethods={isLoading}
-            isDeleting={isDeleting}
-            onDelete={handleDelete}
-          />
+          {hasWhopSubscription ? (
+            <WhopSubscriptionCard method={whopMethod} />
+          ) : (
+            <YookassaSubscriptionCard method={yookassaMethod} />
+          )}
         </div>
       ) : selectedMethod === 'whop' ? (
         <WhopStartCheckoutPage />

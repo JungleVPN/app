@@ -75,5 +75,5 @@ export const useIsBillingLoaded = () => useSavedMethodsStore((state) => state.is
 export const useHasActiveBilling = () => useSavedMethodsStore(selectHasActiveBilling);
 
 export function selectHasActiveBilling(state: IBillingState): boolean {
-  return state.yookassa.active || state.stripe.active || state.paddle.active || state.whop.active;
+  return state.yookassa.active || state.whop.active;
 }

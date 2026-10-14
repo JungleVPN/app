@@ -635,18 +635,94 @@ describe('YookassaService', () => {
       );
     });
 
-    it('skips saving when a record with same paymentMethodId already exists', async () => {
-      mockSmFindOneBy.mockResolvedValue({ id: 'existing', paymentMethodId: 'pm_1' });
+    it('does not save a second row when the paymentMethodId already exists', async () => {
+      mockSmFindOneBy.mockResolvedValue({
+        id: 'existing',
+        paymentMethodId: 'pm_1',
+        isActive: true,
+      });
 
       await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
 
-      expect(mockSmUpdate).not.toHaveBeenCalled();
       expect(mockSmCreate).not.toHaveBeenCalled();
       expect(mockSmSave).not.toHaveBeenCalled();
-      expect(mockEmit).not.toHaveBeenCalledWith(
-        WebhookEventEnum['payment.method_saved'],
-        expect.anything(),
-      );
+    });
+
+    describe('subscription details', () => {
+      const paidAt = '2026-01-01T00:00:00.000Z';
+      const subscriptionRecord = {
+        userId: 1000,
+        selectedPeriod: 30,
+        telegramId: 42,
+        purpose: 'subscription',
+        amount: '199',
+        currency: 'RUB',
+        description: 'Jungle VPN',
+      };
+      const expectedDetails = {
+        productName: 'Jungle VPN',
+        amount: 199,
+        currency: 'RUB',
+        billingPeriod: 30,
+        renewsAt: new Date('2026-01-31T00:00:00.000Z'),
+        status: 'active',
+      };
+
+      it('stores what the charge was for on a new row, so the profile page can show it', async () => {
+        mockYkFindOneBy.mockResolvedValue(subscriptionRecord);
+        mockSmFindOneBy.mockResolvedValue(null);
+
+        await service.handleWebhook(makeSucceededPayload({ captured_at: paidAt }), '127.0.0.1');
+
+        expect(mockSmCreate).toHaveBeenCalledWith(expect.objectContaining(expectedDetails));
+      });
+
+      it('moves the details forward when a renewal reuses the stored method', async () => {
+        mockYkFindOneBy.mockResolvedValue(subscriptionRecord);
+        mockSmFindOneBy.mockResolvedValue({
+          id: 'existing',
+          paymentMethodId: 'pm_1',
+          isActive: true,
+        });
+
+        await service.handleWebhook(makeSucceededPayload({ captured_at: paidAt }), '127.0.0.1');
+
+        expect(mockSmUpdate).toHaveBeenCalledWith({ id: 'existing' }, expectedDetails);
+      });
+
+      it('revives a terminated row when the user pays again with the same method', async () => {
+        mockYkFindOneBy.mockResolvedValue(subscriptionRecord);
+        mockSmFindOneBy.mockResolvedValue({
+          id: 'existing',
+          paymentMethodId: 'pm_1',
+          isActive: false,
+          status: 'terminated',
+        });
+
+        await service.handleWebhook(makeSucceededPayload({ captured_at: paidAt }), '127.0.0.1');
+
+        expect(mockSmUpdate).toHaveBeenCalledWith(
+          { userId: 1000, isActive: true },
+          { isActive: false },
+        );
+        expect(mockSmUpdate).toHaveBeenCalledWith(
+          { id: 'existing' },
+          { ...expectedDetails, isActive: true },
+        );
+      });
+
+      it('leaves the subscription details alone for a payment that is not a subscription', async () => {
+        mockYkFindOneBy.mockResolvedValue({ ...subscriptionRecord, purpose: 'extra_device' });
+        mockSmFindOneBy.mockResolvedValue({
+          id: 'existing',
+          paymentMethodId: 'pm_1',
+          isActive: true,
+        });
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(mockSmUpdate).not.toHaveBeenCalled();
+      });
     });
 
     // A trial is a one-off purchase: saving the card would renew it as one.
@@ -1659,22 +1735,26 @@ describe('YookassaService', () => {
   // deletePaymentMethod
   // ─────────────────────────────────────────────────────────
   describe('deletePaymentMethod', () => {
-    it('deletes a method belonging to the user', async () => {
+    it('terminates a method belonging to the user, keeping its row', async () => {
       mockSmFindOneBy.mockResolvedValue({ id: 'sm-1', userId: 1000 });
 
       await expect(service.deletePaymentMethod('sm-1', 1000)).resolves.toBeUndefined();
 
-      expect(mockSmDelete).toHaveBeenCalledWith({ id: 'sm-1', userId: 1000 });
+      expect(mockSmUpdate).toHaveBeenCalledWith(
+        { id: 'sm-1', userId: 1000 },
+        { isActive: false, status: 'terminated' },
+      );
+      expect(mockSmDelete).not.toHaveBeenCalled();
     });
 
     // Scoping the lookup by userId is what stops one user deleting another's
     // card by guessing its id.
-    it('raises 404 for a method that is not the user’s, and deletes nothing', async () => {
+    it('raises 404 for a method that is not the user’s, and changes nothing', async () => {
       mockSmFindOneBy.mockResolvedValue(null);
 
       await expect(service.deletePaymentMethod('sm-1', 1001)).rejects.toThrow(NotFoundException);
       expect(mockSmFindOneBy).toHaveBeenCalledWith({ id: 'sm-1', userId: 1001 });
-      expect(mockSmDelete).not.toHaveBeenCalled();
+      expect(mockSmUpdate).not.toHaveBeenCalled();
     });
   });
 

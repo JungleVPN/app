@@ -33,7 +33,7 @@ function StatusChip({ canceled, t }: { canceled: boolean; t: TFunction }) {
  * has not recorded yet (a membership that has not renewed since the fields
  * were added) is left out rather than shown empty.
  */
-function detailRows(
+export function detailRows(
   method: SavedMethodDto,
   options: { t: TFunction; language: string; canceled: boolean },
 ): DetailRow[] {
@@ -82,7 +82,7 @@ function detailRows(
   return rows.filter((row): row is DetailRow => row !== null);
 }
 
-function SubscriptionDetails({ rows }: { rows: DetailRow[] }) {
+export function SubscriptionDetails({ rows }: { rows: DetailRow[] }) {
   if (rows.length === 0) return null;
   return (
     <Block>

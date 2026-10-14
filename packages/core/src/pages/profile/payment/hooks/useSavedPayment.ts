@@ -1,8 +1,6 @@
 import {
   useHasActiveBilling,
   useIsBillingLoaded,
-  usePaddleSubscription,
-  useStripeSubscription,
   useWhopSubscription,
   useYookassaSubscription,
 } from '../../../../stores';
@@ -16,19 +14,16 @@ import {
  */
 export const useSavedPayment = () => {
   const yookassa = useYookassaSubscription();
-  const stripe = useStripeSubscription();
-  const paddle = usePaddleSubscription();
   const whop = useWhopSubscription();
   const hasActiveMethod = useHasActiveBilling();
   const isLoaded = useIsBillingLoaded();
 
   return {
-    /** YooKassa's saved cards — the only methods this app lists and deletes itself. */
-    savedMethods: yookassa.methods,
+    yookassaMethod: yookassa.methods[0],
+    whopMethod: whop.methods[0],
     isLoading: !isLoaded,
     hasActiveMethod,
-    hasStripeSubscription: stripe.active,
-    hasPaddleSubscription: paddle.active,
+    hasYookassaSubscription: yookassa.active,
     hasWhopSubscription: whop.active,
   };
 };

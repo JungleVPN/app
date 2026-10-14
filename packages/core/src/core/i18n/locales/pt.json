@@ -171,6 +171,17 @@
       "canceled": "Sua assinatura foi cancelada e não será renovada.",
       "error": "Não foi possível cancelar sua assinatura. Tente novamente."
     },
+    "yookassaCancel": {
+      "button": "Cancelar plano",
+      "title": "Cancelar seu plano?",
+      "body": "A renovação automática será desativada e seu cartão salvo será removido. Você precisará pagar novamente para renovar.",
+      "keep": "Manter plano",
+      "confirm": "Cancelar plano",
+      "error": "Não foi possível cancelar seu plano. Tente novamente.",
+      "doneTitle": "Plano cancelado",
+      "doneBody": "Seu plano foi cancelado. Para renová-lo, você precisará pagar novamente.",
+      "done": "Escolher um plano"
+    },
     "whopResume": {
       "button": "Retomar assinatura",
       "error": "Não foi possível retomar sua assinatura. Tente novamente."

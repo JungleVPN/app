@@ -59,7 +59,7 @@ export class YookassaController {
     return this.yookassaService.getActiveSavedMethods(userId);
   }
 
-  /** Hard-delete a saved payment method belonging to the authenticated user */
+  /** Terminate (soft-delete) a saved payment method belonging to the authenticated user */
   @Delete('saved-methods/:id')
   @UseGuards(ClientUserGuard)
   async deleteSavedMethod(

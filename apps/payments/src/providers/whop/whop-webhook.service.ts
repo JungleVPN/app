@@ -83,6 +83,7 @@ type SubscriptionDetails = Pick<
   | 'currency'
   | 'billingPeriod'
   | 'renewsAt'
+  | 'paymentMethodType'
   | 'title'
   | 'card'
   | 'iconUrl'
@@ -116,6 +117,7 @@ function subscriptionDetailsOf(
     currency: charge.currency,
     billingPeriod: charge.billingPeriod,
     renewsAt: new Date(paidAtOf(payment).getTime() + charge.billingPeriod * DAY_MS),
+    paymentMethodType: payment.payment_method_type ?? 'card',
     title: payment.payment_instrument?.display_name ?? null,
     card: cardOf(payment),
     iconUrl: payment.payment_instrument?.icons?.card?.dark?.svg ?? null,
@@ -657,7 +659,6 @@ export class WhopWebhookService {
           userId,
           provider: 'whop',
           paymentMethodId: membershipId,
-          paymentMethodType: 'whop',
           ...details,
           isActive: true,
           status: 'active',
@@ -669,7 +670,7 @@ export class WhopWebhookService {
         userId,
         provider: 'whop',
         paymentId: membershipId,
-        methodType: 'whop',
+        methodType: details.paymentMethodType,
       });
 
       this.logger.log(
