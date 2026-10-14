@@ -120,7 +120,10 @@ export function CheckoutOrderSummary({
             </Paragraph>
           </div>
         )}
-        <FeaturesCard className='p-5 sm:p-6' title={t('getSubscription.features_title')} />
+        <FeaturesCard
+          className='hidden md:block p-5 sm:p-6'
+          title={t('getSubscription.features_title')}
+        />
       </div>
     </Block>
   );
