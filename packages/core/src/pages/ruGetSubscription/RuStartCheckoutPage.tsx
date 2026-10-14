@@ -1,4 +1,4 @@
-import { LoadError, Loading } from '../../components';
+import { LoadError, Loading, PaymentMethodIcons } from '../../components';
 import { loadPlans } from '../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import {
@@ -62,6 +62,7 @@ export default function RuStartCheckoutPage() {
         checkoutError={checkout.checkoutError}
         isPending={checkout.isPending}
         selectedPeriod={checkout.selectedPeriod}
+        paymentMethodsSlot={<PaymentMethodIcons />}
         plan={checkout.plan}
         canSubmit={checkout.plan !== undefined}
         completeEmailStep={checkout.validateEmail}
