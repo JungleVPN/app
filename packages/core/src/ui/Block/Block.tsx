@@ -1,5 +1,6 @@
 import { Card } from '@heroui/react';
 import type { PropsWithChildren, ReactNode } from 'react';
+import { usePlatformStore } from '../../stores';
 import { Paragraph } from '../Paragraph';
 
 type BlockProps = PropsWithChildren<{
@@ -19,6 +20,9 @@ export function Block({
   className,
   variant = 'secondary',
 }: BlockProps) {
+  const { platformType } = usePlatformStore();
+  const cardBgr = `${platformType === 'web' ? 'bg-white' : ''}`;
+
   return (
     <div className='flex w-full flex-col gap-2 rounded-2xl'>
       {title && (
@@ -28,7 +32,10 @@ export function Block({
         </div>
       )}
 
-      <Card className={`w-full overflow-hidden p-0 bg-white ${className ?? ''}`} variant={variant}>
+      <Card
+        className={`w-full overflow-hidden p-0 ${cardBgr} ${className ?? ''}`}
+        variant={variant}
+      >
         <Card.Content className='flex flex-col gap-0 p-0'>{children}</Card.Content>
       </Card>
 
