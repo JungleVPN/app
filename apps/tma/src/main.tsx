@@ -3,7 +3,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
 
-import '@workspace/core/core/i18n';
+import { i18nReady } from '@workspace/core/core/i18n';
 import '@/assets/globals.css';
 
 import { AnalyticsApiProvider, ApiProvider } from '@workspace/core/api';
@@ -60,6 +60,8 @@ void (async () => {
       eruda: debug && ['ios', 'android'].includes(platform),
       mockForMacOS: platform === 'macos',
     });
+
+    await i18nReady;
 
     createRoot(root).render(
       <StrictMode>

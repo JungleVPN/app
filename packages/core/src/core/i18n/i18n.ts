@@ -1,38 +1,47 @@
 /**
- * Shared i18next bootstrap for web and TMA. Translations are bundled (not fetched from
- * `/locales/…`) so Mini Apps and non-root deploy paths always resolve strings.
+ * Shared i18next bootstrap for web and TMA. Translations are bundled as one lazily imported
+ * chunk per language (not fetched from `/locales/…`) so Mini Apps and non-root deploy paths
+ * always resolve strings, while visitors only download the language they use.
  */
-import i18n from 'i18next';
+import i18n, { type BackendModule } from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
 import { configuredDomains, currentScope, localePolicyForHost } from '../../utils';
-import ar from './locales/ar.json';
-import en from './locales/en.json';
-import es from './locales/es.json';
-import hi from './locales/hi.json';
-import id from './locales/id.json';
-import pt from './locales/pt.json';
-import ru from './locales/ru.json';
-import tr from './locales/tr.json';
-import ur from './locales/ur.json';
-
 export const DEFAULT_LOCALE = import.meta.env.PUBLIC_DEFAULT_LOCALE || 'en';
 export const SUPPORTED_LOCALES = ['ru', 'en', 'ar', 'tr', 'id', 'hi', 'pt', 'es', 'ur', 'fa'] as const;
 
 /** Persian reuses Arabic until a dedicated translation file exists. */
-const resources = {
-  ru: { translation: ru },
-  en: { translation: en },
-  ar: { translation: ar },
-  tr: { translation: tr },
-  id: { translation: id },
-  hi: { translation: hi },
-  pt: { translation: pt },
-  es: { translation: es },
-  ur: { translation: ur },
-  fa: { translation: ar },
-} as const;
+const localeLoaders: Record<(typeof SUPPORTED_LOCALES)[number], () => Promise<{ default: object }>> = {
+  ru: () => import('./locales/ru.json'),
+  en: () => import('./locales/en.json'),
+  ar: () => import('./locales/ar.json'),
+  tr: () => import('./locales/tr.json'),
+  id: () => import('./locales/id.json'),
+  hi: () => import('./locales/hi.json'),
+  pt: () => import('./locales/pt.json'),
+  es: () => import('./locales/es.json'),
+  ur: () => import('./locales/ur.json'),
+  fa: () => import('./locales/ar.json'),
+};
+
+const isSupportedLocale = (lang: string): lang is keyof typeof localeLoaders => lang in localeLoaders;
+
+/** Each language ships as its own chunk, fetched the first time i18next asks for it. */
+const localeBackend: BackendModule = {
+  type: 'backend',
+  init: () => {},
+  read(language, _namespace, callback) {
+    if (!isSupportedLocale(language)) {
+      callback(null, {});
+      return;
+    }
+    localeLoaders[language]().then(
+      (module) => callback(null, module.default),
+      (error) => callback(error, null),
+    );
+  },
+};
 
 /** RTL-ness of a language tag, e.g. `ar-EG` -> `rtl`. Backed by i18next's built-in language table. */
 export function getDirection(lang: string): 'rtl' | 'ltr' {
@@ -66,11 +75,13 @@ export function isLocaleAllowed(lang: string): boolean {
   return activeLocales.includes(lang);
 }
 
-i18n
+/** Resolves once the detected language (and its fallback) are loaded and ready to render. */
+export const i18nReady = i18n
+  .use(localeBackend)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources,
+    react: { useSuspense: false },
     fallbackLng: allowedLocales?.[0] ?? DEFAULT_LOCALE,
     supportedLngs: activeLocales,
     interpolation: {
@@ -88,10 +99,10 @@ i18n
       caches: ['localStorage'],
     },
   })
-  .then(() => {
+  .then(async () => {
     // The RU domain is Russian-only: it must always render in Russian, regardless
     // of what device detection or a previously cached selection landed on.
-    if (currentScope() === 'ru') i18n.changeLanguage('ru');
+    if (currentScope() === 'ru') await i18n.changeLanguage('ru');
   });
 
 i18n.on('languageChanged', syncDocumentDirection);

@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
 
-import '@workspace/core/core/i18n';
+import { i18nReady } from '@workspace/core/core/i18n';
 import '@/assets/globals.css';
 
 import { AnalyticsApiProvider, ApiProvider } from '@workspace/core/api';
@@ -67,8 +67,9 @@ function renderApp() {
   }
 }
 
+// The active language is loaded too, so the first client render uses the same strings the server rendered.
 // Lazy routes are resolved before the first render. When hydrating, the first client render
 // would otherwise be an empty shell where the server rendered a full page — see
 // preloadMatchedRoutes. Without server markup (local vite dev) it keeps the router initialised,
 // so React Router has no `HydrateFallback` to ask for while it loads them itself.
-void preloadMatchedRoutes(window.location.pathname).then(renderApp);
+void Promise.all([preloadMatchedRoutes(window.location.pathname), i18nReady]).then(renderApp);

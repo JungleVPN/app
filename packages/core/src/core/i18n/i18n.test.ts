@@ -24,9 +24,14 @@ async function bootI18n({
   Object.defineProperty(navigator, 'languages', { value: [language], configurable: true });
 
   vi.resetModules();
-  const { default: i18n } = await import('./i18n');
-  await vi.waitFor(() => expect(i18n.isInitialized).toBe(true));
+  const { default: i18n, i18nReady } = await import('./i18n');
+  await i18nReady;
   return i18n;
+}
+
+async function bootI18nWithReadiness(options: Parameters<typeof bootI18n>[0]) {
+  await bootI18n(options);
+  return import('./i18n');
 }
 
 describe('language resolution per domain', () => {
@@ -127,5 +132,66 @@ describe('global domain path routing', () => {
   it('applies path routing on unrestricted hosts too (e.g. localhost during development)', async () => {
     const i18n = await bootI18n({ hostname: 'localhost', language: 'en-GB', pathname: '/ar' });
     expect(i18n.resolvedLanguage).toBe('ar');
+  });
+});
+
+describe('on-demand locale loading', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('downloads only the active language on the global domain', async () => {
+    const { default: i18n, i18nReady } = await bootI18nWithReadiness({
+      hostname: 'jungle-vpn.com',
+      language: 'en-GB',
+      pathname: '/ar',
+    });
+    await i18nReady;
+
+    expect(i18n.hasResourceBundle('ar', 'translation')).toBe(true);
+    expect(i18n.hasResourceBundle('ru', 'translation')).toBe(false);
+    expect(i18n.hasResourceBundle('tr', 'translation')).toBe(false);
+  });
+
+  it('has the active language translated by the time readiness resolves', async () => {
+    const { default: i18n, i18nReady } = await bootI18nWithReadiness({
+      hostname: 'www.thejungle.pro',
+      language: 'en-GB',
+    });
+    await i18nReady;
+
+    expect(i18n.t('landing.bento.subtitle')).not.toBe('landing.bento.subtitle');
+    expect(i18n.hasResourceBundle('ru', 'translation')).toBe(true);
+  });
+
+  it('loads a language the first time it is switched to', async () => {
+    const { default: i18n, i18nReady } = await bootI18nWithReadiness({
+      hostname: 'localhost',
+      language: 'en-GB',
+    });
+    await i18nReady;
+    expect(i18n.hasResourceBundle('es', 'translation')).toBe(false);
+
+    await i18n.changeLanguage('es');
+
+    expect(i18n.hasResourceBundle('es', 'translation')).toBe(true);
+    expect(i18n.resolvedLanguage).toBe('es');
+  });
+
+  it('serves Persian from the Arabic translations', async () => {
+    const { default: i18n, i18nReady } = await bootI18nWithReadiness({
+      hostname: 'localhost',
+      language: 'en-GB',
+    });
+    await i18nReady;
+
+    await i18n.changeLanguage('fa');
+
+    const { default: arabic } = await import('./locales/ar.json');
+    expect(i18n.t('landing.bento.subtitle')).toBe(arabic.landing.bento.subtitle);
   });
 });
