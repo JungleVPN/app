@@ -40,6 +40,7 @@ vi.mock('../../utils', () => ({
 }));
 vi.mock('../../components', () => ({
   Loading: () => null,
+  PaymentMethodIcons: () => null,
   LoadError: ({ reason, onRetry }: { reason: string; onRetry: () => void }) => (
     <button type='button' data-reason={reason} onClick={onRetry}>
       retry

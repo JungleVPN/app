@@ -660,7 +660,7 @@ describe('YookassaService', () => {
         description: 'Jungle VPN',
       };
       const expectedDetails = {
-        productName: 'Jungle VPN',
+        productName: 'JungleVPN Подписка',
         amount: 199,
         currency: 'RUB',
         billingPeriod: 30,

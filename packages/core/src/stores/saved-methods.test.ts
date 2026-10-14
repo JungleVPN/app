@@ -52,7 +52,7 @@ describe('saved methods store', () => {
   });
 
   describe('selectHasActiveBilling', () => {
-    it('is true when any single provider reports a subscription', () => {
+    it('is true only when YooKassa or Whop reports a subscription', () => {
       expect(
         selectHasActiveBilling({
           yookassa: inactive,
@@ -76,7 +76,7 @@ describe('saved methods store', () => {
           paddle: inactive,
           whop: inactive,
         }),
-      ).toBe(true);
+      ).toBe(false);
       expect(
         selectHasActiveBilling({
           yookassa: inactive,
@@ -84,7 +84,7 @@ describe('saved methods store', () => {
           paddle: { active: true, methods: [] },
           whop: inactive,
         }),
-      ).toBe(true);
+      ).toBe(false);
       expect(
         selectHasActiveBilling({
           yookassa: inactive,

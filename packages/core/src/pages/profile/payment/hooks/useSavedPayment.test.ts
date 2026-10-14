@@ -30,8 +30,6 @@ describe('useSavedPayment', () => {
 
     expect(result.current.isLoading).toBe(true);
     expect(result.current.hasActiveMethod).toBe(false);
-    expect(result.current.hasStripeSubscription).toBe(false);
-    expect(result.current.hasPaddleSubscription).toBe(false);
     expect(result.current.hasWhopSubscription).toBe(false);
   });
 
@@ -61,13 +59,12 @@ describe('useSavedPayment', () => {
 
     expect(result.current.hasActiveMethod).toBe(true);
     expect(result.current.hasWhopSubscription).toBe(true);
-    expect(result.current.hasPaddleSubscription).toBe(false);
   });
 
   // The regression this hook is being fixed for: a Paddle subscriber has no row
   // in the YooKassa saved-methods list, so deriving provider flags from that
   // list reported them as having no billing at all.
-  it('recognises a Paddle subscriber who has no saved YooKassa method', () => {
+  it('does not count a Paddle subscriber as having a method to manage here', () => {
     useSavedMethodsStore.getState().actions.setBillingState({
       yookassa: yookassa(),
       stripe: inactive,
@@ -77,12 +74,10 @@ describe('useSavedPayment', () => {
 
     const { result } = renderHook(() => useSavedPayment());
 
-    expect(result.current.hasPaddleSubscription).toBe(true);
-    expect(result.current.hasStripeSubscription).toBe(false);
-    expect(result.current.hasActiveMethod).toBe(true);
+    expect(result.current.hasActiveMethod).toBe(false);
   });
 
-  it('recognises a Stripe subscriber who has no saved YooKassa method', () => {
+  it('does not count a Stripe subscriber as having a method to manage here', () => {
     useSavedMethodsStore.getState().actions.setBillingState({
       yookassa: yookassa(),
       stripe: subscribed,
@@ -92,9 +87,7 @@ describe('useSavedPayment', () => {
 
     const { result } = renderHook(() => useSavedPayment());
 
-    expect(result.current.hasStripeSubscription).toBe(true);
-    expect(result.current.hasPaddleSubscription).toBe(false);
-    expect(result.current.hasActiveMethod).toBe(true);
+    expect(result.current.hasActiveMethod).toBe(false);
   });
 
   // An inactive subscription is a cancelled or lapsed one: there is nothing to
@@ -109,7 +102,6 @@ describe('useSavedPayment', () => {
 
     const { result } = renderHook(() => useSavedPayment());
 
-    expect(result.current.hasStripeSubscription).toBe(false);
     expect(result.current.hasActiveMethod).toBe(false);
   });
 
@@ -124,8 +116,6 @@ describe('useSavedPayment', () => {
     const { result } = renderHook(() => useSavedPayment());
 
     expect(result.current.hasActiveMethod).toBe(true);
-    expect(result.current.hasStripeSubscription).toBe(false);
-    expect(result.current.hasPaddleSubscription).toBe(false);
   });
 
   it('ignores a deactivated saved method', () => {
@@ -141,7 +131,7 @@ describe('useSavedPayment', () => {
     expect(result.current.hasActiveMethod).toBe(false);
   });
 
-  it('exposes the saved methods for the list to render', () => {
+  it('exposes the first YooKassa method for the card to render', () => {
     useSavedMethodsStore.getState().actions.setBillingState({
       yookassa: yookassa([yookassaMethod()]),
       stripe: inactive,
@@ -151,6 +141,6 @@ describe('useSavedPayment', () => {
 
     const { result } = renderHook(() => useSavedPayment());
 
-    expect(result.current.savedMethods).toEqual([yookassaMethod()]);
+    expect(result.current.yookassaMethod).toEqual(yookassaMethod());
   });
 });
