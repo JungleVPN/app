@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 import svgr from 'vite-plugin-svgr';
 
@@ -16,7 +17,18 @@ for (const file of ['.env.public', '.env.payments', '.env.secrets']) {
 export default defineConfig({
   envDir,
   envPrefix: ['VITE_', 'PUBLIC_'],
-  plugins: [tailwindcss(), react(), svgr()],
+  plugins: [
+    tailwindcss(),
+    react(),
+    svgr(),
+    process.env.ANALYZE === 'true' &&
+      visualizer({
+        filename: 'dist/stats.html',
+        template: 'treemap',
+        gzipSize: true,
+        brotliSize: true,
+      }),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
