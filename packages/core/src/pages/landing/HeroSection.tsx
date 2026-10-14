@@ -3,7 +3,7 @@ import { IconBolt, IconRefresh, IconRocket, IconShieldCheck } from '@tabler/icon
 import { motion, Variants } from 'framer-motion';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '../../hooks';
+import { useNavigation, usePlans } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStore } from '../../stores';
 import { Heading } from '../../ui/Heading';
@@ -25,7 +25,8 @@ export function HeroSection() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { authUser } = useAuthStore();
-  const { profileSubscriptionPath } = useAppRoutes();
+  const { profileSubscriptionPath, getSubscriptionPath } = useAppRoutes();
+  const plan = usePlans().find((plan) => plan.isTrial);
 
   const features = [
     { Icon: IconShieldCheck, text: t('landing.hero.features.feature1') },
@@ -35,11 +36,11 @@ export function HeroSection() {
 
   const handleClick = useCallback(() => {
     if (!authUser) {
-      navigate(PRICING_PATH);
+      navigate(plan ? getSubscriptionPath(plan.planId) : PRICING_PATH);
     } else {
       navigate(profileSubscriptionPath);
     }
-  }, [navigate, authUser, profileSubscriptionPath]);
+  }, [navigate, authUser, profileSubscriptionPath, getSubscriptionPath, plan]);
 
   return (
     <section className='flex flex-col justify-center items-center lg:flex-row lg:items-center lg:gap-8'>
@@ -65,7 +66,10 @@ export function HeroSection() {
                 className='h-14 w-48 text-wrap px-2 rounded-4xl bg-linear-to-r from-violet-500 to-amber-400 text-white hover:opacity-90'
                 onClick={handleClick}
               >
-                {t('landing.hero.cta')}
+                {t('landing.hero.sevenDayBadge', {
+                  amount: plan?.planPricing.total,
+                  currency: plan?.planPricing.currencyCode,
+                })}
               </Button>
             </div>
             <Chip color='default' variant='tertiary' className='w-fit text-muted'>

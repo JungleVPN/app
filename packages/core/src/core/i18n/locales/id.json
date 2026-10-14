@@ -679,6 +679,7 @@
       "title": "JungleVPN",
       "subtitle": "Lindungi koneksi Anda, jelajahi internet secara privat, dan tetap aman saat menggunakan Wi-Fi publik — dengan satu VPN untuk semua perangkat Anda.",
       "cta": "Coba sekarang",
+      "sevenDayBadge": "7 hari seharga {{amount}} {{currency}}",
       "login": "Masuk",
       "guarantee": "Jaminan uang kembali 30 hari",
       "features": {

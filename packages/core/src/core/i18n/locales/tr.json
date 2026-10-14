@@ -679,6 +679,7 @@
       "title": "JungleVPN",
       "subtitle": "Tüm cihazlarınız için tek bir VPN ile bağlantınızı koruyun, gizli bir şekilde gezin ve halka açık Wi-Fi ağlarında güvende kalın.",
       "cta": "Şimdi deneyin",
+      "sevenDayBadge": "7 gün {{amount}} {{currency}}",
       "login": "Giriş yap",
       "guarantee": "30 günlük para iade garantisi",
       "features": {

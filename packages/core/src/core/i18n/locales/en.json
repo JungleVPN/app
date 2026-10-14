@@ -679,6 +679,7 @@
       "title": "JungleVPN",
       "subtitle": "Protect your connection, browse privately and stay secure on public Wi-Fi — with one VPN for all your devices.",
       "cta": "Try now",
+      "sevenDayBadge": "7 days for {{amount}} {{currency}}",
       "login": "Log in",
       "guarantee": "30-day money-back guarantee",
       "features": {

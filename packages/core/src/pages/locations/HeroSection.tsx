@@ -2,10 +2,9 @@ import { Button } from '@heroui/react';
 import { IconDeviceLaptop, IconInfinity, IconShieldCheck } from '@tabler/icons-react';
 import { motion, useReducedMotion, Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '../../hooks';
-import { BlurInWords, Container } from '../../ui';
-import { Heading } from '../../ui/Heading';
-import { Paragraph } from '../../ui/Paragraph';
+import { useNavigation, usePlans } from '../../hooks';
+import { useAppRoutes } from '../../runtime';
+import { BlurInWords, Container, Heading, Paragraph } from '../../ui';
 import { PRICING_PATH } from '../../utils';
 import { WorldMap } from '../landing/WorldMap';
 
@@ -51,6 +50,9 @@ export function HeroSection() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const prefersReducedMotion = useReducedMotion();
+  const plan = usePlans().find((plan) => plan.isTrial);
+  const { getSubscriptionPath } = useAppRoutes();
+  const goToPlan = () => navigate(plan ? getSubscriptionPath(plan.planId) : PRICING_PATH);
 
   const titleWords = t('landing.locations.hero.title').split(' ').length;
   const subtitleDelay = 0.2 + titleWords * 0.06;
@@ -81,9 +83,12 @@ export function HeroSection() {
           <Button
             size='lg'
             className='h-14 px-10 rounded-4xl bg-linear-to-r from-purple-400 to-yellow-400 text-white hover:opacity-90'
-            onClick={() => navigate(PRICING_PATH)}
+            onClick={goToPlan}
           >
-            {t('common.cta')}
+            {t('landing.hero.sevenDayBadge', {
+              amount: plan?.planPricing.total,
+              currency: plan?.planPricing.currencyCode,
+            })}
           </Button>
 
           <Paragraph className={'flex items-center gap-1 text-muted'}>
