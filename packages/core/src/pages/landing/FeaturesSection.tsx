@@ -1,11 +1,40 @@
 import { useTranslation } from 'react-i18next';
-import IconDevices from '../../assets/icons/devices-icon.svg?react';
-import IconSupport from '../../assets/icons/human-support.svg?react';
-import IconMoneyBack from '../../assets/icons/money-back.svg?react';
-import IconReady from '../../assets/icons/ready-icon.svg?react';
+import iconDevicesUrl from '../../assets/icons/devices-icon.svg?url';
+import iconSupportUrl from '../../assets/icons/human-support.svg?url';
+import iconMoneyBackUrl from '../../assets/icons/money-back.svg?url';
+import iconReadyUrl from '../../assets/icons/ready-icon.svg?url';
 import { coreEnv } from '../../env';
-import { Heading } from '../../ui/Heading';
-import { Paragraph } from '../../ui/Paragraph';
+import { Heading } from '../../ui';
+import { Paragraph } from '../../ui';
+import { svgImage } from '../../ui';
+
+const IconDevices = svgImage({
+  src: iconDevicesUrl,
+  width: 749,
+  height: 699,
+  className: 'w-auto w-full h-full text-gray-800 dark:text-white',
+});
+
+const IconSupport = svgImage({
+  src: iconSupportUrl,
+  width: 420,
+  height: 568,
+  className: 'w-auto w-full h-full text-gray-800 dark:text-white',
+});
+
+const IconMoneyBack = svgImage({
+  src: iconMoneyBackUrl,
+  width: 763,
+  height: 654,
+  className: 'w-auto w-full h-full text-gray-800 dark:text-white',
+});
+
+const IconReady = svgImage({
+  src: iconReadyUrl,
+  width: 622,
+  height: 546,
+  className: 'w-auto w-full h-full text-gray-800 dark:text-white',
+});
 
 const FEATURES = [
   { key: 'ready', Icon: IconReady },

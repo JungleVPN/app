@@ -1,10 +1,38 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import AllDevicesIcon from '../../assets/icons/all-devices-icon.svg?react';
-import PrivacyFirstIcon from '../../assets/icons/privacy-first-icon.svg?react';
-import SecureByDesignIcon from '../../assets/icons/secure-by-design-icon.svg?react';
-import UnlimitedTrafficIcon from '../../assets/icons/unlimited-traffic-icon.svg?react';
-import { Heading, Paragraph } from '../../ui';
+import allDevicesIconUrl from '../../assets/icons/all-devices-icon.svg?url';
+import privacyFirstIconUrl from '../../assets/icons/privacy-first-icon.svg?url';
+import secureByDesignIconUrl from '../../assets/icons/secure-by-design-icon.svg?url';
+import unlimitedTrafficIconUrl from '../../assets/icons/unlimited-traffic-icon.svg?url';
+import { Heading, Paragraph, svgImage } from '../../ui';
+
+const AllDevicesIcon = svgImage({
+  src: allDevicesIconUrl,
+  width: 485,
+  height: 480,
+  className: 'w-auto max-w-[16rem] h-40 text-gray-800 dark:text-white',
+});
+
+const PrivacyFirstIcon = svgImage({
+  src: privacyFirstIconUrl,
+  width: 524,
+  height: 540,
+  className: 'w-auto max-w-[16rem] h-40 text-gray-800 dark:text-white',
+});
+
+const SecureByDesignIcon = svgImage({
+  src: secureByDesignIconUrl,
+  width: 385,
+  height: 482,
+  className: 'w-auto max-w-[16rem] h-40 text-gray-800 dark:text-white',
+});
+
+const UnlimitedTrafficIcon = svgImage({
+  src: unlimitedTrafficIconUrl,
+  width: 556,
+  height: 421,
+  className: 'w-auto max-w-[16rem] h-40 text-gray-800 dark:text-white',
+});
 
 type BentoCellProps = {
   icon: ReactNode;
@@ -20,7 +48,7 @@ function BentoCell({ icon, title, description, className }: BentoCellProps) {
     >
       <div
         aria-hidden
-        className='m-auto [&>svg]:h-auto [&>svg]:w-full [&>svg]:max-h-30 sm:[&>svg]:max-h-28 lg:[&>svg]:max-h-60 flex h-auto items-center justify-center'
+        className='m-auto [&>svg]:h-auto [&>svg]:w-full [&>svg]:max-h-30 sm:[&>svg]:max-h-28 lg:[&>svg]:max-h-60 [&>img]:h-auto [&>img]:w-full [&>img]:max-h-30 sm:[&>img]:max-h-28 lg:[&>img]:max-h-60 flex h-auto items-center justify-center'
       >
         {icon}
       </div>

@@ -62,7 +62,7 @@ export function HeroSection() {
             {t('common.cta')}
           </Button>
 
-          <Paragraph>
+          <Paragraph className={'flex items-center gap-1'}>
             <IconShieldCheck size={18} />
             {t('landing.hero.guarantee')}
           </Paragraph>

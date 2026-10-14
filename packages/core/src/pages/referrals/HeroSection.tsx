@@ -1,10 +1,17 @@
 import { Button, Chip } from '@heroui/react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import ReferralsIcon from '../../assets/icons/referrals-page-hero-icon.svg?react';
+import referralsIconUrl from '../../assets/icons/referrals-page-hero-icon.svg?url';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
-import { BlurInWords } from '../../ui';
+import { BlurInWords, svgImage } from '../../ui';
+
+const ReferralsIcon = svgImage({
+  src: referralsIconUrl,
+  width: 426,
+  height: 581,
+  className: 'w-auto w-full h-full text-gray-800 dark:text-white',
+});
 
 export function HeroSection() {
   const { t } = useTranslation();
@@ -53,7 +60,7 @@ export function HeroSection() {
         animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
         transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
       >
-        <ReferralsIcon className='w-full max-w-md h-80 md:h-100' />
+        <ReferralsIcon className='w-full max-w-md h-80 md:h-100' loading='eager' />
       </motion.div>
     </section>
   );

@@ -128,7 +128,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
         </Stepper>
       )}
 
-      <div className='gap-6 flex flex-col md:flex-row max-w-lg md:max-w-7xl m-auto w-full'>
+      <div className='gap-6 flex flex-col md:flex-row max-w-lg md:max-w-7xl m-auto w-full mb-8'>
         {isEmailStep ? (
           <div className={'max-w-lg m-auto w-full'}>
             <CheckoutEmailStep

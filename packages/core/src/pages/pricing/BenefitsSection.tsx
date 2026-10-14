@@ -1,11 +1,17 @@
 import { useTranslation } from 'react-i18next';
 import IconDevices from '../../assets/icons/device-small-icon.svg?react';
 import IconServers from '../../assets/icons/high-speed-small-icon.svg?react';
-import PriceBenefitsIcon from '../../assets/icons/price-benefits-icon.svg?react';
+import priceBenefitsIconUrl from '../../assets/icons/price-benefits-icon.svg?url';
 import IconReady from '../../assets/icons/ready-small-icon.svg?react';
 import IconSupport from '../../assets/icons/support-small-icon.svg?react';
-import { Heading } from '../../ui/Heading';
-import { Paragraph } from '../../ui/Paragraph';
+import { Heading, Paragraph, svgImage } from '../../ui';
+
+const PriceBenefitsIcon = svgImage({
+  src: priceBenefitsIconUrl,
+  width: 770,
+  height: 531,
+  className: 'w-auto w-full h-full text-gray-800 dark:text-white',
+});
 
 const BENEFITS = [
   {

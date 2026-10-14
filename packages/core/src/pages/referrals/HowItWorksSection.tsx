@@ -1,11 +1,22 @@
 import { Chip } from '@heroui/react';
 import type { FunctionComponent, SVGProps } from 'react';
 import { useTranslation } from 'react-i18next';
-import BonusIcon from '../../assets/icons/bonus-icon.svg?react';
-import BuyIcon from '../../assets/icons/buy-icon.svg?react';
+import bonusIconUrl from '../../assets/icons/bonus-icon.svg?url';
+import buyIconUrl from '../../assets/icons/buy-icon.svg?url';
 import ShareIcon from '../../assets/icons/share-icon.svg?react';
-import { Heading } from '../../ui/Heading';
-import { Paragraph } from '../../ui/Paragraph';
+import { Heading, Paragraph, svgImage } from '../../ui';
+
+const BonusIcon = svgImage({
+  src: bonusIconUrl,
+  width: 800,
+  height: 800,
+});
+
+const BuyIcon = svgImage({
+  src: buyIconUrl,
+  width: 800,
+  height: 800,
+});
 
 type Step = {
   key: 'share' | 'subscribe' | 'reward';

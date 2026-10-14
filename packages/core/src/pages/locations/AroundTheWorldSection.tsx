@@ -6,10 +6,15 @@ import {
   type TablerIcon,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import AroundTheWorldIcon from '../../assets/icons/around-the-world-icon.svg?react';
-import { Container } from '../../ui';
-import { Heading } from '../../ui/Heading';
-import { Paragraph } from '../../ui/Paragraph';
+import aroundTheWorldIconUrl from '../../assets/icons/around-the-world-icon.svg?url';
+import { Container, Heading, Paragraph, svgImage } from '../../ui';
+
+const AroundTheWorldIcon = svgImage({
+  src: aroundTheWorldIconUrl,
+  width: 438,
+  height: 544,
+  className: 'w-auto w-full h-full text-gray-800 dark:text-white',
+});
 
 type Feature = {
   key: string;

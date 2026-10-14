@@ -1,11 +1,32 @@
 import { Chip } from '@heroui/react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import LocationsIcon from '../../assets/icons/all-devices-icon.svg?react';
-import ServersIcon from '../../assets/icons/servers-icon.svg?react';
-import UsersIcon from '../../assets/icons/users-icon.svg?react';
+import locationsIconUrl from '../../assets/icons/all-devices-icon.svg?url';
+import serversIconUrl from '../../assets/icons/servers-icon.svg?url';
+import usersIconUrl from '../../assets/icons/users-icon.svg?url';
 import { ContentCard } from '../../components/ContentCard';
-import { Grid, GridItem, Heading } from '../../ui';
+import { Grid, GridItem, Heading, svgImage } from '../../ui';
+
+const LocationsIcon = svgImage({
+  src: locationsIconUrl,
+  width: 485,
+  height: 480,
+  className: 'w-auto max-w-[16rem] h-40 text-gray-800 dark:text-white',
+});
+
+const ServersIcon = svgImage({
+  src: serversIconUrl,
+  width: 604,
+  height: 533,
+  className: 'w-auto max-w-[16rem] w-full h-full text-gray-800 dark:text-white',
+});
+
+const UsersIcon = svgImage({
+  src: usersIconUrl,
+  width: 783,
+  height: 554,
+  className: 'w-auto max-w-[16rem] w-full h-full text-gray-800 dark:text-white',
+});
 
 type StatKey = 'users' | 'countries' | 'servers';
 

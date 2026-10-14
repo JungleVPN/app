@@ -1,14 +1,20 @@
 import { Button } from '@heroui/react';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import PlatformsIcon from '../../assets/icons/platforms-icon.svg?react';
+import platformsIconUrl from '../../assets/icons/platforms-icon.svg?url';
 import { Platforms } from '../../components/Platforms/Platforms';
 import { useNavigation } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { useAuthStore } from '../../stores';
-import { Heading } from '../../ui';
-import { Paragraph } from '../../ui/Paragraph';
+import { Heading, Paragraph, svgImage } from '../../ui';
 import { PRICING_PATH } from '../../utils';
+
+const PlatformsIcon = svgImage({
+  src: platformsIconUrl,
+  width: 609,
+  height: 495,
+  className: 'w-full h-full text-gray-800 dark:text-white',
+});
 
 export function PlatformsSection() {
   const { t } = useTranslation();

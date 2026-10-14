@@ -12,4 +12,5 @@ export { Reveal } from './Reveal';
 export { RoundedSection } from './RoundedSection/RoundedSection';
 export * from './savedMethodDisplay';
 export * from './savedMethodIcons';
+export { type SvgImageProps, svgImage } from './svgImage';
 export { TgsSticker } from './TgsSticker';
