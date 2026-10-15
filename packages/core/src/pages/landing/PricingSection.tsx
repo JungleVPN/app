@@ -5,9 +5,7 @@ import { PaymentMethodIcons } from '../../components';
 import { PriceCard } from '../../components/PriceCard/PriceCard';
 import { useNavigation, usePlans } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
-import { Grid, GridItem } from '../../ui';
-import { Heading } from '../../ui/Heading';
-import { Paragraph } from '../../ui/Paragraph';
+import { Grid, GridItem, Heading, Paragraph } from '../../ui';
 import {
   calculatePricing,
   cn,

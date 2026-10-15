@@ -57,6 +57,8 @@ vi.mock('../../components/PriceCard/PriceCard', () => ({
 vi.mock('../../ui', () => ({
   Grid: ({ children }: { children: ReactNode }) => <>{children}</>,
   GridItem: ({ children }: { children: ReactNode }) => <>{children}</>,
+  Heading: ({ children }: { children: ReactNode }) => <h2>{children}</h2>,
+  Paragraph: ({ children }: { children: ReactNode }) => <p>{children}</p>,
 }));
 vi.mock('../whopCheckout/utils/whopWarmUp', () => ({ warmWhopCheckout }));
 vi.mock('../../hooks', () => ({ useNavigation: () => vi.fn(), usePlans: () => [PLAN] }));
