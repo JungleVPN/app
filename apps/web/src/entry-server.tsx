@@ -7,6 +7,7 @@ import {
   PricingPage,
   ReferralsPage,
   WhatIsVpnPage,
+  whopCheckoutHeadHtml,
 } from '@workspace/core/pages';
 import { AppRoutesProvider, PaymentsApiProvider, SupabaseProvider } from '@workspace/core/runtime';
 import {
@@ -17,6 +18,7 @@ import {
   buildStructuredData,
   canonicalUrl,
   configuredDomains,
+  currentScope,
   isCrawlablePath,
   isIndexablePath,
   localePolicyForHost,
@@ -330,6 +332,7 @@ export async function render(request: Request, hostname: string) {
     ...indexableHead(hostname, pathname, title),
     hreflangLinks(config, hostname, pathname),
     markdownAlternateLink(hostname, pathname),
+    whopCheckoutHeadHtml({ pathname, scope: currentScope() }),
   ]
     .filter(Boolean)
     .join('\n    ');

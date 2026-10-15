@@ -2,7 +2,8 @@ import { Key, useEffect, useState } from 'react';
 import { Loading } from '../../../components';
 import { useNavigation, usePlans } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
-import { mapPlans, phCapture } from '../../../utils';
+import { currentScope, mapPlans, phCapture } from '../../../utils';
+import { warmWhopCheckout } from '../../whopCheckout/utils/whopWarmUp';
 import { useSavedPayment } from '../payment/hooks/useSavedPayment';
 import { PlansComponent } from './PlansComponent';
 
@@ -16,6 +17,7 @@ export default function PlansPage() {
 
   useEffect(() => {
     phCapture('plans_viewed');
+    warmWhopCheckout(currentScope());
   }, []);
 
   useEffect(() => {

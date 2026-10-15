@@ -209,9 +209,14 @@ export function isProfilePath(pathname: string): boolean {
 const PLAN_CHECKOUT_PATH =
   /^\/payment\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** True for a plan's checkout, `/payment/:planId`. */
+export function isPlanCheckoutPath(pathname: string): boolean {
+  return PLAN_CHECKOUT_PATH.test(pathname);
+}
+
 /** True for the plan-selection/checkout paths `/plans` and `/payment/:planId`, where AuthButtons are hidden. */
 export function isPlansOrPaymentPlanPath(pathname: string): boolean {
-  return pathname === '/plans' || PLAN_CHECKOUT_PATH.test(pathname);
+  return pathname === '/plans' || isPlanCheckoutPath(pathname);
 }
 
 /**

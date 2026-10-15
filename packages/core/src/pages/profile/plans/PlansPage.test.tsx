@@ -6,7 +6,11 @@ import type { SubscriptionPlanDto } from '@workspace/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import PlansPage from './PlansPage';
 
-const { phCapture, navigate } = vi.hoisted(() => ({ phCapture: vi.fn(), navigate: vi.fn() }));
+const { phCapture, navigate, warmWhopCheckout } = vi.hoisted(() => ({
+  phCapture: vi.fn(),
+  navigate: vi.fn(),
+  warmWhopCheckout: vi.fn(),
+}));
 
 const plan = (days: number): SubscriptionPlanDto => ({
   planId: `plan-${days}`,
@@ -32,8 +36,9 @@ vi.mock('../../../runtime', () => ({
 }));
 vi.mock('../../../utils', async () => {
   const { mapPlans } = await import('../../../utils/planPricing');
-  return { mapPlans, phCapture };
+  return { mapPlans, phCapture, currentScope: () => 'global' };
 });
+vi.mock('../../whopCheckout/utils/whopWarmUp', () => ({ warmWhopCheckout }));
 vi.mock('../payment/hooks/useSavedPayment', () => ({
   useSavedPayment: () => ({ hasActiveMethod: false, isLoading: false }),
 }));
@@ -55,5 +60,13 @@ describe('PlansPage', () => {
 
     expect(phCapture).toHaveBeenCalledWith('plan_selected', { days: 365 });
     expect(navigate).toHaveBeenCalledWith('/profile/payments/plan-365');
+  });
+});
+
+describe('PlansPage warming the checkout', () => {
+  it('starts loading the checkout while the payer picks a plan', () => {
+    render(<PlansPage />);
+
+    expect(warmWhopCheckout).toHaveBeenCalledWith('global');
   });
 });

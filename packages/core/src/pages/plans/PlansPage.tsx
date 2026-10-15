@@ -1,9 +1,10 @@
-import { Key, useState } from 'react';
+import { Key, useEffect, useState } from 'react';
 import { useNavigation, usePlans } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
 import { Container } from '../../ui';
-import { mapPlans, phCapture } from '../../utils';
+import { currentScope, mapPlans, phCapture } from '../../utils';
 import { PlansComponent } from '../profile/plans/PlansComponent';
+import { warmWhopCheckout } from '../whopCheckout/utils/whopWarmUp';
 
 export const PublicPlansPage = () => {
   const { getSubscriptionPath } = useAppRoutes();
@@ -11,6 +12,10 @@ export const PublicPlansPage = () => {
   const navigate = useNavigation();
   const plans = usePlans();
   const [selectedPeriod, setSelectedPeriod] = useState<number>(365);
+
+  useEffect(() => {
+    warmWhopCheckout(currentScope());
+  }, []);
 
   const sortedPlans = mapPlans(plans);
 

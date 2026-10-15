@@ -17,7 +17,7 @@ vi.mock('../../whopCheckout/hooks/useWhopCardFields', () => ({
 }));
 
 describe('WhopCardPanel', () => {
-  it('shows a skeleton of the card form until Whop has loaded every input', () => {
+  it('shows a spinner in the card form’s place until Whop has loaded every input', () => {
     render(
       <WhopCardPanel
         checkout={{
@@ -33,7 +33,9 @@ describe('WhopCardPanel', () => {
       />,
     );
 
-    expect(screen.getByTestId('card-inputs-skeleton')).toBeTruthy();
+    const placeholder = screen.getByTestId('card-inputs-loading');
+    expect(placeholder.querySelector('[aria-label="Loading"]')).not.toBeNull();
+    expect(screen.queryByTestId('card-inputs-skeleton')).toBeNull();
     expect(screen.getByText('inputs')).toBeTruthy();
   });
 });

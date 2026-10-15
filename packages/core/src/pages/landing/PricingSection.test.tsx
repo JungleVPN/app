@@ -9,9 +9,10 @@ import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PricingSection } from './PricingSection';
 
-const { storefront, phCapture } = vi.hoisted(() => ({
+const { storefront, phCapture, warmWhopCheckout } = vi.hoisted(() => ({
   storefront: { scope: 'global' as 'global' | 'ru', provider: 'whop' as string },
   phCapture: vi.fn(),
+  warmWhopCheckout: vi.fn(),
 }));
 
 const PLAN: SubscriptionPlanDto = {
@@ -38,14 +39,16 @@ vi.mock('../../components/PriceCard/PriceCard', () => ({
     price,
     cta,
     onCtaClick,
+    onCtaIntent,
   }: {
     price: string;
     cta: string;
     onCtaClick: () => void;
+    onCtaIntent?: () => void;
   }) => (
     <>
       <p>{price}</p>
-      <button type='button' onClick={onCtaClick}>
+      <button type='button' onClick={onCtaClick} onFocus={onCtaIntent}>
         {cta}
       </button>
     </>
@@ -55,6 +58,7 @@ vi.mock('../../ui', () => ({
   Grid: ({ children }: { children: ReactNode }) => <>{children}</>,
   GridItem: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
+vi.mock('../whopCheckout/utils/whopWarmUp', () => ({ warmWhopCheckout }));
 vi.mock('../../hooks', () => ({ useNavigation: () => vi.fn(), usePlans: () => [PLAN] }));
 vi.mock('../../runtime', () => ({ useAppRoutes: () => ({ getSubscriptionPath: () => '/' }) }));
 vi.mock('../../utils', async () => {
@@ -114,5 +118,26 @@ describe('PricingSection plan card click tracking', () => {
       days: 30,
       highlighted: false,
     });
+  });
+});
+
+describe('PricingSection warming the checkout', () => {
+  beforeEach(() => {
+    storefront.scope = 'global';
+    vi.clearAllMocks();
+  });
+
+  it('waits for the visitor to reach for a plan before loading the checkout', () => {
+    render(<PricingSection />);
+
+    expect(warmWhopCheckout).not.toHaveBeenCalled();
+  });
+
+  it('starts loading the checkout once the visitor reaches for a plan', () => {
+    render(<PricingSection />);
+
+    fireEvent.focus(screen.getByRole('button', { name: 'landing.pricing.cta' }));
+
+    expect(warmWhopCheckout).toHaveBeenCalledWith('global');
   });
 });

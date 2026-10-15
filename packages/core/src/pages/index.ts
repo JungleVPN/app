@@ -24,3 +24,4 @@ export { default as SubscriptionFailPage } from './subscriptionFail/Subscription
 export { default as SubscriptionSuccessPage } from './subscriptionSuccess/SubscriptionSuccessPage';
 export { default as TermsPage } from './terms/TermsPage';
 export { default as WhatIsVpnPage } from './whatIsVpn/WhatIsVpnPage';
+export { whopCheckoutHeadHtml } from './whopCheckout/utils/whopWarmUp';

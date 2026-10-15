@@ -18,6 +18,7 @@ import {
   pricesIncludeTax,
 } from '../../utils';
 import { formatPeriod } from '../../utils/planPricing';
+import { warmWhopCheckout } from '../whopCheckout/utils/whopWarmUp';
 
 const HIGHLIGHTED_PLAN_PERIOD = 365;
 const HIGHLIGHTED_DESKTOP_POSITION = 1;
@@ -152,6 +153,7 @@ export function PricingSection({ animateOnMount = false }: { animateOnMount?: bo
                         highlighted: isHighlighted,
                       })
                     }
+                    onCtaIntent={() => warmWhopCheckout(currentScope())}
                   />
                 </motion.div>
               </GridItem>

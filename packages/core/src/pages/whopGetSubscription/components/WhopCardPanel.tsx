@@ -1,4 +1,4 @@
-import { Skeleton } from '@heroui/react';
+import { Spinner } from '@heroui/react';
 import { BrandingElement, Payments } from '@whop/elements-react';
 import { type RefObject, useEffect } from 'react';
 import { useWhopCardFields } from '../../whopCheckout/hooks/useWhopCardFields';
@@ -40,43 +40,42 @@ function CardInputs({
   );
 }
 
-/** A label bone above an input bone, sized to the real field so nothing moves when it loads. */
-function FieldBone({ inputHeight }: { inputHeight: 'h-11' | 'h-[38px]' }) {
+/** The space a label and its input take, sized to the real field so nothing moves when it loads. */
+function FieldSpace() {
   return (
     <div className='flex flex-col gap-1'>
-      <Skeleton animationType='none' className='h-5 w-24 rounded-lg' />
-      <Skeleton animationType='none' className={`${inputHeight} w-full rounded-lg`} />
+      <div className='h-5' />
+      <div className='h-11' />
     </div>
   );
 }
 
 /**
- * The card form's shape while Whop's frames load. Every row is as tall as the
- * loaded one (68, 68, 62, 62 and the 44px branding line), so the page below
- * does not jump when the inputs appear.
+ * A spinner in the card form's place while Whop's frames load. It holds the
+ * form's exact space — every row as tall as the loaded one (four 68px rows and
+ * the 59px branding line) — so the page below does not jump when the inputs
+ * appear.
  */
-function CardInputsSkeleton() {
+function CardInputsLoading() {
   return (
-    <div
-      aria-hidden
-      data-testid='card-inputs-skeleton'
-      className='skeleton--shimmer relative overflow-hidden rounded-lg'
-    >
-      <div className='flex flex-col gap-4'>
-        <FieldBone inputHeight='h-11' />
-        <div className='grid grid-cols-2 gap-4'>
-          <FieldBone inputHeight='h-11' />
-          <FieldBone inputHeight='h-11' />
-        </div>
-        <FieldBone inputHeight='h-[38px]' />
-        <div className='grid grid-cols-2 gap-4'>
-          <FieldBone inputHeight='h-[38px]' />
-          <FieldBone inputHeight='h-[38px]' />
+    <div aria-hidden data-testid='card-inputs-loading' className='relative'>
+      <div className='invisible'>
+        <div className='flex flex-col gap-4'>
+          <FieldSpace />
+          <div className='grid grid-cols-2 gap-4'>
+            <FieldSpace />
+            <FieldSpace />
+          </div>
+          <FieldSpace />
+          <div className='grid grid-cols-2 gap-4'>
+            <FieldSpace />
+            <FieldSpace />
+          </div>
         </div>
       </div>
-      <div className='flex h-11 flex-col items-center justify-center gap-2'>
-        <Skeleton animationType='none' className='h-3 w-4/5 rounded-lg' />
-        <Skeleton animationType='none' className='h-3 w-2/5 rounded-lg' />
+      <div className='h-14.75' />
+      <div className='absolute inset-0 flex items-center justify-center'>
+        <Spinner />
       </div>
     </div>
   );
@@ -85,7 +84,7 @@ function CardInputsSkeleton() {
 /**
  * The card inputs for the card tab; the page's submit button pays them. Whop
  * keeps every input and the branding element hidden until all of them have
- * loaded, and shows the skeleton meanwhile.
+ * loaded, and shows a spinner in their place meanwhile.
  */
 export function WhopCardPanel({ checkout, returnUrl, ...rest }: WhopCardPanelProps) {
   return (
@@ -93,7 +92,7 @@ export function WhopCardPanel({ checkout, returnUrl, ...rest }: WhopCardPanelPro
       accountId={checkout.accountId}
       plan={checkout.whopPlanId}
       returnUrl={returnUrl}
-      fallback={<CardInputsSkeleton />}
+      fallback={<CardInputsLoading />}
     >
       <CardInputs checkout={checkout} {...rest} />
     </Payments>

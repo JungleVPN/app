@@ -10,6 +10,8 @@ type PriceCardProps = {
   guarantee: string;
   cta: string;
   onCtaClick?: () => void;
+  /** The visitor reached for the button — pointed at, focused or started pressing it. */
+  onCtaIntent?: () => void;
   badge?: string;
   discount?: string;
   originalTotal?: string;
@@ -28,6 +30,7 @@ export function PriceCard({
   guarantee,
   cta,
   onCtaClick,
+  onCtaIntent,
   badge,
   discount,
   originalTotal,
@@ -105,6 +108,9 @@ export function PriceCard({
               : 'w-full border border-purple-400 bg-transparent text-purple-400 hover:bg-indigo-50'
           }
           onClick={onCtaClick}
+          onHoverStart={onCtaIntent}
+          onFocus={onCtaIntent}
+          onPressStart={onCtaIntent}
         >
           {cta}
         </Button>

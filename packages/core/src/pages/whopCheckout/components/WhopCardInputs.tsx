@@ -66,7 +66,6 @@ function CountryField({ countries, value, onChange }: CountryFieldProps) {
   return (
     <div className='relative'>
       <ComboBox
-        isRequired
         defaultItems={countries}
         selectedKey={value || null}
         onSelectionChange={(key: Key | null) => onChange(key == null ? '' : String(key))}
@@ -136,7 +135,7 @@ export function WhopCardInputs({
         </div>
       </CardFields>
 
-      <TextField isRequired name='cc-name' value={name} onChange={onNameChange}>
+      <TextField name='cc-name' value={name} onChange={onNameChange}>
         <Label>{t('whopCheckout.name')}</Label>
         <Input
           autoComplete='cc-name'
@@ -148,7 +147,7 @@ export function WhopCardInputs({
       <div className='grid grid-cols-2 gap-4'>
         <CountryField countries={countries} value={country} onChange={onCountryChange} />
 
-        <TextField isRequired name='postal-code' value={postalCode} onChange={onPostalCodeChange}>
+        <TextField name='postal-code' value={postalCode} onChange={onPostalCodeChange}>
           <Label>{t('whopCheckout.postal_code')}</Label>
           <Input autoComplete='postal-code' className={INPUT_CLASS} />
         </TextField>
