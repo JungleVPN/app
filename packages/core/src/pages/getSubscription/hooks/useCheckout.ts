@@ -2,11 +2,11 @@ import type { SubscriptionPlanDto } from '@workspace/types';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
-import { usePlans } from '../../hooks';
-import { useAuthStore, usePlanById, usePlansStatus } from '../../stores';
-import { scrollToTop, validateEmail } from '../../utils';
-import { getCheckoutEmail } from '../../utils/checkoutEmail';
-import { isActiveSubscriptionError, isThrottledError } from './checkoutErrors';
+import { usePlans } from '../../../hooks';
+import { useAuthStore, usePlanById, usePlansStatus } from '../../../stores';
+import { scrollToTop, validateEmail } from '../../../utils';
+import { getCheckoutEmail } from '../../../utils/checkoutEmail';
+import { isActiveSubscriptionError, isThrottledError } from '../utils/checkoutErrors';
 
 const EMPTY_EMAIL_ERROR = 'getSubscription.email_required_error';
 const INVALID_EMAIL_ERROR = 'getSubscription.email_invalid_error';

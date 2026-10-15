@@ -1,8 +1,8 @@
 import { AlertDialog, Button } from '@heroui/react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useNavigation } from '../../hooks';
-import { useAppRoutes } from '../../runtime';
-import { Paragraph } from '../../ui/Paragraph';
+import { useNavigation } from '../../../hooks';
+import { useAppRoutes } from '../../../runtime';
+import { Paragraph } from '../../../ui/Paragraph';
 
 /**
  * Shown when the payer email on the anonymous checkout already has an active

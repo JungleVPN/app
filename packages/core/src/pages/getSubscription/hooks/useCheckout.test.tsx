@@ -2,15 +2,15 @@ import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { type PlansStatus, usePlansStore } from '../../stores';
-import { saveCheckoutEmail } from '../../utils/checkoutEmail';
+import { type PlansStatus, usePlansStore } from '../../../stores';
+import { saveCheckoutEmail } from '../../../utils/checkoutEmail';
 import { useCheckout } from './useCheckout';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
-vi.mock('../../hooks', () => ({ usePlans: () => [] }));
-vi.mock('../../utils', () => ({ scrollToTop: () => {}, validateEmail: () => true }));
+vi.mock('../../../hooks', () => ({ usePlans: () => [] }));
+vi.mock('../../../utils', () => ({ scrollToTop: () => {}, validateEmail: () => true }));
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <MemoryRouter initialEntries={['/payment/plan-30']}>

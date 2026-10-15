@@ -9,7 +9,7 @@
  */
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { CheckoutRequest } from '../getSubscription/useCheckout';
+import type { CheckoutRequest } from '../getSubscription/hooks/useCheckout';
 import RuStartCheckoutPage from './RuStartCheckoutPage';
 
 const {
@@ -48,11 +48,11 @@ vi.mock('../../components', () => ({
   ),
 }));
 vi.mock('../../hooks', () => ({ loadPlans }));
-vi.mock('../getSubscription/CheckoutForm', () => ({ CheckoutForm: () => null }));
-vi.mock('../getSubscription/ActiveSubscriptionDialog', () => ({
+vi.mock('../getSubscription/components/CheckoutForm', () => ({ CheckoutForm: () => null }));
+vi.mock('../getSubscription/components/ActiveSubscriptionDialog', () => ({
   ActiveSubscriptionDialog: () => null,
 }));
-vi.mock('../getSubscription/useCheckout', () => ({ useCheckout }));
+vi.mock('../getSubscription/hooks/useCheckout', () => ({ useCheckout }));
 
 const plan = (total: string, currencyCode: string) => ({
   planId: 'ru-3',

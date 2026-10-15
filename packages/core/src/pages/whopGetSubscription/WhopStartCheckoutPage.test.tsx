@@ -42,7 +42,7 @@ const {
 
 const REQUEST = { email: 'payer@test.com', planId: 'whop-30', selectedPeriod: 30 };
 
-vi.mock('../getSubscription/useCheckout', () => ({
+vi.mock('../getSubscription/hooks/useCheckout', () => ({
   useCheckout: (startCheckout: (request: typeof REQUEST) => Promise<void>) => ({
     plan: {
       planId: 'whop-30',
@@ -72,7 +72,7 @@ vi.mock('../getSubscription/useCheckout', () => ({
     loadFailed: checkoutState.loadFailed,
   }),
 }));
-vi.mock('../getSubscription/CheckoutForm', () => ({
+vi.mock('../getSubscription/components/CheckoutForm', () => ({
   CheckoutForm: ({
     promoCodeSlot,
     paymentMethodsSlot,
@@ -119,7 +119,7 @@ vi.mock('../getSubscription/CheckoutForm', () => ({
     </>
   ),
 }));
-vi.mock('../whopGetSubscription/WhopPaymentTabs', () => ({
+vi.mock('./components/WhopPaymentTabs', () => ({
   WhopPaymentTabs: ({
     wallets: available,
     selected,
@@ -141,7 +141,7 @@ vi.mock('../whopGetSubscription/WhopPaymentTabs', () => ({
     </div>
   ),
 }));
-vi.mock('./WhopCardPanel', () => ({
+vi.mock('./components/WhopCardPanel', () => ({
   WhopCardPanel: ({
     checkout,
     submitRef,
@@ -198,7 +198,7 @@ vi.mock('../whopCheckout/whopWallets', () => ({
   }),
   showWalletSheet,
 }));
-vi.mock('../getSubscription/ActiveSubscriptionDialog', () => ({
+vi.mock('../getSubscription/components/ActiveSubscriptionDialog', () => ({
   ActiveSubscriptionDialog: () => null,
 }));
 vi.mock('../../components', () => ({

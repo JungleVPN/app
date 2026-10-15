@@ -1,6 +1,6 @@
 import { ACTIVE_SUBSCRIPTION_CODE } from '@workspace/types';
 import { describe, expect, it } from 'vitest';
-import { ApiClientError } from '../../api';
+import { ApiClientError } from '../../../api';
 import { checkoutErrorKey, isActiveSubscriptionError, isThrottledError } from './checkoutErrors';
 
 describe('isThrottledError', () => {

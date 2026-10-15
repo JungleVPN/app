@@ -3,24 +3,26 @@ import { IconRestore } from '@tabler/icons-react';
 import type { SubscriptionPlanDto } from '@workspace/types';
 import { type ReactNode, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import Logo from '../../assets/Logo.svg?react';
-import { FeaturesCard, Link } from '../../components';
-import { Block, Heading, Paragraph } from '../../ui';
-import { formatPlanPrice } from '../../utils';
-import { formatPeriod } from '../../utils/planPricing';
-import { BRAND_GRADIENT } from './brandGradient';
+import Logo from '../../../assets/Logo.svg?react';
+import { FeaturesCard, Link } from '../../../components';
+import { Block, Heading, Paragraph } from '../../../ui';
+import { formatPlanPrice } from '../../../utils';
+import { formatPeriod } from '../../../utils/planPricing';
+import { BRAND_GRADIENT } from '../utils/brandGradient';
+
+/**
+ * An applied promo code's effect on the order, replacing the plan's own
+ * discount: `total` is the new amount, absent when the saving can't be
+ * priced, and `label` names the saving.
+ */
+export type PromoDiscount = { total?: string; label: string };
 
 interface CheckoutOrderSummaryProps {
   selectedPeriod: number | null;
   plan: SubscriptionPlanDto | undefined;
   /** A provider's promo code entry, shown under the order. */
   promoCodeSlot?: ReactNode;
-  /**
-   * An applied promo code's effect on the order, replacing the plan's own
-   * discount: `total` is the new amount, absent when the saving can't be
-   * priced, and `label` names the saving.
-   */
-  promoDiscount?: { total?: string; label: string };
+  promoDiscount?: PromoDiscount;
   /** Shown under the order when the provider guarantees the price already includes tax. */
   taxNote?: string;
 }

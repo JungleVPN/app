@@ -7,9 +7,9 @@ import {
   rememberPendingYookassaPayment,
   trackCheckoutStarted,
 } from '../../utils';
-import { ActiveSubscriptionDialog } from '../getSubscription/ActiveSubscriptionDialog';
-import { CheckoutForm } from '../getSubscription/CheckoutForm';
-import { type CheckoutRequest, useCheckout } from '../getSubscription/useCheckout';
+import { ActiveSubscriptionDialog } from '../getSubscription/components/ActiveSubscriptionDialog';
+import { CheckoutForm } from '../getSubscription/components/CheckoutForm';
+import { type CheckoutRequest, useCheckout } from '../getSubscription/hooks/useCheckout';
 
 /**
  * RU checkout through YooKassa: the same email step and order summary as the

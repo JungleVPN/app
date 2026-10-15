@@ -1,5 +1,5 @@
 import { ACTIVE_SUBSCRIPTION_CODE, PROMO_CODE_INVALID_CODE } from '@workspace/types';
-import { ApiClientError } from '../../api';
+import { ApiClientError } from '../../../api';
 
 /** Whether the backend refused the checkout because the caller was rate limited. */
 export function isThrottledError(error: unknown): boolean {

@@ -1,9 +1,9 @@
 import { Loading } from '../../components';
 import { usePaymentsApi } from '../../runtime';
 import { getReferralUserId } from '../../utils';
-import { ActiveSubscriptionDialog } from './ActiveSubscriptionDialog';
-import { CheckoutForm } from './CheckoutForm';
-import { type CheckoutRequest, useCheckout } from './useCheckout';
+import { ActiveSubscriptionDialog } from './components/ActiveSubscriptionDialog';
+import { CheckoutForm } from './components/CheckoutForm';
+import { type CheckoutRequest, useCheckout } from './hooks/useCheckout';
 
 /**
  * Global checkout through Stripe: the backend opens a hosted session and this

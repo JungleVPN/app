@@ -1,9 +1,9 @@
 import { Button, Spinner } from '@heroui/react';
 import type { ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useTermsStore } from '../../stores';
-import { Block, Paragraph } from '../../ui';
-import { BRAND_GRADIENT } from './brandGradient';
+import { useTermsStore } from '../../../stores';
+import { Block, Paragraph } from '../../../ui';
+import { BRAND_GRADIENT } from '../utils/brandGradient';
 
 interface CheckoutPaymentStepProps {
   checkoutError: string | null;

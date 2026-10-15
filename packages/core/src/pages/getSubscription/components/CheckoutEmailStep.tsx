@@ -1,7 +1,7 @@
 import { Button, Description, FieldError, Input, Spinner, TextField, Tooltip } from '@heroui/react';
 import { IconHelpCircle, IconMail } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { Block, Paragraph } from '../../ui';
+import { Block, Paragraph } from '../../../ui';
 
 interface CheckoutEmailStepProps {
   email: string;

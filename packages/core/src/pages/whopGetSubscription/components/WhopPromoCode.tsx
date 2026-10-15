@@ -3,9 +3,9 @@ import { IconTag, IconX } from '@tabler/icons-react';
 import type { WhopPromoCodeDto } from '@workspace/types';
 import { type KeyboardEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePaymentsApi } from '../../runtime';
-import { Paragraph } from '../../ui';
-import { checkoutErrorKey } from '../getSubscription/checkoutErrors';
+import { usePaymentsApi } from '../../../runtime';
+import { Paragraph } from '../../../ui';
+import { checkoutErrorKey } from '../../getSubscription/utils/checkoutErrors';
 
 interface WhopPromoCodeProps {
   /** Our plan id, which the backend checks the code against. */

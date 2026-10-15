@@ -9,7 +9,7 @@ import type { PlanPricing, SubscriptionPlanDto } from '@workspace/types';
 import { cloneElement, type ReactElement, type ReactNode } from 'react';
 import { MemoryRouter, useLocation } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getCheckoutEmail, saveCheckoutEmail } from '../../utils/checkoutEmail';
+import { getCheckoutEmail, saveCheckoutEmail } from '../../../utils/checkoutEmail';
 import { CheckoutForm } from './CheckoutForm';
 
 vi.mock('react-i18next', () => ({
@@ -27,31 +27,31 @@ vi.mock('react-i18next', () => ({
     </>
   ),
 }));
-vi.mock('../../assets/Logo.svg?react', () => ({ default: () => null }));
-vi.mock('../../components', async () => ({
-  ...(await import('../../components/Stepper')),
+vi.mock('../../../assets/Logo.svg?react', () => ({ default: () => null }));
+vi.mock('../../../components', async () => ({
+  ...(await import('../../../components/Stepper')),
   FeaturesCard: () => null,
   Link: ({ children }: { children: ReactNode }) => <>{children}</>,
   PaymentMethodIcons: () => null,
 }));
 const { openTerms } = vi.hoisted(() => ({ openTerms: vi.fn() }));
-vi.mock('../../stores', () => ({ useTermsStore: () => ({ open: openTerms }) }));
-vi.mock('../../ui', () => ({
+vi.mock('../../../stores', () => ({ useTermsStore: () => ({ open: openTerms }) }));
+vi.mock('../../../ui', () => ({
   Block: ({ children }: { children: ReactNode }) => <section>{children}</section>,
   Grid: ({ children }: { children: ReactNode }) => <>{children}</>,
   GridItem: ({ children }: { children: ReactNode }) => <>{children}</>,
   Heading: ({ children }: { children: ReactNode }) => <h3>{children}</h3>,
   Paragraph: ({ children }: { children: ReactNode }) => <p>{children}</p>,
 }));
-vi.mock('../../utils', () => ({
+vi.mock('../../../utils', () => ({
   cn: (...classes: unknown[]) => classes.filter(Boolean).join(' '),
   formatPlanPrice: (_pricing: PlanPricing, amount: string) => `$${amount}`,
   scrollToTop: () => {},
   trackEmailStepSubmitted: () => {},
   trackEmailStepViewed: () => {},
 }));
-vi.mock('../../utils/planPricing', () => ({ formatPeriod: () => '1 month' }));
-vi.mock('../profile/payment/components/TermsDialog', () => ({ TermsDialog: () => null }));
+vi.mock('../../../utils/planPricing', () => ({ formatPeriod: () => '1 month' }));
+vi.mock('../../profile/payment/components/TermsDialog', () => ({ TermsDialog: () => null }));
 
 const plan = (pricing: Partial<PlanPricing> = {}): SubscriptionPlanDto => ({
   planId: 'whop-30',

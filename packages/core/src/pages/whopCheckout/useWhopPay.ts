@@ -12,7 +12,7 @@ import {
   type SubmittedPaymentMethod,
   trackPaymentMethodSubmitted,
 } from '../../utils';
-import { checkoutErrorKey } from '../getSubscription/checkoutErrors';
+import { checkoutErrorKey } from '../getSubscription/utils/checkoutErrors';
 import type { WhopCheckoutState } from './whopCheckoutState';
 
 /** Thrown when Whop cannot tokenise the card — its own field already marks what is wrong. */
