@@ -1,5 +1,5 @@
 import { useWhop } from '@whop/elements-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   availableWallets,
   OFFERED_WALLETS,
@@ -11,9 +11,10 @@ import type { WhopCheckoutState } from '../whopCheckoutState';
 
 /**
  * The wallet sheet for a checkout and the wallets this browser can pay with.
- * Nothing is offered until `enabled`, or when the total the payer was shown is
- * unknown. `isReady` turns true once it is known which wallets are offered —
- * including none.
+ * Nothing is offered until `enabled`, or while the total the payer was shown
+ * is unknown. `isReady` turns true once it is known which wallets are offered —
+ * including none. A new total, such as a promo code's, reprices the sheet in
+ * place; only a new account, currency or renewal creates and probes another.
  */
 export function useWhopWalletSheet({
   checkout,
@@ -30,17 +31,25 @@ export function useWhopWalletSheet({
   const { accountId, charge, renews } = checkout;
   const amount = charge?.amount;
   const currency = charge?.currency;
+  const minorAmount = amount && currency ? toMinorUnits({ amount, currency }) : null;
+  const hasTotal = minorAmount !== null;
+  // Read when the sheet is created, so a new total alone does not create another.
+  const latestAmount = useRef(minorAmount);
+  latestAmount.current = minorAmount;
 
   useEffect(() => {
     if (!whop || !enabled) return;
-    if (!amount || !currency) {
+    const amountNow = latestAmount.current;
+    if (!hasTotal || amountNow === null || !currency) {
+      setSheet(null);
+      setWallets([]);
       setIsReady(true);
       return;
     }
     let isCurrent = true;
     const request = whop.payments.paymentRequest.create({
       accountId,
-      amount: toMinorUnits({ amount, currency }),
+      amount: amountNow,
       currency,
       requestPayerEmail: false,
       // Whop refuses a renewing plan's token unless it is minted for off-session reuse.
@@ -60,7 +69,11 @@ export function useWhopWalletSheet({
     return () => {
       isCurrent = false;
     };
-  }, [whop, enabled, accountId, amount, currency, renews]);
+  }, [whop, enabled, accountId, currency, renews, hasTotal]);
+
+  useEffect(() => {
+    if (sheet && minorAmount !== null) sheet.update({ amount: minorAmount });
+  }, [sheet, minorAmount]);
 
   return { sheet, wallets, isReady };
 }
