@@ -28,6 +28,15 @@ export class AutopaymentService {
     private readonly planService: PlanService,
   ) {}
 
+  async terminateSavedMethods(payload: RemnawebhookPayload): Promise<void> {
+    await this.savedMethodRepo.update(
+      { userId: payload.data.id, isActive: true },
+      { isActive: false, status: 'terminated' },
+    );
+
+    this.logger.log(`Saved saved methods for ${payload.data.id} is terminated`);
+  }
+
   async init(payload: RemnawebhookPayload): Promise<void> {
     const user = payload.data;
     const userId = user.id;

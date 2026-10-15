@@ -78,6 +78,7 @@ describe('AutopaymentService', () => {
     mockSmFindOneBy = vi.fn();
     savedMethodRepo = {
       findOneBy: mockSmFindOneBy,
+      update: vi.fn().mockResolvedValue({ affected: 1 }),
     } as unknown as Repository<SavedPaymentMethod>;
 
     mockYkFindOne = vi.fn().mockResolvedValue({
@@ -787,6 +788,19 @@ describe('AutopaymentService', () => {
         userId: 1000,
         hoursRemaining: 48,
       });
+    });
+  });
+
+  // An expired subscription must stop showing as active billing so the user
+  // can pick a plan again; the row is kept, only marked terminated.
+  describe('terminateSavedMethods', () => {
+    it("terminates every active saved method of the expired user", async () => {
+      await service.terminateSavedMethods(makePayload(42, 'user.expired'));
+
+      expect(savedMethodRepo.update).toHaveBeenCalledWith(
+        { userId: 1000, isActive: true },
+        { isActive: false, status: 'terminated' },
+      );
     });
   });
 });

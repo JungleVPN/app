@@ -20,6 +20,13 @@ export class AutopaymentController {
   async handleRemnaEvent(@Body() payload: RemnawebhookPayload) {
     this.logger.log(`Received remnawave event: ${payload.event}`);
 
+    if (payload.event === REMNAWAVE_EVENTS.USER.EXPIRED) {
+      this.autopaymentService.terminateSavedMethods(payload).catch((err) => {
+        this.logger.error(`Failed to terminate saved methods: ${err.message}`);
+      });
+      return { ok: true };
+    }
+
     if (payload.event !== REMNAWAVE_EVENTS.USER.EXPIRATION) {
       this.logger.warn(`Unhandled remnawave event: ${payload.event}`);
       return { ok: true };

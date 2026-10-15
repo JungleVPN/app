@@ -49,8 +49,15 @@ export class WebhookService {
       return;
     }
 
+    if (event === REMNAWAVE_EVENTS.USER.EXPIRED) {
+      await Promise.all([
+        this.forwardRemnaEventToBot(payload),
+        this.forwardRemnaEventToPayments(payload),
+      ]);
+      return;
+    }
+
     if (
-      event === REMNAWAVE_EVENTS.USER.EXPIRED ||
       event === REMNAWAVE_EVENTS.USER.NOT_CONNECTED ||
       event === REMNAWAVE_EVENTS.USER.FIRST_CONNECTED
     ) {

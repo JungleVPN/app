@@ -11,15 +11,18 @@ describe('AutopaymentController', () => {
   let controller: AutopaymentController;
   let mockInit: ReturnType<typeof vi.fn>;
   let mockCheckAndNotifyExpiry48h: ReturnType<typeof vi.fn>;
+  let mockTerminateSavedMethods: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockInit = vi.fn().mockResolvedValue(undefined);
     mockCheckAndNotifyExpiry48h = vi.fn().mockResolvedValue(undefined);
+    mockTerminateSavedMethods = vi.fn().mockResolvedValue(undefined);
 
     const autopaymentService = {
       init: mockInit,
       checkAndNotifyExpiry48h: mockCheckAndNotifyExpiry48h,
+      terminateSavedMethods: mockTerminateSavedMethods,
     } as unknown as AutopaymentService;
 
     controller = new AutopaymentController(autopaymentService);
@@ -116,5 +119,23 @@ describe('AutopaymentController', () => {
 
     expect(result).toEqual({ ok: true });
     expect(mockInit).not.toHaveBeenCalled();
+  });
+
+  it('terminates saved methods on user.expired', async () => {
+    const payload = makePayload(REMNAWAVE_EVENTS.USER.EXPIRED);
+
+    const result = await controller.handleRemnaEvent(payload);
+
+    expect(result).toEqual({ ok: true });
+    expect(mockTerminateSavedMethods).toHaveBeenCalledWith(payload);
+    expect(mockInit).not.toHaveBeenCalled();
+  });
+
+  it('does not throw when terminating saved methods rejects', async () => {
+    mockTerminateSavedMethods.mockRejectedValue(new Error('db down'));
+
+    const result = await controller.handleRemnaEvent(makePayload(REMNAWAVE_EVENTS.USER.EXPIRED));
+
+    expect(result).toEqual({ ok: true });
   });
 });
