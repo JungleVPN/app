@@ -13,7 +13,7 @@ describe('trackPurchaseConversion', () => {
     trackPurchaseConversion({ transactionId: 'pay_1', value: 7.99, currency: 'USD' });
 
     expect(gtag).toHaveBeenCalledWith('event', 'conversion', {
-      send_to: 'AW-18413233512/296KCJf2pu4cEOjKjsxE',
+      send_to: 'AW-18413233512/ZKs7CPXg350dEOjKjsxE',
       transaction_id: 'pay_1',
       value: 7.99,
       currency: 'USD',
@@ -27,7 +27,7 @@ describe('trackPurchaseConversion', () => {
     trackPurchaseConversion({ transactionId: 'pay_1' });
 
     expect(gtag).toHaveBeenCalledWith('event', 'conversion', {
-      send_to: 'AW-18413233512/296KCJf2pu4cEOjKjsxE',
+      send_to: 'AW-18413233512/ZKs7CPXg350dEOjKjsxE',
       transaction_id: 'pay_1',
     });
   });
@@ -42,7 +42,7 @@ describe('trackPurchaseConversion', () => {
     trackPurchaseConversion(purchase);
 
     expect(gtag).toHaveBeenCalledWith('event', 'conversion', {
-      send_to: 'AW-18413233512/296KCJf2pu4cEOjKjsxE',
+      send_to: 'AW-18413233512/ZKs7CPXg350dEOjKjsxE',
       transaction_id: 'pay_1',
     });
   });

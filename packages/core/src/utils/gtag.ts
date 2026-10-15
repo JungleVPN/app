@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-const PURCHASE_CONVERSION_SEND_TO = 'AW-18413233512/296KCJf2pu4cEOjKjsxE';
+const PURCHASE_CONVERSION_SEND_TO = 'AW-18413233512/ZKs7CPXg350dEOjKjsxE';
 
 /**
  * A completed payment as Google Ads sees it. The transaction id lets Google
