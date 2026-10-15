@@ -60,11 +60,24 @@ export function WhopPaymentTabs({ wallets, selected, cardPanel, onSelect }: Whop
           </Tabs.List>
         )}
       </Tabs.ListContainer>
-      {tabs.map(({ id }) => (
-        <Tabs.Panel key={id} id={id} className='pt-4'>
-          {id === 'card' ? cardPanel : null}
-        </Tabs.Panel>
-      ))}
+      {tabs.map(({ id }) =>
+        id === 'card' ? (
+          // Mounted while hidden, so Whop's card frames load behind the wallet
+          // tab and are not torn down and reloaded on every switch.
+          <Tabs.Panel
+            key={id}
+            id={id}
+            shouldForceMount
+            className='pt-4 data-inert:invisible data-inert:h-0 data-inert:overflow-hidden data-inert:pt-0'
+          >
+            {cardPanel}
+          </Tabs.Panel>
+        ) : (
+          <Tabs.Panel key={id} id={id} className='pt-4'>
+            {null}
+          </Tabs.Panel>
+        ),
+      )}
     </Tabs>
   );
 }

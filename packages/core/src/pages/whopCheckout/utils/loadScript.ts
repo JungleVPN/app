@@ -1,7 +1,18 @@
 const loaded = new Map<string, Promise<void>>();
 
+interface LoadScriptOptions {
+  /**
+   * Whether the script already ran, loaded by something other than this
+   * function — such as a wallet SDK Whop's own code pulled in — so it is not
+   * loaded and run a second time.
+   */
+  isLoaded?: () => boolean;
+}
+
 /** Adds `src` to the page once; every caller shares the one load. A failed load can be retried. */
-export function loadScript(src: string): Promise<void> {
+export function loadScript(src: string, { isLoaded }: LoadScriptOptions = {}): Promise<void> {
+  if (isLoaded?.()) return Promise.resolve();
+
   const existing = loaded.get(src);
   if (existing) return existing;
 

@@ -4,7 +4,10 @@ import type { WhopCheckoutCharge } from '../whopCheckoutState';
 import { WalletSheetError } from './whopPayErrors';
 
 export type WalletSheet = ReturnType<Whop['payments']['paymentRequest']['create']>;
-export type Wallet = 'apple_pay' | 'google_pay';
+
+/** The wallets the checkout offers; PayPal is not one of them. */
+export const OFFERED_WALLETS = ['apple_pay', 'google_pay'] as const;
+export type Wallet = (typeof OFFERED_WALLETS)[number];
 
 /** What `show()` rejects with when the payer dismisses the sheet — the one failure that is no error. */
 const SHEET_DISMISSED = 'payment_request_cancelled';
@@ -29,7 +32,7 @@ export function availableWallets(availability: WalletAvailability): Wallet[] {
   const isAvailable = (wallet: string): wallet is Wallet =>
     (wallet === 'apple_pay' && availability.applePay) ||
     (wallet === 'google_pay' && availability.googlePay);
-  const ranked = (availability.order ?? ['apple_pay', 'google_pay']).filter(isAvailable);
+  const ranked = (availability.order ?? OFFERED_WALLETS).filter(isAvailable);
   if (availability.order?.[0] === 'apple_pay' && availability.applePay) return ['apple_pay'];
   return [...ranked].sort((a, b) => Number(b === 'apple_pay') - Number(a === 'apple_pay'));
 }

@@ -2,6 +2,7 @@ import { useWhop } from '@whop/elements-react';
 import { useEffect, useState } from 'react';
 import {
   availableWallets,
+  OFFERED_WALLETS,
   toMinorUnits,
   type Wallet,
   type WalletSheet,
@@ -46,7 +47,7 @@ export function useWhopWalletSheet({
       ...(renews ? { setupFutureUsage: 'off_session' as const } : {}),
     });
     request
-      .canMakePayment()
+      .canMakePayment({ types: [...OFFERED_WALLETS] })
       .then((availability) => {
         if (!isCurrent) return;
         setSheet(request);

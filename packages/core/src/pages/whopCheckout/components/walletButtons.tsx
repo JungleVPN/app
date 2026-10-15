@@ -43,6 +43,11 @@ function googlePayApi(): GooglePayApi | undefined {
   return (window as Window & { google?: GooglePayApi }).google;
 }
 
+/** Apple's SDK defines the <apple-pay-button> element once it has run. */
+function isApplePaySdkLoaded(): boolean {
+  return customElements.get('apple-pay-button') !== undefined;
+}
+
 interface WalletButtonProps {
   locale: string;
   onClick: () => void;
@@ -60,7 +65,7 @@ export function ApplePayButton({ locale, onClick }: WalletButtonProps) {
   handleClick.current = onClick;
 
   useEffect(() => {
-    loadScript(APPLE_PAY_SDK).catch(() => {});
+    loadScript(APPLE_PAY_SDK, { isLoaded: isApplePaySdkLoaded }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -99,7 +104,7 @@ export function GooglePayButton({
 
   useEffect(() => {
     let isCurrent = true;
-    loadScript(GOOGLE_PAY_SDK)
+    loadScript(GOOGLE_PAY_SDK, { isLoaded: () => googlePayApi() !== undefined })
       .then(() => {
         const google = googlePayApi();
         if (!isCurrent || !google || !container.current) return;
