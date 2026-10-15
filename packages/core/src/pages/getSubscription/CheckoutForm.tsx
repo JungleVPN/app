@@ -3,8 +3,8 @@ import { type ReactNode, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 import { Stepper, useStepperNavigation } from '../../components';
-import { scrollToTop } from '../../utils';
-import { trackEmailStepSubmitted, trackEmailStepViewed } from '../../utils/checkoutAnalytics';
+import { Grid, GridItem } from '../../ui';
+import { scrollToTop, trackEmailStepSubmitted, trackEmailStepViewed } from '../../utils';
 import { getCheckoutEmail, saveCheckoutEmail } from '../../utils/checkoutEmail';
 import { TermsDialog } from '../profile/payment/components/TermsDialog';
 import { CheckoutEmailStep } from './CheckoutEmailStep';
@@ -128,29 +128,33 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
         </Stepper>
       )}
 
-      <div className='gap-6 flex flex-col md:flex-row max-w-lg md:max-w-7xl m-auto w-full mb-8'>
+      <Grid className='@container mb-8'>
         {isEmailStep ? (
-          <div className={'max-w-lg m-auto w-full'}>
+          <GridItem className='@3xl:col-span-6'>
             <CheckoutEmailStep
               {...props}
               handleNext={steps.goNext}
               isPending={steps.isValidating}
             />
-          </div>
+          </GridItem>
         ) : (
-          <CheckoutPaymentStep {...props} isLoading={props.isPaymentLoading} />
+          <GridItem className='@3xl:col-span-6'>
+            <CheckoutPaymentStep {...props} isLoading={props.isPaymentLoading} />
+          </GridItem>
         )}
 
         {!isEmailStep && (
-          <CheckoutOrderSummary
-            plan={plan}
-            selectedPeriod={selectedPeriod}
-            promoCodeSlot={promoCodeSlot}
-            promoDiscount={promoDiscount}
-            taxNote={taxNote}
-          />
+          <GridItem className='@3xl:col-span-6'>
+            <CheckoutOrderSummary
+              plan={plan}
+              selectedPeriod={selectedPeriod}
+              promoCodeSlot={promoCodeSlot}
+              promoDiscount={promoDiscount}
+              taxNote={taxNote}
+            />
+          </GridItem>
         )}
-      </div>
+      </Grid>
 
       <TermsDialog />
     </>
