@@ -19,7 +19,7 @@ const DEFAULT_MAX_PER_IP = 10;
  * allowance: a genuine visitor retries their own address a couple of times at
  * most, while a flood aimed at one inbox spreads itself across many IPs.
  */
-const DEFAULT_MAX_PER_EMAIL = 3;
+const DEFAULT_MAX_PER_EMAIL = 10;
 
 /** The bucket unattributable callers share, so they cannot each get their own. */
 const UNKNOWN_IP_KEY = 'ip:unknown';

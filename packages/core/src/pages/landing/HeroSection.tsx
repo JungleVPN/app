@@ -35,11 +35,9 @@ export function HeroSection() {
   ];
 
   const handleClick = useCallback(() => {
-    if (!authUser) {
-      navigate(plan ? getSubscriptionPath(plan.planId) : PRICING_PATH);
-    } else {
-      navigate(profileSubscriptionPath);
-    }
+    navigate(
+      plan ? getSubscriptionPath(plan.planId) : authUser ? profileSubscriptionPath : PRICING_PATH,
+    );
   }, [navigate, authUser, profileSubscriptionPath, getSubscriptionPath, plan]);
 
   return (

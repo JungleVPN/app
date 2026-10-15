@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigation, usePlans } from '../../hooks';
 import { useAppRoutes } from '../../runtime';
+import { useAuthStore } from '../../stores';
 import { BlurInWords, Container, Paragraph } from '../../ui';
 import { PRICING_PATH } from '../../utils';
 
@@ -15,10 +16,14 @@ export function HeroSection() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const prefersReducedMotion = useReducedMotion();
+  const { authUser } = useAuthStore();
   const plan = usePlans().find((plan) => plan.isTrial);
-  const { getSubscriptionPath } = useAppRoutes();
-  const goToPlan = () => navigate(plan ? getSubscriptionPath(plan.planId) : PRICING_PATH);
+  const { profileSubscriptionPath, getSubscriptionPath } = useAppRoutes();
 
+  const goToPlan = () =>
+    navigate(
+      plan ? getSubscriptionPath(plan.planId) : authUser ? profileSubscriptionPath : PRICING_PATH,
+    );
   const titleWords = t('landing.whatIsVpn.hero.title').split(' ').length;
   const subtitleDelay = 0.2 + titleWords * 0.06;
 
