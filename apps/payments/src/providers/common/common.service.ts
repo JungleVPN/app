@@ -5,7 +5,7 @@ import { VisitorCurrencyService } from '@payments/catalog/visitor-currency.servi
 import { paddleAmountToNumber } from '@payments/providers/paddle/paddle.utils';
 import { PaddleClientService } from '@payments/providers/paddle/paddle-client.service';
 import { buildPricing } from '@payments/utils/amount';
-import type { Plan } from '@workspace/database';
+import type { Plan, PlanProvider } from '@workspace/database';
 import { type SubscriptionPlanDto } from '@workspace/types';
 
 /** Paddle's quote for one visitor, reduced to what a plan needs from it. */
@@ -58,7 +58,7 @@ export class CommonService {
       return [];
     }
 
-    const plans = toPlans(rows, countryCode);
+    const plans = toPlans(rows, countryCode, provider);
     if (provider !== 'paddle') return plans;
 
     const quote = await this.fetchPaddleQuote(rows, clientIp);
@@ -114,7 +114,11 @@ export class CommonService {
  * Plans priced from the table, in each row's own currency. A trial is its own
  * offer, so it is never shown as a discount on the monthly price.
  */
-function toPlans(rows: Plan[], countryCode: string | null): SubscriptionPlanDto[] {
+function toPlans(
+  rows: Plan[],
+  countryCode: string | null,
+  provider: PlanProvider,
+): SubscriptionPlanDto[] {
   const monthly = rows.find((row) => row.billingPeriod === 30);
   const basePrice = monthly ? monthly.basePrice : null;
 
@@ -129,6 +133,8 @@ function toPlans(rows: Plan[], countryCode: string | null): SubscriptionPlanDto[
     }),
     countryCode,
     isTrial: row.type === 'one_time',
+    // Whop's card form mounts in the browser, against the plan it will bill.
+    ...(provider === 'whop' && row.providerPriceId ? { checkoutPlanId: row.providerPriceId } : {}),
   }));
 }
 

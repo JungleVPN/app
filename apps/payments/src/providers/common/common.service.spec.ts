@@ -97,6 +97,29 @@ describe('CommonService.getPlans', () => {
     });
   });
 
+  it("names the Whop plan in the visitor's currency, so the browser can mount the card form before the checkout starts", async () => {
+    process.env.GLOBAL_PAYMENT_PROVIDER = 'whop';
+    service = commonService(
+      paddleClientService,
+      planServiceWith([
+        plan('whop', 30, 3.99, 'plan_eur_30'),
+        { ...plan('whop', 30, 4.49, 'plan_usd_30'), id: 'whop-usd-30', currency: 'USD' },
+      ]),
+      async () => 'US',
+    );
+
+    const plans = await service.getPlans({ origin: GLOBAL_ORIGIN, clientIp: '8.8.8.8' });
+
+    expect(plans[0]?.checkoutPlanId).toBe('plan_usd_30');
+  });
+
+  it('names no plan to mount for a provider whose checkout does not mount in the browser', async () => {
+    const plans = await service.getPlans({ origin: RU_ORIGIN, clientIp: '8.8.8.8' });
+
+    expect(plans.length).toBeGreaterThan(0);
+    expect(plans.every((row) => row.checkoutPlanId === undefined)).toBe(true);
+  });
+
   it("returns no plans, rather than another provider's, when the provider has none on sale", async () => {
     service = commonService(
       paddleClientService,

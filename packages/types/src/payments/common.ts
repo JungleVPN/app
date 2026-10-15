@@ -41,4 +41,12 @@ export type SubscriptionPlanDto = {
    */
   countryCode: string | null;
   isTrial: boolean;
+  /**
+   * The provider's own id for this plan (Whop's `plan_...`), for a checkout the
+   * browser mounts before it is started, so its card form loads while the
+   * payer is still giving their email. Absent for a provider whose checkout
+   * does not mount in the browser. The backend still decides the plan billed
+   * when the checkout starts.
+   */
+  checkoutPlanId?: string;
 };
