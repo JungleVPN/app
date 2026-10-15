@@ -26,7 +26,10 @@ const {
   whopConfig,
 } = vi.hoisted(() => ({
   walletSheetProbe: vi.fn(),
-  whopConfig: { accountId: null as string | null },
+  whopConfig: {
+    accountId: null as string | null,
+    checkoutPlanId: undefined as string | undefined,
+  },
   navigate: vi.fn(),
   pay: vi.fn(),
   cardSubmit: vi.fn(),
@@ -39,7 +42,7 @@ const {
     chargingVia: null as 'card' | 'wallet' | null,
   },
   loadPlans: vi.fn(),
-  checkoutState: { loadFailed: false },
+  checkoutState: { loadFailed: false, isAuthenticated: false },
   trackCheckoutStarted: vi.fn(),
   api: { createPublicWhopCheckout: vi.fn(), checkPublicWhopPromoCode: vi.fn() },
 }));
@@ -58,9 +61,10 @@ vi.mock('../getSubscription/hooks/useCheckout', () => ({
         discountPercent: 17,
         currencyCode: 'USD',
       },
+      ...(whopConfig.checkoutPlanId ? { checkoutPlanId: whopConfig.checkoutPlanId } : {}),
     },
     selectedPeriod: 30,
-    isAuthenticated: false,
+    isAuthenticated: checkoutState.isAuthenticated,
     isLoading: false,
     email: REQUEST.email,
     emailError: '',
@@ -81,6 +85,7 @@ vi.mock('../getSubscription/components/CheckoutForm', () => ({
     promoCodeSlot,
     paymentMethodsSlot,
     isPaymentLoading,
+    preloadPaymentStep,
     hideAgreement,
     submitSlot,
     promoDiscount,
@@ -92,6 +97,7 @@ vi.mock('../getSubscription/components/CheckoutForm', () => ({
     promoCodeSlot?: ReactNode;
     paymentMethodsSlot?: ReactNode;
     isPaymentLoading?: boolean;
+    preloadPaymentStep?: boolean;
     hideAgreement?: boolean;
     submitSlot?: ReactNode;
     promoDiscount?: { total?: string; label: string };
@@ -103,6 +109,7 @@ vi.mock('../getSubscription/components/CheckoutForm', () => ({
     <>
       {promoCodeSlot}
       {paymentMethodsSlot}
+      <p data-testid='preload-payment-step'>{String(preloadPaymentStep)}</p>
       {taxNote && <p data-testid='order-tax-note'>{taxNote}</p>}
       {promoDiscount && (
         <p data-testid='order-discount'>
@@ -265,6 +272,8 @@ describe('WhopStartCheckoutPage', () => {
     wallets.chargingVia = null;
     cardPanel.checkout = null;
     whopConfig.accountId = null;
+    whopConfig.checkoutPlanId = undefined;
+    checkoutState.isAuthenticated = false;
     vi.clearAllMocks();
     api.createPublicWhopCheckout.mockResolvedValue({
       accountId: 'biz_1',
@@ -600,6 +609,8 @@ describe('WhopStartCheckoutPage wallet probe', () => {
     wallets.isReady = true;
     wallets.chargingVia = null;
     whopConfig.accountId = null;
+    whopConfig.checkoutPlanId = undefined;
+    checkoutState.isAuthenticated = false;
     vi.clearAllMocks();
     api.createPublicWhopCheckout.mockResolvedValue({
       accountId: 'biz_1',
@@ -634,5 +645,64 @@ describe('WhopStartCheckoutPage wallet probe', () => {
     await waitFor(() =>
       expect(lastProbe()).toMatchObject({ enabled: true, checkout: { accountId: 'biz_1' } }),
     );
+  });
+});
+
+describe('WhopStartCheckoutPage card form', () => {
+  beforeEach(() => {
+    wallets.sheet = null;
+    wallets.available = [];
+    wallets.isReady = true;
+    wallets.chargingVia = null;
+    cardPanel.checkout = null;
+    whopConfig.accountId = 'biz_configured';
+    whopConfig.checkoutPlanId = 'plan_early';
+    checkoutState.isAuthenticated = false;
+    vi.clearAllMocks();
+    api.createPublicWhopCheckout.mockResolvedValue({
+      accountId: 'biz_configured',
+      planId: 'plan_early',
+      renews: true,
+    });
+  });
+
+  it('loads the card form while the payer is still giving their email', () => {
+    render(<WhopStartCheckoutPage />);
+
+    expect(cardPanel.checkout).toMatchObject({
+      accountId: 'biz_configured',
+      whopPlanId: 'plan_early',
+    });
+  });
+
+  it('still waits for the accepted checkout before anything can be paid', () => {
+    render(<WhopStartCheckoutPage />);
+
+    expect(screen.getByText('card-inputs')).toBeTruthy();
+    expect(canSubmit()).toBe('false');
+  });
+
+  it('waits for the accepted checkout to load the card form when the plan names no Whop plan', async () => {
+    whopConfig.checkoutPlanId = undefined;
+    render(<WhopStartCheckoutPage />);
+    expect(screen.queryByText('card-inputs')).toBeNull();
+
+    fireEvent.click(nextButton());
+
+    await waitFor(() => expect(handedOverState()).toMatchObject({ whopPlanId: 'plan_early' }));
+  });
+
+  it('loads the payment step behind the email step for a visitor', () => {
+    render(<WhopStartCheckoutPage />);
+
+    expect(screen.getByTestId('preload-payment-step').textContent).toBe('true');
+  });
+
+  it('loads nothing behind an email step a signed-in payer never sees', () => {
+    checkoutState.isAuthenticated = true;
+
+    render(<WhopStartCheckoutPage />);
+
+    expect(screen.getByTestId('preload-payment-step').textContent).toBe('false');
   });
 });

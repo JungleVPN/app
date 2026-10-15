@@ -6,7 +6,7 @@ import { getWhopAccountId } from '../../whopCheckout/utils/whopEnv';
 import { showWalletSheet, type Wallet } from '../../whopCheckout/utils/whopWallets';
 import type { WhopCheckoutState } from '../../whopCheckout/whopCheckoutState';
 import type { PaymentMethod } from '../components/WhopPaymentTabs';
-import { walletProbe } from '../utils/walletProbe';
+import { earlyCheckout } from '../utils/earlyCheckout';
 import type { PreparedCheckout } from './usePreparedCheckout';
 
 interface UseWhopPaymentMethodOptions {
@@ -37,9 +37,16 @@ export function useWhopPaymentMethod({
   const [chosenMethod, setChosenMethod] = useState<PaymentMethod | null>('apple_pay');
   const [isCardPayable, setIsCardPayable] = useState(false);
   const submitCard = useRef<() => void>(() => {});
-  const { sheet, wallets, isReady } = useWhopWalletSheet(
-    walletProbe({ checkout, prepared, plan, configuredAccountId: getWhopAccountId() }),
-  );
+  const early = earlyCheckout({
+    checkout,
+    prepared,
+    plan,
+    configuredAccountId: getWhopAccountId(),
+  });
+  const { sheet, wallets, isReady } = useWhopWalletSheet({
+    checkout: early.checkout,
+    enabled: early.canProbeWallets,
+  });
   const method = availableMethod(chosenMethod, wallets);
 
   const submit = () => {
@@ -59,6 +66,10 @@ export function useWhopPaymentMethod({
     method,
     wallets,
     isLoaded: prepared !== null && isReady,
+    /** The methods can be shown — loading behind the email step or the spinner — once the wallets are known and the card form can mount. */
+    canShowMethods: isReady && early.canMountCard,
+    /** What the card form loads against: the accepted checkout, or the page's early guess at it. */
+    cardCheckout: early.checkout,
     canPay: prepared !== null && (method === 'card' ? isCardPayable : sheet !== null),
     select: setChosenMethod,
     submit,

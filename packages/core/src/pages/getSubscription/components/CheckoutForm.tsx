@@ -25,6 +25,12 @@ interface CheckoutFormProps {
   paymentMethodsSlot?: ReactNode;
   /** True while the payment methods are still loading. */
   isPaymentLoading?: boolean;
+  /**
+   * Loads the payment step behind the email step, out of sight and reach, so
+   * payment methods that take long to load — a provider's hosted frames — are
+   * ready when the payer moves on. It opens in place, never remounted.
+   */
+  preloadPaymentStep?: boolean;
   /** Replaces the default submit button in the payment step. */
   submitSlot?: ReactNode;
   /** Leaves out the purchase agreement in the payment step. */
@@ -39,6 +45,9 @@ interface CheckoutFormProps {
 }
 
 const HALF_WIDTH = '@3xl:col-span-6';
+
+/** Shares the email step's row, so the hidden payment step adds no gap below it. */
+const BEHIND_EMAIL_STEP = `${HALF_WIDTH} row-start-1 invisible h-0 overflow-hidden`;
 
 /**
  * The global checkout page's markup, shared by every payment provider. A
@@ -68,8 +77,10 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
         <CheckoutStepper currentStep={steps.currentStep} onStepSelect={steps.goTo} />
       )}
 
+      {/* Each step keeps its own place among the grid's children, so a payment
+          step loaded behind the email step is the same one the payer reaches. */}
       <Grid className='@container mb-8'>
-        {steps.isEmailStep ? (
+        {steps.isEmailStep && (
           <GridItem className={HALF_WIDTH}>
             <CheckoutEmailStep
               {...props}
@@ -77,21 +88,24 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
               isPending={steps.isValidating}
             />
           </GridItem>
-        ) : (
-          <>
-            <GridItem className={HALF_WIDTH}>
+        )}
+        {(!steps.isEmailStep || props.preloadPaymentStep) && (
+          <GridItem className={steps.isEmailStep ? BEHIND_EMAIL_STEP : HALF_WIDTH}>
+            <div inert={steps.isEmailStep}>
               <CheckoutPaymentStep {...props} isLoading={props.isPaymentLoading} />
-            </GridItem>
-            <GridItem className={HALF_WIDTH}>
-              <CheckoutOrderSummary
-                plan={plan}
-                selectedPeriod={selectedPeriod}
-                promoCodeSlot={promoCodeSlot}
-                promoDiscount={promoDiscount}
-                taxNote={taxNote}
-              />
-            </GridItem>
-          </>
+            </div>
+          </GridItem>
+        )}
+        {!steps.isEmailStep && (
+          <GridItem className={HALF_WIDTH}>
+            <CheckoutOrderSummary
+              plan={plan}
+              selectedPeriod={selectedPeriod}
+              promoCodeSlot={promoCodeSlot}
+              promoDiscount={promoDiscount}
+              taxNote={taxNote}
+            />
+          </GridItem>
         )}
       </Grid>
 

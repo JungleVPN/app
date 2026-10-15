@@ -66,14 +66,14 @@ function WhopStartCheckout() {
     <WhopPromoCode planId={checkout.plan.planId} applied={promo} onApplyChange={setPromo} />
   );
 
-  const paymentMethodsSlot = paymentMethod.isLoaded && (
+  const paymentMethodsSlot = paymentMethod.canShowMethods && (
     <WhopPaymentTabs
       wallets={paymentMethod.wallets}
       selected={paymentMethod.method}
       onSelect={paymentMethod.select}
       cardPanel={
         <WhopCardPanel
-          checkout={whopCheckout}
+          checkout={paymentMethod.cardCheckout}
           payment={payment}
           returnUrl={returnUrl}
           submitRef={paymentMethod.submitCard}
@@ -105,6 +105,7 @@ function WhopStartCheckout() {
         canSubmit={canSubmit}
         promoCodeSlot={promoCodeSlot}
         isPaymentLoading={!paymentMethod.isLoaded}
+        preloadPaymentStep={!checkout.isAuthenticated}
         hideAgreement={isCard}
         submitSlot={submitSlot}
         paymentMethodsSlot={paymentMethodsSlot}

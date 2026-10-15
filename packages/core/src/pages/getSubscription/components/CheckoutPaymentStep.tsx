@@ -12,7 +12,7 @@ interface CheckoutPaymentStepProps {
   canSubmit: boolean;
   /** A provider's payment method choice, shown under the heading. */
   paymentMethodsSlot?: ReactNode;
-  /** True while the payment methods are still loading; the whole step shows a spinner. */
+  /** True while the payment methods are still loading; the step shows a spinner over them. */
   isLoading?: boolean;
   /** Replaces the default submit button, for a method whose button has to be its vendor's own. */
   submitSlot?: ReactNode;
@@ -35,19 +35,19 @@ export function CheckoutPaymentStep({
   const { t } = useTranslation();
   const { open: openTerms } = useTermsStore();
 
-  if (isLoading) {
-    return (
-      <Block className='p-5 sm:p-6'>
+  return (
+    <Block className={isLoading ? 'p-5 sm:p-6' : 'p-4'}>
+      {isLoading && (
         <div className='flex min-h-48 items-center justify-center'>
           <Spinner />
         </div>
-      </Block>
-    );
-  }
-
-  return (
-    <Block className='p-4'>
-      <div className='flex flex-col gap-2'>
+      )}
+      {/* Kept mounted under the spinner, so payment methods that load slowly — a
+          provider's hosted frames — keep loading rather than start over. */}
+      <div
+        className={isLoading ? 'invisible h-0 overflow-hidden' : 'flex flex-col gap-2'}
+        inert={isLoading}
+      >
         {paymentMethodsSlot}
         {submitSlot ?? (
           <Button

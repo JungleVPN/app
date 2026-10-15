@@ -6,7 +6,7 @@
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { PlanPricing, SubscriptionPlanDto } from '@workspace/types';
-import { cloneElement, type ReactElement, type ReactNode } from 'react';
+import { cloneElement, type ReactElement, type ReactNode, useEffect } from 'react';
 import { MemoryRouter, useLocation } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getCheckoutEmail, saveCheckoutEmail } from '../../../utils/checkoutEmail';
@@ -374,5 +374,83 @@ describe('CheckoutForm email field', () => {
     renderForm({ isAuthenticated: false });
 
     expect(screen.getByRole('textbox', { name: 'getSubscription.email_label' })).toBeTruthy();
+  });
+});
+
+/**
+ * A provider's payment methods can be slow to load — Whop's card form is a set
+ * of hosted frames that reload if they are unmounted or moved. The form keeps
+ * them mounted while they load, and can load them behind the email step so the
+ * payment step opens ready.
+ */
+describe('CheckoutForm payment methods loading', () => {
+  function PaymentMethods({ onMount }: { onMount: () => void }) {
+    useEffect(onMount, [onMount]);
+    return <p>payment-methods</p>;
+  }
+
+  const isOutOfReach = () => screen.getByText('payment-methods').closest('[inert]') !== null;
+
+  const renderWithMethods = (props: Partial<Parameters<typeof CheckoutForm>[0]> = {}) => {
+    const onMount = vi.fn();
+    const form = (overrides: Partial<Parameters<typeof CheckoutForm>[0]> = {}) => (
+      <MemoryRouter initialEntries={['/payment/whop-30']}>
+        <CheckoutForm
+          isAuthenticated
+          email='payer@test.com'
+          emailError=''
+          checkoutError={null}
+          isPending={false}
+          selectedPeriod={30}
+          plan={plan()}
+          canSubmit
+          completeEmailStep={() => true}
+          handleSubmit={() => {}}
+          handleEmailChange={() => {}}
+          paymentMethodsSlot={<PaymentMethods onMount={onMount} />}
+          {...props}
+          {...overrides}
+        />
+      </MemoryRouter>
+    );
+    const { rerender } = render(form());
+    return {
+      onMount,
+      rerender: (overrides: Partial<Parameters<typeof CheckoutForm>[0]>) =>
+        rerender(form(overrides)),
+    };
+  };
+
+  it('keeps the payment methods mounted, out of reach, while they load', () => {
+    const { onMount, rerender } = renderWithMethods({ isPaymentLoading: true });
+    expect(isOutOfReach()).toBe(true);
+
+    rerender({ isPaymentLoading: false });
+
+    expect(isOutOfReach()).toBe(false);
+    expect(onMount).toHaveBeenCalledTimes(1);
+  });
+
+  it('loads the payment methods behind the email step when asked to', () => {
+    renderWithMethods({ isAuthenticated: false, preloadPaymentStep: true });
+
+    expect(screen.getByRole('textbox', { name: 'getSubscription.email_label' })).toBeTruthy();
+    expect(isOutOfReach()).toBe(true);
+  });
+
+  it('opens the payment step on the methods it loaded behind the email step', async () => {
+    const { onMount } = renderWithMethods({ isAuthenticated: false, preloadPaymentStep: true });
+    expect(onMount).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: /common.next/ }));
+
+    await waitFor(() => expect(isOutOfReach()).toBe(false));
+    expect(onMount).toHaveBeenCalledTimes(1);
+  });
+
+  it('loads nothing behind the email step unless asked to', () => {
+    const { onMount } = renderWithMethods({ isAuthenticated: false });
+
+    expect(onMount).not.toHaveBeenCalled();
   });
 });
