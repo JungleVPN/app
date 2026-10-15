@@ -47,6 +47,8 @@ vi.mock('../../utils', () => ({
   cn: (...classes: unknown[]) => classes.filter(Boolean).join(' '),
   formatPlanPrice: (_pricing: PlanPricing, amount: string) => `$${amount}`,
   scrollToTop: () => {},
+  trackEmailStepSubmitted: () => {},
+  trackEmailStepViewed: () => {},
 }));
 vi.mock('../../utils/planPricing', () => ({ formatPeriod: () => '1 month' }));
 vi.mock('../profile/payment/components/TermsDialog', () => ({ TermsDialog: () => null }));
