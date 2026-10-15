@@ -45,7 +45,12 @@ function WhopStartCheckout() {
   };
   const returnUrl = `${window.location.origin}${paymentReturnPath}`;
   const payment = useWhopPay({ checkout: whopCheckout, returnUrl });
-  const paymentMethod = useWhopPaymentMethod({ checkout: whopCheckout, prepared, payment });
+  const paymentMethod = useWhopPaymentMethod({
+    checkout: whopCheckout,
+    prepared,
+    plan: checkout.plan,
+    payment,
+  });
 
   if (checkout.isLoading) return <Loading />;
   if (checkout.loadFailed) return <LoadError reason='failed_to_load_plans' onRetry={loadPlans} />;

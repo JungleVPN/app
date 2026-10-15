@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getWhopEnvironment, toWhopLocale } from './whopEnv';
+import { getWhopAccountId, getWhopEnvironment, toWhopLocale } from './whopEnv';
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -47,5 +47,22 @@ describe('toWhopLocale', () => {
     'ur',
   ])('falls back to English for %s, which Whop does not ship', (language) => {
     expect(toWhopLocale(language)).toBe('en');
+  });
+});
+
+describe('getWhopAccountId', () => {
+  it('returns the Whop account the page is configured to sell from', () => {
+    vi.stubEnv('PUBLIC_WHOP_ACCOUNT_ID', 'biz_123');
+
+    expect(getWhopAccountId()).toBe('biz_123');
+  });
+
+  it.each([
+    ['unset', ''],
+    ['not a Whop account id', 'plan_123'],
+  ])('returns null when the account is %s, so the page waits for the backend to name it', (_, value) => {
+    vi.stubEnv('PUBLIC_WHOP_ACCOUNT_ID', value);
+
+    expect(getWhopAccountId()).toBeNull();
   });
 });

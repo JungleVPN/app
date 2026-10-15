@@ -1,14 +1,18 @@
+import type { SubscriptionPlanDto } from '@workspace/types';
 import { useRef, useState } from 'react';
 import type { WhopPay } from '../../whopCheckout/hooks/useWhopPay';
 import { useWhopWalletSheet } from '../../whopCheckout/hooks/useWhopWalletSheet';
+import { getWhopAccountId } from '../../whopCheckout/utils/whopEnv';
 import { showWalletSheet, type Wallet } from '../../whopCheckout/utils/whopWallets';
 import type { WhopCheckoutState } from '../../whopCheckout/whopCheckoutState';
 import type { PaymentMethod } from '../components/WhopPaymentTabs';
+import { walletProbe } from '../utils/walletProbe';
 import type { PreparedCheckout } from './usePreparedCheckout';
 
 interface UseWhopPaymentMethodOptions {
   checkout: WhopCheckoutState;
   prepared: PreparedCheckout | null;
+  plan: SubscriptionPlanDto | undefined;
   payment: WhopPay;
 }
 
@@ -24,14 +28,18 @@ function availableMethod(chosen: PaymentMethod | null, wallets: Wallet[]): Payme
  * requires; the card pays through Whop's card inputs, which hand their submit
  * over through `submitCard` and report through `onCardPayableChange`.
  */
-export function useWhopPaymentMethod({ checkout, prepared, payment }: UseWhopPaymentMethodOptions) {
+export function useWhopPaymentMethod({
+  checkout,
+  prepared,
+  plan,
+  payment,
+}: UseWhopPaymentMethodOptions) {
   const [chosenMethod, setChosenMethod] = useState<PaymentMethod | null>('apple_pay');
   const [isCardPayable, setIsCardPayable] = useState(false);
   const submitCard = useRef<() => void>(() => {});
-  const { sheet, wallets, isReady } = useWhopWalletSheet({
-    checkout,
-    enabled: prepared !== null,
-  });
+  const { sheet, wallets, isReady } = useWhopWalletSheet(
+    walletProbe({ checkout, prepared, plan, configuredAccountId: getWhopAccountId() }),
+  );
   const method = availableMethod(chosenMethod, wallets);
 
   const submit = () => {

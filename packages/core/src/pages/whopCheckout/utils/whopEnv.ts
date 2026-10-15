@@ -16,6 +16,16 @@ export function getWhopEnvironment(): 'sandbox' | 'production' {
   return value;
 }
 
+/**
+ * The Whop account (`biz_...`) the page sells from, so wallets can be probed
+ * before the backend accepts a checkout; null when it is not configured, and
+ * the page then waits for the backend to name it.
+ */
+export function getWhopAccountId(): string | null {
+  const value = import.meta.env.PUBLIC_WHOP_ACCOUNT_ID as string | undefined;
+  return value?.startsWith('biz_') ? value : null;
+}
+
 export function toWhopLocale(language: string): WhopElementsLocale {
   const base = language.split('-')[0] ?? language;
   return WHOP_ELEMENTS_LOCALES.includes(base) ? base : 'en';

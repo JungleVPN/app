@@ -22,7 +22,11 @@ const {
   showWalletSheet,
   cardSubmit,
   cardPanel,
+  walletSheetProbe,
+  whopConfig,
 } = vi.hoisted(() => ({
+  walletSheetProbe: vi.fn(),
+  whopConfig: { accountId: null as string | null },
   navigate: vi.fn(),
   pay: vi.fn(),
   cardSubmit: vi.fn(),
@@ -174,6 +178,7 @@ vi.mock('@whop/elements-react', () => ({
   WhopElements: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 vi.mock('../whopCheckout/utils/whopEnv', () => ({
+  getWhopAccountId: () => whopConfig.accountId,
   getWhopEnvironment: () => 'sandbox',
   toWhopLocale: () => 'en',
 }));
@@ -191,11 +196,10 @@ vi.mock('../whopCheckout/hooks/useWhopPay', () => ({
   failureFor: () => null,
 }));
 vi.mock('../whopCheckout/hooks/useWhopWalletSheet', () => ({
-  useWhopWalletSheet: () => ({
-    sheet: wallets.sheet,
-    wallets: wallets.available,
-    isReady: wallets.isReady,
-  }),
+  useWhopWalletSheet: (probe: unknown) => {
+    walletSheetProbe(probe);
+    return { sheet: wallets.sheet, wallets: wallets.available, isReady: wallets.isReady };
+  },
 }));
 vi.mock('../whopCheckout/utils/whopWallets', () => ({
   showWalletSheet,
@@ -260,6 +264,7 @@ describe('WhopStartCheckoutPage', () => {
     wallets.isReady = true;
     wallets.chargingVia = null;
     cardPanel.checkout = null;
+    whopConfig.accountId = null;
     vi.clearAllMocks();
     api.createPublicWhopCheckout.mockResolvedValue({
       accountId: 'biz_1',
@@ -585,5 +590,49 @@ describe('WhopStartCheckoutPage', () => {
     await waitFor(() => expect(canSubmit()).not.toBeNull());
     expect(screen.getByTestId('selected-method').dataset.selected).toBe('card');
     expect(screen.queryByTestId('agreement')).toBeNull();
+  });
+});
+
+describe('WhopStartCheckoutPage wallet probe', () => {
+  beforeEach(() => {
+    wallets.sheet = null;
+    wallets.available = [];
+    wallets.isReady = true;
+    wallets.chargingVia = null;
+    whopConfig.accountId = null;
+    vi.clearAllMocks();
+    api.createPublicWhopCheckout.mockResolvedValue({
+      accountId: 'biz_1',
+      planId: 'plan_1',
+      renews: true,
+    });
+  });
+
+  const lastProbe = () => walletSheetProbe.mock.lastCall?.[0];
+
+  it('probes wallets while the payer is still giving their email, when the account is configured', () => {
+    whopConfig.accountId = 'biz_configured';
+
+    render(<WhopStartCheckoutPage />);
+
+    expect(lastProbe()).toMatchObject({
+      enabled: true,
+      checkout: {
+        accountId: 'biz_configured',
+        renews: true,
+        charge: { amount: '10.00', currency: 'USD' },
+      },
+    });
+  });
+
+  it('waits for the accepted checkout to probe wallets when the account is not configured', async () => {
+    render(<WhopStartCheckoutPage />);
+    expect(lastProbe()).toMatchObject({ enabled: false });
+
+    fireEvent.click(nextButton());
+
+    await waitFor(() =>
+      expect(lastProbe()).toMatchObject({ enabled: true, checkout: { accountId: 'biz_1' } }),
+    );
   });
 });
