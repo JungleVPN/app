@@ -8,9 +8,10 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import type { IpStatusDto } from '@workspace/types';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { CardTokenError } from '../utils/whopPayErrors';
+import type { WhopCheckoutState } from '../whopCheckoutState';
 import { useWhopCardFields } from './useWhopCardFields';
-import { CardTokenError, type PayVia, type Tokenise, type WhopPay } from './useWhopPay';
-import type { WhopCheckoutState } from './whopCheckoutState';
+import type { PayVia, Tokenise, WhopPay } from './useWhopPay';
 
 const { payments, ipStatus } = vi.hoisted(() => ({
   payments: { createConfirmationToken: vi.fn() },
@@ -39,9 +40,9 @@ vi.mock('@whop/elements-react', () => ({
   useWhop: () => ({}),
 }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
-vi.mock('../../api', () => ({ useRemnawaveApi: () => ({}) }));
-vi.mock('../../hooks', () => ({ useIpStatus: () => ipStatus.current }));
-vi.mock('../../core/i18n', () => ({ i18n: { language: 'en' } }));
+vi.mock('../../../api', () => ({ useRemnawaveApi: () => ({}) }));
+vi.mock('../../../hooks', () => ({ useIpStatus: () => ipStatus.current }));
+vi.mock('../../../core/i18n', () => ({ i18n: { language: 'en' } }));
 
 afterEach(() => {
   ipStatus.current = null;

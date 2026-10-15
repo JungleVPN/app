@@ -1,7 +1,7 @@
 import { Drawer } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import { coreEnv, getTelegramStickerUrl } from '../../env';
-import { Container, Paragraph, TgsSticker } from '../../ui';
+import { coreEnv, getTelegramStickerUrl } from '../../../env';
+import { Container, Paragraph, TgsSticker } from '../../../ui';
 
 /**
  * Shown from the moment a wallet's or card's token is being charged until our

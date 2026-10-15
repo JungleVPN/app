@@ -1,8 +1,8 @@
 import { Skeleton } from '@heroui/react';
 import { BrandingElement, Payments } from '@whop/elements-react';
 import { type RefObject, useEffect } from 'react';
-import { useWhopCardFields } from '../../whopCheckout/useWhopCardFields';
-import type { WhopPay } from '../../whopCheckout/useWhopPay';
+import { useWhopCardFields } from '../../whopCheckout/hooks/useWhopCardFields';
+import type { WhopPay } from '../../whopCheckout/hooks/useWhopPay';
 import type { WhopCheckoutState } from '../../whopCheckout/whopCheckoutState';
 
 interface WhopCardPanelProps {

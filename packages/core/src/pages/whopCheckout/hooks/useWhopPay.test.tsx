@@ -7,9 +7,10 @@
 import { act, renderHook } from '@testing-library/react';
 import type { WhopPaymentStatusDto } from '@workspace/types';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { checkoutErrorKey } from '../getSubscription/utils/checkoutErrors';
-import { CardTokenError, failureFor, useWhopPay, WalletSheetError } from './useWhopPay';
-import type { WhopCheckoutState } from './whopCheckoutState';
+import { checkoutErrorKey } from '../../getSubscription/utils/checkoutErrors';
+import { CardTokenError, WalletSheetError } from '../utils/whopPayErrors';
+import type { WhopCheckoutState } from '../whopCheckoutState';
+import { failureFor, useWhopPay } from './useWhopPay';
 
 const { api, whop, navigate, utils } = vi.hoisted(() => ({
   api: { payPublicWhopCheckout: vi.fn(), getPublicWhopPaymentStatus: vi.fn() },
@@ -25,12 +26,12 @@ const { api, whop, navigate, utils } = vi.hoisted(() => ({
 
 vi.mock('@whop/elements-react', () => ({ useWhop: () => whop.current }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
-vi.mock('../../hooks', () => ({ useNavigation: () => navigate }));
-vi.mock('../../runtime', () => ({
+vi.mock('../../../hooks', () => ({ useNavigation: () => navigate }));
+vi.mock('../../../runtime', () => ({
   useAppRoutes: () => ({ paymentReturnPath: '/payment/return' }),
   usePaymentsApi: () => api,
 }));
-vi.mock('../../utils', () => ({
+vi.mock('../../../utils', () => ({
   ...utils,
   checkoutEventProperties: (properties: object) => properties,
 }));

@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import IconApplePay from '../../../assets/icons/apple-pay-short-icon.svg?react';
 import IconGooglePay from '../../../assets/icons/google-pay-short-icon.svg?react';
-import type { Wallet } from '../../whopCheckout/whopWallets';
+import type { Wallet } from '../../whopCheckout/utils/whopWallets';
 
 export type PaymentMethod = Wallet | 'card';
 

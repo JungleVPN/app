@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
-import type { WhopPay } from '../../whopCheckout/useWhopPay';
+import type { WhopPay } from '../../whopCheckout/hooks/useWhopPay';
+import { useWhopWalletSheet } from '../../whopCheckout/hooks/useWhopWalletSheet';
+import { showWalletSheet, type Wallet } from '../../whopCheckout/utils/whopWallets';
 import type { WhopCheckoutState } from '../../whopCheckout/whopCheckoutState';
-import { showWalletSheet, useWhopWalletSheet, type Wallet } from '../../whopCheckout/whopWallets';
 import type { PaymentMethod } from '../components/WhopPaymentTabs';
 import type { PreparedCheckout } from './usePreparedCheckout';
 

@@ -157,7 +157,7 @@ vi.mock('./components/WhopCardPanel', () => ({
     return <p>card-inputs</p>;
   },
 }));
-vi.mock('../whopCheckout/walletButtons', () => ({
+vi.mock('../whopCheckout/components/walletButtons', () => ({
   ApplePayButton: ({ onClick }: { onClick: () => void }) => (
     <button type='button' onClick={onClick}>
       apple-pay-button
@@ -173,15 +173,15 @@ vi.mock('@whop/elements', () => ({ loadWhop: () => ({}) }));
 vi.mock('@whop/elements-react', () => ({
   WhopElements: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
-vi.mock('../whopCheckout/whopEnv', () => ({
+vi.mock('../whopCheckout/utils/whopEnv', () => ({
   getWhopEnvironment: () => 'sandbox',
   toWhopLocale: () => 'en',
 }));
-vi.mock('../whopCheckout/WhopPaymentProcessingDrawer', () => ({
+vi.mock('../whopCheckout/components/WhopPaymentProcessingDrawer', () => ({
   WhopPaymentProcessingDrawer: ({ isOpen }: { isOpen: boolean }) =>
     isOpen ? <p data-testid='processing-drawer'>processing</p> : null,
 }));
-vi.mock('../whopCheckout/useWhopPay', () => ({
+vi.mock('../whopCheckout/hooks/useWhopPay', () => ({
   useWhopPay: () => ({
     pay,
     pendingVia: wallets.chargingVia,
@@ -190,12 +190,14 @@ vi.mock('../whopCheckout/useWhopPay', () => ({
   }),
   failureFor: () => null,
 }));
-vi.mock('../whopCheckout/whopWallets', () => ({
+vi.mock('../whopCheckout/hooks/useWhopWalletSheet', () => ({
   useWhopWalletSheet: () => ({
     sheet: wallets.sheet,
     wallets: wallets.available,
     isReady: wallets.isReady,
   }),
+}));
+vi.mock('../whopCheckout/utils/whopWallets', () => ({
   showWalletSheet,
 }));
 vi.mock('../getSubscription/components/ActiveSubscriptionDialog', () => ({

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { loadScript } from './loadScript';
+import { loadScript } from '../utils/loadScript';
 
 const APPLE_PAY_SDK = 'https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js';
 const GOOGLE_PAY_SDK = 'https://pay.google.com/gp/p/js/pay.js';

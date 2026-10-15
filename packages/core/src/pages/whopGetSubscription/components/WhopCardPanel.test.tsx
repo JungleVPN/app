@@ -12,7 +12,7 @@ vi.mock('@whop/elements-react', () => ({
   ),
   BrandingElement: () => <p>branding</p>,
 }));
-vi.mock('../../whopCheckout/useWhopCardFields', () => ({
+vi.mock('../../whopCheckout/hooks/useWhopCardFields', () => ({
   useWhopCardFields: () => ({ inputs: <p>inputs</p>, canPay: false, submit: () => {} }),
 }));
 

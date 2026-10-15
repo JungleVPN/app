@@ -1,7 +1,7 @@
 import { i18n } from '../../../core/i18n';
-import { ApplePayButton, GooglePayButton } from '../../whopCheckout/walletButtons';
-import { getWhopEnvironment } from '../../whopCheckout/whopEnv';
-import type { Wallet } from '../../whopCheckout/whopWallets';
+import { ApplePayButton, GooglePayButton } from '../../whopCheckout/components/walletButtons';
+import { getWhopEnvironment } from '../../whopCheckout/utils/whopEnv';
+import type { Wallet } from '../../whopCheckout/utils/whopWallets';
 
 interface WhopWalletSubmitProps {
   wallet: Wallet;

@@ -1,9 +1,8 @@
 import { useWhop } from '@whop/elements-react';
-import type { WhopPaymentStatusDto } from '@workspace/types';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '../../hooks';
-import { useAppRoutes, usePaymentsApi } from '../../runtime';
+import { useNavigation } from '../../../hooks';
+import { useAppRoutes, usePaymentsApi } from '../../../runtime';
 import {
   checkoutEventProperties,
   forgetPendingPurchase,
@@ -11,33 +10,13 @@ import {
   rememberPendingPurchase,
   type SubmittedPaymentMethod,
   trackPaymentMethodSubmitted,
-} from '../../utils';
-import { checkoutErrorKey } from '../getSubscription/utils/checkoutErrors';
-import type { WhopCheckoutState } from './whopCheckoutState';
-
-/** Thrown when Whop cannot tokenise the card — its own field already marks what is wrong. */
-export class CardTokenError extends Error {}
-
-/** Thrown when a wallet sheet could not open or complete — anything but the payer dismissing it. */
-export class WalletSheetError extends Error {}
+} from '../../../utils';
+import { awaitFulfilment } from '../utils/awaitFulfilment';
+import { payErrorKey } from '../utils/whopPayErrors';
+import type { WhopCheckoutState } from '../whopCheckoutState';
 
 /** A Whop payment status that needs nothing more from the payer. */
 const SETTLED_STATUSES: ReadonlySet<string> = new Set(['succeeded', 'processing']);
-
-/**
- * How long to wait for our webhook to extend the subscription once Whop says
- * paid. Whop reports the charge before its webhook lands, so showing success
- * on Whop's word alone would send the payer to a profile that is not yet
- * extended.
- */
-const FULFILMENT_POLL_MS = 1000;
-const FULFILMENT_POLL_ATTEMPTS = 60;
-
-function payErrorKey(caught: unknown): string {
-  if (caught instanceof CardTokenError) return 'whopCheckout.errors.card_invalid';
-  if (caught instanceof WalletSheetError) return 'whopCheckout.errors.not_completed';
-  return checkoutErrorKey(caught);
-}
 
 /**
  * Tokenises a payment method; resolves null when the payer backed out, such
@@ -47,6 +26,9 @@ export type Tokenise = () => Promise<string | null>;
 
 /** Where the payer paid from, so only that place shows the progress and any failure. */
 export type PayVia = 'card' | 'wallet';
+
+/** The paid payment's id, null when the payer left for an off-site step, or the text to show them. */
+type ChargeOutcome = { paid: string } | { error: string } | null;
 
 /**
  * Charges a confirmation token through our backend — which re-validates the
@@ -73,10 +55,12 @@ export function useWhopPay({
   const [failure, setFailure] = useState<{ via: PayVia; message: string } | null>(null);
   // State lags a render behind; a second tap in the same frame must still see the lock.
   const isLocked = useRef(false);
-  const analytics = checkoutEventProperties({
-    paymentProvider: 'whop',
-    days: checkout.selectedPeriod,
-  });
+
+  const trackSubmitted = (method: SubmittedPaymentMethod) => {
+    const properties = { paymentProvider: 'whop', days: checkout.selectedPeriod } as const;
+    phCapture('payment_submitted', checkoutEventProperties(properties));
+    trackPaymentMethodSubmitted(method, properties);
+  };
 
   /** Leaves the purchase for `/payment/success` to report to Google Ads. */
   const rememberPurchase = (paymentId: string) =>
@@ -87,10 +71,7 @@ export function useWhopPay({
         : {}),
     });
 
-  /** The paid payment's id, null when the payer left for an off-site step, or the text to show them. */
-  const charge = async (
-    confirmationToken: string,
-  ): Promise<{ paid: string } | null | { error: string }> => {
+  const charge = async (confirmationToken: string): Promise<ChargeOutcome> => {
     const payment = await paymentsApi.payPublicWhopCheckout({
       ...checkout.request,
       confirmationToken,
@@ -113,17 +94,23 @@ export function useWhopPay({
     return { error: lastPaymentError.message?.trim() || t('whopCheckout.errors.declined') };
   };
 
-  /**
-   * Our webhook's answer once it fulfilled the payment, or null when it did not
-   * within the wait; a failed lookup just asks again.
-   */
-  const awaitFulfilment = async (paymentId: string): Promise<WhopPaymentStatusDto | null> => {
-    for (let attempt = 0; attempt < FULFILMENT_POLL_ATTEMPTS; attempt++) {
-      if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, FULFILMENT_POLL_MS));
-      const status = await paymentsApi.getPublicWhopPaymentStatus(paymentId).catch(() => null);
-      if (status?.fulfilled) return status;
-    }
-    return null;
+  /** Sends the payer on once our webhook extended their subscription; false when it is late. */
+  const finishPaid = async (paymentId: string): Promise<boolean> => {
+    const fulfilled = await awaitFulfilment(() =>
+      paymentsApi.getPublicWhopPaymentStatus(paymentId),
+    );
+    if (!fulfilled) return false;
+    // Only a customer's first payment is reported to Google Ads.
+    if (fulfilled.firstPayment) rememberPurchase(paymentId);
+    else forgetPendingPurchase();
+    navigate(paymentReturnPath, { replace: true });
+    return true;
+  };
+
+  const unlock = () => {
+    isLocked.current = false;
+    setPendingVia(null);
+    setIsCharging(false);
   };
 
   /**
@@ -148,40 +135,26 @@ export function useWhopPay({
     try {
       const confirmationToken = await tokenise();
       if (!confirmationToken) return;
-      phCapture('payment_submitted', analytics);
-      trackPaymentMethodSubmitted(method, {
-        paymentProvider: 'whop',
-        days: checkout.selectedPeriod,
-      });
+      trackSubmitted(method);
       setIsCharging(true);
+
       const outcome = await charge(confirmationToken);
-      if (outcome && 'paid' in outcome) {
-        charged = true;
-        const fulfilled = await awaitFulfilment(outcome.paid);
-        if (fulfilled) {
-          // Only a customer's first payment is reported to Google Ads.
-          if (fulfilled.firstPayment) rememberPurchase(outcome.paid);
-          else forgetPendingPurchase();
-          navigate(paymentReturnPath, { replace: true });
-          return;
-        }
-        setIsCharging(false);
-        fail(t('whopCheckout.errors.activation_delayed'));
-        return;
-      }
-      if (outcome) {
+      if (!outcome) return;
+      if ('error' in outcome) {
         forgetPendingPurchase();
         fail(outcome.error);
+        return;
       }
+
+      charged = true;
+      if (await finishPaid(outcome.paid)) return;
+      setIsCharging(false);
+      fail(t('whopCheckout.errors.activation_delayed'));
     } catch (caught) {
       forgetPendingPurchase();
       fail(t(payErrorKey(caught)));
     } finally {
-      if (!charged) {
-        isLocked.current = false;
-        setPendingVia(null);
-        setIsCharging(false);
-      }
+      if (!charged) unlock();
     }
   };
 
