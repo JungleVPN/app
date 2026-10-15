@@ -46,6 +46,8 @@ interface CheckoutFormProps {
 
 const HALF_WIDTH = '@3xl:col-span-6';
 
+const CENTERED_HALF_WIDTH = `${HALF_WIDTH} @3xl:col-start-4`;
+
 /** Shares the email step's row, so the hidden payment step adds no gap below it. */
 const BEHIND_EMAIL_STEP = `${HALF_WIDTH} row-start-1 invisible h-0 overflow-hidden`;
 
@@ -81,7 +83,7 @@ export const CheckoutForm = (props: CheckoutFormProps) => {
           step loaded behind the email step is the same one the payer reaches. */}
       <Grid className='@container mb-8'>
         {steps.isEmailStep && (
-          <GridItem className={HALF_WIDTH}>
+          <GridItem className={CENTERED_HALF_WIDTH}>
             <CheckoutEmailStep
               {...props}
               handleNext={steps.goNext}
