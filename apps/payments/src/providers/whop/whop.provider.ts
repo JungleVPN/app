@@ -24,6 +24,13 @@ import { Repository } from 'typeorm';
 import { WhopClientService } from './whop-client.service';
 import { WhopWebhookService } from './whop-webhook.service';
 
+/** The Whop plan a checkout bills, and whether it renews. */
+export interface WhopCheckoutPlan {
+  /** The Whop plan (`plan_...`). */
+  whopPlanId: string;
+  renews: boolean;
+}
+
 @Injectable()
 export class WhopProvider {
   constructor(
@@ -65,13 +72,13 @@ export class WhopProvider {
    * Kept apart from `createCheckout` so a request can be rejected before
    * anything is created on Whop.
    */
-  async resolveCheckoutPlanId(planId: string, clientIp: string | null): Promise<string> {
+  async resolveCheckoutPlan(planId: string, clientIp: string | null): Promise<WhopCheckoutPlan> {
     const { currency } = await this.visitorCurrencyService.resolve({ provider: 'whop', clientIp });
     const plan = await this.planService.getForCheckout(planId, 'whop', currency);
     if (!plan.providerPriceId) {
-      throw new Error('No Whop plan id was found in resolveCheckoutPlanId');
+      throw new Error('No Whop plan id was found in resolveCheckoutPlan');
     }
-    return plan.providerPriceId;
+    return { whopPlanId: plan.providerPriceId, renews: plan.type === 'recurring' };
   }
 
   /**
@@ -79,13 +86,8 @@ export class WhopProvider {
    * being bought, and whether it renews — a wallet token for a renewing plan
    * must be minted for off-session reuse, or Whop refuses it.
    */
-  async checkoutTarget(whopPlanId: string): Promise<WhopCheckoutPayload> {
-    const plan = await this.planService.findByProviderPriceId('whop', whopPlanId);
-    return {
-      accountId: this.whopClientService.accountId,
-      planId: whopPlanId,
-      renews: plan?.type === 'recurring',
-    };
+  checkoutTarget({ whopPlanId, renews }: WhopCheckoutPlan): WhopCheckoutPayload {
+    return { accountId: this.whopClientService.accountId, planId: whopPlanId, renews };
   }
 
   /**

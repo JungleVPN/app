@@ -35,7 +35,7 @@ import { ClientUserGuard } from '../../auth/client-user.guard';
 import { InterServiceGuard } from '../../guards/inter-service.guard';
 import { PublicCheckoutRateLimitGuard } from '../../guards/public-checkout-rate-limit.guard';
 import { PublicPromoCodeRateLimitGuard } from '../../guards/public-promo-code-rate-limit.guard';
-import { WhopProvider } from './whop.provider';
+import { type WhopCheckoutPlan, WhopProvider } from './whop.provider';
 
 /** Mirrors the pattern the Stripe and Paddle public routes validate emails against. */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -64,8 +64,8 @@ export class WhopController {
     @Body() dto: CreatePublicWhopCheckoutDto,
     @Ip() ip: string,
   ): Promise<WhopCheckoutPayload> {
-    const { whopPlanId } = await this.validateCheckout(dto, ip);
-    return this.whopProvider.checkoutTarget(whopPlanId);
+    const { plan } = await this.validateCheckout(dto, ip);
+    return this.whopProvider.checkoutTarget(plan);
   }
 
   /**
@@ -93,11 +93,11 @@ export class WhopController {
     if (dto.promoCode != null && typeof dto.promoCode !== 'string') {
       throw new BadRequestException('A promo code must be text');
     }
-    const { email, whopPlanId } = await this.validateCheckout(dto, ip);
+    const { email, plan } = await this.validateCheckout(dto, ip);
 
     return this.whopProvider.payCheckout({
       email,
-      whopPlanId,
+      whopPlanId: plan.whopPlanId,
       confirmationToken: dto.confirmationToken,
       returnUrl: dto.returnUrl,
       toltReferralId: dto.toltReferralId,
@@ -140,7 +140,7 @@ export class WhopController {
     if (!promoCode) {
       throw new BadRequestException('A promo code is required');
     }
-    const whopPlanId = await this.whopProvider.resolveCheckoutPlanId(dto.planId, ip || null);
+    const { whopPlanId } = await this.whopProvider.resolveCheckoutPlan(dto.planId, ip || null);
     return this.whopProvider.checkPromoCode({ promoCode, whopPlanId });
   }
 
@@ -187,18 +187,23 @@ export class WhopController {
   private async validateCheckout(
     dto: CreatePublicWhopCheckoutDto,
     ip: string,
-  ): Promise<{ email: string; whopPlanId: string }> {
+  ): Promise<{ email: string; plan: WhopCheckoutPlan }> {
     const email = dto.email?.trim().toLocaleLowerCase() ?? '';
     if (!EMAIL_PATTERN.test(email)) {
       throw new BadRequestException('A valid email is required');
     }
 
-    const whopPlanId = await this.whopProvider.resolveCheckoutPlanId(dto.planId, ip || null);
+    // Looked up together, since neither waits on the other; an unsellable plan
+    // is still reported ahead of anything the subscription lookup says.
+    const [plan, subscription] = await Promise.allSettled([
+      this.whopProvider.resolveCheckoutPlan(dto.planId, ip || null),
+      this.whopProvider.hasActiveSubscription(email),
+    ]);
+    if (plan.status === 'rejected') throw plan.reason;
+    if (subscription.status === 'rejected') throw subscription.reason;
+    if (subscription.value) throw this.activeSubscriptionConflict();
 
-    if (await this.whopProvider.hasActiveSubscription(email)) {
-      throw this.activeSubscriptionConflict();
-    }
-    return { email, whopPlanId };
+    return { email, plan: plan.value };
   }
 
   /**

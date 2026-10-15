@@ -72,27 +72,39 @@ const providerWith = (countryCode: string | null = null) => {
 };
 
 describe('WhopProvider', () => {
-  describe('resolveCheckoutPlanId', () => {
-    it("returns the chosen plan's Whop plan id to bill", async () => {
+  describe('resolveCheckoutPlan', () => {
+    it("returns the chosen plan's Whop plan id to bill, and that it renews", async () => {
       const { provider } = providerWith();
 
-      await expect(provider.resolveCheckoutPlanId('whop-180', PAYER_IP)).resolves.toBe(
-        'plan_month_6',
-      );
+      await expect(provider.resolveCheckoutPlan('whop-180', PAYER_IP)).resolves.toEqual({
+        whopPlanId: 'plan_month_6',
+        renews: true,
+      });
+    });
+
+    it('says a one-time plan does not renew, so a wallet saves no card for it', async () => {
+      const { provider } = providerWith();
+
+      await expect(provider.resolveCheckoutPlan('whop-7-once', PAYER_IP)).resolves.toEqual({
+        whopPlanId: 'plan_once_1',
+        renews: false,
+      });
     });
 
     it("bills the plan in the payer's currency when the page sent another currency's", async () => {
       const { provider } = providerWith('US');
 
-      await expect(provider.resolveCheckoutPlanId('whop-30', PAYER_IP)).resolves.toBe('plan_usd_1');
+      await expect(provider.resolveCheckoutPlan('whop-30', PAYER_IP)).resolves.toMatchObject({
+        whopPlanId: 'plan_usd_1',
+      });
     });
 
     it("bills the default currency's plan when the payer's country is priced in none on sale", async () => {
       const { provider } = providerWith(null);
 
-      await expect(provider.resolveCheckoutPlanId('whop-usd-30', PAYER_IP)).resolves.toBe(
-        'plan_month_1',
-      );
+      await expect(provider.resolveCheckoutPlan('whop-usd-30', PAYER_IP)).resolves.toMatchObject({
+        whopPlanId: 'plan_month_1',
+      });
     });
 
     it.each([
@@ -101,27 +113,19 @@ describe('WhopProvider', () => {
     ])('refuses %s, rather than falling back to another plan', async (_case, planId) => {
       const { provider } = providerWith();
 
-      await expect(provider.resolveCheckoutPlanId(planId, PAYER_IP)).rejects.toBeInstanceOf(
+      await expect(provider.resolveCheckoutPlan(planId, PAYER_IP)).rejects.toBeInstanceOf(
         BadRequestException,
       );
     });
   });
 
   describe('checkoutTarget', () => {
-    it('names the account we sell from and the Whop plan to mount the card form for', async () => {
+    it('names the account we sell from, the Whop plan to mount the card form for, and whether it renews', () => {
       const { provider } = providerWith();
 
-      await expect(provider.checkoutTarget('plan_month_1')).resolves.toEqual({
+      expect(provider.checkoutTarget({ whopPlanId: 'plan_once_1', renews: false })).toEqual({
         accountId: 'biz_test',
-        planId: 'plan_month_1',
-        renews: true,
-      });
-    });
-
-    it('says a one-time plan does not renew, so a wallet saves no card for it', async () => {
-      const { provider } = providerWith();
-
-      await expect(provider.checkoutTarget('plan_once_1')).resolves.toMatchObject({
+        planId: 'plan_once_1',
         renews: false,
       });
     });

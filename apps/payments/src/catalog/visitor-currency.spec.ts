@@ -155,3 +155,122 @@ describe('VisitorCountryClient', () => {
     expect(mockAxiosGet).not.toHaveBeenCalled();
   });
 });
+
+/**
+ * A visitor's address is looked up when the plans are priced and again moments
+ * later when they check out, so an answer is remembered for a while rather
+ * than asked for twice.
+ */
+describe('VisitorCountryClient remembering answers', () => {
+  const TEN_MINUTES_MS = 10 * 60 * 1000;
+
+  afterEach(() => {
+    mockAxiosGet.mockReset();
+    vi.useRealTimers();
+  });
+
+  const answering = (countryCode: string | null) =>
+    mockAxiosGet.mockResolvedValue({ data: { countryCode } });
+
+  it('asks for an address once while its answer is fresh', async () => {
+    answering('PT');
+    const client = new VisitorCountryClient();
+
+    await client.countryOf('81.84.17.141');
+    await expect(client.countryOf('81.84.17.141')).resolves.toBe('PT');
+
+    expect(mockAxiosGet).toHaveBeenCalledTimes(1);
+  });
+
+  it('still uses the answer just before it is ten minutes old', async () => {
+    vi.useFakeTimers();
+    answering('PT');
+    const client = new VisitorCountryClient();
+    await client.countryOf('81.84.17.141');
+
+    vi.advanceTimersByTime(TEN_MINUTES_MS - 1);
+    await client.countryOf('81.84.17.141');
+
+    expect(mockAxiosGet).toHaveBeenCalledTimes(1);
+  });
+
+  it('asks again once the answer is ten minutes old', async () => {
+    vi.useFakeTimers();
+    answering('PT');
+    const client = new VisitorCountryClient();
+    await client.countryOf('81.84.17.141');
+
+    vi.advanceTimersByTime(TEN_MINUTES_MS);
+    answering('ES');
+
+    await expect(client.countryOf('81.84.17.141')).resolves.toBe('ES');
+    expect(mockAxiosGet).toHaveBeenCalledTimes(2);
+  });
+
+  it('asks separately for each address', async () => {
+    answering('PT');
+    const client = new VisitorCountryClient();
+
+    await client.countryOf('81.84.17.141');
+    await client.countryOf('8.8.8.8');
+
+    expect(mockAxiosGet).toHaveBeenCalledTimes(2);
+  });
+
+  it('remembers that the remnawave service could not tell', async () => {
+    answering(null);
+    const client = new VisitorCountryClient();
+
+    await client.countryOf('81.84.17.141');
+    await expect(client.countryOf('81.84.17.141')).resolves.toBeNull();
+
+    expect(mockAxiosGet).toHaveBeenCalledTimes(1);
+  });
+
+  it('asks again after a failed lookup, rather than remembering the failure', async () => {
+    mockAxiosGet.mockRejectedValueOnce(new Error('ECONNREFUSED'));
+    answering('PT');
+    const client = new VisitorCountryClient();
+
+    await client.countryOf('81.84.17.141');
+
+    await expect(client.countryOf('81.84.17.141')).resolves.toBe('PT');
+    expect(mockAxiosGet).toHaveBeenCalledTimes(2);
+  });
+
+  it('forgets the oldest address once it remembers a thousand', async () => {
+    answering('PT');
+    const client = new VisitorCountryClient();
+    const addresses = Array.from(
+      { length: 1001 },
+      (_, index) => `10.0.${index >> 8}.${index & 255}`,
+    );
+    for (const address of addresses) await client.countryOf(address);
+    mockAxiosGet.mockClear();
+
+    await client.countryOf(addresses[1] ?? '');
+    expect(mockAxiosGet).not.toHaveBeenCalled();
+
+    await client.countryOf(addresses[0] ?? '');
+    expect(mockAxiosGet).toHaveBeenCalledTimes(1);
+  });
+
+  it('counts an address asked again as the newest, so it is not the one forgotten', async () => {
+    vi.useFakeTimers();
+    answering('PT');
+    const client = new VisitorCountryClient();
+    const addresses = Array.from(
+      { length: 1000 },
+      (_, index) => `10.0.${index >> 8}.${index & 255}`,
+    );
+    for (const address of addresses) await client.countryOf(address);
+    vi.advanceTimersByTime(TEN_MINUTES_MS);
+    await client.countryOf(addresses[0] ?? '');
+
+    await client.countryOf('8.8.8.8');
+    mockAxiosGet.mockClear();
+    await client.countryOf(addresses[0] ?? '');
+
+    expect(mockAxiosGet).not.toHaveBeenCalled();
+  });
+});

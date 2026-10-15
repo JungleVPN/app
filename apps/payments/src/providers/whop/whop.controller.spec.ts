@@ -16,18 +16,19 @@ const PAYER_IP = '203.0.113.5';
 
 const controllerWith = (
   overrides: {
-    resolveCheckoutPlanId?: ReturnType<typeof vi.fn>;
+    resolveCheckoutPlan?: ReturnType<typeof vi.fn>;
     hasActiveSubscription?: ReturnType<typeof vi.fn>;
   } = {},
 ) => {
   const whopProvider = {
-    resolveCheckoutPlanId:
-      overrides.resolveCheckoutPlanId ?? vi.fn().mockResolvedValue('plan_month_1'),
+    resolveCheckoutPlan:
+      overrides.resolveCheckoutPlan ??
+      vi.fn().mockResolvedValue({ whopPlanId: 'plan_month_1', renews: true }),
     hasActiveSubscription: overrides.hasActiveSubscription ?? vi.fn().mockResolvedValue(false),
-    checkoutTarget: vi.fn(async (planId: string) => ({
+    checkoutTarget: vi.fn((plan: { whopPlanId: string; renews: boolean }) => ({
       accountId: 'biz_test',
-      planId,
-      renews: true,
+      planId: plan.whopPlanId,
+      renews: plan.renews,
     })),
     payCheckout: vi
       .fn()
@@ -64,7 +65,7 @@ describe('WhopController.createPublicCheckout', () => {
       planId: 'plan_month_1',
       renews: true,
     });
-    expect(whopProvider.resolveCheckoutPlanId).toHaveBeenCalledWith('whop-30', PAYER_IP);
+    expect(whopProvider.resolveCheckoutPlan).toHaveBeenCalledWith('whop-30', PAYER_IP);
   });
 
   it('normalises the email before checking it', async () => {
@@ -88,15 +89,50 @@ describe('WhopController.createPublicCheckout', () => {
     expect(whopProvider.hasActiveSubscription).not.toHaveBeenCalled();
   });
 
-  it('refuses a plan that is not on sale, before ever asking Whop about the email', async () => {
+  it('checks for an active subscription without waiting for the plan to resolve', async () => {
     const { controller, whopProvider } = controllerWith({
-      resolveCheckoutPlanId: vi.fn().mockRejectedValue(new BadRequestException('Not on sale')),
+      resolveCheckoutPlan: vi.fn(() => new Promise(() => {})),
+    });
+
+    void controller.createPublicCheckout(publicDto(), PAYER_IP);
+    await Promise.resolve();
+
+    expect(whopProvider.hasActiveSubscription).toHaveBeenCalledWith('payer@test.com');
+  });
+
+  it('refuses a plan that is not on sale, even for an email that already subscribes', async () => {
+    const { controller } = controllerWith({
+      resolveCheckoutPlan: vi.fn().mockRejectedValue(new BadRequestException('Not on sale')),
+      hasActiveSubscription: vi.fn().mockResolvedValue(true),
     });
 
     await expect(
       controller.createPublicCheckout(publicDto({ planId: 'nope' }), PAYER_IP),
     ).rejects.toThrow(BadRequestException);
-    expect(whopProvider.hasActiveSubscription).not.toHaveBeenCalled();
+  });
+
+  it('reports a plan that is not on sale ahead of a failed subscription lookup', async () => {
+    const { controller } = controllerWith({
+      resolveCheckoutPlan: vi.fn(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        throw new BadRequestException('Not on sale');
+      }),
+      hasActiveSubscription: vi.fn().mockRejectedValue(new Error('lookup unavailable')),
+    });
+
+    await expect(
+      controller.createPublicCheckout(publicDto({ planId: 'nope' }), PAYER_IP),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('lets a failed subscription lookup fail the checkout for a plan on sale', async () => {
+    const { controller } = controllerWith({
+      hasActiveSubscription: vi.fn().mockRejectedValue(new Error('lookup unavailable')),
+    });
+
+    await expect(controller.createPublicCheckout(publicDto(), PAYER_IP)).rejects.toThrow(
+      'lookup unavailable',
+    );
   });
 
   it('refuses a payer who already has an active Whop membership', async () => {
@@ -145,7 +181,7 @@ describe('WhopController.payPublicCheckout', () => {
       'https://jungle-vpn.com',
     );
 
-    expect(whopProvider.resolveCheckoutPlanId).toHaveBeenCalledWith('whop-30', PAYER_IP);
+    expect(whopProvider.resolveCheckoutPlan).toHaveBeenCalledWith('whop-30', PAYER_IP);
     expect(whopProvider.payCheckout).toHaveBeenCalledWith({
       email: 'payer@test.com',
       whopPlanId: 'plan_month_1',
@@ -173,7 +209,7 @@ describe('WhopController.payPublicCheckout', () => {
     await expect(
       controller.payPublicCheckout(payDto({ promoCode: 123 as never }), PAYER_IP, undefined),
     ).rejects.toThrow(BadRequestException);
-    expect(whopProvider.resolveCheckoutPlanId).not.toHaveBeenCalled();
+    expect(whopProvider.resolveCheckoutPlan).not.toHaveBeenCalled();
     expect(whopProvider.payCheckout).not.toHaveBeenCalled();
   });
 
@@ -206,13 +242,13 @@ describe('WhopController.payPublicCheckout', () => {
         undefined,
       ),
     ).rejects.toThrow(BadRequestException);
-    expect(whopProvider.resolveCheckoutPlanId).not.toHaveBeenCalled();
+    expect(whopProvider.resolveCheckoutPlan).not.toHaveBeenCalled();
     expect(whopProvider.payCheckout).not.toHaveBeenCalled();
   });
 
   it('refuses a plan that is not on sale without charging', async () => {
     const { controller, whopProvider } = controllerWith({
-      resolveCheckoutPlanId: vi.fn().mockRejectedValue(new BadRequestException('Not on sale')),
+      resolveCheckoutPlan: vi.fn().mockRejectedValue(new BadRequestException('Not on sale')),
     });
 
     await expect(controller.payPublicCheckout(payDto(), PAYER_IP, undefined)).rejects.toThrow(
@@ -250,7 +286,7 @@ describe('WhopController.checkPublicPromoCode', () => {
       amountOff: 20,
       currency: 'usd',
     });
-    expect(whopProvider.resolveCheckoutPlanId).toHaveBeenCalledWith('whop-30', PAYER_IP);
+    expect(whopProvider.resolveCheckoutPlan).toHaveBeenCalledWith('whop-30', PAYER_IP);
     expect(whopProvider.checkPromoCode).toHaveBeenCalledWith({
       promoCode: 'spring20',
       whopPlanId: 'plan_month_1',
@@ -277,7 +313,7 @@ describe('WhopController.checkPublicPromoCode', () => {
 
   it('refuses a plan that is not on sale, without looking the code up', async () => {
     const { controller, whopProvider } = controllerWith({
-      resolveCheckoutPlanId: vi.fn().mockRejectedValue(new BadRequestException('Not on sale')),
+      resolveCheckoutPlan: vi.fn().mockRejectedValue(new BadRequestException('Not on sale')),
     });
 
     await expect(
