@@ -97,6 +97,7 @@ export {
   phCapture,
   phConsentStatus,
   phIdentify,
+  phIdentifyGuestCheckout,
   phOptIn,
   phOptOut,
   phReset,

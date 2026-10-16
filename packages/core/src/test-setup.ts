@@ -17,6 +17,7 @@ vi.mock('posthog-js', () => ({
     opt_out_capturing: vi.fn(),
     get_explicit_consent_status: vi.fn().mockReturnValue('pending'),
     setPersonProperties: vi.fn(),
+    _isIdentified: vi.fn().mockReturnValue(false),
   },
 }));
 

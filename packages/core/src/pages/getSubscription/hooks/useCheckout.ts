@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { usePlans } from '../../../hooks';
 import { useAuthStore, usePlanById, usePlansStatus } from '../../../stores';
-import { scrollToTop, validateEmail } from '../../../utils';
+import { phIdentifyGuestCheckout, scrollToTop, validateEmail } from '../../../utils';
 import { getCheckoutEmail } from '../../../utils/checkoutEmail';
 import { isActiveSubscriptionError, isThrottledError } from '../utils/checkoutErrors';
 
@@ -111,6 +111,8 @@ export function useCheckout(startCheckout: (request: CheckoutRequest) => Promise
     setIsPending(true);
     setCheckoutError(null);
     setActiveSubscriptionEmail(null);
+    // Before the checkout starts, so its events already land on the buyer.
+    if (!authUser) phIdentifyGuestCheckout(payerEmail);
     try {
       await startCheckout({ email: payerEmail, planId: plan.planId, selectedPeriod: plan.days });
       return true;

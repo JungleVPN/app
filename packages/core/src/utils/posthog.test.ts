@@ -10,6 +10,7 @@ const mockedPosthog = posthog as unknown as {
   opt_out_capturing: ReturnType<typeof vi.fn>;
   get_explicit_consent_status: ReturnType<typeof vi.fn>;
   setPersonProperties: ReturnType<typeof vi.fn>;
+  _isIdentified: ReturnType<typeof vi.fn>;
 };
 
 async function loadPosthogModule(hostname = 'localhost') {
@@ -39,6 +40,16 @@ describe('posthog utils', () => {
       await loadPosthogModule();
 
       expect(mockedPosthog.init).not.toHaveBeenCalled();
+    });
+
+    it('phIdentifyGuestCheckout is a no-op', async () => {
+      vi.stubEnv('VITE_PUBLIC_POSTHOG_PROJECT_TOKEN', '');
+      vi.stubEnv('VITE_PUBLIC_POSTHOG_HOST', '');
+      const { phIdentifyGuestCheckout } = await loadPosthogModule();
+
+      phIdentifyGuestCheckout('payer@example.com');
+
+      expect(mockedPosthog.identify).not.toHaveBeenCalled();
     });
 
     it('phCapture, phIdentify and phReset are no-ops', async () => {
@@ -137,6 +148,29 @@ describe('posthog utils', () => {
 
       expect(mockedPosthog.identify).toHaveBeenCalledWith('user-1', {
         attribution_platform: 'web',
+      });
+    });
+
+    // A guest checkout has no account yet; the payment webhook creates one and
+    // links `email:{address}` to it, so identifying the browser by that id ties
+    // the visit (plan choice, checkout, replay) to the buyer.
+    describe('phIdentifyGuestCheckout', () => {
+      it('identifies an anonymous visitor by the email they check out with, as the backend keys it', async () => {
+        mockedPosthog._isIdentified.mockReturnValue(false);
+        const { phIdentifyGuestCheckout } = await loadPosthogModule();
+
+        phIdentifyGuestCheckout('  Payer@Example.COM ');
+
+        expect(mockedPosthog.identify).toHaveBeenCalledWith('email:payer@example.com');
+      });
+
+      it('leaves a visitor who is already identified as they are', async () => {
+        mockedPosthog._isIdentified.mockReturnValue(true);
+        const { phIdentifyGuestCheckout } = await loadPosthogModule();
+
+        phIdentifyGuestCheckout('payer@example.com');
+
+        expect(mockedPosthog.identify).not.toHaveBeenCalled();
       });
     });
 

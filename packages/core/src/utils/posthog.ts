@@ -78,6 +78,17 @@ export function phIdentify(
   posthog.identify(distinctId, properties);
 }
 
+/**
+ * Ties a guest checkout to the account its payment will create. The browser
+ * is anonymous until then, and the backend links `email:{address}` to the new
+ * account, so the plan choice, checkout and replay land on the buyer. A
+ * visitor already identified — a signed-in account — is left as it is.
+ */
+export function phIdentifyGuestCheckout(email: string): void {
+  if (!isEnabled || posthog._isIdentified()) return;
+  posthog.identify(`email:${email.trim().toLowerCase()}`);
+}
+
 /** Reset the PostHog session. Call on logout. */
 export function phReset(): void {
   if (!isEnabled) return;
