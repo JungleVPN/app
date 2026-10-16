@@ -50,4 +50,35 @@ describe('trackPurchaseConversion', () => {
   it('does not throw when window.gtag is not loaded (e.g. blocked by an ad blocker)', () => {
     expect(() => trackPurchaseConversion({ transactionId: 'pay_1' })).not.toThrow();
   });
+
+  describe('Microsoft Ads', () => {
+    afterEach(() => {
+      Reflect.deleteProperty(window, 'uetq');
+    });
+
+    it('reports the purchase with its revenue and currency via window.uetq', () => {
+      const push = vi.fn();
+      window.uetq = { push };
+
+      trackPurchaseConversion({ transactionId: 'pay_1', value: 7.99, currency: 'USD' });
+
+      expect(push).toHaveBeenCalledWith('event', 'purchase', {
+        revenue_value: 7.99,
+        currency: 'USD',
+      });
+    });
+
+    it('reports the purchase alone when the amount paid is unknown', () => {
+      const push = vi.fn();
+      window.uetq = { push };
+
+      trackPurchaseConversion({ transactionId: 'pay_1' });
+
+      expect(push).toHaveBeenCalledWith('event', 'purchase', {});
+    });
+
+    it('does not throw when window.uetq is not loaded (e.g. blocked by an ad blocker)', () => {
+      expect(() => trackPurchaseConversion({ transactionId: 'pay_1' })).not.toThrow();
+    });
+  });
 });

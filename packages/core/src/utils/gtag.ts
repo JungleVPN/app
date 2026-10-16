@@ -1,13 +1,14 @@
 /**
- * Google Ads conversion tracking.
+ * Google Ads and Microsoft Ads conversion tracking.
  *
- * gtag.js itself is loaded via a <script> tag in index.html (apps/web only),
- * not bundled here — this module just reports conversions through the global
- * `window.gtag` it installs.
+ * gtag.js and the UET tag are loaded via <script> tags in index.html
+ * (apps/web only), not bundled here — this module just reports conversions
+ * through the globals they install: `window.gtag` and `window.uetq`.
  */
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
+    uetq?: { push: (...args: unknown[]) => unknown };
   }
 }
 
@@ -24,13 +25,24 @@ export type PurchaseConversion = {
   currency?: string;
 };
 
-/** Reports a successful payment to Google Ads. No-op if gtag.js hasn't loaded (e.g. blocked). */
-export function trackPurchaseConversion({
-  transactionId,
-  value,
-  currency,
-}: PurchaseConversion): void {
-  if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
+/** Reports a successful payment to Google Ads and Microsoft Ads. Each is a no-op if its tag hasn't loaded (e.g. blocked). */
+export function trackPurchaseConversion(purchase: PurchaseConversion): void {
+  if (typeof window === 'undefined') return;
+  reportToGoogleAds(purchase);
+  reportToMicrosoftAds(purchase);
+}
+
+function reportToMicrosoftAds({ value, currency }: PurchaseConversion): void {
+  if (typeof window.uetq?.push !== 'function') return;
+  window.uetq.push(
+    'event',
+    'purchase',
+    value !== undefined && currency !== undefined ? { revenue_value: value, currency } : {},
+  );
+}
+
+function reportToGoogleAds({ transactionId, value, currency }: PurchaseConversion): void {
+  if (typeof window.gtag !== 'function') return;
   window.gtag('event', 'conversion', {
     send_to: PURCHASE_CONVERSION_SEND_TO,
     transaction_id: transactionId,
