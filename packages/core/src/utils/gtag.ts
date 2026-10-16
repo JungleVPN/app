@@ -49,3 +49,9 @@ function reportToGoogleAds({ transactionId, value, currency }: PurchaseConversio
     ...(value !== undefined && currency !== undefined ? { value, currency } : {}),
   });
 }
+
+/** Passes the cookie banner's decision on to Microsoft Ads, which otherwise keeps treating the visitor as denied. */
+export function updateAdsConsent({ granted }: { granted: boolean }): void {
+  if (typeof window === 'undefined' || typeof window.uetq?.push !== 'function') return;
+  window.uetq.push('consent', 'update', { ad_storage: granted ? 'granted' : 'denied' });
+}

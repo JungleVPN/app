@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { trackPurchaseConversion } from './gtag';
+import { trackPurchaseConversion, updateAdsConsent } from './gtag';
 
 describe('trackPurchaseConversion', () => {
   afterEach(() => {
@@ -80,5 +80,27 @@ describe('trackPurchaseConversion', () => {
     it('does not throw when window.uetq is not loaded (e.g. blocked by an ad blocker)', () => {
       expect(() => trackPurchaseConversion({ transactionId: 'pay_1' })).not.toThrow();
     });
+  });
+});
+
+describe('updateAdsConsent', () => {
+  afterEach(() => {
+    Reflect.deleteProperty(window, 'uetq');
+  });
+
+  it.each([
+    [true, 'granted'],
+    [false, 'denied'],
+  ])('tells Microsoft Ads ad storage is %s → %s', (granted, ad_storage) => {
+    const push = vi.fn();
+    window.uetq = { push };
+
+    updateAdsConsent({ granted });
+
+    expect(push).toHaveBeenCalledWith('consent', 'update', { ad_storage });
+  });
+
+  it('does not throw when window.uetq is not loaded', () => {
+    expect(() => updateAdsConsent({ granted: true })).not.toThrow();
   });
 });
