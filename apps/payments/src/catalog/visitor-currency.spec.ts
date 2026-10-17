@@ -45,6 +45,10 @@ describe('currencyForCountry', () => {
     ['BR', 'BRL'],
     ['TR', 'TRY'],
     ['PK', 'PKR'],
+    ['QA', 'QAR'],
+    ['SA', 'SAR'],
+    ['AU', 'AUD'],
+    ['SG', 'SGD'],
   ])('prices %s in %s', (country, currency) => {
     expect(currencyForCountry(country)).toBe(currency);
   });
@@ -98,6 +102,29 @@ describe('VisitorCurrencyService', () => {
     await expect(service.resolve({ provider: 'whop', clientIp: '1.2.3.4' })).resolves.toEqual({
       currency: 'EUR',
       countryCode: 'GB',
+    });
+  });
+
+  it("falls back to the provider's default currency for a country with no currency of its own", async () => {
+    const { service } = resolverWith([plan(), plan({ id: 'whop-usd', currency: 'USD' })], 'JP');
+
+    await expect(service.resolve({ provider: 'whop', clientIp: '1.2.3.4' })).resolves.toEqual({
+      currency: 'EUR',
+      countryCode: 'JP',
+    });
+  });
+
+  it.each([
+    ['QA', 'QAR'],
+    ['SA', 'SAR'],
+    ['AU', 'AUD'],
+    ['SG', 'SGD'],
+  ])('prices a visitor from %s in %s once the provider sells it', async (country, currency) => {
+    const { service } = resolverWith([plan(), plan({ id: `whop-${currency}`, currency })], country);
+
+    await expect(service.resolve({ provider: 'whop', clientIp: '1.2.3.4' })).resolves.toEqual({
+      currency,
+      countryCode: country,
     });
   });
 
