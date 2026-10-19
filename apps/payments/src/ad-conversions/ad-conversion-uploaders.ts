@@ -3,6 +3,9 @@ import { JWT } from 'google-auth-library';
 import type { AdConversionUploader } from './ad-conversion-uploader';
 import { type GoogleAdsSettings, googleAdsSettings } from './google-ads.config';
 import { GoogleAdsUploader } from './google-ads.uploader';
+import { microsoftAccessToken } from './microsoft-ads.auth';
+import { microsoftAdsSettings } from './microsoft-ads.config';
+import { MicrosoftAdsUploader } from './microsoft-ads.uploader';
 
 const DATA_MANAGER_SCOPE = 'https://www.googleapis.com/auth/datamanager';
 
@@ -12,7 +15,13 @@ export function adConversionUploaders(
   logger: Pick<Logger, 'warn'>,
 ): AdConversionUploader[] {
   const google = googleAdsSettings(config, logger);
-  return google ? [new GoogleAdsUploader(google.ads, serviceAccountToken(google))] : [];
+  const microsoft = microsoftAdsSettings(config, logger);
+  return [
+    ...(google ? [new GoogleAdsUploader(google.ads, serviceAccountToken(google))] : []),
+    ...(microsoft
+      ? [new MicrosoftAdsUploader(microsoft.ads, microsoftAccessToken(microsoft.oauth))]
+      : []),
+  ];
 }
 
 /** Access tokens for the service account; the JWT client caches one until it expires. */
