@@ -522,7 +522,21 @@ describe('WhopWebhookService', () => {
         isAutoPayment,
         amount: '6',
         currency: 'EUR',
+        paymentMethodType: 'card',
       });
+    });
+
+    it.each([
+      'apple_pay',
+      'google_pay',
+    ])('tracks a %s payment with that method type', async (type) => {
+      const { service, analyticsClient } = setup();
+
+      await service.handleWebhook(paymentSucceeded({ payment_method_type: type }));
+
+      expect(analyticsClient.track).toHaveBeenCalledWith(
+        expect.objectContaining({ event: 'payment_succeeded', paymentMethodType: type }),
+      );
     });
 
     it('reports a paid EUR conversion to Tolt', async () => {

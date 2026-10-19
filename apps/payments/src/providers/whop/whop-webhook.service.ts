@@ -392,6 +392,7 @@ export class WhopWebhookService {
       isAutoPayment: payment.billing_reason === RENEWAL_BILLING_REASON,
       amount: String(amount),
       currency,
+      paymentMethodType: payment.payment_method_type ?? 'card',
     });
 
     if (amount > 0 && isReportableCurrency(currency)) {

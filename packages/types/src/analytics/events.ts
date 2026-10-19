@@ -32,6 +32,8 @@ export type PaymentSucceededEvent = {
   selectedPeriod: number;
   isFirstPayment?: boolean;
   isAutoPayment: boolean;
+  /** How the payer paid: `card`, `apple_pay`, `google_pay`, …; omitted when the provider does not say. */
+  paymentMethodType?: string;
   /** Omitted when the provider settlement carries no reliable amount (e.g. a Stripe invoice with no resolvable total). */
   amount?: string;
   currency?: string;
