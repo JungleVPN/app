@@ -65,7 +65,8 @@ export type PaymentErrorKind =
   | 'webhook_failed'
   | 'payment_stuck_processing'
   | 'payment_method_save_failed'
-  | 'refund_unattributed';
+  | 'refund_unattributed'
+  | 'ad_conversion_failed';
 
 /**
  * An operational failure in a provider's payment pipeline, reported so it can
