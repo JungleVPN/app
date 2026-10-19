@@ -272,6 +272,9 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1
+      google-auth-library:
+        specifier: 10.6.2
+        version: 10.6.2
       grammy:
         specifier: ^1.42.0
         version: 1.42.0
@@ -11672,7 +11675,7 @@ snapshots:
   vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(sugarss@5.0.1(postcss@8.5.10))(terser@5.46.1)(tsx@4.21.0):
     dependencies:
       lightningcss: 1.32.0
-      picomatch: 4.0.4
+      picomatch: 4.0.7
       postcss: 8.5.10
       rolldown: 1.0.0-rc.12(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
       tinyglobby: 0.2.15
