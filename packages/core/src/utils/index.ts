@@ -16,7 +16,6 @@ export {
 export type { CheckoutAnalytics, SubmittedPaymentMethod } from './checkoutAnalytics';
 export {
   checkoutEventProperties,
-  takePendingCheckout,
   trackCheckoutStarted,
   trackEmailStepSubmitted,
   trackEmailStepViewed,

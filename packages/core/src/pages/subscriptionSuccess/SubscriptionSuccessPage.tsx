@@ -10,10 +10,7 @@ import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import { type IAuthState, useAuthStore, useSubscriptionInfoStore } from '../../stores';
 import { Heading, Paragraph, TgsSticker } from '../../ui';
 import {
-  checkoutEventProperties,
   type PurchaseConversion,
-  phCapture,
-  takePendingCheckout,
   takePendingPurchase,
   takePendingYookassaPayment,
   trackPurchaseConversion,
@@ -155,16 +152,8 @@ export default function SubscriptionSuccessPage() {
       // An unpaid checkout is left for `/payment/fail` to report.
       if (unpaid) return;
       clearCheckoutEmail();
-      const checkout = takePendingCheckout();
       void firstPayment.then((first) => {
         if (first && purchase) trackPurchaseConversion(purchase);
-        if (checkout) {
-          phCapture('checkout_result', {
-            ...checkoutEventProperties(checkout),
-            first_payment: first,
-            status: 'succeeded',
-          });
-        }
       });
     });
   }, [paymentsApi]);
