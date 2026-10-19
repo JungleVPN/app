@@ -1,3 +1,10 @@
+export {
+  type AdClicks,
+  captureAdClicks,
+  dropAdClicks,
+  getAdClicks,
+  grantAdClicks,
+} from './adClicks';
 export { getAdminId, isAdminUser } from './admin';
 export type { AttributionPayload } from './attribution';
 export { captureAttribution, clearAttribution, getAttribution } from './attribution';

@@ -1,13 +1,17 @@
+import { i18nReady } from '@workspace/core/core/i18n';
 import { StrictMode } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
-
-import { i18nReady } from '@workspace/core/core/i18n';
 import '@/assets/globals.css';
 
 import { AnalyticsApiProvider, ApiProvider } from '@workspace/core/api';
 import { AppRoutesProvider, PaymentsApiProvider, SupabaseProvider } from '@workspace/core/runtime';
-import { captureAttribution, captureReferral, initDayjs } from '@workspace/core/utils';
+import {
+  captureAdClicks,
+  captureAttribution,
+  captureReferral,
+  initDayjs,
+} from '@workspace/core/utils';
 import { analyticsClient } from '@/api/analytics';
 import { paymentsApi } from '@/api/payments';
 import { backendClient } from '@/api/remnawave';
@@ -17,6 +21,7 @@ import { createAppRouter, preloadMatchedRoutes } from '@/router.ts';
 
 initDayjs();
 captureAttribution({ platform: 'web' });
+captureAdClicks();
 captureReferral();
 
 const appRoutes = {
