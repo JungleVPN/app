@@ -212,6 +212,14 @@ describe('YookassaController', () => {
       expect(result).toBe(session);
     });
 
+    it('forwards the ad click ids, for reporting the paid purchase', async () => {
+      await controller.createPublicPaymentSession(publicDto({ adClicks: { gclid: 'g-1' } }));
+
+      expect(yookassaService.createPaymentSession).toHaveBeenCalledWith(
+        expect.objectContaining({ adClicks: { gclid: 'g-1' } }),
+      );
+    });
+
     it.each([
       '',
       '   ',

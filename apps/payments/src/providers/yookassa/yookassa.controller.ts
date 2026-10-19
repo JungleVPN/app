@@ -157,6 +157,7 @@ export class YookassaController {
       save_payment_method: true,
       confirmation: { type: 'redirect', return_url: dto.returnUrl },
       email,
+      adClicks: dto.adClicks,
     });
   }
 

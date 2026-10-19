@@ -51,6 +51,7 @@ vi.mock('../../../../stores', () => ({
   useSavedMethodsStoreActions: () => ({ setYookassaMethods: vi.fn() }),
 }));
 vi.mock('../../../../utils', () => ({
+  getAdClicks: () => ({ gclid: 'g-1' }),
   phCapture: vi.fn(),
   rememberPendingYookassaPayment,
   rememberPendingPurchase,
@@ -93,6 +94,16 @@ describe('useYookassaPayment', () => {
     expect(returnUrl()).toBe('https://ru.jungle.test/payment/success');
     expect(rememberPendingYookassaPayment).toHaveBeenCalledWith('pay-1');
     expect(window.location.href).toBe('https://yookassa/pay-1');
+  });
+
+  it('sends the last ad click along, so the paid purchase can be reported', async () => {
+    const { result } = renderHook(() => useYookassaPayment(plan));
+
+    await act(() => result.current.handleYookassaPayment());
+
+    expect(createSession).toHaveBeenCalledWith(
+      expect.objectContaining({ adClicks: { gclid: 'g-1' } }),
+    );
   });
 
   it('returns a native app payer to the app', async () => {

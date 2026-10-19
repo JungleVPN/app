@@ -33,6 +33,7 @@ vi.mock('../../runtime', () => ({
   useAppRoutes: () => ({ paymentReturnPath: '/payment/success' }),
 }));
 vi.mock('../../utils', () => ({
+  getAdClicks: () => ({ gclid: 'g-1' }),
   rememberPendingYookassaPayment,
   rememberPendingPurchase,
   trackCheckoutStarted,
@@ -88,7 +89,7 @@ describe('RuStartCheckoutPage', () => {
 
   afterEach(cleanup);
 
-  it('asks the backend for a payment against this domain’s return URL', async () => {
+  it('asks the backend for a payment against this domain’s return URL, with the last ad click', async () => {
     await renderPage()({ email: 'payer@test.com', planId: 'ru-3', selectedPeriod: 3 });
 
     expect(createPublicYookassaSession).toHaveBeenCalledWith({
@@ -97,6 +98,7 @@ describe('RuStartCheckoutPage', () => {
       returnUrl: 'https://ru.jungle.test/payment/success',
       toltReferralId: 'tolt-1',
       inviterId: 42,
+      adClicks: { gclid: 'g-1' },
     });
   });
 
@@ -163,7 +165,9 @@ describe('RuStartCheckoutPage', () => {
       activeSubscriptionEmail: null,
     });
     render(<RuStartCheckoutPage />);
-    expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe('failed_to_load_plans');
+    expect(screen.getByRole('button', { name: 'retry' }).getAttribute('data-reason')).toBe(
+      'failed_to_load_plans',
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'retry' }));
 

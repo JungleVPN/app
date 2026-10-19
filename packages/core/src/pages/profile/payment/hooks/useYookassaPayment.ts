@@ -11,6 +11,7 @@ import {
   useSavedMethodsStoreActions,
 } from '../../../../stores';
 import {
+  getAdClicks,
   phCapture,
   rememberPendingPurchase,
   rememberPendingYookassaPayment,
@@ -73,6 +74,7 @@ export function useYookassaPayment(plan: SubscriptionPlanDto | undefined) {
       },
       email: activeUser.email,
       planId: plan.planId,
+      adClicks: getAdClicks(),
     });
 
     if (!session?.url) return;

@@ -2,6 +2,7 @@ import { LoadError, Loading, PaymentMethodIcons } from '../../components';
 import { loadPlans } from '../../hooks';
 import { useAppRoutes, usePaymentsApi } from '../../runtime';
 import {
+  getAdClicks,
   getReferralUserId,
   rememberPendingPurchase,
   rememberPendingYookassaPayment,
@@ -33,6 +34,7 @@ export default function RuStartCheckoutPage() {
       returnUrl: `${window.location.origin}${paymentReturnPath}`,
       toltReferralId: window.tolt_referral ?? null,
       inviterId: getReferralUserId() ?? undefined,
+      adClicks: getAdClicks(),
     });
 
     if (!session?.url) return;

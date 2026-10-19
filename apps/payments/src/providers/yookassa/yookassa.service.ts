@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
+import { adClickMetadata } from '@payments/ad-conversions/ad-click-metadata';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
 import { PlanService } from '@payments/catalog/plan.service';
@@ -146,6 +147,7 @@ export class YookassaService {
       userStatus,
       metadata,
       planId,
+      adClicks,
       ...paymentFields
     } = dto;
 
@@ -177,6 +179,7 @@ export class YookassaService {
         email: dto.email,
         userId: userId?.toString() ?? undefined,
         ...(dto.inviterId != null && { inviterId: String(dto.inviterId) }),
+        ...adClickMetadata(adClicks),
       },
       description: process.env.PAYMENT_DESCRIPTION,
       capture: true,

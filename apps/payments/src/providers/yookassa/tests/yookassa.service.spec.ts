@@ -1062,6 +1062,22 @@ describe('YookassaService', () => {
       expect(mockYkCreate).toHaveBeenCalledWith(expect.objectContaining({ selectedPeriod: 180 }));
     });
 
+    it('stamps the ad click ids into the payment metadata, for reporting the paid purchase', async () => {
+      await service.createPaymentSession(baseDto({ adClicks: { gclid: 'g-1', msclkid: 'ms-1' } }));
+
+      expect(mockProviderCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({ gclid: 'g-1', msclkid: 'ms-1' }),
+        }),
+      );
+    });
+
+    it('never forwards the ad click ids to YooKassa as a request field', async () => {
+      await service.createPaymentSession(baseDto({ adClicks: { gclid: 'g-1' } }));
+
+      expect(mockProviderCreate.mock.calls[0][0]).not.toHaveProperty('adClicks');
+    });
+
     it('never forwards our plan id to YooKassa', async () => {
       await service.createPaymentSession(baseDto());
 
