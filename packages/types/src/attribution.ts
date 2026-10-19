@@ -19,9 +19,7 @@ export type AdClicks = {
 };
 
 /** What a checkout request carries so the paid purchase can be reported to the ad platforms. */
-export interface AdConversionConsent {
-  /** True only when the payer accepted the cookie banner; nothing is reported otherwise. */
-  adsConsent?: boolean;
+export interface AdClickAttribution {
   /** The last ad click, when one is within its 90 days. */
   adClicks?: AdClicks | null;
 }

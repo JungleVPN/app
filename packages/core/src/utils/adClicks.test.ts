@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { captureAdClicks, dropAdClicks, getAdClicks, grantAdClicks } from './adClicks';
+import { captureAdClicks, getAdClicks } from './adClicks';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -25,33 +25,9 @@ afterEach(() => {
   window.history.pushState({}, '', '/');
 });
 
-describe('ad click ids before the cookie banner is answered', () => {
-  it('are not handed out to a checkout', () => {
-    visit('?gclid=g-1');
-
-    expect(getAdClicks()).toBeNull();
-  });
-
-  it('are handed out once ads consent is granted', () => {
-    visit('?gclid=g-1');
-    grantAdClicks();
-
-    expect(getAdClicks()).toEqual({ gclid: 'g-1' });
-  });
-
-  it('are discarded when ads consent is denied', () => {
-    visit('?gclid=g-1');
-    dropAdClicks();
-    grantAdClicks();
-
-    expect(getAdClicks()).toBeNull();
-  });
-});
-
 describe('which click ids are kept', () => {
   it('keeps every Google and Microsoft click id and nothing else', () => {
     visit('?gclid=g-1&gbraid=gb-1&wbraid=wb-1&msclkid=ms-1&fbclid=fb-1&utm_source=google');
-    grantAdClicks();
 
     expect(getAdClicks()).toEqual({
       gclid: 'g-1',
@@ -63,7 +39,6 @@ describe('which click ids are kept', () => {
 
   it('keeps nothing from a visit without a click id', () => {
     visit('?utm_source=google');
-    grantAdClicks();
 
     expect(getAdClicks()).toBeNull();
   });
@@ -71,7 +46,6 @@ describe('which click ids are kept', () => {
   it('falls back to the click ids the landing page saved in its cookie', () => {
     setLandingCookie('gclid=g-landing&msclkid=ms-landing');
     visit('');
-    grantAdClicks();
 
     expect(getAdClicks()).toEqual({ gclid: 'g-landing', msclkid: 'ms-landing' });
   });
@@ -79,7 +53,6 @@ describe('which click ids are kept', () => {
   it('prefers the click ids in the address over the landing cookie', () => {
     setLandingCookie('gclid=g-landing');
     visit('?msclkid=ms-1');
-    grantAdClicks();
 
     expect(getAdClicks()).toEqual({ msclkid: 'ms-1' });
   });
@@ -88,35 +61,23 @@ describe('which click ids are kept', () => {
 describe('the last ad click wins', () => {
   it('replaces an earlier click with a newer one from another platform', () => {
     visit('?gclid=g-1');
-    grantAdClicks();
     visit('?msclkid=ms-1');
-    grantAdClicks();
 
     expect(getAdClicks()).toEqual({ msclkid: 'ms-1' });
   });
 
-  it('keeps the stored click across pages without a click id', () => {
+  it('keeps the stored click across pages and sessions without a click id', () => {
     visit('?gclid=g-1');
-    grantAdClicks();
+    sessionStorage.clear();
     visit('');
-    grantAdClicks();
 
     expect(getAdClicks()).toEqual({ gclid: 'g-1' });
-  });
-
-  it('forgets a granted click when consent is later withdrawn', () => {
-    visit('?gclid=g-1');
-    grantAdClicks();
-    dropAdClicks();
-
-    expect(getAdClicks()).toBeNull();
   });
 });
 
 describe('a click older than 90 days', () => {
   it('is still reported on its 90th day', () => {
     visit('?gclid=g-1');
-    grantAdClicks();
     vi.setSystemTime(Date.now() + 90 * DAY_MS);
 
     expect(getAdClicks()).toEqual({ gclid: 'g-1' });
@@ -124,7 +85,6 @@ describe('a click older than 90 days', () => {
 
   it('is no longer reported after 90 days', () => {
     visit('?gclid=g-1');
-    grantAdClicks();
     vi.setSystemTime(Date.now() + 90 * DAY_MS + 1);
 
     expect(getAdClicks()).toBeNull();
@@ -133,11 +93,8 @@ describe('a click older than 90 days', () => {
   it('is not made younger by seeing the same click id again', () => {
     setLandingCookie('gclid=g-1');
     visit('');
-    grantAdClicks();
     vi.setSystemTime(Date.now() + 60 * DAY_MS);
-    sessionStorage.clear();
     visit('');
-    grantAdClicks();
     vi.setSystemTime(Date.now() + 31 * DAY_MS);
 
     expect(getAdClicks()).toBeNull();
@@ -145,10 +102,8 @@ describe('a click older than 90 days', () => {
 
   it('restarts the 90 days for a new click', () => {
     visit('?gclid=g-1');
-    grantAdClicks();
     vi.setSystemTime(Date.now() + 60 * DAY_MS);
     visit('?msclkid=ms-1');
-    grantAdClicks();
     vi.setSystemTime(Date.now() + 31 * DAY_MS);
 
     expect(getAdClicks()).toEqual({ msclkid: 'ms-1' });
@@ -156,10 +111,8 @@ describe('a click older than 90 days', () => {
 
   it('treats a click that shares only some ids with the earlier one as new', () => {
     visit('?gclid=g-1');
-    grantAdClicks();
     vi.setSystemTime(Date.now() + 60 * DAY_MS);
     visit('?gclid=g-1&msclkid=ms-1');
-    grantAdClicks();
     vi.setSystemTime(Date.now() + 31 * DAY_MS);
 
     expect(getAdClicks()).toEqual({ gclid: 'g-1', msclkid: 'ms-1' });
@@ -195,11 +148,7 @@ describe('when storage is unavailable', () => {
       throw new Error('denied');
     });
 
-    expect(() => {
-      visit('?gclid=g-1');
-      grantAdClicks();
-      dropAdClicks();
-    }).not.toThrow();
+    expect(() => visit('?gclid=g-1')).not.toThrow();
     expect(getAdClicks()).toBeNull();
 
     vi.restoreAllMocks();

@@ -4,14 +4,7 @@ import { createPortal } from 'react-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import Logo from '../../assets/Logo_dark.svg?react';
 import { Paragraph } from '../../ui/Paragraph';
-import {
-  dropAdClicks,
-  grantAdClicks,
-  phConsentStatus,
-  phOptIn,
-  phOptOut,
-  updateAdsConsent,
-} from '../../utils';
+import { phConsentStatus, phOptIn, phOptOut } from '../../utils';
 import { Link } from '../Link/Link';
 
 export function CookieConsent() {
@@ -19,9 +12,7 @@ export function CookieConsent() {
   const [pending, setPending] = useState(false);
 
   useEffect(() => {
-    const status = phConsentStatus();
-    setPending(status === 'pending');
-    if (status !== 'pending') applyAdsConsent(status === 'granted');
+    setPending(phConsentStatus() === 'pending');
   }, []);
 
   if (!pending) return null;
@@ -34,7 +25,6 @@ export function CookieConsent() {
     } else {
       phOptOut();
     }
-    applyAdsConsent(accept);
     setPending(false);
   };
 
@@ -66,13 +56,4 @@ export function CookieConsent() {
     </div>,
     document.body,
   );
-}
-
-function applyAdsConsent(granted: boolean): void {
-  updateAdsConsent({ granted });
-  if (granted) {
-    grantAdClicks();
-  } else {
-    dropAdClicks();
-  }
 }

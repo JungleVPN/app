@@ -6,6 +6,7 @@ import { useAppRoutes, usePaymentsApi } from '../../../runtime';
 import {
   checkoutEventProperties,
   forgetPendingPurchase,
+  getAdClicks,
   phCapture,
   rememberPendingPurchase,
   type SubmittedPaymentMethod,
@@ -77,6 +78,7 @@ export function useWhopPay({
       confirmationToken,
       returnUrl,
       ...(checkout.promo ? { promoCode: checkout.promo.code } : {}),
+      adClicks: getAdClicks(),
     });
     const paid = { paid: payment.paymentId };
     if (payment.status === 'paid') return paid;

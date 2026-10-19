@@ -10,6 +10,7 @@ import {
   captureAdClicks,
   captureAttribution,
   captureReferral,
+  grantAdsConsent,
   initDayjs,
 } from '@workspace/core/utils';
 import { analyticsClient } from '@/api/analytics';
@@ -22,6 +23,7 @@ import { createAppRouter, preloadMatchedRoutes } from '@/router.ts';
 initDayjs();
 captureAttribution({ platform: 'web' });
 captureAdClicks();
+grantAdsConsent();
 captureReferral();
 
 const appRoutes = {

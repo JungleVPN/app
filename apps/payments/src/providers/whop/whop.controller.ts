@@ -104,6 +104,7 @@ export class WhopController {
       inviterId: dto.inviterId,
       origin,
       promoCode: dto.promoCode,
+      adClicks: dto.adClicks,
     });
   }
 

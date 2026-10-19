@@ -193,6 +193,16 @@ describe('WhopController.payPublicCheckout', () => {
     });
   });
 
+  it('forwards the ad click ids for reporting the paid purchase', async () => {
+    const { controller, whopProvider } = controllerWith();
+
+    await controller.payPublicCheckout(payDto({ adClicks: { gclid: 'g-1' } }), PAYER_IP, undefined);
+
+    expect(whopProvider.payCheckout).toHaveBeenCalledWith(
+      expect.objectContaining({ adClicks: { gclid: 'g-1' } }),
+    );
+  });
+
   it('forwards the promo code the payer applied', async () => {
     const { controller, whopProvider } = controllerWith();
 

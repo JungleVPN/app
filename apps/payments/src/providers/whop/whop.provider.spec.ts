@@ -218,6 +218,18 @@ describe('WhopProvider', () => {
       );
     });
 
+    it('carries the ad click ids, for reporting the paid purchase', async () => {
+      const { provider, whopClientService } = providerWith();
+
+      await provider.payCheckout(payment({ adClicks: { gclid: 'g-1', msclkid: 'ms-1' } }));
+
+      expect(whopClientService.createPayment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: { email: 'payer@test.com', gclid: 'g-1', msclkid: 'ms-1' },
+        }),
+      );
+    });
+
     it('charges with the promo code the payer applied', async () => {
       const { provider, whopClientService } = providerWith();
 

@@ -1,10 +1,4 @@
-export {
-  type AdClicks,
-  captureAdClicks,
-  dropAdClicks,
-  getAdClicks,
-  grantAdClicks,
-} from './adClicks';
+export { type AdClicks, captureAdClicks, getAdClicks } from './adClicks';
 export { getAdminId, isAdminUser } from './admin';
 export type { AttributionPayload } from './attribution';
 export { captureAttribution, clearAttribution, getAttribution } from './attribution';
@@ -79,7 +73,7 @@ export {
   WHAT_IS_VPN_PATH,
 } from './domain';
 export { formatCurrency, truncate } from './format';
-export { type PurchaseConversion, trackPurchaseConversion, updateAdsConsent } from './gtag';
+export { grantAdsConsent, type PurchaseConversion, trackPurchaseConversion } from './gtag';
 export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';
 export type { LlmsTxtOptions } from './llmsTxt';

@@ -17,6 +17,7 @@ const { api, whop, navigate, utils } = vi.hoisted(() => ({
   whop: { current: null as { payments: { handleNextAction: ReturnType<typeof vi.fn> } } | null },
   navigate: vi.fn(),
   utils: {
+    getAdClicks: vi.fn().mockReturnValue(null),
     forgetPendingPurchase: vi.fn(),
     phCapture: vi.fn(),
     rememberPendingPurchase: vi.fn(),
@@ -91,6 +92,18 @@ describe('useWhopPay when the charge is paid', () => {
       returnUrl: RETURN_URL,
       promoCode: 'SPRING20',
     });
+  });
+
+  it('sends the last ad click along, so the paid purchase can be reported', async () => {
+    utils.getAdClicks.mockReturnValueOnce({ gclid: 'g-1' });
+    api.payPublicWhopCheckout.mockResolvedValue({ paymentId: 'pay_1', status: 'paid' });
+    api.getPublicWhopPaymentStatus.mockResolvedValue(fulfilled());
+
+    await payWith(renderPay(), async () => 'ctok_1');
+
+    expect(api.payPublicWhopCheckout).toHaveBeenCalledWith(
+      expect.objectContaining({ adClicks: { gclid: 'g-1' } }),
+    );
   });
 
   it('reports the submission once the payer has a token', async () => {

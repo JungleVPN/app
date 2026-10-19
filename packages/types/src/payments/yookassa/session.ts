@@ -1,4 +1,4 @@
-import type { AdConversionConsent } from '../../attribution';
+import type { AdClickAttribution } from '../../attribution';
 import type { RemnaUserId } from '../../remnawave';
 import { PaymentPurpose } from '../common';
 import type { Payments } from './payment';
@@ -30,7 +30,7 @@ export interface PaymentSession {
  */
 export interface CreateYookassaSessionDto
   extends Omit<Payments.CreatePaymentRequest, 'capture' | 'amount'>,
-    AdConversionConsent {
+    AdClickAttribution {
   amount?: Payments.CreatePaymentRequest['amount'];
   userId: RemnaUserId | null;
   /** Payer's email. The account is found-or-created from it server-side. */
@@ -55,7 +55,7 @@ export interface CreateYookassaSessionDto
  * email server-side and everything else the authenticated route accepts
  * (userId, telegramId, promo, saved-method opt-out) is deliberately absent.
  */
-export interface CreatePublicYookassaSessionDto extends AdConversionConsent {
+export interface CreatePublicYookassaSessionDto extends AdClickAttribution {
   /** Payer's email. The account is found-or-created from it server-side. */
   email: string;
   /** The `planId` from `/plans`. */

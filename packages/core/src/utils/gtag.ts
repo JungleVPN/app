@@ -50,8 +50,12 @@ function reportToGoogleAds({ transactionId, value, currency }: PurchaseConversio
   });
 }
 
-/** Passes the cookie banner's decision on to Microsoft Ads, which otherwise keeps treating the visitor as denied. */
-export function updateAdsConsent({ granted }: { granted: boolean }): void {
+/**
+ * Tells Microsoft Ads it may store its click id, which it otherwise treats as
+ * denied. The cookie banner covers PostHog analytics only, so this is granted
+ * for every visitor at startup.
+ */
+export function grantAdsConsent(): void {
   if (typeof window === 'undefined' || typeof window.uetq?.push !== 'function') return;
-  window.uetq.push('consent', 'update', { ad_storage: granted ? 'granted' : 'denied' });
+  window.uetq.push('consent', 'update', { ad_storage: 'granted' });
 }

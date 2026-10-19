@@ -5,12 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { adClickMetadata } from '@payments/ad-conversions/ad-click-metadata';
 import { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
 import { PlanService } from '@payments/catalog/plan.service';
 import { VisitorCurrencyService } from '@payments/catalog/visitor-currency.service';
 import { toSavedMethodDto } from '@payments/utils/saved-method';
 import { SavedPaymentMethod } from '@workspace/database';
 import {
+  type AdClicks,
   PROMO_CODE_INVALID_CODE,
   type ProviderSubscriptionDto,
   type WhopCancelDto,
@@ -103,8 +105,12 @@ export class WhopProvider {
     inviterId?: number;
     origin?: string;
     promoCode?: string;
+    adClicks?: AdClicks | null;
   }): Promise<WhopPaymentDto> {
-    const metadata: Record<string, string> = { email: input.email };
+    const metadata: Record<string, string> = {
+      email: input.email,
+      ...adClickMetadata(input.adClicks),
+    };
     if (input.toltReferralId) metadata.toltReferralId = input.toltReferralId;
     if (input.inviterId != null) metadata.inviterId = String(input.inviterId);
     if (input.origin) metadata.signupOrigin = input.origin;
