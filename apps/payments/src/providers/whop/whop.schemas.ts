@@ -19,6 +19,11 @@ const WhopMetadataSchema = z
     inviterId: z.string().optional(),
     toltReferralId: z.string().optional(),
     signupOrigin: z.string().optional(),
+    /** Ad click ids (see `adClickMetadata`), read back for ad platform reporting. */
+    gclid: z.string().optional(),
+    gbraid: z.string().optional(),
+    wbraid: z.string().optional(),
+    msclkid: z.string().optional(),
   })
   .nullable();
 

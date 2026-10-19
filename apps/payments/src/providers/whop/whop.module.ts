@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AdConversionsModule } from '@payments/ad-conversions/ad-conversions.module';
 import { AnalyticsClientModule } from '@payments/analytics/analytics-client.module';
 import { PlanModule } from '@payments/catalog/plan.module';
 import { SavedPaymentMethod, WhopPayment, WhopRefund } from '@workspace/database';
@@ -21,6 +22,7 @@ import { WhopWebhookService } from './whop-webhook.service';
     AnalyticsClientModule,
     ToltModule,
     PlanModule,
+    AdConversionsModule,
   ],
   controllers: [WhopController],
   exports: [WhopProvider, WhopWebhookService, WhopClientService],

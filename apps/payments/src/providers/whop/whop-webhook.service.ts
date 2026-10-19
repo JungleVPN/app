@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AdConversionsService } from '@payments/ad-conversions/ad-conversions.service';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { PlanService } from '@payments/catalog/plan.service';
 import { isReportableCurrency } from '@payments/providers/paddle/paddle.utils';
@@ -171,6 +172,7 @@ export class WhopWebhookService {
     private readonly planService: PlanService,
     @InjectRepository(WhopRefund)
     private readonly whopRefundRepo: Repository<WhopRefund>,
+    private readonly adConversions: AdConversionsService,
   ) {}
 
   /** Takes the signature-verified, but otherwise untrusted, webhook body. */
@@ -406,6 +408,17 @@ export class WhopWebhookService {
         purpose: 'subscription',
       });
     }
+
+    await this.adConversions.reportPurchase({
+      provider: 'whop',
+      paymentId: payment.id,
+      userId,
+      paidAt: paidAtOf(payment),
+      value: amount,
+      currency,
+      metadata: payment.metadata,
+      email: payerEmailOf(payment),
+    });
   }
 
   // ── payment.failed ───────────────────────────────────────────────────────

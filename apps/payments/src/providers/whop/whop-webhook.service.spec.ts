@@ -143,6 +143,7 @@ const setup = (options: { catalog?: Plan[] } = {}) => {
     reportConversion: vi.fn().mockResolvedValue(undefined),
     reportRefund: vi.fn().mockResolvedValue(undefined),
   };
+  const adConversions = { reportPurchase: vi.fn().mockResolvedValue(undefined) };
   const remnaUserResolver = {
     resolveOrCreate: vi.fn().mockResolvedValue(NEW_ACCOUNT_ID),
     findByEmail: vi.fn().mockResolvedValue(EXISTING_ACCOUNT_ID),
@@ -161,6 +162,7 @@ const setup = (options: { catalog?: Plan[] } = {}) => {
     remnaUserResolver as never,
     planService,
     refundRepo as never,
+    adConversions as never,
   );
 
   return {
@@ -173,6 +175,7 @@ const setup = (options: { catalog?: Plan[] } = {}) => {
     analyticsClient,
     toltService,
     remnaUserResolver,
+    adConversions,
   };
 };
 
@@ -555,6 +558,60 @@ describe('WhopWebhookService', () => {
       });
     });
 
+    it('hands the paid purchase, with its ad click ids, over for ad platform reporting', async () => {
+      const { service, adConversions } = setup();
+
+      await service.handleWebhook(
+        paymentSucceeded({
+          ...cardPaymentDetails,
+          metadata: {
+            email: 'payer@test.com',
+            gclid: 'g-1',
+            gbraid: 'gb-1',
+            wbraid: 'wb-1',
+            msclkid: 'ms-1',
+          },
+        }),
+      );
+
+      expect(adConversions.reportPurchase).toHaveBeenCalledWith({
+        provider: 'whop',
+        paymentId: 'pay_1',
+        userId: NEW_ACCOUNT_ID,
+        paidAt: new Date('2026-09-27T10:00:00.000Z'),
+        value: 6,
+        currency: 'EUR',
+        metadata: {
+          email: 'payer@test.com',
+          gclid: 'g-1',
+          gbraid: 'gb-1',
+          wbraid: 'wb-1',
+          msclkid: 'ms-1',
+        },
+        email: 'payer@test.com',
+      });
+    });
+
+    it('hands over a payment Whop sent without a total as worth nothing', async () => {
+      const { service, adConversions } = setup();
+
+      await service.handleWebhook(paymentSucceeded({ total: null }));
+
+      expect(adConversions.reportPurchase).toHaveBeenCalledWith(
+        expect.objectContaining({ value: 0 }),
+      );
+    });
+
+    it('hands over Whop’s payer email when checkout stamped none', async () => {
+      const { service, adConversions } = setup();
+
+      await service.handleWebhook(paymentSucceeded({ metadata: null }));
+
+      expect(adConversions.reportPurchase).toHaveBeenCalledWith(
+        expect.objectContaining({ email: 'whop-user@test.com' }),
+      );
+    });
+
     it.each([
       ['a non-EUR sale', { currency: 'usd' }],
       ['a free charge', { total: 0 }],
@@ -580,6 +637,16 @@ describe('WhopWebhookService', () => {
       expect(paymentStatusService.handleUserUpdates).not.toHaveBeenCalled();
     });
 
+    it('hands nothing over for ad reporting on a duplicate delivery', async () => {
+      const { service, paymentRepo, adConversions } = setup();
+      paymentRepo.insert.mockRejectedValue(uniqueViolationError());
+      paymentRepo.update.mockResolvedValue({ affected: 0 });
+
+      await service.handleWebhook(paymentSucceeded());
+
+      expect(adConversions.reportPurchase).not.toHaveBeenCalled();
+    });
+
     it('retries a payment a previous delivery left unfulfilled', async () => {
       const { service, paymentRepo, paymentStatusService } = setup();
       paymentRepo.insert.mockRejectedValue(uniqueViolationError());
@@ -588,6 +655,15 @@ describe('WhopWebhookService', () => {
       await service.handleWebhook(paymentSucceeded());
 
       expect(paymentStatusService.handleUserUpdates).toHaveBeenCalled();
+    });
+
+    it('hands nothing over for ad reporting when the subscription could not be extended', async () => {
+      const { service, paymentStatusService, adConversions } = setup();
+      paymentStatusService.handleUserUpdates.mockResolvedValue({ success: false });
+
+      await service.handleWebhook(paymentSucceeded()).catch(() => {});
+
+      expect(adConversions.reportPurchase).not.toHaveBeenCalled();
     });
 
     it('records the payment as unfulfilled and throws when the subscription could not be extended', async () => {
