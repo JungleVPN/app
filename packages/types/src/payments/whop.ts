@@ -1,3 +1,5 @@
+import type { AdConversionConsent } from '../attribution';
+
 /**
  * Public Whop checkout-init request — POST /payments/whop/public-create-checkout.
  *
@@ -34,7 +36,7 @@ export interface WhopCheckoutPayload {
  * Public Whop payment request — POST /payments/whop/public-pay. The same
  * checkout request, re-validated, plus the card the browser tokenised.
  */
-export interface PayPublicWhopCheckoutDto extends CreatePublicWhopCheckoutDto {
+export interface PayPublicWhopCheckoutDto extends CreatePublicWhopCheckoutDto, AdConversionConsent {
   /** Single-use confirmation token (`ctok_...`) from `payments.createConfirmationToken()`. */
   confirmationToken: string;
   /** Where the buyer lands after an off-site step such as a 3DS bank page. */

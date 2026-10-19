@@ -17,3 +17,11 @@ export type AdClicks = {
   wbraid?: string;
   msclkid?: string;
 };
+
+/** What a checkout request carries so the paid purchase can be reported to the ad platforms. */
+export interface AdConversionConsent {
+  /** True only when the payer accepted the cookie banner; nothing is reported otherwise. */
+  adsConsent?: boolean;
+  /** The last ad click, when one is within its 90 days. */
+  adClicks?: AdClicks | null;
+}
