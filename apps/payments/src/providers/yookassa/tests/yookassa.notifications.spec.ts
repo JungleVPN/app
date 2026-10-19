@@ -262,6 +262,7 @@ describe('YooKassa payment notifications', () => {
       } as unknown as ToltService,
       {} as any,
       planService,
+      { reportPurchase: vi.fn() } as never,
     );
 
     autopaymentService = new AutopaymentService(

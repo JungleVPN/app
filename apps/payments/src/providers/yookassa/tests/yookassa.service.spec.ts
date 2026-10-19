@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import * as process from 'node:process';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
+import type { AdConversionsService } from '@payments/ad-conversions/ad-conversions.service';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import type { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
 import { PlanService } from '@payments/catalog/plan.service';
@@ -121,6 +122,8 @@ describe('YookassaService', () => {
 
   let remnaUserResolver: RemnaUserResolverService;
   remnaUserResolver = {} as unknown as RemnaUserResolverService;
+  const reportPurchase = vi.fn();
+  const adConversions = { reportPurchase } as unknown as AdConversionsService;
 
   const ruPlan = (id: string, billingPeriod: number, basePrice: number): Plan => ({
     id,
@@ -156,6 +159,7 @@ describe('YookassaService', () => {
       toltService,
       remnaUserResolver,
       planService,
+      adConversions,
     );
 
   beforeEach(() => {
@@ -425,6 +429,66 @@ describe('YookassaService', () => {
         expect(mockReportConversion).toHaveBeenCalledWith(
           expect.objectContaining({ purpose: 'subscription' }),
         );
+      });
+    });
+
+    describe('ad conversion reporting', () => {
+      const pendingRecord = (overrides: Record<string, unknown> = {}) => ({
+        userId: 1000,
+        selectedPeriod: 3,
+        telegramId: 42,
+        amount: '1500.00',
+        purpose: 'subscription',
+        paidAt: null,
+        ...overrides,
+      });
+
+      it('hands the paid subscription, with its ad click ids, over for ad platform reporting', async () => {
+        mockYkFindOneBy.mockResolvedValue(pendingRecord());
+
+        await service.handleWebhook(
+          makeSucceededPayload({
+            captured_at: '2026-10-19T09:00:00.000Z',
+            metadata: { email: 'example@mail.com', gclid: 'g-1' },
+          }),
+          '127.0.0.1',
+        );
+
+        expect(reportPurchase).toHaveBeenCalledWith({
+          provider: 'yookassa',
+          paymentId: 'pay_1',
+          userId: 1000,
+          paidAt: new Date('2026-10-19T09:00:00.000Z'),
+          value: 1500,
+          currency: 'RUB',
+          metadata: { email: 'example@mail.com', gclid: 'g-1' },
+          email: 'example@mail.com',
+        });
+      });
+
+      it('hands nothing over for an extra device purchase', async () => {
+        mockYkFindOneBy.mockResolvedValue(pendingRecord({ purpose: 'extra_device' }));
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(reportPurchase).not.toHaveBeenCalled();
+      });
+
+      it('hands nothing over when fulfilment failed', async () => {
+        mockYkFindOneBy.mockResolvedValue(pendingRecord());
+        mockHandleUserUpdates.mockResolvedValue({ success: false });
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(reportPurchase).not.toHaveBeenCalled();
+      });
+
+      it('hands nothing over for a replayed webhook', async () => {
+        mockYkFindOneBy.mockResolvedValue(pendingRecord({ paidAt: new Date() }));
+
+        await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
+
+        expect(reportPurchase).not.toHaveBeenCalled();
       });
     });
 

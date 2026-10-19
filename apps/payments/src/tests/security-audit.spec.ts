@@ -117,6 +117,7 @@ describe('Security Audit', () => {
         { reportConversion: vi.fn() } as any,
         {} as any,
         new PlanService({ find: async () => [] } as never),
+        { reportPurchase: vi.fn() } as never,
       );
     });
 
@@ -183,6 +184,7 @@ describe('Security Audit', () => {
         { reportConversion: vi.fn() } as any,
         {} as any,
         new PlanService({ find: async () => [] } as never),
+        { reportPurchase: vi.fn() } as never,
       );
       (svc as any).isIPRangeValid = mockIsIPRangeValid;
 
@@ -266,6 +268,7 @@ describe('Security Audit', () => {
         { reportConversion: vi.fn() } as any,
         {} as any,
         new PlanService({ find: async () => [] } as never),
+        { reportPurchase: vi.fn() } as never,
       );
     });
 
@@ -308,6 +311,7 @@ describe('Security Audit', () => {
         { reportConversion: vi.fn() } as any,
         {} as any,
         new PlanService({ find: async () => [] } as never),
+        { reportPurchase: vi.fn() } as never,
       );
 
       const payload = makeSucceededPayload('pay_replay');

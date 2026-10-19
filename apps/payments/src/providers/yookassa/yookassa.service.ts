@@ -9,6 +9,7 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { adClickMetadata } from '@payments/ad-conversions/ad-click-metadata';
+import { AdConversionsService } from '@payments/ad-conversions/ad-conversions.service';
 import { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { RemnaUserResolverService } from '@payments/auth/remna-user-resolver.service';
 import { PlanService } from '@payments/catalog/plan.service';
@@ -61,6 +62,7 @@ export class YookassaService {
     private readonly toltService: ToltService,
     private readonly remnaUserResolver: RemnaUserResolverService,
     private readonly planService: PlanService,
+    private readonly adConversions: AdConversionsService,
   ) {}
 
   // ── Query methods ────────────────────────────────────────────────────────
@@ -460,6 +462,19 @@ export class YookassaService {
         period: record.selectedPeriod,
         purpose: record.purpose,
       });
+
+      if (record.purpose === 'subscription') {
+        await this.adConversions.reportPurchase({
+          provider: 'yookassa',
+          paymentId: id,
+          userId,
+          paidAt,
+          value: Number(record.amount),
+          currency: 'RUB',
+          metadata,
+          email: emailFromMetadata?.toString(),
+        });
+      }
     } else {
       await this.reportPaymentError({
         kind: 'subscription_not_extended',
