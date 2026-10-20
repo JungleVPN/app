@@ -96,6 +96,7 @@ export type { PostHogConsentStatus } from './posthog';
 export {
   phCapture,
   phConsentStatus,
+  phGrantImpliedConsent,
   phIdentify,
   phIdentifyGuestCheckout,
   phOptIn,

@@ -8,7 +8,12 @@ import '@/assets/globals.css';
 
 import { AnalyticsApiProvider, ApiProvider } from '@workspace/core/api';
 import { AppRoutesProvider, PaymentsApiProvider } from '@workspace/core/runtime';
-import { captureAttribution, captureReferral, initDayjs } from '@workspace/core/utils';
+import {
+  captureAttribution,
+  captureReferral,
+  initDayjs,
+  phGrantImpliedConsent,
+} from '@workspace/core/utils';
 import { analyticsClient } from '@/api/analytics';
 import { paymentsApi } from '@/api/payments.ts';
 import { backendClient } from '@/api/remnawave';
@@ -17,6 +22,7 @@ import { initTma } from '@/lib/tma-sdk';
 import { router } from '@/router';
 
 initDayjs();
+phGrantImpliedConsent();
 
 const appRoutes = {
   paymentReturnPath: '/payment/success',

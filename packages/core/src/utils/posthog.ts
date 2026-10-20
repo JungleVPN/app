@@ -109,6 +109,16 @@ export function phOptIn(): void {
   posthog.opt_in_capturing();
 }
 
+/**
+ * Opts in a visitor who has not chosen yet. For surfaces without a consent
+ * banner (the Telegram mini app), where opening the app counts as consent —
+ * a pending visitor would otherwise send nothing under cookieless 'on_reject'.
+ */
+export function phGrantImpliedConsent(): void {
+  if (!isEnabled || posthog.get_explicit_consent_status() !== 'pending') return;
+  posthog.opt_in_capturing();
+}
+
 /** Deny consent: capture stays cookieless rather than stopping outright. */
 export function phOptOut(): void {
   if (!isEnabled) return;

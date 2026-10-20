@@ -66,13 +66,16 @@ describe('posthog utils', () => {
       expect(mockedPosthog.reset).not.toHaveBeenCalled();
     });
 
-    it('phOptIn and phOptOut are no-ops, and consent is reported as granted', async () => {
+    it('phOptIn, phOptOut and phGrantImpliedConsent are no-ops, and consent is reported as granted', async () => {
       vi.stubEnv('VITE_PUBLIC_POSTHOG_PROJECT_TOKEN', '');
       vi.stubEnv('VITE_PUBLIC_POSTHOG_HOST', '');
-      const { phOptIn, phOptOut, phConsentStatus } = await loadPosthogModule();
+      mockedPosthog.get_explicit_consent_status.mockReturnValue('pending');
+      const { phOptIn, phOptOut, phGrantImpliedConsent, phConsentStatus } =
+        await loadPosthogModule();
 
       phOptIn();
       phOptOut();
+      phGrantImpliedConsent();
 
       expect(mockedPosthog.opt_in_capturing).not.toHaveBeenCalled();
       expect(mockedPosthog.opt_out_capturing).not.toHaveBeenCalled();
@@ -196,6 +199,31 @@ describe('posthog utils', () => {
       phOptOut();
 
       expect(mockedPosthog.opt_out_capturing).toHaveBeenCalled();
+    });
+
+    // The Telegram mini app shows no consent banner: opening it counts as
+    // consent, so it opts in once instead of staying pending (which sends nothing).
+    describe('phGrantImpliedConsent', () => {
+      it('opts in a visitor whose consent is still pending', async () => {
+        mockedPosthog.get_explicit_consent_status.mockReturnValue('pending');
+        const { phGrantImpliedConsent } = await loadPosthogModule('app.thejungle.pro');
+
+        phGrantImpliedConsent();
+
+        expect(mockedPosthog.opt_in_capturing).toHaveBeenCalledTimes(1);
+      });
+
+      it.each([
+        'granted',
+        'denied',
+      ])('leaves a visitor whose consent is %s as it is', async (status) => {
+        mockedPosthog.get_explicit_consent_status.mockReturnValue(status);
+        const { phGrantImpliedConsent } = await loadPosthogModule('app.thejungle.pro');
+
+        phGrantImpliedConsent();
+
+        expect(mockedPosthog.opt_in_capturing).not.toHaveBeenCalled();
+      });
     });
 
     it('phConsentStatus forwards posthog.get_explicit_consent_status', async () => {
