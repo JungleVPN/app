@@ -70,3 +70,27 @@ describe('RemnaUserResolverService.resolveOrCreate', () => {
     await expect(service.resolveOrCreate(undefined, 'new@test.com')).rejects.toThrow();
   });
 });
+
+describe('RemnaUserResolverService.getExpiry', () => {
+  it("returns when the user's subscription expires", async () => {
+    const get = vi.fn().mockResolvedValue({
+      data: { id: 2871, expireAt: '2026-10-15T10:00:00.000Z' },
+    });
+    const service = resolverWith({ get });
+
+    await expect(service.getExpiry(2871)).resolves.toEqual(new Date('2026-10-15T10:00:00.000Z'));
+    expect(get).toHaveBeenCalledWith('/users/2871');
+  });
+
+  it('returns null when the panel has no such user', async () => {
+    const service = resolverWith({ get: vi.fn().mockResolvedValue({ data: null }) });
+
+    await expect(service.getExpiry(2871)).resolves.toBeNull();
+  });
+
+  it('lets a failed lookup surface rather than guessing an expiry', async () => {
+    const service = resolverWith({ get: vi.fn().mockRejectedValue(new Error('panel down')) });
+
+    await expect(service.getExpiry(2871)).rejects.toThrow('panel down');
+  });
+});

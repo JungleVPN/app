@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { AutopaymentController } from '@payments/providers/yookassa/autopayment/autopayment.controller';
 import { AutopaymentModule } from '@payments/providers/yookassa/autopayment/autopayment.module';
 import { AutopaymentService } from '@payments/providers/yookassa/autopayment/autopayment.service';
+import { ExpiredSavedMethodsController } from '@payments/providers/yookassa/autopayment/expired-saved-methods.controller';
 import { YooKassaConnector } from '@payments/providers/yookassa/helpers/yookassa.connector';
 import { YookassaController } from '@payments/providers/yookassa/yookassa.controller';
 import { YookassaModule } from '@payments/providers/yookassa/yookassa.module';
@@ -39,8 +40,11 @@ describe('YookassaModule', () => {
 });
 
 describe('AutopaymentModule', () => {
-  it('exposes the remnawave event endpoint', () => {
-    expect(metadata('controllers', AutopaymentModule)).toEqual([AutopaymentController]);
+  it('exposes the remnawave event endpoint and the expired saved methods sweep', () => {
+    expect(metadata('controllers', AutopaymentModule)).toEqual([
+      AutopaymentController,
+      ExpiredSavedMethodsController,
+    ]);
   });
 
   // Autopayment charges a saved method directly, so it needs its own copy of

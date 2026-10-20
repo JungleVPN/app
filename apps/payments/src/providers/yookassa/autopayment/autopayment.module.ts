@@ -12,6 +12,8 @@ import { PaymentsUtils } from '@payments/utils/utils';
 import { Promo, PromoRedemption, SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { AutopaymentController } from './autopayment.controller';
 import { AutopaymentService } from './autopayment.service';
+import { ExpiredSavedMethodsController } from './expired-saved-methods.controller';
+import { ExpiredSavedMethodsService } from './expired-saved-methods.service';
 
 @Module({
   imports: [
@@ -21,11 +23,12 @@ import { AutopaymentService } from './autopayment.service';
     AnalyticsClientModule,
     PlanModule,
   ],
-  controllers: [AutopaymentController],
+  controllers: [AutopaymentController, ExpiredSavedMethodsController],
   exports: [AutopaymentService],
   providers: [
     YooKassaConnector,
     AutopaymentService,
+    ExpiredSavedMethodsService,
     YooKassaProvider,
     PaymentStatusService,
     PaymentsUtils,

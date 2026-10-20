@@ -99,6 +99,14 @@ export class RemnaUserResolverService {
     }
   }
 
+  /** When the user's access ends; null when the panel has no such user. A failed lookup throws. */
+  async getExpiry(id: number): Promise<Date | null> {
+    const { data } = await this.http.get<GetUserByIdResponseDto | null>(
+      apiRoutes.remnawave.userById(id),
+    );
+    return data ? new Date(data.expireAt) : null;
+  }
+
   async resolveByEmail(email: string): Promise<number> {
     try {
       const { data } = await this.http.get<StreamedUserDto[]>(
