@@ -40,11 +40,15 @@ export class WebhookService {
         return;
       }
       // Negative hours = before expiry → payments handles autopayment + email
-      // Positive hours = after expiry → notify user directly via bot
+      // Positive hours = after expiry → the bot notifies the user, and payments
+      // terminates saved methods again in case the one-shot user.expired was lost
       if (hours < 0) {
         await this.forwardRemnaEventToPayments(payload);
       } else {
-        await this.forwardRemnaEventToBot(payload);
+        await Promise.all([
+          this.forwardRemnaEventToBot(payload),
+          this.forwardRemnaEventToPayments(payload),
+        ]);
       }
       return;
     }

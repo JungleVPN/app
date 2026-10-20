@@ -94,7 +94,7 @@ describe('WebhookService', () => {
       );
     });
 
-    it('forwards user.expiration +24h event to bot only', async () => {
+    it('forwards user.expiration +24h event to both bot and payments', async () => {
       const payload = {
         scope: REMNAWAVE_EVENTS_SCOPES.USER,
         event: REMNAWAVE_EVENTS.USER.EXPIRATION,
@@ -104,9 +104,14 @@ describe('WebhookService', () => {
 
       await service.processRemnaEvent(payload);
 
-      expect(mockAxiosPost).toHaveBeenCalledTimes(1);
+      expect(mockAxiosPost).toHaveBeenCalledTimes(2);
       expect(mockAxiosPost).toHaveBeenCalledWith(
         expect.stringContaining('/notify/user-event'),
+        payload,
+        expect.any(Object),
+      );
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        expect.stringContaining('/remnawave-event'),
         payload,
         expect.any(Object),
       );

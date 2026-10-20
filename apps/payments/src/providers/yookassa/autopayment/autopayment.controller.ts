@@ -21,9 +21,7 @@ export class AutopaymentController {
     this.logger.log(`Received remnawave event: ${payload.event}`);
 
     if (payload.event === REMNAWAVE_EVENTS.USER.EXPIRED) {
-      this.autopaymentService.terminateSavedMethods(payload).catch((err) => {
-        this.logger.error(`Failed to terminate saved methods: ${err.message}`);
-      });
+      this.terminateSavedMethods(payload);
       return { ok: true };
     }
 
@@ -34,7 +32,10 @@ export class AutopaymentController {
 
     const hours = payload.meta?.expiration ?? null;
 
-    if (hours === -24) {
+    if (hours !== null && hours > 0) {
+      // user.expired is delivered once; reminders after expiry retry its termination
+      this.terminateSavedMethods(payload);
+    } else if (hours === -24) {
       // Fire-and-forget: retries happen internally, don't block the webhook response
       this.autopaymentService.init(payload).catch((err) => {
         this.logger.error(`Unhandled error in autopayment flow: ${err.message}`);
@@ -48,5 +49,11 @@ export class AutopaymentController {
     }
 
     return { ok: true };
+  }
+
+  private terminateSavedMethods(payload: RemnawebhookPayload): void {
+    this.autopaymentService.terminateSavedMethods(payload).catch((err) => {
+      this.logger.error(`Failed to terminate saved methods: ${err.message}`);
+    });
   }
 }

@@ -93,12 +93,38 @@ describe('AutopaymentController', () => {
 
   // Only -24h and -48h are wired up; any other lead time is logged and dropped
   // rather than charging the customer at an unexpected moment.
-  it.each([[-72], [-1], [24]])('ignores an expiration lead time of %i hours', async (hours) => {
+  it.each([[-72], [-1], [0]])('ignores an expiration lead time of %i hours', async (hours) => {
     const result = await controller.handleRemnaEvent(makePayload(EXPIRATION, hours));
 
     expect(result).toEqual({ ok: true });
     expect(mockInit).not.toHaveBeenCalled();
     expect(mockCheckAndNotifyExpiry48h).not.toHaveBeenCalled();
+    expect(mockTerminateSavedMethods).not.toHaveBeenCalled();
+  });
+
+  // user.expired fires once; a lost delivery would leave the card billable and
+  // shown as an active subscription. Every reminder after expiry retries it.
+  it.each([
+    [1],
+    [24],
+    [72],
+  ])('terminates saved methods %i hours after expiry without charging', async (hours) => {
+    const payload = makePayload(EXPIRATION, hours);
+
+    const result = await controller.handleRemnaEvent(payload);
+
+    expect(result).toEqual({ ok: true });
+    expect(mockTerminateSavedMethods).toHaveBeenCalledWith(payload);
+    expect(mockInit).not.toHaveBeenCalled();
+    expect(mockCheckAndNotifyExpiry48h).not.toHaveBeenCalled();
+  });
+
+  it('does not throw when terminating after expiry rejects', async () => {
+    mockTerminateSavedMethods.mockRejectedValue(new Error('db down'));
+
+    const result = await controller.handleRemnaEvent(makePayload(EXPIRATION, 24));
+
+    expect(result).toEqual({ ok: true });
   });
 
   it('ignores an expiration event that carries no meta at all', async () => {
