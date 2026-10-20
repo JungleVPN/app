@@ -1504,6 +1504,30 @@ describe('YookassaService', () => {
       );
     });
 
+    // The payer picks the method on YooKassa's own page, so the webhook is the
+    // only place that knows whether they paid by card, SBP or SberPay.
+    it.each(['bank_card', 'sbp', 'sberbank'])(
+      'records how the payer paid (%s) for analytics',
+      async (type) => {
+        await service.handleWebhook(
+          makeSucceededPayload({ payment_method: { type, id: 'pm_x', saved: false } }),
+          '127.0.0.1',
+        );
+
+        expect(analyticsClient.track).toHaveBeenCalledWith(
+          expect.objectContaining({ event: 'payment_succeeded', paymentMethodType: type }),
+        );
+      },
+    );
+
+    it('records no payment method when YooKassa does not report one', async () => {
+      await service.handleWebhook(makeSucceededPayload({ payment_method: undefined }), '127.0.0.1');
+
+      expect(analyticsClient.track).toHaveBeenCalledWith(
+        expect.not.objectContaining({ paymentMethodType: expect.anything() }),
+      );
+    });
+
     it('records the purpose and settled amount so revenue and extra-device sales are queryable', async () => {
       mockYkFindOneBy.mockResolvedValue({
         userId: 1000,

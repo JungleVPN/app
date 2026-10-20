@@ -430,6 +430,7 @@ export class YookassaService {
         isAutoPayment: metadata?.autopayment === 'true',
         amount: record.amount,
         currency: 'RUB',
+        ...(payment_method && { paymentMethodType: payment_method.type }),
       });
 
       if (
