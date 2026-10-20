@@ -7,7 +7,7 @@ import { AutopaymentService } from '@payments/providers/yookassa/autopayment/aut
 import type { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import type { Plan, SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { RemnawebhookPayload, WebhookEventEnum } from '@workspace/types';
-import type { Repository } from 'typeorm';
+import { In, type Repository } from 'typeorm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@workspace/database', () => ({
@@ -793,14 +793,47 @@ describe('AutopaymentService', () => {
 
   // An expired subscription must stop showing as active billing so the user
   // can pick a plan again; the row is kept, only marked terminated.
+  // Only YooKassa by default: other providers end their own subscriptions by
+  // webhook, and a renewal landing just after the panel expiry must not lose
+  // its saved method. TERMINATE_ON_EXPIRY_PROVIDERS widens it.
   describe('terminateSavedMethods', () => {
-    it("terminates every active saved method of the expired user", async () => {
-      await service.terminateSavedMethods(makePayload(42, 'user.expired'));
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
 
-      expect(savedMethodRepo.update).toHaveBeenCalledWith(
-        { userId: 1000, isActive: true },
-        { isActive: false, status: 'terminated' },
+    const terminatedProviders = async () => {
+      await service.terminateSavedMethods(makePayload(42, 'user.expired'));
+      return (savedMethodRepo.update as ReturnType<typeof vi.fn>).mock.calls;
+    };
+
+    it('terminates the active YooKassa saved methods of the expired user', async () => {
+      expect(await terminatedProviders()).toEqual([
+        [
+          { userId: 1000, isActive: true, provider: In(['yookassa']) },
+          { isActive: false, status: 'terminated' },
+        ],
+      ]);
+    });
+
+    it.each([
+      [''],
+      [' , '],
+    ])('falls back to YooKassa only when the providers setting is blank (%j)', async (value) => {
+      vi.stubEnv('TERMINATE_ON_EXPIRY_PROVIDERS', value);
+
+      expect((await terminatedProviders())[0]?.[0]).toEqual(
+        expect.objectContaining({ provider: In(['yookassa']) }),
       );
+    });
+
+    it('terminates the providers the setting lists', async () => {
+      vi.stubEnv('TERMINATE_ON_EXPIRY_PROVIDERS', 'yookassa, whop ,stripe');
+
+      expect((await terminatedProviders())[0]?.[0]).toEqual({
+        userId: 1000,
+        isActive: true,
+        provider: In(['yookassa', 'whop', 'stripe']),
+      });
     });
   });
 });

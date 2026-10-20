@@ -8,10 +8,18 @@ import { providerCurrency } from '@payments/catalog/plan-provider';
 import { YooKassaProvider } from '@payments/providers/yookassa/yookassa.provider';
 import { SavedPaymentMethod, YookassaPayment } from '@workspace/database';
 import { Payments, RemnawebhookPayload, UserDto, WebhookEventEnum } from '@workspace/types';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 5_000;
+
+function terminateOnExpiryProviders(): string[] {
+  const listed = (process.env.TERMINATE_ON_EXPIRY_PROVIDERS ?? '')
+    .split(',')
+    .map((provider) => provider.trim())
+    .filter((provider) => provider !== '');
+  return listed.length > 0 ? listed : ['yookassa'];
+}
 
 @Injectable()
 export class AutopaymentService {
@@ -28,13 +36,22 @@ export class AutopaymentService {
     private readonly planService: PlanService,
   ) {}
 
+  /**
+   * Ends the saved methods of a user whose access has lapsed. Only YooKassa by
+   * default: other providers end their subscriptions by their own webhooks, and
+   * a renewal landing just after the panel expiry must keep its method.
+   * TERMINATE_ON_EXPIRY_PROVIDERS (comma-separated) overrides the list.
+   */
   async terminateSavedMethods(payload: RemnawebhookPayload): Promise<void> {
+    const providers = terminateOnExpiryProviders();
     await this.savedMethodRepo.update(
-      { userId: payload.data.id, isActive: true },
+      { userId: payload.data.id, isActive: true, provider: In(providers) },
       { isActive: false, status: 'terminated' },
     );
 
-    this.logger.log(`Saved saved methods for ${payload.data.id} is terminated`);
+    this.logger.log(
+      `Saved methods (${providers.join(', ')}) of user ${payload.data.id} are terminated`,
+    );
   }
 
   async init(payload: RemnawebhookPayload): Promise<void> {
