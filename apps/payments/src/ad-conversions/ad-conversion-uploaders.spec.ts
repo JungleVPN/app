@@ -14,6 +14,7 @@ const MICROSOFT_ENV: Record<string, string> = {
   MICROSOFT_ADS_ACCOUNT_ID: '222',
   MICROSOFT_ADS_CONVERSION_NAME: 'Purchase (server)',
   MICROSOFT_ADS_CLIENT_ID: 'client-1',
+  MICROSOFT_ADS_CLIENT_SECRET: 'secret-1',
   MICROSOFT_ADS_REFRESH_TOKEN: 'refresh-1',
 };
 

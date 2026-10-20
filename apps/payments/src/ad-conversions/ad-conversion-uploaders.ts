@@ -3,7 +3,7 @@ import { JWT } from 'google-auth-library';
 import type { AdConversionUploader } from './ad-conversion-uploader';
 import { type GoogleAdsSettings, googleAdsSettings } from './google-ads.config';
 import { GoogleAdsUploader } from './google-ads.uploader';
-import { microsoftAccessToken } from './microsoft-ads.auth';
+import { googleUserAccessToken } from './google-user-token';
 import { microsoftAdsSettings } from './microsoft-ads.config';
 import { MicrosoftAdsUploader } from './microsoft-ads.uploader';
 
@@ -19,7 +19,7 @@ export function adConversionUploaders(
   return [
     ...(google ? [new GoogleAdsUploader(google.ads, serviceAccountToken(google))] : []),
     ...(microsoft
-      ? [new MicrosoftAdsUploader(microsoft.ads, microsoftAccessToken(microsoft.oauth))]
+      ? [new MicrosoftAdsUploader(microsoft.ads, googleUserAccessToken(microsoft.oauth))]
       : []),
   ];
 }

@@ -43,6 +43,8 @@ export class MicrosoftAdsUploader implements AdConversionUploader {
         DeveloperToken: this.config.developerToken,
         CustomerId: this.config.customerId,
         CustomerAccountId: this.config.accountId,
+        // Our Microsoft Advertising user signs in with Google, so the token is Google's.
+        IdentityProvider: 'Google',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

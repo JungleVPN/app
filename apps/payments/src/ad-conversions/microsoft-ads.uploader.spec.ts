@@ -43,7 +43,7 @@ function sentBody(fetchFn: ReturnType<typeof setup>['fetchFn']): unknown {
 }
 
 describe('MicrosoftAdsUploader — applying an offline conversion', () => {
-  it('posts to the offline conversion endpoint as our ad account', async () => {
+  it('posts to the offline conversion endpoint as our ad account, signed in with Google', async () => {
     const { uploader, fetchFn } = setup();
 
     await uploader.upload(conversion());
@@ -55,6 +55,7 @@ describe('MicrosoftAdsUploader — applying an offline conversion', () => {
         DeveloperToken: 'dev-1',
         CustomerId: '111',
         CustomerAccountId: '222',
+        IdentityProvider: 'Google',
         'Content-Type': 'application/json',
       },
       body: expect.any(String),
