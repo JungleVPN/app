@@ -113,6 +113,7 @@ describe('YookassaService', () => {
 
   let mockHandleUserUpdates: any;
   let mockResolveOrCreate: any;
+  let mockGetExpiry: ReturnType<typeof vi.fn>;
   let mockGetPayment: any;
   let mockEmit: any;
   let analyticsClient: AnalyticsClientService;
@@ -224,8 +225,11 @@ describe('YookassaService', () => {
 
     mockHandleUserUpdates = vi.fn().mockResolvedValue({ success: true });
     mockResolveOrCreate = vi.fn().mockResolvedValue(null);
+    // Early renewals and promo days push the expiry past paidAt + period.
+    mockGetExpiry = vi.fn().mockResolvedValue(new Date('2026-02-05T00:00:00.000Z'));
     remnaUserResolver = {
       resolveOrCreate: mockResolveOrCreate,
+      getExpiry: mockGetExpiry,
     } as unknown as RemnaUserResolverService;
     paymentStatusService = {
       handleUserUpdates: mockHandleUserUpdates,
@@ -728,9 +732,37 @@ describe('YookassaService', () => {
         amount: 199,
         currency: 'RUB',
         billingPeriod: 30,
-        renewsAt: new Date('2026-01-31T00:00:00.000Z'),
+        renewsAt: new Date('2026-02-04T00:00:00.000Z'),
         status: 'active',
       };
+
+      // Autopayment charges 24 hours before access ends, so that is the next payment.
+      it('dates the next payment 24 hours before the extended access ends', async () => {
+        mockYkFindOneBy.mockResolvedValue(subscriptionRecord);
+        mockSmFindOneBy.mockResolvedValue(null);
+
+        await service.handleWebhook(makeSucceededPayload({ captured_at: paidAt }), '127.0.0.1');
+
+        expect(mockGetExpiry).toHaveBeenCalledWith(1000);
+        expect(mockSmCreate).toHaveBeenCalledWith(
+          expect.objectContaining({ renewsAt: new Date('2026-02-04T00:00:00.000Z') }),
+        );
+      });
+
+      it.each([
+        ['the panel lookup fails', () => mockGetExpiry.mockRejectedValue(new Error('panel down'))],
+        ['the panel has no such user', () => mockGetExpiry.mockResolvedValue(null)],
+      ])('falls back to the paid period less 24 hours when %s', async (_, arrange) => {
+        arrange();
+        mockYkFindOneBy.mockResolvedValue(subscriptionRecord);
+        mockSmFindOneBy.mockResolvedValue(null);
+
+        await service.handleWebhook(makeSucceededPayload({ captured_at: paidAt }), '127.0.0.1');
+
+        expect(mockSmCreate).toHaveBeenCalledWith(
+          expect.objectContaining({ renewsAt: new Date('2026-01-30T00:00:00.000Z') }),
+        );
+      });
 
       it('stores what the charge was for on a new row, so the profile page can show it', async () => {
         mockYkFindOneBy.mockResolvedValue(subscriptionRecord);
@@ -786,6 +818,7 @@ describe('YookassaService', () => {
         await service.handleWebhook(makeSucceededPayload(), '127.0.0.1');
 
         expect(mockSmUpdate).not.toHaveBeenCalled();
+        expect(mockGetExpiry).not.toHaveBeenCalled();
       });
     });
 
@@ -1506,19 +1539,20 @@ describe('YookassaService', () => {
 
     // The payer picks the method on YooKassa's own page, so the webhook is the
     // only place that knows whether they paid by card, SBP or SberPay.
-    it.each(['bank_card', 'sbp', 'sberbank'])(
-      'records how the payer paid (%s) for analytics',
-      async (type) => {
-        await service.handleWebhook(
-          makeSucceededPayload({ payment_method: { type, id: 'pm_x', saved: false } }),
-          '127.0.0.1',
-        );
+    it.each([
+      'bank_card',
+      'sbp',
+      'sberbank',
+    ])('records how the payer paid (%s) for analytics', async (type) => {
+      await service.handleWebhook(
+        makeSucceededPayload({ payment_method: { type, id: 'pm_x', saved: false } }),
+        '127.0.0.1',
+      );
 
-        expect(analyticsClient.track).toHaveBeenCalledWith(
-          expect.objectContaining({ event: 'payment_succeeded', paymentMethodType: type }),
-        );
-      },
-    );
+      expect(analyticsClient.track).toHaveBeenCalledWith(
+        expect.objectContaining({ event: 'payment_succeeded', paymentMethodType: type }),
+      );
+    });
 
     it('records no payment method when YooKassa does not report one', async () => {
       await service.handleWebhook(makeSucceededPayload({ payment_method: undefined }), '127.0.0.1');

@@ -442,7 +442,10 @@ export class YookassaService {
         await this.activatePaymentMethod({
           userId,
           payment_method,
-          details: subscriptionDetails(record, paidAt),
+          details:
+            record.purpose === 'subscription'
+              ? subscriptionDetails(record, await this.nextPaymentAt(userId, record, paidAt))
+              : null,
         });
       }
 
@@ -655,6 +658,24 @@ export class YookassaService {
     }
   }
 
+  /**
+   * When autopayment will charge next: 24 hours before access ends. Read from
+   * the panel once this payment has extended it, since an early renewal or a
+   * promo pushes the expiry past the paid period; that period is the fallback.
+   */
+  private async nextPaymentAt(
+    userId: number,
+    record: YookassaPayment,
+    paidAt: Date,
+  ): Promise<Date> {
+    const expiry = await this.remnaUserResolver.getExpiry(userId).catch((err: unknown) => {
+      this.logger.warn(`Could not read expiry of user ${userId}: ${errorMessage(err)}`);
+      return null;
+    });
+    const accessEndsAt = expiry ?? new Date(paidAt.getTime() + record.selectedPeriod * DAY_MS);
+    return new Date(accessEndsAt.getTime() - DAY_MS);
+  }
+
   // ── Webhook validation ──────────────────────────────────────────────────
 
   async validateWebhookPayload(payload: YookassaWebhookNotification, ip: string): Promise<void> {
@@ -751,16 +772,16 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /**
  * What the profile page shows for a subscription, taken from the charge that
  * just settled. Only a subscription charge describes the subscription — an
- * extra-device purchase made with the same method must not overwrite it.
+ * extra-device purchase made with the same method must not overwrite it, so
+ * callers pass null details for one.
  */
-function subscriptionDetails(record: YookassaPayment, paidAt: Date): SubscriptionDetails | null {
-  if (record.purpose !== 'subscription') return null;
+function subscriptionDetails(record: YookassaPayment, renewsAt: Date): SubscriptionDetails {
   return {
     productName: 'JungleVPN Подписка',
     amount: Number(record.amount),
     currency: record.currency,
     billingPeriod: record.selectedPeriod,
-    renewsAt: new Date(paidAt.getTime() + record.selectedPeriod * DAY_MS),
+    renewsAt,
     status: 'active',
   };
 }
