@@ -78,6 +78,18 @@ export class AutopaymentService {
     const result = await this.attemptAutopaymentWithRetries(user, savedMethod.paymentMethodId);
 
     if (result.status === 'error') {
+      if (result.declined) {
+        // A card YooKassa keeps declining stops showing as an active subscription;
+        // the user pays again by hand, as the failure notification asks.
+        await this.savedMethodRepo.update(
+          { id: savedMethod.id, isActive: true },
+          { isActive: false, status: 'terminated' },
+        );
+        this.logger.log(
+          `Terminated saved method ${savedMethod.id} of user ${userId} after declines`,
+        );
+      }
+
       const eventByReason: Partial<Record<Payments.CancelReason, WebhookEventEnum>> = {
         insufficient_funds: WebhookEventEnum['payment.insufficient_funds'],
         general_decline: WebhookEventEnum['payment.general_decline'],
@@ -152,7 +164,13 @@ export class AutopaymentService {
         selectedPeriod: number;
         amount: string;
       }
-    | { status: 'error'; reason: Payments.CancelReason | undefined; payment: null }
+    | {
+        status: 'error';
+        reason: Payments.CancelReason | undefined;
+        payment: null;
+        /** YooKassa refused at least one attempt, rather than none reaching it. */
+        declined: boolean;
+      }
   > {
     let lastReason: Payments.CancelReason | undefined;
     let lastFailedPayment: Payments.IPayment | undefined;
@@ -164,7 +182,7 @@ export class AutopaymentService {
       // A missing plan or an unpriceable period is not transient — retrying
       // cannot make a defensible charge appear, so fail without calling YooKassa.
       this.logger.error(`Cannot renew user ${user.id}: ${err.message}`);
-      return { status: 'error', reason: undefined, payment: null };
+      return { status: 'error', reason: undefined, payment: null, declined: false };
     }
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -212,7 +230,12 @@ export class AutopaymentService {
       `All ${MAX_RETRIES} autopayment attempts failed for paymentMethodId=${paymentMethodId} — falling back to manual payment`,
     );
 
-    return { status: 'error', reason: lastReason, payment: null };
+    return {
+      status: 'error',
+      reason: lastReason,
+      payment: null,
+      declined: lastFailedPayment !== undefined,
+    };
   }
 
   /**

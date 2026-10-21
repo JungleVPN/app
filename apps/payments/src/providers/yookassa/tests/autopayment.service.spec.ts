@@ -209,10 +209,79 @@ describe('AutopaymentService', () => {
   describe('retry logic', () => {
     beforeEach(() => {
       mockSmFindOneBy.mockResolvedValue({
+        id: 'sm_1',
         userId: 1001,
         paymentMethodId: 'pm_1',
         isActive: true,
       });
+    });
+
+    const TERMINATE_CARD = [
+      { id: 'sm_1', isActive: true },
+      { isActive: false, status: 'terminated' },
+    ];
+    const savedMethodUpdates = () =>
+      (savedMethodRepo.update as ReturnType<typeof vi.fn>).mock.calls;
+
+    // A card YooKassa keeps declining would otherwise stay "active" on the
+    // profile page; terminating it sends the user to pay again by hand.
+    it.each([
+      ['insufficient_funds'],
+      ['general_decline'],
+      ['payment_method_restricted'],
+    ])('terminates the saved method once all retries are declined (%s)', async (reason) => {
+      mockCreate.mockResolvedValue({
+        id: 'pay_x',
+        status: 'canceled',
+        cancellation_details: { reason, party: 'payment_network' },
+      });
+
+      await service.init(makePayload(42));
+
+      expect(savedMethodUpdates()).toEqual([TERMINATE_CARD]);
+    });
+
+    it('terminates the saved method when a decline is followed by errors', async () => {
+      mockCreate
+        .mockResolvedValueOnce({
+          id: 'pay_x',
+          status: 'canceled',
+          cancellation_details: { reason: 'insufficient_funds', party: 'payment_network' },
+        })
+        .mockRejectedValue(new Error('network timeout'));
+
+      await service.init(makePayload(42));
+
+      expect(savedMethodUpdates()).toEqual([TERMINATE_CARD]);
+    });
+
+    // No attempt reached a decision, so nothing says the card is at fault —
+    // a YooKassa outage must not wipe every card due that day.
+    it('keeps the saved method when every attempt failed before YooKassa could decide', async () => {
+      mockCreate.mockRejectedValue(new Error('network timeout'));
+
+      await service.init(makePayload(42));
+
+      expect(savedMethodUpdates()).toEqual([]);
+    });
+
+    it('keeps the saved method when a retry succeeds', async () => {
+      mockCreate
+        .mockResolvedValueOnce({
+          id: 'pay_fail',
+          status: 'canceled',
+          cancellation_details: { reason: 'insufficient_funds', party: 'payment_network' },
+          amount: { value: '200', currency: 'RUB' },
+        })
+        .mockResolvedValueOnce({
+          id: 'pay_ok',
+          status: 'succeeded',
+          amount: { value: '200', currency: 'RUB' },
+        });
+
+      await service.init(makePayload(42));
+
+      expect(savedMethodUpdates()).toEqual([]);
     });
 
     it('stops on first success — no retries', async () => {
@@ -623,6 +692,8 @@ describe('AutopaymentService', () => {
       expect(mockCreate).not.toHaveBeenCalled();
       // Nothing is retried: a config gap cannot resolve itself between attempts.
       expect(service['delay']).not.toHaveBeenCalled();
+      // Our missing price is not the card's fault, so the card is kept.
+      expect(savedMethodRepo.update).not.toHaveBeenCalled();
       expect(mockEmit).toHaveBeenCalledWith(
         WebhookEventEnum['payment.autopayment_exhausted'],
         expect.objectContaining({ userId: 1000, reason: 'autopayment_exhausted' }),
