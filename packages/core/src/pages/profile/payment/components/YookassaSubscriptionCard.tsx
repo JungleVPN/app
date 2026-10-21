@@ -67,6 +67,7 @@ export function YookassaSubscriptionCard({ method }: { method: SavedMethodDto })
         )}
       </Button>
       {state === 'failed' && <Paragraph>{t('payment.yookassaCancel.error')}</Paragraph>}
+      <Paragraph>{t('payment.yookassaPayment.description')}</Paragraph>
 
       <AlertDialog.Backdrop
         isDismissable
