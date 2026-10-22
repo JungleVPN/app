@@ -8,14 +8,12 @@ import {
   useOverlayState,
 } from '@heroui/react';
 import { IconArrowRight, IconMail } from '@tabler/icons-react';
-import { mainButton } from '@tma.js/sdk-react';
 import { PromoDrawer } from '@workspace/core/components';
 import type { PaymentMethod } from '@workspace/types';
 import { ReactNode, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PlatformType, useNavbarStore, useTermsStore } from '../../../../stores';
-import { Block } from '../../../../ui';
-import { Paragraph } from '../../../../ui/Paragraph';
+import { Block, Paragraph } from '../../../../ui';
 import { validateEmail } from '../../../../utils';
 
 interface PaymentFormProps {
@@ -132,11 +130,9 @@ export function PaymentForm({
                 className='w-full ps-11'
                 placeholder={t('connectEmailPage.email_placeholder')}
                 onBlur={() => {
-                  mainButton.show();
                   setNavbarVisible(true);
                 }}
                 onFocus={() => {
-                  mainButton.hide();
                   setNavbarVisible(false);
                 }}
                 variant='secondary'
