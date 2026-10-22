@@ -1,9 +1,8 @@
+import { i18nReady } from '@workspace/core/core/i18n';
 import { Paragraph } from '@workspace/core/ui';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
-
-import { i18nReady } from '@workspace/core/core/i18n';
 import '@/assets/globals.css';
 
 import { AnalyticsApiProvider, ApiProvider } from '@workspace/core/api';
