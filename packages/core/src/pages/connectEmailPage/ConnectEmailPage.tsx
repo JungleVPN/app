@@ -2,8 +2,7 @@ import { Button, Chip, Description, FieldError, Form, Input, TextField } from '@
 import { IconArrowRight, IconCheck, IconMail } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { LoadError, Loading } from '../../components';
-import { Block } from '../../ui';
-import { Paragraph } from '../../ui/Paragraph';
+import { Block, Paragraph } from '../../ui';
 import styles from './connectEmailPage.module.css';
 import { useConnectEmail } from './useConnectEmail';
 

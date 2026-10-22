@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { currentScope, phCapture } from '../../utils';
+import { currentScope } from '../../utils';
 import RuStartCheckoutPage from '../ruGetSubscription/RuStartCheckoutPage';
 import WhopStartCheckoutPage from '../whopGetSubscription/WhopStartCheckoutPage';
 
@@ -15,10 +14,6 @@ import WhopStartCheckoutPage from '../whopGetSubscription/WhopStartCheckoutPage'
  * request hostname, which SSR only knows once a request is in flight.
  */
 export default function PreCheckoutPage() {
-  useEffect(() => {
-    phCapture('pre_checkout_page_viewed');
-  }, []);
-
   if (currentScope() === 'ru') return <RuStartCheckoutPage />;
 
   return <WhopStartCheckoutPage />;
