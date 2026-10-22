@@ -21,6 +21,8 @@ const {
   mockGetAttribution,
   mockGetReferralUserId,
   mockCurrentScope,
+  mockTrackEmailStepViewed,
+  mockTrackEmailStepSubmitted,
 } = vi.hoisted(() => ({
   mockBackButtonHide: vi.fn(),
   mockConnectEmail: vi.fn(),
@@ -37,6 +39,8 @@ const {
   mockGetAttribution: vi.fn(),
   mockGetReferralUserId: vi.fn(),
   mockCurrentScope: vi.fn(),
+  mockTrackEmailStepViewed: vi.fn(),
+  mockTrackEmailStepSubmitted: vi.fn(),
 }));
 
 vi.mock('@tma.js/sdk-react', () => ({
@@ -85,6 +89,8 @@ vi.mock('../../utils', async (importOriginal) => {
     getAttribution: mockGetAttribution,
     getReferralUserId: mockGetReferralUserId,
     currentScope: mockCurrentScope,
+    trackEmailStepViewed: mockTrackEmailStepViewed,
+    trackEmailStepSubmitted: mockTrackEmailStepSubmitted,
   };
 });
 
@@ -187,6 +193,33 @@ describe('useConnectEmail', () => {
     renderHook(() => useConnectEmail());
 
     expect(mockPhCapture).not.toHaveBeenCalled();
+  });
+
+  it('counts the email step as viewed for a new telegram user', () => {
+    setAuthState({ rmnUser: null });
+    setPlatform('telegram');
+
+    renderHook(() => useConnectEmail());
+
+    expect(mockTrackEmailStepViewed).toHaveBeenCalledWith({ days: null });
+  });
+
+  it('does not count the email step as viewed for a telegram user who already has an account', () => {
+    setAuthState({ rmnUser: createRemnaUser(), tgUser: createTgUser() });
+    setPlatform('telegram');
+
+    renderHook(() => useConnectEmail());
+
+    expect(mockTrackEmailStepViewed).not.toHaveBeenCalled();
+  });
+
+  it('does not count the email step as viewed on the web, where the checkout counts it', () => {
+    setAuthState({ rmnUser: null });
+    setPlatform('web');
+
+    renderHook(() => useConnectEmail());
+
+    expect(mockTrackEmailStepViewed).not.toHaveBeenCalled();
   });
 
   it('redirects to the subscription page when a web user is already resolved', () => {
@@ -468,6 +501,38 @@ describe('useConnectEmail', () => {
   });
 
   describe('telegram flow', () => {
+    it('counts the email step as submitted once a valid email is sent', async () => {
+      setAuthState({ tgUser: createTgUser() });
+      setPlatform('telegram');
+      mockConnectEmail.mockResolvedValue(createRemnaUser());
+      mockGetAttribution.mockReturnValue(null);
+      const { result } = renderHook(() => useConnectEmail());
+
+      act(() => {
+        result.current.handleEmailChange('tg@example.com');
+      });
+      await act(async () => {
+        await result.current.handleSubmit(submitEvent());
+      });
+
+      expect(mockTrackEmailStepSubmitted).toHaveBeenCalledWith({ days: null });
+    });
+
+    it('does not count the email step as submitted while the email is invalid', async () => {
+      setAuthState({ tgUser: createTgUser() });
+      setPlatform('telegram');
+      const { result } = renderHook(() => useConnectEmail());
+
+      act(() => {
+        result.current.handleEmailChange('not-an-email');
+      });
+      await act(async () => {
+        await result.current.handleSubmit(submitEvent());
+      });
+
+      expect(mockTrackEmailStepSubmitted).not.toHaveBeenCalled();
+    });
+
     it('calls connectEmail, sets the rmnUser, and navigates to the profile subscription page', async () => {
       setAuthState({ tgUser: createTgUser({ id: 777 }) });
       setPlatform('telegram');

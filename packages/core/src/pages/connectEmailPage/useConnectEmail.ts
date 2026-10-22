@@ -14,6 +14,8 @@ import {
   getReferralUserId,
   phCapture,
   phIdentify,
+  trackEmailStepSubmitted,
+  trackEmailStepViewed,
   validateEmail,
 } from '../../utils';
 
@@ -131,6 +133,8 @@ export function useConnectEmail() {
         platform: platformType === 'telegram' ? 'telegram' : 'web',
       });
     }
+    // The web checkout counts its own email step; this page is the TMA's.
+    if (!rmnUser && platformType === 'telegram') trackEmailStepViewed({ days: null });
   }, []);
 
   const handleEmailChange = (value: string) => {
@@ -190,6 +194,7 @@ export function useConnectEmail() {
     setIsLoading(true);
     try {
       if (tgUser) {
+        trackEmailStepSubmitted({ days: null });
         await submitTelegramUser(tgUser);
       }
     } catch {
