@@ -21,6 +21,13 @@ function resolveEnvironment(): WhopEnvironment {
   return value === 'sandbox' ? WhopEnvironment.Sandbox : WhopEnvironment.Production;
 }
 
+/** Membership statuses Whop already counts as canceled, refusing to cancel them again. */
+const CANCELED_MEMBERSHIP_STATUSES: ReadonlySet<string> = new Set([
+  'canceling',
+  'canceled',
+  'expired',
+]);
+
 /**
  * Whether Whop limits `promo` to certain customers. The public checkout can't
  * tell before payment whether the payer qualifies, so such a code is refused
@@ -126,10 +133,18 @@ export class WhopClientService {
    * Stops `membershipId` renewing. Access continues until the current period
    * ends — the user keeps what they paid for; Whop's `membership.deactivated`
    * then marks the saved method terminated when it lapses.
+   *
+   * Whop refuses a second cancel, and one made in the Whop dashboard or app
+   * may not have reached us yet, so a membership already canceled there is
+   * reported as canceled instead of canceled again.
    */
   async cancelMembership(
     membershipId: string,
   ): Promise<{ cancelAtPeriodEnd: boolean; accessUntil: string | null }> {
+    const current = await this.whop.memberships.retrieve({ id: membershipId });
+    if (current.cancel_at_period_end || CANCELED_MEMBERSHIP_STATUSES.has(current.status)) {
+      return { cancelAtPeriodEnd: true, accessUntil: current.current_period_end };
+    }
     const membership = await this.whop.memberships.cancel({
       id: membershipId,
       cancel_at_period_end: true,

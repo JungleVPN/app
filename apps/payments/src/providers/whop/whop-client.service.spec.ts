@@ -14,6 +14,7 @@ const paymentsCreate = vi.fn();
 const promoCodesList = vi.fn();
 const membershipsCancel = vi.fn();
 const membershipsUpdate = vi.fn();
+const membershipsRetrieve = vi.fn();
 const WhopClient = vi.fn();
 
 vi.mock('@whop/sdk', () => ({
@@ -24,7 +25,11 @@ vi.mock('@whop/sdk', () => ({
   WhopClient: vi.fn().mockImplementation(function WhopClientMock(options: unknown) {
     WhopClient(options);
     return {
-      memberships: { cancel: membershipsCancel, update: membershipsUpdate },
+      memberships: {
+        cancel: membershipsCancel,
+        update: membershipsUpdate,
+        retrieve: membershipsRetrieve,
+      },
       payments: { create: paymentsCreate },
       promoCodes: { list: promoCodesList },
     };
@@ -303,6 +308,12 @@ describe('WhopClientService', () => {
 
   describe('cancelMembership', () => {
     it('stops the membership renewing, keeping access until the period ends', async () => {
+      membershipsRetrieve.mockResolvedValue({
+        id: 'mem_1',
+        status: 'active',
+        cancel_at_period_end: false,
+        current_period_end: '2026-10-26T10:00:00Z',
+      });
       membershipsCancel.mockResolvedValue({
         id: 'mem_1',
         cancel_at_period_end: true,
@@ -315,6 +326,32 @@ describe('WhopClientService', () => {
         accessUntil: '2026-10-26T10:00:00Z',
       });
       expect(membershipsCancel).toHaveBeenCalledWith({ id: 'mem_1', cancel_at_period_end: true });
+    });
+
+    /**
+     * Whop refuses to cancel a membership twice ("This subscription is already
+     * canceled"), and one canceled from the Whop dashboard or app reaches us
+     * only by webhook — so it is read first, and an earlier cancel is honoured.
+     */
+    it.each([
+      ['set to stop renewing', { status: 'active', cancel_at_period_end: true }],
+      ['canceling', { status: 'canceling', cancel_at_period_end: false }],
+      ['canceled', { status: 'canceled', cancel_at_period_end: false }],
+      ['expired', { status: 'expired', cancel_at_period_end: false }],
+    ])('reports a membership already %s in Whop as canceled, without canceling it again', async (_label, membership) => {
+      membershipsRetrieve.mockResolvedValue({
+        id: 'mem_1',
+        current_period_end: '2026-10-26T10:00:00Z',
+        ...membership,
+      });
+      const service = new WhopClientService();
+
+      await expect(service.cancelMembership('mem_1')).resolves.toEqual({
+        cancelAtPeriodEnd: true,
+        accessUntil: '2026-10-26T10:00:00Z',
+      });
+      expect(membershipsRetrieve).toHaveBeenCalledWith({ id: 'mem_1' });
+      expect(membershipsCancel).not.toHaveBeenCalled();
     });
   });
 
