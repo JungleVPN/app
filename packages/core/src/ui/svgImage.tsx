@@ -1,6 +1,9 @@
 import type { FunctionComponent, SVGProps } from 'react';
 
-export type SvgImageProps = Pick<SVGProps<SVGSVGElement>, 'className' | 'aria-hidden' | 'focusable'> & {
+export type SvgImageProps = Pick<
+  SVGProps<SVGSVGElement>,
+  'className' | 'aria-hidden' | 'focusable'
+> & {
   loading?: 'eager' | 'lazy';
 };
 

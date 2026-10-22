@@ -7,7 +7,7 @@ import { loadPlans } from '../../../hooks';
 import { usePlansStatus } from '../../../stores';
 import { Block, Page } from '../../../ui';
 import { formatPlanAmounts } from '../../../utils';
-import { formatPeriod } from '../../../utils/planPricing';
+import { formatPeriod } from '../../../utils/payment/planPricing';
 
 interface PlansComponentProps {
   data: SubscriptionPlanDto[];

@@ -7,7 +7,7 @@ import { useAuthStore, useNavbarStore } from '../../../../stores';
 import { Block, Page } from '../../../../ui';
 import { Paragraph } from '../../../../ui/Paragraph';
 import { isAdminUser } from '../../../../utils';
-import { formatPeriod } from '../../../../utils/planPricing';
+import { formatPeriod } from '../../../../utils/payment/planPricing';
 import { DetailRow } from './components/DetailRow';
 import { useTransactionDetails } from './hooks/useTransactionDetails';
 

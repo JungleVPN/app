@@ -1,0 +1,119 @@
+import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import allDevicesIconUrl from '../../../assets/icons/all-devices-icon.svg?url';
+import privacyFirstIconUrl from '../../../assets/icons/privacy-first-icon.svg?url';
+import secureByDesignIconUrl from '../../../assets/icons/secure-by-design-icon.svg?url';
+import unlimitedTrafficIconUrl from '../../../assets/icons/unlimited-traffic-icon.svg?url';
+import { Heading, Paragraph, svgImage } from '../../../ui';
+
+const AllDevicesIcon = svgImage({
+  src: allDevicesIconUrl,
+  width: 485,
+  height: 480,
+  className: 'w-auto max-w-[16rem] h-40 text-gray-800 dark:text-white',
+});
+
+const PrivacyFirstIcon = svgImage({
+  src: privacyFirstIconUrl,
+  width: 524,
+  height: 540,
+  className: 'w-auto max-w-[16rem] h-40 text-gray-800 dark:text-white',
+});
+
+const SecureByDesignIcon = svgImage({
+  src: secureByDesignIconUrl,
+  width: 385,
+  height: 482,
+  className: 'w-auto max-w-[16rem] h-40 text-gray-800 dark:text-white',
+});
+
+const UnlimitedTrafficIcon = svgImage({
+  src: unlimitedTrafficIconUrl,
+  width: 556,
+  height: 421,
+  className: 'w-auto max-w-[16rem] h-40 text-gray-800 dark:text-white',
+});
+
+type BentoCellProps = {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  className?: string;
+};
+
+function BentoCell({ icon, title, description, className }: BentoCellProps) {
+  return (
+    <div
+      className={`flex flex-col justify-between gap-4 p-5 sm:gap-5 sm:p-7 lg:gap-10 ${className ?? ''}`}
+    >
+      <div
+        aria-hidden
+        className='m-auto [&>svg]:h-auto [&>svg]:w-full [&>svg]:max-h-30 sm:[&>svg]:max-h-28 lg:[&>svg]:max-h-60 [&>img]:h-auto [&>img]:w-full [&>img]:max-h-30 sm:[&>img]:max-h-28 lg:[&>img]:max-h-60 flex h-auto items-center justify-center'
+      >
+        {icon}
+      </div>
+      <div>
+        <Heading as='h3' className={'text-white'}>
+          {title}
+        </Heading>
+        <Paragraph className={'text-muted'}>{description}</Paragraph>
+      </div>
+    </div>
+  );
+}
+
+export function BentoSection() {
+  const { t } = useTranslation();
+
+  return (
+    <section>
+      <div className='mb-8 flex flex-col gap-1'>
+        <Heading as='h2'>
+          {t('landing.bento.titleStart')}{' '}
+          <span className='bg-linear-to-r from-purple-400 to-yellow-400 bg-clip-text text-transparent'>
+            {t('landing.bento.titleBrand')}
+          </span>
+        </Heading>
+      </div>
+
+      <div className='overflow-hidden rounded-3xl bg-[#1d1d1d]'>
+        <div className='p-5 sm:p-7'>
+          <Heading as='h3' className={'text-white'}>
+            {t('landing.bento.subtitle')}
+          </Heading>
+        </div>
+
+        <div className='grid grid-cols-1 border-t border-white/10 sm:grid-cols-2 lg:grid-cols-3'>
+          <BentoCell
+            icon={<AllDevicesIcon />}
+            title={t('landing.bento.smartRouting.title')}
+            description={t('landing.bento.smartRouting.description')}
+            className='min-h-8 lg:row-span-2 lg:border-r lg:border-white/10'
+          />
+
+          <div className='flex flex-col border-t border-white/10 sm:border-t-0 sm:border-l lg:border-l-0 lg:border-r'>
+            <BentoCell
+              icon={<SecureByDesignIcon />}
+              title={t('landing.bento.security.title')}
+              description={t('landing.bento.security.description')}
+              className='min-h-8 flex-1'
+            />
+            <BentoCell
+              icon={<UnlimitedTrafficIcon />}
+              title={t('landing.bento.speed.title')}
+              description={t('landing.bento.speed.description')}
+              className='min-h-8 flex-1 border-t border-white/10'
+            />
+          </div>
+
+          <BentoCell
+            icon={<PrivacyFirstIcon />}
+            title={t('landing.bento.privacy.title')}
+            description={t('landing.bento.privacy.description')}
+            className='min-h-8 border-t border-white/10 sm:col-span-2 lg:col-span-1 lg:row-span-2 lg:border-t-0'
+          />
+        </div>
+      </div>
+    </section>
+  );
+}

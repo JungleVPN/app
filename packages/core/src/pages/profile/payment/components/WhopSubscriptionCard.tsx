@@ -5,9 +5,9 @@ import { Fragment, type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePaymentsApi } from '../../../../runtime';
 import { Block, Paragraph } from '../../../../ui';
-import { formatAmount } from '../../../../utils/currency';
+import { formatAmount } from '../../../../utils/payment/currency';
 import { formatDate } from '../../../../utils/format';
-import { formatPeriod } from '../../../../utils/planPricing';
+import { formatPeriod } from '../../../../utils/payment/planPricing';
 
 type CancelState =
   | { status: 'idle' }

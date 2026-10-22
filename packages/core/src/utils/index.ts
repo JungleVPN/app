@@ -1,8 +1,8 @@
-export { type AdClicks, captureAdClicks, getAdClicks } from './adClicks';
+export { type AdClicks, captureAdClicks, getAdClicks } from './analytics/adClicks';
 export { getAdminId, isAdminUser } from './admin';
-export type { AttributionPayload } from './attribution';
-export { captureAttribution, clearAttribution, getAttribution } from './attribution';
-export type { AuthFailure } from './authAnalytics';
+export type { AttributionPayload } from './analytics/attribution';
+export { captureAttribution, clearAttribution, getAttribution } from './analytics/attribution';
+export type { AuthFailure } from './analytics/authAnalytics';
 export {
   trackLoginEmailChanged,
   trackLoginOtpRequested,
@@ -13,8 +13,8 @@ export {
   trackLoginOtpVerifyFailed,
   trackLogout,
   trackTmaSessionExpired,
-} from './authAnalytics';
-export type { CheckoutAnalytics, SubmittedPaymentMethod } from './checkoutAnalytics';
+} from './analytics/authAnalytics';
+export type { CheckoutAnalytics, SubmittedPaymentMethod } from './analytics/checkoutAnalytics';
 export {
   checkoutEventProperties,
   trackCheckoutStarted,
@@ -22,19 +22,19 @@ export {
   trackEmailStepViewed,
   trackPaymentMethodSubmitted,
   withUserId,
-} from './checkoutAnalytics';
+} from './analytics/checkoutAnalytics';
 export { cn } from './classnames';
-export type { ColorGradientStyle } from './colorParser';
-export { getColorGradient, getColorGradientSolid } from './colorParser';
+export type { ColorGradientStyle } from './subscription/colorParser';
+export { getColorGradient, getColorGradientSolid } from './subscription/colorParser';
 export {
   calculateDaysLeft,
   formatExpiryDate,
   getExpirationText,
   getIconFromLibrary,
   getLocalizedText,
-} from './configParser';
-export { constructSubscriptionUrl } from './constructSubscriptionUrl';
-export type { CookieOptions } from './cookies';
+} from './subscription/configParser';
+export { constructSubscriptionUrl } from './subscription/constructSubscriptionUrl';
+export type { CookieOptions } from './browser/cookies';
 export {
   readCookie,
   readJsonCookie,
@@ -42,11 +42,11 @@ export {
   removeCookie,
   writeCookie,
   writeJsonCookie,
-} from './cookies';
+} from './browser/cookies';
 export { countryName, flagEmoji } from './country';
-export { formatIntlPrice, formatPlanPrice } from './currency';
+export { formatIntlPrice, formatPlanPrice } from './payment/currency';
 export { toDateString } from './date';
-export { detectOs } from './detectOs';
+export { detectOs } from './browser/detectOs';
 export {
   CRAWLABLE_PATHS,
   configuredDomains,
@@ -71,28 +71,32 @@ export {
   setRequestHostname,
   userScope,
   WHAT_IS_VPN_PATH,
-} from './domain';
+} from './site/domain';
 export { formatCurrency, truncate } from './format';
-export { grantAdsConsent, type PurchaseConversion, trackPurchaseConversion } from './gtag';
+export {
+  grantAdsConsent,
+  type PurchaseConversion,
+  trackPurchaseConversion,
+} from './analytics/gtag';
 export { initDayjs } from './initDayjs';
 export { initUser } from './initUser';
-export type { LlmsTxtOptions } from './llmsTxt';
-export { buildLlmsTxt } from './llmsTxt';
+export type { LlmsTxtOptions } from './site/llmsTxt';
+export { buildLlmsTxt } from './site/llmsTxt';
 export {
   GLOBAL_PAYMENT_PROVIDER,
   type GlobalPaymentProvider,
   pricesIncludeTax,
-} from './paymentProvider';
+} from './payment/paymentProvider';
 export {
   forgetPendingPurchase,
   rememberPendingPurchase,
   rememberPendingYookassaPayment,
   takePendingPurchase,
   takePendingYookassaPayment,
-} from './pendingPayment';
-export type { PlanAmounts, PriceCalculation } from './planPricing';
-export { calculatePricing, formatPlanAmounts, mapPlans } from './planPricing';
-export type { PostHogConsentStatus } from './posthog';
+} from './payment/pendingPayment';
+export type { PlanAmounts, PriceCalculation } from './payment/planPricing';
+export { calculatePricing, formatPlanAmounts, mapPlans } from './payment/planPricing';
+export type { PostHogConsentStatus } from './analytics/posthog';
 export {
   phCapture,
   phConsentStatus,
@@ -103,9 +107,14 @@ export {
   phOptOut,
   phReset,
   posthog,
-} from './posthog';
-export { captureReferral, clearReferral, getReferral, getReferralUserId } from './referral';
-export { scrollToTop } from './scrollToTop';
+} from './analytics/posthog';
+export {
+  captureReferral,
+  clearReferral,
+  getReferral,
+  getReferralUserId,
+} from './analytics/referral';
+export { scrollToTop } from './browser/scrollToTop';
 export {
   alternateLinksFor,
   buildRobotsTxt,
@@ -116,17 +125,17 @@ export {
   type PageSeo,
   pageSeoFor,
   type SitemapOptions,
-} from './seo';
-export type { Storage } from './storage';
-export { createStorage } from './storage';
-export { TemplateEngine } from './templateEngine';
-export type { ToltAttribution } from './tolt';
+} from './site/seo';
+export type { Storage } from './browser/storage';
+export { createStorage } from './browser/storage';
+export { TemplateEngine } from './subscription/templateEngine';
+export type { ToltAttribution } from './analytics/tolt';
 export {
   isNewAffCode,
   readLandingAffCode,
   readToltAttribution,
   writeToltAttribution,
-} from './tolt';
+} from './analytics/tolt';
 export { validateEmail } from './validators';
-export type { PresetName } from './vibrate';
-export { canVibrate, VibrationPresets, vibrate, vibrateStop } from './vibrate';
+export type { PresetName } from './browser/vibrate';
+export { canVibrate, VibrationPresets, vibrate, vibrateStop } from './browser/vibrate';

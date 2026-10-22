@@ -3,7 +3,7 @@ import { Loading } from '../../../components';
 import { useNavigation, usePlans } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { currentScope, mapPlans, phCapture } from '../../../utils';
-import { warmWhopCheckout } from '../../whopCheckout/utils/whopWarmUp';
+import { warmWhopCheckout } from '../../checkout/whopCheckout/utils/whopWarmUp';
 import { useSavedPayment } from '../payment/hooks/useSavedPayment';
 import { PlansComponent } from './PlansComponent';
 

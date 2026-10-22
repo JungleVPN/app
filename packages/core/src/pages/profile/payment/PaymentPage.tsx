@@ -11,7 +11,7 @@ import { useAppRoutes } from '../../../runtime';
 import { useNavbarStore, usePlanById, usePlansStatus, usePlatformStore } from '../../../stores';
 import { LottieIcon } from '../../../ui';
 import { currentScope, GLOBAL_PAYMENT_PROVIDER, phCapture } from '../../../utils';
-import WhopStartCheckoutPage from '../../whopGetSubscription/WhopStartCheckoutPage';
+import WhopStartCheckoutPage from '../../checkout/whopGetSubscription/WhopStartCheckoutPage';
 import { PaymentForm } from './components/PaymentForm';
 import { WhopSubscriptionCard } from './components/WhopSubscriptionCard';
 import { YookassaSubscriptionCard } from './components/YookassaSubscriptionCard';

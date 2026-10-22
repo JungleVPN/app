@@ -1,0 +1,81 @@
+import { LoadError, Loading, PaymentMethodIcons } from '../../../components';
+import { loadPlans } from '../../../hooks';
+import { useAppRoutes, usePaymentsApi } from '../../../runtime';
+import {
+  getAdClicks,
+  getReferralUserId,
+  rememberPendingPurchase,
+  rememberPendingYookassaPayment,
+  trackCheckoutStarted,
+} from '../../../utils';
+import { ActiveSubscriptionDialog } from '../getSubscription/components/ActiveSubscriptionDialog';
+import { CheckoutForm } from '../getSubscription/components/CheckoutForm';
+import { type CheckoutRequest, useCheckout } from '../getSubscription/hooks/useCheckout';
+
+/**
+ * RU checkout through YooKassa: the same email step and order summary as the
+ * global page, up to the point a payment can begin.
+ *
+ * Unlike Paddle, YooKassa has no client-side checkout to mount — the backend
+ * creates the payment and answers with a confirmation URL, so this page ends
+ * in a redirect out of the app rather than a route change. The payment id is
+ * remembered first: `/payment/success` sees the same return URL whether the
+ * payer paid or cancelled, and that id is how it tells the two apart. The
+ * plan total is remembered with it, for the Google Ads conversion.
+ */
+export default function RuStartCheckoutPage() {
+  const paymentsApi = usePaymentsApi();
+  const { paymentReturnPath } = useAppRoutes();
+
+  const startCheckout = async ({ email, planId, selectedPeriod }: CheckoutRequest) => {
+    const session = await paymentsApi.createPublicYookassaSession({
+      email,
+      planId,
+      returnUrl: `${window.location.origin}${paymentReturnPath}`,
+      toltReferralId: window.tolt_referral ?? null,
+      inviterId: getReferralUserId() ?? undefined,
+      adClicks: getAdClicks(),
+    });
+
+    if (!session?.url) return;
+
+    rememberPendingYookassaPayment(session.id);
+    const pricing = checkout.plan?.planPricing;
+    rememberPendingPurchase({
+      transactionId: session.id,
+      ...(pricing ? { value: Number(pricing.total), currency: pricing.currencyCode } : {}),
+    });
+    trackCheckoutStarted({ paymentProvider: 'yookassa', days: selectedPeriod });
+
+    window.location.href = session.url;
+  };
+
+  const checkout = useCheckout(startCheckout);
+
+  if (checkout.isLoading) return <Loading />;
+  if (checkout.loadFailed) return <LoadError reason='failed_to_load_plans' onRetry={loadPlans} />;
+
+  return (
+    <>
+      <CheckoutForm
+        isAuthenticated={checkout.isAuthenticated}
+        email={checkout.email}
+        emailError={checkout.emailError}
+        checkoutError={checkout.checkoutError}
+        isPending={checkout.isPending}
+        selectedPeriod={checkout.selectedPeriod}
+        paymentMethodsSlot={<PaymentMethodIcons />}
+        plan={checkout.plan}
+        canSubmit={checkout.plan !== undefined}
+        completeEmailStep={checkout.validateEmail}
+        handleSubmit={checkout.handleSubmit}
+        handleEmailChange={checkout.handleEmailChange}
+      />
+      <ActiveSubscriptionDialog
+        email={checkout.activeSubscriptionEmail}
+        isLoggedIn={checkout.isAuthenticated}
+        onClose={checkout.dismissActiveSubscription}
+      />
+    </>
+  );
+}

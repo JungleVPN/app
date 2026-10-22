@@ -1,0 +1,92 @@
+import { Button, Disclosure } from '@heroui/react';
+import {
+  IconArrowsUpDown,
+  IconCalendar,
+  IconCheck,
+  IconUserScan,
+  IconX,
+} from '@tabler/icons-react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuthStore, useSubscription } from '../../../stores';
+import { Grid, GridItem } from '../../../ui';
+import { formatExpiryDate, getExpirationText } from '../../../utils';
+import { InfoBlock } from '../../common/InfoBlock/InfoBlock';
+
+export const SubscriptionInfoCollapsed = () => {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.resolvedLanguage ?? i18n.language;
+  const { rmnUser } = useAuthStore();
+  const subscription = useSubscription();
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const { user } = subscription;
+
+  return (
+    <Disclosure isExpanded={isExpanded} onExpandedChange={setIsExpanded}>
+      <Disclosure.Heading>
+        <Button
+          className='h-auto w-full justify-between gap-2 px-4 py-2 bg-surface-secondary'
+          slot='trigger'
+        >
+          <span className='flex min-w-0 flex-1 items-center gap-2'>
+            <span className='flex min-w-0 flex-1 flex-col items-start gap-0'>
+              <span className='truncate text-sm font-semibold text-foreground'>
+                {rmnUser?.email || user?.username}
+              </span>
+              <span className='truncate text-xs text-foreground'>
+                {getExpirationText({ expireAt: user.expiresAt, lang, t })}
+              </span>
+            </span>
+          </span>
+          <Disclosure.Indicator className={'text-foreground'} />
+        </Button>
+      </Disclosure.Heading>
+      <Disclosure.Content>
+        <Disclosure.Body className='px-2 pb-2'>
+          <Grid>
+            <GridItem size={{ base: 12, sm: 6 }}>
+              <InfoBlock
+                color='blue'
+                icon={<IconUserScan size={16} />}
+                title={t('subscriptionPage.info.name')}
+                value={rmnUser?.email || user?.username}
+              />
+            </GridItem>
+
+            <GridItem size={{ base: 12, sm: 6 }}>
+              <InfoBlock
+                color={user.userStatus === 'ACTIVE' ? 'green' : 'red'}
+                icon={user.userStatus === 'ACTIVE' ? <IconCheck size={16} /> : <IconX size={16} />}
+                title={t('subscriptionPage.info.status')}
+                value={
+                  user.userStatus === 'ACTIVE'
+                    ? t('subscriptionPage.info.active')
+                    : t('subscriptionPage.info.inactive')
+                }
+              />
+            </GridItem>
+
+            <GridItem size={{ base: 12, sm: 6 }}>
+              <InfoBlock
+                color='red'
+                icon={<IconCalendar size={16} />}
+                title={t('subscriptionPage.info.expires')}
+                value={formatExpiryDate({ date: user.expiresAt, lang, t })}
+              />
+            </GridItem>
+
+            <GridItem size={{ base: 12, sm: 6 }}>
+              <InfoBlock
+                color='yellow'
+                icon={<IconArrowsUpDown size={16} />}
+                title={t('subscriptionPage.info.bandwidth')}
+                value={`${user.trafficUsed} / ${user.trafficLimit === '0' ? '∞' : user.trafficLimit}`}
+              />
+            </GridItem>
+          </Grid>
+        </Disclosure.Body>
+      </Disclosure.Content>
+    </Disclosure>
+  );
+};

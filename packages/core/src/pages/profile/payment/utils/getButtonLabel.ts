@@ -1,7 +1,7 @@
 import type { PlanPricing } from '@workspace/types';
 import type { TFunction } from 'i18next';
 import { formatPlanPrice } from '../../../../utils';
-import { formatPeriod } from '../../../../utils/planPricing';
+import { formatPeriod } from '../../../../utils/payment/planPricing';
 
 export type SelectedPlan = { days: number; pricing: PlanPricing };
 

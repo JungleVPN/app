@@ -82,10 +82,7 @@ export function useStripePayment(plan: SubscriptionPlanDto | undefined) {
     });
 
     if (!session?.url) return;
-    phCapture(
-      'checkout_started',
-      withUserId({ payment_provider: 'stripe', days: plan.days }),
-    );
+    phCapture('checkout_started', withUserId({ payment_provider: 'stripe', days: plan.days }));
     redirectTo(session.url);
   };
 

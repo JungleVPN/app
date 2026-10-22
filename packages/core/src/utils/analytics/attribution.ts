@@ -1,0 +1,73 @@
+import type { AttributionPayload } from '@workspace/types';
+import { readCookie } from '../browser/cookies';
+
+export type { AttributionPayload };
+
+const STORAGE_KEY = 'jv_attribution';
+const COOKIE_NAME = 'jv_attr';
+
+function readLandingCookie(): URLSearchParams {
+  return new URLSearchParams(readCookie(COOKIE_NAME) ?? '');
+}
+
+export function captureAttribution(options: {
+  platform: 'web' | 'telegram';
+  startParam?: string;
+}): void {
+  if (typeof window === 'undefined') return;
+  if (localStorage.getItem(STORAGE_KEY)) return; // first-touch only
+
+  const payload: AttributionPayload = {
+    platform: options.platform,
+    landingAt: new Date().toISOString(),
+  };
+
+  if (options.platform === 'telegram') {
+    const isReferral = options.startParam?.startsWith('ref_');
+    if (options.startParam && !isReferral) payload.adCode = options.startParam;
+  } else {
+    const urlParams = new URLSearchParams(window.location.search);
+    const cookieParams = readLandingCookie();
+
+    const adParam = urlParams.get('adCode') ?? cookieParams.get('adCode');
+    if (adParam) payload.adCode = adParam;
+
+    const params =
+      urlParams.has('utm_source') || urlParams.has('fbclid') || urlParams.has('gclid')
+        ? urlParams
+        : cookieParams;
+
+    payload.source = params.get('utm_source') ?? undefined;
+    payload.medium = params.get('utm_medium') ?? undefined;
+    payload.campaign = params.get('utm_campaign') ?? undefined;
+    payload.adset = params.get('utm_content') ?? undefined;
+    payload.ad = params.get('utm_term') ?? undefined;
+    payload.clickId =
+      params.get('fbclid') ?? params.get('gclid') ?? params.get('ttclid') ?? undefined;
+  }
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+}
+
+export function getAttribution(): AttributionPayload | null {
+  if (typeof window === 'undefined') return null;
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    console.warn(`Failed to get attribution from GA: ${raw}`);
+    return null;
+  }
+  try {
+    return JSON.parse(raw) as AttributionPayload;
+  } catch {
+    return null;
+  }
+}
+
+export function clearAttribution(): void {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  if (typeof window !== 'undefined' && urlParams.has('adCode')) {
+    urlParams.set('adCode', '');
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
