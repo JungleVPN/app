@@ -18,8 +18,8 @@ type Fetch = (url: string, init: RequestInit) => Promise<Response>;
 type BatchError = { ErrorCode?: string | null; Message?: string | null };
 
 /**
- * Applies conversions as Microsoft Ads offline conversions. The msclkid is
- * optional when the hashed email is sent, which matches a payer with no click.
+ * Applies conversions as Microsoft Ads offline conversions. Only a purchase
+ * with a Microsoft click is sent, with the hashed email to help the match.
  * Microsoft drops a repeat of the same click and conversion time.
  */
 export class MicrosoftAdsUploader implements AdConversionUploader {
@@ -33,7 +33,7 @@ export class MicrosoftAdsUploader implements AdConversionUploader {
 
   async upload(conversion: AdConversion): Promise<void> {
     const { msclkid } = conversion.clickIds;
-    if (!msclkid && !conversion.hashedEmail) return;
+    if (!msclkid) return;
 
     const token = await this.accessToken();
     const response = await this.fetchFn(APPLY_URL, {

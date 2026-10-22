@@ -108,14 +108,12 @@ describe('GoogleAdsUploader — sending a conversion to the Data Manager API', (
     expect(sentBody(fetchFn)).toMatchObject({ events: [{ adIdentifiers }] });
   });
 
-  it('matches by email alone when there is no Google click', async () => {
+  it('sends nothing without a Google click, even with an email to match', async () => {
     const { uploader, fetchFn } = setup();
 
     await uploader.upload(conversion({ clickIds: { msclkid: 'ms-1' } }));
 
-    const body = sentBody(fetchFn);
-    expect(body).toMatchObject({ events: [{ userData: { userIdentifiers: [{}] } }] });
-    expect(body).not.toMatchObject({ events: [{ adIdentifiers: expect.anything() }] });
+    expect(fetchFn).not.toHaveBeenCalled();
   });
 
   it('sends no user data when there is no email', async () => {
@@ -124,14 +122,6 @@ describe('GoogleAdsUploader — sending a conversion to the Data Manager API', (
     await uploader.upload(conversion({ hashedEmail: undefined }));
 
     expect(sentBody(fetchFn)).not.toMatchObject({ events: [{ userData: expect.anything() }] });
-  });
-
-  it('sends nothing when there is neither a Google click nor an email to match', async () => {
-    const { uploader, fetchFn } = setup();
-
-    await uploader.upload(conversion({ clickIds: { msclkid: 'ms-1' }, hashedEmail: undefined }));
-
-    expect(fetchFn).not.toHaveBeenCalled();
   });
 
   it('fails with Google’s explanation when the request is refused', async () => {

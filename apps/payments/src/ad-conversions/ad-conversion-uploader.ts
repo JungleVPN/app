@@ -9,7 +9,7 @@ export type AdConversion = {
   value: number;
   currency: string;
   clickIds: AdClicks;
-  /** SHA-256 of the trimmed, lowercased checkout email, for matching without a click id. */
+  /** SHA-256 of the trimmed, lowercased checkout email, which helps a platform match the click. */
   hashedEmail?: string;
 };
 

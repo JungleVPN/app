@@ -16,8 +16,8 @@ type Fetch = (url: string, init: RequestInit) => Promise<Response>;
 /**
  * Uploads conversions to Google Ads through the Data Manager API, which
  * replaced the Google Ads API's click conversion upload for new integrations.
- * One Google click id is sent — gclid, else gbraid, else wbraid — alongside
- * the hashed email, which matches the payer when there is no click.
+ * Only a purchase with a Google click is sent: one click id — gclid, else
+ * gbraid, else wbraid — alongside the hashed email, which helps the match.
  */
 export class GoogleAdsUploader implements AdConversionUploader {
   readonly platform = 'google_ads';
@@ -30,7 +30,7 @@ export class GoogleAdsUploader implements AdConversionUploader {
 
   async upload(conversion: AdConversion): Promise<void> {
     const adIdentifiers = googleClickOf(conversion);
-    if (!adIdentifiers && !conversion.hashedEmail) return;
+    if (!adIdentifiers) return;
 
     const token = await this.accessToken();
     const response = await this.fetchFn(INGEST_URL, {

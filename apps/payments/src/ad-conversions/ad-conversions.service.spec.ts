@@ -117,7 +117,7 @@ describe('AdConversionsService.reportPurchase — a customer’s first payment',
     );
   });
 
-  it('still uploads with no click ids, so the hashed email can match it', async () => {
+  it('hands a purchase with no click ids to the uploaders, which decide whether to send it', async () => {
     const { service, google } = setup();
 
     await service.reportPurchase(purchase({ metadata: null }));

@@ -81,14 +81,12 @@ describe('MicrosoftAdsUploader — applying an offline conversion', () => {
     });
   });
 
-  it('matches by email alone when there is no Microsoft click', async () => {
+  it('sends nothing without a Microsoft click, even with an email to match', async () => {
     const { uploader, fetchFn } = setup();
 
     await uploader.upload(conversion({ clickIds: { gclid: 'g-1' } }));
 
-    expect(sentBody(fetchFn)).toEqual({
-      OfflineConversions: [expect.not.objectContaining({ MicrosoftClickId: expect.anything() })],
-    });
+    expect(fetchFn).not.toHaveBeenCalled();
   });
 
   it('sends no hashed email when there is no email', async () => {
@@ -99,14 +97,6 @@ describe('MicrosoftAdsUploader — applying an offline conversion', () => {
     expect(sentBody(fetchFn)).toEqual({
       OfflineConversions: [expect.not.objectContaining({ HashedEmailAddress: expect.anything() })],
     });
-  });
-
-  it('sends nothing when there is neither a Microsoft click nor an email to match', async () => {
-    const { uploader, fetchFn } = setup();
-
-    await uploader.upload(conversion({ clickIds: { gclid: 'g-1' }, hashedEmail: undefined }));
-
-    expect(fetchFn).not.toHaveBeenCalled();
   });
 
   it('fails with Microsoft’s explanation when the request is refused', async () => {
