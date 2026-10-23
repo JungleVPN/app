@@ -45,9 +45,12 @@ if (isEnabled) {
     api_host: host as string,
     defaults: '2026-01-30',
     tracing_headers: [window.location.hostname],
-    // Capture stays cookieless (no persistent identifiers) until the user
-    // explicitly opts in via phOptIn(); opting out keeps it cookieless
-    // instead of disabling capture outright. See CookieConsent.tsx.
+    // Nothing is captured until the visitor chooses: phOptIn() enables full
+    // (persistent) tracking, while phOptOut() keeps capture going cookieless
+    // (no persistent identifiers) instead of disabling it. See CookieConsent.tsx.
+    // Ingestion discards cookieless events unless the PostHog project has
+    // "Cookieless server hash mode" enabled (Project settings > Web analytics),
+    // so that setting must stay on for as long as this option is set.
     cookieless_mode: 'on_reject',
   });
 
