@@ -18,7 +18,7 @@ import {
   phCapture,
   scrollToTop,
 } from '../../../utils';
-import { isProfilePath } from '../../../utils/site/domain';
+import { isHomePath, isProfilePath } from '../../../utils/site/domain';
 import { IpStatusBar } from '../../common/IpStatusBar/IpStatusBar';
 import { Link } from '../../common/Link/Link';
 import { SubscriptionLinkWidget } from '../../subscription/SubscriptionLinkWidget/SubscriptionLinkWidget';
@@ -30,9 +30,8 @@ import { MobileDrawer } from './MobileDrawer';
 import { OfferMenu } from './OfferMenu';
 import { ToolsMenu } from './ToolsMenu';
 
-const navItemClass =
-  'text-base mix-blend-difference text-[white] transition-colors cursor-pointer bg-transparent border-none p-0';
-const navLinkClass = `${navItemClass} hover:underline`;
+const navItemBaseClass =
+  'text-base transition-colors duration-300 cursor-pointer bg-transparent border-none p-0';
 
 export function Header() {
   const { t } = useTranslation();
@@ -49,6 +48,9 @@ export function Header() {
   const isProfile = isProfilePath(pathname);
   const isTelegram = platformType === 'telegram';
   const hideAuthButtons = isPlansOrPaymentPlanPath(pathname);
+  const overHero = isHomePath(pathname) && !scrolled;
+  const navItemClass = `${navItemBaseClass} ${overHero ? 'text-white' : 'text-foreground'}`;
+  const navLinkClass = `${navItemClass} hover:underline`;
 
   useEffect(() => {
     setIsRu(currentScope() === 'ru');
@@ -92,7 +94,7 @@ export function Header() {
     );
 
   const inner = (
-    <div className='flex items-center justify-between gap-8 lg:gap-24 min-h-15'>
+    <div className='flex items-center justify-between gap-0 lg:gap-24 min-h-15'>
       <Link
         href={getLink()}
         onClick={scrollToTop}
@@ -100,7 +102,7 @@ export function Header() {
       >
         {logoNode}
         <span
-          className={'block font-primary font-extrabold text-xl mix-blend-difference text-white'}
+          className={`block font-primary font-extrabold text-xl transition-colors duration-300 ${overHero ? 'text-white' : 'text-foreground'}`}
         >
           JungleVPN
         </span>
@@ -136,7 +138,7 @@ export function Header() {
       {platformType === 'web' && isLanding && (
         <div className={'flex lg:hidden items-center gap-2'}>
           {!isLanding && <SubscriptionLinkWidget />}
-          <MobileDrawer />
+          <MobileDrawer overHero={overHero} />
         </div>
       )}
     </div>
@@ -151,7 +153,7 @@ export function Header() {
       return 'relative';
     }
 
-    return `w-full sticky -top-5 z-50 -mb-[84px] transition-all duration-300 bg-white ${scrolled ? 'shadow-lg' : 'shadow-none'}`;
+    return `w-full sticky -top-5 z-50 -mb-[84px] transition-[background-color,box-shadow] duration-300 ${overHero ? 'bg-transparent' : 'bg-white'} ${scrolled ? 'shadow-lg' : 'shadow-none'}`;
   };
 
   return (

@@ -38,9 +38,9 @@ vi.mock('../../../subscription/SubscriptionLinkWidget/SubscriptionLinkWidget', (
 vi.mock('../../SupportWidget/SupportButton', () => ({ SupportButton: () => null }));
 vi.mock('../../../common/IpStatusBar/IpStatusBar', () => ({ IpStatusBar: () => null }));
 
-function renderWebHeader() {
+function renderWebHeader(path = '/pricing') {
   render(
-    <MemoryRouter initialEntries={['/pricing']}>
+    <MemoryRouter initialEntries={[path]}>
       <Header />
     </MemoryRouter>,
   );
@@ -72,5 +72,33 @@ describe('Header on the web', () => {
 
     expect(bar.classList.contains('shadow-lg')).toBe(true);
     expect(bar.classList.contains('shadow-none')).toBe(false);
+  });
+
+  it('is transparent with a white logo title over the landing hero', () => {
+    const bar = renderWebHeader('/');
+
+    expect(bar.classList.contains('bg-transparent')).toBe(true);
+    expect(bar.classList.contains('bg-white')).toBe(false);
+    expect(screen.getByText('JungleVPN').classList.contains('text-white')).toBe(true);
+  });
+
+  it('turns white with a dark logo title once the landing page is scrolled', () => {
+    const bar = renderWebHeader('/');
+
+    act(() => {
+      Object.assign(window, { scrollY: 120 });
+      window.dispatchEvent(new Event('scroll'));
+    });
+
+    expect(bar.classList.contains('bg-white')).toBe(true);
+    expect(bar.classList.contains('bg-transparent')).toBe(false);
+    expect(screen.getByText('JungleVPN').classList.contains('text-white')).toBe(false);
+  });
+
+  it('stays white on pages without the landing hero', () => {
+    const bar = renderWebHeader('/pricing');
+
+    expect(bar.classList.contains('bg-white')).toBe(true);
+    expect(screen.getByText('JungleVPN').classList.contains('text-white')).toBe(false);
   });
 });

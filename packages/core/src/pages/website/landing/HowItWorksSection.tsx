@@ -62,10 +62,7 @@ export function HowItWorksSection() {
   return (
     <section className='mb-24 flex flex-col gap-6'>
       <Heading as='h2'>
-        {t('landing.howItWorks.titleStart')}{' '}
-        <span className='bg-linear-to-r from-purple-400 to-yellow-400 bg-clip-text text-transparent'>
-          {t('landing.howItWorks.titleBrand')}
-        </span>
+        {t('landing.howItWorks.titleStart')} <span>{t('landing.howItWorks.titleBrand')}</span>
       </Heading>
 
       <Grid>
@@ -82,7 +79,7 @@ export function HowItWorksSection() {
           <Button
             size='lg'
             variant='ghost'
-            className='h-14 w-48 text-wrap px-2 rounded-4xl bg-linear-to-r from-violet-500 to-amber-400 text-white hover:opacity-90'
+            className='h-14 w-48 text-wrap px-2 rounded-4xl bg-violet-500 text-white hover:opacity-90'
             onClick={handleClick}
           >
             {t('landing.hero.cta')}

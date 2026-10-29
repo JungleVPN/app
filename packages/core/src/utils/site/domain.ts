@@ -160,6 +160,11 @@ export function isMarketingPath(pathname: string): boolean {
   return isUnprefixedMarketingPath(splitLocalePrefix(pathname).path);
 }
 
+/** The landing page, with or without a language prefix: `/` and `/ar`. */
+export function isHomePath(pathname: string): boolean {
+  return splitLocalePrefix(pathname).path === '/';
+}
+
 /** The marketing pages that also route under a language prefix, e.g. `/ar/pricing`. */
 export const LOCALIZED_MARKETING_PATHS: readonly string[] = [
   PRICING_PATH,

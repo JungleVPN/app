@@ -51,13 +51,13 @@ export function HowVpnWorksSection() {
                 variants={STEP_CARD}
                 className='relative flex h-full flex-col gap-4 rounded-3xl bg-surface p-7 transition-transform duration-300 hover:-translate-y-1.5'
               >
-                <span className='flex size-12 items-center justify-center rounded-2xl bg-linear-to-r from-purple-400 to-yellow-400 text-white'>
+                <span className='flex size-12 items-center justify-center rounded-2xl bg-violet-500 text-white'>
                   <Icon size={24} stroke={2} aria-hidden='true' />
                 </span>
                 <Heading as='h3'>{t(`landing.whatIsVpn.how.${key}.title`)}</Heading>
                 <Paragraph>{t(`landing.whatIsVpn.how.${key}.description`)}</Paragraph>
                 {index < STEPS.length - 1 && (
-                  <span className='pointer-events-none absolute top-13 -end-3 hidden h-px w-6 bg-linear-to-r from-purple-400 to-yellow-400 lg:block' />
+                  <span className='pointer-events-none absolute top-13 -end-3 hidden h-px w-6 bg-violet-500 lg:block' />
                 )}
               </motion.div>
             </GridItem>

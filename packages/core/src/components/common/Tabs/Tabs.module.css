@@ -89,12 +89,12 @@
      color-mix() blends base colour → accent as the indicator slides over. */
   color: color-mix(
     in srgb,
-    var(--tg-theme-accent-text-color, var(--accent-light)) calc(var(--tab-overlap, 0) * 100%),
+    var(--tg-theme-accent-text-color, var(--color-accent)) calc(var(--tab-overlap, 0) * 100%),
     var(--tg-theme-text-color, var(--foreground))
   );
   fill: color-mix(
     in srgb,
-    var(--tg-theme-accent-text-color, var(--accent-light)) calc(var(--tab-overlap, 0) * 100%),
+    var(--tg-theme-accent-text-color, var(--color-accent)) calc(var(--tab-overlap, 0) * 100%),
     var(--tg-theme-text-color, var(--foreground))
   );
 }

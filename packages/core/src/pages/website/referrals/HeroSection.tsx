@@ -48,7 +48,7 @@ export function HeroSection() {
 
         <Button
           size='lg'
-          className='h-14 px-10 rounded-4xl bg-linear-to-r from-purple-400 to-yellow-400 text-white hover:opacity-90'
+          className='h-14 px-10 rounded-4xl bg-violet-500 text-white hover:opacity-90'
           onClick={() => navigate(inviteHref)}
         >
           {t('referrals.hero.cta')}

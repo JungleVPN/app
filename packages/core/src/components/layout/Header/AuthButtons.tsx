@@ -85,11 +85,13 @@ export function AuthButtons() {
 
   return (
     <div className='flex items-center gap-2'>
-      <Button variant={'tertiary'} onPress={handleLogin}>
+      <Button onPress={handleTryNow}>{t('header.cta')}</Button>
+      <Button
+        variant={'ghost'}
+        onPress={handleLogin}
+        className={'mix-blend-difference text-white hover:bg-transparent'}
+      >
         {t('header.login')}
-      </Button>
-      <Button className={'bg-linear-to-r from-violet-500 to-amber-400'} onPress={handleTryNow}>
-        {t('header.cta')}
       </Button>
     </div>
   );

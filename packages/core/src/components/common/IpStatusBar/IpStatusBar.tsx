@@ -23,7 +23,7 @@ export function IpStatusBar(props: IpStatusBarProps) {
   // `protected: null` is "we could not tell", and the only honest rendering of
   // that is no claim at all.
   if (!status || status.protected === null || !status.ip) {
-    return <div className='h-5 bg-white' aria-hidden='true' />;
+    return <div className='h-5' aria-hidden='true' />;
   }
 
   const location = status.countryCode
@@ -34,7 +34,7 @@ export function IpStatusBar(props: IpStatusBarProps) {
     <div
       role='status'
       aria-live='polite'
-      className={`flex h-5 items-center justify-center gap-2 pt-1 px-4 bg-white text-center text-xs text-inherit ${className ? className : ''}`}
+      className={`flex h-5 items-center justify-center gap-2 pt-1 px-4 text-center text-xs text-inherit ${className ? className : ''}`}
     >
       <span className={'text-muted'}>
         {t('ipStatus.yourIp', { ip: status.ip })}

@@ -21,19 +21,18 @@ export default function LandingPage() {
 
   return (
     <div className='relative bg-[#1a1a1a]'>
-      <div className='sticky top-0 z-10 bg-[#1a1a1a] overflow-hidden pt-42 pb-32 md:py-56 lg:py-72'>
+      <div className='relative md:sticky top-0 z-10 bg-[#1a1a1a] overflow-hidden pt-42 pb-24 md:py-56 lg:pt-56 lg:pb-20'>
         <div className='inset-0 pointer-events-none opacity-40 overflow-hidden'>
           <div
             className='absolute inset-0 blur-3xl'
             style={{
               backgroundImage:
-                'radial-gradient(60% 60% at 20% 15%, #ffb900 0%, transparent 90%),' +
-                'radial-gradient(60% 60% at 80% 10%, #8e51ff 0%, transparent 90%),' +
-                'radial-gradient(60% 60% at 50% 55%, #E57575 0%, transparent 90%)',
+                'radial-gradient(40% 60% at 100% 30%, rgba(142, 81, 255, 0.9) 0%, rgba(142, 81, 255, 0.35) 40%, transparent 75%),' +
+                'radial-gradient(40% 60% at 0% 55%, rgba(229, 117, 117, 0.9) 0%, rgba(229, 117, 117, 0.35) 40%, transparent 75%)',
             }}
           />
         </div>
-        <Container maxWidth={'md'}>
+        <Container>
           <HeroSection />
         </Container>
       </div>

@@ -52,7 +52,7 @@ export function FeaturesSection() {
         <div className='px-8 py-10 sm:px-12'>
           <Heading as='h2'>
             {t('landing.features.titleStart')}{' '}
-            <span className='bg-linear-to-r from-purple-400 to-yellow-400 bg-clip-text text-transparent'>
+            <span className='bg-violet-500 bg-clip-text text-transparent'>
               {t('landing.features.titleBrand')}
             </span>
           </Heading>

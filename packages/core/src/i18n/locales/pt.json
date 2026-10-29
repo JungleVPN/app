@@ -5,7 +5,10 @@
     "features": {
       "title": "O que está incluído na assinatura:"
     },
-    "cta": "Experimente agora"
+    "cta": "Experimente agora",
+    "badge": {
+      "trust": "Reconhecido mundialmente"
+    }
   },
   "main": {
     "page": {
@@ -676,6 +679,7 @@
   },
   "landing": {
     "hero": {
+      "heading": "VPN confiável e segura",
       "title": "JungleVPN",
       "subtitle": "Proteja sua conexão, navegue com privacidade e fique seguro em redes Wi-Fi públicas — com uma única VPN para todos os seus dispositivos.",
       "cta": "Experimente agora",
@@ -683,9 +687,12 @@
       "login": "Faça login",
       "guarantee": "Garantia de reembolso de 30 dias",
       "features": {
-        "feature1": "Tráfego ilimitado em todos os seus dispositivos",
+        "feature1": "Tráfego ilimitado",
         "feature2": "Servidores rápidos em vários locais",
-        "feature3": "Equipe de suporte atenciosa 24 horas por dia, 7 dias por semana"
+        "feature3": "Equipe de suporte atenciosa 24 horas por dia, 7 dias por semana",
+        "feature1Description": "Uma única assinatura para todos os seus dispositivos: smartphone, notebook, tablet e TV.",
+        "feature2Description": "Servidores rápidos em vários locais, sem limite de tráfego. Navegue sem interrupções.",
+        "feature3Description": "Nossa equipe está sempre pronta para ajudar com qualquer dúvida sobre VPN."
       },
       "stats": {
         "locations": {

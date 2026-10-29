@@ -5,7 +5,10 @@
     "features": {
       "title": "What's included in the subscription:"
     },
-    "cta": "Try Now"
+    "cta": "Try Now",
+    "badge": {
+      "trust": "Trusted Worldwide"
+    }
   },
   "main": {
     "page": {
@@ -677,15 +680,19 @@
   "landing": {
     "hero": {
       "title": "JungleVPN",
+      "heading": "Reliable and secure VPN",
       "subtitle": "Protect your connection, browse privately and stay secure on public Wi-Fi — with one VPN for all your devices.",
       "cta": "Try now",
       "sevenDayBadge": "7 days for {{amount}} {{currency}}",
       "login": "Log in",
       "guarantee": "30-day money-back guarantee",
       "features": {
-        "feature1": "Unlimited traffic on all your devices",
+        "feature1": "Unlimited traffic",
         "feature2": "Fast servers across multiple locations",
-        "feature3": "Caring support team 24/7"
+        "feature3": "Caring support team 24/7",
+        "feature1Description": "One subscription covers all your devices: smartphone, laptop, tablet and TV.",
+        "feature2Description": "Fast servers across multiple locations with no traffic limits. Browse without interruptions.",
+        "feature3Description": "Our team is always ready to help with any VPN-related question."
       },
       "stats": {
         "locations": {

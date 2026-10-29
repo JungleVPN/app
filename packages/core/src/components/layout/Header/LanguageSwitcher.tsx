@@ -42,7 +42,11 @@ export function LanguageSwitcher() {
 
   return (
     <Dropdown>
-      <Button className='min-w-10 text-lg p-0 uppercase' variant='tertiary' size='md'>
+      <Button
+        className='flex min-w-10 text-lg p-0 uppercase items-center justify-center'
+        variant='ghost'
+        size='md'
+      >
         <span aria-hidden='true'>{LANGUAGE_FLAGS[i18n.language] ?? LANGUAGE_FLAGS.en}</span>
       </Button>
       <Dropdown.Popover>

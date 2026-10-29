@@ -13,7 +13,7 @@ import { OFFER_MENU_ITEMS, TOOLS_MENU_ITEMS } from './offerMenuItems';
 const navItemClass =
   'flex items-center px-3 py-2.5 rounded-xl text-sm text-foreground/70 hover:text-foreground hover:bg-default transition-colors text-start';
 
-export function MobileDrawer() {
+export function MobileDrawer({ overHero }: { overHero: boolean }) {
   const { t, i18n } = useTranslation();
   const { platformType } = usePlatformStore();
   const { pathname } = useLocation();
@@ -27,12 +27,12 @@ export function MobileDrawer() {
     <div className='flex items-center gap-2'>
       <Button
         isIconOnly
-        variant='tertiary'
+        variant={`${overHero ? 'ghost' : 'tertiary'}`}
         size='md'
         aria-label={t('header.menu')}
         onPress={() => setIsOpen(true)}
       >
-        <IconMenu2 stroke={2} size={20} />
+        <IconMenu2 stroke={3} size={20} color={`${overHero ? '#fff' : '#000'}`} />
       </Button>
 
       <Drawer.Backdrop variant='blur' isOpen={isOpen} onOpenChange={setIsOpen} className={'z-50'}>

@@ -58,10 +58,7 @@ export function BrandTitle() {
               transform: `translateY(${offsetY}px) translateX(${offsetX}px) scale(${scale})`,
             }}
           >
-            <Component
-              className='h-full w-auto [&_path[fill]:not([fill="none"])]:fill-white'
-              aria-hidden='true'
-            />
+            <Component className='h-full w-auto ' aria-hidden='true' />
           </div>
         </motion.span>
       ))}

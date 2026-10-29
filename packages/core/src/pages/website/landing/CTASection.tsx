@@ -11,7 +11,7 @@ export function CTASection({ onCtaClick }: { onCtaClick?: () => void } = {}) {
 
   return (
     <section id='cta'>
-      <div className='relative overflow-hidden p-8 rounded-3xl bg-linear-to-r  from-purple-400 to-yellow-400 py-16 text-center shadow-xl'>
+      <div className='relative overflow-hidden p-8 rounded-3xl bg-violet-500 py-16 text-center shadow-xl'>
         <div className='relative flex flex-col items-center gap-6'>
           <div className='flex flex-col gap-3'>
             <Heading as='h2' className={'text-white'}>

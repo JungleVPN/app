@@ -1,15 +1,29 @@
-import { Button, Chip } from '@heroui/react';
-import { IconBolt, IconRefresh, IconRocket, IconShieldCheck } from '@tabler/icons-react';
+import { Button, Card, Chip } from '@heroui/react';
+import { IconHeadset, IconInfinity, IconRocket, IconShieldCheckFilled } from '@tabler/icons-react';
 import { motion, Variants } from 'framer-motion';
+import { useKeenSlider } from 'keen-slider/react';
+import 'keen-slider/keen-slider.min.css';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import allDevicesIconUrl from '../../../assets/icons/all-devices-icon.svg?url';
 import { useNavigation, usePlans } from '../../../hooks';
 import { useAppRoutes } from '../../../runtime';
 import { useAuthStore } from '../../../stores';
-import { Heading } from '../../../ui/Heading';
-import { Paragraph } from '../../../ui/Paragraph';
+import { Heading, Paragraph, svgImage } from '../../../ui';
 import { PRICING_PATH } from '../../../utils';
-import { BrandTitle } from './BrandTitle';
+
+const AllDevicesIcon = svgImage({
+  src: allDevicesIconUrl,
+  width: 485,
+  height: 480,
+  className: 'w-full max-w-sm lg:max-w-md h-auto text-gray-800 dark:text-white',
+});
+
+const FEATURES = [
+  { key: 'feature1', Icon: IconInfinity },
+  { key: 'feature2', Icon: IconRocket },
+  { key: 'feature3', Icon: IconHeadset },
+] as const;
 
 const container = {
   hidden: {},
@@ -28,11 +42,18 @@ export function HeroSection() {
   const { profileSubscriptionPath, getSubscriptionPath } = useAppRoutes();
   const plan = usePlans().find((plan) => plan.isTrial);
 
-  const features = [
-    { Icon: IconShieldCheck, text: t('landing.hero.features.feature1') },
-    { Icon: IconRocket, text: t('landing.hero.features.feature2') },
-    { Icon: IconBolt, text: t('landing.hero.features.feature3') },
-  ];
+  const [sliderRef] = useKeenSlider<HTMLDivElement>({
+    loop: false,
+    slides: { origin: 'auto', perView: 1.2, spacing: 16 },
+    breakpoints: {
+      '(min-width: 640px)': {
+        slides: { origin: 'auto', perView: 2.2, spacing: 24 },
+      },
+      '(min-width: 1024px)': {
+        slides: { origin: 'auto', perView: 3, spacing: 24 },
+      },
+    },
+  });
 
   const handleClick = useCallback(() => {
     navigate(
@@ -41,51 +62,74 @@ export function HeroSection() {
   }, [navigate, authUser, profileSubscriptionPath, getSubscriptionPath, plan]);
 
   return (
-    <section className='flex flex-col justify-center items-center lg:flex-row lg:items-center lg:gap-8'>
-      <motion.div
-        className='flex flex-col gap-6 items-center w-full lg:text-left lg:shrink-0'
-        variants={container}
-        initial='hidden'
-        animate='show'
-      >
-        <div className='flex flex-col gap-3'>
-          <Heading>
-            <BrandTitle />
-          </Heading>
-          <Paragraph className={'text-white'}>{t('landing.hero.subtitle')}</Paragraph>
-        </div>
-
-        <div className='flex flex-col md:flex-row gap-4'>
-          <motion.div variants={item} className='flex flex-col gap-3 lg:items-start'>
-            <div className='flex items-start gap-3'>
-              <Button
-                size='lg'
-                variant='ghost'
-                className='h-14 w-48 text-wrap px-2 rounded-4xl bg-linear-to-r from-violet-500 to-amber-400 text-white hover:opacity-90'
-                onClick={handleClick}
-              >
-                {t('landing.hero.sevenDayBadge', {
-                  amount: plan?.planPricing.total,
-                  currency: plan?.planPricing.currencyCode,
-                })}
-              </Button>
-            </div>
-            <Chip color='default' variant='tertiary' className='w-fit text-muted'>
-              <IconRefresh size={14} />
-              <Chip.Label>{t('landing.hero.guarantee')}</Chip.Label>
+    <motion.section
+      className='flex flex-col gap-16 lg:gap-24'
+      variants={container}
+      initial='hidden'
+      animate='show'
+    >
+      <div className='flex flex-col items-center gap-12 md:flex-row md:justify-between'>
+        <div className='flex flex-col items-center gap-6 text-center md:items-start md:text-left'>
+          <motion.div variants={item}>
+            <Chip
+              color='default'
+              variant='tertiary'
+              className='w-fit text-white border border-solid border-muted px-3'
+            >
+              <Chip.Label className={'leading-wide'}>{t('common.badge.trust')}</Chip.Label>
             </Chip>
           </motion.div>
 
-          <motion.ul variants={item} className='flex flex-col gap-2 items-start'>
-            {features.map(({ Icon, text }) => (
-              <li key={text} className='flex items-center gap-2 text-sm text-white'>
-                <Icon size={32} className='text-primary shrink-0 p-1 rounded-lg' />
-                <span className='text-start'>{text}</span>
-              </li>
-            ))}
-          </motion.ul>
+          <motion.div variants={item} className='flex flex-col gap-4'>
+            <Heading className='text-white text-[25px] sm:text-[36px] lg:text-[42px]'>
+              {t('landing.hero.heading')}
+            </Heading>
+            <Paragraph className='text-muted text-md lg:text-lg'>
+              {t('landing.hero.subtitle')}
+            </Paragraph>
+          </motion.div>
+
+          <motion.div
+            variants={item}
+            className='flex flex-col items-center gap-4 mt-4 lg:flex-row lg:gap-6'
+          >
+            <Button
+              size='lg'
+              variant='ghost'
+              className='h-14 w-72 max-w-full px-2 rounded-4xl bg-violet-500 text-white hover:opacity-90'
+              onClick={handleClick}
+            >
+              {t('common.cta')}
+            </Button>
+            <span className='flex items-center gap-2 text-sm text-muted whitespace-nowrap'>
+              <IconShieldCheckFilled size={20} className='shrink-0' />
+              {t('landing.hero.guarantee')}
+            </span>
+          </motion.div>
+        </div>
+
+        <motion.div variants={item} className='flex shrink-0 justify-center w-1/2 md:w-1/3'>
+          <AllDevicesIcon />
+        </motion.div>
+      </div>
+
+      <motion.div variants={item}>
+        <div ref={sliderRef} className='keen-slider'>
+          {FEATURES.map(({ key, Icon }) => (
+            <div className='keen-slider__slide' key={key}>
+              <Card className='flex h-full flex-col gap-4 p-6 lg:p-8 rounded-3xl bg-white/5 border-none'>
+                <Icon size={28} className='text-violet-500' />
+                <Heading as='h4' className='text-white'>
+                  {t(`landing.hero.features.${key}`)}
+                </Heading>
+                <Paragraph className='text-muted text-md lg:text-sm'>
+                  {t(`landing.hero.features.${key}Description`)}
+                </Paragraph>
+              </Card>
+            </div>
+          ))}
         </div>
       </motion.div>
-    </section>
+    </motion.section>
   );
 }

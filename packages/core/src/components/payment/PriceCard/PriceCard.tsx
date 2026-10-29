@@ -45,24 +45,24 @@ export function PriceCard({
     >
       {badge &&
         (highlighted ? (
-          <div className='rounded-t-2xl bg-linear-to-r from-purple-400 to-yellow-400 ring-2 ring-purple-400 py-2 text-center text-sm font-semibold text-white'>
+          <div className='rounded-t-2xl bg-violet-500 ring-2 ring-violet-500 py-2 text-center text-sm font-semibold text-white'>
             🔥 {badge}
           </div>
         ) : null)}
 
       <Card
         variant='secondary'
-        className={`h-full w-full gap-1 p-6 justify-between bg-white shadow-md ${highlighted ? 'rounded-t-none ring-2 ring-purple-400' : ''} `}
+        className={`h-full w-full gap-1 p-6 justify-between bg-white shadow-md ${highlighted ? 'rounded-t-none ring-2 ring-violet-500' : ''} `}
       >
         <div className='mb-4 flex flex-col gap-1'>
           <span className='text-lg font-bold text-foreground'>{period}</span>
-          {discount && <span className='text-sm font-semibold text-purple-400'>{discount}</span>}
+          {discount && <span className='text-sm font-semibold text-violet-500'>{discount}</span>}
           {subtitle && !discount && <span className='text-sm text-muted'>{subtitle}</span>}
         </div>
 
         <div className='mb-4 flex items-baseline gap-1'>
           <span
-            className={`text-4xl font-bold tracking-tight ${highlighted ? 'text-purple-400' : 'text-foreground'}`}
+            className={`text-4xl font-bold tracking-tight ${highlighted ? 'text-violet-500' : 'text-foreground'}`}
           >
             {price}
           </span>
@@ -104,8 +104,8 @@ export function PriceCard({
           size='lg'
           className={
             highlighted
-              ? 'w-full bg-linear-to-r from-purple-400 to-yellow-400 text-white hover:bg-indigo-700'
-              : 'w-full border border-purple-400 bg-transparent text-purple-400 hover:bg-indigo-50'
+              ? 'w-full'
+              : 'w-full border border-violet-500 bg-transparent text-violet-500 hover:bg-indigo-50'
           }
           onClick={onCtaClick}
           onHoverStart={onCtaIntent}

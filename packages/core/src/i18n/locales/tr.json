@@ -5,7 +5,10 @@
     "features": {
       "title": "Aboneliğe neler dahildir:"
     },
-    "cta": "Şimdi Deneyin"
+    "cta": "Şimdi Deneyin",
+    "badge": {
+      "trust": "Dünya Genelinde Tercih Ediliyor"
+    }
   },
   "main": {
     "page": {
@@ -676,6 +679,7 @@
   },
   "landing": {
     "hero": {
+      "heading": "Güvenilir ve güvenli VPN",
       "title": "JungleVPN",
       "subtitle": "Tüm cihazlarınız için tek bir VPN ile bağlantınızı koruyun, gizli bir şekilde gezin ve halka açık Wi-Fi ağlarında güvende kalın.",
       "cta": "Şimdi deneyin",
@@ -683,9 +687,12 @@
       "login": "Giriş yap",
       "guarantee": "30 günlük para iade garantisi",
       "features": {
-        "feature1": "Tüm cihazlarınızda sınırsız trafik",
+        "feature1": "Sınırsız trafik",
         "feature2": "Birçok konumda hızlı sunucular",
-        "feature3": "7\/24 özenli destek ekibi"
+        "feature3": "7\/24 özenli destek ekibi",
+        "feature1Description": "Tek abonelik tüm cihazlarınızı kapsar: akıllı telefon, dizüstü bilgisayar, tablet ve TV.",
+        "feature2Description": "Birçok konumda hızlı sunucular, trafik sınırı yok. Kesintisiz gezinin.",
+        "feature3Description": "Ekibimiz VPN ile ilgili her sorunuzda yardıma her zaman hazır."
       },
       "stats": {
         "locations": {

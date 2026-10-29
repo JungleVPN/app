@@ -41,7 +41,7 @@ export function PlatformsSection() {
             size='lg'
             variant='primary'
             onClick={handleClick}
-            className='h-14 min-w-full sm:min-w-xs w-fit px-8 rounded-4xl bg-linear-to-r from-violet-500 to-amber-400 text-white hover:opacity-90'
+            className='h-14 min-w-full sm:min-w-xs w-fit px-8 rounded-4xl bg-violet-500 text-white hover:opacity-90'
           >
             {t('landing.info.devices.cta')}
           </Button>

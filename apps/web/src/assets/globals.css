@@ -36,7 +36,8 @@ h3 {
   --deprecated-separator-color: rgba(210, 210, 215, 1);
   --second-button-color: rgb(99 102 241 / 10%);
   --text-confirm-color: #2da44e;
-  --color-accent: oklch(0.32 0.04 195.45);
+  --color-accent: oklch(60.6% 0.25 292.717);
+  --color-accent-hover: oklch(0.57 0.28 289.65);
   --background: oklch(0.965 0 0);
   --accent: oklch(0.32 0.04 195.45);
   --accent-secondary: #f2ecfd;

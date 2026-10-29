@@ -5,7 +5,10 @@
     "features": {
       "title": "Apa saja yang termasuk dalam langganan:"
     },
-    "cta": "Coba Sekarang"
+    "cta": "Coba Sekarang",
+    "badge": {
+      "trust": "Dipercaya di Seluruh Dunia"
+    }
   },
   "main": {
     "page": {
@@ -676,6 +679,7 @@
   },
   "landing": {
     "hero": {
+      "heading": "VPN yang andal dan aman",
       "title": "JungleVPN",
       "subtitle": "Lindungi koneksi Anda, jelajahi internet secara privat, dan tetap aman saat menggunakan Wi-Fi publik — dengan satu VPN untuk semua perangkat Anda.",
       "cta": "Coba sekarang",
@@ -683,9 +687,12 @@
       "login": "Masuk",
       "guarantee": "Jaminan uang kembali 30 hari",
       "features": {
-        "feature1": "Trafik tak terbatas di semua perangkat Anda",
+        "feature1": "Trafik tak terbatas",
         "feature2": "Server cepat di berbagai lokasi",
-        "feature3": "Tim dukungan yang ramah 24\/7"
+        "feature3": "Tim dukungan yang ramah 24\/7",
+        "feature1Description": "Satu langganan untuk semua perangkat Anda: smartphone, laptop, tablet, dan TV.",
+        "feature2Description": "Server cepat di berbagai lokasi tanpa batas trafik. Jelajahi tanpa gangguan.",
+        "feature3Description": "Tim kami selalu siap membantu menjawab pertanyaan apa pun seputar VPN."
       },
       "stats": {
         "locations": {
