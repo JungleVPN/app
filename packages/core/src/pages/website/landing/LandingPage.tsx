@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { TrackedSection } from '../../../components/marketing/SectionTracking/SectionTracking';
 import { Container, Reveal, RoundedSection } from '../../../ui';
 import { phCapture } from '../../../utils';
 import { BentoFeaturesStack } from './BentoFeaturesStack';
@@ -33,68 +34,94 @@ export default function LandingPage() {
           />
         </div>
         <Container>
-          <HeroSection />
+          <TrackedSection section='hero'>
+            <HeroSection />
+          </TrackedSection>
         </Container>
       </div>
       <RoundedSection className='z-20' rounded>
-        <Container>
-          <TrustSection />
-        </Container>
-        <Reveal>
-          <CountriesMarquee />
-        </Reveal>
-        <Container>
+        <TrackedSection section='trust'>
+          <Container>
+            <TrustSection />
+          </Container>
+        </TrackedSection>
+        <TrackedSection section='countries'>
           <Reveal>
-            <PlatformsSection />
+            <CountriesMarquee />
           </Reveal>
-        </Container>
-        <Container>
-          <Reveal amount={0.1}>
-            <BentoFeaturesStack />
-          </Reveal>
-        </Container>
+        </TrackedSection>
+        <TrackedSection section='platforms'>
+          <Container>
+            <Reveal>
+              <PlatformsSection />
+            </Reveal>
+          </Container>
+        </TrackedSection>
+        <TrackedSection section='bento_features'>
+          <Container>
+            <Reveal amount={0.1}>
+              <BentoFeaturesStack />
+            </Reveal>
+          </Container>
+        </TrackedSection>
       </RoundedSection>
 
       <div className='relative z-10'>
         <RoundedSection rounded variant={'secondary'} className={'-mt-40 md:-mt-40'}>
-          <Container id='how-it-works' className={'pt-60'}>
-            <Reveal>
-              <HowItWorksSection />
-            </Reveal>
-          </Container>
-          <Container className='p-20 bg-background rounded-4xl'>
-            <PricingSection animateOnMount />
-          </Container>
-          <Container>
-            <Reveal>
-              <ComparisonSection />
-            </Reveal>
-          </Container>
-          <Container id='pricing'>
-            <Reveal>
-              <TrialPeriodBanner />
-            </Reveal>
-          </Container>
-          <Container>
-            <Reveal>
-              <InfoSection />
-            </Reveal>
-          </Container>
-          <Container id='partnership'>
-            <Reveal>
-              <PartnershipSection />
-            </Reveal>
-          </Container>
-          <Container id='faq'>
-            <Reveal>
-              <FAQSection />
-            </Reveal>
-          </Container>
-          <Container>
-            <Reveal>
-              <TrialPeriodBanner />
-            </Reveal>
-          </Container>
+          <TrackedSection section='how_it_works'>
+            <Container id='how-it-works' className={'pt-60'}>
+              <Reveal>
+                <HowItWorksSection />
+              </Reveal>
+            </Container>
+          </TrackedSection>
+          <TrackedSection section='pricing'>
+            <Container className='p-20 bg-background rounded-4xl'>
+              <PricingSection animateOnMount />
+            </Container>
+          </TrackedSection>
+          <TrackedSection section='comparison'>
+            <Container>
+              <Reveal>
+                <ComparisonSection />
+              </Reveal>
+            </Container>
+          </TrackedSection>
+          <TrackedSection section='trial_banner'>
+            <Container id='pricing'>
+              <Reveal>
+                <TrialPeriodBanner />
+              </Reveal>
+            </Container>
+          </TrackedSection>
+          <TrackedSection section='info'>
+            <Container>
+              <Reveal>
+                <InfoSection />
+              </Reveal>
+            </Container>
+          </TrackedSection>
+          <TrackedSection section='partnership'>
+            <Container id='partnership'>
+              <Reveal>
+                <PartnershipSection />
+              </Reveal>
+            </Container>
+          </TrackedSection>
+          <TrackedSection section='faq'>
+            <Container id='faq'>
+              <Reveal>
+                <FAQSection />
+              </Reveal>
+            </Container>
+          </TrackedSection>
+          <TrackedSection section='trial_banner_bottom'>
+            <Container>
+              <Reveal>
+                <TrialPeriodBanner />
+              </Reveal>
+            </Container>
+          </TrackedSection>
         </RoundedSection>
       </div>
     </div>
