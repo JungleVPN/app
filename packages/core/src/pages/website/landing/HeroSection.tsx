@@ -74,10 +74,10 @@ export function HeroSection() {
           </motion.div>
 
           <motion.div variants={item} className='flex flex-col gap-4'>
-            <Heading className='text-white text-[25px] sm:text-[36px] lg:text-[42px]'>
+            <Heading className='text-white font-bold text-[25px] sm:text-[36px] lg:text-[42px]'>
               {t('landing.hero.heading')}
             </Heading>
-            <Paragraph className='text-muted text-md lg:text-lg'>
+            <Paragraph className='text-muted-secondary text-md lg:text-lg'>
               {t('landing.hero.subtitle')}
             </Paragraph>
           </motion.div>
@@ -89,12 +89,12 @@ export function HeroSection() {
             <Button
               size='lg'
               variant='ghost'
-              className='h-14 w-72 max-w-full px-2 rounded-4xl bg-violet-500 text-white hover:opacity-90'
+              className='h-14 w-72 max-w-full px-2 rounded-4xl font-bold bg-violet-500 text-white hover:opacity-90'
               onClick={handleClick}
             >
               {t('common.cta')}
             </Button>
-            <span className='flex items-center gap-2 text-sm text-muted whitespace-nowrap'>
+            <span className='flex items-center gap-2 text-sm text-muted-secondary whitespace-nowrap'>
               <IconShieldCheckFilled size={20} className='shrink-0' />
               {t('landing.hero.guarantee')}
             </span>
@@ -110,12 +110,12 @@ export function HeroSection() {
         <div ref={sliderRef} className='keen-slider'>
           {FEATURES.map(({ key, Icon }) => (
             <div className='keen-slider__slide' key={key}>
-              <Card className='flex h-full flex-col gap-4 p-6 lg:p-8 rounded-3xl bg-white/5 border-none'>
+              <Card className='flex h-full flex-col gap-4 p-6 lg:p-8 rounded-3xl bg-white/10 border-none'>
                 <Icon size={28} className='text-violet-500' />
                 <Heading as='h4' className='text-white'>
                   {t(`landing.hero.features.${key}`)}
                 </Heading>
-                <Paragraph className='text-muted text-md lg:text-sm'>
+                <Paragraph className='text-muted-secondary text-md lg:text-sm'>
                   {t(`landing.hero.features.${key}Description`)}
                 </Paragraph>
               </Card>

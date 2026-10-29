@@ -4,6 +4,10 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme inline {
+  --color-muted-secondary: var(--muted-secondary);
+}
+
 [data-no-transition],
 [data-no-transition] * {
   transition: none !important;
@@ -38,6 +42,7 @@ h3 {
   --text-confirm-color: #2da44e;
   --color-accent: oklch(60.6% 0.25 292.717);
   --color-accent-hover: oklch(0.57 0.28 289.65);
+  --muted-secondary: oklch(1 0 0 / 0.65);
   --background: oklch(0.965 0 0);
   --accent: oklch(0.32 0.04 195.45);
   --accent-secondary: #f2ecfd;
@@ -128,6 +133,13 @@ body {
   background-color: var(--background);
   background-size: 60px 60px;
   background-attachment: fixed;
+}
+
+/* iOS 26 Safari tints its floating toolbar edge from the html/body background,
+   so the landing page matches it to the dark hero. Toggled by LandingPage. */
+html.landing-dark,
+html.landing-dark body {
+  background-color: #0b0b0b;
 }
 
 #root {

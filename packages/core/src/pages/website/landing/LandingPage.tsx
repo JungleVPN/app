@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { TrackedSection } from '../../../components/marketing/SectionTracking/SectionTracking';
+import { useDocumentClass } from '../../../hooks';
 import { Container, Reveal, RoundedSection } from '../../../ui';
 import { phCapture } from '../../../utils';
 import { BentoFeaturesStack } from './BentoFeaturesStack';
@@ -16,16 +17,18 @@ import { TrialPeriodBanner } from './TrialPeriodBanner';
 import { TrustSection } from './TrustSection';
 
 export default function LandingPage() {
+  useDocumentClass('landing-dark');
+
   useEffect(() => {
     phCapture('landing_viewed');
   }, []);
 
   return (
-    <div className='relative bg-[#1a1a1a]'>
-      <div className='relative md:sticky top-0 z-10 bg-[#1a1a1a] overflow-hidden pt-42 pb-24 md:py-56 lg:pt-56 lg:pb-20'>
+    <div className='relative'>
+      <div className='relative md:sticky top-0 z-10 bg-[#0b0b0b] overflow-hidden pt-32 pb-24 md:py-56 lg:pt-56 lg:pb-20'>
         <div className='inset-0 pointer-events-none opacity-40 overflow-hidden'>
           <div
-            className='absolute inset-0 blur-3xl'
+            className='absolute inset-0 blur-3xl z-0'
             style={{
               backgroundImage:
                 'radial-gradient(40% 60% at 100% 30%, rgba(142, 81, 255, 0.9) 0%, rgba(142, 81, 255, 0.35) 40%, transparent 75%),' +

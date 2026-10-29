@@ -63,7 +63,7 @@ export function FooterSection() {
   }, [authUser, navigate, profileSubscriptionPath]);
 
   return (
-    <footer className='w-full'>
+    <footer className='w-full bg-[#0b0b0b] text-white mt-10'>
       <div className='flex flex-col gap-8 pt-8'>
         <Container className={'mb-8'}>
           <Platforms onClick={handleClick} />

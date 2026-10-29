@@ -1,6 +1,7 @@
 export type { AsyncState } from './ui/use-async';
 export { useAsync } from './ui/use-async';
 export { useDeleteDevice, useUserDevices } from './devices/use-devices';
+export { useDocumentClass } from './ui/use-document-class';
 export { useHoverOpen } from './ui/use-hover-open';
 export { useIpStatus } from './network/use-ip-status';
 export { type NodeStatsState, useNodeStats } from './network/use-node-stats';
