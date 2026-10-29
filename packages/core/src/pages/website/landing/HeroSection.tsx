@@ -6,9 +6,7 @@ import 'keen-slider/keen-slider.min.css';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import allDevicesIconUrl from '../../../assets/icons/all-devices-icon.svg?url';
-import { useNavigation, usePlans } from '../../../hooks';
-import { useAppRoutes } from '../../../runtime';
-import { useAuthStore } from '../../../stores';
+import { useNavigation } from '../../../hooks';
 import { Heading, Paragraph, svgImage } from '../../../ui';
 import { PRICING_PATH } from '../../../utils';
 
@@ -38,9 +36,6 @@ const item: Variants | undefined = {
 export function HeroSection() {
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { authUser } = useAuthStore();
-  const { profileSubscriptionPath, getSubscriptionPath } = useAppRoutes();
-  const plan = usePlans().find((plan) => plan.isTrial);
 
   const [sliderRef] = useKeenSlider<HTMLDivElement>({
     loop: false,
@@ -56,10 +51,8 @@ export function HeroSection() {
   });
 
   const handleClick = useCallback(() => {
-    navigate(
-      plan ? getSubscriptionPath(plan.planId) : authUser ? profileSubscriptionPath : PRICING_PATH,
-    );
-  }, [navigate, authUser, profileSubscriptionPath, getSubscriptionPath, plan]);
+    navigate(PRICING_PATH);
+  }, [navigate]);
 
   return (
     <motion.section
