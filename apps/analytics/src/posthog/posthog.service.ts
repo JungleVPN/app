@@ -60,10 +60,10 @@ export class PostHogService implements OnModuleDestroy {
   }
 
   /** Merges a pre-signup distinct id (e.g. `tg:{telegramId}`) into the canonical one. */
-  alias(distinctId: string, alias: string): void {
+  alias(anonymousId: string, canonicalId: string): void {
     if (!this.client) return;
     try {
-      this.client.alias({ distinctId, alias });
+      this.client.alias({ distinctId: canonicalId, alias: anonymousId });
     } catch (err: unknown) {
       this.logger.warn(`PostHog alias failed: ${err instanceof Error ? err.message : String(err)}`);
     }

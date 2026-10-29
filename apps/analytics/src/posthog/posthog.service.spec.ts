@@ -6,12 +6,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PostHogService } from './posthog.service';
 
-const { PostHog, capture } = vi.hoisted(() => {
+const { PostHog, capture, alias } = vi.hoisted(() => {
   const capture = vi.fn();
+  const alias = vi.fn();
   const PostHog = vi.fn(function PostHog() {
-    return { capture, identify: vi.fn(), alias: vi.fn(), flush: vi.fn(), shutdown: vi.fn() };
+    return { capture, identify: vi.fn(), alias, flush: vi.fn(), shutdown: vi.fn() };
   });
-  return { PostHog, capture };
+  return { PostHog, capture, alias };
 });
 
 vi.mock('posthog-node', () => ({ PostHog }));
@@ -42,5 +43,13 @@ describe('PostHogService', () => {
 
     expect(PostHog).not.toHaveBeenCalled();
     expect(capture).not.toHaveBeenCalled();
+  });
+
+  it('merges the anonymous id into the canonical one, never the other way round', () => {
+    vi.stubEnv('POSTHOG_API_KEY', 'phc_test');
+
+    new PostHogService().alias('tg:999', '2000');
+
+    expect(alias).toHaveBeenCalledWith({ distinctId: '2000', alias: 'tg:999' });
   });
 });
