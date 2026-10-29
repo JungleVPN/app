@@ -10,6 +10,7 @@ import { HowItWorksSection } from './HowItWorksSection';
 import { InfoSection } from './InfoSection';
 import { PartnershipSection } from './PartnershipSection';
 import { PlatformsSection } from './PlatformsSection';
+import { PricingSection } from './PricingSection';
 import { TrialPeriodBanner } from './TrialPeriodBanner';
 import { TrustSection } from './TrustSection';
 
@@ -61,6 +62,9 @@ export default function LandingPage() {
             <Reveal>
               <HowItWorksSection />
             </Reveal>
+          </Container>
+          <Container className='p-20 bg-background rounded-4xl'>
+            <PricingSection animateOnMount />
           </Container>
           <Container>
             <Reveal>
