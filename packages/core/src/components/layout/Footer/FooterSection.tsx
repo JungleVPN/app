@@ -1,14 +1,22 @@
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import Logo from '../../../assets/Logo_dark.svg?react';
 import LogoDark from '../../../assets/Logo_dark.svg?react';
 import { useTheme } from '../../../hooks';
-import { Container } from '../../../ui';
-import { Paragraph } from '../../../ui/Paragraph';
-import { LOCATIONS_PATH, localizePath, scrollToTop, WHAT_IS_VPN_PATH } from '../../../utils';
-import { LanguageSwitcher } from '../Header/LanguageSwitcher';
-import { PaymentMethodIcons } from '../../payment/PaymentMethods/PaymentMethodIcons';
+import { useAppRoutes } from '../../../runtime';
+import { useAuthStore } from '../../../stores';
+import { Container, Paragraph } from '../../../ui';
+import {
+  LOCATIONS_PATH,
+  localizePath,
+  PRICING_PATH,
+  scrollToTop,
+  WHAT_IS_VPN_PATH,
+} from '../../../utils';
 import { Platforms } from '../../marketing/Platforms/Platforms';
+import { PaymentMethodIcons } from '../../payment/PaymentMethods/PaymentMethodIcons';
+import { LanguageSwitcher } from '../Header/LanguageSwitcher';
 import { SupportButton } from '../SupportWidget/SupportButton';
 
 type FooterLinkDef =
@@ -42,12 +50,23 @@ export function FooterSection() {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const { pathname } = useLocation();
+  const { authUser } = useAuthStore();
+  const navigate = useNavigate();
+  const { profileSubscriptionPath } = useAppRoutes();
+
+  const handleClick = useCallback(() => {
+    if (!authUser) {
+      navigate(PRICING_PATH);
+    } else {
+      navigate(profileSubscriptionPath);
+    }
+  }, [authUser, navigate, profileSubscriptionPath]);
 
   return (
     <footer className='w-full'>
       <div className='flex flex-col gap-8 pt-8'>
         <Container className={'mb-8'}>
-          <Platforms />
+          <Platforms onClick={handleClick} />
         </Container>
         <Container className='flex flex-col items-start gap-6'>
           <button

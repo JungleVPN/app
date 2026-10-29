@@ -4,7 +4,7 @@ import IconAndroid from '../../../assets/icons/android-icon.svg?react';
 import IconAndroidTv from '../../../assets/icons/androidTv-icon.svg?react';
 import IconAppleTv from '../../../assets/icons/appleTv-icon.svg?react';
 import IconMacOS from '../../../assets/icons/macOs-icon.svg?react';
-import { Paragraph } from '../../../ui/Paragraph';
+import { Paragraph } from '../../../ui';
 
 const PLATFORMS = [
   { key: 'ios', icon: <IconBrandAppleFilled size={32} /> },
@@ -17,10 +17,11 @@ const PLATFORMS = [
 
 interface PlatformsProps {
   className?: string;
+  onClick?: () => void;
 }
 
 export const Platforms = (props: PlatformsProps) => {
-  const { className } = props;
+  const { className, onClick } = props;
   const { t } = useTranslation();
 
   return (
@@ -28,13 +29,15 @@ export const Platforms = (props: PlatformsProps) => {
       className={`flex flex-wrap items-center gap-4 justify-around ${className ? className : ''}`}
     >
       {PLATFORMS.map(({ key, icon }) => (
-        <div
+        <button
+          type={'button'}
+          onClick={onClick}
           key={key}
-          className='w-24 sm:w-18 md:w-28 flex flex-col items-center justify-between gap-3 rounded-2xl transition-all duration-200 hover:scale-105 hover:-translate-y-1'
+          className='w-24 sm:w-18 md:w-28 flex flex-col items-center justify-between gap-3 cursor-pointer rounded-2xl transition-all duration-200 hover:scale-105 hover:-translate-y-1'
         >
           <span>{icon}</span>
           <Paragraph>{t(`landing.info.devices.${key}`)}</Paragraph>
-        </div>
+        </button>
       ))}
     </div>
   );

@@ -52,7 +52,7 @@ export function PlatformsSection() {
         </div>
       </div>
 
-      <Platforms className={'mt-12'} />
+      <Platforms className={'mt-12'} onClick={handleClick} />
     </section>
   );
 }
