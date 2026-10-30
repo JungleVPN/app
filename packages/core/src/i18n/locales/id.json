@@ -1269,7 +1269,6 @@
       "first_payment": "Pembayaran pertama",
       "for_months_other": "Selama {{count}} bulan",
       "churned_users": "Khusus pengguna yang kembali",
-      "plans": "Paket: {{plans}}",
       "until": "Hingga {{date}}",
       "copy": "Salin kode promo",
       "copied": "Kode promo disalin"

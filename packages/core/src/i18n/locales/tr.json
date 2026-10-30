@@ -1271,7 +1271,6 @@
       "for_months_one": "{{count}} ay boyunca",
       "for_months_other": "{{count}} ay boyunca",
       "churned_users": "Yalnızca geri dönen kullanıcılar",
-      "plans": "Planlar: {{plans}}",
       "until": "{{date}} tarihine kadar",
       "copy": "Promosyon kodunu kopyala",
       "copied": "Promosyon kodu kopyalandı"

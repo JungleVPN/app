@@ -1271,7 +1271,6 @@
       "for_months_one": "For {{count}} month",
       "for_months_other": "For {{count}} months",
       "churned_users": "Returning users only",
-      "plans": "{{plans}} plans",
       "until": "Until {{date}}",
       "copy": "Copy promo code",
       "copied": "Promo code copied"

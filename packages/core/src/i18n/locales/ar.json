@@ -1279,7 +1279,6 @@
       "for_months_many": "لمدة {{count}} شهرًا",
       "for_months_other": "لمدة {{count}} شهر",
       "churned_users": "للمستخدمين العائدين فقط",
-      "plans": "الخطط: {{plans}}",
       "until": "حتى {{date}}",
       "copy": "نسخ الرمز الترويجي",
       "copied": "تم نسخ الرمز الترويجي"

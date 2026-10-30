@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { useAsync, useClipboard } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
 import { Block, Paragraph } from '../../../../ui';
-import { formatPeriod } from '../../../../utils/payment/planPricing';
 
 /** What the promo gives: bonus days, or money off in percent or in its own currency. */
 function effectLabel(effect: PublicPromoDto['effect'], t: TFunction, language: string): string {
@@ -57,14 +56,9 @@ function eligibilityLabel(promo: PublicPromoDto, t: TFunction): string | null {
   return key ? t(key) : null;
 }
 
-/** What the promo gives, then how long and on which plans — only the parts it has. */
+/** What the promo gives, then how long — only the parts it has. */
 function discountLabel(promo: PublicPromoDto, t: TFunction, language: string): string {
-  const plans = promo.planPeriods
-    ? t('getSubscription.promo.plans', {
-        plans: promo.planPeriods.map((days) => formatPeriod(days, t)).join(', '),
-      })
-    : null;
-  return [effectLabel(promo.effect, t, language), durationLabel(promo, t), plans]
+  return [effectLabel(promo.effect, t, language), durationLabel(promo, t)]
     .filter((part): part is string => part !== null)
     .join(' · ');
 }

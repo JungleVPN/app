@@ -1271,7 +1271,6 @@
       "for_months_one": "{{count}} महीने के लिए",
       "for_months_other": "{{count}} महीनों के लिए",
       "churned_users": "केवल लौटने वाले उपयोगकर्ताओं के लिए",
-      "plans": "प्लान: {{plans}}",
       "until": "{{date}} तक",
       "copy": "प्रोमो कोड कॉपी करें",
       "copied": "प्रोमो कोड कॉपी हो गया"

@@ -1303,7 +1303,6 @@
       "for_months_many": "На {{count}} месяцев",
       "for_months_other": "На {{count}} месяца",
       "churned_users": "Только для вернувшихся пользователей",
-      "plans": "Тарифы: {{plans}}",
       "until": "До {{date}}",
       "copy": "Скопировать промокод",
       "copied": "Промокод скопирован"
