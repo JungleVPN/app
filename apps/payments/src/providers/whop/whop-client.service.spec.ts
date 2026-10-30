@@ -133,6 +133,7 @@ describe('WhopClientService', () => {
       existing_memberships_only: false,
       churned_users_only: false,
       one_per_customer: false,
+      product: { id: 'prod_1' },
       ...overrides,
     });
 
@@ -147,6 +148,60 @@ describe('WhopClientService', () => {
         plan_ids: 'plan_month',
         status: 'active',
       });
+    });
+
+    it("finds a code made for every product, which Whop lists under no plan, among our account's active codes", async () => {
+      promoCodesList
+        .mockResolvedValueOnce(page([]))
+        .mockResolvedValueOnce(page([promo({ product: null })]));
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
+      ).resolves.toMatchObject({ id: 'promo_1' });
+      expect(promoCodesList).toHaveBeenLastCalledWith({ account_id: 'biz_test', status: 'active' });
+    });
+
+    it('finds nothing for a code made for another product', async () => {
+      promoCodesList
+        .mockResolvedValueOnce(page([]))
+        .mockResolvedValueOnce(page([promo({ product: { id: 'prod_other' } })]));
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
+      ).resolves.toBeNull();
+    });
+
+    it('checks an every-product code the same way, refusing one that has expired', async () => {
+      promoCodesList
+        .mockResolvedValueOnce(page([]))
+        .mockResolvedValueOnce(
+          page([promo({ product: null, expires_at: '2000-01-01T00:00:00Z' })]),
+        );
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
+      ).resolves.toBeNull();
+    });
+
+    it('looks no further when the plan offers the code', async () => {
+      promoCodesList.mockResolvedValue(page([promo()]));
+      const service = new WhopClientService();
+
+      await service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' });
+
+      expect(promoCodesList).toHaveBeenCalledOnce();
+    });
+
+    it('looks no further when the plan has the code but it can no longer be used', async () => {
+      promoCodesList.mockResolvedValue(page([promo({ expires_at: '2000-01-01T00:00:00Z' })]));
+      const service = new WhopClientService();
+
+      await service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' });
+
+      expect(promoCodesList).toHaveBeenCalledOnce();
     });
 
     it('finds the code the payer typed, ignoring case and surrounding spaces', async () => {

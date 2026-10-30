@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { WhopClient, WhopEnvironment, WhopError } from '@whop/sdk';
+import { type Whop, WhopClient, WhopEnvironment, WhopError } from '@whop/sdk';
 import type { WhopPaymentDto, WhopPromoCodeDto } from '@workspace/types';
 
 function requireEnv(name: string): string {
@@ -49,6 +49,29 @@ const PROMO_RESTRICTIONS: readonly WhopPromoRestriction[] = [
   'one_per_customer',
 ];
 
+/** A promo code found for a plan, with what the browser needs and what `createPayment` charges with. */
+export type FoundPromoCode = WhopPromoCodeDto & {
+  id: string;
+  restrictions: WhopPromoRestriction[];
+};
+
+/** A code from Whop's list that has text, as every code a payer can type does. */
+type ListedPromoCode = Whop.PromoCodeListItem & { code: string };
+
+/** `promo` as a code the payer can use, or null when it has expired or run out. */
+function usablePromoCode(promo: ListedPromoCode): FoundPromoCode | null {
+  if (promo.expires_at && Date.parse(promo.expires_at) <= Date.now()) return null;
+  if (!promo.unlimited_stock && promo.uses >= promo.stock) return null;
+  return {
+    id: promo.id,
+    code: promo.code,
+    promoType: promo.promo_type,
+    amountOff: percentOrAmountOff(promo.promo_type, promo.amount_off),
+    currency: promo.currency,
+    restrictions: PROMO_RESTRICTIONS.filter((restriction) => promo[restriction]),
+  };
+}
+
 /** Whop's reason for refusing the payment's promo code, or null when it refused for another reason. */
 function promoRejection(err: unknown): string | null {
   if (!(err instanceof WhopError) || err.statusCode !== 400) return null;
@@ -85,34 +108,33 @@ export class WhopClientService {
    * offers no such code or it can no longer be used. A code limited to certain
    * customers is still found: Whop checks the payer when charging (see
    * `createPayment`). Whop can't look a code up by its text, so this reads the
-   * plan's active codes and matches it.
+   * plan's active codes and matches it — then, since Whop lists a code made for
+   * every product under no plan, our account's codes that name no product.
    */
-  async findPromoCode(input: {
-    code: string;
-    planId: string;
-  }): Promise<(WhopPromoCodeDto & { id: string; restrictions: WhopPromoRestriction[] }) | null> {
+  async findPromoCode(input: { code: string; planId: string }): Promise<FoundPromoCode | null> {
     const wanted = input.code.trim().toLocaleUpperCase();
     if (!wanted) return null;
 
+    const forPlan = await this.findListedCode(wanted, { plan_ids: input.planId });
+    if (forPlan) return usablePromoCode(forPlan);
+
+    const forAccount = await this.findListedCode(wanted, {});
+    return forAccount?.product === null ? usablePromoCode(forAccount) : null;
+  }
+
+  /** Our account's active code `wanted`, among those `scope` narrows the list to. */
+  private async findListedCode(
+    wanted: string,
+    scope: { plan_ids?: string },
+  ): Promise<ListedPromoCode | null> {
     const codes = await this.whop.promoCodes.list({
       account_id: this.accountId,
-      plan_ids: input.planId,
+      ...scope,
       status: 'active',
     });
-
-    const now = Date.now();
     for await (const promo of codes.data) {
-      if (promo.code?.toLocaleUpperCase() !== wanted) continue;
-      if (promo.expires_at && Date.parse(promo.expires_at) <= now) return null;
-      if (!promo.unlimited_stock && promo.uses >= promo.stock) return null;
-      return {
-        id: promo.id,
-        code: promo.code,
-        promoType: promo.promo_type,
-        amountOff: percentOrAmountOff(promo.promo_type, promo.amount_off),
-        currency: promo.currency,
-        restrictions: PROMO_RESTRICTIONS.filter((restriction) => promo[restriction]),
-      };
+      const { code } = promo;
+      if (code?.toLocaleUpperCase() === wanted) return { ...promo, code };
     }
     return null;
   }
