@@ -1,4 +1,4 @@
-import { Button, Chip, Skeleton } from '@heroui/react';
+import { Button, Chip } from '@heroui/react';
 import { IconCheck, IconCopy, IconTicket } from '@tabler/icons-react';
 import type { PublicPromoDto } from '@workspace/types';
 import type { TFunction } from 'i18next';
@@ -6,8 +6,7 @@ import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAsync, useClipboard } from '../../../../hooks';
 import { usePaymentsApi } from '../../../../runtime';
-import { Block } from '../../../../ui';
-import { Paragraph } from '../../../../ui/Paragraph';
+import { Block, Paragraph } from '../../../../ui';
 import { formatPeriod } from '../../../../utils/payment/planPricing';
 
 /** What the promo gives: bonus days, or money off in percent or in its own currency. */
@@ -70,30 +69,6 @@ function discountLabel(promo: PublicPromoDto, t: TFunction, language: string): s
     .join(' · ');
 }
 
-/** Holds the promo block's place while the promo loads. */
-function PromoCodeSkeleton() {
-  return (
-    <div>
-      <Skeleton className='h-4 ml-4 mb-2 w-16 rounded-lg' />
-      <div
-        aria-hidden='true'
-        className='flex items-center gap-3 rounded-3xl border border-dashed border-violet-500/40 bg-violet-500/5 p-3'
-        data-testid='promo-skeleton'
-      >
-        <Skeleton className='size-10 shrink-0 rounded-full' />
-        <div className='flex flex-1 flex-col gap-2'>
-          <Skeleton className='h-4 w-28 rounded-lg' />
-          <div className='flex gap-1'>
-            <Skeleton className='h-5 w-16 rounded-lg' />
-            <Skeleton className='h-5 w-24 rounded-lg' />
-          </div>
-        </div>
-        <Skeleton className='size-8 shrink-0 rounded-full' />
-      </div>
-    </div>
-  );
-}
-
 /**
  * The storefront's featured promo on the checkout email step, so the payer has
  * the code at hand when they reach payment. Shows a skeleton while it loads,
@@ -110,7 +85,7 @@ export function CheckoutPromoCode() {
     void execute();
   }, [execute]);
 
-  if (!data && !error) return <PromoCodeSkeleton />;
+  if (!data && !error) return null;
   const promo = data?.promos[0];
   if (!promo) return null;
   const eligibility = eligibilityLabel(promo, t);
