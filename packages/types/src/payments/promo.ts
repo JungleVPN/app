@@ -1,4 +1,5 @@
 import type { RemnaUserId } from '../remnawave';
+import type { UserScope } from '../utils';
 /**
  * Promo (promotional code) domain types — shared between the database entities
  * and the payments service.
@@ -9,15 +10,28 @@ import type { RemnaUserId } from '../remnawave';
  * needs to change.
  */
 
-/** Who a promo may be used by. `new` requires the user to have never had a settled payment. */
+/**
+ * Who a promo may be used by. `new` requires the user to have never had a settled
+ * payment; `expired_only` is for churned users, whose subscription has expired.
+ */
 export type PromoEligibility = 'all' | 'expired_only' | 'new';
+
+/** Storefront a promo is offered on; `all` offers it on every storefront. */
+export type PromoScope = UserScope | 'all';
 
 /**
  * What a promo does. Discriminated union so each effect is applied by its own
- * pure handler. Today only `bonus_months` ships; discounts can be added later
- * (they additionally affect the charged amount — see promo.applier.ts).
+ * pure handler. `bonus_months` adds days to the subscription and is granted by
+ * our own checkouts; `percentage` and `fixed_amount` take money off and are
+ * charged by the provider that holds the code (Whop) — our checkouts refuse them.
  */
-export type PromoEffect = { type: 'bonus_months'; days: number };
+export type PromoEffect =
+  | { type: 'bonus_months'; days: number }
+  | { type: 'percentage'; percent: number }
+  | { type: 'fixed_amount'; amount: number; currency: string };
+
+/** How many payments a discount applies to; `multiple_months` reads `durationMonths`. */
+export type PromoDuration = 'forever' | 'first_payment' | 'multiple_months';
 
 /** Context resolution needs to decide whether a code is currently usable. */
 export interface PromoContext {
@@ -48,7 +62,9 @@ export type PromoErrorCode =
   | 'not_eligible'
   | 'not_new_user'
   | 'limit_reached'
-  | 'already_used';
+  | 'already_used'
+  | 'not_for_plan'
+  | 'unsupported_effect';
 
 /** Response from POST /promo/validate. */
 export interface ValidatePromoResponse {
@@ -66,9 +82,14 @@ export interface PublicPromoDto {
   code: string;
   effect: PromoEffect;
   eligibility: PromoEligibility;
+  duration: PromoDuration;
+  /** Payments the discount lasts for when `duration` is `multiple_months`, otherwise null. */
+  durationMonths: number | null;
   /** ISO timestamp the promo stops working, or null when it doesn't expire. */
   endsAt: string | null;
   perUserLimit: number;
+  /** Plan lengths in days the promo applies to, or null for every plan. */
+  planPeriods: number[] | null;
 }
 
 /** Query for GET /promo — `featured` narrows the list to (or away from) featured promos. */

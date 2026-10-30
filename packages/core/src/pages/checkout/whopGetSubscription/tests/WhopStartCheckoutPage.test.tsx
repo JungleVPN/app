@@ -4,7 +4,7 @@
  * handed to the checkout route: Whop fixes a checkout's promo code when the
  * checkout opens, so the code is settled before it does.
  */
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { PROMO_CODE_INVALID_CODE } from '@workspace/types';
 import { type ReactNode, useEffect } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -18,6 +18,7 @@ const {
   loadPlans,
   checkoutState,
   pay,
+  payOptions,
   wallets,
   showWalletSheet,
   cardSubmit,
@@ -32,6 +33,7 @@ const {
   },
   navigate: vi.fn(),
   pay: vi.fn(),
+  payOptions: { onPromoRejected: null as (() => void) | null },
   cardSubmit: vi.fn(),
   cardPanel: { checkout: null as Record<string, unknown> | null },
   showWalletSheet: vi.fn(),
@@ -194,12 +196,15 @@ vi.mock('../../whopCheckout/components/WhopPaymentProcessingDrawer', () => ({
     isOpen ? <p data-testid='processing-drawer'>processing</p> : null,
 }));
 vi.mock('../../whopCheckout/hooks/useWhopPay', () => ({
-  useWhopPay: () => ({
-    pay,
-    pendingVia: wallets.chargingVia,
-    isCharging: wallets.chargingVia !== null,
-    failure: null,
-  }),
+  useWhopPay: (options: { onPromoRejected: () => void }) => {
+    payOptions.onPromoRejected = options.onPromoRejected;
+    return {
+      pay,
+      pendingVia: wallets.chargingVia,
+      isCharging: wallets.chargingVia !== null,
+      failure: null,
+    };
+  },
   failureFor: () => null,
 }));
 vi.mock('../../whopCheckout/hooks/useWhopWalletSheet', () => ({
@@ -387,6 +392,18 @@ describe('WhopStartCheckoutPage', () => {
     applyPromo('SPRING20');
 
     expect(await screen.findByText('getSubscription.throttled_error')).toBeTruthy();
+  });
+
+  it('drops the applied code when the payment refuses it, so the payer can pay without it', async () => {
+    api.checkPublicWhopPromoCode.mockResolvedValue(SPRING20);
+    render(<WhopStartCheckoutPage />);
+    applyPromo('SPRING20');
+    await discountShown();
+
+    act(() => payOptions.onPromoRejected?.());
+
+    expect(orderDiscount()).toBeNull();
+    expect(promoInput()).toBeTruthy();
   });
 
   it('pays the card with the applied code, on the total the payer was shown', async () => {

@@ -229,7 +229,9 @@
         "notEligible": "أنت غير مؤهل لاستخدام هذا الرمز الترويجي.",
         "notNewUser": "هذا الرمز الترويجي مخصص للمستخدمين الجدد فقط.",
         "limitReached": "لقد وصل هذا الرمز الترويجي إلى الحد الأقصى للاستخدام.",
-        "alreadyUsed": "لقد استخدمت هذا الرمز الترويجي بالفعل."
+        "alreadyUsed": "لقد استخدمت هذا الرمز الترويجي بالفعل.",
+        "notForPlan": "رمز الترويج هذا لا ينطبق على هذه الخطة.",
+        "unsupportedEffect": "لا يمكن استخدام رمز الترويج هذا هنا."
       }
     }
   },
@@ -1259,6 +1261,7 @@
   },
   "getSubscription": {
     "promo": {
+      "heading": "أدخل رمز العرض هذا في الخطوة التالية للحصول على المكافأة",
       "bonus_days_zero": "+{{count}} يوم مجانًا",
       "bonus_days_one": "+يوم واحد مجانًا",
       "bonus_days_two": "+يومان مجانًا",
@@ -1266,6 +1269,17 @@
       "bonus_days_many": "+{{count}} يومًا مجانًا",
       "bonus_days_other": "+{{count}} يوم مجانًا",
       "new_users": "للمستخدمين الجدد فقط",
+      "percent_off": "خصم {{percent}}%",
+      "amount_off": "خصم {{amount}}",
+      "first_payment": "الدفعة الأولى",
+      "for_months_zero": "لمدة {{count}} شهر",
+      "for_months_one": "لمدة شهر واحد",
+      "for_months_two": "لمدة شهرين",
+      "for_months_few": "لمدة {{count}} أشهر",
+      "for_months_many": "لمدة {{count}} شهرًا",
+      "for_months_other": "لمدة {{count}} شهر",
+      "churned_users": "للمستخدمين العائدين فقط",
+      "plans": "الخطط: {{plans}}",
       "until": "حتى {{date}}",
       "copy": "نسخ الرمز الترويجي",
       "copied": "تم نسخ الرمز الترويجي"

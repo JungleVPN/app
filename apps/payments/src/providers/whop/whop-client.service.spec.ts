@@ -1,6 +1,7 @@
 import 'reflect-metadata';
+import { WhopError } from '@whop/sdk';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { WhopClientService } from './whop-client.service';
+import { WhopClientService, WhopPromoRejectedError } from './whop-client.service';
 
 /** A Whop SDK page, as far as the service reads it: iterable across every page. */
 const page = <T>(items: T[]) => ({
@@ -18,6 +19,19 @@ const membershipsRetrieve = vi.fn();
 const WhopClient = vi.fn();
 
 vi.mock('@whop/sdk', () => ({
+  WhopError: class WhopError extends Error {
+    readonly statusCode?: number;
+    readonly body?: unknown;
+    constructor({
+      message,
+      statusCode,
+      body,
+    }: { message?: string; statusCode?: number; body?: unknown }) {
+      super(message);
+      this.statusCode = statusCode;
+      this.body = body;
+    }
+  },
   WhopEnvironment: {
     Production: { api: 'https://api.whop.com/api/v1' },
     Sandbox: { api: 'https://sandbox-api.whop.com/api/v1' },
@@ -149,7 +163,19 @@ describe('WhopClientService', () => {
         promoType: 'percentage',
         amountOff: 20,
         currency: 'usd',
+        restrictions: [],
       });
+    });
+
+    it('lists which customers Whop limits the code to, so a later refusal can be explained', async () => {
+      promoCodesList.mockResolvedValue(
+        page([promo({ new_users_only: true, one_per_customer: true })]),
+      );
+      const service = new WhopClientService();
+
+      await expect(
+        service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
+      ).resolves.toMatchObject({ restrictions: ['new_users_only', 'one_per_customer'] });
     });
 
     it.each([
@@ -199,13 +225,13 @@ describe('WhopClientService', () => {
       ['existing_memberships_only'],
       ['churned_users_only'],
       ['one_per_customer'],
-    ])('finds nothing for a code restricted by %s, since the payer cannot be checked against it before paying', async (restriction) => {
+    ])('still finds a code restricted by %s, since Whop checks the payer when charging', async (restriction) => {
       promoCodesList.mockResolvedValue(page([promo({ [restriction]: true })]));
       const service = new WhopClientService();
 
       await expect(
         service.findPromoCode({ code: 'SPRING20', planId: 'plan_month' }),
-      ).resolves.toBeNull();
+      ).resolves.toMatchObject({ id: 'promo_1' });
     });
 
     it('still finds a code that expires later', async () => {
@@ -303,6 +329,46 @@ describe('WhopClientService', () => {
       });
 
       expect(payment).toEqual({ paymentId: 'pay_1', status: 'open', clientSecret: 'sec_1' });
+    });
+
+    const charge = (service: WhopClientService) =>
+      service.createPayment({
+        planId: 'plan_month',
+        confirmationToken: 'ctok_1',
+        email: 'payer@test.com',
+        metadata: {},
+        returnUrl: 'https://app.test/payment/success',
+        promoCodeId: 'promo_1',
+      });
+
+    it('reports a promo code Whop refuses for this payer, with the reason Whop gives', async () => {
+      paymentsCreate.mockRejectedValue(
+        new WhopError({
+          statusCode: 400,
+          body: {
+            error: {
+              type: 'bad_request',
+              message: 'This promo code is only available to new users.',
+              code: 'promo_invalid',
+            },
+          },
+        }),
+      );
+
+      const refusal = charge(new WhopClientService());
+
+      await expect(refusal).rejects.toThrow(WhopPromoRejectedError);
+      await expect(refusal).rejects.toThrow('This promo code is only available to new users.');
+    });
+
+    it('passes on any other refusal from Whop unchanged', async () => {
+      const declined = new WhopError({
+        statusCode: 400,
+        body: { error: { type: 'bad_request', message: 'Card declined', code: 'card_declined' } },
+      });
+      paymentsCreate.mockRejectedValue(declined);
+
+      await expect(charge(new WhopClientService())).rejects.toBe(declined);
     });
   });
 

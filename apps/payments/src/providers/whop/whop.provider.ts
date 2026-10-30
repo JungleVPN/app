@@ -20,11 +20,29 @@ import {
   type WhopPaymentDto,
   type WhopPaymentStatusDto,
   type WhopPromoCodeDto,
+  type WhopPromoRejectionReason,
   type WhopResumeDto,
 } from '@workspace/types';
 import { Repository } from 'typeorm';
-import { WhopClientService } from './whop-client.service';
+import {
+  WhopClientService,
+  WhopPromoRejectedError,
+  type WhopPromoRestriction,
+} from './whop-client.service';
 import { WhopWebhookService } from './whop-webhook.service';
+
+/**
+ * Why Whop refused a code limited to `restrictions` when charging. A new-users
+ * code refuses any returning payer, so that wins; one-per-customer alone means
+ * the payer used it before; any other mix can't be told apart.
+ */
+function rejectionReason(restrictions: readonly WhopPromoRestriction[]): WhopPromoRejectionReason {
+  if (restrictions.includes('new_users_only')) return 'new_users_only';
+  if (restrictions.length === 1 && restrictions[0] === 'one_per_customer') {
+    return 'one_per_customer';
+  }
+  return 'not_eligible';
+}
 
 /** The Whop plan a checkout bills, and whether it renews. */
 export interface WhopCheckoutPlan {
@@ -119,14 +137,23 @@ export class WhopProvider {
       ? await this.findPromoCodeOrRefuse(input.promoCode, input.whopPlanId)
       : null;
 
-    return this.whopClientService.createPayment({
-      planId: input.whopPlanId,
-      confirmationToken: input.confirmationToken,
-      email: input.email,
-      metadata,
-      returnUrl: input.returnUrl,
-      ...(promo ? { promoCodeId: promo.id } : {}),
-    });
+    return this.whopClientService
+      .createPayment({
+        planId: input.whopPlanId,
+        confirmationToken: input.confirmationToken,
+        email: input.email,
+        metadata,
+        returnUrl: input.returnUrl,
+        ...(promo ? { promoCodeId: promo.id } : {}),
+      })
+      .catch((err: unknown) => {
+        if (!(err instanceof WhopPromoRejectedError) || !promo) throw err;
+        throw new BadRequestException({
+          code: PROMO_CODE_INVALID_CODE,
+          message: err.message,
+          reason: rejectionReason(promo.restrictions),
+        });
+      });
   }
 
   /** The discount `promoCode` gives `whopPlanId`, refusing a code the plan does not offer. */
@@ -134,10 +161,11 @@ export class WhopProvider {
     promoCode: string;
     whopPlanId: string;
   }): Promise<WhopPromoCodeDto> {
-    const { id: _id, ...discount } = await this.findPromoCodeOrRefuse(
-      input.promoCode,
-      input.whopPlanId,
-    );
+    const {
+      id: _id,
+      restrictions: _restrictions,
+      ...discount
+    } = await this.findPromoCodeOrRefuse(input.promoCode, input.whopPlanId);
     return discount;
   }
 

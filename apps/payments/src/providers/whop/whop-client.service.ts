@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { WhopClient, WhopEnvironment } from '@whop/sdk';
+import { WhopClient, WhopEnvironment, WhopError } from '@whop/sdk';
 import type { WhopPaymentDto, WhopPromoCodeDto } from '@workspace/types';
 
 function requireEnv(name: string): string {
@@ -29,22 +29,35 @@ const CANCELED_MEMBERSHIP_STATUSES: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Whether Whop limits `promo` to certain customers. The public checkout can't
- * tell before payment whether the payer qualifies, so such a code is refused
- * rather than confirmed as a discount Whop may not honour.
+ * Thrown by `createPayment` when Whop refuses the promo code for this payer —
+ * e.g. a new-users-only code paid for by an existing customer. Whop only knows
+ * the payer once it charges, so this can't be caught when the code is applied.
  */
-function isCustomerRestricted(promo: {
-  new_users_only: boolean;
-  existing_memberships_only: boolean;
-  churned_users_only: boolean;
-  one_per_customer: boolean;
-}): boolean {
-  return (
-    promo.new_users_only ||
-    promo.existing_memberships_only ||
-    promo.churned_users_only ||
-    promo.one_per_customer
-  );
+export class WhopPromoRejectedError extends Error {}
+
+/** Customers Whop may limit a promo code to; it checks the payer only when charging. */
+export type WhopPromoRestriction =
+  | 'new_users_only'
+  | 'existing_memberships_only'
+  | 'churned_users_only'
+  | 'one_per_customer';
+
+const PROMO_RESTRICTIONS: readonly WhopPromoRestriction[] = [
+  'new_users_only',
+  'existing_memberships_only',
+  'churned_users_only',
+  'one_per_customer',
+];
+
+/** Whop's reason for refusing the payment's promo code, or null when it refused for another reason. */
+function promoRejection(err: unknown): string | null {
+  if (!(err instanceof WhopError) || err.statusCode !== 400) return null;
+  const body = err.body;
+  if (typeof body !== 'object' || body === null || !('error' in body)) return null;
+  const { error } = body;
+  if (typeof error !== 'object' || error === null) return null;
+  if (!('code' in error) || error.code !== 'promo_invalid') return null;
+  return 'message' in error && typeof error.message === 'string' ? error.message : '';
 }
 
 /**
@@ -69,14 +82,15 @@ export class WhopClientService {
 
   /**
    * The active promo code `code` names for `planId`, or null when the plan
-   * offers no such code, it can no longer be used, or it is limited to
-   * certain customers. Whop can't look a code
-   * up by its text, so this reads the plan's active codes and matches it.
+   * offers no such code or it can no longer be used. A code limited to certain
+   * customers is still found: Whop checks the payer when charging (see
+   * `createPayment`). Whop can't look a code up by its text, so this reads the
+   * plan's active codes and matches it.
    */
   async findPromoCode(input: {
     code: string;
     planId: string;
-  }): Promise<(WhopPromoCodeDto & { id: string }) | null> {
+  }): Promise<(WhopPromoCodeDto & { id: string; restrictions: WhopPromoRestriction[] }) | null> {
     const wanted = input.code.trim().toLocaleUpperCase();
     if (!wanted) return null;
 
@@ -91,13 +105,13 @@ export class WhopClientService {
       if (promo.code?.toLocaleUpperCase() !== wanted) continue;
       if (promo.expires_at && Date.parse(promo.expires_at) <= now) return null;
       if (!promo.unlimited_stock && promo.uses >= promo.stock) return null;
-      if (isCustomerRestricted(promo)) return null;
       return {
         id: promo.id,
         code: promo.code,
         promoType: promo.promo_type,
         amountOff: percentOrAmountOff(promo.promo_type, promo.amount_off),
         currency: promo.currency,
+        restrictions: PROMO_RESTRICTIONS.filter((restriction) => promo[restriction]),
       };
     }
     return null;
@@ -107,7 +121,8 @@ export class WhopClientService {
    * Charges the card the browser tokenised (`ctok_...`) for `planId`. Whop
    * copies `metadata` onto the payment — that is how the webhook identifies
    * the payer. The payment may still need a buyer step (3DS), which the
-   * browser finishes with `clientSecret`.
+   * browser finishes with `clientSecret`. Throws `WhopPromoRejectedError`
+   * when Whop refuses the promo code for this payer.
    */
   async createPayment(input: {
     planId: string;
@@ -117,15 +132,20 @@ export class WhopClientService {
     returnUrl: string;
     promoCodeId?: string;
   }): Promise<WhopPaymentDto> {
-    const payment = await this.whop.payments.create({
-      account_id: this.accountId,
-      plan_id: input.planId,
-      confirmation_token: input.confirmationToken,
-      email: input.email,
-      metadata: input.metadata,
-      return_url: input.returnUrl,
-      ...(input.promoCodeId ? { promo_code_id: input.promoCodeId } : {}),
-    });
+    const payment = await this.whop.payments
+      .create({
+        account_id: this.accountId,
+        plan_id: input.planId,
+        confirmation_token: input.confirmationToken,
+        email: input.email,
+        metadata: input.metadata,
+        return_url: input.returnUrl,
+        ...(input.promoCodeId ? { promo_code_id: input.promoCodeId } : {}),
+      })
+      .catch((err: unknown) => {
+        const reason = promoRejection(err);
+        throw reason === null ? err : new WhopPromoRejectedError(reason);
+      });
     return { paymentId: payment.id, status: payment.status, clientSecret: payment.client_secret };
   }
 

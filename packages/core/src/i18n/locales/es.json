@@ -229,7 +229,9 @@
         "notEligible": "No cumples los requisitos para utilizar este código promocional.",
         "notNewUser": "Este código promocional es solo para nuevos usuarios.",
         "limitReached": "Este código promocional ha alcanzado su límite de uso.",
-        "alreadyUsed": "Ya has utilizado este código promocional."
+        "alreadyUsed": "Ya has utilizado este código promocional.",
+        "notForPlan": "Este código promocional no se aplica a este plan.",
+        "unsupportedEffect": "Este código promocional no se puede usar aquí."
       }
     }
   },
@@ -1259,9 +1261,17 @@
   },
   "getSubscription": {
     "promo": {
+      "heading": "Introduce este código promocional en el siguiente paso para obtener el bono",
       "bonus_days_one": "+{{count}} día gratis",
       "bonus_days_other": "+{{count}} días gratis",
       "new_users": "Solo para nuevos usuarios",
+      "percent_off": "{{percent}}% de descuento",
+      "amount_off": "{{amount}} de descuento",
+      "first_payment": "Primer pago",
+      "for_months_one": "Durante {{count}} mes",
+      "for_months_other": "Durante {{count}} meses",
+      "churned_users": "Solo para usuarios que regresan",
+      "plans": "Planes: {{plans}}",
       "until": "Hasta el {{date}}",
       "copy": "Copiar código promocional",
       "copied": "Código promocional copiado"

@@ -12,6 +12,8 @@ const PROMO_ALERT_KEYS: Record<PromoErrorCode, string> = {
   not_new_user: 'payment.promo.alert.notNewUser',
   limit_reached: 'payment.promo.alert.limitReached',
   already_used: 'payment.promo.alert.alreadyUsed',
+  not_for_plan: 'payment.promo.alert.notForPlan',
+  unsupported_effect: 'payment.promo.alert.unsupportedEffect',
 };
 
 const FALLBACK_KEY = 'payment.promo.alert.invalid';

@@ -229,7 +229,9 @@
         "notEligible": "You are not eligible for this promo code.",
         "notNewUser": "This promo code is only for new users.",
         "limitReached": "This promo code has reached its usage limit.",
-        "alreadyUsed": "You have already used this promo code."
+        "alreadyUsed": "You have already used this promo code.",
+        "notForPlan": "This promo code does not apply to this plan.",
+        "unsupportedEffect": "This promo code cannot be used here."
       }
     }
   },
@@ -1259,9 +1261,17 @@
   },
   "getSubscription": {
     "promo": {
+      "heading": "Enter this promo on the next step to get the bonus",
       "bonus_days_one": "+{{count}} day free",
       "bonus_days_other": "+{{count}} days free",
       "new_users": "New users only",
+      "percent_off": "{{percent}}% off",
+      "amount_off": "{{amount}} off",
+      "first_payment": "First payment",
+      "for_months_one": "For {{count}} month",
+      "for_months_other": "For {{count}} months",
+      "churned_users": "Returning users only",
+      "plans": "{{plans}} plans",
       "until": "Until {{date}}",
       "copy": "Copy promo code",
       "copied": "Promo code copied"

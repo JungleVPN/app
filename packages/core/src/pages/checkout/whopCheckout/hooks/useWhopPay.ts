@@ -12,6 +12,7 @@ import {
   type SubmittedPaymentMethod,
   trackPaymentMethodSubmitted,
 } from '../../../../utils';
+import { isPromoCodeInvalidError } from '../../getSubscription/utils/checkoutErrors';
 import { awaitFulfilment } from '../utils/awaitFulfilment';
 import { payErrorKey } from '../utils/whopPayErrors';
 import type { WhopCheckoutState } from '../whopCheckoutState';
@@ -36,14 +37,17 @@ type ChargeOutcome = { paid: string } | { error: string } | null;
  * checkout, charges it under the email the payer entered, and stamps the
  * webhook metadata — then hands any pending step such as 3DS to Whop. Shared
  * by the card form and the wallet buttons, so a wallet can never charge under
- * an email other than the checkout's.
+ * an email other than the checkout's. A promo code Whop refuses for this payer
+ * is reported through `onPromoRejected`, so the page can drop it for a retry.
  */
 export function useWhopPay({
   checkout,
   returnUrl,
+  onPromoRejected,
 }: {
   checkout: WhopCheckoutState;
   returnUrl: string;
+  onPromoRejected: () => void;
 }) {
   const { t } = useTranslation();
   const whop = useWhop();
@@ -154,6 +158,7 @@ export function useWhopPay({
       fail(t('whopCheckout.errors.activation_delayed'));
     } catch (caught) {
       forgetPendingPurchase();
+      if (isPromoCodeInvalidError(caught)) onPromoRejected();
       fail(t(payErrorKey(caught)));
     } finally {
       if (!charged) unlock();

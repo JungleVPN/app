@@ -1,4 +1,4 @@
-import type { PromoEffect, PromoEligibility, UserScope } from '@workspace/types';
+import type { PromoDuration, PromoEffect, PromoEligibility, PromoScope } from '@workspace/types';
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
 /**
@@ -10,9 +10,21 @@ export class Promo {
   @PrimaryColumn()
   code: string;
 
-  /** What redeeming this promo does (e.g. { type: 'bonus_months', months: 2 }). */
+  /** What redeeming this promo does (e.g. { type: 'percentage', percent: 10 }). */
   @Column({ type: 'jsonb' })
   effect: PromoEffect;
+
+  /** How many payments a discount applies to. */
+  @Column({ type: 'varchar', default: 'forever' })
+  duration: PromoDuration;
+
+  /** Payments the discount lasts for when `duration` is `multiple_months`. */
+  @Column({ type: 'int', nullable: true })
+  durationMonths: number | null;
+
+  /** Plan lengths in days the promo applies to. Null = every plan. */
+  @Column({ type: 'int', array: true, nullable: true })
+  planPeriods: number[] | null;
 
   /** Campaign window. Null bounds mean "no lower/upper bound". */
   @Column({ type: 'timestamptz', nullable: true })
@@ -36,9 +48,12 @@ export class Promo {
   @Column({ type: 'varchar', default: 'all' })
   eligibility: PromoEligibility;
 
-  /** Storefront the promo belongs to. Existing promos predate `global` and are RU. */
+  /**
+   * Storefront the promo belongs to; `all` offers it on every storefront.
+   * Existing promos predate `global` and are RU.
+   */
   @Column({ type: 'varchar', default: 'ru' })
-  scope: UserScope;
+  scope: PromoScope;
 
   /** Advertised on the checkout email step of its storefront. */
   @Column({ type: 'boolean', default: false })

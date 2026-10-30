@@ -89,9 +89,7 @@ export function CheckoutEmailStep({
 
         {checkoutError && <Paragraph>{checkoutError}</Paragraph>}
       </Block>
-      <Block className={'p-1'} title={'Enter this promo on the next step to get the bonus'}>
-        <CheckoutPromoCode />
-      </Block>
+      <CheckoutPromoCode />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import type { Plan } from '@workspace/database';
 import { PROMO_CODE_INVALID_CODE } from '@workspace/types';
 import { describe, expect, it, vi } from 'vitest';
 import { WhopProvider } from './whop.provider';
+import { WhopPromoRejectedError } from './whop-client.service';
 
 const plan = (id: string, overrides: Partial<Plan> = {}): Plan => ({
   id,
@@ -44,6 +45,7 @@ const providerWith = (countryCode: string | null = null) => {
       promoType: 'percentage',
       amountOff: 20,
       currency: 'usd',
+      restrictions: [],
     }),
     cancelMembership: vi
       .fn()
@@ -252,6 +254,48 @@ describe('WhopProvider', () => {
         response: { code: PROMO_CODE_INVALID_CODE },
       });
       expect(whopClientService.createPayment).not.toHaveBeenCalled();
+    });
+
+    it('refuses a promo code Whop will not honour for this payer, with a code the page recognises', async () => {
+      const { provider, whopClientService } = providerWith();
+      whopClientService.createPayment.mockRejectedValue(
+        new WhopPromoRejectedError('This promo code is only available to new users.'),
+      );
+
+      const refusal = provider.payCheckout(payment({ promoCode: 'spring20' }));
+
+      await expect(refusal).rejects.toThrow(BadRequestException);
+      await expect(refusal).rejects.toMatchObject({
+        response: {
+          code: PROMO_CODE_INVALID_CODE,
+          message: 'This promo code is only available to new users.',
+        },
+      });
+    });
+
+    it.each([
+      [['new_users_only'], 'new_users_only'],
+      [['new_users_only', 'one_per_customer'], 'new_users_only'],
+      [['one_per_customer'], 'one_per_customer'],
+      [['churned_users_only'], 'not_eligible'],
+      [['existing_memberships_only'], 'not_eligible'],
+      [['churned_users_only', 'one_per_customer'], 'not_eligible'],
+      [[], 'not_eligible'],
+    ])('explains a refusal of a code limited to %j as %s', async (restrictions, reason) => {
+      const { provider, whopClientService } = providerWith();
+      whopClientService.findPromoCode.mockResolvedValue({
+        id: 'promo_1',
+        code: 'SPRING20',
+        promoType: 'percentage',
+        amountOff: 20,
+        currency: 'usd',
+        restrictions,
+      });
+      whopClientService.createPayment.mockRejectedValue(new WhopPromoRejectedError('refused'));
+
+      await expect(provider.payCheckout(payment({ promoCode: 'spring20' }))).rejects.toMatchObject({
+        response: { code: PROMO_CODE_INVALID_CODE, reason },
+      });
     });
 
     it('charges full price without looking anything up when no code was applied', async () => {

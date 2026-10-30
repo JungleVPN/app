@@ -1,4 +1,4 @@
-import { ACTIVE_SUBSCRIPTION_CODE } from '@workspace/types';
+import { ACTIVE_SUBSCRIPTION_CODE, PROMO_CODE_INVALID_CODE } from '@workspace/types';
 import { describe, expect, it } from 'vitest';
 import { ApiClientError } from '../../../../../api';
 import { checkoutErrorKey, isActiveSubscriptionError, isThrottledError } from '../checkoutErrors';
@@ -79,6 +79,40 @@ describe('checkoutErrorKey', () => {
     });
 
     expect(checkoutErrorKey(error)).toBe('getSubscription.active_subscription_error');
+  });
+
+  it('says a promo code does not apply to the plan when no reason is given', () => {
+    const error = new ApiClientError({
+      status: 400,
+      message: 'bad request',
+      data: { code: PROMO_CODE_INVALID_CODE },
+    });
+
+    expect(checkoutErrorKey(error)).toBe('whopCheckout.errors.promo_invalid');
+  });
+
+  it.each([
+    ['new_users_only', 'payment.promo.alert.notNewUser'],
+    ['one_per_customer', 'payment.promo.alert.alreadyUsed'],
+    ['not_eligible', 'payment.promo.alert.notEligible'],
+  ])('explains a promo code refused as %s with %s', (reason, key) => {
+    const error = new ApiClientError({
+      status: 400,
+      message: 'bad request',
+      data: { code: PROMO_CODE_INVALID_CODE, reason },
+    });
+
+    expect(checkoutErrorKey(error)).toBe(key);
+  });
+
+  it('says a promo code does not apply to the plan for a reason it does not know', () => {
+    const error = new ApiClientError({
+      status: 400,
+      message: 'bad request',
+      data: { code: PROMO_CODE_INVALID_CODE, reason: 'something_new' },
+    });
+
+    expect(checkoutErrorKey(error)).toBe('whopCheckout.errors.promo_invalid');
   });
 
   it('falls back to the generic checkout failure for anything else', () => {

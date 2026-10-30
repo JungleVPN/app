@@ -13,7 +13,7 @@ import type {
   ValidatePromoDto,
   ValidatePromoResponse,
 } from '@workspace/types';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { bonusMonthsFromEffect } from './promo.applier';
 
 /** Thrown by `resolve` when a code cannot be used; `code` localizes on the client. */
@@ -42,6 +42,11 @@ export class PromoService {
 
   private static normalize(code: string): string {
     return code.trim().toUpperCase();
+  }
+
+  /** Whether `promo` applies to a plan of `period` days. */
+  private static coversPeriod(promo: Promo, period: number): boolean {
+    return promo.planPeriods === null || promo.planPeriods.includes(period);
   }
 
   /**
@@ -80,6 +85,14 @@ export class PromoService {
     }
     if (promo.endsAt && now > promo.endsAt) {
       throw new PromoInvalidError('This promo code has expired.', 'expired');
+    }
+
+    if (promo.effect.type !== 'bonus_months') {
+      throw new PromoInvalidError('This promo code cannot be used here.', 'unsupported_effect');
+    }
+
+    if (ctx.selectedPeriod !== undefined && !PromoService.coversPeriod(promo, ctx.selectedPeriod)) {
+      throw new PromoInvalidError('This promo code does not apply to this plan.', 'not_for_plan');
     }
 
     if (promo.eligibility === 'expired_only' && ctx.userStatus !== 'EXPIRED') {
@@ -126,15 +139,18 @@ export class PromoService {
       code: promo.code,
       effect: promo.effect,
       eligibility: promo.eligibility,
+      duration: promo.duration,
+      durationMonths: promo.durationMonths,
       endsAt: promo.endsAt?.toISOString() ?? null,
       perUserLimit: promo.perUserLimit,
+      planPeriods: promo.planPeriods,
     };
   }
 
   /**
-   * The promos a storefront offers right now, newest first — those an anonymous
-   * payer could still use. `expired_only` promos are left out, since the payer's
-   * subscription status is unknown there. `featured` narrows the list when given.
+   * The promos a storefront offers right now (its own and `all`-scoped ones),
+   * newest first — those an anonymous payer could still use. `expired_only`
+   * promos are left out, since the payer's subscription status is unknown there. `featured` narrows the list when given.
    */
   async listAvailable({
     scope,
@@ -144,7 +160,11 @@ export class PromoService {
     featured?: boolean;
   }): Promise<PublicPromoDto[]> {
     const candidates = await this.promoRepo.find({
-      where: { scope, active: true, ...(featured === undefined ? {} : { featured }) },
+      where: {
+        scope: In([scope, 'all']),
+        active: true,
+        ...(featured === undefined ? {} : { featured }),
+      },
       order: { createdAt: 'DESC' },
     });
 
@@ -220,6 +240,11 @@ export class PromoService {
       const now = new Date();
       if ((promo.startsAt && now < promo.startsAt) || (promo.endsAt && now > promo.endsAt)) {
         this.logger.warn(`Promo ${normalized} outside window at fulfillment — no bonus`);
+        return days;
+      }
+
+      if (promo.effect.type !== 'bonus_months' || !PromoService.coversPeriod(promo, days)) {
+        this.logger.warn(`Promo ${normalized} grants no bonus on a ${days}-day plan`);
         return days;
       }
 

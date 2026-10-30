@@ -2,7 +2,7 @@ import type { AdminService } from '@payments/admin/admin.service';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
 import { Promo, type PromoRedemption } from '@workspace/database';
 import type { AdminPaymentDto, PromoEffect } from '@workspace/types';
-import type { DataSource, Repository } from 'typeorm';
+import { type DataSource, FindOperator, type Repository } from 'typeorm';
 import { describe, expect, it, vi } from 'vitest';
 import { PromoInvalidError, PromoService } from './promo.service';
 
@@ -17,6 +17,9 @@ function makePromo(overrides: Partial<Promo> = {}): Promo {
     maxRedemptions: null,
     perUserLimit: 1,
     eligibility: 'all',
+    duration: 'forever',
+    durationMonths: null,
+    planPeriods: null,
     scope: 'ru',
     featured: false,
     active: true,
@@ -174,6 +177,40 @@ describe('PromoService', () => {
       ).resolves.toEqual(BONUS);
     });
 
+    it('rejects a promo limited to other plan lengths once the period is known', async () => {
+      const promo = makePromo({ planPeriods: [90, 365] });
+
+      const rejected = setup({ promo }).service.resolve('FREE2', {
+        userId: 1000,
+        selectedPeriod: 30,
+      });
+      await expect(rejected).rejects.toThrow(/does not apply to this plan/);
+      await expect(rejected).rejects.toMatchObject({ code: 'not_for_plan' });
+
+      await expect(
+        setup({ promo }).service.resolve('FREE2', { userId: 1000, selectedPeriod: 365 }),
+      ).resolves.toEqual(BONUS);
+    });
+
+    it('leaves the plan check to checkout while the period is unknown', async () => {
+      const promo = makePromo({ planPeriods: [365] });
+      await expect(setup({ promo }).service.resolve('FREE2', { userId: 1000 })).resolves.toEqual(
+        BONUS,
+      );
+    });
+
+    it('refuses discount promos, which only the provider holding the code can charge', async () => {
+      const percentage = makePromo({ effect: { type: 'percentage', percent: 10 } });
+      const fixed = makePromo({ effect: { type: 'fixed_amount', amount: 2, currency: 'EUR' } });
+
+      const rejected = setup({ promo: percentage }).service.resolve('FREE2', { userId: 1000 });
+      await expect(rejected).rejects.toThrow(/cannot be used here/);
+      await expect(rejected).rejects.toMatchObject({ code: 'unsupported_effect' });
+      await expect(
+        setup({ promo: fixed }).service.resolve('FREE2', { userId: 1000 }),
+      ).rejects.toMatchObject({ code: 'unsupported_effect' });
+    });
+
     it('enforces the per-user limit', async () => {
       const { service } = setup({ promo: makePromo({ perUserLimit: 1 }), userRedemptions: 1 });
       await expect(service.resolve('FREE2', { userId: 1000 })).rejects.toThrow(/already used/);
@@ -254,6 +291,25 @@ describe('PromoService', () => {
       expect(insert).not.toHaveBeenCalled();
     });
 
+    it('grants no bonus for a plan length the promo does not cover', async () => {
+      const { service, insert } = setup({ promo: makePromo({ planPeriods: [365] }) });
+      await expect(service.applyToMonths('FREE2', 30, ctx)).resolves.toBe(30);
+      expect(insert).not.toHaveBeenCalled();
+    });
+
+    it('grants the bonus for a plan length the promo covers', async () => {
+      const { service } = setup({ promo: makePromo({ planPeriods: [30, 365] }) });
+      await expect(service.applyToMonths('FREE2', 30, ctx)).resolves.toBe(32);
+    });
+
+    it('grants no bonus for a discount promo', async () => {
+      const { service, insert } = setup({
+        promo: makePromo({ effect: { type: 'percentage', percent: 10 } }),
+      });
+      await expect(service.applyToMonths('FREE2', 30, ctx)).resolves.toBe(30);
+      expect(insert).not.toHaveBeenCalled();
+    });
+
     it('grants no bonus once the per-user limit is reached', async () => {
       const { service, insert } = setup({
         promo: makePromo({ perUserLimit: 1 }),
@@ -265,6 +321,14 @@ describe('PromoService', () => {
   });
 });
 
+/** Whether `actual` satisfies a `where` value — a plain value or an `In(...)` operator. */
+function matchesWhere(actual: unknown, expected: unknown): boolean {
+  if (expected instanceof FindOperator && expected.type === 'in') {
+    return (expected.value as unknown[]).includes(actual);
+  }
+  return actual === expected;
+}
+
 /** A service over a promos table holding `promos`, with `redeemed` redemptions per code. */
 function setupListing(opts: { promos: Promo[]; redeemed?: Record<string, number> }) {
   const promoRepo = {
@@ -272,7 +336,9 @@ function setupListing(opts: { promos: Promo[]; redeemed?: Record<string, number>
       Promise.resolve(
         opts.promos
           .filter((promo) =>
-            Object.entries(where).every(([key, value]) => promo[key as keyof Promo] === value),
+            Object.entries(where).every(([key, value]) =>
+              matchesWhere(promo[key as keyof Promo], value),
+            ),
           )
           .slice()
           .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
@@ -307,20 +373,51 @@ describe('PromoService.listAvailable', () => {
     const service = setupListing({
       promos: [
         makeGlobal({ code: 'RU10', scope: 'ru' }),
-        makeGlobal({ code: 'GLOBAL10', eligibility: 'new', perUserLimit: 2, endsAt }),
+        makeGlobal({
+          code: 'GLOBAL10',
+          effect: { type: 'percentage', percent: 10 },
+          eligibility: 'new',
+          duration: 'multiple_months',
+          durationMonths: 3,
+          perUserLimit: 2,
+          planPeriods: [90, 365],
+          endsAt,
+        }),
       ],
     });
 
     await expect(service.listAvailable({ scope: 'global' })).resolves.toEqual([
       {
         code: 'GLOBAL10',
-        effect: BONUS,
+        effect: { type: 'percentage', percent: 10 },
         eligibility: 'new',
+        duration: 'multiple_months',
+        durationMonths: 3,
         endsAt: endsAt.toISOString(),
         perUserLimit: 2,
+        planPeriods: [90, 365],
       },
     ]);
     expect(codesOf(await service.listAvailable({ scope: 'ru' }))).toEqual(['RU10']);
+  });
+
+  it('lists a promo for every storefront on both RU and global', async () => {
+    const service = setupListing({
+      promos: [
+        makeGlobal({ code: 'EVERYONE', scope: 'all' }),
+        makeGlobal({ code: 'RU10', scope: 'ru' }),
+        makeGlobal({ code: 'GLOBAL10' }),
+      ],
+    });
+
+    expect(codesOf(await service.listAvailable({ scope: 'global' })).sort()).toEqual([
+      'EVERYONE',
+      'GLOBAL10',
+    ]);
+    expect(codesOf(await service.listAvailable({ scope: 'ru' })).sort()).toEqual([
+      'EVERYONE',
+      'RU10',
+    ]);
   });
 
   it('reports no end date for a promo without one', async () => {

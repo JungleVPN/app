@@ -1,7 +1,7 @@
 import { Button, Chip, Input, Label, TextField } from '@heroui/react';
 import { IconTag, IconX } from '@tabler/icons-react';
 import type { WhopPromoCodeDto } from '@workspace/types';
-import { type KeyboardEvent, useState } from 'react';
+import { type KeyboardEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePaymentsApi } from '../../../../runtime';
 import { Paragraph } from '../../../../ui';
@@ -11,6 +11,7 @@ interface WhopPromoCodeProps {
   /** Our plan id, which the backend checks the code against. */
   planId: string;
   applied: WhopPromoCodeDto | null;
+  promoRejected: boolean;
   onApplyChange: (promo: WhopPromoCodeDto | null) => void;
 }
 
@@ -20,7 +21,12 @@ interface WhopPromoCodeProps {
  * applied, the code shows as a chip the payer can remove, and the order
  * summary shows what it does.
  */
-export function WhopPromoCode({ planId, applied, onApplyChange }: WhopPromoCodeProps) {
+export function WhopPromoCode({
+  planId,
+  applied,
+  promoRejected,
+  onApplyChange,
+}: WhopPromoCodeProps) {
   const { t } = useTranslation();
   const paymentsApi = usePaymentsApi();
   const [value, setValue] = useState('');
@@ -28,6 +34,10 @@ export function WhopPromoCode({ planId, applied, onApplyChange }: WhopPromoCodeP
   const [error, setError] = useState<string | null>(null);
 
   const promoCode = value.trim();
+
+  useEffect(() => {
+    if (promoRejected) setValue('');
+  }, [promoRejected]);
 
   const edit = (next: string) => {
     setValue(next);

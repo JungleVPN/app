@@ -5,8 +5,9 @@
  * shows only where the payer paid from.
  */
 import { act, renderHook } from '@testing-library/react';
-import type { WhopPaymentStatusDto } from '@workspace/types';
+import { PROMO_CODE_INVALID_CODE, type WhopPaymentStatusDto } from '@workspace/types';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { ApiClientError } from '../../../../../api';
 import { checkoutErrorKey } from '../../../getSubscription/utils/checkoutErrors';
 import { CardTokenError, WalletSheetError } from '../../utils/whopPayErrors';
 import type { WhopCheckoutState } from '../../whopCheckoutState';
@@ -56,8 +57,8 @@ const checkoutState = (overrides: Partial<WhopCheckoutState> = {}): WhopCheckout
 const fulfilled = (firstPayment = true): WhopPaymentStatusDto =>
   ({ fulfilled: true, firstPayment }) as WhopPaymentStatusDto;
 
-const renderPay = (checkout = checkoutState()) =>
-  renderHook(() => useWhopPay({ checkout, returnUrl: RETURN_URL }));
+const renderPay = (checkout = checkoutState(), onPromoRejected = vi.fn()) =>
+  renderHook(() => useWhopPay({ checkout, returnUrl: RETURN_URL, onPromoRejected }));
 
 type Rendered = ReturnType<typeof renderPay>;
 
@@ -332,6 +333,34 @@ describe('useWhopPay when nothing is charged', () => {
     expect(failureFor(rendered.result.current, 'card')).toBe(checkoutErrorKey(refusal));
     expect(rendered.result.current.pendingVia).toBeNull();
     expect(rendered.result.current.isCharging).toBe(false);
+  });
+
+  it('drops the promo code when the charge refuses it, explaining why', async () => {
+    const refusal = new ApiClientError({
+      status: 400,
+      message: 'Bad Request',
+      data: { code: PROMO_CODE_INVALID_CODE, reason: 'new_users_only' },
+    });
+    api.payPublicWhopCheckout.mockRejectedValue(refusal);
+    const onPromoRejected = vi.fn();
+    const rendered = renderPay(checkoutState(), onPromoRejected);
+
+    await payWith(rendered, async () => 'ctok_1');
+
+    expect(onPromoRejected).toHaveBeenCalledOnce();
+    expect(failureFor(rendered.result.current, 'card')).toBe('payment.promo.alert.notNewUser');
+  });
+
+  it('keeps the promo code when the charge fails for another reason', async () => {
+    api.payPublicWhopCheckout.mockRejectedValue(
+      new ApiClientError({ status: 429, message: 'Too Many Requests', data: null }),
+    );
+    const onPromoRejected = vi.fn();
+    const rendered = renderPay(checkoutState(), onPromoRejected);
+
+    await payWith(rendered, async () => 'ctok_1');
+
+    expect(onPromoRejected).not.toHaveBeenCalled();
   });
 
   it('clears the last failure when the payer tries again', async () => {

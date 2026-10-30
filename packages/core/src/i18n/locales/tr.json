@@ -229,7 +229,9 @@
         "notEligible": "Bu promosyon kodundan yararlanma hakkınız yoktur.",
         "notNewUser": "Bu promosyon kodu yalnızca yeni kullanıcılar içindir.",
         "limitReached": "Bu promosyon kodunun kullanım sınırı dolmuştur.",
-        "alreadyUsed": "Bu promosyon kodunu daha önce kullandınız."
+        "alreadyUsed": "Bu promosyon kodunu daha önce kullandınız.",
+        "notForPlan": "Bu promosyon kodu bu plan için geçerli değil.",
+        "unsupportedEffect": "Bu promosyon kodu burada kullanılamaz."
       }
     }
   },
@@ -1259,9 +1261,17 @@
   },
   "getSubscription": {
     "promo": {
+      "heading": "Bonusu almak için bu promosyon kodunu bir sonraki adımda girin",
       "bonus_days_one": "+{{count}} gün ücretsiz",
       "bonus_days_other": "+{{count}} gün ücretsiz",
       "new_users": "Yalnızca yeni kullanıcılar",
+      "percent_off": "%{{percent}} indirim",
+      "amount_off": "{{amount}} indirim",
+      "first_payment": "İlk ödeme",
+      "for_months_one": "{{count}} ay boyunca",
+      "for_months_other": "{{count}} ay boyunca",
+      "churned_users": "Yalnızca geri dönen kullanıcılar",
+      "plans": "Planlar: {{plans}}",
       "until": "{{date}} tarihine kadar",
       "copy": "Promosyon kodunu kopyala",
       "copied": "Promosyon kodu kopyalandı"

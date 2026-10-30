@@ -229,7 +229,9 @@
         "notEligible": "Anda tidak memenuhi syarat untuk menggunakan kode promo ini.",
         "notNewUser": "Kode promo ini hanya untuk pengguna baru.",
         "limitReached": "Kode promo ini telah mencapai batas penggunaannya.",
-        "alreadyUsed": "Anda sudah pernah menggunakan kode promo ini."
+        "alreadyUsed": "Anda sudah pernah menggunakan kode promo ini.",
+        "notForPlan": "Kode promo ini tidak berlaku untuk paket ini.",
+        "unsupportedEffect": "Kode promo ini tidak dapat digunakan di sini."
       }
     }
   },
@@ -1259,8 +1261,15 @@
   },
   "getSubscription": {
     "promo": {
+      "heading": "Masukkan kode promo ini di langkah berikutnya untuk mendapatkan bonus",
       "bonus_days_other": "+{{count}} hari gratis",
       "new_users": "Khusus pengguna baru",
+      "percent_off": "Diskon {{percent}}%",
+      "amount_off": "Diskon {{amount}}",
+      "first_payment": "Pembayaran pertama",
+      "for_months_other": "Selama {{count}} bulan",
+      "churned_users": "Khusus pengguna yang kembali",
+      "plans": "Paket: {{plans}}",
       "until": "Hingga {{date}}",
       "copy": "Salin kode promo",
       "copied": "Kode promo disalin"

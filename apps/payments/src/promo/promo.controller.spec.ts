@@ -10,8 +10,11 @@ const PROMO: PublicPromoDto = {
   code: 'SPRING20',
   effect: { type: 'bonus_months', days: 7 },
   eligibility: 'new',
+  duration: 'forever',
+  durationMonths: null,
   endsAt: null,
   perUserLimit: 1,
+  planPeriods: null,
 };
 
 function setup(promos: PublicPromoDto[]) {

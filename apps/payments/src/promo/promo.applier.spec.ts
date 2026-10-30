@@ -8,6 +8,11 @@ describe('bonusMonthsFromEffect', () => {
     expect(bonusMonthsFromEffect({ type: 'bonus_months', days: 0 })).toBe(0);
   });
 
+  it('returns 0 for discounts, which take money off instead of adding days', () => {
+    expect(bonusMonthsFromEffect({ type: 'percentage', percent: 10 })).toBe(0);
+    expect(bonusMonthsFromEffect({ type: 'fixed_amount', amount: 2, currency: 'EUR' })).toBe(0);
+  });
+
   it('returns 0 for an unknown effect type (forward-compat guard)', () => {
     expect(bonusMonthsFromEffect({ type: 'mystery' } as unknown as PromoEffect)).toBe(0);
   });

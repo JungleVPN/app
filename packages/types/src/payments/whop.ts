@@ -49,6 +49,12 @@ export interface PayPublicWhopCheckoutDto extends CreatePublicWhopCheckoutDto, A
 export const PROMO_CODE_INVALID_CODE = 'promo_code_invalid';
 
 /**
+ * Why Whop refused a promo code when charging, sent as `reason` on the
+ * `PROMO_CODE_INVALID_CODE` 400 — absent when the plan simply has no such code.
+ */
+export type WhopPromoRejectionReason = 'new_users_only' | 'one_per_customer' | 'not_eligible';
+
+/**
  * Public promo-code check — POST /payments/whop/public-promo-code: whether
  * `promoCode` discounts our `planId`, before the payer pays.
  */

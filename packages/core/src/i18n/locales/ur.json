@@ -229,7 +229,9 @@
         "notEligible": "آپ اس پرومو کوڈ کے اہل نہیں ہیں۔",
         "notNewUser": "یہ پرومو کوڈ صرف نئے صارفین کے لیے ہے۔",
         "limitReached": "اس پرومو کوڈ کی استعمال کی حد پوری ہو چکی ہے۔",
-        "alreadyUsed": "آپ نے یہ پرومو کوڈ پہلے ہی استعمال کر لیا ہے۔"
+        "alreadyUsed": "آپ نے یہ پرومو کوڈ پہلے ہی استعمال کر لیا ہے۔",
+        "notForPlan": "یہ پرومو کوڈ اس پلان پر لاگو نہیں ہوتا۔",
+        "unsupportedEffect": "یہ پرومو کوڈ یہاں استعمال نہیں کیا جا سکتا۔"
       }
     }
   },
@@ -1259,9 +1261,17 @@
   },
   "getSubscription": {
     "promo": {
+      "heading": "بونس حاصل کرنے کے لیے اگلے مرحلے میں یہ پرومو کوڈ درج کریں",
       "bonus_days_one": "+{{count}} دن مفت",
       "bonus_days_other": "+{{count}} دن مفت",
       "new_users": "صرف نئے صارفین کے لیے",
+      "percent_off": "{{percent}}% رعایت",
+      "amount_off": "{{amount}} رعایت",
+      "first_payment": "پہلی ادائیگی",
+      "for_months_one": "{{count}} مہینے کے لیے",
+      "for_months_other": "{{count}} مہینوں کے لیے",
+      "churned_users": "صرف واپس آنے والے صارفین کے لیے",
+      "plans": "پلان: {{plans}}",
       "until": "{{date}} تک",
       "copy": "پرومو کوڈ کاپی کریں",
       "copied": "پرومو کوڈ کاپی ہو گیا"

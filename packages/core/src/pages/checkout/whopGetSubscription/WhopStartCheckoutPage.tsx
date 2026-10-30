@@ -4,8 +4,8 @@ import type { WhopPromoCodeDto } from '@workspace/types';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LoadError, Loading } from '../../../components';
-import { i18n } from '../../../i18n';
 import { loadPlans } from '../../../hooks';
+import { i18n } from '../../../i18n';
 import { useAppRoutes } from '../../../runtime';
 import { ActiveSubscriptionDialog } from '../getSubscription/components/ActiveSubscriptionDialog';
 import { CheckoutForm } from '../getSubscription/components/CheckoutForm';
@@ -33,6 +33,7 @@ function WhopStartCheckout() {
   const { t } = useTranslation();
   const { paymentReturnPath } = useAppRoutes();
   const [promo, setPromo] = useState<WhopPromoCodeDto | null>(null);
+  const [promoRejected, setPromoRejected] = useState(false);
   const { checkout, prepared, retryPrepare } = usePreparedCheckout();
 
   const pricing = checkout.plan?.planPricing;
@@ -44,7 +45,14 @@ function WhopStartCheckout() {
     ...(charge ? { charge } : {}),
   };
   const returnUrl = `${window.location.origin}${paymentReturnPath}`;
-  const payment = useWhopPay({ checkout: whopCheckout, returnUrl });
+  const payment = useWhopPay({
+    checkout: whopCheckout,
+    returnUrl,
+    onPromoRejected: () => {
+      setPromoRejected(true);
+      setPromo(null);
+    },
+  });
   const paymentMethod = useWhopPaymentMethod({
     checkout: whopCheckout,
     prepared,
@@ -63,7 +71,12 @@ function WhopStartCheckout() {
   const isPaying = checkout.isPending || payment.pendingVia !== null;
 
   const promoCodeSlot = checkout.plan && (
-    <WhopPromoCode planId={checkout.plan.planId} applied={promo} onApplyChange={setPromo} />
+    <WhopPromoCode
+      planId={checkout.plan.planId}
+      applied={promo}
+      promoRejected={promoRejected}
+      onApplyChange={setPromo}
+    />
   );
 
   const paymentMethodsSlot = paymentMethod.canShowMethods && (
