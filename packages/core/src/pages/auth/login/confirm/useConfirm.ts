@@ -12,6 +12,8 @@ import {
   trackLoginOtpVerifyFailed,
 } from '../../../../utils';
 
+export const OTP_LENGTH = 6;
+
 export function useConfirm() {
   const supabase = useSupabaseClient();
   const { profileSubscriptionPath } = useAppRoutes();
@@ -31,37 +33,54 @@ export function useConfirm() {
   }, []);
 
   useEffect(() => {
+    if (!email) navigate('/login', { replace: true });
+  }, [email, navigate]);
+
+  useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((v) => v - 1), 1000);
       return () => clearInterval(interval);
     }
   }, [timer]);
 
-  const handleComplete = async (code: string = otp) => {
-    if (!code || !email || submittingRef.current) return;
+  const verify = async (code: string) => {
+    if (code.length !== OTP_LENGTH || !email || submittingRef.current) return;
 
     submittingRef.current = true;
     setError(null);
     setLoading(true);
 
-    const { error: verifyError } = await supabase.auth.verifyOtp({
-      email,
-      token: code,
-      type: 'email',
-    });
+    try {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email,
+        token: code,
+        type: 'email',
+      });
 
-    submittingRef.current = false;
-    if (verifyError) {
-      setError(t('confirm.error_invalid_code'));
-      trackLoginOtpVerifyFailed(verifyError);
-      setOtp('');
-      setLoading(false);
-    } else {
+      if (verifyError) {
+        setError(t('confirm.error_invalid_code'));
+        trackLoginOtpVerifyFailed(verifyError);
+        setOtp('');
+        return;
+      }
+
       trackLoginOtpVerified();
       const to = searchParams.get('to');
       navigate(to ?? profileSubscriptionPath);
+    } catch {
+      setError(t('errors.unknown'));
+    } finally {
+      submittingRef.current = false;
+      setLoading(false);
     }
   };
+
+  const handleOtpChange = (code: string) => {
+    setOtp(code);
+    void verify(code);
+  };
+
+  const handleSubmit = () => verify(otp);
 
   const handleResend = async () => {
     if (timer > 0 || !email) return;
@@ -88,11 +107,11 @@ export function useConfirm() {
 
   return {
     otp,
-    setOtp,
     timer,
     error,
     loading,
-    handleComplete,
+    handleOtpChange,
+    handleSubmit,
     handleResend,
     handleChangeEmail,
   };

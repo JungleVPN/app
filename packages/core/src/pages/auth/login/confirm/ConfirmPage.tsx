@@ -1,24 +1,29 @@
-import {
-  Button,
-  Description,
-  Form,
-  InputOTP,
-  Label,
-  REGEXP_ONLY_DIGITS,
-  Surface,
-} from '@heroui/react';
+import { Button, Description, Form, InputOTP, REGEXP_ONLY_DIGITS, Surface } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { Block, Heading } from '../../../../ui';
-import { useConfirm } from './useConfirm';
+import { OTP_LENGTH, useConfirm } from './useConfirm';
 
 export default function ConfirmPage() {
   const { t } = useTranslation();
-  const { otp, timer, error, loading, setOtp, handleComplete, handleResend, handleChangeEmail } =
-    useConfirm();
+  const {
+    otp,
+    timer,
+    error,
+    loading,
+    handleOtpChange,
+    handleSubmit,
+    handleResend,
+    handleChangeEmail,
+  } = useConfirm();
 
   return (
     <Surface className='pt-24' variant='transparent'>
-      <Form>
+      <Form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleSubmit();
+        }}
+      >
         <Block className={'p-4'}>
           <div className='flex flex-col gap-2 items-center justify-center'>
             <Heading className={'text-lg lg:text-2xl mb-2 text-center'}>
@@ -28,17 +33,16 @@ export default function ConfirmPage() {
             {error ? <Description className='text-center text-danger'>{error}</Description> : null}
 
             <div className='flex w-full max-w-xs flex-col gap-2'>
-              <Label className='sr-only'>{t('a11y.otpCode')}</Label>
               <InputOTP
+                aria-label={t('a11y.otpCode')}
                 autoComplete='one-time-code'
                 inputMode='numeric'
                 isDisabled={loading}
-                maxLength={6}
+                maxLength={OTP_LENGTH}
                 pattern={REGEXP_ONLY_DIGITS}
                 value={otp}
                 className={'justify-center'}
-                onChange={setOtp}
-                onComplete={handleComplete}
+                onChange={handleOtpChange}
               >
                 <InputOTP.Group>
                   <InputOTP.Slot index={0} />
@@ -55,6 +59,14 @@ export default function ConfirmPage() {
             </div>
 
             <div className='flex flex-col gap-1 mt-4'>
+              <Button
+                type='submit'
+                fullWidth
+                isDisabled={otp.length < OTP_LENGTH}
+                isPending={loading}
+              >
+                {t('login.submit')}
+              </Button>
               <Button
                 isDisabled={timer > 0}
                 variant='ghost'

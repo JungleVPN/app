@@ -29,6 +29,18 @@ if (typeof globalThis.CSS?.escape !== 'function') {
   });
 }
 
+// jsdom has no `ResizeObserver`; input-otp (behind HeroUI's InputOTP) observes its
+// input on mount to position the password-manager badge.
+if (typeof globalThis.ResizeObserver !== 'function') {
+  Object.assign(globalThis, {
+    ResizeObserver: class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  });
+}
+
 // jsdom has no Web Animations API; react-aria's SelectionIndicator (Tabs) calls
 // `element.getAnimations()` when the selection moves.
 if (typeof Element.prototype.getAnimations !== 'function') {
