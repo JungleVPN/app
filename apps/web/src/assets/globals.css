@@ -8,6 +8,19 @@
   --color-muted-secondary: var(--muted-secondary);
 }
 
+/* Pure CSS so the landing hero animates from the server HTML on first paint,
+   on the compositor, instead of waiting for hydration. */
+@theme {
+  --animate-rise-in: rise-in 0.5s ease-out both;
+
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+}
+
 [data-no-transition],
 [data-no-transition] * {
   transition: none !important;

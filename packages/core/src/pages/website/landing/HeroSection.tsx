@@ -1,9 +1,8 @@
 import { Button, Card, Chip } from '@heroui/react';
 import { IconHeadset, IconInfinity, IconRocket, IconShieldCheckFilled } from '@tabler/icons-react';
-import { motion, Variants } from 'framer-motion';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
-import { useCallback } from 'react';
+import { CSSProperties, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import allDevicesIconUrl from '../../../assets/icons/all-devices-icon.svg?url';
 import { useNavigation } from '../../../hooks';
@@ -23,15 +22,10 @@ const FEATURES = [
   { key: 'feature3', Icon: IconHeadset },
 ] as const;
 
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.14 } },
-};
+const STAGGER_MS = 140;
+const RISE_IN = 'motion-safe:animate-rise-in';
 
-const item: Variants | undefined = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-};
+const riseInDelay = (step: number): CSSProperties => ({ animationDelay: `${step * STAGGER_MS}ms` });
 
 export function HeroSection() {
   const { t } = useTranslation();
@@ -55,15 +49,10 @@ export function HeroSection() {
   }, [navigate]);
 
   return (
-    <motion.section
-      className='flex flex-col gap-16 lg:gap-24'
-      variants={container}
-      initial='hidden'
-      animate='show'
-    >
+    <section className='flex flex-col gap-16 lg:gap-24'>
       <div className='flex flex-col items-center gap-12 md:flex-row md:justify-between'>
         <div className='flex flex-col items-center gap-6 text-center md:items-start md:text-left'>
-          <motion.div variants={item}>
+          <div className={RISE_IN} style={riseInDelay(0)}>
             <Chip
               color='default'
               variant='tertiary'
@@ -71,20 +60,20 @@ export function HeroSection() {
             >
               <Chip.Label className={'leading-wide'}>{t('common.badge.trust')}</Chip.Label>
             </Chip>
-          </motion.div>
+          </div>
 
-          <motion.div variants={item} className='flex flex-col gap-4'>
+          <div className={`${RISE_IN} flex flex-col gap-4`} style={riseInDelay(1)}>
             <Heading className='text-white font-bold text-[25px] sm:text-[36px] lg:text-[42px]'>
               {t('landing.hero.heading')}
             </Heading>
             <Paragraph className='text-muted-secondary text-md lg:text-lg'>
               {t('landing.hero.subtitle')}
             </Paragraph>
-          </motion.div>
+          </div>
 
-          <motion.div
-            variants={item}
-            className='flex flex-col items-center gap-4 mt-4 lg:flex-row lg:gap-6'
+          <div
+            className={`${RISE_IN} flex flex-col items-center gap-4 mt-4 lg:flex-row lg:gap-6`}
+            style={riseInDelay(2)}
           >
             <Button
               size='lg'
@@ -98,15 +87,18 @@ export function HeroSection() {
               <IconShieldCheckFilled size={20} className='shrink-0' />
               {t('landing.hero.guarantee')}
             </span>
-          </motion.div>
+          </div>
         </div>
 
-        <motion.div variants={item} className='flex shrink-0 justify-center w-1/2 md:w-1/3'>
+        <div
+          className={`${RISE_IN} flex shrink-0 justify-center w-1/2 md:w-1/3`}
+          style={riseInDelay(3)}
+        >
           <AllDevicesIcon />
-        </motion.div>
+        </div>
       </div>
 
-      <motion.div variants={item}>
+      <div className={RISE_IN} style={riseInDelay(4)}>
         <div ref={sliderRef} className='keen-slider'>
           {FEATURES.map(({ key, Icon }) => (
             <div className='keen-slider__slide' key={key}>
@@ -122,7 +114,7 @@ export function HeroSection() {
             </div>
           ))}
         </div>
-      </motion.div>
-    </motion.section>
+      </div>
+    </section>
   );
 }

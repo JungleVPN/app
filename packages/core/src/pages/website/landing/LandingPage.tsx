@@ -25,8 +25,8 @@ export default function LandingPage() {
 
   return (
     <div className='relative'>
-      <div className='relative md:sticky top-0 z-10 bg-[#0b0b0b] overflow-hidden pt-32 pb-24 md:py-56 lg:pt-56 lg:pb-20'>
-        <div className='inset-0 pointer-events-none opacity-40 overflow-hidden'>
+      <div className='relative z-10 bg-[#0b0b0b] pt-32 pb-24 md:py-56 lg:pt-56 lg:pb-20'>
+        <div className='inset-0 pointer-events-none opacity-40'>
           <div
             className='absolute inset-0 blur-3xl z-0'
             style={{

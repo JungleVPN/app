@@ -8,14 +8,14 @@ import { FeaturesSection } from './FeaturesSection';
  */
 export function BentoFeaturesStack() {
   return (
-    <div className='relative pb-[10vh] lg:pb-[30vh]'>
-      <div className='relative lg:sticky top-0 lg:top-20 z-0 lg:max-h-none lg:overflow-visible rounded-3xl'>
+    <>
+      <div className='rounded-3xl'>
         <BentoSection />
       </div>
 
-      <div className='relative z-10 mt-24'>
+      <div className='mt-8'>
         <FeaturesSection />
       </div>
-    </div>
+    </>
   );
 }
