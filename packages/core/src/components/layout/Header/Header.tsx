@@ -127,12 +127,12 @@ export function Header() {
 
       {/* Desktop controls */}
       <div
-        className={`${isLanding ? 'hidden md:flex' : ''} flex items-center justify-between gap-2 ml-auto rtl:ml-0`}
+        className={`${isLanding ? 'hidden lg:flex' : ''} flex items-center justify-between gap-2 ml-auto rtl:ml-0`}
       >
         {isProfile && <SubscriptionLinkWidget />}
         {!isLanding && !hideAuthButtons && <SupportButton />}
         {!isRu && !isTelegram && !hideAuthButtons && <LanguageSwitcher />}
-        {platformType === 'web' && !hideAuthButtons && <AuthButtons />}
+        {platformType === 'web' && (!hideAuthButtons || authUser) && <AuthButtons />}
       </div>
       {/* Mobile: hamburger only */}
       {platformType === 'web' && isLanding && (

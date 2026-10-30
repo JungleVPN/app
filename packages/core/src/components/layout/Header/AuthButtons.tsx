@@ -89,7 +89,7 @@ export function AuthButtons() {
       <Button
         variant={'ghost'}
         onPress={handleLogin}
-        className={'mix-blend-difference text-white hover:bg-transparent'}
+        className={'text-black lg:text-white hover:bg-transparent'}
       >
         {t('header.login')}
       </Button>
