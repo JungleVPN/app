@@ -1258,6 +1258,14 @@
     "connect": "Bağlan"
   },
   "getSubscription": {
+    "promo": {
+      "bonus_days_one": "+{{count}} gün ücretsiz",
+      "bonus_days_other": "+{{count}} gün ücretsiz",
+      "new_users": "Yalnızca yeni kullanıcılar",
+      "until": "{{date}} tarihine kadar",
+      "copy": "Promosyon kodunu kopyala",
+      "copied": "Promosyon kodu kopyalandı"
+    },
     "email_label": "E-posta",
     "step_email_title": "Hesap",
     "email_placeholder": "email@example.com",

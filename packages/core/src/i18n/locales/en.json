@@ -1258,6 +1258,14 @@
     "connect": "Connect"
   },
   "getSubscription": {
+    "promo": {
+      "bonus_days_one": "+{{count}} day free",
+      "bonus_days_other": "+{{count}} days free",
+      "new_users": "New users only",
+      "until": "Until {{date}}",
+      "copy": "Copy promo code",
+      "copied": "Promo code copied"
+    },
     "email_label": "Email",
     "step_email_title": "Account",
     "email_placeholder": "email@example.com",

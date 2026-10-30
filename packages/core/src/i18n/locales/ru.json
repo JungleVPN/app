@@ -1286,6 +1286,16 @@
     "connect": "Подключиться"
   },
   "getSubscription": {
+    "promo": {
+      "bonus_days_one": "+{{count}} день бесплатно",
+      "bonus_days_few": "+{{count}} дня бесплатно",
+      "bonus_days_many": "+{{count}} дней бесплатно",
+      "bonus_days_other": "+{{count}} дня бесплатно",
+      "new_users": "Только для новых пользователей",
+      "until": "До {{date}}",
+      "copy": "Скопировать промокод",
+      "copied": "Промокод скопирован"
+    },
     "email_label": "Email",
     "step_email_title": "Аккаунт",
     "email_placeholder": "email@example.com",

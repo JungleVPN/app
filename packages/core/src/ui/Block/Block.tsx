@@ -24,7 +24,7 @@ export function Block({
   const cardBgr = `${platformType === 'web' ? 'bg-white' : ''}`;
 
   return (
-    <div className='flex w-full flex-col gap-2 rounded-2xl'>
+    <div className='flex w-full flex-col gap-1 rounded-2xl'>
       {title && (
         <div className='flex items-center justify-between px-4'>
           <Paragraph>{title}</Paragraph>

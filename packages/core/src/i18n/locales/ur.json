@@ -1258,6 +1258,14 @@
     "connect": "کनेक्ट"
   },
   "getSubscription": {
+    "promo": {
+      "bonus_days_one": "+{{count}} دن مفت",
+      "bonus_days_other": "+{{count}} دن مفت",
+      "new_users": "صرف نئے صارفین کے لیے",
+      "until": "{{date}} تک",
+      "copy": "پرومو کوڈ کاپی کریں",
+      "copied": "پرومو کوڈ کاپی ہو گیا"
+    },
     "email_label": "ای میل",
     "step_email_title": "اکاؤنٹ",
     "email_placeholder": "email@example.com",

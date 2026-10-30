@@ -9,11 +9,12 @@ import type { PlanPricing, SubscriptionPlanDto } from '@workspace/types';
 import { cloneElement, type ReactElement, type ReactNode, useEffect } from 'react';
 import { MemoryRouter, useLocation } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { type PaymentsApi, PaymentsApiProvider } from '../../../../../runtime';
 import { getCheckoutEmail, saveCheckoutEmail } from '../../../../../utils/payment/checkoutEmail';
 import { CheckoutForm } from '../CheckoutForm';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en' } }),
   Trans: ({
     i18nKey,
     components,
@@ -73,28 +74,46 @@ function CurrentUrl() {
   return <p data-testid='url'>{`${pathname}${search}`}</p>;
 }
 
+const featuredPromoApi = (): PaymentsApi =>
+  ({
+    getPromos: () =>
+      Promise.resolve({
+        promos: [
+          {
+            code: 'SPRING20',
+            effect: { type: 'bonus_months', days: 7 },
+            eligibility: 'all',
+            endsAt: null,
+            perUserLimit: 1,
+          },
+        ],
+      }),
+  }) as unknown as PaymentsApi;
+
 const renderForm = (
   props: Partial<Parameters<typeof CheckoutForm>[0]> = {},
   url = '/payment/whop-30',
 ) =>
   render(
-    <MemoryRouter initialEntries={[url]}>
-      <CheckoutForm
-        isAuthenticated
-        email='payer@test.com'
-        emailError=''
-        checkoutError={null}
-        isPending={false}
-        selectedPeriod={30}
-        plan={plan()}
-        canSubmit
-        completeEmailStep={() => true}
-        handleSubmit={() => {}}
-        handleEmailChange={() => {}}
-        {...props}
-      />
-      <CurrentUrl />
-    </MemoryRouter>,
+    <PaymentsApiProvider api={featuredPromoApi()}>
+      <MemoryRouter initialEntries={[url]}>
+        <CheckoutForm
+          isAuthenticated
+          email='payer@test.com'
+          emailError=''
+          checkoutError={null}
+          isPending={false}
+          selectedPeriod={30}
+          plan={plan()}
+          canSubmit
+          completeEmailStep={() => true}
+          handleSubmit={() => {}}
+          handleEmailChange={() => {}}
+          {...props}
+        />
+        <CurrentUrl />
+      </MemoryRouter>
+    </PaymentsApiProvider>,
   );
 
 afterEach(() => localStorage.clear());
@@ -150,6 +169,12 @@ describe('CheckoutForm steps', () => {
     expect(screen.queryByText('methods')).toBeNull();
     expect(screen.queryByText('getSubscription.order_title')).toBeNull();
     expect(screen.queryByRole('button', { name: 'common.back' })).toBeNull();
+  });
+
+  it("offers a visitor the storefront's featured promo code on the email step", async () => {
+    renderForm({ isAuthenticated: false });
+
+    expect(await screen.findByText('SPRING20')).toBeTruthy();
   });
 
   it('moves a visitor to the payment methods once the email is valid', async () => {
@@ -394,24 +419,26 @@ describe('CheckoutForm payment methods loading', () => {
   const renderWithMethods = (props: Partial<Parameters<typeof CheckoutForm>[0]> = {}) => {
     const onMount = vi.fn();
     const form = (overrides: Partial<Parameters<typeof CheckoutForm>[0]> = {}) => (
-      <MemoryRouter initialEntries={['/payment/whop-30']}>
-        <CheckoutForm
-          isAuthenticated
-          email='payer@test.com'
-          emailError=''
-          checkoutError={null}
-          isPending={false}
-          selectedPeriod={30}
-          plan={plan()}
-          canSubmit
-          completeEmailStep={() => true}
-          handleSubmit={() => {}}
-          handleEmailChange={() => {}}
-          paymentMethodsSlot={<PaymentMethods onMount={onMount} />}
-          {...props}
-          {...overrides}
-        />
-      </MemoryRouter>
+      <PaymentsApiProvider api={featuredPromoApi()}>
+        <MemoryRouter initialEntries={['/payment/whop-30']}>
+          <CheckoutForm
+            isAuthenticated
+            email='payer@test.com'
+            emailError=''
+            checkoutError={null}
+            isPending={false}
+            selectedPeriod={30}
+            plan={plan()}
+            canSubmit
+            completeEmailStep={() => true}
+            handleSubmit={() => {}}
+            handleEmailChange={() => {}}
+            paymentMethodsSlot={<PaymentMethods onMount={onMount} />}
+            {...props}
+            {...overrides}
+          />
+        </MemoryRouter>
+      </PaymentsApiProvider>
     );
     const { rerender } = render(form());
     return {

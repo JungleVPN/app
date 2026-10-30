@@ -1258,6 +1258,13 @@
     "connect": "Sambungkan"
   },
   "getSubscription": {
+    "promo": {
+      "bonus_days_other": "+{{count}} hari gratis",
+      "new_users": "Khusus pengguna baru",
+      "until": "Hingga {{date}}",
+      "copy": "Salin kode promo",
+      "copied": "Kode promo disalin"
+    },
     "email_label": "Email",
     "step_email_title": "Akun",
     "email_placeholder": "email@example.com",
