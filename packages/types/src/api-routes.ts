@@ -45,6 +45,7 @@ export const apiRoutes = {
     telegramStarsCreateInvoice: '/telegram-stars/create-invoice',
     telegramStarsPaymentSucceeded: '/telegram-stars/payment-succeeded',
     plans: '/plans',
+    promos: '/promo',
     promoValidate: '/promo/validate',
     toltReferral: '/tolt/referral',
     toltClick: '/tolt/click',

@@ -1,6 +1,8 @@
+import type { AdminService } from '@payments/admin/admin.service';
 import type { AnalyticsClientService } from '@payments/analytics/analytics-client.service';
-import { Promo } from '@workspace/database';
+import { Promo, type PromoRedemption } from '@workspace/database';
 import type { AdminPaymentDto, PromoEffect } from '@workspace/types';
+import type { DataSource, Repository } from 'typeorm';
 import { describe, expect, it, vi } from 'vitest';
 import { PromoInvalidError, PromoService } from './promo.service';
 
@@ -15,6 +17,8 @@ function makePromo(overrides: Partial<Promo> = {}): Promo {
     maxRedemptions: null,
     perUserLimit: 1,
     eligibility: 'all',
+    scope: 'ru',
+    featured: false,
     active: true,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -258,5 +262,148 @@ describe('PromoService', () => {
       await expect(service.applyToMonths('FREE2', 1, ctx)).resolves.toBe(1);
       expect(insert).not.toHaveBeenCalled();
     });
+  });
+});
+
+/** A service over a promos table holding `promos`, with `redeemed` redemptions per code. */
+function setupListing(opts: { promos: Promo[]; redeemed?: Record<string, number> }) {
+  const promoRepo = {
+    find: vi.fn(({ where }: { where: Partial<Promo> }) =>
+      Promise.resolve(
+        opts.promos
+          .filter((promo) =>
+            Object.entries(where).every(([key, value]) => promo[key as keyof Promo] === value),
+          )
+          .slice()
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
+      ),
+    ),
+  };
+  const redemptionRepo = {
+    countBy: vi.fn(({ promoCode }: { promoCode: string }) =>
+      Promise.resolve(opts.redeemed?.[promoCode] ?? 0),
+    ),
+  };
+  return new PromoService(
+    promoRepo as unknown as Repository<Promo>,
+    redemptionRepo as unknown as Repository<PromoRedemption>,
+    {} as DataSource,
+    {} as AdminService,
+    {} as AnalyticsClientService,
+  );
+}
+
+const DAY = 86_400_000;
+
+function makeGlobal(overrides: Partial<Promo> = {}): Promo {
+  return makePromo({ scope: 'global', ...overrides });
+}
+
+const codesOf = (promos: { code: string }[]) => promos.map((promo) => promo.code);
+
+describe('PromoService.listAvailable', () => {
+  it('lists the promos of the requested storefront with their conditions', async () => {
+    const endsAt = new Date(Date.now() + DAY);
+    const service = setupListing({
+      promos: [
+        makeGlobal({ code: 'RU10', scope: 'ru' }),
+        makeGlobal({ code: 'GLOBAL10', eligibility: 'new', perUserLimit: 2, endsAt }),
+      ],
+    });
+
+    await expect(service.listAvailable({ scope: 'global' })).resolves.toEqual([
+      {
+        code: 'GLOBAL10',
+        effect: BONUS,
+        eligibility: 'new',
+        endsAt: endsAt.toISOString(),
+        perUserLimit: 2,
+      },
+    ]);
+    expect(codesOf(await service.listAvailable({ scope: 'ru' }))).toEqual(['RU10']);
+  });
+
+  it('reports no end date for a promo without one', async () => {
+    const service = setupListing({ promos: [makeGlobal({ endsAt: null })] });
+    await expect(service.listAvailable({ scope: 'global' })).resolves.toMatchObject([
+      { endsAt: null },
+    ]);
+  });
+
+  it('lists featured and non-featured promos when featured is not asked for', async () => {
+    const service = setupListing({
+      promos: [
+        makeGlobal({ code: 'PLAIN', createdAt: new Date(2026, 9, 1) }),
+        makeGlobal({ code: 'STAR', featured: true, createdAt: new Date(2026, 9, 2) }),
+      ],
+    });
+    expect(codesOf(await service.listAvailable({ scope: 'global' }))).toEqual(['STAR', 'PLAIN']);
+  });
+
+  it('narrows the list by the featured flag when asked', async () => {
+    const service = setupListing({
+      promos: [makeGlobal({ code: 'PLAIN' }), makeGlobal({ code: 'STAR', featured: true })],
+    });
+    expect(codesOf(await service.listAvailable({ scope: 'global', featured: true }))).toEqual([
+      'STAR',
+    ]);
+    expect(codesOf(await service.listAvailable({ scope: 'global', featured: false }))).toEqual([
+      'PLAIN',
+    ]);
+  });
+
+  it('lists nothing when the storefront has no promos', async () => {
+    const service = setupListing({ promos: [makeGlobal({ code: 'RU10', scope: 'ru' })] });
+    await expect(service.listAvailable({ scope: 'global' })).resolves.toEqual([]);
+  });
+
+  it('never lists a switched-off promo', async () => {
+    const service = setupListing({ promos: [makeGlobal({ active: false })] });
+    await expect(service.listAvailable({ scope: 'global' })).resolves.toEqual([]);
+  });
+
+  it('only lists a promo inside its date window', async () => {
+    const service = setupListing({
+      promos: [
+        makeGlobal({ code: 'NOT_STARTED', startsAt: new Date(Date.now() + DAY) }),
+        makeGlobal({ code: 'ENDED', endsAt: new Date(Date.now() - DAY) }),
+        makeGlobal({
+          code: 'RUNNING',
+          startsAt: new Date(Date.now() - DAY),
+          endsAt: new Date(Date.now() + DAY),
+        }),
+      ],
+    });
+    expect(codesOf(await service.listAvailable({ scope: 'global' }))).toEqual(['RUNNING']);
+  });
+
+  it('never lists an expired-subscriptions-only promo to an anonymous payer', async () => {
+    const service = setupListing({ promos: [makeGlobal({ eligibility: 'expired_only' })] });
+    await expect(service.listAvailable({ scope: 'global' })).resolves.toEqual([]);
+  });
+
+  it('leaves out a promo that has used up its redemptions', async () => {
+    const service = setupListing({
+      promos: [
+        makeGlobal({ code: 'FULL', maxRedemptions: 100 }),
+        makeGlobal({ code: 'ROOMY', maxRedemptions: 100 }),
+        makeGlobal({ code: 'UNCAPPED', maxRedemptions: null }),
+      ],
+      redeemed: { FULL: 100, ROOMY: 99, UNCAPPED: 5000 },
+    });
+    expect(codesOf(await service.listAvailable({ scope: 'global' }))).toEqual([
+      'ROOMY',
+      'UNCAPPED',
+    ]);
+  });
+
+  it('lists the newest promo first', async () => {
+    const service = setupListing({
+      promos: [
+        makeGlobal({ code: 'OLDER', createdAt: new Date(2026, 9, 1) }),
+        makeGlobal({ code: 'NEWER', createdAt: new Date(2026, 9, 2) }),
+      ],
+    });
+    expect(codesOf(await service.listAvailable({ scope: 'global' }))).toEqual(['NEWER', 'OLDER']);
   });
 });

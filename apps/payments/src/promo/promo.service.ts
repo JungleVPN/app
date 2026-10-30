@@ -8,6 +8,8 @@ import type {
   PromoContext,
   PromoEffect,
   PromoErrorCode,
+  PublicPromoDto,
+  UserScope,
   ValidatePromoDto,
   ValidatePromoResponse,
 } from '@workspace/types';
@@ -111,6 +113,51 @@ export class PromoService {
 
   async findByCode(code: string): Promise<Promo | null> {
     return this.promoRepo.findOneBy({ code: PromoService.normalize(code) });
+  }
+
+  private async hasRedemptionsLeft(promo: Promo): Promise<boolean> {
+    if (promo.maxRedemptions === null) return true;
+    const total = await this.redemptionRepo.countBy({ promoCode: promo.code });
+    return total < promo.maxRedemptions;
+  }
+
+  private static toPublic(promo: Promo): PublicPromoDto {
+    return {
+      code: promo.code,
+      effect: promo.effect,
+      eligibility: promo.eligibility,
+      endsAt: promo.endsAt?.toISOString() ?? null,
+      perUserLimit: promo.perUserLimit,
+    };
+  }
+
+  /**
+   * The promos a storefront offers right now, newest first — those an anonymous
+   * payer could still use. `expired_only` promos are left out, since the payer's
+   * subscription status is unknown there. `featured` narrows the list when given.
+   */
+  async listAvailable({
+    scope,
+    featured,
+  }: {
+    scope: UserScope;
+    featured?: boolean;
+  }): Promise<PublicPromoDto[]> {
+    const candidates = await this.promoRepo.find({
+      where: { scope, active: true, ...(featured === undefined ? {} : { featured }) },
+      order: { createdAt: 'DESC' },
+    });
+
+    const now = new Date();
+    const showable = candidates.filter(
+      (promo) =>
+        promo.eligibility !== 'expired_only' &&
+        (!promo.startsAt || promo.startsAt <= now) &&
+        (!promo.endsAt || now <= promo.endsAt),
+    );
+
+    const hasRoom = await Promise.all(showable.map((promo) => this.hasRedemptionsLeft(promo)));
+    return showable.filter((_, index) => hasRoom[index]).map(PromoService.toPublic);
   }
 
   /** Non-throwing wrapper for the validation endpoint. */

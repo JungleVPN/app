@@ -9,11 +9,13 @@ import {
   type CreateStripeSessionDto,
   type CreateTelegramStarsInvoiceDto,
   type CreateYookassaSessionDto,
+  type ListPromosQuery,
   PaymentSession,
   type Payments,
   type PayPublicWhopCheckoutDto,
   type ProviderPortalDto,
   type ProviderSubscriptionDto,
+  type PublicPromosResponse,
   type RecordToltClickDto,
   type RecordToltClickResponse,
   SavedMethodDto,
@@ -80,6 +82,13 @@ export function createPaymentsApi(client: ApiClient) {
     /** Whether our webhook has fulfilled a Whop payment — the checkout waits on this. */
     async getPublicWhopPaymentStatus(id: string): Promise<WhopPaymentStatusDto> {
       return client.get<WhopPaymentStatusDto>(apiRoutes.payments.whopPublicPaymentStatus(id));
+    },
+
+    /** Usable promos of this storefront; `featured: true` for the ones the checkout advertises. */
+    async getPromos({ featured }: ListPromosQuery = {}): Promise<PublicPromosResponse> {
+      return client.get<PublicPromosResponse>(apiRoutes.payments.promos, {
+        params: featured === undefined ? undefined : { featured: String(featured) },
+      });
     },
 
     /** The discount a promo code gives the chosen plan; a 400 when it gives none. */

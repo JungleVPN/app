@@ -1,4 +1,4 @@
-import type { PromoEffect, PromoEligibility } from '@workspace/types';
+import type { PromoEffect, PromoEligibility, UserScope } from '@workspace/types';
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
 /**
@@ -35,6 +35,14 @@ export class Promo {
    */
   @Column({ type: 'varchar', default: 'all' })
   eligibility: PromoEligibility;
+
+  /** Storefront the promo belongs to. Existing promos predate `global` and are RU. */
+  @Column({ type: 'varchar', default: 'ru' })
+  scope: UserScope;
+
+  /** Advertised on the checkout email step of its storefront. */
+  @Column({ type: 'boolean', default: false })
+  featured: boolean;
 
   /** Kill switch independent of the date window. */
   @Column({ type: 'boolean', default: true })

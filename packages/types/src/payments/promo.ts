@@ -60,3 +60,23 @@ export interface ValidatePromoResponse {
   /** The effect that would be applied when `valid` is true. */
   effect?: PromoEffect;
 }
+
+/** A promo a storefront offers publicly, with what a badge needs to show its conditions. */
+export interface PublicPromoDto {
+  code: string;
+  effect: PromoEffect;
+  eligibility: PromoEligibility;
+  /** ISO timestamp the promo stops working, or null when it doesn't expire. */
+  endsAt: string | null;
+  perUserLimit: number;
+}
+
+/** Query for GET /promo — `featured` narrows the list to (or away from) featured promos. */
+export interface ListPromosQuery {
+  featured?: boolean;
+}
+
+/** Response from GET /promo — usable promos of the caller's storefront, newest first. */
+export interface PublicPromosResponse {
+  promos: PublicPromoDto[];
+}
